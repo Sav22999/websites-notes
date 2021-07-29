@@ -1,0 +1,130 @@
+@font-face {
+    font-family: open-sans;
+    src: url("../font/opensans.ttf");
+}
+
+@font-face {
+    font-family: open-sans-bold;
+    src: url("../font/opensansbold.ttf");
+}
+
+* {
+    overflow: hidden;
+    box-sizing: border-box;
+    font-family: open-sans;
+    font-size: 16px;
+    transition: 0.5s;
+    position: relative;
+    z-index: 1;
+    scrollbar-color: #ff5757 transparent;
+    scrollbar-width: thin;
+    outline: 0px solid transparent;
+}
+
+body {
+    background-color: transparent;
+    color: black;
+    width: auto;
+    height: auto;
+    overflow: hidden;
+    font-family: open-sans, sans-serif;
+    margin: 0px;
+    padding: 0px;
+}
+
+#popup-content {
+    width: 300px;
+    height: auto;
+    margin: 0px;
+    padding: 0px;
+    border: 0px solid transparent;
+    position: relative;
+    background-color: #eeeeee;
+    color: #000000;
+}
+
+#tabs-section {
+    padding: 5px;
+    background-color: transparent;
+}
+
+#tabs-section > .tab {
+    border-radius: 5px;
+    border: 0px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 0px;
+    padding: 5px;
+    background-color: #ffffff;
+    width: 50%;
+    box-sizing: border-box;
+    display: inline-block;
+}
+
+#tabs-section > .tab:first-child {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+#tabs-section > .tab:last-child {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+#tabs-section > .tab:hover {
+    background-color: #dddddd;
+}
+
+#tabs-section > .tab:active, #tabs-section > .tab:focus, #notes-section > #notes:focus {
+    box-shadow: 0px 0px 0px 2px #ff5757, 0px 0px 0px 5px #fcb1b1;
+    border-radius: 5px;
+    z-index: 2;
+}
+
+#tabs-section > .tab-sel {
+    background-color: #ff5757;
+    color: #ffffff;
+}
+
+#tabs-section > .tab-sel:hover {
+    background-color: #ff4343;
+}
+
+#notes-section {
+    padding: 5px;
+    padding-top: 0px;
+    background-color: transparent;
+    overflow: visible;
+}
+
+#notes-section > #notes {
+    width: 100%;
+    height: 300px;
+    border: 0px;
+    border-radius: 5px;
+    background-color: #ffffff;
+    color: #000000;
+    resize: none;
+    margin: 0px;
+    padding: 5px;
+    font-size: 14px;
+    overflow: auto;
+}
+
+#last-updated-section {
+    padding: 5px;
+    padding-top: 0px;
+    background-color: transparent;
+}
+
+.bold {
+    font-family: open-sans-bold;
+}
+
+.font-size-20px {
+    font-size: 20px;
+}
+
+.font-size-24px {
+    font-size: 24px;
+}
