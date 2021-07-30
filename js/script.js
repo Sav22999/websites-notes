@@ -123,7 +123,7 @@ function getShortUrl(url) {
 
     return urlToReturn;
 }
-websites-notes
+
 function getDate() {
     let todayDate = new Date();
     let today = "";
