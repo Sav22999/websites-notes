@@ -19,6 +19,7 @@
     scrollbar-color: #ff5757 transparent;
     scrollbar-width: thin;
     outline: 0px solid transparent;
+    border-radius: 5px;
 }
 
 body {
@@ -26,7 +27,6 @@ body {
     color: black;
     width: auto;
     height: auto;
-    overflow: hidden;
     font-family: open-sans, sans-serif;
     margin: 0px;
     padding: 0px;
@@ -45,10 +45,12 @@ body {
 
 #tabs-section {
     padding: 5px;
+    padding-bottom: 0px;
     background-color: transparent;
+    overflow: visible;
 }
 
-#tabs-section > .tab {
+#tabs-section > .tab, .button {
     border-radius: 5px;
     border: 0px solid transparent;
     cursor: pointer;
@@ -59,6 +61,10 @@ body {
     width: 50%;
     box-sizing: border-box;
     display: inline-block;
+}
+
+.button {
+    width: auto;
 }
 
 #tabs-section > .tab:first-child {
@@ -75,26 +81,28 @@ body {
     background-color: #dddddd;
 }
 
-#tabs-section > .tab:active, #tabs-section > .tab:focus, #notes-section > #notes:focus {
+#tabs-section > .tab:active, #tabs-section > .tab:focus, #notes-section > #notes:focus, .button:active, .button:focus {
     box-shadow: 0px 0px 0px 2px #ff5757, 0px 0px 0px 5px #fcb1b1;
     border-radius: 5px;
     z-index: 2;
 }
 
-#tabs-section > .tab-sel {
+#tabs-section > .tab-sel, .button {
     background-color: #ff5757;
     color: #ffffff;
 }
 
-#tabs-section > .tab-sel:hover {
+#tabs-section > .tab-sel:hover, .button:hover {
     background-color: #ff4343;
 }
 
-#notes-section {
+#all-notes-button {
+    width: 100%;
+}
+
+#notes-section, #all-notes-section {
     padding: 5px;
-    padding-top: 0px;
     background-color: transparent;
-    overflow: visible;
 }
 
 #notes-section > #notes {
@@ -117,6 +125,110 @@ body {
     background-color: transparent;
 }
 
+#all-notes-dedication-section {
+    background-color: #eeeeee;
+    padding: 5px;
+    width: 70%;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: auto;
+}
+
+.section, .sub-section, .section-empty {
+    background-color: #ffffff;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.section-empty {
+    padding: 50px;
+    text-align: center;
+    color: #ff4343;
+}
+
+.sticky-section {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 10px;
+    z-index: 4;
+}
+
+.sub-section {
+    background-color: #eeeeee;
+    padding: 10px;
+}
+
+.sub-section-type {
+    background-color: #ff5757;
+    color: #ffffff;
+    border-radius: 5px;
+    margin-right: 10px;
+    padding: 5px;
+    font-family: open-sans;
+    font-size: 10px;
+    min-width: 50px;
+    display: inline-block;
+    text-align: center;
+    height: 25px;
+}
+
+.sub-section-notes {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #e5e5e5;
+}
+
+.sub-section-notes:hover {
+    background-color: #f0e5e5;
+}
+
+.sub-section-last-update {
+    padding: 5px;
+    font-size: 12px;
+    font-style: italic;
+    color: #ff4343;
+}
+
+h1, h2, h3 {
+    color: #ff4343;
+    font-size: 30px;
+    font-family: open-sans-bold;
+    padding: 0px;
+    padding-left: 20px;
+    margin: 0px;
+    display: inline-block;
+}
+
+h2 {
+    color: #ff5757;
+    font-size: 18px;
+    padding: 5px;
+    font-family: open-sans;
+}
+
+h3 {
+    color: #ff5757;
+    font-size: 14px;
+    padding: 3px;
+    font-family: open-sans;
+    height: 25px;
+}
+
+.go-to-external {
+    transition: 0.5s;
+}
+
+.go-to-external:hover::after {
+    content: url('../img/open-external.svg');
+    margin-left: 5px;
+}
+
+.link {
+    cursor: pointer;
+}
+
 .bold {
     font-family: open-sans-bold;
 }
@@ -127,4 +239,16 @@ body {
 
 .font-size-24px {
     font-size: 24px;
+}
+
+.text-align-right {
+    text-align: right;
+}
+
+.text-align-center {
+    text-align: center;
+}
+
+.text-align-left {
+    text-align: left;
 }

@@ -2,7 +2,7 @@ var websites_json = {};
 
 var currentUrl = []; //[domain, page]
 
-var selected_tab = 0;
+var selected_tab = 0; //{0:domain | 1:page}
 
 const linkReview = ["https://addons.mozilla.org/firefox/addon/websites-notes/"]; //{firefox add-ons}
 const linkDonate = ["https://www.paypal.com/pools/c/8yl6auiU6e", "https://ko-fi.com/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
@@ -37,20 +37,26 @@ function loadUI() {
 
         setUrl(activeTabUrl);
 
-        browser.storage.local.get("websites", function (value) {
-            if (value["websites"] != undefined) {
-                websites_json = value["websites"];
-                if (websites_json[currentUrl[0]] != undefined && websites_json[currentUrl[0]]["last-update"] != undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] != undefined && websites_json[currentUrl[0]]["notes"] != "") {
-                    setTab(0, currentUrl[0]);
-                } else if (websites_json[currentUrl[1]] != undefined && websites_json[currentUrl[1]]["last-update"] != undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] != undefined && websites_json[currentUrl[1]]["notes"] != "") {
-                    setTab(1, currentUrl[1]);
+        if (currentUrl[0] != "" && currentUrl[1] != "") {
+            browser.storage.local.get("websites", function (value) {
+                if (value["websites"] != undefined) {
+                    websites_json = value["websites"];
+                    if (websites_json[currentUrl[0]] != undefined && websites_json[currentUrl[0]]["last-update"] != undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] != undefined && websites_json[currentUrl[0]]["notes"] != "") {
+                        setTab(0, currentUrl[0]);
+                    } else if (websites_json[currentUrl[1]] != undefined && websites_json[currentUrl[1]]["last-update"] != undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] != undefined && websites_json[currentUrl[1]]["notes"] != "") {
+                        setTab(1, currentUrl[1]);
+                    } else {
+                        setTab(0, currentUrl[0]);
+                    }
                 } else {
                     setTab(0, currentUrl[0]);
                 }
-            } else {
-                setTab(0, currentUrl[0]);
-            }
-        })
+
+                console.log(JSON.stringify(websites_json));
+            });
+        } else {
+            //console.log("unsupported");
+        }
     });
 
     document.getElementById("domain-button").onclick = function () {
@@ -61,6 +67,10 @@ function loadUI() {
     }
     document.getElementById("notes").oninput = function () {
         saveNotes();
+    }
+    document.getElementById("all-notes-button").onclick = function () {
+        browser.tabs.create({url: "./all-notes/index.html"});
+        window.close();
     }
 }
 
@@ -75,15 +85,27 @@ function saveNotes() {
         let notes = document.getElementById("notes").value;
         websites_json[currentUrl[selected_tab]]["notes"] = notes;
         websites_json[currentUrl[selected_tab]]["last-update"] = getDate();
-        browser.storage.local.set({"websites": websites_json}, function () {
-            let notes = "";
-            if (websites_json[currentUrl[selected_tab]] != undefined && websites_json[currentUrl[selected_tab]]["notes"] != undefined) notes = websites_json[currentUrl[selected_tab]]["notes"];
-            document.getElementById("notes").textContent = notes;
+        if (selected_tab == 0) {
+            websites_json[currentUrl[selected_tab]]["type"] = 0;
+            websites_json[currentUrl[selected_tab]]["domain"] = "";
+        } else {
+            websites_json[currentUrl[selected_tab]]["type"] = 1;
+            websites_json[currentUrl[selected_tab]]["domain"] = currentUrl[0];
+        }
+        if (currentUrl[0] != "" && currentUrl[1] != "") {
+            //selected_tab : {0:domain | 1:page}
+            browser.storage.local.set({"websites": websites_json}, function () {
+                let notes = "";
+                if (websites_json[currentUrl[selected_tab]] != undefined && websites_json[currentUrl[selected_tab]]["notes"] != undefined) notes = websites_json[currentUrl[selected_tab]]["notes"];
+                document.getElementById("notes").textContent = notes;
 
-            let last_update = "Never";
-            if (websites_json[currentUrl[selected_tab]] != undefined && websites_json[currentUrl[selected_tab]]["last-update"] != undefined) last_update = websites_json[currentUrl[selected_tab]]["last-update"];
-            document.getElementById("last-updated-section").textContent = "Last update: " + last_update;
-        });
+                let last_update = "Never";
+                if (websites_json[currentUrl[selected_tab]] != undefined && websites_json[currentUrl[selected_tab]]["last-update"] != undefined) last_update = websites_json[currentUrl[selected_tab]]["last-update"];
+                document.getElementById("last-updated-section").textContent = "Last update: " + last_update;
+
+                //console.log(JSON.stringify(websites_json));
+            });
+        }
     });
 }
 
@@ -94,14 +116,20 @@ function tabUpdated(tabId, changeInfo, tabInfo) {
 }
 
 function setUrl(url) {
-    currentUrl[0] = getShortUrl(url);
-    currentUrl[1] = url;
+    if (isUrlSupported(url)) {
+        currentUrl[0] = getShortUrl(url);
+        currentUrl[1] = url;
+        document.getElementById("tabs-section").style.display = "block";
+    } else {
+        currentUrl[0] = url;
+        currentUrl[1] = url;
+        document.getElementById("tabs-section").style.display = "none";
+    }
 }
 
 function getShortUrl(url) {
-    let urlToReturn = url;
-    let urlParts, urlPartsTemp;
-
+    let urlToReturn = "";
+    let protocol = getTheProtocol(url);
     if (url.includes(":")) {
         urlParts = url.split(":");
         urlToReturn = urlParts[1];
@@ -114,14 +142,27 @@ function getShortUrl(url) {
         }
     }
 
-    if (urlToReturn.includes(".")) {
-        urlPartsTemp = urlToReturn.split(".");
-        if (urlPartsTemp[0] == "www") {
-            urlToReturn = urlToReturn.substr(4);
-        }
-    }
+    return (protocol + "://" + urlToReturn);
+}
 
-    return urlToReturn;
+function getTheProtocol(url) {
+    return url.split(":")[0];
+}
+
+function isUrlSupported(url) {
+    let valueToReturn = false;
+    switch (getTheProtocol(url)) {
+        case "http":
+        case "https":
+            //the URL is supported
+            valueToReturn = true;
+            break;
+
+        default:
+            //this disable all unsupported website
+            valueToReturn = false;//todo | true->for testing, false->stable release
+    }
+    return valueToReturn;
 }
 
 function getDate() {
