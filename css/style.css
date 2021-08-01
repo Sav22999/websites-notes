@@ -81,7 +81,7 @@ body {
     background-color: #dddddd;
 }
 
-#tabs-section > .tab:active, #tabs-section > .tab:focus, #notes-section > #notes:focus, .button:active, .button:focus {
+#tabs-section > .tab:active, #tabs-section > .tab:focus, #notes-section > #notes:focus, .button:active, .button:focus, textarea:focus, textarea:active {
     box-shadow: 0px 0px 0px 2px #ff5757, 0px 0px 0px 5px #fcb1b1;
     border-radius: 5px;
     z-index: 2;
@@ -105,7 +105,7 @@ body {
     background-color: transparent;
 }
 
-#notes-section > #notes {
+#notes-section > #notes, textarea {
     width: 100%;
     height: 300px;
     border: 0px;
@@ -151,7 +151,7 @@ body {
 .sticky-section {
     position: -webkit-sticky;
     position: sticky;
-    top: 10px;
+    top: 0px;
     z-index: 4;
 }
 
@@ -191,6 +191,51 @@ body {
     color: #ff4343;
 }
 
+#background-opacity {
+    background-color: rgba(0, 0, 0, 0.6);
+    position: fixed;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    transition: 0.5s;
+    display: none;
+    z-index: 100;
+    border-radius: 0px;
+}
+
+#import-section, #export-section {
+    display: none;
+    background-color: transparent;
+    position: fixed;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    z-index: 101;
+    padding: 10px;
+    padding-left: 20%;
+    padding-right: 20%;
+    overflow: auto;
+}
+
+.background-transparent {
+    background-color: transparent;
+}
+
+.background-light-red {
+    background-color: #ff8e8e;
+}
+
+.button-code {
+    background-color: rgba(255, 87, 87, 0.27);
+    border-radius: 5px;
+    padding: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    font-size: 13px;
+}
+
 h1, h2, h3 {
     color: #ff4343;
     font-size: 30px;
@@ -225,11 +270,16 @@ h3 {
     margin-left: 5px;
 }
 
-.link {
-    cursor: pointer;
+.section-selected {
+    background-color: #ffe5e5;
 }
 
-.bold {
+.link {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.bold, strong {
     font-family: open-sans-bold;
 }
 

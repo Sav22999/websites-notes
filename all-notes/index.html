@@ -11,13 +11,49 @@ Created by Saverio Morelli - saveriomorelli.com
 <body>
 <div id="all-notes-dedication-section">
     <h1>All notes</h1>
-    <div class="section text-align-right sticky-section">
+    <div class="section text-align-right sticky-section" id="actions">
+        <input type="button" value="Export all notes…" id="export-all-notes-button" class="button"/>
+        <input type="button" value="Import notes…" id="import-all-notes-button" class="button"/>
         <input type="button" value="Refresh data" id="refresh-all-notes-button" class="button"/>
         <input type="button" value="Clear all notes" id="clear-all-notes-button" class="button"/>
-        <!--<input type="button" value="Export all notes…" id="export-all-notes-button" class="button"/>-->
-        <!--<input type="button" value="Import notes…" id="import-all-notes-button" class="button"/>-->
     </div>
     <span id="all-website-sections"></span>
+    <div id="background-opacity"></div>
+    <div id="import-section">
+        <div class="section" id="import-sub-sections">
+            <div class="sub-section">
+                <div id="text-import">
+                    Paste here the JSON file content you exported before, then click the <span
+                        class="button-code">Import now</span>
+                    button. The page will be automatically reloaded if notes are successfully imported.
+                </div>
+            </div>
+            <div class="sub-section">
+                <textarea id="json-import"></textarea>
+            </div>
+            <div class="sub-section text-align-right">
+                <input type="button" value="Cancel" id="cancel-import-all-notes-button" class="button"/>
+                <input type="button" value="Import now" id="import-now-all-notes-button" class="button"/>
+            </div>
+        </div>
+    </div>
+    <div id="export-section">
+        <div class="section" id="export-sub-sections">
+            <div class="sub-section">
+                <div id="text-export">
+                    Create a new JSON file and paste the code below <strong>without modifying
+                    it</strong> (you can click the <span class="button-code">Copy now</span> button to copy the code).
+                </div>
+            </div>
+            <div class="sub-section">
+                <textarea id="json-export" readonly></textarea>
+            </div>
+            <div class="sub-section text-align-right">
+                <input type="button" value="Cancel" id="cancel-export-all-notes-button" class="button"/>
+                <input type="button" value="Copy now" id="copy-now-all-notes-button" class="button"/>
+            </div>
+        </div>
+    </div>
 </div>
 <script src="../js/all-notes.js"></script>
 </body>

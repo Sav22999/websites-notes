@@ -9,8 +9,24 @@ function loaded() {
     document.getElementById("clear-all-notes-button").onclick = function () {
         clearAllNotes();
     }
+    document.getElementById("import-all-notes-button").onclick = function () {
+        importAllNotes();
+    }
+    document.getElementById("export-all-notes-button").onclick = function () {
+        exportAllNotes();
+    }
 
     loadDataFromBrowser(true);
+
+    document.getElementById("all-notes-dedication-section").onscroll = function () {
+        if (document.getElementById("all-notes-dedication-section").scrollTop > 30) {
+            document.getElementById("actions").classList.add("section-selected");
+        } else {
+            if (document.getElementById("actions").classList.contains("section-selected")) {
+                document.getElementById("actions").classList.remove("section-selected");
+            }
+        }
+    }
 }
 
 function loadDataFromBrowser(generate_section = true) {
@@ -29,8 +45,7 @@ function loadDataFromBrowser(generate_section = true) {
 }
 
 function clearAllNotes() {
-    //TODO: add confirmationClearAllNotes dialog
-    let confirmationClearAllNotes = true;
+    let confirmationClearAllNotes = confirm("Are you sure you want to clear all notes?\nYou can cancel this process once started.");
     if (confirmationClearAllNotes) {
         let clearStorage = browser.storage.local.clear();
         clearStorage.then(onCleared, onError);
@@ -43,6 +58,66 @@ function onCleared() {
 }
 
 function onError(e) {
+}
+
+function importAllNotes() {
+    showBackgroundOpacity();
+    document.getElementById("import-section").style.display = "block";
+    let jsonImportElement = document.getElementById("json-import")
+    jsonImportElement.value = "";
+    jsonImportElement.focus();
+
+    document.getElementById("cancel-import-all-notes-button").onclick = function () {
+        hideBackgroundOpacity();
+        document.getElementById("import-section").style.display = "none";
+    }
+    document.getElementById("import-now-all-notes-button").onclick = function () {
+        let value = jsonImportElement.value;
+        if (value.replaceAll(" ", "") != "") {
+            try {
+                websites_json = JSON.parse(value);
+                document.getElementById("import-section").style.display = "none";
+                browser.storage.local.set({"websites": websites_json}, function () {
+                    loadDataFromBrowser(true);
+                    hideBackgroundOpacity()
+                });
+            } catch (e) {
+                //console.log("Error: " + e.toString());
+                let errorSubSection = document.createElement("div");
+                errorSubSection.classList.add("sub-section", "background-light-red");
+                errorSubSection.textContent = "Error: " + e.toString();
+
+                let mainSection = document.getElementById("import-sub-sections");
+                mainSection.insertBefore(errorSubSection, mainSection.childNodes[0]);
+            }
+        }
+    }
+}
+
+function exportAllNotes() {
+    showBackgroundOpacity();
+    document.getElementById("export-section").style.display = "block";
+    document.getElementById("json-export").value = JSON.stringify(websites_json);
+
+    document.getElementById("cancel-export-all-notes-button").onclick = function () {
+        hideBackgroundOpacity();
+        document.getElementById("export-section").style.display = "none";
+    }
+    document.getElementById("copy-now-all-notes-button").onclick = function () {
+        document.getElementById("cancel-export-all-notes-button").value = "Close";
+
+        document.getElementById("json-export").value = JSON.stringify(websites_json);
+        document.getElementById("json-export").select();
+        document.execCommand("copy");
+    }
+}
+
+function showBackgroundOpacity() {
+    document.getElementById("background-opacity").style.display = "block";
+}
+
+function hideBackgroundOpacity() {
+    document.getElementById("background-opacity").style.display = "none";
 }
 
 function loadAllWebsites() {
@@ -92,7 +167,7 @@ function loadAllWebsites() {
 
             websites_json_by_domain[domain].sort();
 
-            console.log(JSON.stringify(websites_json_by_domain[domain]));
+            //console.log(JSON.stringify(websites_json_by_domain[domain]));
 
             if (websites_json[domain] != undefined) {
                 //there is notes also for the domain
