@@ -52,6 +52,34 @@ function clearAllNotes() {
     }
 }
 
+function clearAllNotesDomain(url) {
+    let confirmation = confirm("Are you sure you want to clear all notes of this domain (its pages notes as well)?\nYou can cancel this process once started.");
+    if (confirmation) {
+        for (let index in websites_json_by_domain[url]) {
+            //delete all pages
+            delete websites_json[url + "" + websites_json_by_domain[url][index]];
+        }
+        //delete domain
+        delete websites_json[url];
+
+        browser.storage.local.set({"websites": websites_json}, function () {
+            loadDataFromBrowser(true);
+        });
+    }
+}
+
+function clearAllNotesPage(url) {
+    let confirmation = confirm("Are you sure you want to clear the selected notes?\nYou can cancel this process once started.");
+    if (confirmation) {
+        //delete the selected page
+        delete websites_json[url];
+
+        browser.storage.local.set({"websites": websites_json}, function () {
+            loadDataFromBrowser(true);
+        });
+    }
+}
+
 function onCleared() {
     //all notes clear || successful
     loadDataFromBrowser(true);
@@ -155,6 +183,15 @@ function loadAllWebsites() {
             let section = document.createElement("div");
             section.classList.add("section");
 
+            let input_clear_all_notes_domain = document.createElement("input");
+            input_clear_all_notes_domain.type = "button";
+            input_clear_all_notes_domain.value = "Clear all notes of this domain";
+            input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button");
+            input_clear_all_notes_domain.onclick = function () {
+                clearAllNotesDomain(domain);
+            }
+            section.append(input_clear_all_notes_domain);
+
             let h2 = document.createElement("h2");
             h2.textContent = domain;
             h2.classList.add("link", "go-to-external");
@@ -217,6 +254,16 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     pageType.textContent = type;
 
     page.append(pageType)
+
+    let input_clear_all_notes_page = document.createElement("input");
+    input_clear_all_notes_page.type = "button";
+    input_clear_all_notes_page.value = "Clear notes of this page";
+    input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button");
+    input_clear_all_notes_page.onclick = function () {
+        clearAllNotesPage(fullUrl);
+    }
+
+    page.append(input_clear_all_notes_page);
 
     if (type.toLowerCase() != "domain") {
         let pageUrl = document.createElement("h3");

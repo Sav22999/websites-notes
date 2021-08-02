@@ -236,6 +236,16 @@ body {
     font-size: 13px;
 }
 
+.small-button {
+    font-size: 12px;
+    height: 27px;
+}
+
+.very-small-button {
+    font-size: 10px;
+    height: 25px;
+}
+
 h1, h2, h3 {
     color: #ff4343;
     font-size: 30px;
@@ -250,7 +260,9 @@ h2 {
     color: #ff5757;
     font-size: 18px;
     padding: 5px;
+    padding-left: 10px;
     font-family: open-sans;
+    height: 35px;
 }
 
 h3 {
@@ -301,4 +313,16 @@ h3 {
 
 .text-align-left {
     text-align: left;
+}
+
+.float-right {
+    float: right;
+}
+
+.margin-right-5-px {
+    margin-right: 5px;
+}
+
+.margin-top-5-px {
+    margin-top: 5px;
 }
