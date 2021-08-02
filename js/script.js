@@ -52,7 +52,7 @@ function loadUI() {
                     setTab(0, currentUrl[0]);
                 }
 
-                console.log(JSON.stringify(websites_json));
+                //console.log(JSON.stringify(websites_json));
             });
         } else {
             //console.log("unsupported");
@@ -92,6 +92,10 @@ function saveNotes() {
             websites_json[currentUrl[selected_tab]]["type"] = 1;
             websites_json[currentUrl[selected_tab]]["domain"] = currentUrl[0];
         }
+        if (notes == "") {
+            //if notes field is empty, I delete the element from the "dictionary" (notes list)
+            delete websites_json[currentUrl[selected_tab]];
+        }
         if (currentUrl[0] != "" && currentUrl[1] != "") {
             //selected_tab : {0:domain | 1:page}
             browser.storage.local.set({"websites": websites_json}, function () {
@@ -104,6 +108,9 @@ function saveNotes() {
                 document.getElementById("last-updated-section").textContent = "Last update: " + last_update;
 
                 //console.log(JSON.stringify(websites_json));
+
+                //send message to "background.js" to update the icon
+                browser.runtime.sendMessage({"updated": true});
             });
         }
     });
