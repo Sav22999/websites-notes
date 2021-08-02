@@ -30,4 +30,4 @@ You can open an issue and there you must describe the feedback, the bug or the n
 
 See folder <code>screenshots</code> to see screenshots also of the older versions.
 
-<img src="screenshots/1.0/1.png" width="400px"></img>
+<img src="screenshots/1.3/1.png" width="400px"></img><img src="screenshots/1.3/2.png" width="400px"></img><img src="screenshots/1.3/3.png" width="400px"></img>
