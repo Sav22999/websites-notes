@@ -45,7 +45,7 @@ function loadDataFromBrowser(generate_section = true) {
 }
 
 function clearAllNotes() {
-    let confirmationClearAllNotes = confirm("Are you sure you want to clear all notes?\nYou can cancel this process once started.");
+    let confirmationClearAllNotes = confirm("Are you sure you want to clear all notes?\nYou can't cancel this process once started.");
     if (confirmationClearAllNotes) {
         let clearStorage = browser.storage.local.clear();
         clearStorage.then(onCleared, onError);
@@ -53,7 +53,7 @@ function clearAllNotes() {
 }
 
 function clearAllNotesDomain(url) {
-    let confirmation = confirm("Are you sure you want to clear all notes of this domain (its pages notes as well)?\nYou can cancel this process once started.");
+    let confirmation = confirm("Are you sure you want to clear all notes of this domain (its pages notes as well)?\nYou can't cancel this process once started.");
     if (confirmation) {
         for (let index in websites_json_by_domain[url]) {
             //delete all pages
@@ -69,7 +69,7 @@ function clearAllNotesDomain(url) {
 }
 
 function clearAllNotesPage(url) {
-    let confirmation = confirm("Are you sure you want to clear the selected notes?\nYou can cancel this process once started.");
+    let confirmation = confirm("Are you sure you want to clear the selected notes?\nYou can't cancel this process once started.");
     if (confirmation) {
         //delete the selected page
         delete websites_json[url];
