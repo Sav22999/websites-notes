@@ -16,7 +16,7 @@
     transition: 0.5s;
     position: relative;
     z-index: 1;
-    scrollbar-color: #ff5757 transparent;
+    scrollbar-color: #1A90FF transparent;
     scrollbar-width: thin;
     outline: 0px solid transparent;
     border-radius: 5px;
@@ -111,18 +111,18 @@ body {
 }
 
 #tabs-section > .tab:active, #tabs-section > .tab:focus, #notes-section > #notes:focus, .button:active, .button:focus, textarea:focus, textarea:active {
-    box-shadow: 0px 0px 0px 2px #ff5757, 0px 0px 0px 5px #fcb1b1;
+    box-shadow: 0px 0px 0px 2px #1A90FF, 0px 0px 0px 5px #91c4fa;
     border-radius: 5px;
     z-index: 2;
 }
 
 #tabs-section > .tab-sel, .button {
-    background-color: #ff5757;
+    background-color: #1A90FF;
     color: #ffffff;
 }
 
 #tabs-section > .tab-sel:hover, .button:hover {
-    background-color: #ff4343;
+    background-color: #0C00A7;
 }
 
 #all-notes-button {
@@ -174,7 +174,7 @@ body {
 .section-empty {
     padding: 50px;
     text-align: center;
-    color: #ff4343;
+    color: #0C00A7;
 }
 
 .sticky-section {
@@ -195,7 +195,7 @@ body {
 
 .sub-section-type {
     background-color: #ffffff;
-    color: #ff5757;
+    color: #1A90FF;
     border-radius: 5px;
     margin-right: 10px;
     padding: 5px;
@@ -223,7 +223,7 @@ body {
     padding: 5px;
     font-size: 12px;
     font-style: italic;
-    color: #ff4343;
+    color: #0C00A7;
 }
 
 #background-opacity {
@@ -259,11 +259,11 @@ body {
 }
 
 .background-light-red {
-    background-color: #ff8e8e;
+    background-color: #89c7ff;
 }
 
 .button-code {
-    background-color: rgba(255, 87, 87, 0.27);
+    background-color: rgba(26, 144, 255, 0.27);
     border-radius: 5px;
     padding: 5px;
     padding-top: 3px;
@@ -282,7 +282,7 @@ body {
 }
 
 h1, h2, h3 {
-    color: #ff4343;
+    color: #0C00A7;
     font-size: 30px;
     font-family: open-sans-bold;
     padding: 0px;
@@ -292,7 +292,7 @@ h1, h2, h3 {
 }
 
 h2 {
-    color: #ff5757;
+    color: #1A90FF;
     font-size: 18px;
     padding: 5px;
     padding-left: 10px;
@@ -301,7 +301,7 @@ h2 {
 }
 
 h3 {
-    color: #ff5757;
+    color: #1A90FF;
     font-size: 14px;
     padding: 3px;
     font-family: open-sans;
@@ -318,7 +318,7 @@ h3 {
 }
 
 .section-selected {
-    background-color: #ffe5e5;
+    background-color: #a3d3ff;
 }
 
 .link {

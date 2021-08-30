@@ -3,11 +3,11 @@
     <img width="70" src="img/icon.svg" alt="Limite icon" />
     <br>
 </h1>
-Official repo of https://addons.mozilla.org/it/firefox/addon/websites-notes/.
+Official repo of https://addons.thunderbird.net/thunderbird/addon/notebird/.
 
 [![GitHub release](https://img.shields.io/github/release/Sav22999/websites-notes.svg)](https://github.com/Sav22999/limite/releases/) [![GitHub license](https://img.shields.io/github/license/Sav22999/limite.svg)](https://github.com/Sav22999/limite/blob/master/LICENSE) ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 
-[<img src="img/firefoxAddons.png" height="50px">](https://addons.mozilla.org/it/firefox/addon/websites-notes/) 
+[<img src="img/firefoxAddons.png" height="50px">](https://addons.thunderbird.net/thunderbird/addon/notebird/) 
 
 To support me, you can do a donation :smile: with **PayPal**, **LiberaPay** or **Ko-Fi**:
 
@@ -15,12 +15,12 @@ To support me, you can do a donation :smile: with **PayPal**, **LiberaPay** or *
 
 ## Description
 
-Take notes on every website, by domain or by web page.
+Take notes on emails!
 
 ## Features
 
-- Write notes for the current page or for the whole domain
-- Auto-saving
+- Write notes for the email
+- Autosaving
 
 ## How to contribute
 
@@ -30,4 +30,4 @@ You can open an issue and there you must describe the feedback, the bug or the n
 
 See folder <code>screenshots</code> to see screenshots also of the older versions.
 
-<img src="screenshots/1.3/1.png" width="400px"></img><img src="screenshots/1.3/2.png" width="400px"></img><img src="screenshots/1.3/3.png" width="400px"></img>
+<img src="screenshots/1.3/1.png" width="400px"></img><img src="screenshots/1.3/2.png" width="400px"></img>

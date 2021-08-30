@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Notefox: Websites notes",
+  "name": "Notebird",
   "version": "1.6",
-  "description": "Take notes on every website, by domain or by web page.",
+  "description": "Take notes on emails!",
   "icons": {
     "16": "./img/icon.svg",
     "24": "./img/icon.svg",
@@ -11,13 +11,14 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "websitesnotes@saveriomorelli.com",
-      "strict_min_version": "42.0"
+      "id": "notebird@saveriomorelli.com",
+      "strict_min_version": "60.0"
     }
   },
   "applications": {
     "gecko": {
-      "id": "websitesnotes@saveriomorelli.com"
+      "id": "notebird@saveriomorelli.com",
+      "strict_min_version": "60.0"
     }
   },
   "browser_action": {
@@ -50,7 +51,7 @@
         "size": 96
       }
     ],
-    "default_title": "Notefox: Websites notes",
+    "default_title": "Notebird",
     "default_popup": "./popup.html"
   },
   "permissions": [
