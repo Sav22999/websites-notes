@@ -250,7 +250,7 @@ function loadAllWebsites() {
         //no websites
         let section = document.createElement("div");
         section.classList.add("section-empty");
-        section.textContent = "No websites found";
+        section.textContent = "No notes found";
 
         document.getElementById("all-website-sections").append(section);
     }
