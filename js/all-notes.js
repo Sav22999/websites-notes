@@ -224,14 +224,14 @@ function loadAllWebsites() {
             let section = document.createElement("div");
             section.classList.add("section");
 
-            let input_clear_all_notes_domain = document.createElement("input");
+            /*let input_clear_all_notes_domain = document.createElement("input");
             input_clear_all_notes_domain.type = "button";
             input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
             input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button");
             input_clear_all_notes_domain.onclick = function () {
                 clearAllNotesDomain(domain);
             }
-            section.append(input_clear_all_notes_domain);
+            section.append(input_clear_all_notes_domain);*/
 
             let h2 = document.createElement("h2");
             h2.textContent = domain;
@@ -359,7 +359,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     page.append(inputCopyNotes);
     page.append(tagsColour);
 
-    if (type.toLowerCase() != "domain") {
+    if (type.toLowerCase() != "email") {
         let pageUrl = document.createElement("h3");
         pageUrl.classList.add("link", "go-to-external");
         pageUrl.textContent = url;
