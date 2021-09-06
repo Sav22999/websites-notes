@@ -68,8 +68,12 @@ function clearAllNotesDomain(url) {
     }
 }
 
-function clearAllNotesPage(url) {
-    let confirmation = confirm("Are you sure you want to clear the selected notes?\nYou can't cancel this process once started.");
+function clearAllNotesPage(url, isDomain = false) {
+    let messageToShow = "Are you sure you want to clear the selected notes?\nYou can't cancel this process once started.";
+    if (!isDomain) {
+        messageToShow = "Are you sure you want to clear the selected notes (" + url + ")?\nYou can't cancel this process once started.";
+    }
+    let confirmation = confirm(messageToShow);
     if (confirmation) {
         //delete the selected page
         delete websites_json[url];
@@ -130,9 +134,13 @@ function exportAllNotes() {
     document.getElementById("cancel-export-all-notes-button").onclick = function () {
         hideBackgroundOpacity();
         document.getElementById("export-section").style.display = "none";
+
+        document.getElementById("cancel-export-all-notes-button").value = "Cancel";
+        document.getElementById("copy-now-all-notes-button").value = "Copy now";
     }
     document.getElementById("copy-now-all-notes-button").onclick = function () {
         document.getElementById("cancel-export-all-notes-button").value = "Close";
+        document.getElementById("copy-now-all-notes-button").value = "Copied";
 
         document.getElementById("json-export").value = JSON.stringify(websites_json);
         document.getElementById("json-export").select();
@@ -260,7 +268,11 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     input_clear_all_notes_page.value = "Clear notes of this page";
     input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button");
     input_clear_all_notes_page.onclick = function () {
-        clearAllNotesPage(fullUrl);
+        let isDomain = false;
+        if (fullUrl == url) {
+            isDomain = true;
+        }
+        clearAllNotesPage(fullUrl, isDomain);
     }
 
     page.append(input_clear_all_notes_page);
@@ -278,7 +290,27 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
 
     let pageNotes = document.createElement("div");
     pageNotes.classList.add("sub-section-notes");
-    pageNotes.textContent = notes;
+
+    let textNotes = document.createElement("textarea");
+    textNotes.readOnly = true;
+    textNotes.textContent = notes;
+    textNotes.classList.add("textarea-all-notes");
+
+    let inputCopyNotes = document.createElement("input");
+    inputCopyNotes.type = "button";
+    inputCopyNotes.value = "Copy notes";
+    inputCopyNotes.classList.add("button", "float-left", "very-small-button", "margin-right-5-px", "margin-top-5-px");
+    inputCopyNotes.onclick = function () {
+        copyNotes(textNotes, notes);
+        inputCopyNotes.value = "Copied";
+        setTimeout(function () {
+            inputCopyNotes.value = "Copy notes";
+        }, 3000);
+    }
+
+    pageNotes.append(textNotes);
+    pageNotes.append(inputCopyNotes);
+
     page.append(pageNotes);
 
     let pageLastUpdate = document.createElement("div");
@@ -287,6 +319,12 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     page.append(pageLastUpdate);
 
     return page;
+}
+
+function copyNotes(page, text) {
+    page.value = text;
+    page.select();
+    document.execCommand("copy");
 }
 
 function isEmpty(obj) {

@@ -315,6 +315,10 @@ h3 {
     text-align: left;
 }
 
+.float-left {
+    float: left;
+}
+
 .float-right {
     float: right;
 }
@@ -323,6 +327,16 @@ h3 {
     margin-right: 5px;
 }
 
+.margin-left-5-px {
+    margin-left: 5px;
+}
+
 .margin-top-5-px {
     margin-top: 5px;
+}
+
+.textarea-all-notes {
+    max-height: 200px;
+    background-color: transparent;
+    border: 1px solid #ff4343;
 }
