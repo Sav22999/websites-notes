@@ -160,6 +160,10 @@ body {
     padding: 10px;
 }
 
+.sub-section:nth-child(even) {
+    background-color: #dddddd;
+}
+
 .sub-section-type {
     background-color: #ff5757;
     color: #ffffff;
@@ -176,8 +180,10 @@ body {
 
 .sub-section-notes {
     margin-top: 10px;
+    /*
     padding: 10px;
     background-color: #e5e5e5;
+    */
 }
 
 .sub-section-notes:hover {

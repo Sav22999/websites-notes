@@ -275,7 +275,20 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
         clearAllNotesPage(fullUrl, isDomain);
     }
 
+    let inputCopyNotes = document.createElement("input");
+    inputCopyNotes.type = "button";
+    inputCopyNotes.value = "Copy notes";
+    inputCopyNotes.classList.add("button", "float-right", "very-small-button", "margin-right-5-px");
+    inputCopyNotes.onclick = function () {
+        copyNotes(textNotes, notes);
+        inputCopyNotes.value = "Copied";
+        setTimeout(function () {
+            inputCopyNotes.value = "Copy notes";
+        }, 3000);
+    }
+
     page.append(input_clear_all_notes_page);
+    page.append(inputCopyNotes);
 
     if (type.toLowerCase() != "domain") {
         let pageUrl = document.createElement("h3");
@@ -296,20 +309,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     textNotes.textContent = notes;
     textNotes.classList.add("textarea-all-notes");
 
-    let inputCopyNotes = document.createElement("input");
-    inputCopyNotes.type = "button";
-    inputCopyNotes.value = "Copy notes";
-    inputCopyNotes.classList.add("button", "float-left", "very-small-button", "margin-right-5-px", "margin-top-5-px");
-    inputCopyNotes.onclick = function () {
-        copyNotes(textNotes, notes);
-        inputCopyNotes.value = "Copied";
-        setTimeout(function () {
-            inputCopyNotes.value = "Copy notes";
-        }, 3000);
-    }
-
     pageNotes.append(textNotes);
-    pageNotes.append(inputCopyNotes);
 
     page.append(pageNotes);
 
