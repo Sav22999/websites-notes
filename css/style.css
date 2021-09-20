@@ -184,17 +184,29 @@ body {
     z-index: 4;
 }
 
-.sub-section {
-    background-color: #eeeeee;
+.section {
+    background-color: #dddddd;
     padding: 10px;
 }
 
-.sub-section:nth-child(even) {
-    background-color: #d0d0d0;
+.no-padding {
+    padding: 0px;
+}
+
+.no-margin {
+    margin: 0px;
+}
+
+.padding-10-px {
+    padding: 10px;
+}
+
+.section:nth-child(even) {
+    background-color: #ffffff;
 }
 
 .sub-section-type {
-    background-color: #ffffff;
+    background-color: #eeeeee;
     color: #1A90FF;
     border-radius: 5px;
     margin-right: 10px;
@@ -373,7 +385,7 @@ h3 {
 .textarea-all-notes {
     max-height: 200px;
     background-color: transparent;
-    border: 1px solid #ff4343;
+    border: 1px solid #1A90FF;
 }
 
 

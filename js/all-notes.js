@@ -222,7 +222,7 @@ function loadAllWebsites() {
 
         for (let domain in websites_json_by_domain) {
             let section = document.createElement("div");
-            section.classList.add("section");
+            section.classList.add("section", "no-padding");
 
             /*let input_clear_all_notes_domain = document.createElement("input");
             input_clear_all_notes_domain.type = "button";
@@ -233,15 +233,7 @@ function loadAllWebsites() {
             }
             section.append(input_clear_all_notes_domain);*/
 
-            let h2 = document.createElement("h2");
-            h2.textContent = domain;
-            h2.classList.add("link", "go-to-external");
-            h2.onclick = function () {
-                browser.tabs.create({url: domain});
-            }
             let all_pages = document.createElement("div");
-
-            section.append(h2);
 
             websites_json_by_domain[domain].sort();
 
@@ -251,7 +243,7 @@ function loadAllWebsites() {
                 //there is notes also for the domain
                 let urlPageDomain = domain;
                 let page = document.createElement("div");
-                page.classList.add("sub-section");
+                page.classList.add("sub-section", "no-margin", "padding-10-px", "background-transparent");
                 let lastUpdate = websites_json[urlPageDomain]["last-update"];
                 let notes = websites_json[urlPageDomain]["notes"];
 
