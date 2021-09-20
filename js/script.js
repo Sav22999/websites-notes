@@ -4,6 +4,8 @@ var currentUrl = []; //[domain, page]
 
 var selected_tab = 0; //{0:domain | 1:page}
 
+const all_strings = strings[languageToUse];
+
 const linkReview = ["https://addons.mozilla.org/firefox/addon/websites-notes/"]; //{firefox add-ons}
 const linkDonate = ["https://www.paypal.com/pools/c/8yl6auiU6e", "https://ko-fi.com/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
 
@@ -29,7 +31,15 @@ function loaded() {
     browser.tabs.onUpdated.addListener(tabUpdated);
 }
 
+function setLanguageUI() {
+    document.getElementById("domain-button").value = all_strings["domain-label"];
+    document.getElementById("page-button").value = all_strings["page-label"];
+    document.getElementById("all-notes-button").value = all_strings["see-all-notes-button"];
+    document.getElementById("last-updated-section").value = all_strings["last-update-text"].replaceAll("{{date_time}}", "----/--/-- --:--:--");
+}
+
 function loadUI() {
+    setLanguageUI();
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         let activeTab = tabs[0];
         let activeTabId = activeTab.id;
@@ -106,9 +116,14 @@ function saveNotes() {
                 if (websites_json[currentUrl[selected_tab]] != undefined && websites_json[currentUrl[selected_tab]]["notes"] != undefined) notes = websites_json[currentUrl[selected_tab]]["notes"];
                 document.getElementById("notes").textContent = notes;
 
-                let last_update = "Never";
+                let last_update = all_strings["never-update"];
                 if (websites_json[currentUrl[selected_tab]] != undefined && websites_json[currentUrl[selected_tab]]["last-update"] != undefined) last_update = websites_json[currentUrl[selected_tab]]["last-update"];
-                document.getElementById("last-updated-section").textContent = "Last update: " + last_update;
+                document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
+
+                let colour = "none";
+                document.getElementById("tag-colour-section").removeAttribute("class");
+                if (websites_json[currentUrl[selected_tab]] != undefined && websites_json[currentUrl[selected_tab]]["tag-colour"] != undefined) colour = websites_json[currentUrl[selected_tab]]["tag-colour"];
+                document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
 
                 //console.log(JSON.stringify(websites_json));
 
@@ -209,9 +224,9 @@ function setTab(index, url) {
     if (websites_json[url] != undefined && websites_json[url]["notes"] != undefined) notes = websites_json[url]["notes"];
     document.getElementById("notes").value = notes;
 
-    let last_update = "Never";
+    let last_update = all_strings["never-update"];
     if (websites_json[url] != undefined && websites_json[url]["last-update"] != undefined) last_update = websites_json[url]["last-update"];
-    document.getElementById("last-updated-section").textContent = "Last update: " + last_update;
+    document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
 
     let colour = "none";
     document.getElementById("tag-colour-section").removeAttribute("class");

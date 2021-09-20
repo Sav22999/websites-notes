@@ -1,0 +1,42 @@
+lang = "en"
+
+strings[lang] = {};
+
+strings[lang] = {
+    "all-notes-title": "All notes",
+    "all-notes-title-page": "Notefox - All notes",
+    "export-all-notes-button": "Export all notes…",
+    "import-notes-button": "Import notes…",
+    "refresh-data-button": "Refresh data",
+    "clear-all-notes-button": "Clear all notes",
+    "import-json-message-dialog-text": "Paste here the JSON (or text) file content you exported previously, then click the <span {{parameters}}>Import now</span> button. The page will be automatically reloaded if notes are successfully imported.",
+    "cancel-button": "Cancel",
+    "import-now-button": "Import now",
+    "export-json-message-dialog-text": "Create a new JSON (or text) file and paste the code below <strong>without modifying it</strong> (you can click the <span {{parameters}}>Copy now</span> button to copy the code).",
+    "copy-now-button": "Copy now",
+    "last-update-text": "Last update: {{date_time}}",
+    "page-label": "Page",
+    "domain-label": "Domain",
+    "see-all-notes-button": "See all notes",
+    "clear-all-notes-confirmation": "Are you sure you want to clear all notes?\nYou can't cancel this process once started.",
+    "clear-all-notes-domain-confirmation": "Are you sure you want to clear all notes of this domain (its pages notes as well)?\nYou can't cancel this process once started.",
+    "clear-all-notes-page-without-url-confirmation": "Are you sure you want to clear the selected notes?\nYou can't cancel this process once started.",
+    "clear-all-notes-page-with-confirmation": "Are you sure you want to clear the selected notes ({{url}})?\nYou can't cancel this process once started.",
+    "close-button": "Close",
+    "copied-button": "Copied",
+    "clear-all-notes-of-this-domain-button": "Clear all notes of this domain",
+    "no-notes-found-text": "No notes found",
+    "clear-notes-of-this-page-button": "Clear notes of this page",
+    "copy-notes-button": "Copy notes",
+    "red-colour": "Red",
+    "yellow-colour": "Yellow",
+    "black-colour": "Black",
+    "grey-colour": "Grey",
+    "purple-colour": "Purple",
+    "pink-colour": "Pink",
+    "green-colour": "Green",
+    "blue-colour": "Blue",
+    "orange-colour": "Orange",
+    "none-colour": "None",
+    "never-update": "Never"
+}

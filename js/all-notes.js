@@ -1,7 +1,11 @@
 let websites_json = {};
 let websites_json_by_domain = {};
 
+const all_strings = strings[languageToUse];
+
 function loaded() {
+    setLanguageUI();
+
     document.getElementById("refresh-all-notes-button").onclick = function () {
         //location.reload();
         loadDataFromBrowser(true);
@@ -29,12 +33,27 @@ function loaded() {
     }
 
     let titleAllNotes = document.getElementById("title-all-notes-dedication-section");
-    titleAllNotes.textContent = "All notes";
+    titleAllNotes.textContent = all_strings["all-notes-title"];
     let versionNumber = document.createElement("div");
     versionNumber.classList.add("float-right", "small-button");
     versionNumber.textContent = browser.runtime.getManifest().version;
     versionNumber.id = "version";
     titleAllNotes.append(versionNumber);
+}
+
+function setLanguageUI() {
+    document.getElementById("refresh-all-notes-button").value = all_strings["refresh-data-button"];
+    document.getElementById("clear-all-notes-button").value = all_strings["clear-all-notes-button"];
+    document.getElementById("import-all-notes-button").value = all_strings["import-notes-button"];
+    document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
+    document.title = all_strings["all-notes-title-page"];
+
+    document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
+    document.getElementById("text-export").innerHTML = all_strings["export-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
+    document.getElementById("cancel-import-all-notes-button").value = all_strings["cancel-button"];
+    document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
+    document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
+    document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
 }
 
 function loadDataFromBrowser(generate_section = true) {
@@ -53,7 +72,7 @@ function loadDataFromBrowser(generate_section = true) {
 }
 
 function clearAllNotes() {
-    let confirmationClearAllNotes = confirm("Are you sure you want to clear all notes?\nYou can't cancel this process once started.");
+    let confirmationClearAllNotes = confirm(all_strings["clear-all-notes-confirmation"]);
     if (confirmationClearAllNotes) {
         let clearStorage = browser.storage.local.clear();
         clearStorage.then(onCleared, onError);
@@ -61,7 +80,7 @@ function clearAllNotes() {
 }
 
 function clearAllNotesDomain(url) {
-    let confirmation = confirm("Are you sure you want to clear all notes of this domain (its pages notes as well)?\nYou can't cancel this process once started.");
+    let confirmation = confirm(all_strings["clear-all-notes-domain-confirmation"]);
     if (confirmation) {
         for (let index in websites_json_by_domain[url]) {
             //delete all pages
@@ -77,9 +96,9 @@ function clearAllNotesDomain(url) {
 }
 
 function clearAllNotesPage(url, isDomain = false) {
-    let messageToShow = "Are you sure you want to clear the selected notes?\nYou can't cancel this process once started.";
+    let messageToShow = all_strings["clear-all-notes-page-without-url-confirmation"];
     if (!isDomain) {
-        messageToShow = "Are you sure you want to clear the selected notes (" + url + ")?\nYou can't cancel this process once started.";
+        messageToShow = all_strings["clear-all-notes-page-with-confirmation"].replaceAll("{{url}}", url);
     }
     let confirmation = confirm(messageToShow);
     if (confirmation) {
@@ -143,12 +162,12 @@ function exportAllNotes() {
         hideBackgroundOpacity();
         document.getElementById("export-section").style.display = "none";
 
-        document.getElementById("cancel-export-all-notes-button").value = "Cancel";
-        document.getElementById("copy-now-all-notes-button").value = "Copy now";
+        document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
+        document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
     }
     document.getElementById("copy-now-all-notes-button").onclick = function () {
-        document.getElementById("cancel-export-all-notes-button").value = "Close";
-        document.getElementById("copy-now-all-notes-button").value = "Copied";
+        document.getElementById("cancel-export-all-notes-button").value = all_strings["close-button"];
+        document.getElementById("copy-now-all-notes-button").value = all_strings["copied-button"];
 
         document.getElementById("json-export").value = JSON.stringify(websites_json);
         document.getElementById("json-export").select();
@@ -207,7 +226,7 @@ function loadAllWebsites() {
 
             let input_clear_all_notes_domain = document.createElement("input");
             input_clear_all_notes_domain.type = "button";
-            input_clear_all_notes_domain.value = "Clear all notes of this domain";
+            input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
             input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button");
             input_clear_all_notes_domain.onclick = function () {
                 clearAllNotesDomain(domain);
@@ -236,7 +255,7 @@ function loadAllWebsites() {
                 let lastUpdate = websites_json[urlPageDomain]["last-update"];
                 let notes = websites_json[urlPageDomain]["notes"];
 
-                page = generateNotes(page, urlPageDomain, notes, lastUpdate, "Domain", urlPageDomain);
+                page = generateNotes(page, urlPageDomain, notes, lastUpdate, all_strings["domain-label"], urlPageDomain);
 
                 all_pages.append(page);
             }
@@ -250,7 +269,7 @@ function loadAllWebsites() {
                 let lastUpdate = websites_json[urlPageDomain]["last-update"];
                 let notes = websites_json[urlPageDomain]["notes"];
 
-                page = generateNotes(page, urlPage, notes, lastUpdate, "Page", urlPageDomain);
+                page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["page-label"], urlPageDomain);
 
                 all_pages.append(page);
             }
@@ -264,10 +283,14 @@ function loadAllWebsites() {
         //no websites
         let section = document.createElement("div");
         section.classList.add("section-empty");
-        section.textContent = "No notes found";
+        section.textContent = all_strings["no-notes-found-text"];
 
         document.getElementById("all-website-sections").append(section);
     }
+}
+
+function sortObjectByKeys(o) {
+    return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
 }
 
 function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
@@ -279,7 +302,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
 
     let input_clear_all_notes_page = document.createElement("input");
     input_clear_all_notes_page.type = "button";
-    input_clear_all_notes_page.value = "Clear notes of this page";
+    input_clear_all_notes_page.value = all_strings["clear-notes-of-this-page-button"];
     input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button", "clear-button");
     input_clear_all_notes_page.onclick = function () {
         let isDomain = false;
@@ -291,35 +314,46 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
 
     let inputCopyNotes = document.createElement("input");
     inputCopyNotes.type = "button";
-    inputCopyNotes.value = "Copy notes";
+    inputCopyNotes.value = all_strings["copy-notes-button"];
     inputCopyNotes.classList.add("button", "float-right", "very-small-button", "margin-right-5-px", "copy-button");
     inputCopyNotes.onclick = function () {
         copyNotes(textNotes, notes);
-        inputCopyNotes.value = "Copied";
+        inputCopyNotes.value = all_strings["copied-button"];
         setTimeout(function () {
-            inputCopyNotes.value = "Copy notes";
+            inputCopyNotes.value = all_strings["copy-notes-button"];
         }, 3000);
     }
 
     let tagsColour = document.createElement("select");
-    let colourList = ["Red", "Yellow", "Black", "Orange", "Pink", "Purple", "Gray", "Green", "Blue"].sort();
-    colourList.unshift("None");
+    let colourList = sortObjectByKeys({
+        "red": all_strings["red-colour"],
+        "yellow": all_strings["yellow-colour"],
+        "black": all_strings["black-colour"],
+        "orange": all_strings["orange-colour"],
+        "pink": all_strings["pink-colour"],
+        "purple": all_strings["purple-colour"],
+        "gray": all_strings["grey-colour"],
+        "green": all_strings["green-colour"],
+        "blue": all_strings["blue-colour"]
+    });
+    colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
     for (let colour in colourList) {
         let tagColour = document.createElement("option");
-        tagColour.value = colourList[colour].toLowerCase();
-        if (websites_json[fullUrl]["tag-colour"] != undefined && websites_json[fullUrl]["tag-colour"] == colourList[colour].toLowerCase()) {
+        tagColour.value = colour;
+        if (websites_json[fullUrl]["tag-colour"] != undefined && websites_json[fullUrl]["tag-colour"] == colour) {
             tagColour.selected = true;
-            page.classList.add("tag-colour-left", "tag-colour-" + colourList[colour].toLowerCase());
+            page.classList.add("tag-colour-left", "tag-colour-" + colour);
         }
         tagColour.textContent = colourList[colour];
-        //tagColour.classList.add(colourList[colour].toLowerCase() + "-background-tag");
+        //tagColour.classList.add(colour + "-background-tag");
         tagsColour.classList.add("button", "float-right", "very-small-button", "margin-right-5-px");
         tagColour.onclick = function () {
-            //alert(tagsColour.selectedIndex + " --> " + colourList[tagsColour.selectedIndex]);
-            changeTagColour(page, fullUrl, colourList[tagsColour.selectedIndex].toLowerCase());
+            changeTagColour(page, fullUrl, colour);
         }
         tagsColour.append(tagColour);
     }
+
+    page.id = fullUrl;
 
     page.append(input_clear_all_notes_page);
     page.append(inputCopyNotes);
@@ -350,7 +384,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
 
     let pageLastUpdate = document.createElement("div");
     pageLastUpdate.classList.add("sub-section-last-update");
-    pageLastUpdate.textContent = "Last update: " + lastUpdate;
+    pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", lastUpdate);
     page.append(pageLastUpdate);
 
     return page;
