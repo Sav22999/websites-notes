@@ -63,6 +63,31 @@ body {
     display: inline-block;
 }
 
+.clear-button, .refresh-button, .import-button, .copy-button, .export-button {
+    padding-left: 30px;
+    background-image: url("../img/delete.svg");
+    background-size: auto 50%;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    color: #ffffff;
+}
+
+.refresh-button {
+    background-image: url("../img/refresh.svg");
+}
+
+.import-button {
+    background-image: url("../img/import.svg");
+}
+
+.export-button {
+    background-image: url("../img/export.svg");
+}
+
+.copy-button {
+    background-image: url("../img/copy.svg");
+}
+
 #tag-colour-section {
     border-radius: 0px;
 }

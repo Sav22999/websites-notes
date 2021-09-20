@@ -208,7 +208,7 @@ function loadAllWebsites() {
             let input_clear_all_notes_domain = document.createElement("input");
             input_clear_all_notes_domain.type = "button";
             input_clear_all_notes_domain.value = "Clear all notes of this domain";
-            input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button");
+            input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button");
             input_clear_all_notes_domain.onclick = function () {
                 clearAllNotesDomain(domain);
             }
@@ -280,7 +280,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     let input_clear_all_notes_page = document.createElement("input");
     input_clear_all_notes_page.type = "button";
     input_clear_all_notes_page.value = "Clear notes of this page";
-    input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button");
+    input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button", "clear-button");
     input_clear_all_notes_page.onclick = function () {
         let isDomain = false;
         if (fullUrl == url) {
@@ -292,7 +292,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     let inputCopyNotes = document.createElement("input");
     inputCopyNotes.type = "button";
     inputCopyNotes.value = "Copy notes";
-    inputCopyNotes.classList.add("button", "float-right", "very-small-button", "margin-right-5-px");
+    inputCopyNotes.classList.add("button", "float-right", "very-small-button", "margin-right-5-px", "copy-button");
     inputCopyNotes.onclick = function () {
         copyNotes(textNotes, notes);
         inputCopyNotes.value = "Copied";
