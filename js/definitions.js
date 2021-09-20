@@ -2,7 +2,7 @@ var lang = "";
 
 var strings = []; //strings[language_code] = {};
 
-let supportedLanguages = ["en"];
+let supportedLanguages = ["en", "it"];
 let languageToUse = browser.i18n.getUILanguage().toString();
 
-if (!(languageToUse in supportedLanguages)) languageToUse = "en";
+if (!supportedLanguages.includes(languageToUse)) languageToUse = "en";
