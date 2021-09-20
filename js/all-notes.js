@@ -80,7 +80,7 @@ function clearAllNotes() {
 }
 
 function clearAllNotesDomain(url) {
-    let confirmation = confirm(all_strings["clear-all-notes-domain-confirmation"]);
+    let confirmation = confirm(all_strings["clear-all-notes-email-confirmation"]);
     if (confirmation) {
         for (let index in websites_json_by_domain[url]) {
             //delete all pages
@@ -226,7 +226,7 @@ function loadAllWebsites() {
 
             /*let input_clear_all_notes_domain = document.createElement("input");
             input_clear_all_notes_domain.type = "button";
-            input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
+            input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-email-button"];
             input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button");
             input_clear_all_notes_domain.onclick = function () {
                 clearAllNotesDomain(domain);
@@ -247,7 +247,7 @@ function loadAllWebsites() {
                 let lastUpdate = websites_json[urlPageDomain]["last-update"];
                 let notes = websites_json[urlPageDomain]["notes"];
 
-                page = generateNotes(page, urlPageDomain, notes, lastUpdate, all_strings["domain-label"], urlPageDomain);
+                page = generateNotes(page, urlPageDomain, notes, lastUpdate, all_strings["email-label"], urlPageDomain,"email");
 
                 all_pages.append(page);
             }
@@ -261,7 +261,7 @@ function loadAllWebsites() {
                 let lastUpdate = websites_json[urlPageDomain]["last-update"];
                 let notes = websites_json[urlPageDomain]["notes"];
 
-                page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["page-label"], urlPageDomain);
+                page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["email-label"], urlPageDomain,"email");
 
                 all_pages.append(page);
             }
@@ -285,7 +285,7 @@ function sortObjectByKeys(o) {
     return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
 }
 
-function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
+function generateNotes(page, url, notes, lastUpdate, type, fullUrl, typeCode) {
     let pageType = document.createElement("div");
     pageType.classList.add("sub-section-type");
     pageType.textContent = type;
@@ -294,7 +294,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
 
     let input_clear_all_notes_page = document.createElement("input");
     input_clear_all_notes_page.type = "button";
-    input_clear_all_notes_page.value = all_strings["clear-notes-of-this-page-button"];
+    input_clear_all_notes_page.value = all_strings["clear-notes-of-this-email-button"];
     input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button", "clear-button");
     input_clear_all_notes_page.onclick = function () {
         let isDomain = false;
@@ -351,7 +351,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     page.append(inputCopyNotes);
     page.append(tagsColour);
 
-    if (type.toLowerCase() != "email") {
+    if (typeCode != "email") {
         let pageUrl = document.createElement("h3");
         pageUrl.classList.add("link", "go-to-external");
         pageUrl.textContent = url;
