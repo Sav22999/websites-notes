@@ -27,6 +27,14 @@ function loaded() {
             }
         }
     }
+
+    let titleAllNotes = document.getElementById("title-all-notes-dedication-section");
+    titleAllNotes.textContent = "All notes";
+    let versionNumber = document.createElement("div");
+    versionNumber.classList.add("float-right", "small-button");
+    versionNumber.textContent = browser.runtime.getManifest().version;
+    versionNumber.id = "version";
+    titleAllNotes.append(versionNumber);
 }
 
 function loadDataFromBrowser(generate_section = true) {
@@ -164,7 +172,9 @@ function loadAllWebsites() {
             if (websites_json[domain]["type"] == undefined) {
                 websites_json[domain]["type"] = 0;
                 websites_json[domain]["domain"] = "";
+                websites_json[domain]["tag-colour"] = "none";
             }
+
 
             if (websites_json[domain]["type"] == 0) {
                 //domain
@@ -181,6 +191,10 @@ function loadAllWebsites() {
                 if (websites_json_by_domain[root_domain].indexOf(domain_to_add) == -1) {
                     websites_json_by_domain[root_domain].push(domain_to_add);
                 }
+            }
+
+            if (websites_json[domain]["tag-colour"] == undefined) {
+                websites_json[domain]["tag-colour"] = "none";
             }
         }
         //console.log(JSON.stringify(websites_json_by_domain));
@@ -287,8 +301,29 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
         }, 3000);
     }
 
+    let tagsColour = document.createElement("select");
+    let colourList = ["Red", "Yellow", "Black", "Orange", "Pink", "Purple", "Gray", "Green", "Blue"].sort();
+    colourList.unshift("None");
+    for (let colour in colourList) {
+        let tagColour = document.createElement("option");
+        tagColour.value = colourList[colour].toLowerCase();
+        if (websites_json[fullUrl]["tag-colour"] != undefined && websites_json[fullUrl]["tag-colour"] == colourList[colour].toLowerCase()) {
+            tagColour.selected = true;
+            page.classList.add("tag-colour-left", "tag-colour-" + colourList[colour].toLowerCase());
+        }
+        tagColour.textContent = colourList[colour];
+        //tagColour.classList.add(colourList[colour].toLowerCase() + "-background-tag");
+        tagsColour.classList.add("button", "float-right", "very-small-button", "margin-right-5-px");
+        tagColour.onclick = function () {
+            //alert(tagsColour.selectedIndex + " --> " + colourList[tagsColour.selectedIndex]);
+            changeTagColour(page, fullUrl, colourList[tagsColour.selectedIndex].toLowerCase());
+        }
+        tagsColour.append(tagColour);
+    }
+
     page.append(input_clear_all_notes_page);
     page.append(inputCopyNotes);
+    page.append(tagsColour);
 
     if (type.toLowerCase() != "domain") {
         let pageUrl = document.createElement("h3");
@@ -319,6 +354,20 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     page.append(pageLastUpdate);
 
     return page;
+}
+
+function changeTagColour(page, url, colour) {
+    browser.storage.local.get("websites", function (value) {
+        websites_json = {};
+        if (value["websites"] != undefined) {
+            websites_json = value["websites"];
+        }
+        websites_json[url]["tag-colour"] = colour;
+        browser.storage.local.set({"websites": websites_json}, function () {
+            loadDataFromBrowser(true);
+            hideBackgroundOpacity()
+        });
+    });
 }
 
 function copyNotes(page, text) {

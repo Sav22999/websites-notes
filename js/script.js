@@ -85,6 +85,9 @@ function saveNotes() {
         let notes = document.getElementById("notes").value;
         websites_json[currentUrl[selected_tab]]["notes"] = notes;
         websites_json[currentUrl[selected_tab]]["last-update"] = getDate();
+        if (websites_json[currentUrl[selected_tab]]["tag-colour"] == undefined) {
+            websites_json[currentUrl[selected_tab]]["tag-colour"] = "none";
+        }
         if (selected_tab == 0) {
             websites_json[currentUrl[selected_tab]]["type"] = 0;
             websites_json[currentUrl[selected_tab]]["domain"] = "";
@@ -209,6 +212,11 @@ function setTab(index, url) {
     let last_update = "Never";
     if (websites_json[url] != undefined && websites_json[url]["last-update"] != undefined) last_update = websites_json[url]["last-update"];
     document.getElementById("last-updated-section").textContent = "Last update: " + last_update;
+
+    let colour = "none";
+    document.getElementById("tag-colour-section").removeAttribute("class");
+    if (websites_json[url] != undefined && websites_json[url]["tag-colour"] != undefined) colour = websites_json[url]["tag-colour"];
+    document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
 
     document.getElementById("notes").focus();
 }

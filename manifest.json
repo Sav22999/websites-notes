@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Notefox: Websites notes",
-  "version": "1.3.2",
+  "version": "1.5",
   "description": "Take notes on every website, by domain or by web page.",
   "icons": {
     "16": "./img/icon.svg",

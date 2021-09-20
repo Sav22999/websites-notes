@@ -63,6 +63,10 @@ body {
     display: inline-block;
 }
 
+#tag-colour-section {
+    border-radius: 0px;
+}
+
 .button {
     width: auto;
 }
@@ -161,12 +165,12 @@ body {
 }
 
 .sub-section:nth-child(even) {
-    background-color: #dddddd;
+    background-color: #d0d0d0;
 }
 
 .sub-section-type {
-    background-color: #ff5757;
-    color: #ffffff;
+    background-color: #ffffff;
+    color: #ff5757;
     border-radius: 5px;
     margin-right: 10px;
     padding: 5px;
@@ -345,4 +349,57 @@ h3 {
     max-height: 200px;
     background-color: transparent;
     border: 1px solid #ff4343;
+}
+
+
+.tag-colour-left {
+    border: 0px solid transparent;
+    border-left-width: 10px;
+    border-style: solid;
+}
+
+.tag-colour-top {
+    border: 0px solid transparent;
+    border-top-width: 10px;
+    border-style: solid;
+}
+
+.tag-colour-none {
+    border: none;
+}
+
+.tag-colour-red {
+    border-color: red;
+}
+
+.tag-colour-yellow {
+    border-color: yellow;
+}
+
+.tag-colour-green {
+    border-color: green;
+}
+
+.tag-colour-gray {
+    border-color: gray;
+}
+
+.tag-colour-purple {
+    border-color: purple;
+}
+
+.tag-colour-pink {
+    border-color: pink;
+}
+
+.tag-colour-black {
+    border-color: black;
+}
+
+.tag-colour-orange {
+    border-color: orange;
+}
+
+.tag-colour-blue {
+    border-color: blue;
 }
