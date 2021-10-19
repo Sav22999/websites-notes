@@ -2,6 +2,7 @@ const icons = ["../img/icon.svg", "../img/icon-bordered.svg"];
 
 var tab_id = 0;
 var tab_url = "";
+var message_subject = "";
 
 function changeIcon(index) {
     browser.browserAction.setIcon({path: icons[index], tabId: tab_id});
@@ -14,6 +15,8 @@ function loaded() {
         let activeTab = tabs[0];
         tab_id = activeTab.id;
         tab_url = activeTab.url;
+
+        setMessageSubject(tab_id);
 
         checkStatus();
     });
@@ -28,10 +31,16 @@ function loaded() {
     });
 }
 
+async function setMessageSubject(tabId) {
+    let message = await messenger.messageDisplay.getDisplayedMessage(tabId);
+    message_subject = message.subject;
+}
+
 function tabUpdated(tabId, changeInfo, tabInfo) {
     tab_id = tabId;
     tab_url = tabInfo.url;
-    checkStatus();
+
+    setMessageSubject(tab_id).then(r => checkStatus());
 }
 
 function checkStatus() {

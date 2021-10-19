@@ -1,6 +1,7 @@
 var websites_json = {};
 
 var currentUrl = []; //[domain, page]
+var currentSubject = [];
 
 var selected_tab = 0; //{0:domain | 1:page}
 
@@ -24,11 +25,18 @@ function loaded() {
         var activeTabId = activeTab.id;
         var activeTabUrl = activeTab.url;
 
-        setUrl(activeTabUrl);
-        loadUI();
+        setMessageSubject(activeTabId).then(r => {
+            setUrl(activeTabUrl);
+            loadUI();
+        });
     });
 
     browser.tabs.onUpdated.addListener(tabUpdated);
+}
+
+async function setMessageSubject(tabId) {
+    let message = await messenger.messageDisplay.getDisplayedMessage(tabId);
+    currentSubject = message.subject;
 }
 
 function setLanguageUI() {
@@ -95,6 +103,7 @@ function saveNotes() {
         let notes = document.getElementById("notes").value;
         websites_json[currentUrl[selected_tab]]["notes"] = notes;
         websites_json[currentUrl[selected_tab]]["last-update"] = getDate();
+        websites_json[currentUrl[selected_tab]]["subject"] = currentSubject;
         if (websites_json[currentUrl[selected_tab]]["tag-colour"] == undefined) {
             websites_json[currentUrl[selected_tab]]["tag-colour"] = "none";
         }

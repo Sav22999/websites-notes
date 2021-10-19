@@ -192,6 +192,7 @@ function loadAllWebsites() {
                 websites_json[domain]["type"] = 0;
                 websites_json[domain]["domain"] = "";
                 websites_json[domain]["tag-colour"] = "none";
+                websites_json[domain]["subject"] = "";
             }
 
 
@@ -214,6 +215,9 @@ function loadAllWebsites() {
 
             if (websites_json[domain]["tag-colour"] == undefined) {
                 websites_json[domain]["tag-colour"] = "none";
+            }
+            if (websites_json[domain]["subject"] == undefined) {
+                websites_json[domain]["subject"] = "";
             }
         }
         //console.log(JSON.stringify(websites_json_by_domain));
@@ -246,8 +250,9 @@ function loadAllWebsites() {
                 page.classList.add("sub-section", "no-margin", "padding-10-px", "background-transparent");
                 let lastUpdate = websites_json[urlPageDomain]["last-update"];
                 let notes = websites_json[urlPageDomain]["notes"];
+                let subject = websites_json[urlPageDomain]["subject"];
 
-                page = generateNotes(page, urlPageDomain, notes, lastUpdate, all_strings["email-label"], urlPageDomain,"email");
+                page = generateNotes(page, urlPageDomain, notes, lastUpdate, all_strings["email-label"], urlPageDomain, "email", subject);
 
                 all_pages.append(page);
             }
@@ -260,8 +265,9 @@ function loadAllWebsites() {
 
                 let lastUpdate = websites_json[urlPageDomain]["last-update"];
                 let notes = websites_json[urlPageDomain]["notes"];
+                let subject = websites_json[urlPageDomain]["subject"];
 
-                page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["email-label"], urlPageDomain,"email");
+                page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["email-label"], urlPageDomain, "email", subject);
 
                 all_pages.append(page);
             }
@@ -285,7 +291,7 @@ function sortObjectByKeys(o) {
     return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
 }
 
-function generateNotes(page, url, notes, lastUpdate, type, fullUrl, typeCode) {
+function generateNotes(page, url, notes, lastUpdate, type, fullUrl, typeCode, subject) {
     let pageType = document.createElement("div");
     pageType.classList.add("sub-section-type");
     pageType.textContent = type;
@@ -351,16 +357,11 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl, typeCode) {
     page.append(inputCopyNotes);
     page.append(tagsColour);
 
-    if (typeCode != "email") {
-        let pageUrl = document.createElement("h3");
-        pageUrl.classList.add("link", "go-to-external");
-        pageUrl.textContent = url;
-        pageUrl.onclick = function () {
-            browser.tabs.create({url: fullUrl});
-        }
+    let pageUrl = document.createElement("h3");
+    pageUrl.classList.add();
+    pageUrl.textContent = subject;
 
-        page.append(pageUrl);
-    }
+    page.append(pageUrl);
 
     let pageNotes = document.createElement("div");
     pageNotes.classList.add("sub-section-notes");
@@ -380,6 +381,14 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl, typeCode) {
     page.append(pageLastUpdate);
 
     return page;
+}
+
+function onCreated(tab) {
+    console.log(`Created new tab: ${tab.id}`)
+}
+
+function onError(error) {
+    console.log(`Error: ${error}`);
 }
 
 function changeTagColour(page, url, colour) {
