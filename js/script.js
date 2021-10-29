@@ -8,7 +8,7 @@ var selected_tab = 0; //{0:domain | 1:page}
 const all_strings = strings[languageToUse];
 
 const linkReview = ["https://addons.thunderbird.net/en-US/thunderbird/addon/notebird/"]; //{thunderbird add-ons}
-const linkDonate = ["https://www.paypal.com/pools/c/8yl6auiU6e", "https://ko-fi.com/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
+const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://ko-fi.com/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
 
 function loaded() {
     document.addEventListener("contextmenu",
