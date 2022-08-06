@@ -1,0 +1,42 @@
+lang = "uk"
+
+strings[lang] = {};
+
+strings[lang] = {
+    "all-notes-title": "Усі нотатки",
+    "all-notes-title-page": "Notefox - Усі нотатки",
+    "export-all-notes-button": "Експортувати всі нотатки…",
+    "import-notes-button": "Імпортувати нотатки…",
+    "refresh-data-button": "Освіжити дані",
+    "clear-all-notes-button": "Очистити всі нотатки",
+    "import-json-message-dialog-text": "Вставте тут вміст файлу JSON (або текст), який Ви експортували попередньо, потім клацніть кнопку <span {{parameters}}>Імпортувати зараз</span>. Після вдалого імпортування сторінка перезавантажиться самостійно.",
+    "cancel-button": "Скасувати",
+    "import-now-button": "Імпортувати зараз",
+    "export-json-message-dialog-text": "Створити новий файл JSON (або текстовий) і вставити в нього код нижче <strong>без змін</strong> (Ви можете клацнути кнопку <span {{parameters}}>Копіювати зараз</span>, щоб скопіювати код).",
+    "copy-now-button": "Копіювати зараз",
+    "last-update-text": "Востаннє оновлено: {{date_time}}",
+    "page-label": "Сторінка",
+    "domain-label": "Домен",
+    "see-all-notes-button": "Переглянути всі нотатки",
+    "clear-all-notes-confirmation": "Ви справді хочете очистити всі нотатки?\nПроцес неможливо скасувати.",
+    "clear-all-notes-domain-confirmation": "Ви справді хочете очистити всі нотатки для цього домену (також для його сторінок)?\nПроцес неможливо скасувати.",
+    "clear-all-notes-page-without-url-confirmation": "Ви справді хочете очистити вибрані нотатки?\nПроцес неможливо скасувати.",
+    "clear-all-notes-page-with-confirmation": "Ви справді хочете очистити вибрані нотатки ({{url}})?\nПроцес неможливо скасувати.",
+    "close-button": "Закрити",
+    "copied-button": "Скопійовано",
+    "clear-all-notes-of-this-domain-button": "Очистити всі нотатки для цього домену",
+    "no-notes-found-text": "Нотаток не знайдено",
+    "clear-notes-of-this-page-button": "Очистити нотатки для цієї сторінки",
+    "copy-notes-button": "Копіювати нотатки",
+    "red-colour": "Червоний",
+    "yellow-colour": "Жовтий",
+    "black-colour": "Чорний",
+    "grey-colour": "Сірий",
+    "purple-colour": "Фіолетовий",
+    "pink-colour": "Рожевий",
+    "green-colour": "Зелений",
+    "blue-colour": "Синій",
+    "orange-colour": "Оранжевий",
+    "none-colour": "Нема",
+    "never-update": "Ніколи"
+}
