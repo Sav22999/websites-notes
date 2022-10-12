@@ -21,6 +21,7 @@ Take notes on every website, by domain or by web page.
 
 - Write notes for the current page or for the whole domain
 - Auto-saving
+- Set a color-label 
 
 ## How to contribute
 
@@ -30,4 +31,4 @@ You can open an issue and there you must describe the feedback, the bug or the n
 
 See folder <code>screenshots</code> to see screenshots also of the older versions.
 
-<img src="screenshots/1.3/1.png" width="400px"></img><img src="screenshots/1.3/2.png" width="400px"></img><img src="screenshots/1.3/3.png" width="400px"></img>
+<img src="screenshots/2.0/1.png" width="400px"></img><img src="screenshots/2.0/2.png" width="400px"></img><img src="screenshots/2.0/3.png" width="400px"></img>
