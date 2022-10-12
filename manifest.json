@@ -1,7 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Notefox: Websites notes",
-  "version": "1.6.0.2",
+  "author": "Saverio Morelli (Sav22999)",
+  "version": "2.0",
   "description": "Take notes on every website, by domain or by web page.",
   "icons": {
     "16": "./img/icon.svg",
@@ -13,11 +14,6 @@
     "gecko": {
       "id": "websitesnotes@saveriomorelli.com",
       "strict_min_version": "42.0"
-    }
-  },
-  "applications": {
-    "gecko": {
-      "id": "websitesnotes@saveriomorelli.com"
     }
   },
   "browser_action": {
@@ -63,5 +59,8 @@
       "./js/background.js"
     ],
     "persistent": true
+  },
+  "options_ui": {
+    "page": "./settings/index.html"
   }
 }
