@@ -36,5 +36,12 @@ strings[lang] = {
     'blue-colour': 'Azul',
     'orange-colour': 'Naranga',
     'none-colour': 'Ninguno',
-    'never-update': 'Nunca'
+    'never-update': 'Nunca',
+    'settings-title': 'Ajustes',
+    'settings-title-page': 'Notefox - Settings',
+    'save-settings-button': 'Save settings',
+    'saved-button': 'Saved',
+    'open-popup-by-default': 'Open the popup by default with ',
+    'notefox-version-too-old-try-to-import-data-anyway': 'This data are from a very old version of this addon (before 2.0). The add-on will try to import anyway the data, but could be some problems. Do you want to continue?',
+    'notefox-version-different-try-to-import-data-anyway': 'This data are from a different version of the addon. The importing could fail (rarely). Do you want to continue?'
 };

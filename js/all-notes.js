@@ -161,8 +161,10 @@ function importAllNotes() {
                     if (json_to_export_temp["notefox"]["version"] != notefox_json["version"]) {
                         let confirmation = confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
                         if (confirmation) {
-                            websites_json = json_to_export_temp["websites"]
+                            websites_json = json_to_export_temp["websites"];
                         }
+                    } else {
+                        websites_json = json_to_export_temp["websites"];
                     }
                 }
                 document.getElementById("import-section").style.display = "none";
