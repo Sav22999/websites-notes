@@ -1,4 +1,5 @@
 var websites_json = {};
+var settings_json = {};
 
 var currentUrl = []; //[domain, page]
 
@@ -10,12 +11,13 @@ const linkReview = ["https://addons.mozilla.org/firefox/addon/websites-notes/"];
 const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://ko-fi.com/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
 
 function loaded() {
-    document.addEventListener("contextmenu",
-        function (e) {
-            if (!(e.target.nodeName == "TEXTAREA")) {
-                e.preventDefault();
-            }
-        }, false);
+    loadSettings();
+
+    document.addEventListener("contextmenu", function (e) {
+        if (!(e.target.nodeName == "TEXTAREA")) {
+            e.preventDefault();
+        }
+    }, false);
 
     document.getElementById("notes").focus();
 
@@ -47,19 +49,27 @@ function loadUI() {
 
         setUrl(activeTabUrl);
 
-        if (currentUrl[0] != "" && currentUrl[1] != "") {
+        if (currentUrl[0] !== "" && currentUrl[1] !== "") {
             browser.storage.local.get("websites", function (value) {
-                if (value["websites"] != undefined) {
+                let default_index = 0;
+                if (settings_json["open-default"] === "page") default_index = 1;
+                if (value["websites"] !== undefined) {
                     websites_json = value["websites"];
-                    if (websites_json[currentUrl[0]] != undefined && websites_json[currentUrl[0]]["last-update"] != undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] != undefined && websites_json[currentUrl[0]]["notes"] != "") {
+                    let check_for_domain = websites_json[currentUrl[0]] !== undefined && websites_json[currentUrl[0]]["last-update"] !== undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] !== undefined && websites_json[currentUrl[0]]["notes"] !== "";
+                    let check_for_page = websites_json[currentUrl[1]] !== undefined && websites_json[currentUrl[1]]["last-update"] !== undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] !== undefined && websites_json[currentUrl[1]]["notes"] !== "";
+                    if (check_for_domain && (default_index === 0 || default_index === 1 && !check_for_page)) {
+                        //by domain
                         setTab(0, currentUrl[0]);
-                    } else if (websites_json[currentUrl[1]] != undefined && websites_json[currentUrl[1]]["last-update"] != undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] != undefined && websites_json[currentUrl[1]]["notes"] != "") {
+                    } else if (check_for_page && (default_index === 1 || default_index === 0 && !check_for_domain)) {
+                        //by page
                         setTab(1, currentUrl[1]);
                     } else {
-                        setTab(0, currentUrl[0]);
+                        //using default
+                        setTab(default_index, currentUrl[default_index]);
                     }
                 } else {
-                    setTab(0, currentUrl[0]);
+                    //using default
+                    setTab(default_index, currentUrl[default_index]);
                 }
 
                 //console.log(JSON.stringify(websites_json));
@@ -82,6 +92,16 @@ function loadUI() {
         browser.tabs.create({url: "./all-notes/index.html"});
         window.close();
     }
+}
+
+function loadSettings() {
+    browser.storage.local.get("settings", function (value) {
+        if (value["settings"] !== undefined) {
+            settings_json = value["settings"];
+            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
+        }
+        //console.log(JSON.stringify(settings_json));
+    });
 }
 
 function saveNotes() {
@@ -195,20 +215,15 @@ function getDate() {
     let today = "";
     today = todayDate.getFullYear() + "-";
     let month = todayDate.getMonth() + 1;
-    if (month < 10) today = today + "0" + month + "-";
-    else today = today + "" + month + "-";
+    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
     let day = todayDate.getDate();
-    if (day < 10) today = today + "0" + day + " ";
-    else today = today + "" + day + " ";
+    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
     let hour = todayDate.getHours();
-    if (hour < 10) today = today + "0" + hour + ":";
-    else today = today + "" + hour + ":"
+    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
     let minute = todayDate.getMinutes();
-    if (minute < 10) today = today + "0" + minute + ":";
-    else today = today + "" + minute + ":"
+    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
     let second = todayDate.getSeconds();
-    if (second < 10) today = today + "0" + second;
-    else today = today + "" + second
+    if (second < 10) today = today + "0" + second; else today = today + "" + second
 
     return today;
 }
@@ -221,16 +236,16 @@ function setTab(index, url) {
     document.getElementsByClassName("tab")[index].classList.add("tab-sel");
 
     let notes = "";
-    if (websites_json[url] != undefined && websites_json[url]["notes"] != undefined) notes = websites_json[url]["notes"];
+    if (websites_json[url] !== undefined && websites_json[url]["notes"] !== undefined) notes = websites_json[url]["notes"];
     document.getElementById("notes").value = notes;
 
     let last_update = all_strings["never-update"];
-    if (websites_json[url] != undefined && websites_json[url]["last-update"] != undefined) last_update = websites_json[url]["last-update"];
+    if (websites_json[url] !== undefined && websites_json[url]["last-update"] !== undefined) last_update = websites_json[url]["last-update"];
     document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
 
     let colour = "none";
     document.getElementById("tag-colour-section").removeAttribute("class");
-    if (websites_json[url] != undefined && websites_json[url]["tag-colour"] != undefined) colour = websites_json[url]["tag-colour"];
+    if (websites_json[url] !== undefined && websites_json[url]["tag-colour"] !== undefined) colour = websites_json[url]["tag-colour"];
     document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
 
     document.getElementById("notes").focus();

@@ -35,7 +35,7 @@ function tabUpdated(tabId, changeInfo, tabInfo) {
 }
 
 function checkStatus() {
-    browser.storage.local.get("websites", function (value) {
+   browser.storage.local.get("websites", function (value) {
         if (value["websites"] != undefined) {
             websites_json = value["websites"];
 

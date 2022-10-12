@@ -1,5 +1,7 @@
 let websites_json = {};
 let websites_json_by_domain = {};
+let settings_json = {};
+let notefox_json = {};
 
 const all_strings = strings[languageToUse];
 
@@ -38,6 +40,11 @@ function loaded() {
     versionNumber.classList.add("float-right", "small-button");
     versionNumber.textContent = browser.runtime.getManifest().version;
     versionNumber.id = "version";
+    notefox_json = {
+        "version": browser.runtime.getManifest().version,
+        "id": browser.runtime.getManifest().author,
+        "manifest_version": browser.runtime.getManifest().manifest_version
+    };
     titleAllNotes.append(versionNumber);
 }
 
@@ -59,7 +66,7 @@ function setLanguageUI() {
 function loadDataFromBrowser(generate_section = true) {
     browser.storage.local.get("websites", function (value) {
         websites_json = {};
-        if (value["websites"] != undefined) {
+        if (value["websites"] !== undefined) {
             websites_json = value["websites"];
         }
         if (generate_section) {
@@ -68,6 +75,13 @@ function loadDataFromBrowser(generate_section = true) {
             loadAllWebsites();
         }
         //console.log(JSON.stringify(websites_json));
+    });
+    browser.storage.local.get("settings", function (value) {
+        settings_json = {};
+        if (value["settings"] !== undefined) {
+            settings_json = value["settings"];
+        }
+        //console.log(JSON.stringify(settings_json));
     });
 }
 
@@ -134,12 +148,38 @@ function importAllNotes() {
         let value = jsonImportElement.value;
         if (value.replaceAll(" ", "") != "") {
             try {
-                websites_json = JSON.parse(value);
+                //json_to_export = {"notefox": notefox_json, "websites": websites_json, "settings": settings_json};
+                let json_to_export_temp = JSON.parse(value);
+                if (json_to_export_temp["notefox"] === undefined || (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["notefox"]["version"] === undefined)) {
+                    //version before 2.0 (export in a different way)
+                    let confirmation = confirm(all_strings["notefox-version-too-old-try-to-import-data-anyway"]);
+                    if (confirmation) {
+                        websites_json = json_to_export_temp;
+                    }
+                }
+                if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["websites"] !== undefined) {
+                    if (json_to_export_temp["notefox"]["version"] != notefox_json["version"]) {
+                        let confirmation = confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
+                        if (confirmation) {
+                            websites_json = json_to_export_temp["websites"];
+                        }
+                    } else {
+                        websites_json = json_to_export_temp["websites"];
+                    }
+                }
                 document.getElementById("import-section").style.display = "none";
                 browser.storage.local.set({"websites": websites_json}, function () {
                     loadDataFromBrowser(true);
                     hideBackgroundOpacity()
+                    //Imported websites
                 });
+                if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["settings"] !== undefined) {
+                    settings_json = json_to_export_temp["settings"]
+                    browser.storage.local.set({"settings": settings_json}, function () {
+                        //Imported settings as well
+                    });
+                }
+
             } catch (e) {
                 //console.log("Error: " + e.toString());
                 let errorSubSection = document.createElement("div");
@@ -156,7 +196,8 @@ function importAllNotes() {
 function exportAllNotes() {
     showBackgroundOpacity();
     document.getElementById("export-section").style.display = "block";
-    document.getElementById("json-export").value = JSON.stringify(websites_json);
+    json_to_export = {"notefox": notefox_json, "settings": settings_json, "websites": websites_json};
+    document.getElementById("json-export").value = JSON.stringify(json_to_export);
 
     document.getElementById("cancel-export-all-notes-button").onclick = function () {
         hideBackgroundOpacity();
@@ -169,7 +210,7 @@ function exportAllNotes() {
         document.getElementById("cancel-export-all-notes-button").value = all_strings["close-button"];
         document.getElementById("copy-now-all-notes-button").value = all_strings["copied-button"];
 
-        document.getElementById("json-export").value = JSON.stringify(websites_json);
+        document.getElementById("json-export").value = JSON.stringify(json_to_export);
         document.getElementById("json-export").select();
         document.execCommand("copy");
     }
