@@ -503,7 +503,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
         }
         tagColour.textContent = colourList[colour];
         //tagColour.classList.add(colour + "-background-tag");
-        tagsColour.classList.add("button", "float-right", "very-small-button", "margin-right-5-px");
+        tagsColour.classList.add("button", "float-right", "very-small-button", "margin-right-5-px", "tag-button");
         tagColour.onclick = function () {
             changeTagColour(page, fullUrl, colour);
         }

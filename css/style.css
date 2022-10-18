@@ -72,7 +72,7 @@ body {
     display: inline-block;
 }
 
-.clear-button, .refresh-button, .import-button, .copy-button, .export-button, .save-button, .sort-by-button, .filter-button {
+.clear-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button {
     padding-left: 30px;
     background-image: url("../img/delete.svg");
     background-size: auto 50%;
@@ -120,6 +120,10 @@ body {
 
 .copy-button {
     background-image: url("../img/copy.svg");
+}
+
+.tag-button {
+    background-image: url("../img/tag.svg");
 }
 
 .sort-by-button {
@@ -461,7 +465,7 @@ h3 {
 
 .tag-colour-left {
     border: 0px solid transparent;
-    border-left-width: 10px;
+    border-left-width: 15px;
     border-style: solid;
 }
 
