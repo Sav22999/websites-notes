@@ -35,6 +35,7 @@ strings[lang] = {
     'green-colour': 'Verde',
     'blue-colour': 'Blu',
     'orange-colour': 'Arancione',
+    'white-colour': 'Bianco',
     'none-colour': 'Nulla',
     'never-update': 'Mai',
     'settings-title': 'Impostazioni',
@@ -43,5 +44,9 @@ strings[lang] = {
     'saved-button': 'Salvato',
     'open-popup-by-default': 'Apri il popup in maniera predefinita con ',
     'notefox-version-too-old-try-to-import-data-anyway': 'Questi dati provengono da una versione obsoleta del componente aggiuntivo (prima della 2.0). Verrà comunque tentata l\'importazione, ma potrebbero esserci problemi. Vuoi continuare?',
-    'notefox-version-different-try-to-import-data-anyway': 'Questi dati provengono da una versione diversa del componente aggiuntivo. L\'importazione potrebbe fallire (è raro). Vuoi continuare?'
+    'notefox-version-different-try-to-import-data-anyway': 'Questi dati provengono da una versione diversa del componente aggiuntivo. L\'importazione potrebbe fallire (è raro). Vuoi continuare?',
+    'search-textbox': 'Cerca…',
+    'sort-by-button': 'Ordina per…',
+    'filter-button': 'Filtra…',
+    'filter-by-tag-button': 'Etichetta: {{color}}'
 };

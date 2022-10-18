@@ -26,6 +26,7 @@ function setLanguageUI() {
 
     document.title = all_strings["settings-title-page"];
 
+    document.getElementById("open-by-default-text").innerText = all_strings["open-popup-by-default"];
     document.getElementById("open-by-default-domain-text").innerText = all_strings["domain-label"];
     document.getElementById("open-by-default-page-text").innerText = all_strings["page-label"];
 }
