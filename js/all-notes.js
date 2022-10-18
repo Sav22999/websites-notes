@@ -1,5 +1,6 @@
 let websites_json = {};
 let websites_json_by_domain = {};
+let websites_json_to_show = {};
 let settings_json = {};
 let notefox_json = {};
 
@@ -53,6 +54,21 @@ function setLanguageUI() {
     document.getElementById("clear-all-notes-button").value = all_strings["clear-all-notes-button"];
     document.getElementById("import-all-notes-button").value = all_strings["import-notes-button"];
     document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
+    document.getElementById("search-all-notes-text").placeholder = all_strings["search-textbox"];
+    document.getElementById("search-all-notes-text").onkeyup = function () {
+        search(document.getElementById("search-all-notes-text").value);
+    }
+    //document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
+    document.getElementById("filter-all-notes-button").value = all_strings["filter-button"];
+    document.getElementById("filter-all-notes-button").onclick = function () {
+        if (document.getElementById("filters").classList.contains("hidden")) {
+            //show because it's hidden
+            document.getElementById("filters").classList.remove("hidden");
+        } else {
+            //hide because it's visible
+            document.getElementById("filters").classList.add("hidden");
+        }
+    }
     document.title = all_strings["all-notes-title-page"];
 
     document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
@@ -61,6 +77,73 @@ function setLanguageUI() {
     document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
     document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
     document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
+
+    let colourList = sortObjectByKeys({
+        "red": all_strings["red-colour"],
+        "yellow": all_strings["yellow-colour"],
+        "black": all_strings["black-colour"],
+        "orange": all_strings["orange-colour"],
+        "pink": all_strings["pink-colour"],
+        "purple": all_strings["purple-colour"],
+        "gray": all_strings["grey-colour"],
+        "green": all_strings["green-colour"],
+        "blue": all_strings["blue-colour"],
+        "white": all_strings["white-colour"]
+    });
+    let redFilterButton = document.getElementById("filter-tag-red-button");
+    let yellowFilterButton = document.getElementById("filter-tag-yellow-button");
+    let blackFilterButton = document.getElementById("filter-tag-black-button");
+    let orangeFilterButton = document.getElementById("filter-tag-orange-button");
+    let pinkFilterButton = document.getElementById("filter-tag-pink-button");
+    let purpleFilterButton = document.getElementById("filter-tag-purple-button");
+    let grayFilterButton = document.getElementById("filter-tag-gray-button");
+    let greenFilterButton = document.getElementById("filter-tag-green-button");
+    let blueFilterButton = document.getElementById("filter-tag-blue-button");
+    let whiteFilterButton = document.getElementById("filter-tag-white-button");
+    redFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["red-colour"]);
+    redFilterButton.onclick = function () {
+        search("red");
+    };
+    yellowFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["yellow-colour"]);
+    yellowFilterButton.onclick = function () {
+        search("yellow");
+    };
+    blackFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["black-colour"]);
+    blackFilterButton.onclick = function () {
+        search("black");
+    };
+    orangeFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["orange-colour"]);
+    orangeFilterButton.onclick = function () {
+        search("orange");
+    };
+    pinkFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["pink-colour"]);
+    pinkFilterButton.onclick = function () {
+        search("pink");
+    };
+    purpleFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["purple-colour"]);
+    purpleFilterButton.onclick = function () {
+        search("purple");
+    };
+    grayFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["grey-colour"]);
+    grayFilterButton.onclick = function () {
+        search("gray");
+    };
+    redFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["red-colour"]);
+    redFilterButton.onclick = function () {
+        search("red");
+    };
+    greenFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["green-colour"]);
+    greenFilterButton.onclick = function () {
+        search("green");
+    };
+    blueFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["blue-colour"]);
+    blueFilterButton.onclick = function () {
+        search("blue");
+    };
+    whiteFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["white-colour"]);
+    whiteFilterButton.onclick = function () {
+        search("white");
+    };
 }
 
 function loadDataFromBrowser(generate_section = true) {
@@ -68,11 +151,11 @@ function loadDataFromBrowser(generate_section = true) {
         websites_json = {};
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
+            websites_json_to_show = websites_json;
         }
         if (generate_section) {
-            document.getElementById("all-website-sections").textContent = "";
             websites_json_by_domain = {};
-            loadAllWebsites();
+            loadAllWebsites(true);
         }
         //console.log(JSON.stringify(websites_json));
     });
@@ -99,9 +182,11 @@ function clearAllNotesDomain(url) {
         for (let index in websites_json_by_domain[url]) {
             //delete all pages
             delete websites_json[url + "" + websites_json_by_domain[url][index]];
+            websites_json_to_show = websites_json;
         }
         //delete domain
         delete websites_json[url];
+        websites_json_to_show = websites_json;
 
         browser.storage.local.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
@@ -118,6 +203,7 @@ function clearAllNotesPage(url, isDomain = false) {
     if (confirmation) {
         //delete the selected page
         delete websites_json[url];
+        websites_json_to_show = websites_json;
 
         browser.storage.local.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
@@ -155,6 +241,7 @@ function importAllNotes() {
                     let confirmation = confirm(all_strings["notefox-version-too-old-try-to-import-data-anyway"]);
                     if (confirmation) {
                         websites_json = json_to_export_temp;
+                        websites_json_to_show = websites_json;
                     }
                 }
                 if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["websites"] !== undefined) {
@@ -162,9 +249,11 @@ function importAllNotes() {
                         let confirmation = confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
                         if (confirmation) {
                             websites_json = json_to_export_temp["websites"];
+                            websites_json_to_show = websites_json;
                         }
                     } else {
                         websites_json = json_to_export_temp["websites"];
+                        websites_json_to_show = websites_json;
                     }
                 }
                 document.getElementById("import-section").style.display = "none";
@@ -224,37 +313,42 @@ function hideBackgroundOpacity() {
     document.getElementById("background-opacity").style.display = "none";
 }
 
-function loadAllWebsites() {
-    if (!isEmpty(websites_json)) {
+function loadAllWebsites(clear = false) {
+    if (clear) {
+        document.getElementById("all-website-sections").textContent = "";
+    }
+    if (!isEmpty(websites_json_to_show)) {
         //there are websites saved
 
-        for (let domain in websites_json) {
-            if (websites_json[domain]["type"] == undefined) {
-                websites_json[domain]["type"] = 0;
-                websites_json[domain]["domain"] = "";
-                websites_json[domain]["tag-colour"] = "none";
+        websites_json_by_domain = [];
+
+        for (let domain in websites_json_to_show) {
+            if (websites_json_to_show[domain]["type"] === undefined) {
+                websites_json_to_show[domain]["type"] = 0;
+                websites_json_to_show[domain]["domain"] = "";
+                websites_json_to_show[domain]["tag-colour"] = "none";
             }
 
 
-            if (websites_json[domain]["type"] == 0) {
+            if (websites_json_to_show[domain]["type"] === 0) {
                 //domain
-                if (websites_json_by_domain[domain] == undefined) {
+                if (websites_json_by_domain[domain] === undefined) {
                     websites_json_by_domain[domain] = [];
                 }
             } else {
                 //page
-                let root_domain = websites_json[domain]["domain"];
+                let root_domain = websites_json_to_show[domain]["domain"];
                 let domain_to_add = domain.replace(root_domain, "");
-                if (websites_json_by_domain[root_domain] == undefined) {
+                if (websites_json_by_domain[root_domain] === undefined) {
                     websites_json_by_domain[root_domain] = [];
                 }
-                if (websites_json_by_domain[root_domain].indexOf(domain_to_add) == -1) {
+                if (websites_json_by_domain[root_domain].indexOf(domain_to_add) === -1) {
                     websites_json_by_domain[root_domain].push(domain_to_add);
                 }
             }
 
-            if (websites_json[domain]["tag-colour"] == undefined) {
-                websites_json[domain]["tag-colour"] = "none";
+            if (websites_json_to_show[domain]["tag-colour"] === undefined) {
+                websites_json_to_show[domain]["tag-colour"] = "none";
             }
         }
         //console.log(JSON.stringify(websites_json_by_domain));
@@ -288,13 +382,13 @@ function loadAllWebsites() {
 
             //console.log(JSON.stringify(websites_json_by_domain[domain]));
 
-            if (websites_json[domain] != undefined) {
+            if (websites_json_to_show[domain] !== undefined) {
                 //there is notes also for the domain
                 let urlPageDomain = domain;
                 let page = document.createElement("div");
                 page.classList.add("sub-section");
-                let lastUpdate = websites_json[urlPageDomain]["last-update"];
-                let notes = websites_json[urlPageDomain]["notes"];
+                let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
+                let notes = websites_json_to_show[urlPageDomain]["notes"];
 
                 page = generateNotes(page, urlPageDomain, notes, lastUpdate, all_strings["domain-label"], urlPageDomain);
 
@@ -307,8 +401,11 @@ function loadAllWebsites() {
                 let page = document.createElement("div");
                 page.classList.add("sub-section");
 
-                let lastUpdate = websites_json[urlPageDomain]["last-update"];
-                let notes = websites_json[urlPageDomain]["notes"];
+                // console.log(urlPageDomain);
+                // console.log(websites_json_by_domain);
+                // console.log(websites_json_to_show);
+                let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
+                let notes = websites_json_to_show[urlPageDomain]["notes"];
 
                 page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["page-label"], urlPageDomain);
 
@@ -328,6 +425,24 @@ function loadAllWebsites() {
 
         document.getElementById("all-website-sections").append(section);
     }
+}
+
+function applyFilter() {
+    if (document.getElementById("search-all-notes-text").value.replaceAll(" ", "") !== "") {
+        search(document.getElementById("search-all-notes-text").value);
+    }
+}
+
+function search(value) {
+    websites_json_to_show = {};
+    document.getElementById("search-all-notes-text").value = value.toString();
+    for (const website in websites_json) {
+        let current_website_json = websites_json[website];
+        if (current_website_json["notes"].includes(value) || current_website_json["tag-colour"].includes(value) || current_website_json["domain"].includes(value)) {
+            websites_json_to_show[website] = websites_json[website];
+        }
+    }
+    loadAllWebsites(true);
 }
 
 function sortObjectByKeys(o) {
@@ -375,7 +490,8 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
         "purple": all_strings["purple-colour"],
         "gray": all_strings["grey-colour"],
         "green": all_strings["green-colour"],
-        "blue": all_strings["blue-colour"]
+        "blue": all_strings["blue-colour"],
+        "white": all_strings["white-colour"]
     });
     colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
     for (let colour in colourList) {
@@ -438,9 +554,11 @@ function changeTagColour(page, url, colour) {
             websites_json = value["websites"];
         }
         websites_json[url]["tag-colour"] = colour;
+        websites_json_to_show = websites_json;
         browser.storage.local.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
-            hideBackgroundOpacity()
+            hideBackgroundOpacity();
+            applyFilter();
         });
     });
 }
