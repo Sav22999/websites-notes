@@ -3,12 +3,16 @@ let settings_json = {
 };
 
 const all_strings = strings[languageToUse];
+const link_translate = "https://crowdin.com/project/notefox";
 
 function loaded() {
     setLanguageUI();
 
     document.getElementById("save-settings-button").onclick = function () {
         saveSettings();
+    }
+    document.getElementById("translate-addon").onclick = function () {
+        browser.tabs.create({url: link_translate});
     }
     document.getElementById("open-by-default-select").onchange = function () {
         settings_json["open-default"] = document.getElementById("open-by-default-select").value;
