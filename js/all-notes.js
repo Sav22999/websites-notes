@@ -436,9 +436,10 @@ function applyFilter() {
 function search(value) {
     websites_json_to_show = {};
     document.getElementById("search-all-notes-text").value = value.toString();
+    let valueToUse = value.toLowerCase();
     for (const website in websites_json) {
         let current_website_json = websites_json[website];
-        if (current_website_json["notes"].includes(value) || current_website_json["tag-colour"].includes(value) || current_website_json["domain"].includes(value)) {
+        if (current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["tag-colour"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse)) {
             websites_json_to_show[website] = websites_json[website];
         }
     }
