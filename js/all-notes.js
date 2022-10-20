@@ -13,6 +13,9 @@ function loaded() {
         //location.reload();
         loadDataFromBrowser(true);
     }
+    document.getElementById("settings-all-notes-button").onclick = function () {
+        browser.tabs.create({url: "../settings/index.html"});
+    }
     document.getElementById("clear-all-notes-button").onclick = function () {
         clearAllNotes();
     }
@@ -21,6 +24,20 @@ function loaded() {
     }
     document.getElementById("export-all-notes-button").onclick = function () {
         exportAllNotes();
+    }
+
+    document.getElementById("search-all-notes-text").onkeyup = function () {
+        search(document.getElementById("search-all-notes-text").value);
+    }
+
+    document.getElementById("filter-all-notes-button").onclick = function () {
+        if (document.getElementById("filters").classList.contains("hidden")) {
+            //show because it's hidden
+            document.getElementById("filters").classList.remove("hidden");
+        } else {
+            //hide because it's visible
+            document.getElementById("filters").classList.add("hidden");
+        }
     }
 
     loadDataFromBrowser(true);
@@ -55,20 +72,9 @@ function setLanguageUI() {
     document.getElementById("import-all-notes-button").value = all_strings["import-notes-button"];
     document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
     document.getElementById("search-all-notes-text").placeholder = all_strings["search-textbox"];
-    document.getElementById("search-all-notes-text").onkeyup = function () {
-        search(document.getElementById("search-all-notes-text").value);
-    }
+    document.getElementById("settings-all-notes-button").value = all_strings["settings-button"];
     //document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
     document.getElementById("filter-all-notes-button").value = all_strings["filter-button"];
-    document.getElementById("filter-all-notes-button").onclick = function () {
-        if (document.getElementById("filters").classList.contains("hidden")) {
-            //show because it's hidden
-            document.getElementById("filters").classList.remove("hidden");
-        } else {
-            //hide because it's visible
-            document.getElementById("filters").classList.add("hidden");
-        }
-    }
     document.title = all_strings["all-notes-title-page"];
 
     document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");

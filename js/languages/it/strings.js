@@ -48,5 +48,6 @@ strings[lang] = {
     'search-textbox': 'Cerca…',
     'sort-by-button': 'Ordina per…',
     'filter-button': 'Filtra…',
-    'filter-by-tag-button': 'Etichetta: {{color}}'
+    'filter-by-tag-button': 'Etichetta: {{color}}',
+    'settings-button': 'Impostazioni'
 };

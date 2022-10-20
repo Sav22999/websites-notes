@@ -50,5 +50,6 @@ strings[lang] = {
     "search-textbox": "Search…",
     "sort-by-button": "Sort by…",
     "filter-button": "Filter…",
-    "filter-by-tag-button": "Tag: {{color}}"
+    "filter-by-tag-button": "Tag: {{color}}",
+    "settings-button": "Settings"
 }
