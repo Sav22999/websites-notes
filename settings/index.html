@@ -17,13 +17,47 @@ Created by Saverio Morelli - saveriomorelli.com
         <input type="button" value="Translate on Crowdin" id="translate-addon" class="button translate-button"/>
     </div>
     <span id="settings-sections">
-        <div class="section">
-            <span class="section-left padding-25px-lateral"
-                  id="open-by-default-text">Open the popup by default with </span>
-            <span class="section-right">
+        <div class="section settings-section-grid">
+            <span class="section-left padding-25px-lateral settings-section-grid-column" id="open-by-default-text">Open the popup by default with</span>
+            <span class="section-right settings-section-grid-column">
                 <select name="open-by-default" class="select-box" id="open-by-default-select">
                     <option value="domain" id="open-by-default-domain-text">Domain</option>
                     <option value="page" id="open-by-default-page-text">Page</option>
+                </select>
+            </span>
+        </div>
+
+        <div class="section settings-section-grid">
+            <span class="section-left padding-25px-lateral settings-section-grid-column">
+                <span id="consider-parameters-text">Consider parameters as part of the url page</span>
+                <br/>
+                <div class="detailed-option" id="consider-parameters-detailed-text">
+                    When enabled: <span class="url-small">https://example.page/search?query=test</span> is different to <span
+                        class="url-small"> https://example.page/search</span>
+                </div>
+            </span>
+            <span class="section-right settings-section-grid-column">
+                <select name="open-by-default" class="select-box" id="consider-parameters-select">
+                    <option value="yes" id="consider-parameters-button-yes">Yes</option>
+                    <option value="no" id="consider-parameters-button-no">No</option>
+                </select>
+            </span>
+        </div>
+
+        <div class="section settings-section-grid">
+            <span class="section-left padding-25px-lateral settings-section-grid-column">
+                <span id="consider-sections-text">Consider sections as part of the url page</span>
+                <br/>
+                <div class="detailed-option" id="consider-sections-detailed-text">
+                    When enabled: <span
+                        class="url-small">https://example.page/search#section1</span> is different to <span
+                        class="url-small"> https://example.page/search</span>
+                </div>
+            </span>
+            <span class="section-right settings-section-grid-column">
+                <select name="open-by-default" class="select-box" id="consider-sections-select">
+                    <option value="yes" id="consider-sections-button-yes">Yes</option>
+                    <option value="no" id="consider-sections-button-no">No</option>
                 </select>
             </span>
         </div>
@@ -33,9 +67,11 @@ Created by Saverio Morelli - saveriomorelli.com
 
 <!--include all translation files-->
 <!--English-->
-<script src="../js/languages/en/strings.js"></script>
+<script src="./js/languages/en-UK/strings.js"></script>
 <!--Italian-->
-<script src="../js/languages/it/strings.js"></script>
+<script src="./js/languages/it-IT/strings.js"></script>
+<!--Spanish-->
+<script src="./js/languages/es-ES/strings.js"></script>
 <!--END|include all translation files-->
 
 <script src="../js/settings.js"></script>

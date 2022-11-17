@@ -43,11 +43,17 @@ strings[lang] = {
     'save-settings-button': 'Guardar ajustes',
     'saved-button': 'Guardado',
     'open-popup-by-default': 'Abrir la ventana emergente por defecto con ',
+    'consider-parameters': 'Consider parameters as part of the url page',
+    'consider-parameters-detailed': 'When enabled: <span class=\'url-small\'>https://example.page/search?query=test</span> is different to <span class=\'url-small\'> https://example.page/search</span>',
+    'consider-sections': 'Consider sections as part of the url page',
+    'consider-sections-detailed': 'When enabled: <span class=\'url-small\'>https://example.page/search#sectiion1</span> is different to <span class=\'url-small\'> https://example.page/search</span>',
     'notefox-version-too-old-try-to-import-data-anyway': 'Estos datos son de una versión muy antigua de este complemento (antes de la 2.0). El complemento intentará importar de todos modos los datos, pero podría ser un problema. ¿Quieres continuar?',
     'notefox-version-different-try-to-import-data-anyway': 'Estos datos son de una versión diferente del complemento. La importación podría fallar (raramente). ¿Desea continuar?',
     'search-textbox': 'Buscar…',
     'sort-by-button': 'Ordenar por…',
     'filter-button': 'Filtrar…',
     'filter-by-tag-button': 'Etiqueta: {{color}}',
-    'settings-button': 'Settings'
+    'settings-button': 'Ajustes',
+    'settings-select-button-yes': 'Sí',
+    'settings-select-button-no': 'No'
 };

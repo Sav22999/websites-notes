@@ -45,11 +45,17 @@ strings[lang] = {
     "save-settings-button": "Save settings",
     "saved-button": "Saved",
     "open-popup-by-default": "Open the popup by default with ",
+    "consider-parameters": "Consider parameters as part of the url page",
+    "consider-parameters-detailed": "When enabled: <span class='url-small'>https://example.page/search?query=test</span> is different to <span class='url-small'>https://example.page/search</span>",
+    "consider-sections": "Consider sections as part of the url page",
+    "consider-sections-detailed": "When enabled: <span class='url-small'>https://example.page/search#section1</span> is different to <span class='url-small'>https://example.page/search</span>",
     "notefox-version-too-old-try-to-import-data-anyway": "This data are from a very old version of this addon (before 2.0). The add-on will try to import anyway the data, but could be some problems. Do you want to continue?",
     "notefox-version-different-try-to-import-data-anyway": "This data are from a different version of the addon. The importing could fail (rarely). Do you want to continue?",
     "search-textbox": "Search…",
     "sort-by-button": "Sort by…",
     "filter-button": "Filter…",
     "filter-by-tag-button": "Tag: {{color}}",
-    "settings-button": "Settings"
+    "settings-button": "Settings",
+    "settings-select-button-yes": "Yes",
+    "settings-select-button-no": "No"
 }

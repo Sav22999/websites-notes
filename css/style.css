@@ -257,11 +257,37 @@ textarea::placeholder, .textbox::placeholder {
     }
 }
 
+.settings-section-grid {
+    display: grid;
+    grid-template-columns: auto auto;
+    padding: inherit;
+}
+
+.settings-section-grid-column {
+
+}
+
 .section, .sub-section, .section-empty {
     background-color: #ffffff;
     padding: 5px;
     margin: 5px;
     border-radius: 5px;
+}
+
+.detailed-option {
+    font-size: 10px;
+    padding: 0px;
+    margin: 0px;
+}
+
+.url-small {
+    font-style: italic;
+    text-decoration: underline;
+    font-size: inherit;
+}
+
+.section-left, .section-right {
+    white-space: nowrap;
 }
 
 .section-empty {
