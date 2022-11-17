@@ -12,7 +12,9 @@ const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://ko-fi.com/s
 
 function loaded() {
     loadSettings();
+}
 
+function continueLoaded() {
     document.addEventListener("contextmenu", function (e) {
         if (!(e.target.nodeName == "TEXTAREA")) {
             e.preventDefault();
@@ -99,7 +101,11 @@ function loadSettings() {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
+            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "yes";
+            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "yes";
         }
+
+        continueLoaded();
         //console.log(JSON.stringify(settings_json));
     });
 }
@@ -163,31 +169,52 @@ function tabUpdated(tabId, changeInfo, tabInfo) {
 function setUrl(url) {
     if (isUrlSupported(url)) {
         currentUrl[0] = getShortUrl(url);
-        currentUrl[1] = url;
+        currentUrl[1] = getPageUrl(url);
         document.getElementById("tabs-section").style.display = "block";
     } else {
-        currentUrl[0] = url;
-        currentUrl[1] = url;
+        currentUrl[0] = getPageUrl(url);
+        currentUrl[1] = getPageUrl(url);
         document.getElementById("tabs-section").style.display = "none";
     }
+
+    //console.log("Current url [0] " + currentUrl[0] + " - [1] " + currentUrl[1]);
 }
 
 function getShortUrl(url) {
     let urlToReturn = "";
     let protocol = getTheProtocol(url);
     if (url.includes(":")) {
-        urlParts = url.split(":");
+        let urlParts = url.split(":");
         urlToReturn = urlParts[1];
     }
 
     if (urlToReturn.includes("/")) {
-        urlPartsTemp = urlToReturn.split("/");
+        let urlPartsTemp = urlToReturn.split("/");
         if (urlPartsTemp[0] == "" && urlPartsTemp[1] == "") {
             urlToReturn = urlPartsTemp[2];
         }
     }
 
     return (protocol + "://" + urlToReturn);
+}
+
+function getPageUrl(url) {
+    let urlToReturn = url;
+
+    //https://page.example/search#section1
+    if (settings_json["consider-sections"] === "no") {
+        if (url.includes("#"))
+            urlToReturn = urlToReturn.split("#")[0];
+    }
+
+    //https://page.example/search?parameters
+    if (settings_json["consider-parameters"] === "no") {
+        if (url.includes("?"))
+            urlToReturn = urlToReturn.split("?")[0];
+    }
+
+    //console.log(urlToReturn);
+    return urlToReturn;
 }
 
 function getTheProtocol(url) {
@@ -236,16 +263,16 @@ function setTab(index, url) {
     document.getElementsByClassName("tab")[index].classList.add("tab-sel");
 
     let notes = "";
-    if (websites_json[url] !== undefined && websites_json[url]["notes"] !== undefined) notes = websites_json[url]["notes"];
+    if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["notes"] !== undefined) notes = websites_json[getPageUrl(url)]["notes"];
     document.getElementById("notes").value = notes;
 
     let last_update = all_strings["never-update"];
-    if (websites_json[url] !== undefined && websites_json[url]["last-update"] !== undefined) last_update = websites_json[url]["last-update"];
+    if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["last-update"] !== undefined) last_update = websites_json[getPageUrl(url)]["last-update"];
     document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
 
     let colour = "none";
     document.getElementById("tag-colour-section").removeAttribute("class");
-    if (websites_json[url] !== undefined && websites_json[url]["tag-colour"] !== undefined) colour = websites_json[url]["tag-colour"];
+    if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["tag-colour"] !== undefined) colour = websites_json[getPageUrl(url)]["tag-colour"];
     document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
 
     document.getElementById("notes").focus();
