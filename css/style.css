@@ -286,10 +286,6 @@ textarea::placeholder, .textbox::placeholder {
     font-size: inherit;
 }
 
-.section-left, .section-right {
-    white-space: nowrap;
-}
-
 .section-empty {
     padding: 50px;
     text-align: center;
