@@ -33,6 +33,22 @@ function continueLoaded() {
     });
 
     browser.tabs.onUpdated.addListener(tabUpdated);
+
+    checkOpenedBy();
+}
+
+function checkOpenedBy() {
+    browser.storage.local.get("opened-by-shortcut", function (value) {
+        if (value["opened-by-shortcut"] !== undefined) {
+            if (value["opened-by-shortcut"] === "domain") {
+                settings_json["open-default"] = "domain";
+                loadUI();
+            } else if (value["opened-by-shortcut"] === "page") {
+                settings_json["open-default"] = "page";
+                loadUI();
+            }
+        }
+    });
 }
 
 function setLanguageUI() {
