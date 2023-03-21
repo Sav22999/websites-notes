@@ -46,7 +46,7 @@ strings[lang] = {
     'consider-parameters': 'Considera i parametri come parte della pagina url',
     'consider-parameters-detailed': 'Quando abilitato: <span class=\'url-small\'>https://example.page/search?query=test</span> è diverso da <span class=\'url-small\'>https://example.page/search</span>',
     'consider-sections': 'Considera le sezioni come parte della pagina url',
-    'consider-sections-detailed': 'Quando abilitato: <span class=\'url-small\'>https://example.page/search#sectiion1</span> è diverso da <span class=\'url-small\'>https://example.page/search</span>',
+    'consider-sections-detailed': 'Quando abilitato: <span class=\'url-small\'>https://example.page/search#section1</span> è diverso da <span class=\'url-small\'>https://example.page/search</span>',
     'notefox-version-too-old-try-to-import-data-anyway': 'Questi dati provengono da una versione obsoleta del componente aggiuntivo (prima della 2.0). Verrà comunque tentata l\'importazione, ma potrebbero esserci problemi. Vuoi continuare?',
     'notefox-version-different-try-to-import-data-anyway': 'Questi dati provengono da una versione diversa del componente aggiuntivo. L\'importazione potrebbe fallire (è raro). Vuoi continuare?',
     'search-textbox': 'Cerca…',
@@ -55,5 +55,18 @@ strings[lang] = {
     'filter-by-tag-button': 'Etichetta: {{color}}',
     'settings-button': 'Impostazioni',
     'settings-select-button-yes': 'Sì',
-    'settings-select-button-no': 'No'
+    'settings-select-button-no': 'No',
+    'open-popup-default-shortcut-text': 'Scorciatoia da tastiera per aprire pop-up usando la scheda predefinita scelta',
+    'open-popup-domain-shortcut-text': 'Scorciatoia da tastiera per aprire pop-up utilizzando la scheda dominio',
+    'open-popup-page-shortcut-text': 'Scorciatoia da tastiera per aprire pop-up usando la scheda della pagina',
+    'label-ctrl-default': 'Ctrl',
+    'label-ctrl-mac': 'Command ⌘',
+    'label-alt-default': 'Alt',
+    'label-alt-mac': 'Opzione ⌥',
+    'label-ctrl-alt-default': 'Ctrl + Alt',
+    'label-ctrl-alt-mac': 'Command ⌘ + Opzione ⌥',
+    'label-ctrl-shift-default': 'Ctrl + Maiusc',
+    'label-ctrl-shift-mac': 'Command ⌘ + Shift ⇧',
+    'label-alt-shift-default': 'Alt + Maiusc',
+    'label-alt-shift-mac': 'Opzione ⌥ + Shift ⇧'
 };

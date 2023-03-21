@@ -2,13 +2,30 @@
   "manifest_version": 2,
   "name": "Notefox: Websites notes",
   "author": "Saverio Morelli (Sav22999)",
-  "version": "2.2.2",
+  "version": "2.3",
   "description": "Take notes on every website, by domain or by web page.",
   "icons": {
     "16": "./img/icon.svg",
     "24": "./img/icon.svg",
     "48": "./img/icon.svg",
     "96": "./img/icon.svg"
+  },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Ctrl+Alt+O"
+      }
+    },
+    "opened-by-domain": {
+      "suggested_key": {
+        "default": "Ctrl+Alt+D"
+      }
+    },
+    "opened-by-page": {
+      "suggested_key": {
+        "default": "Ctrl+Alt+P"
+      }
+    }
   },
   "browser_specific_settings": {
     "gecko": {

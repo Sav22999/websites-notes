@@ -9,10 +9,6 @@ function changeIcon(index) {
 }
 
 function loaded() {
-    loadSettings();
-}
-
-function loaded() {
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         // since only one tab should be active and in the current window at once
         // the return variable should only have one entry
@@ -21,6 +17,7 @@ function loaded() {
         tab_url = activeTab.url;
 
         checkStatus();
+        listenerShortcuts();
     });
 
     //catch changing of tab
@@ -114,6 +111,22 @@ function getPageUrl(url) {
 
 function getTheProtocol(url) {
     return url.split(":")[0];
+}
+
+function listenerShortcuts() {
+    browser.commands.onCommand.addListener((command) => {
+        if (command === "opened-by-domain") {
+            //domain
+            console.log("Opened by domain");
+            browser.browserAction.openPopup();
+            browser.storage.local.set({"opened-by-shortcut": "domain"});
+        } else if (command === "opened-by-page") {
+            //page
+            console.log("Opened by page");
+            browser.browserAction.openPopup();
+            browser.storage.local.set({"opened-by-shortcut": "page"});
+        }
+    });
 }
 
 loaded();
