@@ -1,5 +1,6 @@
 const icons = ["../img/icon.svg", "../img/icon-bordered.svg"];
 var settings_json = {};
+var websites_json = {};
 
 var tab_id = 0;
 var tab_url = "";
@@ -16,24 +17,28 @@ function loaded() {
         tab_id = activeTab.id;
         tab_url = activeTab.url;
 
-        checkStatus();
+        //catch changing of tab
+        browser.tabs.onActivated.addListener(tabUpdated);
+        browser.tabs.onUpdated.addListener(tabUpdated);
+
+        browser.runtime.onMessage.addListener((message) => {
+            if (message["updated"] != undefined && message["updated"]) {
+                checkStatus();
+            }
+        });
+
         listenerShortcuts();
-    });
-
-    //catch changing of tab
-    browser.tabs.onUpdated.addListener(tabUpdated);
-
-    browser.runtime.onMessage.addListener((message) => {
-        if (message["updated"] != undefined && message["updated"]) {
-            checkStatus();
-        }
+        checkStatus();
     });
 }
 
-function tabUpdated(tabId, changeInfo, tabInfo) {
-    tab_id = tabId;
-    tab_url = tabInfo.url;
-    checkStatus();
+function tabUpdated(tabs) {
+    browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
+        tab_id = tabs[0].tabId;
+        tab_url = tabs[0].url;
+    }).then((tabs) => {
+        checkStatus();
+    });
 }
 
 function checkStatus() {
@@ -57,9 +62,9 @@ function continueCheckStatus() {
 
             let domain_url = getShortUrl(tab_url);
 
-            if (websites_json[domain_url] != undefined && websites_json[domain_url]["last-update"] != undefined && websites_json[domain_url]["last-update"] != null && websites_json[domain_url]["notes"] != undefined && websites_json[domain_url]["notes"] != "") {
+            if (websites_json[domain_url] !== undefined && websites_json[domain_url]["last-update"] !== undefined && websites_json[domain_url]["last-update"] != null && websites_json[domain_url]["notes"] !== undefined && websites_json[domain_url]["notes"] !== "") {
                 changeIcon(1);
-            } else if (websites_json[getPageUrl(tab_url)] != undefined && websites_json[getPageUrl(tab_url)]["last-update"] != undefined && websites_json[getPageUrl(tab_url)]["last-update"] != null && websites_json[getPageUrl(tab_url)]["notes"] != undefined && websites_json[getPageUrl(tab_url)]["notes"] != "") {
+            } else if (websites_json[getPageUrl(tab_url)] !== undefined && websites_json[getPageUrl(tab_url)]["last-update"] !== undefined && websites_json[getPageUrl(tab_url)]["last-update"] != null && websites_json[getPageUrl(tab_url)]["notes"] !== undefined && websites_json[getPageUrl(tab_url)]["notes"] !== "") {
                 changeIcon(1);
             } else {
                 changeIcon(0);
@@ -117,12 +122,10 @@ function listenerShortcuts() {
     browser.commands.onCommand.addListener((command) => {
         if (command === "opened-by-domain") {
             //domain
-            console.log("Opened by domain");
             browser.browserAction.openPopup();
             browser.storage.local.set({"opened-by-shortcut": "domain"});
         } else if (command === "opened-by-page") {
             //page
-            console.log("Opened by page");
             browser.browserAction.openPopup();
             browser.storage.local.set({"opened-by-shortcut": "page"});
         }

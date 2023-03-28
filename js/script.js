@@ -4,6 +4,7 @@ var settings_json = {};
 var currentUrl = []; //[domain, page]
 
 var selected_tab = 0; //{0:domain | 1:page}
+var opened_by = -1;
 
 const all_strings = strings[languageToUse];
 
@@ -41,12 +42,27 @@ function checkOpenedBy() {
     browser.storage.local.get("opened-by-shortcut", function (value) {
         if (value["opened-by-shortcut"] !== undefined) {
             if (value["opened-by-shortcut"] === "domain") {
-                settings_json["open-default"] = "domain";
+                opened_by = 0;
                 loadUI();
             } else if (value["opened-by-shortcut"] === "page") {
-                settings_json["open-default"] = "page";
+                opened_by = 1;
                 loadUI();
             }
+        }
+    });
+    listenerShortcuts();
+}
+
+function listenerShortcuts() {
+    browser.commands.onCommand.addListener((command) => {
+        if (command === "opened-by-domain") {
+            //domain
+            opened_by = 0;
+            loadUI();
+        } else if (command === "opened-by-page") {
+            //page
+            opened_by = 1;
+            loadUI();
         }
     });
 }
@@ -59,6 +75,7 @@ function setLanguageUI() {
 }
 
 function loadUI() {
+    //opened_by = {-1: default, 0: domain, 1: page}
     setLanguageUI();
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         let activeTab = tabs[0];
@@ -75,18 +92,24 @@ function loadUI() {
                     websites_json = value["websites"];
                     let check_for_domain = websites_json[currentUrl[0]] !== undefined && websites_json[currentUrl[0]]["last-update"] !== undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] !== undefined && websites_json[currentUrl[0]]["notes"] !== "";
                     let check_for_page = websites_json[currentUrl[1]] !== undefined && websites_json[currentUrl[1]]["last-update"] !== undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] !== undefined && websites_json[currentUrl[1]]["notes"] !== "";
-                    if (check_for_domain && (default_index === 0 || default_index === 1 && !check_for_page)) {
+                    if (opened_by === 0 || (check_for_domain && (default_index === 0 || default_index === 1 && !check_for_page))) {
                         //by domain
                         setTab(0, currentUrl[0]);
-                    } else if (check_for_page && (default_index === 1 || default_index === 0 && !check_for_domain)) {
+                    } else if (opened_by === 1 || (check_for_page && (default_index === 1 || default_index === 0 && !check_for_domain))) {
                         //by page
                         setTab(1, currentUrl[1]);
                     } else {
                         //using default
+                        if (opened_by !== -1) {
+                            default_index = opened_by;
+                        }
                         setTab(default_index, currentUrl[default_index]);
                     }
                 } else {
                     //using default
+                    if (opened_by !== -1) {
+                        default_index = opened_by;
+                    }
                     setTab(default_index, currentUrl[default_index]);
                 }
 
@@ -219,14 +242,12 @@ function getPageUrl(url) {
 
     //https://page.example/search#section1
     if (settings_json["consider-sections"] === "no") {
-        if (url.includes("#"))
-            urlToReturn = urlToReturn.split("#")[0];
+        if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
     }
 
     //https://page.example/search?parameters
     if (settings_json["consider-parameters"] === "no") {
-        if (url.includes("?"))
-            urlToReturn = urlToReturn.split("?")[0];
+        if (url.includes("?")) urlToReturn = urlToReturn.split("?")[0];
     }
 
     //console.log(urlToReturn);
