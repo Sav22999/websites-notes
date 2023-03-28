@@ -118,11 +118,11 @@ function loadSettings() {
 
                 document.getElementById("key-shortcut-ctrl-alt-shift-" + value + "-selected").onchange = function () {
                     settings_json["open-popup-" + value] = document.getElementById("key-shortcut-ctrl-alt-shift-" + value + "-selected").value + "+" + document.getElementById("key-shortcut-" + value + "-selected").value;
-                    updateShortcut(commandName, settings_json["open-popup-" + value]);
+                    //updateShortcut(commandName, settings_json["open-popup-" + value]);
                 }
                 document.getElementById("key-shortcut-" + value + "-selected").onchange = function () {
                     settings_json["open-popup-" + value] = document.getElementById("key-shortcut-ctrl-alt-shift-" + value + "-selected").value + "+" + document.getElementById("key-shortcut-" + value + "-selected").value;
-                    updateShortcut(commandName, settings_json["open-popup-" + value]);
+                    //updateShortcut(commandName, settings_json["open-popup-" + value]);
                 }
             });
         }
@@ -135,6 +135,15 @@ function saveSettings() {
         //Saved
         let buttonSave = document.getElementById("save-settings-button");
         buttonSave.value = all_strings["saved-button"];
+
+        ctrl_alt_shift.forEach(value => {
+            let commandName = "_execute_browser_action";
+            if (value === "domain") commandName = "opened-by-domain";
+            else if (value === "page") commandName = "opened-by-page";
+
+            updateShortcut(commandName, settings_json["open-popup-" + value]);
+        });
+
         setTimeout(function () {
             buttonSave.value = all_strings["save-settings-button"];
         }, 2000);
