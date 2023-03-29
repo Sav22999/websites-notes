@@ -48,6 +48,7 @@ function checkOpenedBy() {
                 opened_by = 1;
                 loadUI();
             }
+            browser.storage.local.set({"opened-by-shortcut": "default"});
         }
     });
     listenerShortcuts();
@@ -63,6 +64,7 @@ function listenerShortcuts() {
             //page
             opened_by = 1;
             loadUI();
+            browser.storage.local.set({"opened-by-shortcut": "default"});
         }
     });
 }
@@ -92,10 +94,11 @@ function loadUI() {
                     websites_json = value["websites"];
                     let check_for_domain = websites_json[currentUrl[0]] !== undefined && websites_json[currentUrl[0]]["last-update"] !== undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] !== undefined && websites_json[currentUrl[0]]["notes"] !== "";
                     let check_for_page = websites_json[currentUrl[1]] !== undefined && websites_json[currentUrl[1]]["last-update"] !== undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] !== undefined && websites_json[currentUrl[1]]["notes"] !== "";
-                    if (opened_by === 0 || (check_for_domain && (default_index === 0 || default_index === 1 && !check_for_page))) {
+                    if (opened_by === 0 || (opened_by === -1 && check_for_domain && (default_index === 0 || default_index === 1 && !check_for_page)
+                    )) {
                         //by domain
                         setTab(0, currentUrl[0]);
-                    } else if (opened_by === 1 || (check_for_page && (default_index === 1 || default_index === 0 && !check_for_domain))) {
+                    } else if (opened_by === 1 || (opened_by === -1 && check_for_page && (default_index === 1 || default_index === 0 && !check_for_domain))) {
                         //by page
                         setTab(1, currentUrl[1]);
                     } else {
