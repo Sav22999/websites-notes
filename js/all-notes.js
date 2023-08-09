@@ -4,6 +4,8 @@ let websites_json_to_show = {};
 let settings_json = {};
 let notefox_json = {};
 
+const all_strings = strings[languageToUse];
+
 let colourListDefault = sortObjectByKeys({
     "red": all_strings["red-colour"],
     "yellow": all_strings["yellow-colour"],
@@ -16,8 +18,6 @@ let colourListDefault = sortObjectByKeys({
     "blue": all_strings["blue-colour"],
     "white": all_strings["white-colour"]
 });
-
-const all_strings = strings[languageToUse];
 
 function loaded() {
     setLanguageUI();
