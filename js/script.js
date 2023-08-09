@@ -94,8 +94,7 @@ function loadUI() {
                     websites_json = value["websites"];
                     let check_for_domain = websites_json[currentUrl[0]] !== undefined && websites_json[currentUrl[0]]["last-update"] !== undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] !== undefined && websites_json[currentUrl[0]]["notes"] !== "";
                     let check_for_page = websites_json[currentUrl[1]] !== undefined && websites_json[currentUrl[1]]["last-update"] !== undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] !== undefined && websites_json[currentUrl[1]]["notes"] !== "";
-                    if (opened_by === 0 || (opened_by === -1 && check_for_domain && (default_index === 0 || default_index === 1 && !check_for_page)
-                    )) {
+                    if (opened_by === 0 || (opened_by === -1 && check_for_domain && (default_index === 0 || default_index === 1 && !check_for_page))) {
                         //by domain
                         setTab(0, currentUrl[0]);
                     } else if (opened_by === 1 || (opened_by === -1 && check_for_page && (default_index === 1 || default_index === 0 && !check_for_domain))) {
@@ -135,6 +134,10 @@ function loadUI() {
     document.getElementById("all-notes-button").onclick = function () {
         browser.tabs.create({url: "./all-notes/index.html"});
         window.close();
+    }
+
+    document.getElementById("open-sticky-button").onclick = function () {
+        openStickyNotes();
     }
 }
 
@@ -316,6 +319,10 @@ function setTab(index, url) {
     document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
 
     document.getElementById("notes").focus();
+}
+
+function openStickyNotes() {
+    browser.runtime.sendMessage({"open-sticky": true});
 }
 
 loaded();

@@ -4,6 +4,19 @@ let websites_json_to_show = {};
 let settings_json = {};
 let notefox_json = {};
 
+let colourListDefault = sortObjectByKeys({
+    "red": all_strings["red-colour"],
+    "yellow": all_strings["yellow-colour"],
+    "black": all_strings["black-colour"],
+    "orange": all_strings["orange-colour"],
+    "pink": all_strings["pink-colour"],
+    "purple": all_strings["purple-colour"],
+    "gray": all_strings["grey-colour"],
+    "green": all_strings["green-colour"],
+    "blue": all_strings["blue-colour"],
+    "white": all_strings["white-colour"]
+});
+
 const all_strings = strings[languageToUse];
 
 function loaded() {
@@ -84,18 +97,7 @@ function setLanguageUI() {
     document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
     document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
 
-    let colourList = sortObjectByKeys({
-        "red": all_strings["red-colour"],
-        "yellow": all_strings["yellow-colour"],
-        "black": all_strings["black-colour"],
-        "orange": all_strings["orange-colour"],
-        "pink": all_strings["pink-colour"],
-        "purple": all_strings["purple-colour"],
-        "gray": all_strings["grey-colour"],
-        "green": all_strings["green-colour"],
-        "blue": all_strings["blue-colour"],
-        "white": all_strings["white-colour"]
-    });
+    let colourList = colourListDefault;
     let redFilterButton = document.getElementById("filter-tag-red-button");
     let yellowFilterButton = document.getElementById("filter-tag-yellow-button");
     let blackFilterButton = document.getElementById("filter-tag-black-button");
@@ -488,18 +490,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     }
 
     let tagsColour = document.createElement("select");
-    let colourList = sortObjectByKeys({
-        "red": all_strings["red-colour"],
-        "yellow": all_strings["yellow-colour"],
-        "black": all_strings["black-colour"],
-        "orange": all_strings["orange-colour"],
-        "pink": all_strings["pink-colour"],
-        "purple": all_strings["purple-colour"],
-        "gray": all_strings["grey-colour"],
-        "green": all_strings["green-colour"],
-        "blue": all_strings["blue-colour"],
-        "white": all_strings["white-colour"]
-    });
+    let colourList = colourListDefault;
     colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
     for (let colour in colourList) {
         let tagColour = document.createElement("option");

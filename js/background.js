@@ -5,6 +5,10 @@ var websites_json = {};
 var tab_id = 0;
 var tab_url = "";
 
+var coords = {x: "10px", y: "10px"};
+
+var openedAsSticky = false
+
 function changeIcon(index) {
     browser.browserAction.setIcon({path: icons[index], tabId: tab_id});
 }
@@ -22,13 +26,23 @@ function loaded() {
         browser.tabs.onUpdated.addListener(tabUpdated);
 
         browser.runtime.onMessage.addListener((message) => {
-            if (message["updated"] != undefined && message["updated"]) {
+            if (message["updated"] !== undefined && message["updated"]) {
                 checkStatus();
             }
         });
 
         listenerShortcuts();
+        listenerStickyNotes();
         checkStatus();
+    });
+
+    browser.storage.sync.get("sticky-notes-coords").then(result => {
+        const value = result["sticky-notes-coords"];
+        if (value !== undefined) {
+            coords.x = value.x;
+            coords.y = value.y;
+            console.log("Load coords!");
+        }
     });
 }
 
@@ -57,7 +71,7 @@ function checkStatus() {
 
 function continueCheckStatus() {
     browser.storage.local.get("websites", function (value) {
-        if (value["websites"] != undefined) {
+        if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
             let domain_url = getShortUrl(tab_url);
@@ -100,14 +114,12 @@ function getPageUrl(url) {
 
     //https://page.example/search#section1
     if (settings_json["consider-sections"] === "no") {
-        if (url.includes("#"))
-            urlToReturn = urlToReturn.split("#")[0];
+        if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
     }
 
     //https://page.example/search?parameters
     if (settings_json["consider-parameters"] === "no") {
-        if (url.includes("?"))
-            urlToReturn = urlToReturn.split("?")[0];
+        if (url.includes("?")) urlToReturn = urlToReturn.split("?")[0];
     }
 
     //console.log(urlToReturn);
@@ -129,6 +141,61 @@ function listenerShortcuts() {
             browser.browserAction.openPopup();
             browser.storage.local.set({"opened-by-shortcut": "page"});
         }
+    });
+}
+
+function listenerStickyNotes() {
+    browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        if (message["open-sticky"] !== undefined && message["open-sticky"]) {
+            openAsStickyNotes();
+        }
+
+        if (message.from !== undefined && message.from == "sticky") {
+            //from sticky-notes
+            if (message.data !== undefined) {
+                //communicate something
+                if (message.data.close !== undefined) {
+                    if (message.data.close) {
+                        //sticky-notes hidden
+                        openedAsSticky = false;
+                    } else {
+                        //sticky-notes shown
+                        openedAsSticky = true;
+                    }
+                }
+
+                if (message.data.coords !== undefined) {
+                    //save X (left) and Y (top) coords of the sticky
+                    //these coords will be used to open in that position
+
+                    browser.storage.sync.set({
+                        "sticky-notes-coords": {
+                            x: message.data.coords.x,
+                            y: message.data.coords.y
+                        }
+                    }).then(result => {
+                        coords.x = message.data.coords.x;
+                        coords.y = message.data.coords.y;
+                    });
+                }
+            } else if (message.ask !== undefined) {
+                //want something as response
+                if (message.ask === "coords") {
+                    sendResponse({coords: {x: coords.x, y: coords.y}});
+                }
+            }
+        }
+    });
+}
+
+function openAsStickyNotes() {
+    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        const activeTab = tabs[0];
+        browser.tabs.executeScript(activeTab.id, {file: "./js/sticky-notes.js"}).then(function () {
+            //console.log("ContentScript injected successfully");
+        }).catch(function (error) {
+            //console.error(error);
+        });
     });
 }
 
