@@ -7,6 +7,7 @@ var tab_url = "";
 
 var coords = {x: "20px", y: "20px"};
 var sizes = {w: "300px", h: "300px"};
+var opacity = {value: 0.7};
 
 let opening_sticky = false;
 
@@ -38,21 +39,27 @@ function loaded() {
         checkStatus();
     });
 
-    browser.storage.sync.get("sticky-notes-coords").then(result => {
+    browser.storage.local.get("sticky-notes-coords").then(result => {
         const value = result["sticky-notes-coords"];
         if (value !== undefined) {
             coords.x = value.x;
             coords.y = value.y;
         }
     });
-    browser.storage.sync.get("sticky-notes-sizes").then(result => {
+    browser.storage.local.get("sticky-notes-sizes").then(result => {
         const value = result["sticky-notes-sizes"];
         if (value !== undefined) {
             sizes.w = value.w;
             sizes.h = value.h;
         }
     });
-    browser.storage.sync.get("websites").then(result => {
+    browser.storage.local.get("sticky-notes-opacity").then(result => {
+        const value = result["sticky-notes-opacity"];
+        if (value !== undefined) {
+            opacity.value = value.value;
+        }
+    });
+    browser.storage.local.get("websites").then(result => {
         const value = result["websites"];
         if (value !== undefined) {
             //text.description = "Nota nota nota";
@@ -214,6 +221,18 @@ function listenerStickyNotes() {
                     });
                 }
 
+                if (message.data.opacity !== undefined) {
+                    //save opacity of the sticky-notes
+
+                    browser.storage.local.set({
+                        "sticky-notes-opacity": {
+                            value: message.data.opacity.value
+                        }
+                    }).then(result => {
+                        opacity.value = message.data.opacity.value;
+                    });
+                }
+
                 if (message.data.notes !== undefined) {
                     //save W (width) and H (height) sizes of the sticky
                     //these sizes will be used to open with that size
@@ -234,8 +253,15 @@ function listenerStickyNotes() {
                 if (message.ask === "sizes") {
                     sendResponse({sizes: {w: sizes.w, h: sizes.h}});
                 }
-                if (message.ask === "coords-sizes") {
-                    sendResponse({coords: {x: coords.x, y: coords.y}, sizes: {w: sizes.w, h: sizes.h}});
+                if (message.ask === "opacity") {
+                    sendResponse({opacity: {value: opacity.value}});
+                }
+                if (message.ask === "coords-sizes-opacity") {
+                    sendResponse({
+                        coords: {x: coords.x, y: coords.y},
+                        sizes: {w: sizes.w, h: sizes.h},
+                        opacity: {value: opacity.value}
+                    });
                 }
                 if (message.ask === "notes") {
                     sendResponse({
