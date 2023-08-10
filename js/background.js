@@ -272,6 +272,7 @@ function listenerStickyNotes() {
                         notes: {
                             description: websites_json[tab_url]["notes"],
                             url: getPageUrl(tab_url),
+                            tag_colour: websites_json[tab_url]["tag-colour"],
                             website: websites_json[tab_url]
                         },
                         websites: websites_json

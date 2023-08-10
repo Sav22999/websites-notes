@@ -557,6 +557,9 @@ function changeTagColour(page, url, colour) {
             loadDataFromBrowser(true);
             hideBackgroundOpacity();
             applyFilter();
+            setTimeout(function () {
+                search(document.getElementById("search-all-notes-text").value);
+            }, 50);
         });
     });
 }
