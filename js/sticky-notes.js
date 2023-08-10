@@ -2,13 +2,30 @@ load();
 
 function load() {
     if (document.getElementById("sticky-notes-notefox-addon")) {
-        //already exists
+        //already exists || update elements
         alreadyExists();
     } else {
         //create new
-        browser.runtime.sendMessage({from: "sticky", ask: "coords"}, (response) => {
-            if (response !== undefined && response.coords !== undefined && response.coords.x != -1 && response.coords.y != -1) {
-                createNew(response.coords.x, response.coords.y);
+        browser.runtime.sendMessage({from: "sticky", ask: "coords-sizes"}, (response) => {
+            let x = "20px";
+            let y = "20px";
+            let w = "300px";
+            let h = "300x";
+
+            if (response !== undefined) {
+                if (response.coords !== undefined && response.coords.x !== undefined) {
+                    x = response.coords.x
+                }
+                if (response.coords !== undefined && response.coords.y !== undefined) {
+                    y = response.coords.y
+                }
+                if (response.sizes !== undefined && response.sizes.w !== undefined) {
+                    w = response.sizes.w
+                }
+                if (response.sizes !== undefined && response.sizes.h !== undefined) {
+                    h = response.sizes.h
+                }
+                createNew(x, y, w, h);
             } else {
                 createNew();
             }
@@ -16,7 +33,7 @@ function load() {
     }
 }
 
-function createNew(x = "10px", y = "10px") {
+function createNew(x = "10px", y = "10px", w = "200px", h = "300px") {
     let move = document.createElement("div");
     move.id = "move--sticky-notes-notefox-addon";
 
@@ -30,21 +47,21 @@ function createNew(x = "10px", y = "10px") {
     let stickyNote = document.createElement("div");
     stickyNote.id = "sticky-notes-notefox-addon";
 
-    let button = document.createElement("button");
-    button.value = "Close sticky";
-    button.onclick = function () {
+    let close = document.createElement("button");
+    close.value = "Close sticky";
+    close.onclick = function () {
         browser.runtime.sendMessage({from: "sticky", data: {close: true}});
         document.getElementById("sticky-notes-notefox-addon").remove();
     }
-    stickyNote.appendChild(button);
+    text.appendChild(close);
 
     let styleCSS = "<style>" +
         "#sticky-notes-notefox-addon {" +
         "position: fixed;" +
         "top: " + y + ";" +
         "left: " + x + ";" +
-        "width: 200px;" +
-        "height: 300px;" +
+        "width: " + w + ";" +
+        "height: " + h + ";" +
         "background-color: yellow;" +
         "opacity: 0.7;" +
         "z-index: 99999;" +
@@ -59,8 +76,8 @@ function createNew(x = "10px", y = "10px") {
         "#move--sticky-notes-notefox-addon {" +
         "position: absolute;" +
         "top: 0px;" +
-        "left: 80px;" +
-        "right:80px;" +
+        "left: 30%;" +
+        "right: 30%;" +
         "width: auto;" +
         "height: 10px;" +
         "background-color: orange;" +
@@ -164,6 +181,8 @@ function createNew(x = "10px", y = "10px") {
         isResizing = true;
         const initialWidth = stickyNote.offsetWidth;
         const initialHeight = stickyNote.offsetHeight;
+        const screenWidth = window.screen.width;
+        const screenHeight = window.screen.height;
         const startX = e.clientX;
         const startY = e.clientY;
 
@@ -178,12 +197,29 @@ function createNew(x = "10px", y = "10px") {
 
             stickyNote.style.width = initialWidth + deltaX + 'px';
             stickyNote.style.height = initialHeight + deltaY + 'px';
+
+            if (stickyNote.style.width.replace("px", "") < 200) stickyNote.style.width = "200px";
+            if (stickyNote.style.height.replace("px", "") < 200) stickyNote.style.height = "200px";
+
+            if (stickyNote.style.width.replace("px", "") > (screenWidth / 2)) stickyNote.style.width = (screenWidth / 2) + "px";
+            if (stickyNote.style.height.replace("px", "") > (screenHeight / 2)) stickyNote.style.height = (screenHeight / 2) + "px";
         }
 
         function onMouseUp() {
             isResizing = false;
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
+
+            if (stickyNote.style.width.replace("px", "") < 200) stickyNote.style.width = "200px";
+            if (stickyNote.style.height.replace("px", "") < 200) stickyNote.style.height = "200px";
+
+            if (stickyNote.style.width.replace("px", "") > (screenWidth / 2)) stickyNote.style.width = (screenWidth / 2) + "px";
+            if (stickyNote.style.height.replace("px", "") > (screenHeight / 2)) stickyNote.style.height = (screenHeight / 2) + "px";
+
+            browser.runtime.sendMessage({
+                from: "sticky",
+                data: {sizes: {w: stickyNote.style.width, h: stickyNote.style.height}}
+            });
         }
     });
 

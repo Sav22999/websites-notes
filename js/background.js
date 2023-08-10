@@ -5,7 +5,8 @@ var websites_json = {};
 var tab_id = 0;
 var tab_url = "";
 
-var coords = {x: "10px", y: "10px"};
+var coords = {x: "20px", y: "20px"};
+var sizes = {w: "300px", h: "300px"};
 
 var openedAsSticky = false
 
@@ -41,7 +42,13 @@ function loaded() {
         if (value !== undefined) {
             coords.x = value.x;
             coords.y = value.y;
-            console.log("Load coords!");
+        }
+    });
+    browser.storage.sync.get("sticky-notes-sizes").then(result => {
+        const value = result["sticky-notes-sizes"];
+        if (value !== undefined) {
+            sizes.w = value.w;
+            sizes.h = value.h;
         }
     });
 }
@@ -101,7 +108,7 @@ function getShortUrl(url) {
 
     if (urlToReturn.includes("/")) {
         urlPartsTemp = urlToReturn.split("/");
-        if (urlPartsTemp[0] == "" && urlPartsTemp[1] == "") {
+        if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
             urlToReturn = urlPartsTemp[2];
         }
     }
@@ -150,7 +157,7 @@ function listenerStickyNotes() {
             openAsStickyNotes();
         }
 
-        if (message.from !== undefined && message.from == "sticky") {
+        if (message.from !== undefined && message.from === "sticky") {
             //from sticky-notes
             if (message.data !== undefined) {
                 //communicate something
@@ -178,10 +185,31 @@ function listenerStickyNotes() {
                         coords.y = message.data.coords.y;
                     });
                 }
+
+                if (message.data.sizes !== undefined) {
+                    //save W (width) and H (height) sizes of the sticky
+                    //these sizes will be used to open with that size
+
+                    browser.storage.sync.set({
+                        "sticky-notes-sizes": {
+                            w: message.data.sizes.w,
+                            h: message.data.sizes.h
+                        }
+                    }).then(result => {
+                        sizes.w = message.data.sizes.w;
+                        sizes.h = message.data.sizes.h;
+                    });
+                }
             } else if (message.ask !== undefined) {
                 //want something as response
                 if (message.ask === "coords") {
                     sendResponse({coords: {x: coords.x, y: coords.y}});
+                }
+                if (message.ask === "sizes") {
+                    sendResponse({sizes: {w: sizes.w, h: sizes.h}});
+                }
+                if (message.ask === "coords-sizes") {
+                    sendResponse({coords: {x: coords.x, y: coords.y}, sizes: {w: sizes.w, h: sizes.h}});
                 }
             }
         }
