@@ -161,14 +161,19 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
                 width: auto;
                 height: 15px;
                 background-color: #ff6200;
-                opacity: 0.8;
+                opacity: 0.7;
                 cursor: grab;
                 border-radius: 0px 0px 10px 10px;
                 z-index: 5;
+                transition: 0.5s;
+            }
+            #move--sticky-notes-notefox-addon:hover{
+                opacity: 1;
             }
             #move--sticky-notes-notefox-addon:active{
                 cursor: grabbing;
                 z-index: 6;
+                opacity: 1;
             }
             #resize--sticky-notes-notefox-addon {
                 position: absolute;
