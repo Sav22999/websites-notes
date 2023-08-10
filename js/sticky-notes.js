@@ -20,9 +20,15 @@ function createNew(x = "10px", y = "10px") {
     let move = document.createElement("div");
     move.id = "move--sticky-notes-notefox-addon";
 
+    let resize = document.createElement("div");
+    resize.id = "resize--sticky-notes-notefox-addon";
+
+    let text = document.createElement("div");
+    text.id = "text--sticky-notes-notefox-addon";
+    text.innerText = "Questa è la mia nota!";
+
     let stickyNote = document.createElement("div");
     stickyNote.id = "sticky-notes-notefox-addon";
-    stickyNote.innerText = "Questa è la mia nota!";
 
     let button = document.createElement("button");
     button.value = "Close sticky";
@@ -41,10 +47,14 @@ function createNew(x = "10px", y = "10px") {
         "height: 300px;" +
         "background-color: yellow;" +
         "opacity: 0.7;" +
-        "z-index: 999;" +
+        "z-index: 99999;" +
         "padding: 15px;" +
         "border-radius: 10px;" +
-        "cursor: text;" +
+        "border-bottom-right-radius: 0px;" +
+        "cursor: default;" +
+        "}" +
+        "#sticky-notes-notefox-addon:active{" +
+        "opacity: 1;" +
         "}" +
         "#move--sticky-notes-notefox-addon {" +
         "position: absolute;" +
@@ -55,14 +65,55 @@ function createNew(x = "10px", y = "10px") {
         "height: 10px;" +
         "background-color: orange;" +
         "opacity: 0.5;" +
-        "cursor: move;" +
+        "cursor: grab;" +
         "}" +
         "#move--sticky-notes-notefox-addon:active{" +
-        "cursor: move;" +
+        "cursor: grabbing;" +
+        "}" +
+        "#resize--sticky-notes-notefox-addon {" +
+        "position: absolute;" +
+        "right: 0px;" +
+        "bottom: 0px;" +
+        "width: 10px;" +
+        "height: 10px;" +
+        "background-color: red;" +
+        "opacity: 0.5;" +
+        "cursor: nwse-resize;" +
+        "z-index: 2" +
+        "}" +
+        "#resize--sticky-notes-notefox-addon:active{" +
+        "cursor: nwse-resize;" +
+        "}" +
+        "#resize--sticky-notes-notefox-addon:before{" +
+        "cursor: nwse-resize;" +
+        "content: '';" +
+        "position: absolute;" +
+        "top: 0;" +
+        "left: 0;" +
+        "border-top: 10px solid white;" +
+        "border-right: 10px solid red;" +
+        "width: 0;" +
+        "}" +
+        "#text--sticky-notes-notefox-addon {" +
+        "position: absolute;" +
+        "left: 0px;" +
+        "right: 0px;" +
+        "top: 10px;" +
+        "bottom: 50px;" +
+        "width: auto;" +
+        "height: auto;" +
+        "padding: 10px;" +
+        "background-color: transparent;" +
+        "opacity: 0.5;" +
+        "cursor: text;" +
+        "z-index: 1" +
         "}" +
         "</style>";
     document.head.innerHTML += styleCSS;
 
+    /**
+     * Make "movable" the sticky-notes
+     */
     let isDragging = false;
     move.addEventListener('mousedown', (e) => {
         isDragging = true;
@@ -105,7 +156,41 @@ function createNew(x = "10px", y = "10px") {
         }
     });
 
+    /**
+     * Make "resizable" the sticky-notes
+     */
+    let isResizing = false;
+    resize.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        const initialWidth = stickyNote.offsetWidth;
+        const initialHeight = stickyNote.offsetHeight;
+        const startX = e.clientX;
+        const startY = e.clientY;
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+
+        function onMouseMove(e) {
+            if (!isResizing) return;
+
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+
+            stickyNote.style.width = initialWidth + deltaX + 'px';
+            stickyNote.style.height = initialHeight + deltaY + 'px';
+        }
+
+        function onMouseUp() {
+            isResizing = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+    });
+
+
     stickyNote.appendChild(move);
+    stickyNote.appendChild(resize);
+    stickyNote.appendChild(text);
 
     document.body.appendChild(stickyNote);
     browser.runtime.sendMessage({from: "sticky", data: {close: false}});
