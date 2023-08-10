@@ -84,6 +84,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         let text = document.createElement("div");
         text.id = "text--sticky-notes-notefox-addon";
         text.innerText = notes.description;
+        text.contentEditable = true;
 
         let stickyNote = document.createElement("div");
         stickyNote.id = "sticky-notes-notefox-addon";
@@ -172,7 +173,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
                 top: 0;
                 left: 0;
                 border-top: 10px solid white;
-                border-right: 10px solid red;
+                border-right: 10px solid #ff6200;
                 width: 0;
             }
             #text--sticky-notes-notefox-addon {
@@ -187,7 +188,13 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
                 background-color: transparent;
                 opacity: 0.5;
                 cursor: text;
-                z-index: 1
+                z-index: 1;
+                border-radius: 10px;
+                overflow-y: auto;
+                transition: 0.2s;
+            }
+            #text--sticky-notes-notefox-addon:focus {
+                outline: 2px solid #ff6200;
             }
             #close--sticky-notes-notefox-addon {
                 position: absolute;
@@ -206,6 +213,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
                 z-index: 5 !important;
                 border-radius: 10px !important;
                 padding: 0px !important;
+                cursor: pointer;
             }
             #close--sticky-notes-notefox-addon:active, #close--sticky-notes-notefox-addon:focus {
                 box-shadow: 0px 0px 0px 2px #ff6200, 0px 0px 0px 5px #ffb788;
@@ -226,7 +234,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
                 width: 100%;
                 height: 5px;
                 background: linear-gradient(to right, #ff6200 0%, #ff6200 ${opacity * 100}%, #eeeeee ${opacity * 100}%, #eeeeee 100%);
-                border: 1px solid #ff6200;
+                border: 1px solid #ffb788;
                 outline: none;
                 opacity: 0.7;
                 transition: opacity .2s;
@@ -244,10 +252,15 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
                 width: 15px;
                 height: 15px;
                 background: #ff6200;
-                cursor: pointer;
+                cursor: grab;
                 border: 1px solid #eeeeee;
                 border-radius: 100%;
                 margin: 0px;
+            }
+            #slider--sticky-notes-notefox-addon::-moz-range-thumb:active {
+                cursor: grabbing;
+                box-shadow: 0px 0px 0px 1px #ffb788, 0px 0px 0px 4px #ff6200;
+                transition: 0.5s;
             }
         </style>`
         document.head.innerHTML += styleCSS;
