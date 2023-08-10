@@ -93,9 +93,11 @@ body {
     background-size: auto 70%;
     background-repeat: no-repeat;
     background-position: center center;
+    background-color: #ff6200;
     color: #ffffff;
     margin: 2px;
     z-index: 5;
+    border-radius: 5px;
 }
 
 .select-box {

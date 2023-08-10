@@ -190,8 +190,14 @@ function saveNotes() {
         if (currentUrl[0] !== "" && currentUrl[1] !== "") {
             //selected_tab : {0:domain | 1:page}
             browser.storage.local.set({"websites": websites_json}, function () {
+                let never_saved = true;
+
                 let notes = "";
-                if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["notes"] !== undefined) notes = websites_json[currentUrl[selected_tab]]["notes"];
+                if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["notes"] !== undefined) {
+                    //exists
+                    notes = websites_json[currentUrl[selected_tab]]["notes"];
+                    never_saved = false;
+                }
                 document.getElementById("notes").textContent = notes;
 
                 let last_update = all_strings["never-update"];
@@ -203,9 +209,18 @@ function saveNotes() {
                 if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["tag-colour"] !== undefined) colour = websites_json[currentUrl[selected_tab]]["tag-colour"];
                 document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
 
+                /*
                 let sticky = false;
-                //sticky
-                if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["sticky"] !== undefined) sticky = websites_json[currentUrl[selected_tab]]["sticky"];
+                if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["sticky"] !== undefined) {
+                    sticky = websites_json[currentUrl[selected_tab]]["sticky"];
+                }
+                */
+
+                if (selected_tab === 0 || never_saved) {
+                    document.getElementById("open-sticky-button").classList.add("hidden");
+                } else {
+                    if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+                }
 
                 //console.log(JSON.stringify(websites_json));
 
@@ -320,8 +335,13 @@ function setTab(index, url) {
 
     document.getElementsByClassName("tab")[index].classList.add("tab-sel");
 
+    let never_saved = true;
     let notes = "";
-    if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["notes"] !== undefined) notes = websites_json[getPageUrl(url)]["notes"];
+    if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["notes"] !== undefined) {
+        //notes saved (also it's empty)
+        notes = websites_json[getPageUrl(url)]["notes"];
+        never_saved = false;
+    }
     document.getElementById("notes").value = notes;
 
     let last_update = all_strings["never-update"];
@@ -338,11 +358,12 @@ function setTab(index, url) {
 
     document.getElementById("notes").focus();
 
-    if (index === 0) {
+    if (index === 0 || never_saved) {
         document.getElementById("open-sticky-button").classList.add("hidden");
     } else {
         if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
     }
+
 }
 
 function openStickyNotes() {

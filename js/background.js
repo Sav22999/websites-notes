@@ -8,6 +8,8 @@ var tab_url = "";
 var coords = {x: "20px", y: "20px"};
 var sizes = {w: "300px", h: "300px"};
 
+let opening_sticky = false;
+
 function changeIcon(index) {
     browser.browserAction.setIcon({path: icons[index], tabId: tab_id});
 }
@@ -27,6 +29,7 @@ function loaded() {
         browser.runtime.onMessage.addListener((message) => {
             if (message["updated"] !== undefined && message["updated"]) {
                 checkStatus();
+                checkStickyNotes();
             }
         });
 
@@ -253,14 +256,19 @@ function listenerStickyNotes() {
  * open sticky notes
  */
 function openAsStickyNotes() {
-    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
-        const activeTab = tabs[0];
-        browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
-            //console.log("Sticky notes ('open')");
-        }).catch(function (error) {
-            console.error("E2: " + error);
+    if (!opening_sticky) {
+        opening_sticky = true;
+        browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            const activeTab = tabs[0];
+            browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
+                //console.log("Sticky notes ('open')");
+                opening_sticky = false;
+            }).catch(function (error) {
+                console.error("E2: " + error);
+                opening_sticky = false;
+            });
         });
-    });
+    }
 }
 
 /**
@@ -275,6 +283,7 @@ function closeStickyNotes() {
             console.error("E1: " + error);
         });
     });
+    opening_sticky = false;
 }
 
 function setOpenedSticky(sticky) {
@@ -291,9 +300,24 @@ function setOpenedSticky(sticky) {
                 //console.log("set || " + JSON.stringify(websites_json[getPageUrl(tab_url)]));
                 //console.log("set || " + JSON.stringify(websites_json));
                 if (websites_json[getPageUrl(tab_url)]["sticky"] !== sticky) {
-                    setOpenedSticky(sticky);
+                    //setOpenedSticky(sticky);
                 }
             });
+        }
+    });
+}
+
+function checkStickyNotes() {
+    browser.storage.local.get("websites", function (value) {
+        if (value["websites"] !== undefined) {
+            websites_json = value["websites"];
+
+            let status = false;
+            if (websites_json[getPageUrl(tab_url)]["sticky"] !== undefined) status = websites_json[getPageUrl(tab_url)]["sticky"];
+
+            if (status) {
+                openAsStickyNotes();
+            }
         }
     });
 }
