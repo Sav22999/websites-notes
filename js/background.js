@@ -344,6 +344,7 @@ function setNewTextFromSticky(text) {
             websites_json = value["websites"];
 
             websites_json[getPageUrl(tab_url)]["notes"] = text;
+            websites_json[getPageUrl(tab_url)]["last-update"] = getDate();
 
             browser.storage.local.set({
                 "websites": websites_json
@@ -374,6 +375,24 @@ function checkStickyNotes() {
             }
         }
     });
+}
+
+function getDate() {
+    let todayDate = new Date();
+    let today = "";
+    today = todayDate.getFullYear() + "-";
+    let month = todayDate.getMonth() + 1;
+    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
+    let day = todayDate.getDate();
+    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
+    let hour = todayDate.getHours();
+    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
+    let minute = todayDate.getMinutes();
+    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
+    let second = todayDate.getSeconds();
+    if (second < 10) today = today + "0" + second; else today = today + "" + second
+
+    return today;
 }
 
 loaded();

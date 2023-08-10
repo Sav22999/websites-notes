@@ -325,6 +325,10 @@ textarea::placeholder, .textbox::placeholder {
     background-color: #d0d0d0;
 }
 
+.background-light-red:nth-child(even) {
+    background-color: #ff8e8e;
+}
+
 .sub-section-type {
     background-color: var(--on-primary-color);
     color: var(--primary-color);
@@ -388,10 +392,6 @@ textarea::placeholder, .textbox::placeholder {
 
 .background-transparent {
     background-color: transparent;
-}
-
-.background-light-red {
-    background-color: #ff8e8e;
 }
 
 .button-code {
@@ -527,6 +527,11 @@ h3 {
 
 .tag-colour-none {
     border: none;
+}
+
+
+.background-light-red {
+    background-color: #ff8e8e;
 }
 
 .tag-colour-none-bg {
