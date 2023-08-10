@@ -75,8 +75,9 @@ function updateStickyNotes() {
 
                 let new_tag = "";
                 if (response.notes !== undefined && response.notes.tag_colour !== undefined) new_tag = response.notes.tag_colour;
+                if (new_tag === "none") new_tag = "transparent";
                 tag.style.backgroundColor = new_tag;
-
+                
                 if (response.notes !== undefined && response.notes.sticky_params.coords !== undefined) {
                     stickyNotes.style.left = response.notes.sticky_params.coords.x;
                     stickyNotes.style.top = response.notes.sticky_params.coords.y;
