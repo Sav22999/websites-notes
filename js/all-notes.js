@@ -299,7 +299,7 @@ function importAllNotes() {
                         "settings": settings_json,
                         "sticky-notes-coords": sticky_notes.coords,
                         "sticky-notes-sizes": sticky_notes.sizes,
-                        "sticky-notes-opacity": sticky_notes.opacity
+                        "sticky-notes-opacity": sticky_notes.opacity.toFixed(2)
                     }).then(function () {
                         //Imported all correctly
                         loadDataFromBrowser(true);
@@ -356,6 +356,7 @@ function exportAllNotes() {
         if (sticky_notes.coords === undefined) sticky_notes.coords = {x: "20px", y: "20px"};
         if (sticky_notes.sizes === undefined) sticky_notes.sizes = {w: "300px", h: "300px"};
         if (sticky_notes.opacity === undefined) sticky_notes.opacity = {value: 0.7};
+        sticky_notes.opacity.value = sticky_notes.opacity.value.toFixed(2);
 
         //console.log(JSON.stringify(result));
 
@@ -543,7 +544,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     let input_clear_all_notes_page = document.createElement("input");
     input_clear_all_notes_page.type = "button";
     input_clear_all_notes_page.value = all_strings["clear-notes-of-this-page-button"];
-    input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button", "clear-button");
+    input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button", "clear2-button");
     input_clear_all_notes_page.onclick = function () {
         let isDomain = false;
         if (fullUrl == url) {

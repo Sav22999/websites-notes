@@ -73,10 +73,15 @@ body {
     display: inline-block;
 }
 
-.clear-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button {
-    padding-left: 30px;
+#version {
+    border-radius: 0px;
+}
+
+.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button {
+    padding-left: 35px;
+    padding-right: 10px;
     background-image: url("../img/delete.svg");
-    background-size: auto 50%;
+    background-size: auto 60%;
     background-repeat: no-repeat;
     background-position: 10px center;
     color: #ffffff;
@@ -114,6 +119,8 @@ body {
     cursor: pointer;
     margin-left: 10px;
     margin-right: 10px;
+
+    background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
 }
 
 .select-box:hover {
@@ -122,6 +129,10 @@ body {
 
 .save-button {
     background-image: url("../img/save.svg");
+}
+
+.clear2-button {
+    background-image: url("../img/delete2.svg");
 }
 
 .refresh-button {
