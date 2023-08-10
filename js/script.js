@@ -6,6 +6,8 @@ var currentUrl = []; //[domain, page]
 var selected_tab = 0; //{0:domain | 1:page}
 var opened_by = -1;
 
+var stickyNotesSupported = true;
+
 const all_strings = strings[languageToUse];
 
 const linkReview = ["https://addons.mozilla.org/firefox/addon/websites-notes/"]; //{firefox add-ons}
@@ -224,11 +226,15 @@ function setUrl(url) {
     if (isUrlSupported(url)) {
         currentUrl[0] = getShortUrl(url);
         currentUrl[1] = getPageUrl(url);
-        document.getElementById("tabs-section").style.display = "block";
+        if (document.getElementById("tabs-section").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+        if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+        stickyNotesSupported = true;
     } else {
         currentUrl[0] = getPageUrl(url);
         currentUrl[1] = getPageUrl(url);
-        document.getElementById("tabs-section").style.display = "none";
+        document.getElementById("tabs-section").classList.add("hidden");
+        document.getElementById("open-sticky-button").classList.add("hidden");
+        stickyNotesSupported = false;
     }
 
     //console.log("Current url [0] " + currentUrl[0] + " - [1] " + currentUrl[1]);
@@ -331,10 +337,16 @@ function setTab(index, url) {
     if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["sticky"] !== undefined) sticky = websites_json[getPageUrl(url)]["sticky"];
 
     document.getElementById("notes").focus();
+
+    if (index === 0) {
+        document.getElementById("open-sticky-button").classList.add("hidden");
+    } else {
+        if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+    }
 }
 
 function openStickyNotes() {
-    browser.runtime.sendMessage({"open-sticky": true});
+    if (stickyNotesSupported) browser.runtime.sendMessage({"open-sticky": true});
 }
 
 loaded();

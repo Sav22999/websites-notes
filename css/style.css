@@ -85,12 +85,12 @@ body {
 
 .button-trigger-sticky {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 40px;
-    height: 40px;
+    bottom: 2px;
+    right: 2px;
+    width: 30px !important;
+    height: 30px !important;
     background-image: url("../img/sticky-open.svg");
-    background-size: auto 50%;
+    background-size: auto 70%;
     background-repeat: no-repeat;
     background-position: center center;
     color: #ffffff;
