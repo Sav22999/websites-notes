@@ -137,7 +137,9 @@ function loadUI() {
     }
 
     document.getElementById("open-sticky-button").onclick = function () {
+        //closed -> open it
         openStickyNotes();
+        window.close();
     }
 }
 
@@ -162,12 +164,15 @@ function saveNotes() {
         } else {
             websites_json = {};
         }
-        if (websites_json[currentUrl[selected_tab]] == undefined) websites_json[currentUrl[selected_tab]] = {};
+        if (websites_json[currentUrl[selected_tab]] === undefined) websites_json[currentUrl[selected_tab]] = {};
         let notes = document.getElementById("notes").value;
         websites_json[currentUrl[selected_tab]]["notes"] = notes;
         websites_json[currentUrl[selected_tab]]["last-update"] = getDate();
-        if (websites_json[currentUrl[selected_tab]]["tag-colour"] == undefined) {
+        if (websites_json[currentUrl[selected_tab]]["tag-colour"] === undefined) {
             websites_json[currentUrl[selected_tab]]["tag-colour"] = "none";
+        }
+        if (websites_json[currentUrl[selected_tab]]["sticky"] === undefined) {
+            websites_json[currentUrl[selected_tab]]["sticky"] = false;
         }
         if (selected_tab == 0) {
             websites_json[currentUrl[selected_tab]]["type"] = 0;
@@ -176,25 +181,29 @@ function saveNotes() {
             websites_json[currentUrl[selected_tab]]["type"] = 1;
             websites_json[currentUrl[selected_tab]]["domain"] = currentUrl[0];
         }
-        if (notes == "") {
+        if (notes === "") {
             //if notes field is empty, I delete the element from the "dictionary" (notes list)
             delete websites_json[currentUrl[selected_tab]];
         }
-        if (currentUrl[0] != "" && currentUrl[1] != "") {
+        if (currentUrl[0] !== "" && currentUrl[1] !== "") {
             //selected_tab : {0:domain | 1:page}
             browser.storage.local.set({"websites": websites_json}, function () {
                 let notes = "";
-                if (websites_json[currentUrl[selected_tab]] != undefined && websites_json[currentUrl[selected_tab]]["notes"] != undefined) notes = websites_json[currentUrl[selected_tab]]["notes"];
+                if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["notes"] !== undefined) notes = websites_json[currentUrl[selected_tab]]["notes"];
                 document.getElementById("notes").textContent = notes;
 
                 let last_update = all_strings["never-update"];
-                if (websites_json[currentUrl[selected_tab]] != undefined && websites_json[currentUrl[selected_tab]]["last-update"] != undefined) last_update = websites_json[currentUrl[selected_tab]]["last-update"];
+                if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["last-update"] !== undefined) last_update = websites_json[currentUrl[selected_tab]]["last-update"];
                 document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
 
                 let colour = "none";
                 document.getElementById("tag-colour-section").removeAttribute("class");
-                if (websites_json[currentUrl[selected_tab]] != undefined && websites_json[currentUrl[selected_tab]]["tag-colour"] != undefined) colour = websites_json[currentUrl[selected_tab]]["tag-colour"];
+                if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["tag-colour"] !== undefined) colour = websites_json[currentUrl[selected_tab]]["tag-colour"];
                 document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
+
+                let sticky = false;
+                //sticky
+                if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["sticky"] !== undefined) sticky = websites_json[currentUrl[selected_tab]]["sticky"];
 
                 //console.log(JSON.stringify(websites_json));
 
@@ -317,6 +326,9 @@ function setTab(index, url) {
     document.getElementById("tag-colour-section").removeAttribute("class");
     if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["tag-colour"] !== undefined) colour = websites_json[getPageUrl(url)]["tag-colour"];
     document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
+
+    let sticky = false;
+    if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["sticky"] !== undefined) sticky = websites_json[getPageUrl(url)]["sticky"];
 
     document.getElementById("notes").focus();
 }

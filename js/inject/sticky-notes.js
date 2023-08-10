@@ -14,26 +14,63 @@ function load() {
 
             if (response !== undefined) {
                 if (response.coords !== undefined && response.coords.x !== undefined) {
-                    x = response.coords.x
+                    x = response.coords.x;
                 }
                 if (response.coords !== undefined && response.coords.y !== undefined) {
-                    y = response.coords.y
+                    y = response.coords.y;
                 }
                 if (response.sizes !== undefined && response.sizes.w !== undefined) {
-                    w = response.sizes.w
+                    w = response.sizes.w;
                 }
                 if (response.sizes !== undefined && response.sizes.h !== undefined) {
-                    h = response.sizes.h
+                    h = response.sizes.h;
                 }
-                createNew(x, y, w, h);
-            } else {
-                createNew();
             }
+            createNewDescription(x, y, w, h);
         });
     }
 }
 
-function createNew(x = "10px", y = "10px", w = "200px", h = "300px") {
+function createNewDescription(x, y, w, h) {
+    browser.runtime.sendMessage({from: "sticky", ask: "notes"}, (response) => {
+        if (response !== undefined) {
+            let notes = {description: "", url: "", tag_colour: ""}
+            //console.log("get3 || " + JSON.stringify(response.websites));
+            let description = "";
+            if (response.notes !== undefined && response.notes.description !== undefined) {
+                notes.description = response.notes.description;
+            }
+            if (response.notes !== undefined && response.notes.url !== undefined) {
+                notes.url = response.notes.url;
+            }
+            if (response.notes !== undefined && response.notes.tag_colour !== undefined) {
+                notes.tag_colour = response.notes.tag_colour;
+            }
+            createNew(notes, x, y, w, h, response.websites);
+        }
+    });
+}
+
+function changeDescription() {
+    if (document.getElementById("text--sticky-notes-notefox-addon")) {
+        //double check already exists
+        console.log("Already exists -> update description!");
+
+        /*
+        browser.runtime.sendMessage({from: "sticky", ask: "notes"}, (response) => {
+            if (response !== undefined) {
+                if (response.notes !== undefined && response.notes.description !== undefined) {
+                    text.innerText = response.notes.description;
+                } else {
+                    text.innerText = "";
+                }
+            }
+        });
+        */
+    }
+}
+
+function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", websites_json) {
     let move = document.createElement("div");
     move.id = "move--sticky-notes-notefox-addon";
 
@@ -42,7 +79,7 @@ function createNew(x = "10px", y = "10px", w = "200px", h = "300px") {
 
     let text = document.createElement("div");
     text.id = "text--sticky-notes-notefox-addon";
-    text.innerText = "Questa è la mia nota!";
+    text.innerText = notes.description;
 
     let stickyNote = document.createElement("div");
     stickyNote.id = "sticky-notes-notefox-addon";
@@ -233,5 +270,5 @@ function createNew(x = "10px", y = "10px", w = "200px", h = "300px") {
 }
 
 function alreadyExists() {
-
+    changeDescription();
 }

@@ -70,7 +70,8 @@
     "storage",
     "tabs",
     "unlimitedStorage",
-    "activeTab"
+    "activeTab",
+    "<all_urls>"
   ],
   "background": {
     "scripts": [

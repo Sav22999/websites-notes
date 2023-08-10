@@ -8,8 +8,6 @@ var tab_url = "";
 var coords = {x: "20px", y: "20px"};
 var sizes = {w: "300px", h: "300px"};
 
-var openedAsSticky = false
-
 function changeIcon(index) {
     browser.browserAction.setIcon({path: icons[index], tabId: tab_id});
 }
@@ -51,6 +49,12 @@ function loaded() {
             sizes.h = value.h;
         }
     });
+    browser.storage.sync.get("websites").then(result => {
+        const value = result["websites"];
+        if (value !== undefined) {
+            //text.description = "Nota nota nota";
+        }
+    });
 }
 
 function tabUpdated(tabs) {
@@ -90,10 +94,15 @@ function continueCheckStatus() {
             } else {
                 changeIcon(0);
             }
+
+            if (websites_json[getPageUrl(tab_url)] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"]) {
+                openAsStickyNotes();
+            } else {
+                closeStickyNotes();
+            }
         } else {
             changeIcon(0);
         }
-
         //console.log(JSON.stringify(websites_json));
     });
 }
@@ -154,6 +163,7 @@ function listenerShortcuts() {
 function listenerStickyNotes() {
     browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message["open-sticky"] !== undefined && message["open-sticky"]) {
+            //from main script (script.js)
             openAsStickyNotes();
         }
 
@@ -164,10 +174,10 @@ function listenerStickyNotes() {
                 if (message.data.close !== undefined) {
                     if (message.data.close) {
                         //sticky-notes hidden
-                        openedAsSticky = false;
+                        setOpenedSticky(false);
                     } else {
                         //sticky-notes shown
-                        openedAsSticky = true;
+                        setOpenedSticky(true);
                     }
                 }
 
@@ -175,7 +185,7 @@ function listenerStickyNotes() {
                     //save X (left) and Y (top) coords of the sticky
                     //these coords will be used to open in that position
 
-                    browser.storage.sync.set({
+                    browser.storage.local.set({
                         "sticky-notes-coords": {
                             x: message.data.coords.x,
                             y: message.data.coords.y
@@ -190,7 +200,7 @@ function listenerStickyNotes() {
                     //save W (width) and H (height) sizes of the sticky
                     //these sizes will be used to open with that size
 
-                    browser.storage.sync.set({
+                    browser.storage.local.set({
                         "sticky-notes-sizes": {
                             w: message.data.sizes.w,
                             h: message.data.sizes.h
@@ -198,6 +208,19 @@ function listenerStickyNotes() {
                     }).then(result => {
                         sizes.w = message.data.sizes.w;
                         sizes.h = message.data.sizes.h;
+                    });
+                }
+
+                if (message.data.notes !== undefined) {
+                    //save W (width) and H (height) sizes of the sticky
+                    //these sizes will be used to open with that size
+
+                    browser.storage.local.set({
+                        "websites": {
+                            //set notes -- modified in sticky-notes
+                        }
+                    }).then(result => {
+                        //updated websites with new notes
                     });
                 }
             } else if (message.ask !== undefined) {
@@ -211,19 +234,67 @@ function listenerStickyNotes() {
                 if (message.ask === "coords-sizes") {
                     sendResponse({coords: {x: coords.x, y: coords.y}, sizes: {w: sizes.w, h: sizes.h}});
                 }
+                if (message.ask === "notes") {
+                    sendResponse({
+                        notes: {
+                            description: websites_json[tab_url]["notes"],
+                            url: getPageUrl(tab_url),
+                            website: websites_json[tab_url]
+                        },
+                        websites: websites_json
+                    });
+                }
             }
         }
     });
 }
 
+/**
+ * open sticky notes
+ */
 function openAsStickyNotes() {
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         const activeTab = tabs[0];
-        browser.tabs.executeScript(activeTab.id, {file: "./js/sticky-notes.js"}).then(function () {
-            //console.log("ContentScript injected successfully");
+        browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
+            //console.log("Sticky notes ('open')");
         }).catch(function (error) {
-            //console.error(error);
+            console.error("E2: " + error);
         });
+    });
+}
+
+/**
+ * close sticky notes if exists and the status changed to "closed"
+ */
+function closeStickyNotes() {
+    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        const activeTab = tabs[0];
+        browser.tabs.executeScript({code: "if (document.getElementById(\"sticky-notes-notefox-addon\")) document.getElementById(\"sticky-notes-notefox-addon\").remove();"}).then(function () {
+            //console.log("Sticky notes ('close')");
+        }).catch(function (error) {
+            console.error("E1: " + error);
+        });
+    });
+}
+
+function setOpenedSticky(sticky) {
+    browser.storage.local.get("websites", function (value) {
+        if (value["websites"] !== undefined) {
+            websites_json = value["websites"];
+
+            websites_json[getPageUrl(tab_url)]["sticky"] = sticky;
+
+            browser.storage.local.set({
+                "websites": websites_json
+            }).then(result => {
+                //updated websites with new notes
+                //console.log("set || " + JSON.stringify(websites_json[getPageUrl(tab_url)]));
+                //console.log("set || " + JSON.stringify(websites_json));
+                if (websites_json[getPageUrl(tab_url)]["sticky"] !== sticky) {
+                    setOpenedSticky(sticky);
+                }
+            });
+        }
     });
 }
 
