@@ -85,6 +85,9 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         text.id = "text--sticky-notes-notefox-addon";
         text.innerText = notes.description;
         text.contentEditable = true;
+        text.oninput = function () {
+            browser.runtime.sendMessage({from: "sticky", data: {new_text: text.innerText}});
+        }
 
         let stickyNote = document.createElement("div");
         stickyNote.id = "sticky-notes-notefox-addon";

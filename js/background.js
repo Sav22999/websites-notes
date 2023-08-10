@@ -191,6 +191,10 @@ function listenerStickyNotes() {
                     }
                 }
 
+                if (message.data.new_text !== undefined) {
+                    setNewTextFromSticky(message.data.new_text);
+                }
+
                 if (message.data.coords !== undefined) {
                     //save X (left) and Y (top) coords of the sticky
                     //these coords will be used to open in that position
@@ -322,12 +326,35 @@ function setOpenedSticky(sticky) {
             browser.storage.local.set({
                 "websites": websites_json
             }).then(result => {
-                //updated websites with new notes
+                //updated websites with new data
                 //console.log("set || " + JSON.stringify(websites_json[getPageUrl(tab_url)]));
                 //console.log("set || " + JSON.stringify(websites_json));
                 if (websites_json[getPageUrl(tab_url)]["sticky"] !== sticky) {
                     //setOpenedSticky(sticky);
                 }
+            });
+        }
+    });
+}
+
+function setNewTextFromSticky(text) {
+    browser.storage.local.get("websites", function (value) {
+        if (value["websites"] !== undefined) {
+            websites_json = value["websites"];
+
+            websites_json[getPageUrl(tab_url)]["notes"] = text;
+
+            browser.storage.local.set({
+                "websites": websites_json
+            }).then(function () {
+                //updated websites with new data
+                //console.log("set || " + JSON.stringify(websites_json[getPageUrl(tab_url)]));
+                //console.log("set || " + JSON.stringify(websites_json));
+                if (websites_json[getPageUrl(tab_url)]["text"] !== text) {
+                    //setOpenedSticky(sticky);
+                }
+            }).catch(function (error) {
+                console.error("E3: " + error);
             });
         }
     });
