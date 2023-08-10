@@ -286,6 +286,10 @@ function importAllNotes() {
                         if (json_to_export_temp["sticky-notes"].sizes !== undefined) sticky_notes.sizes = json_to_export_temp["sticky-notes"].sizes;
 
                         if (json_to_export_temp["sticky-notes"].opacity !== undefined) sticky_notes.opacity = json_to_export_temp["sticky-notes"].opacity;
+
+                        if (sticky_notes.coords === undefined) sticky_notes.coords = {x: "20px", y: "20px"};
+                        if (sticky_notes.sizes === undefined) sticky_notes.sizes = {w: "300px", h: "300px"};
+                        if (sticky_notes.opacity === undefined) sticky_notes.opacity = {value: 0.7};
                     }
                 }
 
@@ -349,7 +353,11 @@ function exportAllNotes() {
         sticky_notes.sizes = result["sticky-notes-sizes"];
         sticky_notes.opacity = result["sticky-notes-opacity"];
 
-        console.log(JSON.stringify(result));
+        if (sticky_notes.coords === undefined) sticky_notes.coords = {x: "20px", y: "20px"};
+        if (sticky_notes.sizes === undefined) sticky_notes.sizes = {w: "300px", h: "300px"};
+        if (sticky_notes.opacity === undefined) sticky_notes.opacity = {value: 0.7};
+
+        //console.log(JSON.stringify(result));
 
         document.getElementById("export-section").style.display = "block";
         json_to_export = {

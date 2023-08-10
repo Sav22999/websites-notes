@@ -273,7 +273,12 @@ function listenerStickyNotes() {
                             description: websites_json[tab_url]["notes"],
                             url: getPageUrl(tab_url),
                             tag_colour: websites_json[tab_url]["tag-colour"],
-                            website: websites_json[tab_url]
+                            website: websites_json[tab_url],
+                            sticky_params: {
+                                coords: {x: coords.x, y: coords.y},
+                                sizes: {w: sizes.w, h: sizes.h},
+                                opacity: {value: opacity.value}
+                            }
                         },
                         websites: websites_json
                     });

@@ -58,12 +58,14 @@ function createNewDescription(x, y, w, h, opacity) {
     });
 }
 
-function changeDescription() {
+function updateStickyNotes() {
     if (document.getElementById("text--sticky-notes-notefox-addon")) {
         //double check already exists
 
+        let stickyNotes = document.getElementById("sticky-notes-notefox-addon");
         let text = document.getElementById("text--sticky-notes-notefox-addon");
         let tag = document.getElementById("tag--sticky-notes-notefox-addon");
+        let slider = document.getElementById("slider--sticky-notes-notefox-addon");
 
         browser.runtime.sendMessage({from: "sticky", ask: "notes"}, (response) => {
             if (response !== undefined) {
@@ -74,6 +76,20 @@ function changeDescription() {
                 let new_tag = "";
                 if (response.notes !== undefined && response.notes.tag_colour !== undefined) new_tag = response.notes.tag_colour;
                 tag.style.backgroundColor = new_tag;
+
+                if (response.notes !== undefined && response.notes.sticky_params.coords !== undefined) {
+                    stickyNotes.style.left = response.notes.sticky_params.coords.x;
+                    stickyNotes.style.top = response.notes.sticky_params.coords.y;
+                }
+                if (response.notes !== undefined && response.notes.sticky_params.sizes !== undefined) {
+                    stickyNotes.style.width = response.notes.sticky_params.sizes.w;
+                    stickyNotes.style.height = response.notes.sticky_params.sizes.h;
+                }
+                if (response.notes !== undefined && response.notes.sticky_params.opacity !== undefined) {
+                    //stickyNotes.style.opacity = response.notes.sticky_params.opacity.value;
+                    //slider.value = (response.notes.sticky_params.opacity.value * 100);
+                    setSlider(slider, stickyNotes, response.notes.sticky_params.opacity.value * 100, false);
+                }
             }
         });
     }
@@ -136,13 +152,15 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
             #sticky-notes-notefox-addon {
                 position: fixed;
                 top: ${y};
-                left:  ${x} ;
-                width: ${w} ;
-                height:  ${h} ;
+                left:  ${x};
+                width: ${w};
+                height:  ${h};
                 background-color: #fffd7d;
                 opacity: ${opacity};
                 z-index: 99999;
-                padding: 15px;
+                padding: 15px !important;
+                margin: 0px !important;
+                box-sizing: border-box !important;
                 border-radius: 10px;
                 border-bottom-right-radius: 0px;
                 cursor: default;
@@ -150,7 +168,6 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
                 font-family: 'Open Sans', sans-serif;
                 color: #111111;
                 font-size: 17px;
-                
                 background-image: url('data:image/svg+xml;${svg_background_image}');
                 background-position: left 50% bottom 10px;
                 background-repeat: no-repeat;
@@ -191,6 +208,9 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
                 opacity: 1;
                 cursor: nwse-resize;
                 z-index: 2;
+                margin: 0px !important;
+                padding: 0px !important;
+                box-sizing: border-box !important;
             }
             #resize--sticky-notes-notefox-addon:active{
                 cursor: nwse-resize;
@@ -213,7 +233,9 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
                 bottom: 35px;
                 width: auto;
                 height: auto;
-                padding: 10px;
+                padding: 10px !important;
+                margin: 0px !important;
+                box-sizing: border-box !important;
                 background-color: transparent;
                 opacity: 1;
                 cursor: text;
@@ -238,11 +260,12 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
                 background-color: #ff6200;
                 border: 0px solid transparent;
                 color: #ffffff;
-                margin: 0px;
                 z-index: 5;
                 border-radius: 10px;
-                padding: 0px;
                 cursor: pointer;
+                margin: 0px !important;
+                padding: 0px !important;
+                box-sizing: border-box !important;
             }
             #close--sticky-notes-notefox-addon:active, #close--sticky-notes-notefox-addon:focus {
                 box-shadow: 0px 0px 0px 2px #ff6200, 0px 0px 0px 5px #ffb788;
@@ -253,10 +276,13 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
             #slider-container--sticky-notes-notefox-addon {
                 position: absolute;
                 z-index: 2;
-                width: auto;
-                left: 10px;
-                right: 10px;
-                bottom: 10px;
+                width: auto !important;
+                left: 10px !important;
+                right: 10px !important;
+                bottom: 10px !important;
+                margin: 0px !important;
+                padding: 0px 10px !important;
+                box-sizing: border-box !important;
             }
             
             #slider--sticky-notes-notefox-addon {
@@ -269,8 +295,9 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
                 transition: opacity .2s;
                 cursor: pointer;
                 border-radius: 10px;
-                padding: 0px;
-                margin: 0px;
+                margin: 0px !important;
+                padding: 0px !important;
+                box-sizing: border-box !important;
             }
             
             #slider--sticky-notes-notefox-addon:hover {
@@ -403,15 +430,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
 
         opacityRange.oninput = function () {
             var value = (this.value - this.min) / (this.max - this.min) * 100;
-            if (value < 20) value = 20;
-            opacityRange.value = value;
-            this.style.background = 'linear-gradient(to right, #ff6200 0%, #ff6200 ' + value + '%, #eeeeee ' + value + '%, #eeeeee 100%)';
-            browser.runtime.sendMessage({
-                from: "sticky",
-                data: {opacity: {value: (value / 100)}}
-            });
-            stickyNote.style.opacity = (value / 100);
-            //console.log(value / 100);
+            setSlider(opacityRange, stickyNote, value, true);
         };
 
         stickyNote.appendChild(move);
@@ -425,6 +444,20 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
     }
 }
 
+function setSlider(opacityRange, stickyNote, value, update = true) {
+    if (value < 20) value = 20;
+    opacityRange.value = value;
+    opacityRange.style.background = 'linear-gradient(to right, #ff6200 0%, #ff6200 ' + value + '%, #eeeeee ' + value + '%, #eeeeee 100%)';
+    if (update) {
+        browser.runtime.sendMessage({
+            from: "sticky",
+            data: {opacity: {value: (value / 100)}}
+        });
+    }
+    stickyNote.style.opacity = (value / 100);
+    //console.log(value / 100);
+}
+
 function alreadyExists() {
-    changeDescription();
+    updateStickyNotes();
 }
