@@ -299,7 +299,7 @@ function importAllNotes() {
                         "settings": settings_json,
                         "sticky-notes-coords": sticky_notes.coords,
                         "sticky-notes-sizes": sticky_notes.sizes,
-                        "sticky-notes-opacity": sticky_notes.opacity.toFixed(2)
+                        "sticky-notes-opacity": sticky_notes.opacity
                     }).then(function () {
                         //Imported all correctly
                         loadDataFromBrowser(true);
@@ -356,7 +356,7 @@ function exportAllNotes() {
         if (sticky_notes.coords === undefined) sticky_notes.coords = {x: "20px", y: "20px"};
         if (sticky_notes.sizes === undefined) sticky_notes.sizes = {w: "300px", h: "300px"};
         if (sticky_notes.opacity === undefined) sticky_notes.opacity = {value: 0.7};
-        sticky_notes.opacity.value = sticky_notes.opacity.value.toFixed(2);
+        sticky_notes.opacity.value = Number.parseFloat(sticky_notes.opacity.value).toFixed(2);
 
         //console.log(JSON.stringify(result));
 
