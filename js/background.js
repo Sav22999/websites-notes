@@ -4,6 +4,9 @@ var websites_json = {};
 
 var tab_id = 0;
 var tab_url = "";
+var current_urls = []; //0: domain, 1: page
+
+var all_urls = {}; //url_domain: {0: domain, 1: page}
 
 var coords = {x: "20px", y: "20px"};
 var sizes = {w: "300px", h: "300px"};
@@ -77,6 +80,7 @@ function tabUpdated(tabs) {
 }
 
 function checkStatus() {
+    current_urls = [getDomainUrl(tab_url), getPageUrl(tab_url)];
     browser.storage.local.get("settings", function (value) {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
@@ -95,17 +99,17 @@ function continueCheckStatus() {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            let domain_url = getShortUrl(tab_url);
+            let domain_url = getDomainUrl(tab_url);
 
             if (websites_json[domain_url] !== undefined && websites_json[domain_url]["last-update"] !== undefined && websites_json[domain_url]["last-update"] != null && websites_json[domain_url]["notes"] !== undefined && websites_json[domain_url]["notes"] !== "") {
                 changeIcon(1);
-            } else if (websites_json[getPageUrl(tab_url)] !== undefined && websites_json[getPageUrl(tab_url)]["last-update"] !== undefined && websites_json[getPageUrl(tab_url)]["last-update"] != null && websites_json[getPageUrl(tab_url)]["notes"] !== undefined && websites_json[getPageUrl(tab_url)]["notes"] !== "") {
+            } else if (websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "") {
                 changeIcon(1);
             } else {
                 changeIcon(0);
             }
 
-            if (websites_json[getPageUrl(tab_url)] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"]) {
+            if (websites_json[getTheCorrectUrl()] !== undefined && websites_json[getTheCorrectUrl()]["sticky"] !== undefined && websites_json[getTheCorrectUrl()]["sticky"]) {
                 openAsStickyNotes();
             } else {
                 closeStickyNotes();
@@ -117,7 +121,7 @@ function continueCheckStatus() {
     });
 }
 
-function getShortUrl(url) {
+function getDomainUrl(url) {
     let urlToReturn = "";
     let protocol = getTheProtocol(url);
     if (url.includes(":")) {
@@ -172,8 +176,13 @@ function listenerShortcuts() {
 
 function listenerStickyNotes() {
     browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        if (message["open-sticky"] !== undefined && message["open-sticky"]) {
+        //console.log("Call: " + JSON.stringify(message));
+        if (message["open-sticky"] !== undefined && message["open-sticky"]["open"] !== undefined && message["open-sticky"]["open"]) {
             //from main script (script.js)
+            let type = 1;
+            if (message["open-sticky"]["type"] !== undefined) type = message["open-sticky"]["type"];
+            all_urls[current_urls[type]] = {type: type};
+            //console.log(JSON.stringify(all_urls));
             openAsStickyNotes();
         }
 
@@ -268,24 +277,39 @@ function listenerStickyNotes() {
                     });
                 }
                 if (message.ask === "notes") {
-                    sendResponse({
-                        notes: {
-                            description: websites_json[tab_url]["notes"],
-                            url: getPageUrl(tab_url),
-                            tag_colour: websites_json[tab_url]["tag-colour"],
-                            website: websites_json[tab_url],
-                            sticky_params: {
-                                coords: {x: coords.x, y: coords.y},
-                                sizes: {w: sizes.w, h: sizes.h},
-                                opacity: {value: opacity.value}
-                            }
-                        },
-                        websites: websites_json
-                    });
+                    let url_to_use = getTheCorrectUrl();
+                    if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["notes"] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) {
+                        sendResponse({
+                            notes: {
+                                description: websites_json[url_to_use]["notes"],
+                                url: url_to_use,
+                                tag_colour: websites_json[url_to_use]["tag-colour"],
+                                website: websites_json[url_to_use],
+                                sticky_params: {
+                                    coords: {x: coords.x, y: coords.y},
+                                    sizes: {w: sizes.w, h: sizes.h},
+                                    opacity: {value: opacity.value}
+                                }
+                            },
+                            websites: websites_json
+                        });
+                    } else {
+                        console.error(JSON.stringify(websites_json));
+                    }
                 }
             }
         }
     });
+}
+
+/**
+ * Returns the correct url (if exists "page" returns that, else if exists "domain" returns that one)
+ */
+function getTheCorrectUrl() {
+    let url_to_use = tab_url;
+    if (all_urls[getPageUrl(tab_url)] !== undefined && all_urls[getPageUrl(tab_url)].type !== undefined) url_to_use = current_urls[all_urls[getPageUrl(tab_url)].type];
+    else if (all_urls[getDomainUrl(tab_url)] !== undefined && all_urls[getDomainUrl(tab_url)].type !== undefined) url_to_use = current_urls[all_urls[getDomainUrl(tab_url)].type];
+    return url_to_use;
 }
 
 /**
@@ -327,17 +351,14 @@ function setOpenedSticky(sticky) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            websites_json[getPageUrl(tab_url)]["sticky"] = sticky;
+            websites_json[getTheCorrectUrl()]["sticky"] = sticky;
 
             browser.storage.local.set({
                 "websites": websites_json
             }).then(result => {
                 //updated websites with new data
-                //console.log("set || " + JSON.stringify(websites_json[getPageUrl(tab_url)]));
+                //console.log("set || " + JSON.stringify(websites_json[tab_url]));
                 //console.log("set || " + JSON.stringify(websites_json));
-                if (websites_json[getPageUrl(tab_url)]["sticky"] !== sticky) {
-                    //setOpenedSticky(sticky);
-                }
             });
         }
     });
@@ -348,18 +369,15 @@ function setNewTextFromSticky(text) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            websites_json[getPageUrl(tab_url)]["notes"] = text;
-            websites_json[getPageUrl(tab_url)]["last-update"] = getDate();
+            websites_json[getTheCorrectUrl()]["notes"] = text;
+            websites_json[getTheCorrectUrl()]["last-update"] = getDate();
 
             browser.storage.local.set({
                 "websites": websites_json
             }).then(function () {
                 //updated websites with new data
-                //console.log("set || " + JSON.stringify(websites_json[getPageUrl(tab_url)]));
+                //console.log("set || " + JSON.stringify(websites_json[tab_url]));
                 //console.log("set || " + JSON.stringify(websites_json));
-                if (websites_json[getPageUrl(tab_url)]["text"] !== text) {
-                    //setOpenedSticky(sticky);
-                }
             }).catch(function (error) {
                 console.error("E3: " + error);
             });
@@ -373,7 +391,7 @@ function checkStickyNotes() {
             websites_json = value["websites"];
 
             let status = false;
-            if (websites_json[getPageUrl(tab_url)]["sticky"] !== undefined) status = websites_json[getPageUrl(tab_url)]["sticky"];
+            if (websites_json[getTheCorrectUrl()] !== undefined && websites_json[getTheCorrectUrl()]["sticky"] !== undefined) status = websites_json[getTheCorrectUrl()]["sticky"];
 
             if (status) {
                 openAsStickyNotes();

@@ -38,7 +38,7 @@ function load() {
 function createNewDescription(x, y, w, h, opacity) {
     browser.runtime.sendMessage({from: "sticky", ask: "notes"}, (response) => {
         if (response !== undefined) {
-            let notes = {description: "", url: "", tag_colour: "", website: {}};
+            let notes = {description: "", url: "", tag_colour: "", website: {}, type: "page"};
             //console.log("get3 || " + JSON.stringify(response.websites));
             let description = "";
             if (response.notes !== undefined && response.notes.description !== undefined) {
@@ -53,6 +53,11 @@ function createNewDescription(x, y, w, h, opacity) {
             if (response.notes !== undefined && response.notes.website !== undefined) {
                 notes.website = response.notes.website;
             }
+            if (response.notes !== undefined && response.notes.type !== undefined) {
+                notes.type = response.notes.type;
+            }
+
+            //reset opened by "page" or "domain"
             createNew(notes, x, y, w, h, opacity, response.websites);
         }
     });

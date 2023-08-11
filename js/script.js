@@ -216,7 +216,7 @@ function saveNotes() {
                 }
                 */
 
-                if (selected_tab === 0 || never_saved) {
+                if (never_saved) {
                     document.getElementById("open-sticky-button").classList.add("hidden");
                 } else {
                     if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
@@ -239,7 +239,7 @@ function tabUpdated(tabId, changeInfo, tabInfo) {
 
 function setUrl(url) {
     if (isUrlSupported(url)) {
-        currentUrl[0] = getShortUrl(url);
+        currentUrl[0] = getDomainUrl(url);
         currentUrl[1] = getPageUrl(url);
         if (document.getElementById("tabs-section").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
         if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
@@ -255,7 +255,7 @@ function setUrl(url) {
     //console.log("Current url [0] " + currentUrl[0] + " - [1] " + currentUrl[1]);
 }
 
-function getShortUrl(url) {
+function getDomainUrl(url) {
     let urlToReturn = "";
     let protocol = getTheProtocol(url);
     if (url.includes(":")) {
@@ -358,7 +358,7 @@ function setTab(index, url) {
 
     document.getElementById("notes").focus();
 
-    if (index === 0 || never_saved) {
+    if (never_saved) {
         document.getElementById("open-sticky-button").classList.add("hidden");
     } else {
         if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
@@ -367,7 +367,7 @@ function setTab(index, url) {
 }
 
 function openStickyNotes() {
-    if (stickyNotesSupported) browser.runtime.sendMessage({"open-sticky": true});
+    if (stickyNotesSupported) browser.runtime.sendMessage({"open-sticky": {open: true, type: selected_tab}});
 }
 
 loaded();
