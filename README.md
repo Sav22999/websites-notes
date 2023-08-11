@@ -9,26 +9,30 @@ Official repo of https://addons.mozilla.org/it/firefox/addon/websites-notes/.
 
 [<img src="img/firefoxAddons.png" height="50px">](https://addons.mozilla.org/it/firefox/addon/websites-notes/) 
 
-To support me, you can do a donation :smile: with **PayPal**, **LiberaPay** or **Ko-Fi**:
+To support me, you can buy me a coffee making a donation ❤️ with **LiberaPay** or **PayPal**:
 
-<a href="https://liberapay.com/Sav22999/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a> [<img src="img/paypal.svg" width="160px"></img>](https://paypal.me/saveriomorelli) [<img src="https://cdn.ko-fi.com/cdn/kofi1.png?v=2" width="120px"></img>](https://ko-fi.com/R5R31UQ8G)
+<a href="https://liberapay.com/Sav22999/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a> [<img src="img/paypal.svg" width="160px"></img>](https://paypal.me/saveriomorelli)
 
 ## Description
 
-Take notes on every website, by domain or by web page.
+Take notes on every website in a smart and simple way!
 
 ## Features
 
-- Write notes for the current page or for the whole domain
+- Take notes on websites, you can take notes for the whole domain called "Domain" (es. `https://saveriomorelli.com`) or notes for a specific web page of a domain called "Page" (es. `https://saveriomorelli.com/projects/`)
+- See all notes in a dedicated page, where you can manage them as well (export, import, clear all notes, set tag, search, etc.)
+- You can customise the add-on via Options (in "Add-ons and themes" > "Extensions" > "Notefox")
 - Auto-saving
-- Set a color-label 
+- Notes as Sticky-notes (“Memo”/“Post-it")
+- Keyboard shortcuts (also customisable!)
 
 ## How to contribute
 
 You can open an issue and there you must describe the feedback, the bug or the new feature you want.
+You can contribute also translating the add-on on Crowdin.
 
 ## Screenshots
 
 See folder <code>screenshots</code> to see screenshots also of the older versions.
 
-<img src="screenshots/2.1/1.png" width="400px"></img><img src="screenshots/2.1/2.png" width="400px"></img><img src="screenshots/2.1/3.png" width="400px"></img>
+<img src="screenshots/3.0/1.png" width="400px"></img><img src="screenshots/3.0/2.png" width="400px"></img><img src="screenshots/3.0/3.png" width="400px"></img><img src="screenshots/3.0/4.png" width="400px"></img>

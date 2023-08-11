@@ -2,8 +2,8 @@
   "manifest_version": 2,
   "name": "Notefox: Websites notes",
   "author": "Saverio Morelli (Sav22999)",
-  "version": "2.3.2",
-  "description": "Take notes on every website, by domain or by web page.",
+  "version": "3.0",
+  "description": "Take notes on every website in a smart and simple way!",
   "icons": {
     "16": "./img/icon.svg",
     "24": "./img/icon.svg",
@@ -69,7 +69,9 @@
   "permissions": [
     "storage",
     "tabs",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "activeTab",
+    "<all_urls>"
   ],
   "background": {
     "scripts": [

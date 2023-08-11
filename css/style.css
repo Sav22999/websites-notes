@@ -73,14 +73,36 @@ body {
     display: inline-block;
 }
 
-.clear-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button {
-    padding-left: 30px;
+#version {
+    border-radius: 0px;
+}
+
+.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button {
+    padding-left: 35px;
+    padding-right: 10px;
     background-image: url("../img/delete.svg");
-    background-size: auto 50%;
+    background-size: auto 60%;
     background-repeat: no-repeat;
     background-position: 10px center;
     color: #ffffff;
     margin: 2px;
+}
+
+.button-trigger-sticky {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 30px !important;
+    height: 30px !important;
+    background-image: url("../img/sticky-open.svg");
+    background-size: auto 70%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: #ff6200;
+    color: #ffffff;
+    margin: 2px;
+    z-index: 5;
+    border-radius: 5px;
 }
 
 .select-box {
@@ -97,6 +119,8 @@ body {
     cursor: pointer;
     margin-left: 10px;
     margin-right: 10px;
+
+    background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
 }
 
 .select-box:hover {
@@ -105,6 +129,10 @@ body {
 
 .save-button {
     background-image: url("../img/save.svg");
+}
+
+.clear2-button {
+    background-image: url("../img/delete2.svg");
 }
 
 .refresh-button {
@@ -308,6 +336,10 @@ textarea::placeholder, .textbox::placeholder {
     background-color: #d0d0d0;
 }
 
+.background-light-red:nth-child(even) {
+    background-color: #ff8e8e;
+}
+
 .sub-section-type {
     background-color: var(--on-primary-color);
     color: var(--primary-color);
@@ -371,10 +403,6 @@ textarea::placeholder, .textbox::placeholder {
 
 .background-transparent {
     background-color: transparent;
-}
-
-.background-light-red {
-    background-color: #ff8e8e;
 }
 
 .button-code {
@@ -510,6 +538,11 @@ h3 {
 
 .tag-colour-none {
     border: none;
+}
+
+
+.background-light-red {
+    background-color: #ff8e8e;
 }
 
 .tag-colour-none-bg {
