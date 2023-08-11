@@ -219,6 +219,7 @@ function listenerStickyNotes() {
                     });
                 }
 
+                /*
                 if (message.data.notes !== undefined) {
                     //save W (width) and H (height) sizes of the sticky
                     //these sizes will be used to open with that size
@@ -231,6 +232,7 @@ function listenerStickyNotes() {
                         //updated websites with new notes
                     });
                 }
+                */
             } else if (message.ask !== undefined) {
                 //want something as response
                 if (message.ask === "coords") {
@@ -298,12 +300,14 @@ function getTheCorrectUrl() {
         page = true;
     }
 
+    let domain_condition = websites_json[getDomainUrl(tab_url)] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"];
+    let page_condition = websites_json[getPageUrl(tab_url)] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"];
     if (!domain && !page) {
-        if (websites_json[getDomainUrl(tab_url)] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"]) {
+        if (domain_condition) {
             url_to_use = current_urls[0];
             domain = true;
         }
-        if (websites_json[getPageUrl(tab_url)] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"]) {
+        if (page_condition) {
             url_to_use = current_urls[1];
             page = true;
         }
@@ -311,6 +315,11 @@ function getTheCorrectUrl() {
         if (domain && page) {
             //if enter here, this means both are in websites, so choose the default one
             url_to_use = current_urls[default_url_index];
+        }
+    } else {
+        //console.log(`Here! ${domain} ${page}`);
+        if (current_urls[all_urls[getPageUrl(tab_url)].type] !== 1) {
+            url_to_use = current_urls[all_urls[getPageUrl(tab_url)].type];
         }
     }
 
