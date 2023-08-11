@@ -74,7 +74,7 @@ function loadSettings() {
     let shortcuts = browser.commands.getAll();
     shortcuts.then(getCurrentShortcuts);
 
-    browser.storage.local.get("settings", function (value) {
+    browser.storage.sync.get("settings", function (value) {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
@@ -131,7 +131,7 @@ function loadSettings() {
 }
 
 function saveSettings() {
-    browser.storage.local.set({"settings": settings_json}, function () {
+    browser.storage.sync.set({"settings": settings_json}, function () {
         //Saved
         let buttonSave = document.getElementById("save-settings-button");
         buttonSave.value = all_strings["saved-button"];
