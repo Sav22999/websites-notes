@@ -5,7 +5,7 @@
 </h1>
 Official repo of https://addons.mozilla.org/it/firefox/addon/websites-notes/.
 
-[![GitHub release](https://img.shields.io/github/release/Sav22999/websites-notes.svg)](https://github.com/Sav22999/websites-notes/releases/) [![GitHub license](https://img.shields.io/github/license/Sav22999/websites-notes.svg)](https://github.com/Sav22999/websites-notes/blob/master/LICENSE) ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg) ![Github all releases](https://img.shields.io/github/downloads/Sav22999/websites-notes/total.svg)](https://GitHub.com/Sav22999/websites-notes/releases/) 
+[![GitHub release](https://img.shields.io/github/release/Sav22999/websites-notes.svg)](https://github.com/Sav22999/websites-notes/releases/) [![GitHub license](https://img.shields.io/github/license/Sav22999/websites-notes.svg)](https://github.com/Sav22999/websites-notes/blob/master/LICENSE) ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg) [![Github all releases](https://img.shields.io/github/downloads/Sav22999/websites-notes/total.svg)](https://GitHub.com/Sav22999/websites-notes/releases/)
 
 [<img src="img/firefoxAddons.png" height="50px">](https://addons.mozilla.org/it/firefox/addon/websites-notes/) 
 
