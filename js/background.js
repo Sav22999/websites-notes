@@ -41,33 +41,6 @@ function loaded() {
         listenerStickyNotes();
         checkStatus();
     });
-
-    browser.storage.local.get("sticky-notes-coords").then(result => {
-        const value = result["sticky-notes-coords"];
-        if (value !== undefined) {
-            coords.x = value.x;
-            coords.y = value.y;
-        }
-    });
-    browser.storage.local.get("sticky-notes-sizes").then(result => {
-        const value = result["sticky-notes-sizes"];
-        if (value !== undefined) {
-            sizes.w = value.w;
-            sizes.h = value.h;
-        }
-    });
-    browser.storage.local.get("sticky-notes-opacity").then(result => {
-        const value = result["sticky-notes-opacity"];
-        if (value !== undefined) {
-            opacity.value = value.value;
-        }
-    });
-    browser.storage.local.get("websites").then(result => {
-        const value = result["websites"];
-        if (value !== undefined) {
-            //text.description = "Nota nota nota";
-        }
-    });
 }
 
 function tabUpdated(tabs) {
@@ -181,7 +154,7 @@ function listenerStickyNotes() {
             //from main script (script.js)
             let type = 1;
             if (message["open-sticky"]["type"] !== undefined) type = message["open-sticky"]["type"];
-            all_urls[current_urls[type]] = {type: type};
+            all_urls[current_urls[1]] = {type: type};
             //console.log(JSON.stringify(all_urls));
             openAsStickyNotes();
         }
@@ -306,9 +279,41 @@ function listenerStickyNotes() {
  * Returns the correct url (if exists "page" returns that, else if exists "domain" returns that one)
  */
 function getTheCorrectUrl() {
+    let default_url_index = 1;
+    if (settings_json !== undefined && settings_json["open-default"] !== undefined) {
+        if (settings_json["open-default"] === "page") default_url_index = 1;
+        else if (settings_json["open-default"] === "domain") default_url_index = 0;
+    }
+
+    //console.log(JSON.stringify(all_urls));
+
     let url_to_use = tab_url;
-    if (all_urls[getPageUrl(tab_url)] !== undefined && all_urls[getPageUrl(tab_url)].type !== undefined) url_to_use = current_urls[all_urls[getPageUrl(tab_url)].type];
-    else if (all_urls[getDomainUrl(tab_url)] !== undefined && all_urls[getDomainUrl(tab_url)].type !== undefined) url_to_use = current_urls[all_urls[getDomainUrl(tab_url)].type];
+    let page = false, domain = false;
+    if (all_urls[getDomainUrl(tab_url)] !== undefined && all_urls[getDomainUrl(tab_url)].type !== undefined) {
+        url_to_use = current_urls[all_urls[getDomainUrl(tab_url)].type];
+        domain = true;
+    }
+    if (all_urls[getPageUrl(tab_url)] !== undefined && all_urls[getPageUrl(tab_url)].type !== undefined) {
+        url_to_use = current_urls[all_urls[getPageUrl(tab_url)].type];
+        page = true;
+    }
+
+    if (!domain && !page) {
+        if (websites_json[getDomainUrl(tab_url)] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"]) {
+            url_to_use = current_urls[0];
+            domain = true;
+        }
+        if (websites_json[getPageUrl(tab_url)] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"]) {
+            url_to_use = current_urls[1];
+            page = true;
+        }
+
+        if (domain && page) {
+            //if enter here, this means both are in websites, so choose the default one
+            url_to_use = current_urls[default_url_index];
+        }
+    }
+
     return url_to_use;
 }
 
@@ -318,15 +323,41 @@ function getTheCorrectUrl() {
 function openAsStickyNotes() {
     if (!opening_sticky) {
         opening_sticky = true;
-        browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            const activeTab = tabs[0];
-            browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
-                //console.log("Sticky notes ('open')");
-                opening_sticky = false;
-            }).catch(function (error) {
-                console.error("E2: " + error);
-                opening_sticky = false;
-            });
+        browser.storage.local.get([
+            "sticky-notes-coords",
+            "sticky-notes-sizes",
+            "sticky-notes-opacity"
+        ]).then(result => {
+            //console.log(JSON.stringify(result));
+
+            const value_1 = result["sticky-notes-coords"];
+            if (value_1 !== undefined) {
+                coords.x = value_1.x;
+                coords.y = value_1.y;
+            }
+
+            const value_2 = result["sticky-notes-sizes"];
+            if (value_2 !== undefined) {
+                sizes.w = value_2.w;
+                sizes.h = value_2.h;
+            }
+
+            const value_3 = result["sticky-notes-opacity"];
+            if (value_3 !== undefined) {
+                opacity.value = value_3.value;
+            }
+            browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                const activeTab = tabs[0];
+                browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
+                    //console.log("Sticky notes ('open')");
+                    opening_sticky = false;
+                }).catch(function (error) {
+                    console.error("E2: " + error);
+                    opening_sticky = false;
+                });
+            })
+        }).catch((error) => {
+            console.error("Error retrieving data:", error);
         });
     }
 }
