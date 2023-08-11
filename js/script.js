@@ -216,7 +216,7 @@ function saveNotes() {
                 }
                 */
 
-                if (selected_tab === 0 || never_saved) {
+                if (never_saved) {
                     document.getElementById("open-sticky-button").classList.add("hidden");
                 } else {
                     if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
@@ -358,7 +358,7 @@ function setTab(index, url) {
 
     document.getElementById("notes").focus();
 
-    if (index === 0 || never_saved) {
+    if (never_saved) {
         document.getElementById("open-sticky-button").classList.add("hidden");
     } else {
         if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
@@ -367,7 +367,7 @@ function setTab(index, url) {
 }
 
 function openStickyNotes() {
-    if (stickyNotesSupported) browser.runtime.sendMessage({"open-sticky": true});
+    if (stickyNotesSupported) browser.runtime.sendMessage({"open-sticky": {open: true, type: selected_tab}});
 }
 
 loaded();
