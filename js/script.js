@@ -239,7 +239,7 @@ function tabUpdated(tabId, changeInfo, tabInfo) {
 
 function setUrl(url) {
     if (isUrlSupported(url)) {
-        currentUrl[0] = getShortUrl(url);
+        currentUrl[0] = getDomainUrl(url);
         currentUrl[1] = getPageUrl(url);
         if (document.getElementById("tabs-section").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
         if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
@@ -255,7 +255,7 @@ function setUrl(url) {
     //console.log("Current url [0] " + currentUrl[0] + " - [1] " + currentUrl[1]);
 }
 
-function getShortUrl(url) {
+function getDomainUrl(url) {
     let urlToReturn = "";
     let protocol = getTheProtocol(url);
     if (url.includes(":")) {
