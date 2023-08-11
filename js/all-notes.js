@@ -155,7 +155,7 @@ function setLanguageUI() {
 }
 
 function loadDataFromBrowser(generate_section = true) {
-    browser.storage.local.get("websites", function (value) {
+    browser.storage.sync.get("websites", function (value) {
         websites_json = {};
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
@@ -167,7 +167,7 @@ function loadDataFromBrowser(generate_section = true) {
         }
         //console.log(JSON.stringify(websites_json));
     });
-    browser.storage.local.get("settings", function (value) {
+    browser.storage.sync.get("settings", function (value) {
         settings_json = {};
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
@@ -197,7 +197,7 @@ function clearAllNotesDomain(url) {
         delete websites_json[url];
         websites_json_to_show = websites_json;
 
-        browser.storage.local.set({"websites": websites_json}, function () {
+        browser.storage.sync.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
         });
     }
@@ -214,7 +214,7 @@ function clearAllNotesPage(url, isDomain = false) {
         delete websites_json[url];
         websites_json_to_show = websites_json;
 
-        browser.storage.local.set({"websites": websites_json}, function () {
+        browser.storage.sync.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
         });
     }
@@ -294,7 +294,7 @@ function importAllNotes() {
                 }
 
                 if (continue_ok) {
-                    browser.storage.local.set({
+                    browser.storage.sync.set({
                         "websites": websites_json,
                         "settings": settings_json,
                         "sticky-notes-coords": sticky_notes.coords,
@@ -342,7 +342,7 @@ function importAllNotes() {
 
 function exportAllNotes() {
     showBackgroundOpacity();
-    browser.storage.local.get([
+    browser.storage.sync.get([
         "sticky-notes-coords",
         "sticky-notes-opacity",
         "sticky-notes-sizes",
@@ -622,14 +622,14 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
 }
 
 function changeTagColour(page, url, colour) {
-    browser.storage.local.get("websites", function (value) {
+    browser.storage.sync.get("websites", function (value) {
         websites_json = {};
         if (value["websites"] != undefined) {
             websites_json = value["websites"];
         }
         websites_json[url]["tag-colour"] = colour;
         websites_json_to_show = websites_json;
-        browser.storage.local.set({"websites": websites_json}, function () {
+        browser.storage.sync.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
             hideBackgroundOpacity();
             applyFilter();
