@@ -216,10 +216,12 @@ function saveNotes() {
                 }
                 */
 
-                if (never_saved) {
-                    document.getElementById("open-sticky-button").classList.add("hidden");
-                } else {
-                    if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+                if (isUrlSupported(currentUrl[selected_tab])) {
+                    if (never_saved) {
+                        document.getElementById("open-sticky-button").classList.add("hidden");
+                    } else {
+                        if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+                    }
                 }
 
                 //console.log(JSON.stringify(websites_json));
@@ -304,7 +306,7 @@ function isUrlSupported(url) {
             break;
 
         default:
-            //this disable all unsupported website
+            //this disables all unsupported website
             valueToReturn = false;//todo | true->for testing, false->stable release
     }
     return valueToReturn;
@@ -358,12 +360,13 @@ function setTab(index, url) {
 
     document.getElementById("notes").focus();
 
-    if (never_saved) {
-        document.getElementById("open-sticky-button").classList.add("hidden");
-    } else {
-        if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+    if (isUrlSupported(url)) {
+        if (never_saved) {
+            document.getElementById("open-sticky-button").classList.add("hidden");
+        } else {
+            if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+        }
     }
-
 }
 
 function openStickyNotes() {
