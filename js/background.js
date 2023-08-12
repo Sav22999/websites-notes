@@ -189,10 +189,12 @@ function listenerStickyNotes() {
         //console.log("Call: " + JSON.stringify(message));
         if (message["open-sticky"] !== undefined && message["open-sticky"]["open"] !== undefined && message["open-sticky"]["open"]) {
             //from main script (script.js)
+            //the type indicated 0: domain, 1: page
             let type = 1;
             if (message["open-sticky"]["type"] !== undefined) type = message["open-sticky"]["type"];
             all_urls[current_urls[1]] = {type: type};
             //console.log(JSON.stringify(all_urls));
+            setOpenedSticky(true, false);
             openAsStickyNotes();
         }
 
@@ -200,14 +202,10 @@ function listenerStickyNotes() {
             //from sticky-notes
             if (message.data !== undefined) {
                 //communicate something
-                if (message.data.close !== undefined) {
-                    if (message.data.close) {
-                        //sticky-notes hidden
-                        setOpenedSticky(false);
-                    } else {
-                        //sticky-notes shown
-                        setOpenedSticky(true);
-                    }
+                if (message.data.sticky !== undefined) {
+                    //if message.data.sticky = true -> it means the sticky is present
+                    //if message.data.minimized = true -> it means the sticky is minimized
+                    setOpenedSticky(message.data.sticky, message.data.minimized);
                 }
 
                 if (message.data.new_text !== undefined) {
@@ -307,6 +305,21 @@ function listenerStickyNotes() {
                         });
                     } else {
                         console.error(JSON.stringify(websites_json));
+                    }
+                }
+                if (message.ask === "sticky-minimized") {
+                    let url_to_use = getTheCorrectUrl();
+                    //console.log(websites_json[url_to_use]);
+                    if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["sticky"] !== undefined && websites_json[url_to_use]["minimized"] !== undefined) {
+                        sendResponse({
+                            sticky: websites_json[url_to_use]["sticky"],
+                            minimized: websites_json[url_to_use]["minimized"]
+                        })
+                    } else {
+                        sendResponse({
+                            sticky: true,
+                            minimized: false
+                        })
                     }
                 }
             }
@@ -414,7 +427,9 @@ function openAsStickyNotes() {
 function closeStickyNotes() {
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         const activeTab = tabs[0];
-        browser.tabs.executeScript({code: "if (document.getElementById(\"sticky-notes-notefox-addon\")) document.getElementById(\"sticky-notes-notefox-addon\").remove();"}).then(function () {
+        browser.tabs.executeScript({
+            code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
+        }).then(function () {
             //console.log("Sticky notes ('close')");
         }).catch(function (error) {
             console.error("E1: " + error);
@@ -423,12 +438,14 @@ function closeStickyNotes() {
     opening_sticky = false;
 }
 
-function setOpenedSticky(sticky) {
+function setOpenedSticky(sticky, minimized) {
     browser.storage.sync.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
+
             websites_json[getTheCorrectUrl()]["sticky"] = sticky;
+            websites_json[getTheCorrectUrl()]["minimized"] = minimized;
 
             browser.storage.sync.set({
                 "websites": websites_json

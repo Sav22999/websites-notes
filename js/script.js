@@ -176,6 +176,9 @@ function saveNotes() {
         if (websites_json[currentUrl[selected_tab]]["sticky"] === undefined) {
             websites_json[currentUrl[selected_tab]]["sticky"] = false;
         }
+        if (websites_json[currentUrl[selected_tab]]["minimized"] === undefined) {
+            websites_json[currentUrl[selected_tab]]["minimized"] = false;
+        }
         if (selected_tab == 0) {
             websites_json[currentUrl[selected_tab]]["type"] = 0;
             websites_json[currentUrl[selected_tab]]["domain"] = "";
@@ -357,6 +360,8 @@ function setTab(index, url) {
 
     let sticky = false;
     if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["sticky"] !== undefined) sticky = websites_json[getPageUrl(url)]["sticky"];
+    let minimized = false;
+    if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["minimized"] !== undefined) minimized = websites_json[getPageUrl(url)]["minimized"];
 
     document.getElementById("notes").focus();
 
