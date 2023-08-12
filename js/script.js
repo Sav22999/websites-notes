@@ -198,7 +198,7 @@ function saveNotes() {
                     notes = websites_json[currentUrl[selected_tab]]["notes"];
                     never_saved = false;
                 }
-                document.getElementById("notes").textContent = notes;
+                document.getElementById("notes").innerText = notes;
 
                 let last_update = all_strings["never-update"];
                 if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["last-update"] !== undefined) last_update = websites_json[currentUrl[selected_tab]]["last-update"];
