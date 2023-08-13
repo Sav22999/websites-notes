@@ -14,10 +14,11 @@ var opacity = {value: 0.7};
 
 let opening_sticky = false;
 
-let sync_local = browser.storage.local;
-browser.storage.local.get("storage2").then(result => {
+let sync_local = browser.storage.sync;
+browser.storage.local.get("storage").then(result => {
     if (result === "sync") sync_local = browser.storage.sync;
     else if (result === "local") sync_local = browser.storage.local;
+    else sync_local = browser.storage.sync;
 });
 
 function changeIcon(index) {
