@@ -410,64 +410,71 @@ function importAllNotes() {
                         browser.storage.local.get([
                             "storage"
                         ]).then(resultSyncOrLocalToUse => {
-                            let storageTemp;
-                            if (json_to_export_temp["storage"] !== undefined) storageTemp = json_to_export_temp["storage"];
+                                let storageTemp;
+                                if (json_to_export_temp["storage"] !== undefined) storageTemp = json_to_export_temp["storage"];
 
-                            if (storageTemp === undefined && resultSyncOrLocalToUse["storage"] !== undefined) storageTemp = resultSyncOrLocalToUse["storage"];
-                            else if ((storageTemp === "sync" || storageTemp === "local")) storageTemp = storageTemp; //do not do anything
-                            else storageTemp = "sync";
+                                if (storageTemp === undefined && resultSyncOrLocalToUse["storage"] !== undefined) storageTemp = resultSyncOrLocalToUse["storage"];
+                                else if ((storageTemp === "sync" || storageTemp === "local")) storageTemp = storageTemp; //do not do anything
+                                else storageTemp = "sync";
 
-                            if (continue_ok) {
-                                browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
-                                    checkSyncLocal();
+                                if (continue_ok) {
+                                    browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
+                                        checkSyncLocal();
 
-                                    document.getElementById("import-now-all-notes-button").disabled = true;
-                                    document.getElementById("cancel-import-all-notes-button").disabled = true;
-                                    document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
-                                    setTimeout(function () {
-                                        document.getElementById("import-now-all-notes-button").disabled = false;
-                                        document.getElementById("cancel-import-all-notes-button").disabled = false;
-                                        document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
+                                        document.getElementById("import-now-all-notes-button").disabled = true;
+                                        document.getElementById("cancel-import-all-notes-button").disabled = true;
+                                        document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
                                         setTimeout(function () {
-                                            document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
-                                        }, 500);
-                                        sync_local.set({
-                                            "websites": websites_json,
-                                            "settings": settings_json,
-                                            "sticky-notes-coords": sticky_notes.coords,
-                                            "sticky-notes-sizes": sticky_notes.sizes,
-                                            "sticky-notes-opacity": sticky_notes.opacity
-                                        }).then(function () {
-                                            //Imported all correctly
-                                            sync_local.get([
-                                                "settings",
-                                                "websites",
-                                                "sticky-notes-coords",
-                                                "sticky-notes-sizes",
-                                                "sticky-notes-opacity"
-                                            ]).then(result => {
-                                                //console.log(JSON.stringify(storageTemp));
-                                                if (storageTemp === undefined || storageTemp === "sync" && JSON.stringify(json_old_version) === jsonImportElement.value) {
-                                                    browser.storage.local.clear().then(result1 => {
-                                                        browser.storage.local.set({"storage": "sync"})
-                                                    });
-                                                } else {
-                                                    browser.storage.sync.clear().then(result1 => {
-                                                        browser.storage.local.set({"storage": "local"})
-                                                    });
-                                                }
-                                            });
-                                            loadDataFromBrowser(true);
+                                            document.getElementById("import-now-all-notes-button").disabled = false;
+                                            document.getElementById("cancel-import-all-notes-button").disabled = false;
+                                            document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
+                                            setTimeout(function () {
+                                                document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
+                                            }, 500);
+                                            sync_local.set({
+                                                "websites": websites_json,
+                                                "settings": settings_json,
+                                                "sticky-notes-coords": sticky_notes.coords,
+                                                "sticky-notes-sizes": sticky_notes.sizes,
+                                                "sticky-notes-opacity": sticky_notes.opacity
+                                            }).then(function () {
+                                                //Imported all correctly
+                                                sync_local.get([
+                                                    "settings",
+                                                    "websites",
+                                                    "sticky-notes-coords",
+                                                    "sticky-notes-sizes",
+                                                    "sticky-notes-opacity"
+                                                ]).then(result => {
+                                                    //console.log(JSON.stringify(storageTemp));
+                                                    if (storageTemp === undefined || storageTemp === "sync") {
+                                                        if (JSON.stringify(json_old_version) === jsonImportElement.value) {
+                                                            browser.storage.local.clear().then(result1 => {
+                                                                browser.storage.local.set({"storage": "sync"})
+                                                            });
+                                                        } else browser.storage.local.set({"storage": "sync"})
+                                                    } else {
+                                                        if (JSON.stringify(json_old_version) === jsonImportElement.value) {
+                                                            browser.storage.local.clear().then(result1 => {
+                                                                browser.storage.local.set({"storage": "local"})
+                                                            });
+                                                        } else browser.storage.local.set({"storage": "local"})
+                                                    }
+                                                })
+                                                ;
+                                                loadDataFromBrowser(true);
 
-                                            document.getElementById("import-section").style.display = "none";
-                                            hideBackgroundOpacity()
-                                        }).catch(function (error) {
-                                            console.error("E10: " + error);
-                                        });
-                                    }, 2000);
-                                });
+                                                document.getElementById("import-section").style.display = "none";
+                                                hideBackgroundOpacity()
+                                            }).catch(function (error) {
+                                                console.error("E10: " + error);
+                                            });
+                                        }, 2000);
+                                    });
+                                }
                             }
-                        });
+                        )
+                        ;
 
 
                         if (!continue_ok) {
