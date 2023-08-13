@@ -12,6 +12,8 @@ strings[lang] = {
     "import-json-message-dialog-text": "Paste here the JSON (or text) file content you exported previously, then click the <span {{parameters}}>Import now</span> button. The page will be automatically reloaded if notes are successfully imported.",
     "cancel-button": "Cancel",
     "import-now-button": "Import now",
+    "importing-button": "Importing…",
+    "imported-button": "Imported",
     "export-json-message-dialog-text": "Create a new JSON (or text) file and paste the code below <strong>without modifying it</strong> (you can click the <span {{parameters}}>Copy now</span> button to copy the code).",
     "copy-now-button": "Copy now",
     "last-update-text": "Last update: {{date_time}}",

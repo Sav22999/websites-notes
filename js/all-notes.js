@@ -394,8 +394,18 @@ function importAllNotes() {
                                 checkSyncLocal();
 
                                 document.getElementById("import-now-all-notes-button").disabled = true;
+                                document.getElementById("cancel-import-all-notes-button").disabled = true;
+                                document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
+                                ;
                                 setTimeout(function () {
                                     document.getElementById("import-now-all-notes-button").disabled = false;
+                                    document.getElementById("cancel-import-all-notes-button").disabled = false;
+                                    document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
+                                    ;
+                                    setTimeout(function () {
+                                        document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
+                                        ;
+                                    }, 500);
                                     sync_local.set({
                                         "websites": websites_json,
                                         "settings": settings_json,
