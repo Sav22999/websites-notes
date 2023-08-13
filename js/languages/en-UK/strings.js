@@ -49,6 +49,8 @@ strings[lang] = {
     "consider-parameters-detailed": "When enabled: <span class='url-small'>https://example.page/search?query=test</span> is different to <span class='url-small'>https://example.page/search</span>",
     "consider-sections": "Consider sections as part of the url page",
     "consider-sections-detailed": "When enabled: <span class='url-small'>https://example.page/search#section1</span> is different to <span class='url-small'>https://example.page/search</span>",
+    "save-on-local-instead-of-sync": "Save data locally instead of sync with Firefox account",
+    "save-on-local-instead-of-sync-detailed": "Since the version 3.3 the add-on automatically saves notes on your Firefox account, instead of save them locally.\nWhen enable, the syncing is disabled and it's restored the saving on local storage.",
     "notefox-version-too-old-try-to-import-data-anyway": "This data are from a very old version of this addon (before 2.0). The add-on will try to import anyway the data, but could be some problems. Do you want to continue?",
     "notefox-version-different-try-to-import-data-anyway": "This data are from a different version of the addon. The importing could fail (rarely). Do you want to continue?",
     "search-textbox": "Search…",
