@@ -75,18 +75,22 @@ function loadDataFromSync() {
             loaded();
         } else {
             //If it's available "local" data, they are sent to "sync" data
-            browser.storage.sync.set(result).then(result => {
-                //If it entry here, it means "local" data are been exported in "sync" data
+            if (result.storage !== undefined && result.storage === "sync") {
+                browser.storage.sync.set(result).then(result => {
+                    //If it entry here, it means "local" data are been exported in "sync" data
 
-                //console.log("Data imported correctly in sync data!");
+                    //console.log("Data imported correctly in sync data!");
 
-                //browser.storage.local.clear();
+                    //browser.storage.local.clear();
 
-                browser.storage.local.set({"storage": "sync"});
-                loaded();
-            }).catch((error) => {
-                console.error("Error importing data to sync:", error);
-            });
+                    browser.storage.local.set({"storage": "sync"});
+                    loaded();
+                }).catch((error) => {
+                    console.error("Error importing data to sync:", error);
+                });
+            } else {
+                //do not do anything: user choosen to use "local" data
+            }
         }
     }).catch((error) => {
         console.error("Error retrieving data from local:", error);
@@ -131,18 +135,7 @@ function continueCheckStatus() {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            let domain_url = getDomainUrl(tab_url);
-            let page_url = getPageUrl(tab_url);
-
-            if (websites_json[domain_url] !== undefined && websites_json[domain_url]["last-update"] !== undefined && websites_json[domain_url]["last-update"] != null && websites_json[domain_url]["notes"] !== undefined && websites_json[domain_url]["notes"] !== "") {
-                changeIcon(1);
-            } else if (websites_json[page_url] !== undefined && websites_json[page_url]["last-update"] !== undefined && websites_json[page_url]["last-update"] != null && websites_json[page_url]["notes"] !== undefined && websites_json[page_url]["notes"] !== "") {
-                changeIcon(1);
-            } else if (websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "") {
-                changeIcon(1);
-            } else {
-                changeIcon(0);
-            }
+            checkIcon();
 
             if (websites_json[getTheCorrectUrl()] !== undefined && websites_json[getTheCorrectUrl()]["sticky"] !== undefined && websites_json[getTheCorrectUrl()]["sticky"]) {
                 openAsStickyNotes();
@@ -450,6 +443,7 @@ function openAsStickyNotes() {
  * close sticky notes if exists and the status changed to "closed"
  */
 function closeStickyNotes() {
+    checkIcon();
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         const activeTab = tabs[0];
         browser.tabs.executeScript({
@@ -463,22 +457,40 @@ function closeStickyNotes() {
     opening_sticky = false;
 }
 
+function checkIcon() {
+    let domain_url = getDomainUrl(tab_url);
+    let page_url = getDomainUrl(tab_url);
+    if (websites_json[domain_url] !== undefined && websites_json[domain_url]["last-update"] !== undefined && websites_json[domain_url]["last-update"] != null && websites_json[domain_url]["notes"] !== undefined && websites_json[domain_url]["notes"] !== "") {
+        changeIcon(1);
+    } else if (websites_json[page_url] !== undefined && websites_json[page_url]["last-update"] !== undefined && websites_json[page_url]["last-update"] != null && websites_json[page_url]["notes"] !== undefined && websites_json[page_url]["notes"] !== "") {
+        changeIcon(1);
+    } else if (websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "") {
+        changeIcon(1);
+    } else {
+        changeIcon(0);
+    }
+}
+
 function setOpenedSticky(sticky, minimized) {
     sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
+            if (websites_json[getTheCorrectUrl()] !== undefined) {
 
-            websites_json[getTheCorrectUrl()]["sticky"] = sticky;
-            websites_json[getTheCorrectUrl()]["minimized"] = minimized;
+                websites_json[getTheCorrectUrl()]["sticky"] = sticky;
+                websites_json[getTheCorrectUrl()]["minimized"] = minimized;
 
-            sync_local.set({
-                "websites": websites_json
-            }).then(result => {
-                //updated websites with new data
-                //console.log("set || " + JSON.stringify(websites_json[tab_url]));
-                //console.log("set || " + JSON.stringify(websites_json));
-            });
+                sync_local.set({
+                    "websites": websites_json
+                }).then(result => {
+                    //updated websites with new data
+                    //console.log("set || " + JSON.stringify(websites_json[tab_url]));
+                    //console.log("set || " + JSON.stringify(websites_json));
+                });
+            } else {
+                closeStickyNotes();
+            }
         }
     });
 }
@@ -488,8 +500,14 @@ function setNewTextFromSticky(text) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            websites_json[getTheCorrectUrl()]["notes"] = text;
-            websites_json[getTheCorrectUrl()]["last-update"] = getDate();
+            if (text === "") {
+                //if notes field is empty, I delete the element from the "dictionary" (notes list)
+                delete websites_json[getTheCorrectUrl()];
+                closeStickyNotes();
+            } else {
+                websites_json[getTheCorrectUrl()]["notes"] = text;
+                websites_json[getTheCorrectUrl()]["last-update"] = getDate();
+            }
 
             sync_local.set({
                 "websites": websites_json

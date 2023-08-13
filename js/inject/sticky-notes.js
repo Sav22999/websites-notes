@@ -97,7 +97,7 @@ function updateStickyNotes() {
             if (response !== undefined) {
                 let new_text = "";
                 if (response.notes !== undefined && response.notes.description !== undefined) new_text = response.notes.description;
-                text.innerText = new_text
+                text.value = new_text
 
                 let new_tag = "";
                 if (response.notes !== undefined && response.notes.tag_colour !== undefined) new_tag = response.notes.tag_colour;
@@ -134,6 +134,9 @@ function updateStickyNotes() {
                 text.oninput = function () {
                     onInputText(text);
                 }
+                text.onchange = function () {
+                    onInputText(text);
+                }
                 opacityRange.oninput = function () {
                     var value = (this.value - this.min) / (this.max - this.min) * 100;
                     setSlider(opacityRange, stickyNotes, value, true);
@@ -168,13 +171,21 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         let resize = document.createElement("div");
         resize.id = "resize--sticky-notes-notefox-addon";
 
-        let text = document.createElement("div");
+        let textContainer = document.createElement("div");
+        textContainer.id = "text-container--sticky-notes-notefox-addon";
+
+        let text = document.createElement("textarea");
         text.id = "text--sticky-notes-notefox-addon";
-        text.innerText = notes.description;
+        text.value = notes.description;
         text.contentEditable = true;
         text.oninput = function () {
             onInputText(text);
         }
+        text.onchange = function () {
+            onInputText(text);
+        }
+
+        textContainer.appendChild(text);
 
         let stickyNote = document.createElement("div");
         stickyNote.id = "sticky-notes-notefox-addon";
@@ -244,7 +255,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         stickyNote.appendChild(move);
 
         stickyNote.appendChild(resize);
-        stickyNote.appendChild(text);
+        stickyNote.appendChild(textContainer);
         document.body.appendChild(stickyNote);
 
         document.head.innerHTML += getCSS(notes, x, y, w, h, opacity, websites_json);
@@ -368,14 +379,12 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 border-right: 10px solid #ff6200;
                 width: 0;
             }
-            #text--sticky-notes-notefox-addon {
-                position: absolute;
-                left: 0px;
-                right: 0px;
-                top: 20px;
-                bottom: 35px;
-                width: auto;
-                height: auto;
+            #text--sticky-notes-notefox-addon, #text-container--sticky-notes-notefox-addon {
+                position: relative;
+                top: 0px;
+                bottom: 0px;
+                width: 100%;
+                height: 100%;
                 padding: 10px !important;
                 margin: 0px !important;
                 box-sizing: border-box !important;
@@ -383,10 +392,23 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 opacity: 1;
                 cursor: text;
                 z-index: 1;
+                border: 0px solid transparent !important;
                 border-radius: 10px;
-                overflow-y: auto;
+                overflow: auto;
+                resize: none;
                 transition: 0.2s;
                 font-family: 'Open Sans', sans-serif;
+            }
+            #text-container--sticky-notes-notefox-addon {
+                position: absolute;
+                left: 0px;
+                right: 0px;
+                top: 20px;
+                bottom: 35px;
+                width: auto;
+                height: auto;
+                padding: 0px !important;
+                overflow: visible;
             }
             #text--sticky-notes-notefox-addon:focus {
                 outline: 2px solid #ff6200;
@@ -492,7 +514,7 @@ function onClickClose(minimized = false) {
 }
 
 function onInputText(text) {
-    browser.runtime.sendMessage({from: "sticky", data: {new_text: text.innerText}});
+    browser.runtime.sendMessage({from: "sticky", data: {new_text: text.value}});
 }
 
 /**
