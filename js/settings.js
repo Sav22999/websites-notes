@@ -245,7 +245,7 @@ function saveSettings() {
                     "sticky-notes-sizes",
                     "sticky-notes-opacity"
                 ]).then(result => {
-                    console.log(JSON.stringify(result));
+                    //console.log(JSON.stringify(result));
                     browser.storage.sync.set(result).then(resultSet => {
                         browser.storage.local.get([
                             "settings",
