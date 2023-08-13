@@ -21,13 +21,14 @@ let colourListDefault = sortObjectByKeys({
 
 let show_conversion_message_attention = false;
 
-let sync_local = browser.storage.sync;
+let sync_local;
 checkSyncLocal();
 
 function checkSyncLocal() {
+    sync_local = browser.storage.sync;
     browser.storage.local.get("storage").then(result => {
-        if (result === "sync") sync_local = browser.storage.sync;
-        else if (result === "local") sync_local = browser.storage.local;
+        if (result.storage === "sync") sync_local = browser.storage.sync;
+        else if (result.storage === "local") sync_local = browser.storage.local;
         else {
             browser.storage.local.set({"storage": "sync"});
             sync_local = browser.storage.sync;
@@ -36,6 +37,7 @@ function checkSyncLocal() {
 }
 
 function loaded() {
+    checkSyncLocal()
     setLanguageUI();
 
     browser.storage.local.get([
@@ -46,7 +48,7 @@ function loaded() {
         "sticky-notes-sizes",
         "sticky-notes-opacity"
     ]).then(result => {
-        console.log("local: " + JSON.stringify(result));
+        //console.log("local: " + JSON.stringify(result));
     });
     browser.storage.sync.get([
         "storage",
@@ -56,7 +58,7 @@ function loaded() {
         "sticky-notes-sizes",
         "sticky-notes-opacity"
     ]).then(result => {
-        console.log("sync: " + JSON.stringify(result));
+        //console.log("sync: " + JSON.stringify(result));
     });
 
     browser.storage.local.get([
@@ -78,12 +80,13 @@ function loaded() {
                 "sticky-notes-opacity"
             ]).then(result2 => {
                 //console.log("2" + JSON.stringify(result2));
-                if (JSON.stringify(result) !== `{"storage":"sync"}` && JSON.stringify(result2) != JSON.stringify(result)) {
+                if (JSON.stringify(result) !== `{"storage":"sync"}` && JSON.stringify(result2) !== JSON.stringify(result)) {
                     show_conversion_message_attention = true;
+                }
+                if (JSON.stringify(result2) === `{}`)
                     alert("Pay attention: from the version 3.3 data are synchronised with your Firefox account. To do this I've changed the way to save notes back-end. I've converted automatically data.\n" +
                         "Although it looks the process of conversion didn't work in your case. Keep calm! You didn't lose all your notes! I've inserted a button in the 'Import…' section which permits you to restore those data – the 'Get local data' button. You can press there and it should show you local data, then you need to press on 'Import' manually.\n" +
                         "If this doesn't work, please, contact me on GitHub, Telegram or via email. I'll support you! I'm so sorry about this inconvenience.\nIn the meanwhile you can set the saving of sync off: go to the addon Settings > Save locally instead of sync > Yes.");
-                }
             });
         }
     });
@@ -119,7 +122,9 @@ function loaded() {
         }
     }
 
-    loadDataFromBrowser(true);
+    setTimeout(function () {
+        loadDataFromBrowser(true);
+    }, 10);
 
     document.getElementById("all-notes-dedication-section").onscroll = function () {
         if (document.getElementById("all-notes-dedication-section").scrollTop > 30) {
@@ -312,6 +317,7 @@ function importAllNotes() {
         "sticky-notes-opacity",
     ]).then(result => {
             let jsonImportElement = document.getElementById("json-import");
+            let json_old_version = {};
 
             //console.log(JSON.stringify(result));
             if (show_conversion_message_attention) {
@@ -319,7 +325,16 @@ function importAllNotes() {
                     document.getElementById("import-now-all-notes-from-local-button").onclick = function () {
                         result["notefox"] = {};
                         result["notefox"]["version"] = "3.2";
+                        result["storage"] = "sync";
+                        result["sticky-notes"] = {};
+                        result["sticky-notes"]["coords"] = result["sticky-notes-coords"];
+                        result["sticky-notes"]["sizes"] = result["sticky-notes-sizes"];
+                        result["sticky-notes"]["opacity"] = result["sticky-notes-opacity"];
+                        delete result["sticky-notes-coords"];
+                        delete result["sticky-notes-sizes"];
+                        delete result["sticky-notes-opacity"];
                         jsonImportElement.value = JSON.stringify(result);
+                        json_old_version = result;
                     }
                 }
             } else {
@@ -378,33 +393,36 @@ function importAllNotes() {
 
                                 if (json_to_export_temp["sticky-notes"].opacity !== undefined) sticky_notes.opacity = json_to_export_temp["sticky-notes"].opacity;
 
-                                if (sticky_notes.coords === undefined) sticky_notes.coords = {x: "20px", y: "20px"};
-                                if (sticky_notes.sizes === undefined) sticky_notes.sizes = {w: "300px", h: "300px"};
-                                if (sticky_notes.opacity === undefined) sticky_notes.opacity = {value: 0.7};
+                                if (sticky_notes.coords === undefined || sticky_notes.coords === null) sticky_notes.coords = {
+                                    x: "20px",
+                                    y: "20px"
+                                };
+                                if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) sticky_notes.sizes = {
+                                    w: "300px",
+                                    h: "300px"
+                                };
+                                if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) sticky_notes.opacity = {value: 0.7};
                             }
                         }
 
                         //console.log(JSON.stringify(json_to_export_temp));
 
                         let storageTemp = json_to_export_temp["storage"];
-                        if (storageTemp === undefined || !(storageTemp !== undefined && (storageTemp === "sync" || storageTemp === "local"))) storageTemp = "sync";
+                        if (storageTemp === undefined || !((storageTemp === "sync" || storageTemp === "local"))) storageTemp = "sync";
 
                         if (continue_ok) {
-                            browser.storage.local.set({"storage": json_to_export_temp}).then(resultSyncLocal => {
+                            browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
                                 checkSyncLocal();
 
                                 document.getElementById("import-now-all-notes-button").disabled = true;
                                 document.getElementById("cancel-import-all-notes-button").disabled = true;
                                 document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
-                                ;
                                 setTimeout(function () {
                                     document.getElementById("import-now-all-notes-button").disabled = false;
                                     document.getElementById("cancel-import-all-notes-button").disabled = false;
                                     document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
-                                    ;
                                     setTimeout(function () {
                                         document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
-                                        ;
                                     }, 500);
                                     sync_local.set({
                                         "websites": websites_json,
@@ -422,9 +440,10 @@ function importAllNotes() {
                                             "sticky-notes-sizes",
                                             "sticky-notes-opacity"
                                         ]).then(result => {
-                                            if (result !== undefined && JSON.stringify(result) !== "{}" && result.storage !== undefined && result.storage === "sync") {
-                                                browser.storage.local.clear().then(result => {
-                                                    browser.storage.sync.set({"storage": "sync"})
+                                            //console.log(JSON.stringify(result.storage) + result.storage !== "local");
+                                            if (result.storage === undefined || result.storage === "sync" && JSON.stringify(json_old_version) === jsonImportElement.value) {
+                                                browser.storage.local.clear().then(result1 => {
+                                                    browser.storage.local.set({"storage": "sync"})
                                                 });
                                             }
                                         });

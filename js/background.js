@@ -14,12 +14,20 @@ var opacity = {value: 0.7};
 
 let opening_sticky = false;
 
-let sync_local = browser.storage.sync;
-browser.storage.local.get("storage").then(result => {
-    if (result === "sync") sync_local = browser.storage.sync;
-    else if (result === "local") sync_local = browser.storage.local;
-    else sync_local = browser.storage.sync;
-});
+let sync_local;
+checkSyncLocal();
+
+function checkSyncLocal() {
+    sync_local = browser.storage.sync;
+    browser.storage.local.get("storage").then(result => {
+        if (result.storage === "sync") sync_local = browser.storage.sync;
+        else if (result.storage === "local") sync_local = browser.storage.local;
+        else {
+            browser.storage.local.set({"storage": "sync"});
+            sync_local = browser.storage.sync;
+        }
+    });
+}
 
 function changeIcon(index) {
     browser.browserAction.setIcon({path: icons[index], tabId: tab_id});
@@ -86,11 +94,20 @@ function loadDataFromSync() {
 }
 
 function tabUpdated(tabs) {
-    browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
-        tab_id = tabs[0].tabId;
-        tab_url = tabs[0].url;
-    }).then((tabs) => {
-        checkStatus();
+    sync_local = browser.storage.sync;
+    browser.storage.local.get("storage").then(result => {
+        if (result.storage === "sync") sync_local = browser.storage.sync;
+        else if (result.storage === "local") sync_local = browser.storage.local;
+        else {
+            browser.storage.local.set({"storage": "sync"});
+            sync_local = browser.storage.sync;
+        }
+        browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
+            tab_id = tabs[0].tabId;
+            tab_url = tabs[0].url;
+        }).then((tabs) => {
+            checkStatus();
+        });
     });
 }
 
