@@ -15,6 +15,7 @@ const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://ko-fi.com/s
 
 let sync_local;
 checkSyncLocal();
+
 function checkSyncLocal() {
     sync_local = browser.storage.sync;
     browser.storage.local.get("storage").then(result => {
@@ -105,6 +106,7 @@ function loadUI() {
 
         if (currentUrl[0] !== "" && currentUrl[1] !== "") {
             sync_local.get("websites", function (value) {
+                //console.log("websites: "+JSON.stringify(value));
                 let default_index = 0;
                 if (settings_json["open-default"] === "page") default_index = 1;
                 if (value["websites"] !== undefined) {
