@@ -10,12 +10,19 @@ let settings_json = {
 const all_strings = strings[languageToUse];
 const link_translate = "https://crowdin.com/project/notefox";
 
-let sync_local = browser.storage.sync;
-browser.storage.local.get("storage").then(result => {
-    if (result === "sync") sync_local = browser.storage.sync;
-    else if (result === "local") sync_local = browser.storage.local;
-    else sync_local = browser.storage.sync;
-});
+let sync_local;
+checkSyncLocal();
+function checkSyncLocal() {
+    sync_local = browser.storage.sync;
+    browser.storage.local.get("storage").then(result => {
+        if (result.storage === "sync") sync_local = browser.storage.sync;
+        else if (result.storage === "local") sync_local = browser.storage.local;
+        else {
+            browser.storage.local.set({"storage": "sync"});
+            sync_local = browser.storage.sync;
+        }
+    });
+}
 
 var currentOS = "default"; //default: win, linux, ecc. | mac
 var letters_and_numbers = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
@@ -204,10 +211,12 @@ function saveSettings() {
                             //console.log("-1->" + JSON.stringify(result));
                             //console.log("-2->" + JSON.stringify(result2));
                             //console.log(JSON.stringify(result) === JSON.stringify(result2));
-                            if (JSON.stringify(result) === JSON.stringify(result2)) browser.storage.sync.clear().then(
-                                result3 => {
-                                    browser.storage.local.set({"storage": "local"});
-                                });
+                            if (JSON.stringify(result) === JSON.stringify(result2)) {
+                                browser.storage.sync.clear().then(
+                                    result3 => {
+                                        browser.storage.local.set({"storage": "local"});
+                                    });
+                            }
                         });
                         browser.storage.local.set({"storage": "local"});
                     }).catch((error) => {

@@ -21,13 +21,14 @@ let colourListDefault = sortObjectByKeys({
 
 let show_conversion_message_attention = false;
 
-let sync_local = browser.storage.sync;
+let sync_local;
 checkSyncLocal();
 
 function checkSyncLocal() {
+    sync_local = browser.storage.sync;
     browser.storage.local.get("storage").then(result => {
-        if (result === "sync") sync_local = browser.storage.sync;
-        else if (result === "local") sync_local = browser.storage.local;
+        if (result.storage === "sync") sync_local = browser.storage.sync;
+        else if (result.storage === "local") sync_local = browser.storage.local;
         else {
             browser.storage.local.set({"storage": "sync"});
             sync_local = browser.storage.sync;
@@ -46,7 +47,7 @@ function loaded() {
         "sticky-notes-sizes",
         "sticky-notes-opacity"
     ]).then(result => {
-        console.log("local: " + JSON.stringify(result));
+        //console.log("local: " + JSON.stringify(result));
     });
     browser.storage.sync.get([
         "storage",
@@ -56,7 +57,7 @@ function loaded() {
         "sticky-notes-sizes",
         "sticky-notes-opacity"
     ]).then(result => {
-        console.log("sync: " + JSON.stringify(result));
+        //console.log("sync: " + JSON.stringify(result));
     });
 
     browser.storage.local.get([
@@ -119,7 +120,9 @@ function loaded() {
         }
     }
 
-    loadDataFromBrowser(true);
+    setTimeout(function () {
+        loadDataFromBrowser(true);
+    }, 10);
 
     document.getElementById("all-notes-dedication-section").onscroll = function () {
         if (document.getElementById("all-notes-dedication-section").scrollTop > 30) {
@@ -312,6 +315,7 @@ function importAllNotes() {
         "sticky-notes-opacity",
     ]).then(result => {
             let jsonImportElement = document.getElementById("json-import");
+            let json_old_verion = {};
 
             //console.log(JSON.stringify(result));
             if (show_conversion_message_attention) {
@@ -319,7 +323,9 @@ function importAllNotes() {
                     document.getElementById("import-now-all-notes-from-local-button").onclick = function () {
                         result["notefox"] = {};
                         result["notefox"]["version"] = "3.2";
+                        result["storage"] = "sync";
                         jsonImportElement.value = JSON.stringify(result);
+                        json_old_verion = result;
                     }
                 }
             } else {
@@ -387,24 +393,21 @@ function importAllNotes() {
                         //console.log(JSON.stringify(json_to_export_temp));
 
                         let storageTemp = json_to_export_temp["storage"];
-                        if (storageTemp === undefined || !(storageTemp !== undefined && (storageTemp === "sync" || storageTemp === "local"))) storageTemp = "sync";
+                        if (storageTemp === undefined || !((storageTemp === "sync" || storageTemp === "local"))) storageTemp = "sync";
 
                         if (continue_ok) {
-                            browser.storage.local.set({"storage": json_to_export_temp}).then(resultSyncLocal => {
+                            browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
                                 checkSyncLocal();
 
                                 document.getElementById("import-now-all-notes-button").disabled = true;
                                 document.getElementById("cancel-import-all-notes-button").disabled = true;
                                 document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
-                                ;
                                 setTimeout(function () {
                                     document.getElementById("import-now-all-notes-button").disabled = false;
                                     document.getElementById("cancel-import-all-notes-button").disabled = false;
                                     document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
-                                    ;
                                     setTimeout(function () {
                                         document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
-                                        ;
                                     }, 500);
                                     sync_local.set({
                                         "websites": websites_json,
@@ -422,9 +425,10 @@ function importAllNotes() {
                                             "sticky-notes-sizes",
                                             "sticky-notes-opacity"
                                         ]).then(result => {
-                                            if (result !== undefined && JSON.stringify(result) !== "{}" && result.storage !== undefined && result.storage === "sync") {
-                                                browser.storage.local.clear().then(result => {
-                                                    browser.storage.sync.set({"storage": "sync"})
+                                            console.log(JSON.stringify(result));
+                                            if (result.storage === undefined || result.storage !== undefined && result.storage === "sync" && JSON.stringify(json_old_verion) === jsonImportElement.value) {
+                                                browser.storage.local.clear().then(result1 => {
+                                                    browser.storage.local.set({"storage": "sync"})
                                                 });
                                             }
                                         });
