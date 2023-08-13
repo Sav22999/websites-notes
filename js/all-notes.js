@@ -278,6 +278,8 @@ function importAllNotes() {
             if (result.toString() !== undefined && JSON.stringify(result) !== `{"storage":"sync"}`) {
                 if (document.getElementById("import-now-all-notes-from-local-button")) {
                     document.getElementById("import-now-all-notes-from-local-button").onclick = function () {
+                        result["notefox"] = {};
+                        result["notefox"]["version"] = "3.2";
                         jsonImportElement.value = JSON.stringify(result);
                     }
                 }
@@ -313,17 +315,14 @@ function importAllNotes() {
                         }
                     }
                     let continue_ok = false;
-                    if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["websites"] !== undefined) {
+                    if (json_to_export_temp["notefox"] !== undefined) {
                         if (json_to_export_temp["notefox"]["version"] != notefox_json["version"]) {
-                            let confirmation = confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
-                            if (confirmation) {
-                                continue_ok = true;
-                            } else {
-                                continue_ok = false;
-                            }
+                            continue_ok = confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
                         } else {
                             continue_ok = true;
                         }
+                    } else {
+                        continue_ok = confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
                     }
 
                     let sticky_notes = {};
