@@ -6,6 +6,8 @@ var currentUrl = []; //[domain, page]
 var selected_tab = 0; //{0:domain | 1:page}
 var opened_by = -1;
 
+//urls WITHOUT the protocol! e.g. addons.mozilla.org
+var urls_unsupported_by_sticky_notes = ["addons.mozilla.org"];//TODO!MANUAL change this manually in case of new unsupported urls
 var stickyNotesSupported = true;
 
 const all_strings = strings[languageToUse];
@@ -35,7 +37,7 @@ function loaded() {
 
 function continueLoaded() {
     document.addEventListener("contextmenu", function (e) {
-        if (!(e.target.nodeName == "TEXTAREA")) {
+        if (!(e.target.nodeName === "TEXTAREA")) {
             e.preventDefault();
         }
     }, false);
@@ -178,7 +180,7 @@ function loadSettings() {
 
 function saveNotes() {
     sync_local.get("websites", function (value) {
-        if (value["websites"] != undefined) {
+        if (value["websites"] !== undefined) {
             websites_json = value["websites"];
         } else {
             websites_json = {};
@@ -196,7 +198,7 @@ function saveNotes() {
         if (websites_json[currentUrl[selected_tab]]["minimized"] === undefined) {
             websites_json[currentUrl[selected_tab]]["minimized"] = false;
         }
-        if (selected_tab == 0) {
+        if (selected_tab === 0) {
             websites_json[currentUrl[selected_tab]]["type"] = 0;
             websites_json[currentUrl[selected_tab]]["domain"] = "";
         } else {
@@ -236,12 +238,14 @@ function saveNotes() {
                 }
                 */
 
-                if (isUrlSupported(currentUrl[selected_tab])) {
+                if (stickyNotesSupported) {
                     if (never_saved) {
                         document.getElementById("open-sticky-button").classList.add("hidden");
                     } else {
                         if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
                     }
+                } else {
+                    document.getElementById("open-sticky-button").classList.add("hidden");
                 }
 
                 //console.log(JSON.stringify(websites_json));
@@ -265,13 +269,11 @@ function setUrl(url) {
         currentUrl[1] = getPageUrl(url);
         if (document.getElementById("tabs-section").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
         if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
-        stickyNotesSupported = true;
     } else {
         currentUrl[0] = getPageUrl(url);
         currentUrl[1] = getPageUrl(url);
         document.getElementById("tabs-section").classList.add("hidden");
         document.getElementById("open-sticky-button").classList.add("hidden");
-        stickyNotesSupported = false;
     }
 
     //console.log("Current url [0] " + currentUrl[0] + " - [1] " + currentUrl[1]);
@@ -287,7 +289,7 @@ function getDomainUrl(url) {
 
     if (urlToReturn.includes("/")) {
         let urlPartsTemp = urlToReturn.split("/");
-        if (urlPartsTemp[0] == "" && urlPartsTemp[1] == "") {
+        if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
             urlToReturn = urlPartsTemp[2];
         }
     }
@@ -316,6 +318,11 @@ function getTheProtocol(url) {
     return url.split(":")[0];
 }
 
+/**
+ * If the passed URL is a "supported url"
+ * @param url Url you want to check
+ * @returns {boolean} return true: the link is supported, false: the link is not supported
+ */
 function isUrlSupported(url) {
     let valueToReturn = false;
     switch (getTheProtocol(url)) {
@@ -327,7 +334,12 @@ function isUrlSupported(url) {
 
         default:
             //this disables all unsupported website
-            valueToReturn = false;//todo | true->for testing, false->stable release
+            valueToReturn = false;//TODO!TESTING | true->for testing, false->stable release
+    }
+    stickyNotesSupported = valueToReturn;
+    //additional checks for sticky
+    if (urls_unsupported_by_sticky_notes.includes(getDomainUrl(url).replace(getTheProtocol(url), "").replace("://", ""))) {
+        stickyNotesSupported = false;
     }
     return valueToReturn;
 }
@@ -382,12 +394,14 @@ function setTab(index, url) {
 
     document.getElementById("notes").focus();
 
-    if (isUrlSupported(url)) {
+    if (stickyNotesSupported) {
         if (never_saved) {
             document.getElementById("open-sticky-button").classList.add("hidden");
         } else {
             if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
         }
+    } else {
+        document.getElementById("open-sticky-button").classList.add("hidden");
     }
 }
 

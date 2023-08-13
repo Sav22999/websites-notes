@@ -389,6 +389,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 margin: 0px !important;
                 box-sizing: border-box !important;
                 background-color: transparent;
+                color: #111111 !important;
                 opacity: 1;
                 cursor: text;
                 z-index: 1;

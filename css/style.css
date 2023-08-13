@@ -77,7 +77,7 @@ body {
     border-radius: 0px;
 }
 
-.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button {
+.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button {
     padding-left: 35px;
     padding-right: 10px;
     background-image: url("../img/delete.svg");
@@ -169,6 +169,10 @@ body {
 
 .settings-button {
     background-image: url("../img/settings.svg");
+}
+
+.donate-button {
+    background-image: url("../img/donate.svg");
 }
 
 #tag-colour-section {

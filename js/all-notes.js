@@ -98,6 +98,9 @@ function loaded() {
     document.getElementById("settings-all-notes-button").onclick = function () {
         browser.tabs.create({url: "../settings/index.html"});
     }
+    document.getElementById("buy-me-a-coffee-button").onclick = function () {
+        browser.tabs.create({url: "https://liberapay.com/Sav22999"});
+    }
     document.getElementById("clear-all-notes-button").onclick = function () {
         clearAllNotes();
     }
@@ -157,6 +160,7 @@ function setLanguageUI() {
     document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
     document.getElementById("search-all-notes-text").placeholder = all_strings["search-textbox"];
     document.getElementById("settings-all-notes-button").value = all_strings["settings-button"];
+    document.getElementById("buy-me-a-coffee-button").value = all_strings["donate-button"];
     //document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
     document.getElementById("filter-all-notes-button").value = all_strings["filter-button"];
     document.title = all_strings["all-notes-title-page"];
@@ -353,7 +357,7 @@ function importAllNotes() {
             }
             document.getElementById("import-now-all-notes-button").onclick = function () {
                 let value = jsonImportElement.value;
-                if (value.replaceAll(" ", "") != "") {
+                if (value.replaceAll(" ", "") !== "") {
                     let error = false;
                     let error_description = "";
                     try {
@@ -369,7 +373,7 @@ function importAllNotes() {
                         }
                         let continue_ok = false;
                         if (json_to_export_temp["notefox"] !== undefined) {
-                            if (json_to_export_temp["notefox"]["version"] != notefox_json["version"]) {
+                            if (json_to_export_temp["notefox"]["version"] !== notefox_json["version"]) {
                                 continue_ok = confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
                             } else {
                                 continue_ok = true;
@@ -719,7 +723,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button", "clear2-button");
     input_clear_all_notes_page.onclick = function () {
         let isDomain = false;
-        if (fullUrl == url) {
+        if (fullUrl === url) {
             isDomain = true;
         }
         clearAllNotesPage(fullUrl, isDomain);
@@ -743,7 +747,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     for (let colour in colourList) {
         let tagColour = document.createElement("option");
         tagColour.value = colour;
-        if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] != undefined && websites_json[fullUrl]["tag-colour"] == colour) {
+        if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] !== undefined && websites_json[fullUrl]["tag-colour"] === colour) {
             tagColour.selected = true;
             page.classList.add("tag-colour-left", "tag-colour-" + colour);
         }
@@ -762,7 +766,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     page.append(inputCopyNotes);
     page.append(tagsColour);
 
-    if (type.toLowerCase() != "domain") {
+    if (type.toLowerCase() !== "domain") {
         let pageUrl = document.createElement("h3");
         pageUrl.classList.add("link", "go-to-external");
         pageUrl.textContent = url;
@@ -796,7 +800,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
 function changeTagColour(page, url, colour) {
     sync_local.get("websites", function (value) {
         websites_json = {};
-        if (value["websites"] != undefined) {
+        if (value["websites"] !== undefined) {
             websites_json = value["websites"];
         }
         websites_json[url]["tag-colour"] = colour;

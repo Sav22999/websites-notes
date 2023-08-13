@@ -451,7 +451,7 @@ function closeStickyNotes() {
         }).then(function () {
             //console.log("Sticky notes ('close')");
         }).catch(function (error) {
-            console.error("E1: " + error);
+            console.error("E1: " + error + "\nin " + activeTab.url);
         });
     });
     opening_sticky = false;
