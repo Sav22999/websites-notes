@@ -75,18 +75,22 @@ function loadDataFromSync() {
             loaded();
         } else {
             //If it's available "local" data, they are sent to "sync" data
-            browser.storage.sync.set(result).then(result => {
-                //If it entry here, it means "local" data are been exported in "sync" data
+            if (result.storage !== undefined && result.storage === "sync") {
+                browser.storage.sync.set(result).then(result => {
+                    //If it entry here, it means "local" data are been exported in "sync" data
 
-                //console.log("Data imported correctly in sync data!");
+                    //console.log("Data imported correctly in sync data!");
 
-                //browser.storage.local.clear();
+                    //browser.storage.local.clear();
 
-                browser.storage.local.set({"storage": "sync"});
-                loaded();
-            }).catch((error) => {
-                console.error("Error importing data to sync:", error);
-            });
+                    browser.storage.local.set({"storage": "sync"});
+                    loaded();
+                }).catch((error) => {
+                    console.error("Error importing data to sync:", error);
+                });
+            } else {
+                //do not do anything: user choosen to use "local" data
+            }
         }
     }).catch((error) => {
         console.error("Error retrieving data from local:", error);
