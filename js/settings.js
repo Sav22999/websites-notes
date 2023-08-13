@@ -12,6 +12,7 @@ const link_translate = "https://crowdin.com/project/notefox";
 
 let sync_local;
 checkSyncLocal();
+
 function checkSyncLocal() {
     sync_local = browser.storage.sync;
     browser.storage.local.get("storage").then(result => {
@@ -29,6 +30,7 @@ var letters_and_numbers = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"
 var ctrl_alt_shift = ["default", "domain", "page"];
 
 function loaded() {
+    checkSyncLocal()
     checkOperatingSystem();
     setLanguageUI();
 
@@ -208,6 +210,13 @@ function saveSettings() {
                             "sticky-notes-sizes",
                             "sticky-notes-opacity"
                         ]).then(result2 => {
+
+                            if (result2["settings"] === {} || result2["settings"] === null) browser.storage.sync.remove("settings");
+                            if (result2["websites"] === {} || result2["websites"] === null) browser.storage.sync.remove("websites");
+                            if (result2["sticky-notes-coords"] === {} || result2["sticky-notes-coords"] === null) browser.storage.sync.remove("sticky-notes-coords");
+                            if (result2["sticky-notes-sizes"] === {} || result2["sticky-notes-sizes"] === null) browser.storage.sync.remove("sticky-notes-sizes");
+                            if (result2["sticky-notes-opacity"] === {} || result2["sticky-notes-opacity"] === null) browser.storage.sync.remove("sticky-notes-opacity");
+
                             //console.log("-1->" + JSON.stringify(result));
                             //console.log("-2->" + JSON.stringify(result2));
                             //console.log(JSON.stringify(result) === JSON.stringify(result2));
@@ -236,6 +245,7 @@ function saveSettings() {
                     "sticky-notes-sizes",
                     "sticky-notes-opacity"
                 ]).then(result => {
+                    console.log(JSON.stringify(result));
                     browser.storage.sync.set(result).then(resultSet => {
                         browser.storage.local.get([
                             "settings",
@@ -244,6 +254,12 @@ function saveSettings() {
                             "sticky-notes-sizes",
                             "sticky-notes-opacity"
                         ]).then(result2 => {
+
+                            if (result2["settings"] === {} || result2["settings"] === null) browser.storage.local.remove("settings");
+                            if (result2["websites"] === {} || result2["websites"] === null) browser.storage.local.remove("websites");
+                            if (result2["sticky-notes-coords"] === {} || result2["sticky-notes-coords"] === null) browser.storage.local.remove("sticky-notes-coords");
+                            if (result2["sticky-notes-sizes"] === {} || result2["sticky-notes-sizes"] === null) browser.storage.local.remove("sticky-notes-sizes");
+                            if (result2["sticky-notes-opacity"] === {} || result2["sticky-notes-opacity"] === null) browser.storage.local.remove("sticky-notes-opacity");
                             //console.log("-1->" + JSON.stringify(result));
                             //console.log("-2->" + JSON.stringify(result2));
                             //console.log(JSON.stringify(result) === JSON.stringify(result2));

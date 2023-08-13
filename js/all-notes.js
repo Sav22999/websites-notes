@@ -37,6 +37,7 @@ function checkSyncLocal() {
 }
 
 function loaded() {
+    checkSyncLocal()
     setLanguageUI();
 
     browser.storage.local.get([
@@ -79,12 +80,13 @@ function loaded() {
                 "sticky-notes-opacity"
             ]).then(result2 => {
                 //console.log("2" + JSON.stringify(result2));
-                if (JSON.stringify(result) !== `{"storage":"sync"}` && JSON.stringify(result2) != JSON.stringify(result)) {
+                if (JSON.stringify(result) !== `{"storage":"sync"}` && JSON.stringify(result2) !== JSON.stringify(result)) {
                     show_conversion_message_attention = true;
+                }
+                if (JSON.stringify(result2) === `{}`)
                     alert("Pay attention: from the version 3.3 data are synchronised with your Firefox account. To do this I've changed the way to save notes back-end. I've converted automatically data.\n" +
                         "Although it looks the process of conversion didn't work in your case. Keep calm! You didn't lose all your notes! I've inserted a button in the 'Import…' section which permits you to restore those data – the 'Get local data' button. You can press there and it should show you local data, then you need to press on 'Import' manually.\n" +
                         "If this doesn't work, please, contact me on GitHub, Telegram or via email. I'll support you! I'm so sorry about this inconvenience.\nIn the meanwhile you can set the saving of sync off: go to the addon Settings > Save locally instead of sync > Yes.");
-                }
             });
         }
     });
@@ -315,7 +317,7 @@ function importAllNotes() {
         "sticky-notes-opacity",
     ]).then(result => {
             let jsonImportElement = document.getElementById("json-import");
-            let json_old_verion = {};
+            let json_old_version = {};
 
             //console.log(JSON.stringify(result));
             if (show_conversion_message_attention) {
@@ -324,8 +326,15 @@ function importAllNotes() {
                         result["notefox"] = {};
                         result["notefox"]["version"] = "3.2";
                         result["storage"] = "sync";
+                        result["sticky-notes"] = {};
+                        result["sticky-notes"]["coords"] = result["sticky-notes-coords"];
+                        result["sticky-notes"]["sizes"] = result["sticky-notes-sizes"];
+                        result["sticky-notes"]["opacity"] = result["sticky-notes-opacity"];
+                        delete result["sticky-notes-coords"];
+                        delete result["sticky-notes-sizes"];
+                        delete result["sticky-notes-opacity"];
                         jsonImportElement.value = JSON.stringify(result);
-                        json_old_verion = result;
+                        json_old_version = result;
                     }
                 }
             } else {
@@ -384,9 +393,15 @@ function importAllNotes() {
 
                                 if (json_to_export_temp["sticky-notes"].opacity !== undefined) sticky_notes.opacity = json_to_export_temp["sticky-notes"].opacity;
 
-                                if (sticky_notes.coords === undefined) sticky_notes.coords = {x: "20px", y: "20px"};
-                                if (sticky_notes.sizes === undefined) sticky_notes.sizes = {w: "300px", h: "300px"};
-                                if (sticky_notes.opacity === undefined) sticky_notes.opacity = {value: 0.7};
+                                if (sticky_notes.coords === undefined || sticky_notes.coords === null) sticky_notes.coords = {
+                                    x: "20px",
+                                    y: "20px"
+                                };
+                                if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) sticky_notes.sizes = {
+                                    w: "300px",
+                                    h: "300px"
+                                };
+                                if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) sticky_notes.opacity = {value: 0.7};
                             }
                         }
 
@@ -425,8 +440,8 @@ function importAllNotes() {
                                             "sticky-notes-sizes",
                                             "sticky-notes-opacity"
                                         ]).then(result => {
-                                            console.log(JSON.stringify(result));
-                                            if (result.storage === undefined || result.storage !== undefined && result.storage === "sync" && JSON.stringify(json_old_verion) === jsonImportElement.value) {
+                                            //console.log(JSON.stringify(result.storage) + result.storage !== "local");
+                                            if (result.storage === undefined || result.storage === "sync" && JSON.stringify(json_old_version) === jsonImportElement.value) {
                                                 browser.storage.local.clear().then(result1 => {
                                                     browser.storage.local.set({"storage": "sync"})
                                                 });

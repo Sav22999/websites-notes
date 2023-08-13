@@ -28,6 +28,7 @@ function checkSyncLocal() {
 }
 
 function loaded() {
+    checkSyncLocal()
     loadSettings();
 }
 
