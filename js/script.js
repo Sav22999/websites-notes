@@ -13,6 +13,13 @@ const all_strings = strings[languageToUse];
 const linkReview = ["https://addons.mozilla.org/firefox/addon/websites-notes/"]; //{firefox add-ons}
 const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://ko-fi.com/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
 
+let sync_local = browser.storage.sync;
+browser.storage.local.get("storage").then(result => {
+    if (result === "sync") sync_local = browser.storage.sync;
+    else if (result === "local") sync_local = browser.storage.local;
+    else sync_local = browser.storage.sync;
+});
+
 function loaded() {
     loadSettings();
 }
@@ -41,7 +48,7 @@ function continueLoaded() {
 }
 
 function checkOpenedBy() {
-    browser.storage.sync.get("opened-by-shortcut", function (value) {
+    sync_local.get("opened-by-shortcut", function (value) {
         if (value["opened-by-shortcut"] !== undefined) {
             if (value["opened-by-shortcut"] === "domain") {
                 opened_by = 0;
@@ -50,7 +57,7 @@ function checkOpenedBy() {
                 opened_by = 1;
                 loadUI();
             }
-            browser.storage.sync.set({"opened-by-shortcut": "default"});
+            sync_local.set({"opened-by-shortcut": "default"});
         }
     });
     listenerShortcuts();
@@ -66,7 +73,7 @@ function listenerShortcuts() {
             //page
             opened_by = 1;
             loadUI();
-            browser.storage.sync.set({"opened-by-shortcut": "default"});
+            sync_local.set({"opened-by-shortcut": "default"});
         }
     });
 }
@@ -89,7 +96,7 @@ function loadUI() {
         setUrl(activeTabUrl);
 
         if (currentUrl[0] !== "" && currentUrl[1] !== "") {
-            browser.storage.sync.get("websites", function (value) {
+            sync_local.get("websites", function (value) {
                 let default_index = 0;
                 if (settings_json["open-default"] === "page") default_index = 1;
                 if (value["websites"] !== undefined) {
@@ -146,7 +153,7 @@ function loadUI() {
 }
 
 function loadSettings() {
-    browser.storage.sync.get("settings", function (value) {
+    sync_local.get("settings", function (value) {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
@@ -160,7 +167,7 @@ function loadSettings() {
 }
 
 function saveNotes() {
-    browser.storage.sync.get("websites", function (value) {
+    sync_local.get("websites", function (value) {
         if (value["websites"] != undefined) {
             websites_json = value["websites"];
         } else {
@@ -192,7 +199,7 @@ function saveNotes() {
         }
         if (currentUrl[0] !== "" && currentUrl[1] !== "") {
             //selected_tab : {0:domain | 1:page}
-            browser.storage.sync.set({"websites": websites_json}, function () {
+            sync_local.set({"websites": websites_json}, function () {
                 let never_saved = true;
 
                 let notes = "";

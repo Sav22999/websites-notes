@@ -14,6 +14,13 @@ var opacity = {value: 0.7};
 
 let opening_sticky = false;
 
+let sync_local = browser.storage.sync;
+browser.storage.local.get("storage").then(result => {
+    if (result === "sync") sync_local = browser.storage.sync;
+    else if (result === "local") sync_local = browser.storage.local;
+    else sync_local = browser.storage.sync;
+});
+
 function changeIcon(index) {
     browser.browserAction.setIcon({path: icons[index], tabId: tab_id});
 }
@@ -44,19 +51,19 @@ function loaded() {
 }
 
 function loadDataFromSync() {
+    //BEFORE TO DO ANYTHING, THE ADDON CHECK DATA
     browser.storage.local.get([
+        "storage",
         "settings",
         "websites",
         "sticky-notes-coords",
         "sticky-notes-sizes",
         "sticky-notes-opacity"
     ]).then(result => {
-        //BEFORE TO DO ANYTHING, THE ADDON CHECK DATA
-
-        if (result === undefined || JSON.stringify(result) === "{}") {
+        if (result.storage === undefined && JSON.stringify(result) === "{}") {
             //No data in sync
             //console.log("No data to transfer from local to sync!");
-
+            browser.storage.local.set({"storage": "sync"});
             loaded();
         } else {
             //If it's available "local" data, they are sent to "sync" data
@@ -65,8 +72,9 @@ function loadDataFromSync() {
 
                 //console.log("Data imported correctly in sync data!");
 
-                browser.storage.local.clear();
+                //browser.storage.local.clear();
 
+                browser.storage.local.set({"storage": "sync"});
                 loaded();
             }).catch((error) => {
                 console.error("Error importing data to sync:", error);
@@ -88,7 +96,7 @@ function tabUpdated(tabs) {
 
 function checkStatus() {
     current_urls = [getDomainUrl(tab_url), getPageUrl(tab_url)];
-    browser.storage.sync.get("settings", function (value) {
+    sync_local.get("settings", function (value) {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
@@ -102,7 +110,7 @@ function checkStatus() {
 }
 
 function continueCheckStatus() {
-    browser.storage.sync.get("websites", function (value) {
+    sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
@@ -175,11 +183,11 @@ function listenerShortcuts() {
         if (command === "opened-by-domain") {
             //domain
             browser.browserAction.openPopup();
-            browser.storage.sync.set({"opened-by-shortcut": "domain"});
+            sync_local.set({"opened-by-shortcut": "domain"});
         } else if (command === "opened-by-page") {
             //page
             browser.browserAction.openPopup();
-            browser.storage.sync.set({"opened-by-shortcut": "page"});
+            sync_local.set({"opened-by-shortcut": "page"});
         }
     });
 }
@@ -216,7 +224,7 @@ function listenerStickyNotes() {
                     //save X (left) and Y (top) coords of the sticky
                     //these coords will be used to open in that position
 
-                    browser.storage.sync.set({
+                    sync_local.set({
                         "sticky-notes-coords": {
                             x: message.data.coords.x,
                             y: message.data.coords.y
@@ -231,7 +239,7 @@ function listenerStickyNotes() {
                     //save W (width) and H (height) sizes of the sticky
                     //these sizes will be used to open with that size
 
-                    browser.storage.sync.set({
+                    sync_local.set({
                         "sticky-notes-sizes": {
                             w: message.data.sizes.w,
                             h: message.data.sizes.h
@@ -245,7 +253,7 @@ function listenerStickyNotes() {
                 if (message.data.opacity !== undefined) {
                     //save opacity of the sticky-notes
 
-                    browser.storage.sync.set({
+                    sync_local.set({
                         "sticky-notes-opacity": {
                             value: message.data.opacity.value
                         }
@@ -259,7 +267,7 @@ function listenerStickyNotes() {
                     //save W (width) and H (height) sizes of the sticky
                     //these sizes will be used to open with that size
 
-                    browser.storage.sync.set({
+                    sync_local.set({
                         "websites": {
                             //set notes -- modified in sticky-notes
                         }
@@ -382,7 +390,7 @@ function getTheCorrectUrl() {
 function openAsStickyNotes() {
     if (!opening_sticky) {
         opening_sticky = true;
-        browser.storage.sync.get([
+        sync_local.get([
             "sticky-notes-coords",
             "sticky-notes-sizes",
             "sticky-notes-opacity"
@@ -439,7 +447,7 @@ function closeStickyNotes() {
 }
 
 function setOpenedSticky(sticky, minimized) {
-    browser.storage.sync.get("websites", function (value) {
+    sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
@@ -447,7 +455,7 @@ function setOpenedSticky(sticky, minimized) {
             websites_json[getTheCorrectUrl()]["sticky"] = sticky;
             websites_json[getTheCorrectUrl()]["minimized"] = minimized;
 
-            browser.storage.sync.set({
+            sync_local.set({
                 "websites": websites_json
             }).then(result => {
                 //updated websites with new data
@@ -459,14 +467,14 @@ function setOpenedSticky(sticky, minimized) {
 }
 
 function setNewTextFromSticky(text) {
-    browser.storage.sync.get("websites", function (value) {
+    sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
             websites_json[getTheCorrectUrl()]["notes"] = text;
             websites_json[getTheCorrectUrl()]["last-update"] = getDate();
 
-            browser.storage.sync.set({
+            sync_local.set({
                 "websites": websites_json
             }).then(function () {
                 //updated websites with new data
@@ -480,7 +488,7 @@ function setNewTextFromSticky(text) {
 }
 
 function checkStickyNotes() {
-    browser.storage.sync.get("websites", function (value) {
+    sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 

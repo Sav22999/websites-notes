@@ -34,7 +34,7 @@ function load() {
                             h = checkCorrectNumber(response.sizes.h, "300px");
                         }
                         if (response.opacity !== undefined && response.opacity.value !== undefined) {
-                            opacity = checkCorrectNumber(response.opacity.value, 0.7);
+                            opacity = response.opacity.value;
                         }
                     }
                     createNewDescription(x, y, w, h, opacity);
@@ -115,7 +115,7 @@ function updateStickyNotes() {
                 if (response.notes !== undefined && response.notes.sticky_params.opacity !== undefined) {
                     //stickyNotes.style.opacity = response.notes.sticky_params.opacity.value;
                     //slider.value = (response.notes.sticky_params.opacity.value * 100);
-                    setSlider(opacityRange, stickyNotes, checkCorrectNumber(response.notes.sticky_params.opacity.value, 0.7) * 100, false);
+                    setSlider(opacityRange, stickyNotes, response.notes.sticky_params.opacity.value * 100, false);
                 }
 
                 let pageOrDomain = document.getElementById("page-or-domain--sticky-notes-notefox-addon");
