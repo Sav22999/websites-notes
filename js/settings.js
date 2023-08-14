@@ -112,6 +112,7 @@ function loadSettings() {
 
         if (result.storage !== undefined && result.storage === "sync") {
             if (document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.remove("hidden");
+            if (document.getElementById("sync-instead-of-local").classList.contains("hidden")) document.getElementById("sync-instead-of-local").classList.remove("hidden");
         } else {
             if (!document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.add("hidden");
             if (!document.getElementById("sync-instead-of-local").classList.contains("hidden")) document.getElementById("sync-instead-of-local").classList.add("hidden");
@@ -299,6 +300,8 @@ function saveSettings() {
                 buttonSave.value = all_strings["save-settings-button"];
             }, 2000);
             //console.log(JSON.stringify(settings_json));
+
+            loadSettings();
         });
     });
 }

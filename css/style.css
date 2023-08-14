@@ -62,7 +62,7 @@ body {
 
 #tabs-section > .tab, .button {
     border-radius: 5px;
-    border: 0px solid transparent;
+    border: 1px solid transparent;
     cursor: pointer;
     font-size: 14px;
     margin: 0px;
@@ -206,11 +206,13 @@ body {
 
 #tabs-section > .tab-sel, .button {
     background-color: var(--primary-color);
+    border-color: var(--primary-color);
     color: var(--on-primary-color);
 }
 
 #tabs-section > .tab-sel:hover, .button:hover {
     background-color: var(--hover-color);
+    border-color: var(--hover-color);
 }
 
 
@@ -245,13 +247,14 @@ textarea::placeholder, .textbox::placeholder {
 .textbox {
     width: auto;
     height: auto;
-    border: 1px solid var(--primary-color);
+    border: 0px solid var(--on-primary-color);
+    box-shadow: 0px 0px 0px 1px var(--primary-color);
 }
 
 #search-all-notes-text {
     width: 30%;
     min-width: 200px;
-    margin: 1px;
+    margin: 3px;
 }
 
 #last-updated-section {
@@ -412,6 +415,10 @@ textarea::placeholder, .textbox::placeholder {
     overflow: auto;
 }
 
+#text-import {
+    overflow: visible;
+}
+
 .background-transparent {
     background-color: transparent;
 }
@@ -432,7 +439,7 @@ textarea::placeholder, .textbox::placeholder {
 
 .very-small-button {
     font-size: 10px;
-    height: 25px;
+    height: 27px;
 }
 
 h1, h2, h3 {
