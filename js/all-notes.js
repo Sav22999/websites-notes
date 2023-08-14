@@ -118,7 +118,7 @@ function loaded() {
         browser.tabs.create({url: "../settings/index.html"});
     }
     document.getElementById("buy-me-a-coffee-button").onclick = function () {
-        browser.tabs.create({url: "https://liberapay.com/Sav22999"});
+        browser.tabs.create({url: links["donate"]});
     }
     document.getElementById("clear-all-notes-button").onclick = function () {
         clearAllNotes();
@@ -382,23 +382,27 @@ function importAllNotes() {
                     try {
                         //json_to_export = {"notefox": notefox_json, "websites": websites_json, "settings": settings_json, "sticky-notes": sticky_notes_json};
                         let json_to_export_temp = JSON.parse(value);
+                        let continue_ok = false;
+                        let cancel = false;
                         if (json_to_export_temp["notefox"] === undefined || (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["notefox"]["version"] === undefined)) {
                             //version before 2.0 (export in a different way)
-                            let confirmation = confirm(all_strings["notefox-version-too-old-try-to-import-data-anyway"]);
-                            if (confirmation) {
+                            cancel = !confirm(all_strings["notefox-version-too-old-try-to-import-data-anyway"]);
+                            if (!cancel) {
                                 websites_json = json_to_export_temp;
                                 websites_json_to_show = websites_json;
                             }
                         }
-                        let continue_ok = false;
                         if (json_to_export_temp["notefox"] !== undefined) {
-                            if (json_to_export_temp["notefox"]["version"] !== notefox_json["version"]) {
-                                continue_ok = confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
+                            let check_version = checkTwoVersions(json_to_export_temp["notefox"]["version"], "3.3.1.8");
+                            if (check_version === "<") {
+                                cancel = !confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
+                                continue_ok = !cancel
                             } else {
                                 continue_ok = true;
                             }
                         } else {
-                            continue_ok = confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
+                            cancel = !confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
+                            continue_ok = !cancel;
                         }
 
                         let sticky_notes = {};
@@ -500,7 +504,7 @@ function importAllNotes() {
                         ;
 
 
-                        if (!continue_ok) {
+                        if (!continue_ok && !cancel) {
                             error = true;
                             error_description = "One or more parameters are not correct and it's not possible import data.";
                         }
@@ -546,9 +550,15 @@ function exportAllNotes() {
             sticky_notes.sizes = result["sticky-notes-sizes"];
             sticky_notes.opacity = result["sticky-notes-opacity"];
 
-            if (sticky_notes.coords === undefined) sticky_notes.coords = {x: "20px", y: "20px"};
-            if (sticky_notes.sizes === undefined) sticky_notes.sizes = {w: "300px", h: "300px"};
-            if (sticky_notes.opacity === undefined) sticky_notes.opacity = {value: 0.7};
+            if (sticky_notes.coords === undefined && sticky_notes.coords === null) {
+                sticky_notes.coords = {x: "20px", y: "20px"};
+            }
+            if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) {
+                sticky_notes.sizes = {w: "300px", h: "300px"};
+            }
+            if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) {
+                sticky_notes.opacity = {value: 0.7};
+            }
             sticky_notes.opacity.value = Number.parseFloat(sticky_notes.opacity.value).toFixed(2);
 
             //console.log(JSON.stringify(result));
@@ -596,6 +606,7 @@ function loadAllWebsites(clear = false) {
     if (clear) {
         document.getElementById("all-website-sections").textContent = "";
     }
+    let n_websites = 0;
     if (!isEmpty(websites_json_to_show)) {
         //there are websites saved
 
@@ -635,68 +646,79 @@ function loadAllWebsites(clear = false) {
         websites_json_by_domain = sortOnKeys(websites_json_by_domain);
 
         for (let domain in websites_json_by_domain) {
-            let section = document.createElement("div");
-            section.classList.add("section");
+            if (domain !== undefined && domain !== "undefined" && domain !== "") {
+                n_websites++;
 
-            let input_clear_all_notes_domain = document.createElement("input");
-            input_clear_all_notes_domain.type = "button";
-            input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
-            input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button");
-            input_clear_all_notes_domain.onclick = function () {
-                clearAllNotesDomain(domain);
+                websites_json_by_domain[domain].sort();
+
+                let section = document.createElement("div");
+                section.classList.add("section");
+
+                let input_clear_all_notes_domain = document.createElement("input");
+                input_clear_all_notes_domain.type = "button";
+                input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
+                input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button");
+                input_clear_all_notes_domain.onclick = function () {
+                    clearAllNotesDomain(domain);
+                }
+
+                let h2 = document.createElement("h2");
+                h2.textContent = domain;
+                h2.classList.add("link", "go-to-external");
+                h2.onclick = function () {
+                    browser.tabs.create({url: domain});
+                }
+
+                section.append(input_clear_all_notes_domain);
+                section.append(h2);
+
+                let all_pages = document.createElement("div");
+
+                //console.log(JSON.stringify(websites_json_by_domain[domain]));
+                let pages_added = 0;
+
+                if (websites_json_to_show[domain] !== undefined) {
+                    //there is notes also for the domain
+                    let urlPageDomain = domain;
+                    let page = document.createElement("div");
+                    page.classList.add("sub-section");
+                    let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
+                    let notes = websites_json_to_show[urlPageDomain]["notes"];
+                    page = generateNotes(page, urlPageDomain, notes, lastUpdate, all_strings["domain-label"], urlPageDomain);
+
+                    all_pages.append(page);
+                    pages_added++;
+                }
+
+
+                for (let index = 0; index < websites_json_by_domain[domain].length; index++) {
+                    let urlPage = websites_json_by_domain[domain][index];
+                    let urlPageDomain = domain + websites_json_by_domain[domain][index];
+                    if (websites_json_to_show[urlPageDomain] !== undefined) {
+                        let page = document.createElement("div");
+                        page.classList.add("sub-section");
+
+                        // console.log(urlPageDomain);
+                        // console.log(websites_json_by_domain);
+                        // console.log(websites_json_to_show);
+                        let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
+                        let notes = websites_json_to_show[urlPageDomain]["notes"];
+
+                        page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["page-label"], urlPageDomain);
+
+                        all_pages.append(page);
+                        pages_added++;
+                    }
+                }
+
+                if (pages_added > 0) section.append(all_pages);
+
+                document.getElementById("all-website-sections").append(section);
             }
-            section.append(input_clear_all_notes_domain);
-
-            let h2 = document.createElement("h2");
-            h2.textContent = domain;
-            h2.classList.add("link", "go-to-external");
-            h2.onclick = function () {
-                browser.tabs.create({url: domain});
-            }
-            let all_pages = document.createElement("div");
-
-            section.append(h2);
-
-            websites_json_by_domain[domain].sort();
-
-            //console.log(JSON.stringify(websites_json_by_domain[domain]));
-
-            if (websites_json_to_show[domain] !== undefined) {
-                //there is notes also for the domain
-                let urlPageDomain = domain;
-                let page = document.createElement("div");
-                page.classList.add("sub-section");
-                let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
-                let notes = websites_json_to_show[urlPageDomain]["notes"];
-
-                page = generateNotes(page, urlPageDomain, notes, lastUpdate, all_strings["domain-label"], urlPageDomain);
-
-                all_pages.append(page);
-            }
-
-            for (let index = 0; index < websites_json_by_domain[domain].length; index++) {
-                let urlPage = websites_json_by_domain[domain][index];
-                let urlPageDomain = domain + websites_json_by_domain[domain][index];
-                let page = document.createElement("div");
-                page.classList.add("sub-section");
-
-                // console.log(urlPageDomain);
-                // console.log(websites_json_by_domain);
-                // console.log(websites_json_to_show);
-                let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
-                let notes = websites_json_to_show[urlPageDomain]["notes"];
-
-                page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["page-label"], urlPageDomain);
-
-                all_pages.append(page);
-            }
-
-            section.append(all_pages);
-
-            document.getElementById("all-website-sections").append(section);
         }
+    }
 
-    } else {
+    if (n_websites === 0) {
         //no websites
         let section = document.createElement("div");
         section.classList.add("section-empty");
@@ -773,10 +795,10 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
         tagColour.textContent = colourList[colour];
         //tagColour.classList.add(colour + "-background-tag");
         tagsColour.classList.add("button", "float-right", "very-small-button", "margin-right-5-px", "tag-button");
-        tagColour.onclick = function () {
-            changeTagColour(page, fullUrl, colour);
-        }
         tagsColour.append(tagColour);
+    }
+    tagsColour.onchange = function () {
+        changeTagColour(page, fullUrl, tagsColour.value);
     }
 
     page.id = fullUrl;
@@ -880,7 +902,7 @@ function checkTwoVersions(version1, version2) {
         } else {
             let index = 1;
             while (index < 4 && valueToReturn === "") {
-                if (v1[index].length > 0 && v2[index].length > 0) {
+                if (v1.length > 0 && v2.length > 0) {
                     if (v1.length === index && v2.length === index) {
                         valueToReturn = "=";
                     } else if (v1.length > index && v2.length === index) {

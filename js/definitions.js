@@ -8,3 +8,13 @@ let languageToUse = browser.i18n.getUILanguage().toString();
 if (!supportedLanguages.includes(languageToUse)) languageToUse = "en";
 
 if (supportedLanguages.includes(languageToUse.split("-")[0])) languageToUse = languageToUse.split("-")[0];
+
+let links = {
+    "donate": "https://liberapay.com/Sav22999",
+    "telegram": "https://t.me/sav_projects/7",
+    "support_telegram": "https://t.me/sav_projects/7",
+    "support_email": "mailto:saverio.morelli@protonmail.com",
+    "support_github": "https://github.com/Sav22999/websites-notes/issues",
+    "translate": "https://crowdin.com/project/notefox",
+    "review": "https://addons.mozilla.org/firefox/addon/websites-notes/"
+};

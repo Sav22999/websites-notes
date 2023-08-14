@@ -462,7 +462,7 @@ function closeStickyNotes() {
 
 function checkIcon() {
     let domain_url = getDomainUrl(tab_url);
-    let page_url = getDomainUrl(tab_url);
+    let page_url = getPageUrl(tab_url);
     if (websites_json[domain_url] !== undefined && websites_json[domain_url]["last-update"] !== undefined && websites_json[domain_url]["last-update"] != null && websites_json[domain_url]["notes"] !== undefined && websites_json[domain_url]["notes"] !== "") {
         changeIcon(1);
     } else if (websites_json[page_url] !== undefined && websites_json[page_url]["last-update"] !== undefined && websites_json[page_url]["last-update"] != null && websites_json[page_url]["notes"] !== undefined && websites_json[page_url]["notes"] !== "") {
