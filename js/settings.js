@@ -8,7 +8,6 @@ let settings_json = {
 };
 
 const all_strings = strings[languageToUse];
-const link_translate = "https://crowdin.com/project/notefox";
 
 let sync_local;
 checkSyncLocal();
@@ -38,8 +37,21 @@ function loaded() {
         saveSettings();
     }
     document.getElementById("translate-addon").onclick = function () {
-        browser.tabs.create({url: link_translate});
+        browser.tabs.create({url: links.translate});
     }
+    document.getElementById("support-telegram-button").onclick = function () {
+        browser.tabs.create({url: links.support_telegram});
+    }
+    document.getElementById("support-email-button").onclick = function () {
+        browser.tabs.create({url: links.support_email});
+    }
+    document.getElementById("support-github-button").onclick = function () {
+        browser.tabs.create({url: links.support_github});
+    }
+    document.getElementById("review-on-firefox-addons-button").onclick = function () {
+        browser.tabs.create({url: links.review});
+    }
+
     document.getElementById("open-by-default-select").onchange = function () {
         settings_json["open-default"] = document.getElementById("open-by-default-select").value;
     };
@@ -65,9 +77,6 @@ function loaded() {
 }
 
 function setLanguageUI() {
-    let buttonSave = document.getElementById("save-settings-button");
-    buttonSave.value = all_strings["save-settings-button"];
-
     document.title = all_strings["settings-title-page"];
 
     document.getElementById("open-by-default-text").innerText = all_strings["open-popup-by-default"];
@@ -88,6 +97,13 @@ function setLanguageUI() {
     document.getElementById("open-popup-default-shortcut-text").innerText = all_strings["open-popup-default-shortcut-text"];
     document.getElementById("open-popup-domain-shortcut-text").innerText = all_strings["open-popup-domain-shortcut-text"];
     document.getElementById("open-popup-page-shortcut-text").innerText = all_strings["open-popup-page-shortcut-text"];
+
+    document.getElementById("support-telegram-button").value = all_strings["support-telegram-button"];
+    document.getElementById("support-email-button").value = all_strings["support-email-button"];
+    document.getElementById("support-github-button").value = all_strings["support-github-button"];
+    document.getElementById("review-on-firefox-addons-button").value = all_strings["review-on-firefox-addons-button"];
+    document.getElementById("save-settings-button").value = all_strings["save-settings-button"];
+    document.getElementById("translate-addon").value = all_strings["translate-addon-button"];
 
     letters_and_numbers.forEach(letterNumber => {
         document.getElementById("key-shortcut-default-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-default'>" + letterNumber + "</option>";

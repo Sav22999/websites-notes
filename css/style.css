@@ -77,7 +77,7 @@ body {
     border-radius: 0px;
 }
 
-.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button {
+.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button {
     padding-left: 35px;
     padding-right: 10px;
     background-image: url("../img/delete.svg");
@@ -173,6 +173,22 @@ body {
 
 .donate-button {
     background-image: url("../img/donate.svg");
+}
+
+.github-button {
+    background-image: url("../img/github.svg");
+}
+
+.telegram-button {
+    background-image: url("../img/telegram.svg");
+}
+
+.email-button {
+    background-image: url("../img/email.svg");
+}
+
+.firefox-button {
+    background-image: url("../img/firefox.svg");
 }
 
 #tag-colour-section {
