@@ -43,6 +43,7 @@ strings[lang] = {
     'settings-title': 'Ρυθμίσεις',
     'settings-title-page': 'Notefox - Ρυθμίσεις',
     'save-settings-button': 'Αποθήκευση ρυθμίσεων',
+    'donate-button': 'Buy me a coffee',
     'saved-button': 'Αποθηκεύτηκε',
     'open-popup-by-default': 'Άνοιγμα του αναδυόμενου παράθυρου από προεπιλογή με ',
     'consider-parameters': 'Θεωρήστε τις παραμέτρους ως μέρος της σελίδας url',
@@ -55,8 +56,19 @@ strings[lang] = {
     'notefox-version-different-try-to-import-data-anyway': 'Αυτά τα δεδομένα είναι από μια διαφορετική έκδοση του πρόσθετου. Η εισαγωγή θα μπορούσε να αποτύχει (σπάνια). Θέλετε να συνεχίσετε?',
     'search-textbox': 'Αναζήτηση…',
     'sort-by-button': 'Ταξινόμηση κατά…',
+    'sort-by-az-button': 'Name: A-Z',
+    //from website "a" to "z"
+    'sort-by-za-button': 'Name: Z-A',
+    //from website "z" to "a"
+    'sort-by-edit-last-button': 'Last update: Newest to Oldest',
+    //from the last to the first
+    'sort-by-edit-first-button': 'Last update: Oldest to Newest',
+    //from the first to the last
     'filter-button': 'Φίλτρο…',
+    'filter-sort-by-not-selected': 'Not selected',
     'filter-by-tag-button': 'Ετικέτα: {{color}}',
+    'filter-by-domain-button': 'Domain',
+    'filter-by-pages-button': 'Pages',
     'settings-button': 'Ρυθμίσεις',
     'settings-select-button-yes': 'Ναι',
     'settings-select-button-no': 'Όχι',
@@ -72,5 +84,7 @@ strings[lang] = {
     'label-ctrl-shift-default': 'Ctrl + Shift',
     'label-ctrl-shift-mac': 'Εντολή - Μετατόπιση',
     'label-alt-shift-default': 'Alt + Shift',
-    'label-alt-shift-mac': 'Επιλογή Της Μετατόπισης "+'
+    'label-alt-shift-mac': 'Επιλογή Της Μετατόπισης "+',
+    'disable-sync-settings-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.',
+    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.'
 };

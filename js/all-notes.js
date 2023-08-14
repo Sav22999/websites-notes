@@ -25,13 +25,13 @@ let sync_local;
 checkSyncLocal();
 
 function checkSyncLocal() {
-    sync_local = browser.storage.sync;
+    sync_local = browser.storage.local;
     browser.storage.local.get("storage").then(result => {
         if (result.storage === "sync") sync_local = browser.storage.sync;
-        else if (result.storage === "local") sync_local = browser.storage.local;
+        else if (result.storage === "sync") sync_local = browser.storage.sync;
         else {
-            browser.storage.local.set({"storage": "sync"});
-            sync_local = browser.storage.sync;
+            browser.storage.local.set({"storage": "local"});
+            sync_local = browser.storage.local;
         }
     });
 }
@@ -61,6 +61,7 @@ function loaded() {
         //console.log("sync: " + JSON.stringify(result));
     });
 
+    /*
     browser.storage.local.get([
         "storage",
         "settings",
@@ -90,6 +91,24 @@ function loaded() {
             });
         }
     });
+    */
+
+    browser.storage.local.get([
+        "storage"
+    ]).then(result => {
+        let property1 = all_strings["save-on-local-instead-of-sync"];
+        let property2 = all_strings["settings-select-button-yes"];
+        let alert_message = all_strings["disable-sync-message"]
+        alert_message = alert_message.replace("{{property1}}", `<span class="button-code" id="string-save-on-local-instead-of-sync">${property1}</span>`);
+        alert_message = alert_message.replace("{{property2}}", `<span class="button-code" id="string-save-on-local-instead-of-sync-yes">${property2}</span>`);
+        document.getElementById("disable-sync").innerHTML = alert_message;
+
+        if (result.storage !== undefined && result.storage === "sync") {
+            if (document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.remove("hidden");
+        } else {
+            if (!document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.add("hidden");
+        }
+    });
 
     document.getElementById("refresh-all-notes-button").onclick = function () {
         //location.reload();
@@ -97,6 +116,9 @@ function loaded() {
     }
     document.getElementById("settings-all-notes-button").onclick = function () {
         browser.tabs.create({url: "../settings/index.html"});
+    }
+    document.getElementById("buy-me-a-coffee-button").onclick = function () {
+        browser.tabs.create({url: "https://liberapay.com/Sav22999"});
     }
     document.getElementById("clear-all-notes-button").onclick = function () {
         clearAllNotes();
@@ -157,6 +179,7 @@ function setLanguageUI() {
     document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
     document.getElementById("search-all-notes-text").placeholder = all_strings["search-textbox"];
     document.getElementById("settings-all-notes-button").value = all_strings["settings-button"];
+    document.getElementById("buy-me-a-coffee-button").value = all_strings["donate-button"];
     //document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
     document.getElementById("filter-all-notes-button").value = all_strings["filter-button"];
     document.title = all_strings["all-notes-title-page"];
@@ -353,7 +376,7 @@ function importAllNotes() {
             }
             document.getElementById("import-now-all-notes-button").onclick = function () {
                 let value = jsonImportElement.value;
-                if (value.replaceAll(" ", "") != "") {
+                if (value.replaceAll(" ", "") !== "") {
                     let error = false;
                     let error_description = "";
                     try {
@@ -369,7 +392,7 @@ function importAllNotes() {
                         }
                         let continue_ok = false;
                         if (json_to_export_temp["notefox"] !== undefined) {
-                            if (json_to_export_temp["notefox"]["version"] != notefox_json["version"]) {
+                            if (json_to_export_temp["notefox"]["version"] !== notefox_json["version"]) {
                                 continue_ok = confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
                             } else {
                                 continue_ok = true;
@@ -719,7 +742,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button", "clear2-button");
     input_clear_all_notes_page.onclick = function () {
         let isDomain = false;
-        if (fullUrl == url) {
+        if (fullUrl === url) {
             isDomain = true;
         }
         clearAllNotesPage(fullUrl, isDomain);
@@ -743,7 +766,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     for (let colour in colourList) {
         let tagColour = document.createElement("option");
         tagColour.value = colour;
-        if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] != undefined && websites_json[fullUrl]["tag-colour"] == colour) {
+        if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] !== undefined && websites_json[fullUrl]["tag-colour"] === colour) {
             tagColour.selected = true;
             page.classList.add("tag-colour-left", "tag-colour-" + colour);
         }
@@ -762,7 +785,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     page.append(inputCopyNotes);
     page.append(tagsColour);
 
-    if (type.toLowerCase() != "domain") {
+    if (type.toLowerCase() !== "domain") {
         let pageUrl = document.createElement("h3");
         pageUrl.classList.add("link", "go-to-external");
         pageUrl.textContent = url;
@@ -796,7 +819,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
 function changeTagColour(page, url, colour) {
     sync_local.get("websites", function (value) {
         websites_json = {};
-        if (value["websites"] != undefined) {
+        if (value["websites"] !== undefined) {
             websites_json = value["websites"];
         }
         websites_json[url]["tag-colour"] = colour;
@@ -835,6 +858,55 @@ function sortOnKeys(dict) {
     }
 
     return tempDict;
+}
+
+/**
+ * Compare two versions (they have to be in this form: W.Z.Y.Z, it's ok also sub-parts of it: W, W.Z, W.Z.Y)
+ * @param version1 the first version
+ * @param version2 the second version
+ * @returns {string} ">" the first version is major than the second one, "=" equals, "<" minor, "!" wrong version form
+ */
+function checkTwoVersions(version1, version2) {
+    let valueToReturn = "";
+
+    let v1 = version1.toString().split(".");
+    let v2 = version2.toString().split(".");
+
+    if (v1.length > 0 && v2.length > 0 && v1[0].length > 0 && v2[0].length > 0) {
+        if (parseInt(v1[0]) > parseInt(v2[0])) {
+            valueToReturn = ">"
+        } else if (parseInt(v1[0]) < parseInt(v2[0])) {
+            valueToReturn = "<";
+        } else {
+            let index = 1;
+            while (index < 4 && valueToReturn === "") {
+                if (v1[index].length > 0 && v2[index].length > 0) {
+                    if (v1.length === index && v2.length === index) {
+                        valueToReturn = "=";
+                    } else if (v1.length > index && v2.length === index) {
+                        if (v1[index] !== "0") valueToReturn = ">";
+                        else valueToReturn = "=";
+                    } else if (v1.length === index && v2.length > index) {
+                        if (v2[index] !== "0") valueToReturn = "<";
+                        else valueToReturn = "=";
+                    } else {
+                        if (parseInt(v1[index]) > parseInt(v2[index])) valueToReturn = ">";
+                        else if (parseInt(v1[index]) < parseInt(v2[index])) valueToReturn = "<";
+                        else {
+                            if (!(v1.length > index + 1 || v2.length > index + 1)) valueToReturn = "=";
+                        }
+                    }
+                } else {
+                    valueToReturn = "!";
+                }
+                index++;
+            }
+        }
+    } else {
+        valueToReturn = "!";
+    }
+
+    return valueToReturn;
 }
 
 loaded();

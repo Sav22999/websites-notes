@@ -45,6 +45,7 @@ strings[lang] = {
     "settings-title": "Settings",
     "settings-title-page": "Notefox - Settings",
     "save-settings-button": "Save settings",
+    "donate-button": "Buy me a coffee",
     "saved-button": "Saved",
     "open-popup-by-default": "Open the popup by default with ",
     "consider-parameters": "Consider parameters as part of the url page",
@@ -57,8 +58,15 @@ strings[lang] = {
     "notefox-version-different-try-to-import-data-anyway": "This data are from a different version of the addon. The importing could fail (rarely). Do you want to continue?",
     "search-textbox": "Search…",
     "sort-by-button": "Sort by…",
+    "sort-by-az-button": "Name: A-Z", //from website "a" to "z"
+    "sort-by-za-button": "Name: Z-A", //from website "z" to "a"
+    "sort-by-edit-last-button": "Last update: Newest to Oldest", //from the last to the first
+    "sort-by-edit-first-button": "Last update: Oldest to Newest", //from the first to the last
     "filter-button": "Filter…",
+    "filter-sort-by-not-selected": "Not selected",
     "filter-by-tag-button": "Tag: {{color}}",
+    "filter-by-domain-button": "Domain",
+    "filter-by-pages-button": "Pages",
     "settings-button": "Settings",
     "settings-select-button-yes": "Yes",
     "settings-select-button-no": "No",
@@ -75,4 +83,6 @@ strings[lang] = {
     "label-ctrl-shift-mac": "Command ⌘ + Shift ⇧",
     "label-alt-shift-default": "Alt + Shift",
     "label-alt-shift-mac": "Option ⌥ + Shift ⇧",
+    "disable-sync-settings-message": "Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.",
+    "disable-sync-message": "Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}."
 }

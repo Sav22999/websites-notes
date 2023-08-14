@@ -43,6 +43,7 @@ strings[lang] = {
     'settings-title': '设置',
     'settings-title-page': 'Notefox - 设置',
     'save-settings-button': '保存设置',
+    'donate-button': 'Buy me a coffee',
     'saved-button': '已保存',
     'open-popup-by-default': '默认打开弹出窗口 ',
     'consider-parameters': '将参数视为URL页面的一部分',
@@ -55,8 +56,19 @@ strings[lang] = {
     'notefox-version-different-try-to-import-data-anyway': '此数据来自不同版本的附加组件。导入可能失败(很少)。您想要继续吗？',
     'search-textbox': '搜索…',
     'sort-by-button': '按… 排序',
+    'sort-by-az-button': 'Name: A-Z',
+    //from website "a" to "z"
+    'sort-by-za-button': 'Name: Z-A',
+    //from website "z" to "a"
+    'sort-by-edit-last-button': 'Last update: Newest to Oldest',
+    //from the last to the first
+    'sort-by-edit-first-button': 'Last update: Oldest to Newest',
+    //from the first to the last
     'filter-button': '过滤器…',
+    'filter-sort-by-not-selected': 'Not selected',
     'filter-by-tag-button': '标签： {{color}}',
+    'filter-by-domain-button': 'Domain',
+    'filter-by-pages-button': 'Pages',
     'settings-button': '设置',
     'settings-select-button-yes': '是',
     'settings-select-button-no': '否',
@@ -72,5 +84,7 @@ strings[lang] = {
     'label-ctrl-shift-default': 'Ctrl + Shift',
     'label-ctrl-shift-mac': '按键+Shift 2级',
     'label-alt-shift-default': 'Alt + Shift',
-    'label-alt-shift-mac': '自变量+偏移量'
+    'label-alt-shift-mac': '自变量+偏移量',
+    'disable-sync-settings-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.',
+    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.'
 };
