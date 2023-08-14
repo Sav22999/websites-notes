@@ -43,6 +43,7 @@ strings[lang] = {
     'settings-title': 'Asetukset',
     'settings-title-page': 'Notefox - Asetukset',
     'save-settings-button': 'Tallenna asetukset',
+    'donate-button': 'Buy me a coffee',
     'saved-button': 'Tallennettu',
     'open-popup-by-default': 'Avaa ponnahdusikkuna oletuksena sovelluksella ',
     'consider-parameters': 'Harkitse parametreja osana url-sivua',
@@ -55,8 +56,19 @@ strings[lang] = {
     'notefox-version-different-try-to-import-data-anyway': 'Nämä tiedot ovat lisäosan eri versiosta. Tuonti voi epäonnistua (harvinainen). Haluatko jatkaa?',
     'search-textbox': 'Hae…',
     'sort-by-button': 'Järjestä…',
+    'sort-by-az-button': 'Name: A-Z',
+    //from website "a" to "z"
+    'sort-by-za-button': 'Name: Z-A',
+    //from website "z" to "a"
+    'sort-by-edit-last-button': 'Last update: Newest to Oldest',
+    //from the last to the first
+    'sort-by-edit-first-button': 'Last update: Oldest to Newest',
+    //from the first to the last
     'filter-button': 'Suodata…',
+    'filter-sort-by-not-selected': 'Not selected',
     'filter-by-tag-button': 'Merkintä: {{color}}',
+    'filter-by-domain-button': 'Domain',
+    'filter-by-pages-button': 'Pages',
     'settings-button': 'Asetukset',
     'settings-select-button-yes': 'Kyllä',
     'settings-select-button-no': 'Ei',
@@ -72,5 +84,7 @@ strings[lang] = {
     'label-ctrl-shift-default': 'Ctrl + Vaihto',
     'label-ctrl-shift-mac': 'Komento - + Vaihto -',
     'label-alt-shift-default': 'Alt + Vaihto',
-    'label-alt-shift-mac': 'Valinta - + Vaihto -'
+    'label-alt-shift-mac': 'Valinta - + Vaihto -',
+    'disable-sync-settings-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.',
+    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.'
 };

@@ -306,6 +306,13 @@ textarea::placeholder, .textbox::placeholder {
     border-radius: 5px;
 }
 
+.section-warning {
+    background-color: #cb0000;
+    color: #eeeeee;
+    font-weight: bold;
+    padding: 5px 10px;
+}
+
 .detailed-option {
     font-size: 10px;
     padding: 0px;

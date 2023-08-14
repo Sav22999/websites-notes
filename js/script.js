@@ -19,13 +19,13 @@ let sync_local;
 checkSyncLocal();
 
 function checkSyncLocal() {
-    sync_local = browser.storage.sync;
+    sync_local = browser.storage.local;
     browser.storage.local.get("storage").then(result => {
         if (result.storage === "sync") sync_local = browser.storage.sync;
-        else if (result.storage === "local") sync_local = browser.storage.local;
+        else if (result.storage === "sync") sync_local = browser.storage.sync;
         else {
-            browser.storage.local.set({"storage": "sync"});
-            sync_local = browser.storage.sync;
+            browser.storage.local.set({"storage": "local"});
+            sync_local = browser.storage.local;
         }
     });
 }

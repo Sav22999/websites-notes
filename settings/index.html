@@ -16,6 +16,12 @@ Created by Saverio Morelli - saveriomorelli.com
         <input type="button" value="Save settings" id="save-settings-button" class="button save-button"/>
         <input type="button" value="Translate on Crowdin" id="translate-addon" class="button translate-button"/>
     </div>
+
+    <div id="disable-sync" class="hidden section section-warning">
+        Due to some space limitation with "sync" I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that find <span class="button-code" id="string-save-on-local-instead-of-sync">Save data locally instead of sync with Firefox account</span> and set to <span
+            id="string-save-on-local-instead-of-sync-yes" class="button-code">Yes</span>.
+    </div>
+
     <span id="settings-sections">
         <div class="section settings-section-grid">
             <span class="section-left padding-25px-lateral settings-section-grid-column" id="open-by-default-text">Open the popup by default with</span>
@@ -119,7 +125,7 @@ Created by Saverio Morelli - saveriomorelli.com
             </span>
         </div>
 
-        <div class="section settings-section-grid">
+        <div class="section settings-section-grid" id="sync-instead-of-local">
             <span class="section-left padding-25px-lateral settings-section-grid-column">
                 <span id="save-on-local-instead-of-sync-text">Save data locally instead of sync with Firefox account</span>
                 <br/>

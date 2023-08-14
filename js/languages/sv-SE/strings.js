@@ -43,6 +43,7 @@ strings[lang] = {
     'settings-title': 'Inställningar',
     'settings-title-page': 'Notefox - Inställningar',
     'save-settings-button': 'Spara inställningar',
+    'donate-button': 'Buy me a coffee',
     'saved-button': 'Sparad',
     'open-popup-by-default': 'Öppna popup som standard med ',
     'consider-parameters': 'Överväg parametrar som en del av webbsidan',
@@ -55,8 +56,19 @@ strings[lang] = {
     'notefox-version-different-try-to-import-data-anyway': 'Dessa data kommer från en annan version av tillägget. Importen kan misslyckas (sällan). Vill du fortsätta?',
     'search-textbox': 'Sök…',
     'sort-by-button': 'Sortera efter…',
+    'sort-by-az-button': 'Name: A-Z',
+    //from website "a" to "z"
+    'sort-by-za-button': 'Name: Z-A',
+    //from website "z" to "a"
+    'sort-by-edit-last-button': 'Last update: Newest to Oldest',
+    //from the last to the first
+    'sort-by-edit-first-button': 'Last update: Oldest to Newest',
+    //from the first to the last
     'filter-button': 'Filtrera…',
+    'filter-sort-by-not-selected': 'Not selected',
     'filter-by-tag-button': 'Tag: {{color}}',
+    'filter-by-domain-button': 'Domain',
+    'filter-by-pages-button': 'Pages',
     'settings-button': 'Inställningar',
     'settings-select-button-yes': 'Ja',
     'settings-select-button-no': 'Nej',
@@ -72,5 +84,7 @@ strings[lang] = {
     'label-ctrl-shift-default': 'Ctrl + Skift',
     'label-ctrl-shift-mac': 'Kommando <unk> + Shift <unk>',
     'label-alt-shift-default': 'Alt + Skift',
-    'label-alt-shift-mac': 'Alternativ <unk> + Skift <unk>'
+    'label-alt-shift-mac': 'Alternativ <unk> + Skift <unk>',
+    'disable-sync-settings-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.',
+    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.'
 };

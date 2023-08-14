@@ -46,6 +46,14 @@ Created by Saverio Morelli - saveriomorelli.com
         <input type="button" value="Tag: White" id="filter-tag-white-button"
                class="button filter-button-tag float-right"/>
     </div>
+
+    <div id="disable-sync" class="hidden section section-warning">
+        Due to some space limitation with "sync" I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!
+        <br>
+        To do that, in the add-on Settings find <span class="button-code" id="string-save-on-local-instead-of-sync">Save data locally instead of sync with Firefox account</span> and set to <span
+            id="string-save-on-local-instead-of-sync-yes" class="button-code">Yes</span>.
+    </div>
+
     <span id="all-website-sections"></span>
     <div id="background-opacity"></div>
     <div id="import-section">
@@ -61,7 +69,8 @@ Created by Saverio Morelli - saveriomorelli.com
                 <textarea id="json-import"></textarea>
             </div>
             <div class="sub-section text-align-right">
-                <input type="button" value="Get local data" id="import-now-all-notes-from-local-button" class="button import-button"/>
+                <input type="button" value="Get local data" id="import-now-all-notes-from-local-button"
+                       class="button import-button"/>
                 <input type="button" value="Cancel" id="cancel-import-all-notes-button" class="button"/>
                 <input type="button" value="Import now" id="import-now-all-notes-button" class="button import-button"/>
             </div>
@@ -86,7 +95,7 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
 </div>
 <script src="../js/definitions.js"></script>
-    
+
 <!--include all translation files-->
 <!--English-->
 <script src="../js/languages/en-UK/strings.js"></script>

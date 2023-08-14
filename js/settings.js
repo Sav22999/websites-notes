@@ -14,13 +14,13 @@ let sync_local;
 checkSyncLocal();
 
 function checkSyncLocal() {
-    sync_local = browser.storage.sync;
+    sync_local = browser.storage.local;
     browser.storage.local.get("storage").then(result => {
         if (result.storage === "sync") sync_local = browser.storage.sync;
-        else if (result.storage === "local") sync_local = browser.storage.local;
+        else if (result.storage === "sync") sync_local = browser.storage.sync;
         else {
-            browser.storage.local.set({"storage": "sync"});
-            sync_local = browser.storage.sync;
+            browser.storage.local.set({"storage": "local"});
+            sync_local = browser.storage.local;
         }
     });
 }
@@ -99,6 +99,24 @@ function setLanguageUI() {
 function loadSettings() {
     let shortcuts = browser.commands.getAll();
     shortcuts.then(getCurrentShortcuts);
+
+    browser.storage.local.get([
+        "storage"
+    ]).then(result => {
+        let property1 = all_strings["save-on-local-instead-of-sync"];
+        let property2 = all_strings["settings-select-button-yes"];
+        let alert_message = all_strings["disable-sync-settings-message"]
+        alert_message = alert_message.replace("{{property1}}", `<span class="button-code" id="string-save-on-local-instead-of-sync">${property1}</span>`);
+        alert_message = alert_message.replace("{{property2}}", `<span class="button-code" id="string-save-on-local-instead-of-sync-yes">${property2}</span>`);
+        document.getElementById("disable-sync").innerHTML = alert_message;
+
+        if (result.storage !== undefined && result.storage === "sync") {
+            if (document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.remove("hidden");
+        } else {
+            if (!document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.add("hidden");
+            if (!document.getElementById("sync-instead-of-local").classList.contains("hidden")) document.getElementById("sync-instead-of-local").classList.add("hidden");
+        }
+    });
 
     browser.storage.local.get(["storage"]).then(result => {
         sync_local.get("settings", function (value) {
