@@ -67,10 +67,9 @@ body {
     font-size: 14px;
     margin: 0px;
     padding: 5px;
-    background-color: var(--secondary-color);
-    color: var(--on-secondary-color);
-    box-shadow: 0px 0px 0px 1px var(--primary-color);
-    opacity: 0.8;
+    background-color: var(--primary-color);
+    color: var(--on-primary-color);
+    opacity: 0.5;
     width: 50%;
     box-sizing: border-box;
     display: inline-block;
@@ -219,7 +218,7 @@ body {
 
 #tabs-section > .tab:hover {
     /*background-color: #dddddd;*/
-    opacity: 1;
+    opacity: 0.9;
 }
 
 #tabs-section > .tab:active, #tabs-section > .tab:focus, .button:active, .button:focus, textarea:focus, textarea:active, .textbox:focus, .textbox:active {
@@ -237,7 +236,7 @@ body {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
     color: var(--on-primary-color);
-    opacity: 0.8;
+    opacity: 1;
 }
 
 #tabs-section > .tab-sel:hover, .button:hover {
