@@ -40,7 +40,7 @@ function loaded() {
     checkSyncLocal()
     setLanguageUI();
 
-    setTheme();
+    checkTheme();
 
     browser.storage.local.get([
         "storage",
@@ -936,8 +936,10 @@ function checkTwoVersions(version1, version2) {
 /**
  * Load the current theme for the page
  */
-function setTheme() {
+function checkTheme() {
     //before to set theme -> check if "Follow theme system" is enabled, otherwise use the default orange theme
+
+    let force_theme = ""; //TODO!TESTING this is used only for test, after testing set to "" (empty)
 
     sync_local.get("settings").then(result => {
         let background;
@@ -947,11 +949,9 @@ function setTheme() {
         let on_primary;
         let on_secondary;
 
-        //TODO!TESTING remove "true" checks
-        if (true || result !== undefined && result["settings"] !== undefined && result["settings"]["theme"] !== undefined) {
-            if (true || result["settings"]["theme"] === "auto") {
+        if (force_theme !== "" || result !== undefined && result["settings"] !== undefined && result["settings"]["theme"] !== undefined) {
+            if (result["settings"]["theme"] !== undefined && result["settings"]["theme"] === "auto") {
                 browser.theme.getCurrent().then(theme => {
-                    //console.log(JSON.stringify(theme.colors));
                     if (theme !== undefined && theme["colors"] !== undefined) {
                         background = theme.colors.frame;
                         backgroundSection = theme.colors.toolbar;
@@ -959,6 +959,8 @@ function setTheme() {
                         secondary = theme.colors.toolbar_field;
                         on_primary = theme.colors.toolbar;
                         on_secondary = theme.colors.tab_background_text;
+
+                        setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary);
                     }
                 });
             } else if (result["settings"]["theme"] === "dark") {
@@ -967,8 +969,9 @@ function setTheme() {
                 backgroundSection = "#222222";
                 primary = "#d26d2f";
                 secondary = "#ffd8be";
-                on_primary = "#FFFFFF";
+                on_primary = "#222222";
                 on_secondary = "#FFFFFF";
+                setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary);
             } else {
                 //use the default one if: undefined, light or other value (probably wrong)
                 background = "#FFFFFF";
@@ -977,6 +980,7 @@ function setTheme() {
                 secondary = "#FFB788";
                 on_primary = "#FFFFFF";
                 on_secondary = "#FFFFFF";
+                setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary);
             }
         } else {
             //use the default one
@@ -986,28 +990,32 @@ function setTheme() {
             secondary = "#FFB788";
             on_primary = "#FFFFFF";
             on_secondary = "#FFFFFF";
+            setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary);
         }
+    });
+}
 
-        if (background != undefined && backgroundSection != undefined && primary != undefined && secondary != undefined && on_primary != undefined && on_secondary != undefined) {
-            document.body.style.backgroundColor = background;
-            document.body.color = primary;
-            document.getElementById("all-notes-dedication-section").style.backgroundColor = backgroundSection;
-            //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
-            document.getElementById("all-notes-dedication-section").style.color = primary;
-            var open_external_svg = window.btoa(getIconSvgEncoded("open-external", primary));
-            var donate_svg = window.btoa(getIconSvgEncoded("donate", on_primary));
-            var settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
-            var import_svg = window.btoa(getIconSvgEncoded("import", on_primary));
-            var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
-            var delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
-            var delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
-            var copy_svg = window.btoa(getIconSvgEncoded("copy", on_primary));
-            var filter = window.btoa(getIconSvgEncoded("filter", on_primary));
-            var sort_by = window.btoa(getIconSvgEncoded("sort-by", on_primary));
-            var tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
-            var refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
+function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary) {
+    if (background !== undefined && backgroundSection !== undefined && primary !== undefined && secondary !== undefined && on_primary !== undefined && on_secondary !== undefined) {
+        document.body.style.backgroundColor = background;
+        document.body.color = primary;
+        document.getElementById("all-notes-dedication-section").style.backgroundColor = backgroundSection;
+        //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
+        document.getElementById("all-notes-dedication-section").style.color = primary;
+        var open_external_svg = window.btoa(getIconSvgEncoded("open-external", primary));
+        var donate_svg = window.btoa(getIconSvgEncoded("donate", on_primary));
+        var settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
+        var import_svg = window.btoa(getIconSvgEncoded("import", on_primary));
+        var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
+        var delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
+        var delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
+        var copy_svg = window.btoa(getIconSvgEncoded("copy", on_primary));
+        var filter = window.btoa(getIconSvgEncoded("filter", on_primary));
+        var sort_by = window.btoa(getIconSvgEncoded("sort-by", on_primary));
+        var tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
+        var refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
 
-            document.head.innerHTML += `
+        document.head.innerHTML += `
             <style>
                 :root {
                     --primary-color: ${primary};
@@ -1052,8 +1060,7 @@ function setTheme() {
                     background-image: url('data:image/svg+xml;base64,${refresh_svg}');
                 }
             </style>`;
-        }
-    });
+    }
 }
 
 loaded();
