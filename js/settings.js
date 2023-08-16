@@ -31,7 +31,9 @@ var ctrl_alt_shift = ["default", "domain", "page"];
 function loaded() {
     checkSyncLocal()
     checkOperatingSystem();
+
     setLanguageUI();
+    checkTheme();
 
     document.getElementById("save-settings-button").onclick = function () {
         saveSettings();
@@ -352,6 +354,50 @@ function updateShortcut(commandName, shortcut) {
     browser.commands.update({
         name: commandName, shortcut: shortcut
     });
+}
+
+function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary) {
+    if (background !== undefined && backgroundSection !== undefined && primary !== undefined && secondary !== undefined && on_primary !== undefined && on_secondary !== undefined) {
+        document.body.style.backgroundColor = background;
+        document.body.color = primary;
+        document.getElementById("settings-dedication-section").style.backgroundColor = backgroundSection;
+        //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
+        document.getElementById("settings-dedication-section").style.color = primary;
+        var save_svg = window.btoa(getIconSvgEncoded("save", on_primary));
+        var translate_svg = window.btoa(getIconSvgEncoded("translate", on_primary));
+        var github_svg = window.btoa(getIconSvgEncoded("github", on_primary));
+        var email_svg = window.btoa(getIconSvgEncoded("email", on_primary));
+        var firefox_svg = window.btoa(getIconSvgEncoded("firefox", on_primary));
+        var telegram_svg = window.btoa(getIconSvgEncoded("telegram", on_primary));
+
+        document.head.innerHTML += `
+            <style>
+                :root {
+                    --primary-color: ${primary};
+                    --secondary-color: ${secondary};
+                    --on-primary-color: ${on_primary};
+                    --on-secondary-color: ${on_secondary};
+                }
+                .save-button {
+                    background-image: url('data:image/svg+xml;base64,${save_svg}');
+                }
+                .translate-button {
+                    background-image: url('data:image/svg+xml;base64,${translate_svg}');
+                }
+                .github-button {
+                    background-image: url('data:image/svg+xml;base64,${github_svg}');
+                }
+                .email-button {
+                    background-image: url('data:image/svg+xml;base64,${email_svg}');
+                }
+                .firefox-button {
+                    background-image: url('data:image/svg+xml;base64,${firefox_svg}');
+                }
+                .telegram-button {
+                    background-image: url('data:image/svg+xml;base64,${telegram_svg}');
+                }
+            </style>`;
+    }
 }
 
 loaded();

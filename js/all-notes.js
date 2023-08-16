@@ -936,64 +936,6 @@ function checkTwoVersions(version1, version2) {
 /**
  * Load the current theme for the page
  */
-function checkTheme() {
-    //before to set theme -> check if "Follow theme system" is enabled, otherwise use the default orange theme
-
-    let force_theme = ""; //TODO!TESTING this is used only for test, after testing set to "" (empty)
-
-    sync_local.get("settings").then(result => {
-        let background;
-        let backgroundSection;
-        let primary;
-        let secondary;
-        let on_primary;
-        let on_secondary;
-
-        if (force_theme !== "" || result !== undefined && result["settings"] !== undefined && result["settings"]["theme"] !== undefined) {
-            if (result["settings"]["theme"] !== undefined && result["settings"]["theme"] === "auto") {
-                browser.theme.getCurrent().then(theme => {
-                    if (theme !== undefined && theme["colors"] !== undefined) {
-                        background = theme.colors.frame;
-                        backgroundSection = theme.colors.toolbar;
-                        primary = theme.colors.toolbar_text;
-                        secondary = theme.colors.toolbar_field;
-                        on_primary = theme.colors.toolbar;
-                        on_secondary = theme.colors.tab_background_text;
-
-                        setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary);
-                    }
-                });
-            } else if (result["settings"]["theme"] === "dark") {
-                //use the dark theme
-                background = "#000000";
-                backgroundSection = "#222222";
-                primary = "#d26d2f";
-                secondary = "#ffd8be";
-                on_primary = "#222222";
-                on_secondary = "#FFFFFF";
-                setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary);
-            } else {
-                //use the default one if: undefined, light or other value (probably wrong)
-                background = "#FFFFFF";
-                backgroundSection = "#EEEEEE";
-                primary = "#FF6200";
-                secondary = "#FFB788";
-                on_primary = "#FFFFFF";
-                on_secondary = "#FFFFFF";
-                setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary);
-            }
-        } else {
-            //use the default one
-            background = "#FFFFFF";
-            backgroundSection = "#EEEEEE";
-            primary = "#FF6200";
-            secondary = "#FFB788";
-            on_primary = "#FFFFFF";
-            on_secondary = "#FFFFFF";
-            setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary);
-        }
-    });
-}
 
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary) {
     if (background !== undefined && backgroundSection !== undefined && primary !== undefined && secondary !== undefined && on_primary !== undefined && on_secondary !== undefined) {
