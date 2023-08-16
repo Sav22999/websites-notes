@@ -654,7 +654,7 @@ function loadAllWebsites(clear = false) {
                 websites_json_by_domain[domain].sort();
 
                 let section = document.createElement("div");
-                section.classList.add("section");
+                section.classList.add("section", "section-domain");
 
                 let input_clear_all_notes_domain = document.createElement("input");
                 input_clear_all_notes_domain.type = "button";

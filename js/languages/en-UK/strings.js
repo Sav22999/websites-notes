@@ -89,5 +89,10 @@ strings[lang] = {
     "label-alt-shift-default": "Alt + Shift",
     "label-alt-shift-mac": "Option ⌥ + Shift ⇧",
     "disable-sync-settings-message": "Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.",
-    "disable-sync-message": "Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}."
+    "disable-sync-message": "Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.",
+    "theme-text": "Choose the theme to use",
+    "theme-detailed-text": "If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.",
+    "theme-choose-light-select": "Light",
+    "theme-choose-dark-select": "Dark",
+    "theme-choose-firefox-select": "Follow the Firefox theme",
 }
