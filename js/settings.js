@@ -356,7 +356,7 @@ function updateShortcut(commandName, shortcut) {
     });
 }
 
-function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary) {
+function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
     if (background !== undefined && backgroundSection !== undefined && primary !== undefined && secondary !== undefined && on_primary !== undefined && on_secondary !== undefined) {
         document.body.style.backgroundColor = background;
         document.body.color = primary;
@@ -377,6 +377,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     --secondary-color: ${secondary};
                     --on-primary-color: ${on_primary};
                     --on-secondary-color: ${on_secondary};
+                    --textbox-color: ${textbox_background};
+                    --on-textbox-color: ${textbox_color};
                 }
                 .save-button {
                     background-image: url('data:image/svg+xml;base64,${save_svg}');

@@ -33,6 +33,8 @@ function checkSyncLocal() {
 function loaded() {
     checkSyncLocal()
     loadSettings();
+
+    checkTheme();
 }
 
 function continueLoaded() {
@@ -407,6 +409,32 @@ function setTab(index, url) {
 
 function openStickyNotes() {
     if (stickyNotesSupported) browser.runtime.sendMessage({"open-sticky": {open: true, type: selected_tab}});
+}
+
+function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
+    if (background !== undefined && backgroundSection !== undefined && primary !== undefined && secondary !== undefined && on_primary !== undefined && on_secondary !== undefined) {
+        document.body.style.backgroundColor = background;
+        document.body.color = primary;
+        document.getElementById("popup-content").style.backgroundColor = backgroundSection;
+        //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
+        document.getElementById("popup-content").style.color = primary;
+        var sticky_svg = window.btoa(getIconSvgEncoded("sticky-open", on_primary));
+
+        document.head.innerHTML += `
+            <style>
+                :root {
+                    --primary-color: ${primary};
+                    --secondary-color: ${secondary};
+                    --on-primary-color: ${on_primary};
+                    --on-secondary-color: ${on_secondary};
+                    --textbox-color: ${textbox_background};
+                    --on-textbox-color: ${textbox_color};
+                }
+                #open-sticky-button {
+                    background-image: url('data:image/svg+xml;base64,${sticky_svg}');
+                }
+            </style>`;
+    }
 }
 
 loaded();
