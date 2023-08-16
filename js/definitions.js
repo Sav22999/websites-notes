@@ -25,7 +25,7 @@ let links = {
 function checkTheme() {
     //before to set theme -> check if "Follow theme system" is enabled, otherwise use the default orange theme
 
-    let force_theme = "auto"; //TODO!TESTING this is used only for test, after testing set to "" (empty)
+    let force_theme = ""; //TODO!TESTING this is used only for test, after testing set to "" (empty)
 
     sync_local.get("settings").then(result => {
         let background;

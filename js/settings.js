@@ -72,6 +72,11 @@ function loaded() {
         settings_json["save-on-local-not-sync"] = document.getElementById("save-on-local-instead-of-sync-select").value;
     };
 
+
+    document.getElementById("theme-select").onchange = function () {
+        settings_json["theme"] = document.getElementById("theme-select").value;
+    };
+
     loadSettings();
 
     let titleAllNotes = document.getElementById("title-settings-dedication-section");
@@ -87,18 +92,24 @@ function setLanguageUI() {
     document.getElementById("consider-parameters-text").innerText = all_strings["consider-parameters"];
     document.getElementById("consider-parameters-button-yes").innerText = all_strings["settings-select-button-yes"];
     document.getElementById("consider-parameters-button-no").innerText = all_strings["settings-select-button-no"];
-    document.getElementById("consider-parameters-detailed-text").innerText = all_strings["consider-parameters-detailed"];
+    document.getElementById("consider-parameters-detailed-text").innerHTML = all_strings["consider-parameters-detailed"];
     document.getElementById("consider-sections-text").innerText = all_strings["consider-sections"];
     document.getElementById("consider-sections-button-yes").innerText = all_strings["settings-select-button-yes"];
     document.getElementById("consider-sections-button-no").innerText = all_strings["settings-select-button-no"];
-    document.getElementById("consider-sections-detailed-text").innerText = all_strings["consider-sections-detailed"];
+    document.getElementById("consider-sections-detailed-text").innerHTML = all_strings["consider-sections-detailed"];
     document.getElementById("save-on-local-instead-of-sync-text").innerText = all_strings["save-on-local-instead-of-sync"];
     document.getElementById("save-on-local-instead-of-sync-button-yes").innerText = all_strings["settings-select-button-yes"];
     document.getElementById("save-on-local-instead-of-sync-button-no").innerText = all_strings["settings-select-button-no"];
-    document.getElementById("save-on-local-instead-of-sync-detailed-text").innerText = all_strings["save-on-local-instead-of-sync-detailed"];
+    document.getElementById("save-on-local-instead-of-sync-detailed-text").innerHTML = all_strings["save-on-local-instead-of-sync-detailed"];
     document.getElementById("open-popup-default-shortcut-text").innerText = all_strings["open-popup-default-shortcut-text"];
     document.getElementById("open-popup-domain-shortcut-text").innerText = all_strings["open-popup-domain-shortcut-text"];
     document.getElementById("open-popup-page-shortcut-text").innerText = all_strings["open-popup-page-shortcut-text"];
+
+    document.getElementById("theme-text").innerText = all_strings["theme-text"];
+    document.getElementById("theme-select-light").innerText = all_strings["theme-choose-light-select"];
+    document.getElementById("theme-select-dark").innerText = all_strings["theme-choose-dark-select"];
+    document.getElementById("theme-select-firefox").innerText = all_strings["theme-choose-firefox-select"];
+    document.getElementById("theme-detailed-text").innerHTML = all_strings["theme-detailed-text"].replace("{{property1}}", `<span class="button-code very-small-button">` + all_strings["theme-choose-firefox-select"] + `</span>`);
 
     document.getElementById("support-telegram-button").value = all_strings["support-telegram-button"];
     document.getElementById("support-email-button").value = all_strings["support-email-button"];
@@ -148,6 +159,7 @@ function loadSettings() {
                 if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
                 if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
                 if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
+                if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
             } else {
                 //settings undefined
                 settings_json["open-default"] = "domain";
@@ -156,6 +168,7 @@ function loadSettings() {
                 settings_json["open-popup-default"] = "Ctrl+Alt+O";
                 settings_json["open-popup-domain"] = "Ctrl+Alt+D";
                 settings_json["open-popup-page"] = "Ctrl+Alt+P";
+                settings_json["theme"] = "light";
             }
 
             let sync_or_local_settings = result["storage"];
@@ -164,6 +177,7 @@ function loadSettings() {
             document.getElementById("open-by-default-select").value = settings_json["open-default"];
             document.getElementById("consider-parameters-select").value = settings_json["consider-parameters"];
             document.getElementById("consider-sections-select").value = settings_json["consider-sections"];
+            document.getElementById("theme-select").value = settings_json["theme"];
             if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-select").value = "no";
             else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-select").value = "yes";
 
@@ -210,6 +224,7 @@ function loadSettings() {
 }
 
 function saveSettings() {
+    console.log(JSON.stringify(settings_json));
     browser.storage.local.get(["storage"]).then(resultSyncLocalValue => {
         sync_local.set({"settings": settings_json}).then(resultF => {
             //Saved
@@ -319,6 +334,7 @@ function saveSettings() {
             }, 2000);
             //console.log(JSON.stringify(settings_json));
 
+            checkTheme();
             loadSettings();
         });
     });

@@ -384,7 +384,7 @@ textarea::placeholder, .textbox::placeholder {
 .sub-section {
     background-color: #d0d0d022;
     padding: 10px;
-    box-shadow: inset 0px 0px 0px 2px var(--primary-color);
+    box-shadow: inset 0px 0px 0px 1px var(--primary-color);
 }
 
 .sub-section:nth-child(even) {
@@ -524,6 +524,11 @@ h3 {
 .section-selected {
     background-color: var(--on-primary-color);
     opacity: 1;
+}
+
+.section-domain {
+    margin-bottom: 30px;
+    box-shadow: 0px 0px 5px var(--primary-color);
 }
 
 .link {
