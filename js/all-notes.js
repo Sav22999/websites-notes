@@ -40,6 +40,8 @@ function loaded() {
     checkSyncLocal()
     setLanguageUI();
 
+    setTheme();
+
     browser.storage.local.get([
         "storage",
         "settings",
@@ -929,6 +931,129 @@ function checkTwoVersions(version1, version2) {
     }
 
     return valueToReturn;
+}
+
+/**
+ * Load the current theme for the page
+ */
+function setTheme() {
+    //before to set theme -> check if "Follow theme system" is enabled, otherwise use the default orange theme
+
+    sync_local.get("settings").then(result => {
+        let background;
+        let backgroundSection;
+        let primary;
+        let secondary;
+        let on_primary;
+        let on_secondary;
+
+        //TODO!TESTING remove "true" checks
+        if (true || result !== undefined && result["settings"] !== undefined && result["settings"]["theme"] !== undefined) {
+            if (true || result["settings"]["theme"] === "auto") {
+                browser.theme.getCurrent().then(theme => {
+                    //console.log(JSON.stringify(theme.colors));
+                    if (theme !== undefined && theme["colors"] !== undefined) {
+                        background = theme.colors.frame;
+                        backgroundSection = theme.colors.toolbar;
+                        primary = theme.colors.toolbar_text;
+                        secondary = theme.colors.toolbar_field;
+                        on_primary = theme.colors.toolbar;
+                        on_secondary = theme.colors.tab_background_text;
+                    }
+                });
+            } else if (result["settings"]["theme"] === "dark") {
+                //use the dark theme
+                background = "#000000";
+                backgroundSection = "#222222";
+                primary = "#d26d2f";
+                secondary = "#ffd8be";
+                on_primary = "#FFFFFF";
+                on_secondary = "#FFFFFF";
+            } else {
+                //use the default one if: undefined, light or other value (probably wrong)
+                background = "#FFFFFF";
+                backgroundSection = "#EEEEEE";
+                primary = "#FF6200";
+                secondary = "#FFB788";
+                on_primary = "#FFFFFF";
+                on_secondary = "#FFFFFF";
+            }
+        } else {
+            //use the default one
+            background = "#FFFFFF";
+            backgroundSection = "#EEEEEE";
+            primary = "#FF6200";
+            secondary = "#FFB788";
+            on_primary = "#FFFFFF";
+            on_secondary = "#FFFFFF";
+        }
+
+        if (background != undefined && backgroundSection != undefined && primary != undefined && secondary != undefined && on_primary != undefined && on_secondary != undefined) {
+            document.body.style.backgroundColor = background;
+            document.body.color = primary;
+            document.getElementById("all-notes-dedication-section").style.backgroundColor = backgroundSection;
+            //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
+            document.getElementById("all-notes-dedication-section").style.color = primary;
+            var open_external_svg = window.btoa(getIconSvgEncoded("open-external", primary));
+            var donate_svg = window.btoa(getIconSvgEncoded("donate", on_primary));
+            var settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
+            var import_svg = window.btoa(getIconSvgEncoded("import", on_primary));
+            var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
+            var delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
+            var delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
+            var copy_svg = window.btoa(getIconSvgEncoded("copy", on_primary));
+            var filter = window.btoa(getIconSvgEncoded("filter", on_primary));
+            var sort_by = window.btoa(getIconSvgEncoded("sort-by", on_primary));
+            var tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
+            var refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
+
+            document.head.innerHTML += `
+            <style>
+                :root {
+                    --primary-color: ${primary};
+                    --secondary-color: ${secondary};
+                    --on-primary-color: ${on_primary};
+                    --on-secondary-color: ${on_secondary};
+                }
+                .go-to-external:hover::after {
+                    content: url('data:image/svg+xml;base64,${open_external_svg}');
+                }
+                .donate-button {
+                    background-image: url('data:image/svg+xml;base64,${donate_svg}');
+                }
+                .settings-button {
+                    background-image: url('data:image/svg+xml;base64,${settings_svg}');
+                }
+                .import-button {
+                    background-image: url('data:image/svg+xml;base64,${import_svg}');
+                }
+                .export-button {
+                    background-image: url('data:image/svg+xml;base64,${export_svg}');
+                }
+                .clear-button {
+                    background-image: url('data:image/svg+xml;base64,${delete_svg}');
+                }
+                .clear2-button {
+                    background-image: url('data:image/svg+xml;base64,${delete2_svg}');
+                }
+                .copy-button {
+                    background-image: url('data:image/svg+xml;base64,${copy_svg}');
+                }
+                .filter-button {
+                    background-image: url('data:image/svg+xml;base64,${filter}');
+                }
+                .sort-by-button {
+                    background-image: url('data:image/svg+xml;base64,${sort_by}');
+                }
+                .tag-button {
+                    background-image: url('data:image/svg+xml;base64,${tag_svg}');
+                }
+                .refresh-button {
+                    background-image: url('data:image/svg+xml;base64,${refresh_svg}');
+                }
+            </style>`;
+        }
+    });
 }
 
 loaded();

@@ -10,9 +10,7 @@
 
 :root {
     --primary-color: #ff6200;
-    --hover-color: #ff873e;
     --secondary-color: #ffb788;
-    --tertiary-color: #ffccac;
     --on-primary-color: #ffffff;
     --on-secondary-color: #ffffff;
 }
@@ -49,7 +47,7 @@ body {
     padding: 0px;
     border: 0px solid transparent;
     position: relative;
-    background-color: #eeeeee;
+    background-color: #cccccc33;
     color: #000000;
 }
 
@@ -77,7 +75,7 @@ body {
     border-radius: 0px;
 }
 
-.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button {
+.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button {
     padding-left: 35px;
     padding-right: 10px;
     background-image: url("../img/delete.svg");
@@ -121,10 +119,11 @@ body {
     margin-right: 10px;
 
     background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
+    opacity: 0.8;
 }
 
 .select-box:hover {
-    background-color: var(--tertiary-color);
+    opacity: 1;
 }
 
 .save-button {
@@ -153,6 +152,10 @@ body {
 
 .tag-button {
     background-image: url("../img/tag.svg");
+}
+
+.sort-by-button {
+    background-image: url("../img/sort-by.svg");
 }
 
 .sort-by-button {
@@ -224,11 +227,13 @@ body {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
     color: var(--on-primary-color);
+    opacity: 0.8;
 }
 
 #tabs-section > .tab-sel:hover, .button:hover {
-    background-color: var(--hover-color);
-    border-color: var(--hover-color);
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    opacity: 1;
 }
 
 
@@ -246,8 +251,8 @@ body {
     height: 300px;
     border: 0px;
     border-radius: 5px;
-    background-color: #ffffff;
-    color: #000000;
+    background-color: var(--on-primary-color);
+    color: var(--primary-color);
     resize: none;
     margin: 0px;
     padding: 5px;
@@ -280,7 +285,7 @@ textarea::placeholder, .textbox::placeholder {
 }
 
 #all-notes-dedication-section, #settings-dedication-section {
-    background-color: #eeeeee;
+    background-color: #cccccc33;
     padding: 5px;
     width: 70%;
     height: 100%;
@@ -288,6 +293,7 @@ textarea::placeholder, .textbox::placeholder {
     margin-right: auto;
     border-radius: 0px;
     overflow: auto;
+    box-shadow: 0px 0px 5px var(--primary-color);
 }
 
 @media screen and (max-width: 2000px) {
@@ -319,7 +325,7 @@ textarea::placeholder, .textbox::placeholder {
 }
 
 .section, .sub-section, .section-empty {
-    background-color: #ffffff;
+    background-color: #ffffff55;
     padding: 5px;
     margin: 5px;
     border-radius: 5px;
@@ -358,16 +364,17 @@ textarea::placeholder, .textbox::placeholder {
 }
 
 .sub-section {
-    background-color: #eeeeee;
+    background-color: #d0d0d022;
     padding: 10px;
+    box-shadow: inset 0px 0px 0px 2px var(--primary-color);
 }
 
 .sub-section:nth-child(even) {
-    background-color: #d0d0d0;
+    background-color: #d0d0d022;
 }
 
 .background-light-red:nth-child(even) {
-    background-color: #ff8e8e;
+    background-color: #ff8e8e77;
 }
 
 .sub-section-type {
@@ -386,6 +393,7 @@ textarea::placeholder, .textbox::placeholder {
 
 .sub-section-notes {
     margin-top: 10px;
+    opacity: 1;
     /*
     padding: 10px;
     background-color: #e5e5e5;
@@ -393,7 +401,8 @@ textarea::placeholder, .textbox::placeholder {
 }
 
 .sub-section-notes:hover {
-    background-color: var(--tertiary-color);
+    opacity: 1;
+    box-shadow: inset 0px 0px 0px 3px var(--primary-color);
 }
 
 .sub-section-last-update {
@@ -495,7 +504,8 @@ h3 {
 }
 
 .section-selected {
-    background-color: var(--tertiary-color);
+    background-color: var(--on-primary-color);
+    opacity: 0.8;
 }
 
 .link {
@@ -576,7 +586,7 @@ h3 {
 
 
 .background-light-red {
-    background-color: #ff8e8e;
+    background-color: #ff8e8e99;
 }
 
 .tag-colour-none-bg {
