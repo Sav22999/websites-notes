@@ -386,6 +386,22 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var firefox_svg = window.btoa(getIconSvgEncoded("firefox", on_primary));
         var telegram_svg = window.btoa(getIconSvgEncoded("telegram", on_primary));
 
+        let tertiary = backgroundSection;
+        let tertiaryTransparent = primary;
+        if (tertiaryTransparent.includes("rgb(")) {
+            let rgb_temp = tertiaryTransparent.replace("rgb(", "");
+            let rgb_temp_arr = rgb_temp.split(",");
+            if (rgb_temp_arr.length >= 3) {
+                let red = rgb_temp_arr[0].replace(" ", "");
+                let green = rgb_temp_arr[1].replace(" ", "");
+                let blue = rgb_temp_arr[2].replace(")", "").replace(" ", "");
+                tertiaryTransparent = `rgba(${red}, ${green}, ${blue}, 0.2)`;
+            }
+        } else if (tertiaryTransparent.includes("#")) {
+            tertiaryTransparent += "22";
+        }
+        //console.log(tertiaryTransparent);
+
         document.head.innerHTML += `
             <style>
                 :root {
@@ -395,6 +411,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     --on-secondary-color: ${on_secondary};
                     --textbox-color: ${textbox_background};
                     --on-textbox-color: ${textbox_color};
+                    --tertiary: ${tertiary};
+                    --tertiary-transparent: ${tertiaryTransparent};
                 }
                 .save-button {
                     background-image: url('data:image/svg+xml;base64,${save_svg}');

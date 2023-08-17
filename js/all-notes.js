@@ -259,7 +259,7 @@ function loadDataFromBrowser(generate_section = true) {
         }
         if (generate_section) {
             websites_json_by_domain = {};
-            loadAllWebsites(true);
+            loadAllWebsites(true, "name-az");
         }
         //console.log(JSON.stringify(websites_json));
     });
@@ -604,7 +604,7 @@ function hideBackgroundOpacity() {
     document.getElementById("background-opacity").style.display = "none";
 }
 
-function loadAllWebsites(clear = false) {
+function loadAllWebsites(clear = false, sort_by = "name-az") {
     if (clear) {
         document.getElementById("all-website-sections").textContent = "";
     }
@@ -645,7 +645,7 @@ function loadAllWebsites(clear = false) {
         }
         //console.log(JSON.stringify(websites_json_by_domain));
 
-        websites_json_by_domain = sortOnKeys(websites_json_by_domain);
+        websites_json_by_domain = sortOnKeys(websites_json_by_domain, sort_by);
 
         for (let domain in websites_json_by_domain) {
             if (domain !== undefined && domain !== "undefined" && domain !== "") {
@@ -746,7 +746,7 @@ function search(value) {
             websites_json_to_show[website] = websites_json[website];
         }
     }
-    loadAllWebsites(true);
+    loadAllWebsites(true, "name-az");
 }
 
 function sortObjectByKeys(o) {
@@ -869,17 +869,49 @@ function isEmpty(obj) {
     return Object.keys(obj).length === 0
 }
 
-function sortOnKeys(dict) {
-    var sorted = [];
-    for (var key in dict) {
-        sorted[sorted.length] = key;
-    }
-    sorted.sort();
+/**
+ * Sort websites
+ * @param dict the dictionary to sort
+ * @param sort_by how to sort {name-az, name-za, date-09, date-90}
+ * @returns {{}} returns the dictionary (websites) sorted
+ */
+function sortOnKeys(dict, sort_by) {
+    let tempDict = dict;
 
-    var tempDict = {};
-    for (var i = 0; i < sorted.length; i++) {
-        tempDict[sorted[i]] = dict[sorted[i]];
+    //console.log(JSON.stringify(tempDict));
+    if (sort_by !== "name-az" && sort_by !== "name-za" && sort_by !== "date-09" && sort_by !== "date-90") sort_by = "name-az";
+    if (sort_by === "name-az") {
+        //Sort by name: from "A" to "Z"
+        tempDict = {};
+        var sorted = [];
+        for (var key in dict) {
+            sorted[sorted.length] = key;
+        }
+        sorted.sort();
+
+        for (let i = 0; i < sorted.length; i++) {
+            tempDict[sorted[i]] = dict[sorted[i]];
+        }
+    } else if (sort_by === "name-za") {
+        //Sort by name: from "Z" to "A"
+        tempDict = {};
+        var sorted = [];
+        for (var key in dict) {
+            sorted[sorted.length] = key;
+        }
+        sorted.sort().reverse();
+
+        for (let i = 0; i < sorted.length; i++) {
+            tempDict[sorted[i]] = dict[sorted[i]];
+        }
+    } else if (sort_by === "date-09") {
+        //Sort by updated date: from the newer to the oldest
+        //TODO -- for the same domain: get its MIN date, and sort by that
+    } else if (sort_by === "date-90") {
+        //Sort by updated date: from the oldest to the newer
+        //TODO -- for the same domain: get its MAX date, and sort by that
     }
+    //console.log(JSON.stringify(tempDict));
 
     return tempDict;
 }
@@ -941,6 +973,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         document.getElementById("all-notes-dedication-section").style.backgroundColor = backgroundSection;
         //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
         document.getElementById("all-notes-dedication-section").style.color = primary;
+        document.getElementById("export-sub-sections").style.cssText = 'opacity:1 !important';
+        document.getElementById("import-sub-sections").style.cssText = 'opacity:1 !important';
         var open_external_svg = window.btoa(getIconSvgEncoded("open-external", primary));
         var donate_svg = window.btoa(getIconSvgEncoded("donate", on_primary));
         var settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
@@ -954,6 +988,22 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         var refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
 
+        let tertiary = backgroundSection;
+        let tertiaryTransparent = primary;
+        if (tertiaryTransparent.includes("rgb(")) {
+            let rgb_temp = tertiaryTransparent.replace("rgb(", "");
+            let rgb_temp_arr = rgb_temp.split(",");
+            if (rgb_temp_arr.length >= 3) {
+                let red = rgb_temp_arr[0].replace(" ", "");
+                let green = rgb_temp_arr[1].replace(" ", "");
+                let blue = rgb_temp_arr[2].replace(")", "").replace(" ", "");
+                tertiaryTransparent = `rgba(${red}, ${green}, ${blue}, 0.2)`;
+            }
+        } else if (tertiaryTransparent.includes("#")) {
+            tertiaryTransparent += "22";
+        }
+        //console.log(tertiaryTransparent);
+
         document.head.innerHTML += `
             <style>
                 :root {
@@ -963,6 +1013,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     --on-secondary-color: ${on_secondary};
                     --textbox-color: ${textbox_background};
                     --on-textbox-color: ${textbox_color};
+                    --tertiary: ${tertiary};
+                    --tertiary-transparent: ${tertiaryTransparent};
                 }
                 .go-to-external:hover::after {
                     content: url('data:image/svg+xml;base64,${open_external_svg}');

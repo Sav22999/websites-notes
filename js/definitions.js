@@ -42,7 +42,7 @@ function checkTheme() {
         if (force_theme !== "" || result !== undefined && result["settings"] !== undefined && result["settings"]["theme"] !== undefined) {
             if (force_theme === "auto" || result["settings"] !== undefined && result["settings"]["theme"] && result["settings"]["theme"] === "auto") {
                 browser.theme.getCurrent().then(theme => {
-                    console.log(JSON.stringify(theme));
+                    //console.log(JSON.stringify(theme));
                     if (theme !== undefined && theme["colors"] !== undefined && theme["colors"] !== null) {
                         background = theme.colors.frame;
                         backgroundSection = theme.colors.toolbar;

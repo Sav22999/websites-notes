@@ -15,6 +15,8 @@
     --on-secondary-color: #ffffff;
     --textbox-color: #ffffff;
     --on-textbox-color: #ff6200;
+    --tertiary: #ffffffff;
+    --tertiary-transparent: #ffffff88;
 }
 
 
@@ -23,7 +25,7 @@
     box-sizing: border-box;
     font-family: open-sans, sans-serif;
     font-size: 16px;
-    transition: 0.5s;
+    transition: 0s;
     position: relative;
     z-index: 1;
     scrollbar-color: var(--primary-color) transparent;
@@ -342,10 +344,15 @@ textarea::placeholder, .textbox::placeholder {
 }
 
 .section, .sub-section, .section-empty {
-    background-color: #ffffff55;
+    background-color: var(--tertiary-transparent);
     padding: 5px;
     margin: 5px;
     border-radius: 5px;
+    opacity: 1;
+}
+
+#import-sub-sections, #export-sub-sections {
+    background-color: var(--tertiary);
 }
 
 .section-warning {
@@ -527,7 +534,6 @@ h3 {
 
 .section-domain {
     margin-bottom: 30px;
-    box-shadow: 0px 0px 5px var(--primary-color);
 }
 
 .link {
