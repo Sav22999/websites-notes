@@ -81,34 +81,6 @@ body {
     border-radius: 0px;
 }
 
-.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button {
-    padding-left: 35px;
-    padding-right: 10px;
-    background-image: url("../img/delete.svg");
-    background-size: auto 60%;
-    background-repeat: no-repeat;
-    background-position: 10px center;
-    color: #ffffff;
-    margin: 2px;
-}
-
-.button-trigger-sticky {
-    position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 30px !important;
-    height: 30px !important;
-    background-image: url("../img/sticky-open.svg");
-    background-size: auto 70%;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-color: #ff6200;
-    color: #ffffff;
-    margin: 2px;
-    z-index: 5;
-    border-radius: 5px;
-}
-
 .select-box {
     padding: 5px;
     color: var(--primary-color);
@@ -130,6 +102,35 @@ body {
 
 .select-box:hover {
     opacity: 1;
+}
+
+.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button {
+    padding-left: 35px;
+    padding-right: 10px;
+    background-image: url("../img/delete.svg");
+    background-size: auto 60%;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    color: #ffffff;
+    margin: 2px;
+    border: 0px solid var(--primary-color);
+}
+
+.button-trigger-sticky {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 30px !important;
+    height: 30px !important;
+    background-image: url("../img/sticky-open.svg");
+    background-size: auto 70%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: #ff6200;
+    color: #ffffff;
+    margin: 2px;
+    z-index: 5;
+    border-radius: 5px;
 }
 
 .save-button {
@@ -158,10 +159,6 @@ body {
 
 .tag-button {
     background-image: url("../img/tag.svg");
-}
-
-.sort-by-button {
-    background-image: url("../img/sort-by.svg");
 }
 
 .sort-by-button {

@@ -24,6 +24,8 @@ let show_conversion_message_attention = false;
 let sync_local;
 checkSyncLocal();
 
+let sort_by_selected = "name-az";
+
 function checkSyncLocal() {
     sync_local = browser.storage.local;
     browser.storage.local.get("storage").then(result => {
@@ -146,6 +148,12 @@ function loaded() {
         }
     }
 
+    document.getElementById("sort-by-all-notes-button").value = sort_by_selected;
+    document.getElementById("sort-by-all-notes-button").onchange = function () {
+        sort_by_selected = document.getElementById("sort-by-all-notes-button").value;
+        loadAllWebsites(true, sort_by_selected);
+    }
+
     setTimeout(function () {
         loadDataFromBrowser(true);
     }, 10);
@@ -184,6 +192,11 @@ function setLanguageUI() {
     document.getElementById("buy-me-a-coffee-button").value = all_strings["donate-button"];
     //document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
     document.getElementById("filter-all-notes-button").value = all_strings["filter-button"];
+    document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
+    document.getElementById("sort-by-name-az-select").textContent = all_strings["sort-by-az-button"];
+    document.getElementById("sort-by-name-za-select").textContent = all_strings["sort-by-za-button"];
+    document.getElementById("sort-by-date-09-select").textContent = all_strings["sort-by-edit-first-button"];
+    document.getElementById("sort-by-date-90-select").textContent = all_strings["sort-by-edit-last-button"];
     document.title = all_strings["all-notes-title-page"];
 
     document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
@@ -259,7 +272,7 @@ function loadDataFromBrowser(generate_section = true) {
         }
         if (generate_section) {
             websites_json_by_domain = {};
-            loadAllWebsites(true, "name-az");
+            loadAllWebsites(true, sort_by_selected);
         }
         //console.log(JSON.stringify(websites_json));
     });
@@ -645,7 +658,8 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
         }
         //console.log(JSON.stringify(websites_json_by_domain));
 
-        websites_json_by_domain = sortOnKeys(websites_json_by_domain, sort_by);
+        websites_json_by_domain = sortOnKeys(websites_json_by_domain, websites_json_to_show, sort_by);
+        //console.log(JSON.stringify(sortOnKeys(websites_json_by_domain, websites_json_to_show, "date-90")));
 
         for (let domain in websites_json_by_domain) {
             if (domain !== undefined && domain !== "undefined" && domain !== "") {
@@ -746,7 +760,7 @@ function search(value) {
             websites_json_to_show[website] = websites_json[website];
         }
     }
-    loadAllWebsites(true, "name-az");
+    loadAllWebsites(true, sort_by_selected);
 }
 
 function sortObjectByKeys(o) {
@@ -875,10 +889,14 @@ function isEmpty(obj) {
  * @param sort_by how to sort {name-az, name-za, date-09, date-90}
  * @returns {{}} returns the dictionary (websites) sorted
  */
-function sortOnKeys(dict, sort_by) {
-    let tempDict = dict;
+function sortOnKeys(dict, dict2, sort_by) {
+    //console.log(JSON.stringify(dict))
+    //console.log(JSON.stringify(dict2))
+
+    let tempDict = {};
 
     //console.log(JSON.stringify(tempDict));
+
     if (sort_by !== "name-az" && sort_by !== "name-za" && sort_by !== "date-09" && sort_by !== "date-90") sort_by = "name-az";
     if (sort_by === "name-az") {
         //Sort by name: from "A" to "Z"
@@ -907,9 +925,84 @@ function sortOnKeys(dict, sort_by) {
     } else if (sort_by === "date-09") {
         //Sort by updated date: from the newer to the oldest
         //TODO -- for the same domain: get its MIN date, and sort by that
+        let dictToSortDate = {};
+        for (let domain in dict) {
+            dictToSortDate[domain] = {};
+            dictToSortDate[domain]["last-update"] = null;
+            dictToSortDate[domain]["pages"] = [];
+            if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = dict2[domain]["last-update"];
+            for (let website in dict2) {
+                if (website.includes(domain)) {
+                    let date1 = new Date(dict2[website]["last-update"]);
+                    let date2 = new Date(dictToSortDate[domain]["last-update"]);
+                    if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 < date2) dictToSortDate[domain]["last-update"] = dict2[website]["last-update"];
+                }
+            }
+        }
+
+        const sortedEntries = Object.entries(dictToSortDate).sort(([, a], [, b]) => {
+            const dateA = new Date(a["last-update"]);
+            const dateB = new Date(b["last-update"]);
+            return dateA - dateB;
+        });
+
+
+        let temp2 = {};
+        var sorted = [];
+        for (var key in dict) {
+            sorted[sorted.length] = key;
+        }
+        sorted.sort();
+
+        for (let i = 0; i < sorted.length; i++) {
+            temp2[sorted[i]] = dict[sorted[i]];
+        }
+
+        let tempDict2 = Object.fromEntries(sortedEntries);
+
+        for (let temp in tempDict2) {
+            tempDict[temp] = temp2[temp];
+        }
     } else if (sort_by === "date-90") {
         //Sort by updated date: from the oldest to the newer
         //TODO -- for the same domain: get its MAX date, and sort by that
+        let dictToSortDate = {};
+        for (let domain in dict) {
+            dictToSortDate[domain] = {};
+            dictToSortDate[domain]["last-update"] = null;
+            dictToSortDate[domain]["pages"] = [];
+            if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = dict2[domain]["last-update"];
+            for (let website in dict2) {
+                if (website.includes(domain)) {
+                    let date1 = new Date(dict2[website]["last-update"]);
+                    let date2 = new Date(dictToSortDate[domain]["last-update"]);
+                    if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 > date2) dictToSortDate[domain]["last-update"] = dict2[website]["last-update"];
+                }
+            }
+        }
+
+        const sortedEntries = Object.entries(dictToSortDate).sort(([, a], [, b]) => {
+            const dateA = new Date(a["last-update"]);
+            const dateB = new Date(b["last-update"]);
+            return dateB - dateA;
+        });
+
+        let temp2 = {};
+        var sorted = [];
+        for (var key in dict) {
+            sorted[sorted.length] = key;
+        }
+        sorted.sort();
+
+        for (let i = 0; i < sorted.length; i++) {
+            temp2[sorted[i]] = dict[sorted[i]];
+        }
+
+        let tempDict2 = Object.fromEntries(sortedEntries);
+
+        for (let temp in tempDict2) {
+            tempDict[temp] = temp2[temp];
+        }
     }
     //console.log(JSON.stringify(tempDict));
 
@@ -987,6 +1080,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var sort_by = window.btoa(getIconSvgEncoded("sort-by", on_primary));
         var tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         var refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
+        var sort_by_svg = window.btoa(getIconSvgEncoded("sort-by", on_primary));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
@@ -1051,6 +1145,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .refresh-button {
                     background-image: url('data:image/svg+xml;base64,${refresh_svg}');
+                }
+                .sort-by-button {
+                    background-image: url('data:image/svg+xml;base64,${sort_by_svg}');
                 }
             </style>`;
     }

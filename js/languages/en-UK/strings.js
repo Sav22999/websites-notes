@@ -65,8 +65,8 @@ strings[lang] = {
     "sort-by-button": "Sort by…",
     "sort-by-az-button": "Name: A-Z", //from website "a" to "z"
     "sort-by-za-button": "Name: Z-A", //from website "z" to "a"
-    "sort-by-edit-last-button": "Last update: Newest to Oldest", //from the last to the first
-    "sort-by-edit-first-button": "Last update: Oldest to Newest", //from the first to the last
+    "sort-by-edit-last-button": "Last update: Newest to Oldest", //from the last to the first -> date-90
+    "sort-by-edit-first-button": "Last update: Oldest to Newest", //from the first to the last -> date-09
     "filter-button": "Filter…",
     "filter-sort-by-not-selected": "Not selected",
     "filter-by-tag-button": "Tag: {{color}}",
