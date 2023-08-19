@@ -19,6 +19,7 @@ strings[lang] = {
     "last-update-text": "Last update: {{date_time}}",
     "page-label": "Page",
     "domain-label": "Domain",
+    "global-label": "Global",
     "see-all-notes-button": "See all notes",
     "clear-all-notes-confirmation": "Are you sure you want to clear all notes?\nYou can't cancel this process once started.",
     "clear-all-notes-domain-confirmation": "Are you sure you want to clear all notes of this domain (its pages notes as well)?\nYou can't cancel this process once started.",

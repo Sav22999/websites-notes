@@ -1,7 +1,7 @@
 let settings_json = {
-    "open-default": "domain",
-    "consider-parameters": "yes",
-    "consider-sections": "yes",
+    "open-default": "page",
+    "consider-parameters": "no",
+    "consider-sections": "no",
     "open-popup-default": "Ctrl+Alt+O",
     "open-popup-domain": "Ctrl+Alt+D",
     "open-popup-page": "Ctrl+Alt+P",
@@ -153,16 +153,16 @@ function loadSettings() {
             settings_json = {};
             if (value["settings"] !== undefined) {
                 settings_json = value["settings"];
-                if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
-                if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "yes";
-                if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "yes";
+                if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
+                if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
+                if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
                 if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
                 if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
                 if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
                 if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
             } else {
                 //settings undefined
-                settings_json["open-default"] = "domain";
+                settings_json["open-default"] = "page";
                 settings_json["consider-parameters"] = "no";
                 settings_json["consider-sections"] = "no";
                 settings_json["open-popup-default"] = "Ctrl+Alt+O";
@@ -208,6 +208,7 @@ function loadSettings() {
                 let commandName = "_execute_browser_action";
                 if (value === "domain") commandName = "opened-by-domain";
                 else if (value === "page") commandName = "opened-by-page";
+                else if (value === "global") commandName = "opened-by-global";
 
                 document.getElementById("key-shortcut-ctrl-alt-shift-" + value + "-selected").onchange = function () {
                     settings_json["open-popup-" + value] = document.getElementById("key-shortcut-ctrl-alt-shift-" + value + "-selected").value + "+" + document.getElementById("key-shortcut-" + value + "-selected").value;
@@ -235,6 +236,7 @@ function saveSettings() {
                 let commandName = "_execute_browser_action";
                 if (value === "domain") commandName = "opened-by-domain";
                 else if (value === "page") commandName = "opened-by-page";
+                else if (value === "global") commandName = "opened-by-global";
 
                 updateShortcut(commandName, settings_json["open-popup-" + value]);
             });

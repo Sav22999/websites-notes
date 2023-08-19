@@ -685,23 +685,26 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
                 let section = document.createElement("div");
                 section.classList.add("section", "section-domain");
 
-                let input_clear_all_notes_domain = document.createElement("input");
-                input_clear_all_notes_domain.type = "button";
-                input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
-                input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button");
-                input_clear_all_notes_domain.onclick = function () {
-                    clearAllNotesDomain(domain);
-                }
+                console.log(domain);
 
-                let h2 = document.createElement("h2");
-                h2.textContent = domain;
-                h2.classList.add("link", "go-to-external");
-                h2.onclick = function () {
-                    browser.tabs.create({url: domain});
-                }
+                if (domain !== "**global") {
+                    let input_clear_all_notes_domain = document.createElement("input");
+                    input_clear_all_notes_domain.type = "button";
+                    input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
+                    input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button");
+                    input_clear_all_notes_domain.onclick = function () {
+                        clearAllNotesDomain(domain);
+                    }
+                    section.append(input_clear_all_notes_domain);
 
-                section.append(input_clear_all_notes_domain);
-                section.append(h2);
+                    let h2 = document.createElement("h2");
+                    h2.textContent = domain;
+                    h2.classList.add("link", "go-to-external");
+                    h2.onclick = function () {
+                        browser.tabs.create({url: domain});
+                    }
+                    section.append(h2);
+                }
 
                 let all_pages = document.createElement("div");
 
@@ -715,30 +718,33 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
                     page.classList.add("sub-section");
                     let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
                     let notes = websites_json_to_show[urlPageDomain]["notes"];
-                    page = generateNotes(page, urlPageDomain, notes, lastUpdate, all_strings["domain-label"], urlPageDomain);
+                    let type_to_use = all_strings["domain-label"];
+                    if (domain === "**global") type_to_use = all_strings["global-label"];
+                    page = generateNotes(page, urlPageDomain, notes, lastUpdate, type_to_use, urlPageDomain);
 
                     all_pages.append(page);
                     pages_added++;
                 }
 
+                if (domain !== "**global") {
+                    for (let index = 0; index < websites_json_by_domain[domain].length; index++) {
+                        let urlPage = websites_json_by_domain[domain][index];
+                        let urlPageDomain = domain + websites_json_by_domain[domain][index];
+                        if (websites_json_to_show[urlPageDomain] !== undefined) {
+                            let page = document.createElement("div");
+                            page.classList.add("sub-section");
 
-                for (let index = 0; index < websites_json_by_domain[domain].length; index++) {
-                    let urlPage = websites_json_by_domain[domain][index];
-                    let urlPageDomain = domain + websites_json_by_domain[domain][index];
-                    if (websites_json_to_show[urlPageDomain] !== undefined) {
-                        let page = document.createElement("div");
-                        page.classList.add("sub-section");
+                            // console.log(urlPageDomain);
+                            // console.log(websites_json_by_domain);
+                            // console.log(websites_json_to_show);
+                            let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
+                            let notes = websites_json_to_show[urlPageDomain]["notes"];
 
-                        // console.log(urlPageDomain);
-                        // console.log(websites_json_by_domain);
-                        // console.log(websites_json_to_show);
-                        let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
-                        let notes = websites_json_to_show[urlPageDomain]["notes"];
+                            page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["page-label"], urlPageDomain);
 
-                        page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["page-label"], urlPageDomain);
-
-                        all_pages.append(page);
-                        pages_added++;
+                            all_pages.append(page);
+                            pages_added++;
+                        }
                     }
                 }
 
@@ -838,7 +844,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     page.append(inputCopyNotes);
     page.append(tagsColour);
 
-    if (type.toLowerCase() !== "domain") {
+    if (type.toLowerCase() !== "domain" && type.toLowerCase() !== "global") {
         let pageUrl = document.createElement("h3");
         pageUrl.classList.add("link", "go-to-external");
         pageUrl.textContent = url;
