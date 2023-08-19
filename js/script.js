@@ -258,7 +258,7 @@ function saveNotes() {
                 */
 
                 if (stickyNotesSupported) {
-                    if (never_saved || selected_tab === 0) {
+                    if (never_saved) {
                         document.getElementById("open-sticky-button").classList.add("hidden");
                     } else {
                         if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
@@ -359,7 +359,7 @@ function isUrlSupported(url) {
     }
     stickyNotesSupported = valueToReturn;
     //additional checks for sticky
-    console.log(url)
+    //console.log(url)
     if (urls_unsupported_by_sticky_notes.includes(getDomainUrl(url).replace(getTheProtocol(url), "").replace("://", ""))) {
         stickyNotesSupported = false;
     }
@@ -418,7 +418,7 @@ function setTab(index, url) {
     document.getElementById("notes").focus();
 
     if (stickyNotesSupported) {
-        if (never_saved || selected_tab === 0) {
+        if (never_saved) {
             document.getElementById("open-sticky-button").classList.add("hidden");
         } else {
             if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
@@ -429,7 +429,7 @@ function setTab(index, url) {
 }
 
 function openStickyNotes() {
-    if (stickyNotesSupported && selected_tab !== 0) browser.runtime.sendMessage({
+    if (stickyNotesSupported) browser.runtime.sendMessage({
         "open-sticky": {
             open: true,
             type: selected_tab

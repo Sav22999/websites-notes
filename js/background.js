@@ -14,6 +14,8 @@ var opacity = {value: 0.7};
 
 let opening_sticky = false;
 
+let page_domain_global = {"page": "Page", "domain": "Domain", "global": "Global"};
+
 let sync_local;
 checkSyncLocal();
 
@@ -276,6 +278,7 @@ function listenerStickyNotes() {
                 }
                 if (message.ask === "notes") {
                     let url_to_use = getTheCorrectUrl();
+                    let page_domain_global_to_use = getTypeToShow(url_to_use);
                     if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["notes"] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) {
                         sendResponse({
                             notes: {
@@ -283,6 +286,7 @@ function listenerStickyNotes() {
                                 url: url_to_use,
                                 tag_colour: websites_json[url_to_use]["tag-colour"],
                                 website: websites_json[url_to_use],
+                                page_domain_global: page_domain_global_to_use,
                                 sticky_params: {
                                     coords: {x: coords.x, y: coords.y},
                                     sizes: {w: sizes.w, h: sizes.h},
@@ -313,6 +317,32 @@ function listenerStickyNotes() {
             }
         }
     });
+}
+
+/**
+ * Get "Page" or "Domain" or "Global" (translated!)
+ */
+function getTypeToShow(url) {
+    let valueToReturn = "";
+    if (url === "**global") {
+        //global
+        valueToReturn = page_domain_global.global;
+    } else if (isAPage(url)) {
+        //page
+        valueToReturn = page_domain_global.page;
+    } else {
+        //domain
+        valueToReturn = page_domain_global.domain;
+    }
+    return valueToReturn;
+}
+
+/**
+ * @param url the url which you want to check if it's a page or not
+ * @returns {boolean} returns true if it's a page OR global, otherwise returns false
+ */
+function isAPage(url) {
+    return (url.replace("http://", "").replace("https://", "").split("/").length > 1);
 }
 
 /**

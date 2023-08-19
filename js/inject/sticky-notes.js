@@ -9,9 +9,9 @@ function load() {
         openMinimized();
     } else {
         //no sticky-noes no minimized are present, so it's necessary understand what function to call
-        browser.runtime.sendMessage({from: "sticky", ask: "sticky-minimized"}, (response) => {
-            //console.log(response);
-            if (response === undefined || response.sticky && !response.minimized || !response.sticky && !response.minimized || !response.sticky && response.minimized) {
+        browser.runtime.sendMessage({from: "sticky", ask: "sticky-minimized"}, (responseRuntime) => {
+            //console.log(responseRuntime);
+            if (responseRuntime === undefined || responseRuntime.sticky && !responseRuntime.minimized || !responseRuntime.sticky && !responseRuntime.minimized || !responseRuntime.sticky && responseRuntime.minimized) {
                 //create new
                 browser.runtime.sendMessage({from: "sticky", ask: "coords-sizes-opacity"}, (response) => {
                     let x = "20px";
@@ -50,7 +50,7 @@ function load() {
 function createNewDescription(x, y, w, h, opacity) {
     browser.runtime.sendMessage({from: "sticky", ask: "notes"}, (response) => {
         if (response !== undefined) {
-            let notes = {description: "", url: "", tag_colour: "", website: {}, type: "page"};
+            let notes = {description: "", url: "", page_domain_global: "", tag_colour: "", website: {}, type: "page"};
             //console.log("get3 || " + JSON.stringify(response.websites));
             let description = "";
             if (response.notes !== undefined && response.notes.description !== undefined) {
@@ -68,8 +68,12 @@ function createNewDescription(x, y, w, h, opacity) {
             if (response.notes !== undefined && response.notes.type !== undefined) {
                 notes.type = response.notes.type;
             }
-
+            if (response.notes !== undefined && response.notes.page_domain_global !== undefined) {
+                notes.page_domain_global = response.notes.page_domain_global;
+            }
             createNew(notes, x, y, w, h, opacity, response.websites);
+        } else {
+            console.error(`Response undefined!`);
         }
     });
 }
@@ -119,13 +123,19 @@ function updateStickyNotes() {
                 }
 
                 let pageOrDomain = document.getElementById("page-or-domain--sticky-notes-notefox-addon");
-                if (response.notes !== undefined && response.notes.url !== undefined && isAPage(response.notes.url)) {
+                /*if (response.notes !== undefined && response.notes.url !== undefined && response.notes.url === "**global") {
+                    //the current url one is a "Global"
+                    pageOrDomain.innerText = "Global";
+                } else if (response.notes !== undefined && response.notes.url !== undefined && isAPage(response.notes.url)) {
                     //the current url one is a "Page"
                     pageOrDomain.innerText = "Page";
                 } else {
                     //the current url one is a "Domain"
                     pageOrDomain.innerText = "Domain";
-                }
+                }*/
+                let pageDomainGlobalToUse = response.notes.page_domain_global;
+                if (pageDomainGlobalToUse === undefined) pageDomainGlobalToUse = "";
+                pageOrDomain.innerText = pageDomainGlobalToUse;
 
                 //(re)set events
                 close.onclick = function () {
@@ -230,13 +240,19 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         let pageOrDomain = document.createElement("div");
         pageOrDomain.id = "page-or-domain--sticky-notes-notefox-addon";
 
-        if (isAPage(notes.url)) {
+        /*if (notes.url === "**global") {
+            //the current url one is a "Global"
+            pageOrDomain.innerText = "Global";
+        } else if (isAPage(notes.url)) {
             //the current url one is a "Page"
             pageOrDomain.innerText = "Page";
         } else {
             //the current url one is a "Domain"
             pageOrDomain.innerText = "Domain";
-        }
+        }*/
+        let pageDomainGlobalToUse = notes.page_domain_global;
+        if (pageDomainGlobalToUse === undefined) pageDomainGlobalToUse = "";
+        pageOrDomain.innerText = pageDomainGlobalToUse;
         stickyNote.appendChild(pageOrDomain);
 
         let isDragging = false;
@@ -631,10 +647,6 @@ function checkCorrectNumber(number, otherwise) {
 
 function getInteger(number) {
     return parseInt(number.toString().replace("px", ""));
-}
-
-function closeStickyAndOpenMinimized() {
-
 }
 
 function openMinimized() {
