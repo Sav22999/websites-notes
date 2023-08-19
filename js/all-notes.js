@@ -25,6 +25,7 @@ let sync_local;
 checkSyncLocal();
 
 let sort_by_selected = "name-az";
+let filters = [];
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;
@@ -206,7 +207,6 @@ function setLanguageUI() {
     document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
     document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
 
-    let colourList = colourListDefault;
     let redFilterButton = document.getElementById("filter-tag-red-button");
     let yellowFilterButton = document.getElementById("filter-tag-yellow-button");
     let blackFilterButton = document.getElementById("filter-tag-black-button");
@@ -217,50 +217,65 @@ function setLanguageUI() {
     let greenFilterButton = document.getElementById("filter-tag-green-button");
     let blueFilterButton = document.getElementById("filter-tag-blue-button");
     let whiteFilterButton = document.getElementById("filter-tag-white-button");
+    let noneFilterButton = document.getElementById("filter-tag-none-button");
     redFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["red-colour"]);
     redFilterButton.onclick = function () {
-        search("red");
+        //search("red");
+        filterByColor("red", redFilterButton);
     };
     yellowFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["yellow-colour"]);
     yellowFilterButton.onclick = function () {
-        search("yellow");
+        filterByColor("yellow", yellowFilterButton);
     };
     blackFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["black-colour"]);
     blackFilterButton.onclick = function () {
-        search("black");
+        filterByColor("black", blackFilterButton);
     };
     orangeFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["orange-colour"]);
     orangeFilterButton.onclick = function () {
-        search("orange");
+        filterByColor("orange", orangeFilterButton);
     };
     pinkFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["pink-colour"]);
     pinkFilterButton.onclick = function () {
-        search("pink");
+        filterByColor("pink", pinkFilterButton);
     };
     purpleFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["purple-colour"]);
     purpleFilterButton.onclick = function () {
-        search("purple");
+        filterByColor("purple", purpleFilterButton);
     };
     grayFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["grey-colour"]);
     grayFilterButton.onclick = function () {
-        search("gray");
-    };
-    redFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["red-colour"]);
-    redFilterButton.onclick = function () {
-        search("red");
+        filterByColor("gray", grayFilterButton);
     };
     greenFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["green-colour"]);
     greenFilterButton.onclick = function () {
-        search("green");
+        filterByColor("green", greenFilterButton);
     };
     blueFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["blue-colour"]);
     blueFilterButton.onclick = function () {
-        search("blue");
+        filterByColor("blue", blueFilterButton);
     };
     whiteFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["white-colour"]);
     whiteFilterButton.onclick = function () {
-        search("white");
+        filterByColor("white", whiteFilterButton);
     };
+    noneFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["none-colour"]);
+    noneFilterButton.onclick = function () {
+        filterByColor("none", noneFilterButton);
+    };
+}
+
+function filterByColor(color, tagButton) {
+    if (filters.indexOf(color) !== -1) {
+        //present: remove red
+        filters.splice(filters.indexOf(color), 1);
+        tagButton.classList.remove("button-sel");
+    } else {
+        //not present: add red
+        filters.push(color);
+        tagButton.classList.add("button-sel");
+    }
+    search("");
 }
 
 function loadDataFromBrowser(generate_section = true) {
@@ -750,13 +765,13 @@ function applyFilter() {
     }
 }
 
-function search(value) {
+function search(value = "") {
     websites_json_to_show = {};
     document.getElementById("search-all-notes-text").value = value.toString();
     let valueToUse = value.toLowerCase();
     for (const website in websites_json) {
         let current_website_json = websites_json[website];
-        if (current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["tag-colour"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse)) {
+        if ((current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse)) && (filters.indexOf(current_website_json["tag-colour"].toLowerCase()) !== -1 || filters.length === 0)) {
             websites_json_to_show[website] = websites_json[website];
         }
     }

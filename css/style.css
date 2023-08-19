@@ -111,7 +111,7 @@ body {
     background-size: auto 60%;
     background-repeat: no-repeat;
     background-position: 10px center;
-    color: #ffffff;
+    color: var(--on-primary-color);
     margin: 2px;
     border: 0px solid var(--primary-color);
 }
@@ -239,8 +239,8 @@ body {
 }
 
 #tabs-section > .tab-sel:hover, .button:hover {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    /*background-color: var(--primary-color);*/
+    /*border-color: var(--primary-color);*/
     opacity: 1;
 }
 
@@ -592,17 +592,20 @@ h3 {
 .tag-colour-left {
     border: 0px solid transparent;
     border-left-width: 15px;
-    border-style: solid;
 }
 
 .tag-colour-top {
     border: 0px solid transparent;
     border-top-width: 10px;
-    border-style: solid;
 }
 
 .filter-button-tag {
     margin: 2px;
+}
+
+.button-sel {
+    background-color: var(--on-primary-color);
+    color: var(--primary-color);
 }
 
 .tag-colour-none {
