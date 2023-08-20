@@ -674,14 +674,14 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
 
         for (let domain in websites_json_to_show) {
             if (websites_json_to_show[domain]["type"] === undefined) {
-                websites_json_to_show[domain]["type"] = 0;
+                websites_json_to_show[domain]["type"] = 1;
                 websites_json_to_show[domain]["domain"] = "";
                 websites_json_to_show[domain]["tag-colour"] = "none";
             }
 
 
-            if (websites_json_to_show[domain]["type"] === 0) {
-                //domain
+            if (websites_json_to_show[domain]["type"] === 0 || websites_json_to_show[domain]["type"] === 1) {
+                //global (0) or domain (1)
                 if (websites_json_by_domain[domain] === undefined) {
                     websites_json_by_domain[domain] = [];
                 }
@@ -748,12 +748,18 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
                     page.classList.add("sub-section");
                     let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
                     let notes = websites_json_to_show[urlPageDomain]["notes"];
-                    let type_to_use = all_strings["domain-label"];
-                    if (domain === "**global") type_to_use = all_strings["global-label"];
-                    page = generateNotes(page, urlPageDomain, notes, lastUpdate, type_to_use, urlPageDomain);
+                    let type_to_show = all_strings["domain-label"];
+                    let type_to_use = "domain";
+                    if (domain === "**global") {
+                        type_to_show = all_strings["global-label"];
+                        type_to_use = "global";
+                    }
+                    page = generateNotes(page, urlPageDomain, notes, lastUpdate, type_to_show, urlPageDomain, type_to_use, true);
 
-                    all_pages.append(page);
-                    pages_added++;
+                    if (page !== -1) {
+                        all_pages.append(page);
+                        pages_added++;
+                    }
                 }
 
                 if (domain !== "**global") {
@@ -770,10 +776,12 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
                             let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
                             let notes = websites_json_to_show[urlPageDomain]["notes"];
 
-                            page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["page-label"], urlPageDomain);
+                            page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["page-label"], urlPageDomain, "page", false);
 
-                            all_pages.append(page);
-                            pages_added++;
+                            if (page !== -1) {
+                                all_pages.append(page);
+                                pages_added++;
+                            }
                         }
                     }
                 }
@@ -802,6 +810,7 @@ function applyFilter() {
 }
 
 function search(value = "") {
+    //console.log(JSON.stringify(websites_json_to_show))
     websites_json_to_show = {};
     document.getElementById("search-all-notes-text").value = value.toString();
     let valueToUse = value.toLowerCase();
@@ -809,6 +818,7 @@ function search(value = "") {
         let current_website_json = websites_json[website];
         let condition_tag_color = filtersColors.indexOf(current_website_json["tag-colour"].toLowerCase()) !== -1 || filtersColors.length === 0;
         let condition_type = filtersTypes.indexOf(getType(websites_json[website], website)) !== -1 || filtersTypes.length === 0;
+        //if (condition_type) console.log(getType(websites_json[website], website) + "   " + JSON.stringify(websites_json[website]))
         if ((current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse)) && condition_tag_color && condition_type) {
             websites_json_to_show[website] = websites_json[website];
         }
@@ -830,7 +840,7 @@ function sortObjectByKeys(o) {
     return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
 }
 
-function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
+function generateNotes(page, url, notes, lastUpdate, type, fullUrl, type_to_use, domain_again) {
     let pageType = document.createElement("div");
     pageType.classList.add("sub-section-type");
     pageType.textContent = type;
@@ -877,7 +887,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
         tagsColour.append(tagColour);
     }
     tagsColour.onchange = function () {
-        changeTagColour(page, fullUrl, tagsColour.value);
+        changeTagColour(fullUrl, tagsColour.value, type_to_use);
     }
 
     page.id = fullUrl;
@@ -886,7 +896,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     page.append(inputCopyNotes);
     page.append(tagsColour);
 
-    if (type.toLowerCase() !== "domain" && type.toLowerCase() !== "global") {
+    if (type_to_use.toLowerCase() !== "domain" && type_to_use.toLowerCase() !== "global") {
         let pageUrl = document.createElement("h3");
         pageUrl.classList.add("link", "go-to-external");
         pageUrl.textContent = url;
@@ -917,12 +927,13 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     return page;
 }
 
-function changeTagColour(page, url, colour) {
+function changeTagColour(url, colour) {
     sync_local.get("websites", function (value) {
         websites_json = {};
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
         }
+        //console.log(`url ${url}`);
         websites_json[url]["tag-colour"] = colour;
         websites_json_to_show = websites_json;
         sync_local.set({"websites": websites_json}, function () {
@@ -930,8 +941,8 @@ function changeTagColour(page, url, colour) {
             hideBackgroundOpacity();
             applyFilter();
             setTimeout(function () {
-                search(document.getElementById("search-all-notes-text").value);
-            }, 50);
+                search("");
+            }, 5000);
         });
     });
 }

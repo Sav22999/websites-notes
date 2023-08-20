@@ -219,11 +219,14 @@ function saveNotes() {
         if (websites_json[currentUrl[selected_tab]]["minimized"] === undefined) {
             websites_json[currentUrl[selected_tab]]["minimized"] = false;
         }
-        if (selected_tab === 0) {
+        if (selected_tab === 0 || document.getElementById("tabs-section").classList.contains("hidden")) {
             websites_json[currentUrl[selected_tab]]["type"] = 0;
             websites_json[currentUrl[selected_tab]]["domain"] = "";
-        } else {
+        } else if (selected_tab === 1) {
             websites_json[currentUrl[selected_tab]]["type"] = 1;
+            websites_json[currentUrl[selected_tab]]["domain"] = "";
+        } else {
+            websites_json[currentUrl[selected_tab]]["type"] = 2;
             websites_json[currentUrl[selected_tab]]["domain"] = currentUrl[1];
         }
         if (notes === "") {
