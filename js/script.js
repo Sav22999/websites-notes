@@ -121,6 +121,8 @@ function loadUI() {
                     //console.log("websites: "+JSON.stringify(value));
                     let default_index = 2;
                     if (settings_json["open-default"] === "page") default_index = 2;
+                    else if (settings_json["open-default"] === "domain") default_index = 1;
+                    else if (settings_json["open-default"] === "global") default_index = 0;
                     if (value["websites"] !== undefined) {
                         websites_json = value["websites"];
                         let check_for_domain = websites_json[currentUrl[1]] !== undefined && websites_json[currentUrl[1]]["last-update"] !== undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] !== undefined && websites_json[currentUrl[1]]["notes"] !== "";

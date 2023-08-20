@@ -71,6 +71,7 @@ strings[lang] = {
     "filter-button": "Filter…",
     "filter-sort-by-not-selected": "Not selected",
     "filter-by-tag-button": "Tag: {{color}}",
+    "filter-by-type-button": "Type: {{type}}",
     "filter-by-domain-button": "Domain",
     "filter-by-pages-button": "Pages",
     "settings-button": "Settings",

@@ -25,7 +25,8 @@ let sync_local;
 checkSyncLocal();
 
 let sort_by_selected = "name-az";
-let filters = [];
+let filtersColors = [];
+let filtersTypes = [];
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;
@@ -218,6 +219,9 @@ function setLanguageUI() {
     let blueFilterButton = document.getElementById("filter-tag-blue-button");
     let whiteFilterButton = document.getElementById("filter-tag-white-button");
     let noneFilterButton = document.getElementById("filter-tag-none-button");
+    let globalFilterButton = document.getElementById("filter-type-global-button");
+    let domainFilterButton = document.getElementById("filter-type-domain-button");
+    let pageFilterButton = document.getElementById("filter-type-page-button");
     redFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["red-colour"]);
     redFilterButton.onclick = function () {
         //search("red");
@@ -263,16 +267,41 @@ function setLanguageUI() {
     noneFilterButton.onclick = function () {
         filterByColor("none", noneFilterButton);
     };
+    globalFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["global-label"]);
+    globalFilterButton.onclick = function () {
+        filterByType("global", globalFilterButton);
+    };
+    domainFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["domain-label"]);
+    domainFilterButton.onclick = function () {
+        filterByType("domain", domainFilterButton);
+    };
+    pageFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["page-label"]);
+    pageFilterButton.onclick = function () {
+        filterByType("page", pageFilterButton);
+    };
 }
 
 function filterByColor(color, tagButton) {
-    if (filters.indexOf(color) !== -1) {
+    if (filtersColors.indexOf(color) !== -1) {
         //present: remove red
-        filters.splice(filters.indexOf(color), 1);
+        filtersColors.splice(filtersColors.indexOf(color), 1);
         tagButton.classList.remove("button-sel");
     } else {
         //not present: add red
-        filters.push(color);
+        filtersColors.push(color);
+        tagButton.classList.add("button-sel");
+    }
+    search("");
+}
+
+function filterByType(type, tagButton) {
+    if (filtersTypes.indexOf(type) !== -1) {
+        //present: remove red
+        filtersTypes.splice(filtersTypes.indexOf(type), 1);
+        tagButton.classList.remove("button-sel");
+    } else {
+        //not present: add red
+        filtersTypes.push(type);
         tagButton.classList.add("button-sel");
     }
     search("");
@@ -685,7 +714,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
                 let section = document.createElement("div");
                 section.classList.add("section", "section-domain");
 
-                console.log(domain);
+                //console.log(domain);
 
                 if (domain !== "**global") {
                     let input_clear_all_notes_domain = document.createElement("input");
@@ -777,11 +806,23 @@ function search(value = "") {
     let valueToUse = value.toLowerCase();
     for (const website in websites_json) {
         let current_website_json = websites_json[website];
-        if ((current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse)) && (filters.indexOf(current_website_json["tag-colour"].toLowerCase()) !== -1 || filters.length === 0)) {
+        let condition_tag_color = filtersColors.indexOf(current_website_json["tag-colour"].toLowerCase()) !== -1 || filtersColors.length === 0;
+        let condition_type = filtersTypes.indexOf(getType(websites_json[website], website)) !== -1 || filtersTypes.length === 0;
+        if ((current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse)) && condition_tag_color && condition_type) {
             websites_json_to_show[website] = websites_json[website];
         }
     }
     loadAllWebsites(true, sort_by_selected);
+}
+
+function getType(website, url) {
+    let valueToReturn = "";
+    if (website !== undefined && website["domain"] !== undefined && url !== undefined) {
+        if (url === "**global") valueToReturn = "global";
+        else if (website["domain"] !== "") valueToReturn = "page";
+        else valueToReturn = "domain";
+    }
+    return valueToReturn;
 }
 
 function sortObjectByKeys(o) {
