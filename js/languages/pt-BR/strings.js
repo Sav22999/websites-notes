@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Última atualização: {{date_time}}',
     'page-label': 'Página',
     'domain-label': 'Domínio',
+    'global-label': 'Global',
     'see-all-notes-button': 'Ver todas as notas',
     'clear-all-notes-confirmation': 'Tem certeza que deseja limpar todas as notas?\nVocê não poderá cancelar esse processo depois de iniciado.',
     'clear-all-notes-domain-confirmation': 'Você tem certeza que deseja limpar todas as notas deste domínio (suas notas de páginas)?\nVocê não poderá cancelar este processo depois de iniciado.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Nome: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Última atualização: mais recente para a mais antiga',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Última atualização: mais antiga para a mais recente',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Filtrar…',
     'filter-sort-by-not-selected': 'Não selecionado',
     'filter-by-tag-button': 'Etiqueta: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Domínio',
     'filter-by-pages-button': 'páginas',
     'settings-button': 'Confirgurações',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'ALT + Shift',
     'label-alt-shift-mac': 'Opção 「+ Mudança de Ritmo',
     'disable-sync-settings-message': 'Devido a alguma limitação de espaço com sincronização, eu recomendo que você desativar os dados sincronizados nesta página. Caso contrário, o complemento não deve mais funcionar corretamente!<br>Para fazer isso, encontre {{property1}} e defina como {{property2}}.',
-    'disable-sync-message': 'Devido a alguma limitação de espaço com sincronização, eu recomendo que você desativar os dados sincronizados nesta página. Caso contrário, o complemento não deverá funcionar adequadamente!<br>Para fazer isso, nas Configurações do complemento encontre  {{property1}} e configure para {{property2}}.'
+    'disable-sync-message': 'Devido a alguma limitação de espaço com sincronização, eu recomendo que você desativar os dados sincronizados nesta página. Caso contrário, o complemento não deverá funcionar adequadamente!<br>Para fazer isso, nas Configurações do complemento encontre  {{property1}} e configure para {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Fino',
+    'theme-choose-dark-select': 'Escuro',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

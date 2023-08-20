@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Ostatnia aktualizacja: {{date_time}}',
     'page-label': 'Strona',
     'domain-label': 'Domena',
+    'global-label': 'Global',
     'see-all-notes-button': 'Zobacz wszystkie notatki',
     'clear-all-notes-confirmation': 'Czy na pewno chcesz wyczyścić wszystkie uwagi?\nNie możesz anulować tego procesu po jego uruchomieniu.',
     'clear-all-notes-domain-confirmation': 'Czy na pewno chcesz wyczyścić wszystkie notatki z tej domeny (także notatki z jej strony)?\nNie możesz anulować tego procesu po jego uruchomieniu.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Nazwa: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Ostatnia aktualizacja: Najnowsze do najstarszych',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Ostatnia aktualizacja: Najstarsze do najnowszych',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Filtruj…',
     'filter-sort-by-not-selected': 'Nie wybrano',
     'filter-by-tag-button': 'Tag: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Domena',
     'filter-by-pages-button': 'Strony',
     'settings-button': 'Ustawienia',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'Opcja <unk> + zmiana <unk>',
     'disable-sync-settings-message': 'Ze względu na pewne ograniczenia przestrzeni z synchronizacją zalecam wyłączenie danych zsynchronizowanych na tej stronie. W przeciwnym razie dodatek nie powinien już działać poprawnie!<br>Aby to zrobić, znajdź {{property1}} i ustaw {{property2}}.',
-    'disable-sync-message': 'Ze względu na pewne ograniczenia przestrzeni z synchronizacją zalecam wyłączenie danych zsynchronizowanych na tej stronie. W przeciwnym razie dodatek nie powinien już działać poprawnie!<br>Aby to zrobić, w Ustawieniach dodatku znajdź  {{property1}} i ustaw {{property2}}.'
+    'disable-sync-message': 'Ze względu na pewne ograniczenia przestrzeni z synchronizacją zalecam wyłączenie danych zsynchronizowanych na tej stronie. W przeciwnym razie dodatek nie powinien już działać poprawnie!<br>Aby to zrobić, w Ustawieniach dodatku znajdź  {{property1}} i ustaw {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Jasny',
+    'theme-choose-dark-select': 'Ciemny',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': '最終更新日: {{date_time}}',
     'page-label': 'ページ',
     'domain-label': 'ドメイン',
+    'global-label': 'Global',
     'see-all-notes-button': 'すべてのメモを見る',
     'clear-all-notes-confirmation': 'すべてのノートを消去してもよろしいですか？\n開始後にこのプロセスをキャンセルすることはできません。',
     'clear-all-notes-domain-confirmation': 'このドメインのすべてのノート（ページのノートも同様）を消去してもよろしいですか？\n開始後はこのプロセスはキャンセルできません。',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': '名前: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': '最終更新: 最新から古い順',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': '最終更新日: 古い順',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'フィルター…',
     'filter-sort-by-not-selected': '未選択',
     'filter-by-tag-button': 'タグ: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'ドメイン',
     'filter-by-pages-button': 'ページ',
     'settings-button': '設定',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'Option <unk> + Shift <unk>',
     'disable-sync-settings-message': '同期にスペースが制限されているため、このページで同期されたデータを無効にすることをお勧めします。 それ以外の場合、アドオンはもう正常に動作しないはずです！<br>これを行うには、 {{property1}} を見つけて、 {{property2}} に設定します。',
-    'disable-sync-message': '同期にスペースが制限されているため、このページで同期されたデータを無効にすることをお勧めします。 そうでなければ、アドオンはもう正常に動作しないはずです!<br>これを行うには、アドオン設定で  {{property1}} を見つけ、 {{property2}} に設定します。'
+    'disable-sync-message': '同期にスペースが制限されているため、このページで同期されたデータを無効にすることをお勧めします。 そうでなければ、アドオンはもう正常に動作しないはずです!<br>これを行うには、アドオン設定で  {{property1}} を見つけ、 {{property2}} に設定します。',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'ライト',
+    'theme-choose-dark-select': 'ダーク',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

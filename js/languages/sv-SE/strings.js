@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Senaste uppdatering: {{date_time}}',
     'page-label': 'Sida',
     'domain-label': 'Domän',
+    'global-label': 'Global',
     'see-all-notes-button': 'Se alla anteckningar',
     'clear-all-notes-confirmation': 'Är du säker på att du vill rensa alla anteckningar?\nDu kan inte avbryta denna process när du har startat.',
     'clear-all-notes-domain-confirmation': 'Är du säker på att du vill rensa alla anteckningar i denna domän (dess sidor anteckningar också)?\nDu kan inte avbryta denna process en gång startat.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Namn: Ö-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Senast uppdaterad: Nyast till äldst',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Senast uppdaterad: Äldsta till Nyaste',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Filtrera…',
     'filter-sort-by-not-selected': 'Inte vald',
     'filter-by-tag-button': 'Tag: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Domän',
     'filter-by-pages-button': 'Sidor',
     'settings-button': 'Inställningar',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Skift',
     'label-alt-shift-mac': 'Alternativ <unk> + Skift <unk>',
     'disable-sync-settings-message': 'På grund av lite utrymme begränsning med synkronisering råder jag dig att inaktivera data synkroniserad på denna sida. Annars ska tillägget inte fungera korrekt längre!<br>För att göra det, hitta {{property1}} och sätt till {{property2}}.',
-    'disable-sync-message': 'På grund av lite utrymme begränsning med synkronisering råder jag dig att inaktivera data synkroniserad på denna sida. Annars bör tillägget inte fungera korrekt längre!<br>För att göra det hittar du  {{property1}} i tilläggsinställningarna och är inställd på {{property2}}.'
+    'disable-sync-message': 'På grund av lite utrymme begränsning med synkronisering råder jag dig att inaktivera data synkroniserad på denna sida. Annars bör tillägget inte fungera korrekt längre!<br>För att göra det hittar du  {{property1}} i tilläggsinställningarna och är inställd på {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Ljust',
+    'theme-choose-dark-select': 'Mörkt',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

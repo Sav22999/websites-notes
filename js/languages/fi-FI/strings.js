@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Viimeisin päivitys: {{date_time}}',
     'page-label': 'Sivu',
     'domain-label': 'Verkkotunnus',
+    'global-label': 'Global',
     'see-all-notes-button': 'Näytä kaikki merkinnät',
     'clear-all-notes-confirmation': 'Oletko varma, että haluat tyhjentää kaikki muistiinpanot?\nProsessi ei voi perua, kun se on aloitettu.',
     'clear-all-notes-domain-confirmation': 'Oletko varma, että haluat tyhjentää kaikki tämän verkkotunnuksen merkinnät (sen sivut muistiinpanot)?\nEt voi perua tätä prosessia kun se on aloitettu.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Nimi: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Viimeisin päivitys: Vanhimmista uusin',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Viimeisin päivitys: Vanhimmat Uuteen',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Suodata…',
     'filter-sort-by-not-selected': 'Ei valittu',
     'filter-by-tag-button': 'Merkintä: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Verkkotunnus',
     'filter-by-pages-button': 'Sivut',
     'settings-button': 'Asetukset',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Vaihto',
     'label-alt-shift-mac': 'Valinta - + Vaihto -',
     'disable-sync-settings-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.',
-    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.'
+    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Vaalea',
+    'theme-choose-dark-select': 'Tumma',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Última actualización: {{date_time}}',
     'page-label': 'Página',
     'domain-label': 'Dominio',
+    'global-label': 'Global',
     'see-all-notes-button': 'Ver todas las notas',
     'clear-all-notes-confirmation': '¿Estás seguro de que quieres borrar todas las notas?\nNo puedes cancelar este proceso una vez iniciado.',
     'clear-all-notes-domain-confirmation': '¿Estás seguro de que quieres borrar todas las notas de este dominio (las notas de las páginas también)?\nNo puedes cancelar este proceso una vez iniciado.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Nombre: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Última actualización: más reciente a más reciente',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Última actualización: Más reciente',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Filtrar…',
     'filter-sort-by-not-selected': 'No seleccionado',
     'filter-by-tag-button': 'Etiqueta: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Dominio',
     'filter-by-pages-button': 'Páginas',
     'settings-button': 'Ajustes',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Mayús',
     'label-alt-shift-mac': 'Option ⌥ + Shift ⇧',
     'disable-sync-settings-message': 'Debido a algunas limitaciones de espacio con sincronización, te aconsejo desactivar los datos sincronizados en esta página. ¡De lo contrario, el complemento ya no debería funcionar correctamente!<br>Para hacerlo, encuentra {{property1}} y ajusta a {{property2}}.',
-    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.'
+    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Claro',
+    'theme-choose-dark-select': 'Oscuro',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

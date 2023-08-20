@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Poslední aktualizace: {{date_time}}',
     'page-label': 'Stránka',
     'domain-label': 'Doména',
+    'global-label': 'Global',
     'see-all-notes-button': 'Zobrazit všechny poznámky',
     'clear-all-notes-confirmation': 'Jste si jisti, že chcete vymazat všechny poznámky?\nPo spuštění nelze tento proces zrušit.',
     'clear-all-notes-domain-confirmation': 'Jste si jisti, že chcete vymazat všechny poznámky z této domény (také poznámky na jejích stránkách)?\nPo spuštění nelze tento proces zrušit.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Jméno: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Poslední aktualizace: Nejnovější až nejstarší',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Poslední aktualizace: Nejstarší až nejnovější',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Filtr…',
     'filter-sort-by-not-selected': 'Nevybráno',
     'filter-by-tag-button': 'Tag: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Doména',
     'filter-by-pages-button': 'Stránky',
     'settings-button': 'Nastavení',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'Možnost <unk> + Shift <unk>',
     'disable-sync-settings-message': 'Z důvodu omezení místa se synchronizací doporučuji zakázat synchronizaci dat na této stránce. V opačném případě by doplněk již neměl správně fungovat!<br>Chcete-li to udělat, najděte {{property1}} a nastavte na {{property2}}.',
-    'disable-sync-message': 'Z důvodu omezení místa se synchronizací doporučuji zakázat synchronizaci dat na této stránce. Jinak by doplněk již neměl správně fungovat!<br>Chcete-li tak učinit, v nastavení doplňku najděte  {{property1}} a nastavte na {{property2}}.'
+    'disable-sync-message': 'Z důvodu omezení místa se synchronizací doporučuji zakázat synchronizaci dat na této stránce. Jinak by doplněk již neměl správně fungovat!<br>Chcete-li tak učinit, v nastavení doplňku najděte  {{property1}} a nastavte na {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Světlý',
+    'theme-choose-dark-select': 'Tmavý',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

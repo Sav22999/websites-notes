@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': '上次更新: {{date_time}}',
     'page-label': '頁面',
     'domain-label': '網域',
+    'global-label': 'Global',
     'see-all-notes-button': '查看全部筆記',
     'clear-all-notes-confirmation': '您確定要清除所有筆記嗎？\n一旦開始就無法取消此進程。',
     'clear-all-notes-domain-confirmation': '您確定要清除此域的所有筆記（包括其所有頁面的筆記）嗎？\n一旦開始就無法取消此進程。',
@@ -44,7 +45,7 @@ strings[lang] = {
     'settings-title-page': 'Notefox - 設定',
     'save-settings-button': '儲存設定',
     'translate-addon-button': 'Translate on Crowdin',
-    'donate-button': 'Buy me a coffee',
+    'donate-button': '請我喝杯咖啡',
     'support-email-button': 'Email',
     'support-telegram-button': 'Telegram',
     'support-github-button': 'GitHub',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Name: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Last update: Newest to Oldest',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Last update: Oldest to Newest',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': '過濾器…',
     'filter-sort-by-not-selected': 'Not selected',
     'filter-by-tag-button': '標籤：{{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': '網域',
     'filter-by-pages-button': 'Pages',
     'settings-button': '設定',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'Option ⌥ + Shift ⇧',
     'disable-sync-settings-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.',
-    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.'
+    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': '淺色',
+    'theme-choose-dark-select': '深色',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };
