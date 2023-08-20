@@ -340,6 +340,7 @@ function clearAllNotes() {
             "sticky-notes-opacity": undefined
         }).then(result => {
             websites_json_to_show = {};
+            loadDataFromBrowser(true);
         });
     }
 }
