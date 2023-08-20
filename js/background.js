@@ -15,6 +15,7 @@ var opacity = {value: 0.7};
 let opening_sticky = false;
 
 let page_domain_global = {"page": "Page", "domain": "Domain", "global": "Global"};
+let linkFirstLaunch = "https://saveriomorelli.com/projects/notefox/first-run"
 
 let sync_local;
 checkSyncLocal();
@@ -29,6 +30,19 @@ function checkSyncLocal() {
             sync_local = browser.storage.local;
         }
     });
+    browser.storage.sync.get("installation").then(result => {
+        if (result.installation === undefined) {
+            browser.storage.sync.set({
+                "installation": {
+                    "date": getDate(),
+                    "version": browser.runtime.getManifest().version
+                }
+            });
+
+            //first launch -> open tutorial
+            browser.tabs.create({url: linkFirstLaunch});
+        }
+    })
 }
 
 function changeIcon(index) {
