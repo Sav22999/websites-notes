@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Ultima actualizare: {{date_time}}',
     'page-label': 'Pagină',
     'domain-label': 'Domeniu',
+    'global-label': 'Global',
     'see-all-notes-button': 'Vezi toate notele',
     'clear-all-notes-confirmation': 'Sunteți sigur că doriți să ștergeți toate notele?\nNu puteți anula acest proces odată început.',
     'clear-all-notes-domain-confirmation': 'Sunteţi sigur că doriţi să ştergeţi toate notele din acest domeniu (şi notele paginilor sale)?\nNu puteţi anula acest proces după ce a fost început.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Nume: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Ultima actualizare: cel mai nou la vechi',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Ultima actualizare: cel mai vechi la nou',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Filtrare…',
     'filter-sort-by-not-selected': 'Nu este selectat',
     'filter-by-tag-button': 'Etichetă: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Domeniu',
     'filter-by-pages-button': 'Pagini',
     'settings-button': 'Setări',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Schimb',
     'label-alt-shift-mac': 'Opţiunea <unk> + Shift',
     'disable-sync-settings-message': 'Din cauza unei limitări a spaţiului cu sincronizare vă sfătuiesc să dezactivaţi datele sincronizate în această pagină. Altfel, suplimentul nu mai trebuie să funcționeze corespunzător!<br>Pentru a face asta, găsește {{property1}} și setează {{property2}}.',
-    'disable-sync-message': 'Din cauza unei limitări a spaţiului cu sincronizare vă sfătuiesc să dezactivaţi datele sincronizate în această pagină. Altfel, suplimentul nu ar mai trebui să funcționeze corespunzător!<br>Pentru a face asta, în Setările suplimentelor găsește  {{property1}} și setează {{property2}}.'
+    'disable-sync-message': 'Din cauza unei limitări a spaţiului cu sincronizare vă sfătuiesc să dezactivaţi datele sincronizate în această pagină. Altfel, suplimentul nu ar mai trebui să funcționeze corespunzător!<br>Pentru a face asta, în Setările suplimentelor găsește  {{property1}} și setează {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Luminos',
+    'theme-choose-dark-select': 'Întunecat',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Letzte Aktualisierung: {{date_time}}',
     'page-label': 'Seite',
     'domain-label': 'Domäne',
+    'global-label': 'Global',
     'see-all-notes-button': 'Alle Notizen anzeigen',
     'clear-all-notes-confirmation': 'Sind Sie sicher, dass Sie alle Notizen löschen möchten?\nSie können diesen Prozess nicht nach dem Start abbrechen.',
     'clear-all-notes-domain-confirmation': 'Sind Sie sicher, dass Sie alle Notizen dieser Domäne löschen möchten (auch die Notizen dieser Seiten).\nSie können diesen Prozess nicht abbrechen, sobald er gestartet wurde.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Name: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Letzte Aktualisierung: Neueste nach Älteste',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Letzte Aktualisierung: Älteste nach Neuestes',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Filter…',
     'filter-sort-by-not-selected': 'Nicht ausgewählt',
     'filter-by-tag-button': 'Tag: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Domäne',
     'filter-by-pages-button': 'Seiten',
     'settings-button': 'Einstellungen',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Schicht',
     'label-alt-shift-mac': 'Option <unk> + Schicht <unk>',
     'disable-sync-settings-message': 'Aufgrund einiger Speicherbeschränkungen mit Synchronisation empfehle ich Ihnen, die auf dieser Seite synchronisierten Daten zu deaktivieren. Andernfalls sollte das Add-on nicht mehr ordnungsgemäß funktionieren!<br>Um das zu tun, finden Sie {{property1}} und setzen Sie auf {{property2}}.',
-    'disable-sync-message': 'Aufgrund einiger Speicherbeschränkungen mit Synchronisation empfehle ich Ihnen, die auf dieser Seite synchronisierten Daten zu deaktivieren. Andernfalls sollte das Add-on nicht mehr ordnungsgemäß funktionieren!<br>Dazu finden Sie in den Add-on-Einstellungen  {{property1}} und setzen Sie auf {{property2}}.'
+    'disable-sync-message': 'Aufgrund einiger Speicherbeschränkungen mit Synchronisation empfehle ich Ihnen, die auf dieser Seite synchronisierten Daten zu deaktivieren. Andernfalls sollte das Add-on nicht mehr ordnungsgemäß funktionieren!<br>Dazu finden Sie in den Add-on-Einstellungen  {{property1}} und setzen Sie auf {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Hell',
+    'theme-choose-dark-select': 'Dunkel',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

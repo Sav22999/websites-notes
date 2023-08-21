@@ -1,7 +1,7 @@
 let settings_json = {
-    "open-default": "domain",
-    "consider-parameters": "yes",
-    "consider-sections": "yes",
+    "open-default": "page",
+    "consider-parameters": "no",
+    "consider-sections": "no",
     "open-popup-default": "Ctrl+Alt+O",
     "open-popup-domain": "Ctrl+Alt+D",
     "open-popup-page": "Ctrl+Alt+P",
@@ -31,7 +31,9 @@ var ctrl_alt_shift = ["default", "domain", "page"];
 function loaded() {
     checkSyncLocal()
     checkOperatingSystem();
+
     setLanguageUI();
+    checkTheme();
 
     document.getElementById("save-settings-button").onclick = function () {
         saveSettings();
@@ -70,6 +72,11 @@ function loaded() {
         settings_json["save-on-local-not-sync"] = document.getElementById("save-on-local-instead-of-sync-select").value;
     };
 
+
+    document.getElementById("theme-select").onchange = function () {
+        settings_json["theme"] = document.getElementById("theme-select").value;
+    };
+
     loadSettings();
 
     let titleAllNotes = document.getElementById("title-settings-dedication-section");
@@ -85,18 +92,24 @@ function setLanguageUI() {
     document.getElementById("consider-parameters-text").innerText = all_strings["consider-parameters"];
     document.getElementById("consider-parameters-button-yes").innerText = all_strings["settings-select-button-yes"];
     document.getElementById("consider-parameters-button-no").innerText = all_strings["settings-select-button-no"];
-    document.getElementById("consider-parameters-detailed-text").innerText = all_strings["consider-parameters-detailed"];
+    document.getElementById("consider-parameters-detailed-text").innerHTML = all_strings["consider-parameters-detailed"];
     document.getElementById("consider-sections-text").innerText = all_strings["consider-sections"];
     document.getElementById("consider-sections-button-yes").innerText = all_strings["settings-select-button-yes"];
     document.getElementById("consider-sections-button-no").innerText = all_strings["settings-select-button-no"];
-    document.getElementById("consider-sections-detailed-text").innerText = all_strings["consider-sections-detailed"];
+    document.getElementById("consider-sections-detailed-text").innerHTML = all_strings["consider-sections-detailed"];
     document.getElementById("save-on-local-instead-of-sync-text").innerText = all_strings["save-on-local-instead-of-sync"];
     document.getElementById("save-on-local-instead-of-sync-button-yes").innerText = all_strings["settings-select-button-yes"];
     document.getElementById("save-on-local-instead-of-sync-button-no").innerText = all_strings["settings-select-button-no"];
-    document.getElementById("save-on-local-instead-of-sync-detailed-text").innerText = all_strings["save-on-local-instead-of-sync-detailed"];
+    document.getElementById("save-on-local-instead-of-sync-detailed-text").innerHTML = all_strings["save-on-local-instead-of-sync-detailed"];
     document.getElementById("open-popup-default-shortcut-text").innerText = all_strings["open-popup-default-shortcut-text"];
     document.getElementById("open-popup-domain-shortcut-text").innerText = all_strings["open-popup-domain-shortcut-text"];
     document.getElementById("open-popup-page-shortcut-text").innerText = all_strings["open-popup-page-shortcut-text"];
+
+    document.getElementById("theme-text").innerText = all_strings["theme-text"];
+    document.getElementById("theme-select-light").innerText = all_strings["theme-choose-light-select"];
+    document.getElementById("theme-select-dark").innerText = all_strings["theme-choose-dark-select"];
+    document.getElementById("theme-select-firefox").innerText = all_strings["theme-choose-firefox-select"];
+    document.getElementById("theme-detailed-text").innerHTML = all_strings["theme-detailed-text"].replace("{{property1}}", `<span class="button-code very-small-button">` + all_strings["theme-choose-firefox-select"] + `</span>`);
 
     document.getElementById("support-telegram-button").value = all_strings["support-telegram-button"];
     document.getElementById("support-email-button").value = all_strings["support-email-button"];
@@ -140,20 +153,22 @@ function loadSettings() {
             settings_json = {};
             if (value["settings"] !== undefined) {
                 settings_json = value["settings"];
-                if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
-                if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "yes";
-                if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "yes";
+                if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
+                if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
+                if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
                 if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
                 if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
                 if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
+                if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
             } else {
                 //settings undefined
-                settings_json["open-default"] = "domain";
+                settings_json["open-default"] = "page";
                 settings_json["consider-parameters"] = "no";
                 settings_json["consider-sections"] = "no";
                 settings_json["open-popup-default"] = "Ctrl+Alt+O";
                 settings_json["open-popup-domain"] = "Ctrl+Alt+D";
                 settings_json["open-popup-page"] = "Ctrl+Alt+P";
+                settings_json["theme"] = "light";
             }
 
             let sync_or_local_settings = result["storage"];
@@ -162,6 +177,7 @@ function loadSettings() {
             document.getElementById("open-by-default-select").value = settings_json["open-default"];
             document.getElementById("consider-parameters-select").value = settings_json["consider-parameters"];
             document.getElementById("consider-sections-select").value = settings_json["consider-sections"];
+            document.getElementById("theme-select").value = settings_json["theme"];
             if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-select").value = "no";
             else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-select").value = "yes";
 
@@ -192,6 +208,7 @@ function loadSettings() {
                 let commandName = "_execute_browser_action";
                 if (value === "domain") commandName = "opened-by-domain";
                 else if (value === "page") commandName = "opened-by-page";
+                else if (value === "global") commandName = "opened-by-global";
 
                 document.getElementById("key-shortcut-ctrl-alt-shift-" + value + "-selected").onchange = function () {
                     settings_json["open-popup-" + value] = document.getElementById("key-shortcut-ctrl-alt-shift-" + value + "-selected").value + "+" + document.getElementById("key-shortcut-" + value + "-selected").value;
@@ -208,6 +225,7 @@ function loadSettings() {
 }
 
 function saveSettings() {
+    console.log(JSON.stringify(settings_json));
     browser.storage.local.get(["storage"]).then(resultSyncLocalValue => {
         sync_local.set({"settings": settings_json}).then(resultF => {
             //Saved
@@ -218,6 +236,7 @@ function saveSettings() {
                 let commandName = "_execute_browser_action";
                 if (value === "domain") commandName = "opened-by-domain";
                 else if (value === "page") commandName = "opened-by-page";
+                else if (value === "global") commandName = "opened-by-global";
 
                 updateShortcut(commandName, settings_json["open-popup-" + value]);
             });
@@ -317,6 +336,7 @@ function saveSettings() {
             }, 2000);
             //console.log(JSON.stringify(settings_json));
 
+            checkTheme();
             loadSettings();
         });
     });
@@ -352,6 +372,70 @@ function updateShortcut(commandName, shortcut) {
     browser.commands.update({
         name: commandName, shortcut: shortcut
     });
+}
+
+function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
+    if (background !== undefined && backgroundSection !== undefined && primary !== undefined && secondary !== undefined && on_primary !== undefined && on_secondary !== undefined) {
+        document.body.style.backgroundColor = background;
+        document.body.color = primary;
+        document.getElementById("settings-dedication-section").style.backgroundColor = backgroundSection;
+        //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
+        document.getElementById("settings-dedication-section").style.color = primary;
+        var save_svg = window.btoa(getIconSvgEncoded("save", on_primary));
+        var translate_svg = window.btoa(getIconSvgEncoded("translate", on_primary));
+        var github_svg = window.btoa(getIconSvgEncoded("github", on_primary));
+        var email_svg = window.btoa(getIconSvgEncoded("email", on_primary));
+        var firefox_svg = window.btoa(getIconSvgEncoded("firefox", on_primary));
+        var telegram_svg = window.btoa(getIconSvgEncoded("telegram", on_primary));
+
+        let tertiary = backgroundSection;
+        let tertiaryTransparent = primary;
+        if (tertiaryTransparent.includes("rgb(")) {
+            let rgb_temp = tertiaryTransparent.replace("rgb(", "");
+            let rgb_temp_arr = rgb_temp.split(",");
+            if (rgb_temp_arr.length >= 3) {
+                let red = rgb_temp_arr[0].replace(" ", "");
+                let green = rgb_temp_arr[1].replace(" ", "");
+                let blue = rgb_temp_arr[2].replace(")", "").replace(" ", "");
+                tertiaryTransparent = `rgba(${red}, ${green}, ${blue}, 0.2)`;
+            }
+        } else if (tertiaryTransparent.includes("#")) {
+            tertiaryTransparent += "22";
+        }
+        //console.log(tertiaryTransparent);
+
+        document.head.innerHTML += `
+            <style>
+                :root {
+                    --primary-color: ${primary};
+                    --secondary-color: ${secondary};
+                    --on-primary-color: ${on_primary};
+                    --on-secondary-color: ${on_secondary};
+                    --textbox-color: ${textbox_background};
+                    --on-textbox-color: ${textbox_color};
+                    --tertiary: ${tertiary};
+                    --tertiary-transparent: ${tertiaryTransparent};
+                }
+                .save-button {
+                    background-image: url('data:image/svg+xml;base64,${save_svg}');
+                }
+                .translate-button {
+                    background-image: url('data:image/svg+xml;base64,${translate_svg}');
+                }
+                .github-button {
+                    background-image: url('data:image/svg+xml;base64,${github_svg}');
+                }
+                .email-button {
+                    background-image: url('data:image/svg+xml;base64,${email_svg}');
+                }
+                .firefox-button {
+                    background-image: url('data:image/svg+xml;base64,${firefox_svg}');
+                }
+                .telegram-button {
+                    background-image: url('data:image/svg+xml;base64,${telegram_svg}');
+                }
+            </style>`;
+    }
 }
 
 loaded();

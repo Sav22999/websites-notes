@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Siste oppdatering: {{date_time}}',
     'page-label': 'Side',
     'domain-label': 'Domene',
+    'global-label': 'Global',
     'see-all-notes-button': 'Se alle notater',
     'clear-all-notes-confirmation': 'Er du sikker på at du vil fjerne alle notater?\nDu kan ikke avbryte denne prosessen når du har startet.',
     'clear-all-notes-domain-confirmation': 'Er du sikker på at du vil fjerne alle notatene på dette domenet (også dets sider notater)?\nDu kan ikke avbryte denne prosessen når du har startet.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Navn: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Siste oppdatering: Nyest til eldste',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Siste oppdatering: Eldst til nyeste',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Filtrer…',
     'filter-sort-by-not-selected': 'Ikke valgt',
     'filter-by-tag-button': 'Tag: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Domene',
     'filter-by-pages-button': 'Sider',
     'settings-button': 'Innstillinger',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Skift',
     'label-alt-shift-mac': 'Alternativ: + reseptpliktig',
     'disable-sync-settings-message': 'På grunn av plassbegrensning med synk anbefaler jeg deg å deaktivere synkronisert data på denne siden. Ellers må tillegget ikke fungere ordentlig!<br>For å gjøre det, finn {{property1}} og sett til {{property2}}.',
-    'disable-sync-message': 'På grunn av plassbegrensning med synk anbefaler jeg deg å deaktivere synkronisert data på denne siden. Ellers må ikke tillegget fungere ordentlig!<br>For å gjøre det i tillegg finner du  {{property1}} og satt til {{property2}}.'
+    'disable-sync-message': 'På grunn av plassbegrensning med synk anbefaler jeg deg å deaktivere synkronisert data på denne siden. Ellers må ikke tillegget fungere ordentlig!<br>For å gjøre det i tillegg finner du  {{property1}} og satt til {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Lys',
+    'theme-choose-dark-select': 'Mørk',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

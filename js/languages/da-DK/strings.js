@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Seneste opdatering: {{date_time}}',
     'page-label': 'Side',
     'domain-label': 'Domæne',
+    'global-label': 'Global',
     'see-all-notes-button': 'Se alle noter',
     'clear-all-notes-confirmation': 'Er du sikker på, at du vil slette alle noter?\nDu kan ikke annullere denne proces, når den er startet.',
     'clear-all-notes-domain-confirmation': 'Er du sikker på, at du vil rydde alle noter af dette domæne (dets sider også noter)?\nDu kan ikke annullere denne proces når den er startet.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Navn: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Sidst opdateret: Nyeste til ældste',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Sidst opdateret: Ældste til Nyeste',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Filtrer…',
     'filter-sort-by-not-selected': 'Ikke valgt',
     'filter-by-tag-button': 'Mærke: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Domæne',
     'filter-by-pages-button': 'Sider',
     'settings-button': 'Indstillinger',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'Valgmulighed: + Skiftsplatform',
     'disable-sync-settings-message': 'På grund af en vis pladsbegrænsning med synkronisering råder jeg dig til at deaktivere de data, der synkroniseres på denne side. Ellers, tilføjelsen bør ikke fungere korrekt længere!<br>For at gøre det, find {{property1}} og sæt til {{property2}}.',
-    'disable-sync-message': 'På grund af en vis pladsbegrænsning med synkronisering råder jeg dig til at deaktivere de data, der synkroniseres på denne side. Ellers bør tilføjelsen ikke længere fungere korrekt!<br>For at gøre det, i tilføjelsesindstillingerne skal du finde  {{property1}} og indstille til {{property2}}.'
+    'disable-sync-message': 'På grund af en vis pladsbegrænsning med synkronisering råder jeg dig til at deaktivere de data, der synkroniseres på denne side. Ellers bør tilføjelsen ikke længere fungere korrekt!<br>For at gøre det, i tilføjelsesindstillingerne skal du finde  {{property1}} og indstille til {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Lys',
+    'theme-choose-dark-select': 'Mørk',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Ultimo aggiornamento: {{date_time}}',
     'page-label': 'Pagina',
     'domain-label': 'Dominio',
+    'global-label': 'Globale',
     'see-all-notes-button': 'Vedi tutte le note',
     'clear-all-notes-confirmation': 'Sei sicuro di voler cancellare tutte le note?\nNon puoi annullare questo processo una volta avviato.',
     'clear-all-notes-domain-confirmation': 'Sei sicuro di voler cancellare tutte le note di questo dominio (anche le relative note delle pagine)?\nNon puoi annullare questo processo una volta avviato.',
@@ -56,7 +57,7 @@ strings[lang] = {
     'consider-sections': 'Considera le sezioni come parte della pagina url',
     'consider-sections-detailed': 'Quando abilitato: <span class=\'url-small\'>https://example.page/search#section1</span> è diverso da <span class=\'url-small\'>https://example.page/search</span>',
     'save-on-local-instead-of-sync': 'Salva i dati localmente invece di sincronizzarli con l\'account Firefox',
-    'save-on-local-instead-of-sync-detailed': 'In the version 3.3 the add-on automatically saved notes on your Firefox account, instead of save them locally.\nWhen enable, the syncing is disabled and it\'s restored the saving on local storage.\nRecommended <b>Disable this option</b> – so, setting to Yes',
+    'save-on-local-instead-of-sync-detailed': 'Nella versione 3.3 il componente aggiuntivo salvava automaticamente le note con il tuo account Firefox, invece di salvare le note in locale.\nQuando abilitato, la sincronizzazione è disattivata ed è ripristinato, invece, il salvataggio in locale.\nÈ raccomandato di <b>disattivare l\'opzione</b>, quindi impostare su Sì',
     'notefox-version-too-old-try-to-import-data-anyway': 'Questi dati provengono da una versione obsoleta del componente aggiuntivo (prima della 2.0). Verrà comunque tentata l\'importazione, ma potrebbero esserci problemi. Vuoi continuare?',
     'notefox-version-different-try-to-import-data-anyway': 'Questi dati provengono da una versione diversa del componente aggiuntivo. L\'importazione potrebbe fallire (è raro). Vuoi continuare?',
     'search-textbox': 'Cerca…',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Nome: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Ultimo aggiornamento: più recente al più vecchio',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Ultimo aggiornamento: il più vecchio al più recente',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Filtra…',
     'filter-sort-by-not-selected': 'Non selezionato',
     'filter-by-tag-button': 'Etichetta: {{color}}',
+    'filter-by-type-button': 'Tipo: {{type}}',
     'filter-by-domain-button': 'Dominio',
     'filter-by-pages-button': 'Pagine',
     'settings-button': 'Impostazioni',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Maiusc',
     'label-alt-shift-mac': 'Opzione ⌥ + Shift ⇧',
     'disable-sync-settings-message': 'A causa di alcuni limiti di spazio con la sincronizzazione vi consiglio di disabilitare i dati sincronizzati in questa pagina. Altrimenti, l\'add-on non dovrebbe più funzionare correttamente!<br>Per farlo, trova {{property1}} e imposta {{property2}}.',
-    'disable-sync-message': 'A causa di alcuni limiti di spazio con la sincronizzazione vi consiglio di disabilitare i dati sincronizzati in questa pagina. Altrimenti, l\'add-on non dovrebbe più funzionare correttamente!<br>Per farlo, nelle Impostazioni add-on trovare  {{property1}} e impostare {{property2}}.'
+    'disable-sync-message': 'A causa di alcuni limiti di spazio con la sincronizzazione vi consiglio di disabilitare i dati sincronizzati in questa pagina. Altrimenti, l\'add-on non dovrebbe più funzionare correttamente!<br>Per farlo, nelle Impostazioni add-on trovare  {{property1}} e impostare {{property2}}.',
+    'theme-text': 'Scegli il tema da usare',
+    'theme-detailed-text': 'Se scegli {{property1}} questo significa che il tema non sarà ottimizzato per il componente aggiuntivo anche se si proverà a usare lo stesso tema del browser.',
+    'theme-choose-light-select': 'Chiaro',
+    'theme-choose-dark-select': 'Scuro',
+    'theme-choose-firefox-select': 'Segui il tema di Firefox'
 };

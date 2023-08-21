@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Laatst bijgewerkt: {{date_time}}',
     'page-label': 'Pagina',
     'domain-label': 'Domein',
+    'global-label': 'Global',
     'see-all-notes-button': 'Bekijk alle notities',
     'clear-all-notes-confirmation': 'Weet u zeker dat u alle notities wilt wissen?\nU kunt dit proces niet annuleren na het opstarten.',
     'clear-all-notes-domain-confirmation': 'Weet u zeker dat u alle notities van dit domein wilt wissen.\nU kunt dit proces niet annuleren zodra het is gestart.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Naam: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Laatste update: nieuwste naar oudste',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Laatste update: oudste naar nieuwste',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Filter…',
     'filter-sort-by-not-selected': 'Niet geselecteerd',
     'filter-by-tag-button': 'Tag: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Domein',
     'filter-by-pages-button': 'Pagina\'s',
     'settings-button': 'Instellingen',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'ALT + Shift',
     'label-alt-shift-mac': 'Optie +unnamed@@0 + Shift ×',
     'disable-sync-settings-message': 'Vanwege enige ruimtebeperking met sync raad ik u aan de gegevens op deze pagina uit te schakelen. Anders zou de add-on niet meer goed moeten werken!<br>Om dat te doen, zoek {{property1}} en stel je in op {{property2}}.',
-    'disable-sync-message': 'Vanwege enige ruimtebeperking met sync raad ik u aan de gegevens op deze pagina uit te schakelen. Anders zou de toevoeging niet meer goed kunnen werken!<br>Om dat te doen, vindt u in de add-on instellingen  {{property1}} en zet u in op {{property2}}.'
+    'disable-sync-message': 'Vanwege enige ruimtebeperking met sync raad ik u aan de gegevens op deze pagina uit te schakelen. Anders zou de toevoeging niet meer goed kunnen werken!<br>Om dat te doen, vindt u in de add-on instellingen  {{property1}} en zet u in op {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Licht',
+    'theme-choose-dark-select': 'Donker',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

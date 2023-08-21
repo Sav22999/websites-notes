@@ -24,6 +24,10 @@ let show_conversion_message_attention = false;
 let sync_local;
 checkSyncLocal();
 
+let sort_by_selected = "name-az";
+let filtersColors = [];
+let filtersTypes = [];
+
 function checkSyncLocal() {
     sync_local = browser.storage.local;
     browser.storage.local.get("storage").then(result => {
@@ -39,6 +43,8 @@ function checkSyncLocal() {
 function loaded() {
     checkSyncLocal()
     setLanguageUI();
+
+    checkTheme();
 
     browser.storage.local.get([
         "storage",
@@ -144,6 +150,12 @@ function loaded() {
         }
     }
 
+    document.getElementById("sort-by-all-notes-button").value = sort_by_selected;
+    document.getElementById("sort-by-all-notes-button").onchange = function () {
+        sort_by_selected = document.getElementById("sort-by-all-notes-button").value;
+        loadAllWebsites(true, sort_by_selected);
+    }
+
     setTimeout(function () {
         loadDataFromBrowser(true);
     }, 10);
@@ -182,6 +194,11 @@ function setLanguageUI() {
     document.getElementById("buy-me-a-coffee-button").value = all_strings["donate-button"];
     //document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
     document.getElementById("filter-all-notes-button").value = all_strings["filter-button"];
+    document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
+    document.getElementById("sort-by-name-az-select").textContent = all_strings["sort-by-az-button"];
+    document.getElementById("sort-by-name-za-select").textContent = all_strings["sort-by-za-button"];
+    document.getElementById("sort-by-date-09-select").textContent = all_strings["sort-by-edit-first-button"];
+    document.getElementById("sort-by-date-90-select").textContent = all_strings["sort-by-edit-last-button"];
     document.title = all_strings["all-notes-title-page"];
 
     document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
@@ -191,7 +208,6 @@ function setLanguageUI() {
     document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
     document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
 
-    let colourList = colourListDefault;
     let redFilterButton = document.getElementById("filter-tag-red-button");
     let yellowFilterButton = document.getElementById("filter-tag-yellow-button");
     let blackFilterButton = document.getElementById("filter-tag-black-button");
@@ -202,50 +218,93 @@ function setLanguageUI() {
     let greenFilterButton = document.getElementById("filter-tag-green-button");
     let blueFilterButton = document.getElementById("filter-tag-blue-button");
     let whiteFilterButton = document.getElementById("filter-tag-white-button");
+    let noneFilterButton = document.getElementById("filter-tag-none-button");
+    let globalFilterButton = document.getElementById("filter-type-global-button");
+    let domainFilterButton = document.getElementById("filter-type-domain-button");
+    let pageFilterButton = document.getElementById("filter-type-page-button");
     redFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["red-colour"]);
     redFilterButton.onclick = function () {
-        search("red");
+        //search("red");
+        filterByColor("red", redFilterButton);
     };
     yellowFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["yellow-colour"]);
     yellowFilterButton.onclick = function () {
-        search("yellow");
+        filterByColor("yellow", yellowFilterButton);
     };
     blackFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["black-colour"]);
     blackFilterButton.onclick = function () {
-        search("black");
+        filterByColor("black", blackFilterButton);
     };
     orangeFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["orange-colour"]);
     orangeFilterButton.onclick = function () {
-        search("orange");
+        filterByColor("orange", orangeFilterButton);
     };
     pinkFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["pink-colour"]);
     pinkFilterButton.onclick = function () {
-        search("pink");
+        filterByColor("pink", pinkFilterButton);
     };
     purpleFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["purple-colour"]);
     purpleFilterButton.onclick = function () {
-        search("purple");
+        filterByColor("purple", purpleFilterButton);
     };
     grayFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["grey-colour"]);
     grayFilterButton.onclick = function () {
-        search("gray");
-    };
-    redFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["red-colour"]);
-    redFilterButton.onclick = function () {
-        search("red");
+        filterByColor("gray", grayFilterButton);
     };
     greenFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["green-colour"]);
     greenFilterButton.onclick = function () {
-        search("green");
+        filterByColor("green", greenFilterButton);
     };
     blueFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["blue-colour"]);
     blueFilterButton.onclick = function () {
-        search("blue");
+        filterByColor("blue", blueFilterButton);
     };
     whiteFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["white-colour"]);
     whiteFilterButton.onclick = function () {
-        search("white");
+        filterByColor("white", whiteFilterButton);
     };
+    noneFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["none-colour"]);
+    noneFilterButton.onclick = function () {
+        filterByColor("none", noneFilterButton);
+    };
+    globalFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["global-label"]);
+    globalFilterButton.onclick = function () {
+        filterByType("global", globalFilterButton);
+    };
+    domainFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["domain-label"]);
+    domainFilterButton.onclick = function () {
+        filterByType("domain", domainFilterButton);
+    };
+    pageFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["page-label"]);
+    pageFilterButton.onclick = function () {
+        filterByType("page", pageFilterButton);
+    };
+}
+
+function filterByColor(color, tagButton) {
+    if (filtersColors.indexOf(color) !== -1) {
+        //present: remove red
+        filtersColors.splice(filtersColors.indexOf(color), 1);
+        tagButton.classList.remove("button-sel");
+    } else {
+        //not present: add red
+        filtersColors.push(color);
+        tagButton.classList.add("button-sel");
+    }
+    search("");
+}
+
+function filterByType(type, tagButton) {
+    if (filtersTypes.indexOf(type) !== -1) {
+        //present: remove red
+        filtersTypes.splice(filtersTypes.indexOf(type), 1);
+        tagButton.classList.remove("button-sel");
+    } else {
+        //not present: add red
+        filtersTypes.push(type);
+        tagButton.classList.add("button-sel");
+    }
+    search("");
 }
 
 function loadDataFromBrowser(generate_section = true) {
@@ -257,7 +316,7 @@ function loadDataFromBrowser(generate_section = true) {
         }
         if (generate_section) {
             websites_json_by_domain = {};
-            loadAllWebsites(true);
+            loadAllWebsites(true, sort_by_selected);
         }
         //console.log(JSON.stringify(websites_json));
     });
@@ -281,6 +340,7 @@ function clearAllNotes() {
             "sticky-notes-opacity": undefined
         }).then(result => {
             websites_json_to_show = {};
+            loadDataFromBrowser(true);
         });
     }
 }
@@ -602,7 +662,7 @@ function hideBackgroundOpacity() {
     document.getElementById("background-opacity").style.display = "none";
 }
 
-function loadAllWebsites(clear = false) {
+function loadAllWebsites(clear = false, sort_by = "name-az") {
     if (clear) {
         document.getElementById("all-website-sections").textContent = "";
     }
@@ -614,14 +674,14 @@ function loadAllWebsites(clear = false) {
 
         for (let domain in websites_json_to_show) {
             if (websites_json_to_show[domain]["type"] === undefined) {
-                websites_json_to_show[domain]["type"] = 0;
+                websites_json_to_show[domain]["type"] = 1;
                 websites_json_to_show[domain]["domain"] = "";
                 websites_json_to_show[domain]["tag-colour"] = "none";
             }
 
 
-            if (websites_json_to_show[domain]["type"] === 0) {
-                //domain
+            if (websites_json_to_show[domain]["type"] === 0 || websites_json_to_show[domain]["type"] === 1) {
+                //global (0) or domain (1)
                 if (websites_json_by_domain[domain] === undefined) {
                     websites_json_by_domain[domain] = [];
                 }
@@ -643,7 +703,8 @@ function loadAllWebsites(clear = false) {
         }
         //console.log(JSON.stringify(websites_json_by_domain));
 
-        websites_json_by_domain = sortOnKeys(websites_json_by_domain);
+        websites_json_by_domain = sortOnKeys(websites_json_by_domain, websites_json_to_show, sort_by);
+        //console.log(JSON.stringify(sortOnKeys(websites_json_by_domain, websites_json_to_show, "date-90")));
 
         for (let domain in websites_json_by_domain) {
             if (domain !== undefined && domain !== "undefined" && domain !== "") {
@@ -652,25 +713,28 @@ function loadAllWebsites(clear = false) {
                 websites_json_by_domain[domain].sort();
 
                 let section = document.createElement("div");
-                section.classList.add("section");
+                section.classList.add("section", "section-domain");
 
-                let input_clear_all_notes_domain = document.createElement("input");
-                input_clear_all_notes_domain.type = "button";
-                input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
-                input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button");
-                input_clear_all_notes_domain.onclick = function () {
-                    clearAllNotesDomain(domain);
+                //console.log(domain);
+
+                if (domain !== "**global") {
+                    let input_clear_all_notes_domain = document.createElement("input");
+                    input_clear_all_notes_domain.type = "button";
+                    input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
+                    input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button");
+                    input_clear_all_notes_domain.onclick = function () {
+                        clearAllNotesDomain(domain);
+                    }
+                    section.append(input_clear_all_notes_domain);
+
+                    let h2 = document.createElement("h2");
+                    h2.textContent = domain;
+                    h2.classList.add("link", "go-to-external");
+                    h2.onclick = function () {
+                        browser.tabs.create({url: domain});
+                    }
+                    section.append(h2);
                 }
-
-                let h2 = document.createElement("h2");
-                h2.textContent = domain;
-                h2.classList.add("link", "go-to-external");
-                h2.onclick = function () {
-                    browser.tabs.create({url: domain});
-                }
-
-                section.append(input_clear_all_notes_domain);
-                section.append(h2);
 
                 let all_pages = document.createElement("div");
 
@@ -684,30 +748,41 @@ function loadAllWebsites(clear = false) {
                     page.classList.add("sub-section");
                     let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
                     let notes = websites_json_to_show[urlPageDomain]["notes"];
-                    page = generateNotes(page, urlPageDomain, notes, lastUpdate, all_strings["domain-label"], urlPageDomain);
+                    let type_to_show = all_strings["domain-label"];
+                    let type_to_use = "domain";
+                    if (domain === "**global") {
+                        type_to_show = all_strings["global-label"];
+                        type_to_use = "global";
+                    }
+                    page = generateNotes(page, urlPageDomain, notes, lastUpdate, type_to_show, urlPageDomain, type_to_use, true);
 
-                    all_pages.append(page);
-                    pages_added++;
-                }
-
-
-                for (let index = 0; index < websites_json_by_domain[domain].length; index++) {
-                    let urlPage = websites_json_by_domain[domain][index];
-                    let urlPageDomain = domain + websites_json_by_domain[domain][index];
-                    if (websites_json_to_show[urlPageDomain] !== undefined) {
-                        let page = document.createElement("div");
-                        page.classList.add("sub-section");
-
-                        // console.log(urlPageDomain);
-                        // console.log(websites_json_by_domain);
-                        // console.log(websites_json_to_show);
-                        let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
-                        let notes = websites_json_to_show[urlPageDomain]["notes"];
-
-                        page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["page-label"], urlPageDomain);
-
+                    if (page !== -1) {
                         all_pages.append(page);
                         pages_added++;
+                    }
+                }
+
+                if (domain !== "**global") {
+                    for (let index = 0; index < websites_json_by_domain[domain].length; index++) {
+                        let urlPage = websites_json_by_domain[domain][index];
+                        let urlPageDomain = domain + websites_json_by_domain[domain][index];
+                        if (websites_json_to_show[urlPageDomain] !== undefined) {
+                            let page = document.createElement("div");
+                            page.classList.add("sub-section");
+
+                            // console.log(urlPageDomain);
+                            // console.log(websites_json_by_domain);
+                            // console.log(websites_json_to_show);
+                            let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
+                            let notes = websites_json_to_show[urlPageDomain]["notes"];
+
+                            page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["page-label"], urlPageDomain, "page", false);
+
+                            if (page !== -1) {
+                                all_pages.append(page);
+                                pages_added++;
+                            }
+                        }
                     }
                 }
 
@@ -734,24 +809,38 @@ function applyFilter() {
     }
 }
 
-function search(value) {
+function search(value = "") {
+    //console.log(JSON.stringify(websites_json_to_show))
     websites_json_to_show = {};
     document.getElementById("search-all-notes-text").value = value.toString();
     let valueToUse = value.toLowerCase();
     for (const website in websites_json) {
         let current_website_json = websites_json[website];
-        if (current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["tag-colour"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse)) {
+        let condition_tag_color = filtersColors.indexOf(current_website_json["tag-colour"].toLowerCase()) !== -1 || filtersColors.length === 0;
+        let condition_type = filtersTypes.indexOf(getType(websites_json[website], website)) !== -1 || filtersTypes.length === 0;
+        //if (condition_type) console.log(getType(websites_json[website], website) + "   " + JSON.stringify(websites_json[website]))
+        if ((current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse)) && condition_tag_color && condition_type) {
             websites_json_to_show[website] = websites_json[website];
         }
     }
-    loadAllWebsites(true);
+    loadAllWebsites(true, sort_by_selected);
+}
+
+function getType(website, url) {
+    let valueToReturn = "";
+    if (website !== undefined && website["domain"] !== undefined && url !== undefined) {
+        if (url === "**global") valueToReturn = "global";
+        else if (website["domain"] !== "") valueToReturn = "page";
+        else valueToReturn = "domain";
+    }
+    return valueToReturn;
 }
 
 function sortObjectByKeys(o) {
     return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
 }
 
-function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
+function generateNotes(page, url, notes, lastUpdate, type, fullUrl, type_to_use, domain_again) {
     let pageType = document.createElement("div");
     pageType.classList.add("sub-section-type");
     pageType.textContent = type;
@@ -798,7 +887,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
         tagsColour.append(tagColour);
     }
     tagsColour.onchange = function () {
-        changeTagColour(page, fullUrl, tagsColour.value);
+        changeTagColour(fullUrl, tagsColour.value, type_to_use);
     }
 
     page.id = fullUrl;
@@ -807,7 +896,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     page.append(inputCopyNotes);
     page.append(tagsColour);
 
-    if (type.toLowerCase() !== "domain") {
+    if (type_to_use.toLowerCase() !== "domain" && type_to_use.toLowerCase() !== "global") {
         let pageUrl = document.createElement("h3");
         pageUrl.classList.add("link", "go-to-external");
         pageUrl.textContent = url;
@@ -838,12 +927,13 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl) {
     return page;
 }
 
-function changeTagColour(page, url, colour) {
+function changeTagColour(url, colour) {
     sync_local.get("websites", function (value) {
         websites_json = {};
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
         }
+        //console.log(`url ${url}`);
         websites_json[url]["tag-colour"] = colour;
         websites_json_to_show = websites_json;
         sync_local.set({"websites": websites_json}, function () {
@@ -851,8 +941,8 @@ function changeTagColour(page, url, colour) {
             hideBackgroundOpacity();
             applyFilter();
             setTimeout(function () {
-                search(document.getElementById("search-all-notes-text").value);
-            }, 50);
+                search("");
+            }, 5000);
         });
     });
 }
@@ -867,17 +957,128 @@ function isEmpty(obj) {
     return Object.keys(obj).length === 0
 }
 
-function sortOnKeys(dict) {
-    var sorted = [];
-    for (var key in dict) {
-        sorted[sorted.length] = key;
-    }
-    sorted.sort();
+/**
+ * Sort websites
+ * @param dict the dictionary to sort
+ * @param sort_by how to sort {name-az, name-za, date-09, date-90}
+ * @returns {{}} returns the dictionary (websites) sorted
+ */
+function sortOnKeys(dict, dict2, sort_by) {
+    //console.log(JSON.stringify(dict))
+    //console.log(JSON.stringify(dict2))
 
-    var tempDict = {};
-    for (var i = 0; i < sorted.length; i++) {
-        tempDict[sorted[i]] = dict[sorted[i]];
+    let tempDict = {};
+
+    //console.log(JSON.stringify(tempDict));
+
+    if (sort_by !== "name-az" && sort_by !== "name-za" && sort_by !== "date-09" && sort_by !== "date-90") sort_by = "name-az";
+    if (sort_by === "name-az") {
+        //Sort by name: from "A" to "Z"
+        tempDict = {};
+        var sorted = [];
+        for (var key in dict) {
+            sorted[sorted.length] = key;
+        }
+        sorted.sort();
+
+        for (let i = 0; i < sorted.length; i++) {
+            tempDict[sorted[i]] = dict[sorted[i]];
+        }
+    } else if (sort_by === "name-za") {
+        //Sort by name: from "Z" to "A"
+        tempDict = {};
+        var sorted = [];
+        for (var key in dict) {
+            sorted[sorted.length] = key;
+        }
+        sorted.sort().reverse();
+
+        for (let i = 0; i < sorted.length; i++) {
+            tempDict[sorted[i]] = dict[sorted[i]];
+        }
+    } else if (sort_by === "date-09") {
+        //Sort by updated date: from the newer to the oldest
+        //for the same domain: get its MIN date, and sort by that
+        let dictToSortDate = {};
+        for (let domain in dict) {
+            dictToSortDate[domain] = {};
+            dictToSortDate[domain]["last-update"] = null;
+            dictToSortDate[domain]["pages"] = [];
+            if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = dict2[domain]["last-update"];
+            for (let website in dict2) {
+                if (website.includes(domain)) {
+                    let date1 = new Date(dict2[website]["last-update"]);
+                    let date2 = new Date(dictToSortDate[domain]["last-update"]);
+                    if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 < date2) dictToSortDate[domain]["last-update"] = dict2[website]["last-update"];
+                }
+            }
+        }
+
+        const sortedEntries = Object.entries(dictToSortDate).sort(([, a], [, b]) => {
+            const dateA = new Date(a["last-update"]);
+            const dateB = new Date(b["last-update"]);
+            return dateA - dateB;
+        });
+
+
+        let temp2 = {};
+        var sorted = [];
+        for (var key in dict) {
+            sorted[sorted.length] = key;
+        }
+        sorted.sort();
+
+        for (let i = 0; i < sorted.length; i++) {
+            temp2[sorted[i]] = dict[sorted[i]];
+        }
+
+        let tempDict2 = Object.fromEntries(sortedEntries);
+
+        for (let temp in tempDict2) {
+            tempDict[temp] = temp2[temp];
+        }
+    } else if (sort_by === "date-90") {
+        //Sort by updated date: from the oldest to the newer
+        //for the same domain: get its MAX date, and sort by that
+        let dictToSortDate = {};
+        for (let domain in dict) {
+            dictToSortDate[domain] = {};
+            dictToSortDate[domain]["last-update"] = null;
+            dictToSortDate[domain]["pages"] = [];
+            if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = dict2[domain]["last-update"];
+            for (let website in dict2) {
+                if (website.includes(domain)) {
+                    let date1 = new Date(dict2[website]["last-update"]);
+                    let date2 = new Date(dictToSortDate[domain]["last-update"]);
+                    if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 > date2) dictToSortDate[domain]["last-update"] = dict2[website]["last-update"];
+                }
+            }
+        }
+
+        const sortedEntries = Object.entries(dictToSortDate).sort(([, a], [, b]) => {
+            const dateA = new Date(a["last-update"]);
+            const dateB = new Date(b["last-update"]);
+            return dateB - dateA;
+        });
+
+        let temp2 = {};
+        var sorted = [];
+        for (var key in dict) {
+            sorted[sorted.length] = key;
+        }
+        sorted.sort();
+
+        for (let i = 0; i < sorted.length; i++) {
+            temp2[sorted[i]] = dict[sorted[i]];
+        }
+
+        let tempDict2 = Object.fromEntries(sortedEntries);
+
+        for (let temp in tempDict2) {
+            tempDict[temp] = temp2[temp];
+        }
     }
+    //console.log(JSON.stringify(tempDict));
 
     return tempDict;
 }
@@ -929,6 +1130,101 @@ function checkTwoVersions(version1, version2) {
     }
 
     return valueToReturn;
+}
+
+
+function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
+    if (background !== undefined && backgroundSection !== undefined && primary !== undefined && secondary !== undefined && on_primary !== undefined && on_secondary !== undefined) {
+        document.body.style.backgroundColor = background;
+        document.body.color = primary;
+        document.getElementById("all-notes-dedication-section").style.backgroundColor = backgroundSection;
+        //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
+        document.getElementById("all-notes-dedication-section").style.color = primary;
+        document.getElementById("export-sub-sections").style.cssText = 'opacity:1 !important';
+        document.getElementById("import-sub-sections").style.cssText = 'opacity:1 !important';
+        var open_external_svg = window.btoa(getIconSvgEncoded("open-external", primary));
+        var donate_svg = window.btoa(getIconSvgEncoded("donate", on_primary));
+        var settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
+        var import_svg = window.btoa(getIconSvgEncoded("import", on_primary));
+        var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
+        var delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
+        var delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
+        var copy_svg = window.btoa(getIconSvgEncoded("copy", on_primary));
+        var filter = window.btoa(getIconSvgEncoded("filter", on_primary));
+        var sort_by = window.btoa(getIconSvgEncoded("sort-by", on_primary));
+        var tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
+        var refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
+        var sort_by_svg = window.btoa(getIconSvgEncoded("sort-by", on_primary));
+
+        let tertiary = backgroundSection;
+        let tertiaryTransparent = primary;
+        if (tertiaryTransparent.includes("rgb(")) {
+            let rgb_temp = tertiaryTransparent.replace("rgb(", "");
+            let rgb_temp_arr = rgb_temp.split(",");
+            if (rgb_temp_arr.length >= 3) {
+                let red = rgb_temp_arr[0].replace(" ", "");
+                let green = rgb_temp_arr[1].replace(" ", "");
+                let blue = rgb_temp_arr[2].replace(")", "").replace(" ", "");
+                tertiaryTransparent = `rgba(${red}, ${green}, ${blue}, 0.2)`;
+            }
+        } else if (tertiaryTransparent.includes("#")) {
+            tertiaryTransparent += "22";
+        }
+        //console.log(tertiaryTransparent);
+
+        document.head.innerHTML += `
+            <style>
+                :root {
+                    --primary-color: ${primary};
+                    --secondary-color: ${secondary};
+                    --on-primary-color: ${on_primary};
+                    --on-secondary-color: ${on_secondary};
+                    --textbox-color: ${textbox_background};
+                    --on-textbox-color: ${textbox_color};
+                    --tertiary: ${tertiary};
+                    --tertiary-transparent: ${tertiaryTransparent};
+                }
+                .go-to-external:hover::after {
+                    content: url('data:image/svg+xml;base64,${open_external_svg}');
+                }
+                .donate-button {
+                    background-image: url('data:image/svg+xml;base64,${donate_svg}');
+                }
+                .settings-button {
+                    background-image: url('data:image/svg+xml;base64,${settings_svg}');
+                }
+                .import-button {
+                    background-image: url('data:image/svg+xml;base64,${import_svg}');
+                }
+                .export-button {
+                    background-image: url('data:image/svg+xml;base64,${export_svg}');
+                }
+                .clear-button {
+                    background-image: url('data:image/svg+xml;base64,${delete_svg}');
+                }
+                .clear2-button {
+                    background-image: url('data:image/svg+xml;base64,${delete2_svg}');
+                }
+                .copy-button {
+                    background-image: url('data:image/svg+xml;base64,${copy_svg}');
+                }
+                .filter-button {
+                    background-image: url('data:image/svg+xml;base64,${filter}');
+                }
+                .sort-by-button {
+                    background-image: url('data:image/svg+xml;base64,${sort_by}');
+                }
+                .tag-button {
+                    background-image: url('data:image/svg+xml;base64,${tag_svg}');
+                }
+                .refresh-button {
+                    background-image: url('data:image/svg+xml;base64,${refresh_svg}');
+                }
+                .sort-by-button {
+                    background-image: url('data:image/svg+xml;base64,${sort_by_svg}');
+                }
+            </style>`;
+    }
 }
 
 loaded();

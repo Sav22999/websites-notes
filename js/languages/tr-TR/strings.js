@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Last update: {{date_time}}',
     'page-label': 'Page',
     'domain-label': 'Domain',
+    'global-label': 'Global',
     'see-all-notes-button': 'See all notes',
     'clear-all-notes-confirmation': 'Are you sure you want to clear all notes?\nYou can\'t cancel this process once started.',
     'clear-all-notes-domain-confirmation': 'Are you sure you want to clear all notes of this domain (its pages notes as well)?\nYou can\'t cancel this process once started.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Name: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Last update: Newest to Oldest',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Last update: Oldest to Newest',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Filter…',
     'filter-sort-by-not-selected': 'Not selected',
     'filter-by-tag-button': 'Tag: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Domain',
     'filter-by-pages-button': 'Pages',
     'settings-button': 'Ayarlar',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'Option ⌥ + Shift ⇧',
     'disable-sync-settings-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.',
-    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.'
+    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Açık',
+    'theme-choose-dark-select': 'Koyu',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

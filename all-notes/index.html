@@ -24,33 +24,53 @@ Created by Saverio Morelli - saveriomorelli.com
         <input type="search" value="" placeholder="Search…" id="search-all-notes-text" class="textbox search-box"/>
         <!--<input type="button" value="Sort by…" id="sort-by-all-notes-button" class="button sort-by-button float-right"/>-->
         <input type="button" value="Filter…" id="filter-all-notes-button" class="button filter-button float-right"/>
+        <span class="float-right">
+            <select name="theme" id="sort-by-all-notes-button" class="select-box sort-by-button button">
+                <option value="name-az" id="sort-by-name-az-select">Name: A-Z</option>
+                <option value="name-za" id="sort-by-name-za-select">Name: Z-A</option>
+                <option value="date-90" id="sort-by-date-90-select">Last update: Oldest-Newest</option>
+                <option value="date-09" id="sort-by-date-09-select">Last update: Newest-Oldest</option>
+            </select>
+        </span>
     </div>
     <div class="section text-align-left hidden" id="filters">
-        <input type="button" value="Tag: Red" id="filter-tag-red-button" class="button filter-button-tag float-right"/>
+        <input type="button" value="Tag: Red" id="filter-tag-red-button"
+               class="button filter-button-tag"/>
         <input type="button" value="Tag: Black" id="filter-tag-black-button"
-               class="button filter-button-tag float-right"/>
+               class="button filter-button-tag"/>
         <input type="button" value="Tag: Blue" id="filter-tag-blue-button"
-               class="button filter-button-tag float-right"/>
+               class="button filter-button-tag"/>
         <input type="button" value="Tag: Gray" id="filter-tag-gray-button"
-               class="button filter-button-tag float-right"/>
+               class="button filter-button-tag"/>
         <input type="button" value="Tag: Green" id="filter-tag-green-button"
-               class="button filter-button-tag float-right"/>
+               class="button filter-button-tag"/>
         <input type="button" value="Tag: Orange" id="filter-tag-orange-button"
-               class="button filter-button-tag float-right"/>
+               class="button filter-button-tag"/>
         <input type="button" value="Tag: Pink" id="filter-tag-pink-button"
-               class="button filter-button-tag float-right"/>
+               class="button filter-button-tag"/>
         <input type="button" value="Tag: Purple" id="filter-tag-purple-button"
-               class="button filter-button-tag float-right"/>
+               class="button filter-button-tag"/>
         <input type="button" value="Tag: Yellow" id="filter-tag-yellow-button"
-               class="button filter-button-tag float-right"/>
+               class="button filter-button-tag"/>
         <input type="button" value="Tag: White" id="filter-tag-white-button"
-               class="button filter-button-tag float-right"/>
+               class="button filter-button-tag"/>
+        <input type="button" value="Tag: None" id="filter-tag-none-button"
+               class="button filter-button-tag"/>
+        <br>
+        <input type="button" value="Type: Global" id="filter-type-global-button"
+               class="button filter-button-type"/>
+        <input type="button" value="Type: Domain" id="filter-type-domain-button"
+               class="button filter-button-type"/>
+        <input type="button" value="Type: Page" id="filter-type-page-button"
+               class="button filter-button-type"/>
     </div>
 
     <div id="disable-sync" class="hidden section section-warning">
-        Due to some space limitation with "sync" I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!
+        Due to some space limitation with "sync" I advise you to disable the data synced in this page. Otherwise, the
+        add-on should not work properly anymore!
         <br>
-        To do that, in the add-on Settings find <span class="button-code" id="string-save-on-local-instead-of-sync">Save data locally instead of sync with Firefox account</span> and set to <span
+        To do that, in the add-on Settings find <span class="button-code" id="string-save-on-local-instead-of-sync">Save data locally instead of sync with Firefox account</span>
+        and set to <span
             id="string-save-on-local-instead-of-sync-yes" class="button-code">Yes</span>.
     </div>
 
@@ -58,17 +78,17 @@ Created by Saverio Morelli - saveriomorelli.com
     <div id="background-opacity"></div>
     <div id="import-section">
         <div class="section" id="import-sub-sections">
-            <div class="sub-section">
+            <div class="section">
                 <div id="text-import">
                     Paste here the JSON (or text) file content you exported previously, then click the <span
                         class="button-code">Import now</span>
                     button. The page will be automatically reloaded if notes are successfully imported.
                 </div>
             </div>
-            <div class="sub-section">
+            <div class="section">
                 <textarea id="json-import"></textarea>
             </div>
-            <div class="sub-section text-align-right">
+            <div class="section text-align-right">
                 <input type="button" value="Get local data" id="import-now-all-notes-from-local-button"
                        class="button import-button"/>
                 <input type="button" value="Cancel" id="cancel-import-all-notes-button" class="button"/>
@@ -78,16 +98,16 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
     <div id="export-section">
         <div class="section" id="export-sub-sections">
-            <div class="sub-section">
+            <div class="section">
                 <div id="text-export">
                     Create a new JSON (or text) file and paste the code below <strong>without modifying
                     it</strong> (you can click the <span class="button-code">Copy now</span> button to copy the code).
                 </div>
             </div>
-            <div class="sub-section">
+            <div class="section">
                 <textarea id="json-export" readonly></textarea>
             </div>
-            <div class="sub-section text-align-right">
+            <div class="section text-align-right">
                 <input type="button" value="Cancel" id="cancel-export-all-notes-button" class="button"/>
                 <input type="button" value="Copy now" id="copy-now-all-notes-button" class="button copy-button"/>
             </div>

@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Останнє оновлення: {{date_time}}',
     'page-label': 'Сторінка',
     'domain-label': 'Домен',
+    'global-label': 'Global',
     'see-all-notes-button': 'Переглянути всі нотатки',
     'clear-all-notes-confirmation': 'Ви впевнені, що хочете очистити всі нотатки?\nПісля запуску цей процес не можна буде скасувати.',
     'clear-all-notes-domain-confirmation': 'Ви впевнені, що хочете очистити всі нотатки цього домену (також його сторінки)?\nВи не можете скасувати цей процес після початку.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Назва: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Останнє оновлення: спочатку старі',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Останнє оновлення: найстаріші',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Фільтр…',
     'filter-sort-by-not-selected': 'Не обрано',
     'filter-by-tag-button': 'Тег: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Домен',
     'filter-by-pages-button': 'Сторінки',
     'settings-button': 'Налаштунки',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'Опція <unk> + Shift',
     'disable-sync-settings-message': 'Через якесь обмеження простору з синхронізацією, я раджу вимкнути синхронізацію даних на цій сторінці. В іншому випадку додаток не повинен більше працювати належним чином!<br>Щоб це зробити, знайдіть {{property1}} і встановіть в {{property2}}.',
-    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.'
+    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Світла',
+    'theme-choose-dark-select': 'Темна',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

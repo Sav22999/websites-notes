@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'Последнее обновление: {{date_time}}',
     'page-label': 'Страница',
     'domain-label': 'Домен',
+    'global-label': 'Global',
     'see-all-notes-button': 'Посмотреть все заметки',
     'clear-all-notes-confirmation': 'Вы уверены, что хотите очистить все заметки?\nВы не можете отменить этот процесс после начала.',
     'clear-all-notes-domain-confirmation': 'Вы уверены, что хотите очистить все заметки этого домена (примечания к нему)?\nВы не можете отменить этот процесс после начала.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'Название: Я-А',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'Последнее обновление: от новых до старых',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'Последнее обновление: от старых к новым',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'Фильтр…',
     'filter-sort-by-not-selected': 'Не выбрано',
     'filter-by-tag-button': 'Тег: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'Домен',
     'filter-by-pages-button': 'Страницы',
     'settings-button': 'Настройки',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'Опция <unk> + Shift <unk>',
     'disable-sync-settings-message': 'Из-за ограничений места с синхронизацией я рекомендую вам отключить синхронизацию данных на этой странице. В противном случае дополнение больше не должно работать должным образом!<br>Для этого, найдите {{property1}} и установите {{property2}}.',
-    'disable-sync-message': 'Из-за ограничений места с синхронизацией я рекомендую вам отключить синхронизацию данных на этой странице. В противном случае дополнение больше не должно работать должным образом!<br>Для этого в настройках дополнения найдите  {{property1}} и установите {{property2}}.'
+    'disable-sync-message': 'Из-за ограничений места с синхронизацией я рекомендую вам отключить синхронизацию данных на этой странице. В противном случае дополнение больше не должно работать должным образом!<br>Для этого в настройках дополнения найдите  {{property1}} и установите {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'Светлая',
+    'theme-choose-dark-select': 'Темная',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

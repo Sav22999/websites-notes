@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': 'آخر تحديث: {{date_time}}',
     'page-label': 'الصفحة',
     'domain-label': 'النطاق',
+    'global-label': 'Global',
     'see-all-notes-button': 'مشاهدة جميع الملاحظات',
     'clear-all-notes-confirmation': 'هل أنت متأكد من أنك تريد مسح جميع الملاحظات؟\nلا يمكنك إلغاء هذه العملية بمجرد بدئها.',
     'clear-all-notes-domain-confirmation': 'هل أنت متأكد من أنك تريد مسح جميع الملاحظات من هذا النطاق (ملاحظات الصفحات أيضا)؟\nلا يمكنك إلغاء هذه العملية بمجرد بدئها.',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': 'الاسم: Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': 'آخر تحديث: الأحدث إلى الأقدم',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': 'آخر تحديث: الأقدم إلى الأحدث',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': 'تصفية…',
     'filter-sort-by-not-selected': 'غير محدد',
     'filter-by-tag-button': 'العلامة: {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': 'النطاق',
     'filter-by-pages-button': 'الصفحات',
     'settings-button': 'الإعدادات',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'الخيار <unk> + تحويل <unk>',
     'disable-sync-settings-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.',
-    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.'
+    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': 'فاتح',
+    'theme-choose-dark-select': 'داكن',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

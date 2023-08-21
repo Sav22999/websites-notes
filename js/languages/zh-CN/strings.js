@@ -17,6 +17,7 @@ strings[lang] = {
     'last-update-text': '上次更新: {{date_time}}',
     'page-label': '页',
     'domain-label': '域',
+    'global-label': 'Global',
     'see-all-notes-button': '查看所有笔记',
     'clear-all-notes-confirmation': '您确定要清除所有笔记吗？\n一旦启动，您不能取消此进程。',
     'clear-all-notes-domain-confirmation': '您确定要清除此域的所有备注 (其页面备注)？\n一旦开始，您就不能取消此进程。',
@@ -66,12 +67,13 @@ strings[lang] = {
     'sort-by-za-button': '名称：Z-A',
     //from website "z" to "a"
     'sort-by-edit-last-button': '上次更新：最新到最旧的',
-    //from the last to the first
+    //from the last to the first -> date-90
     'sort-by-edit-first-button': '上次更新：从最旧到最新的',
-    //from the first to the last
+    //from the first to the last -> date-09
     'filter-button': '过滤器…',
     'filter-sort-by-not-selected': '未选择',
     'filter-by-tag-button': '标签： {{color}}',
+    'filter-by-type-button': 'Type: {{type}}',
     'filter-by-domain-button': '域',
     'filter-by-pages-button': '页 次',
     'settings-button': '设置',
@@ -91,5 +93,10 @@ strings[lang] = {
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': '自变量+偏移量',
     'disable-sync-settings-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.',
-    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.'
+    'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.',
+    'theme-text': 'Choose the theme to use',
+    'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
+    'theme-choose-light-select': '浅',
+    'theme-choose-dark-select': '深',
+    'theme-choose-firefox-select': 'Follow the Firefox theme'
 };

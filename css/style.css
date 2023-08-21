@@ -10,11 +10,13 @@
 
 :root {
     --primary-color: #ff6200;
-    --hover-color: #ff873e;
     --secondary-color: #ffb788;
-    --tertiary-color: #ffccac;
     --on-primary-color: #ffffff;
     --on-secondary-color: #ffffff;
+    --textbox-color: #ffffff;
+    --on-textbox-color: #ff6200;
+    --tertiary: #ffffffff;
+    --tertiary-transparent: #ffffff88;
 }
 
 
@@ -23,7 +25,7 @@
     box-sizing: border-box;
     font-family: open-sans, sans-serif;
     font-size: 16px;
-    transition: 0.5s;
+    transition: 0s;
     position: relative;
     z-index: 1;
     scrollbar-color: var(--primary-color) transparent;
@@ -49,8 +51,8 @@ body {
     padding: 0px;
     border: 0px solid transparent;
     position: relative;
-    background-color: #eeeeee;
-    color: #000000;
+    background-color: #cccccc33;
+    color: inherit;
 }
 
 #tabs-section {
@@ -67,42 +69,16 @@ body {
     font-size: 14px;
     margin: 0px;
     padding: 5px;
-    background-color: #ffffff;
-    width: 50%;
+    background-color: var(--primary-color);
+    color: var(--on-primary-color);
+    opacity: 0.5;
+    width: 34%;
     box-sizing: border-box;
     display: inline-block;
 }
 
-#version {
+#tabs-section > .tab, #version {
     border-radius: 0px;
-}
-
-.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button {
-    padding-left: 35px;
-    padding-right: 10px;
-    background-image: url("../img/delete.svg");
-    background-size: auto 60%;
-    background-repeat: no-repeat;
-    background-position: 10px center;
-    color: #ffffff;
-    margin: 2px;
-}
-
-.button-trigger-sticky {
-    position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 30px !important;
-    height: 30px !important;
-    background-image: url("../img/sticky-open.svg");
-    background-size: auto 70%;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-color: #ff6200;
-    color: #ffffff;
-    margin: 2px;
-    z-index: 5;
-    border-radius: 5px;
 }
 
 .select-box {
@@ -121,10 +97,40 @@ body {
     margin-right: 10px;
 
     background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
+    opacity: 0.8;
 }
 
 .select-box:hover {
-    background-color: var(--tertiary-color);
+    opacity: 1;
+}
+
+.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button {
+    padding-left: 35px;
+    padding-right: 10px;
+    background-image: url("../img/delete.svg");
+    background-size: auto 60%;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    color: var(--on-primary-color);
+    margin: 2px;
+    border: 0px solid var(--primary-color);
+}
+
+.button-trigger-sticky {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 30px !important;
+    height: 30px !important;
+    background-image: url("../img/sticky-open.svg");
+    background-size: auto 70%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: #ff6200;
+    color: #ffffff;
+    margin: 2px;
+    z-index: 5;
+    border-radius: 5px;
 }
 
 .save-button {
@@ -200,35 +206,50 @@ body {
 }
 
 #tabs-section > .tab:first-child {
+    border-radius: 5px;
     border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
+    width: 33%;
 }
 
 #tabs-section > .tab:last-child {
+    border-radius: 5px;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
+    width: 33%;
 }
 
 #tabs-section > .tab:hover {
-    background-color: #dddddd;
+    /*background-color: #dddddd;*/
+    opacity: 0.9;
 }
 
-#tabs-section > .tab:active, #tabs-section > .tab:focus, #notes-section > #notes:focus, .button:active, .button:focus, textarea:focus, textarea:active, .textbox:focus, .textbox:active {
+#tabs-section > .tab:active, #tabs-section > .tab:focus, .button:active, .button:focus, textarea:focus, textarea:active, .textbox:focus, .textbox:active {
     box-shadow: 0px 0px 0px 2px var(--primary-color), 0px 0px 0px 5px var(--secondary-color);
     border-radius: 5px;
     z-index: 2;
     transition: 0.5s;
 }
 
+#tabs-section > .tab:active, #tabs-section > .tab:focus {
+    border-radius: 0px;
+}
+
+#notes-section > #notes:focus {
+    box-shadow: 0px 0px 0px 3px var(--on-textbox-color);
+}
+
 #tabs-section > .tab-sel, .button {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
     color: var(--on-primary-color);
+    opacity: 1;
 }
 
 #tabs-section > .tab-sel:hover, .button:hover {
-    background-color: var(--hover-color);
-    border-color: var(--hover-color);
+    /*background-color: var(--primary-color);*/
+    /*border-color: var(--primary-color);*/
+    opacity: 1;
 }
 
 
@@ -246,17 +267,18 @@ body {
     height: 300px;
     border: 0px;
     border-radius: 5px;
-    background-color: #ffffff;
-    color: #000000;
+    background-color: var(--textbox-color);
+    color: var(--on-textbox-color);
     resize: none;
     margin: 0px;
     padding: 5px;
     font-size: 14px;
     overflow: auto;
+    box-shadow: 0px 0px 0px 1px var(--on-textbox-color);
 }
 
 textarea::placeholder, .textbox::placeholder {
-    color: var(--primary-color);
+    color: var(--on-textbox-color);
 }
 
 
@@ -271,6 +293,13 @@ textarea::placeholder, .textbox::placeholder {
     width: 30%;
     min-width: 200px;
     margin: 3px;
+    background-color: var(--textbox-color);
+    color: var(--on-textbox-color);
+    opacity: 0.8;
+}
+
+#search-all-notes-text:focus {
+    opacity: 1;
 }
 
 #last-updated-section {
@@ -280,7 +309,7 @@ textarea::placeholder, .textbox::placeholder {
 }
 
 #all-notes-dedication-section, #settings-dedication-section {
-    background-color: #eeeeee;
+    background-color: #cccccc33;
     padding: 5px;
     width: 70%;
     height: 100%;
@@ -288,6 +317,7 @@ textarea::placeholder, .textbox::placeholder {
     margin-right: auto;
     border-radius: 0px;
     overflow: auto;
+    box-shadow: 0px 0px 5px var(--primary-color);
 }
 
 @media screen and (max-width: 2000px) {
@@ -319,10 +349,15 @@ textarea::placeholder, .textbox::placeholder {
 }
 
 .section, .sub-section, .section-empty {
-    background-color: #ffffff;
+    background-color: var(--tertiary-transparent);
     padding: 5px;
     margin: 5px;
     border-radius: 5px;
+    opacity: 1;
+}
+
+#import-sub-sections, #export-sub-sections {
+    background-color: var(--tertiary);
 }
 
 .section-warning {
@@ -358,16 +393,17 @@ textarea::placeholder, .textbox::placeholder {
 }
 
 .sub-section {
-    background-color: #eeeeee;
+    background-color: #d0d0d022;
     padding: 10px;
+    box-shadow: inset 0px 0px 0px 1px var(--primary-color);
 }
 
 .sub-section:nth-child(even) {
-    background-color: #d0d0d0;
+    background-color: #d0d0d022;
 }
 
 .background-light-red:nth-child(even) {
-    background-color: #ff8e8e;
+    background-color: #ff8e8e77;
 }
 
 .sub-section-type {
@@ -386,6 +422,7 @@ textarea::placeholder, .textbox::placeholder {
 
 .sub-section-notes {
     margin-top: 10px;
+    opacity: 1;
     /*
     padding: 10px;
     background-color: #e5e5e5;
@@ -393,7 +430,8 @@ textarea::placeholder, .textbox::placeholder {
 }
 
 .sub-section-notes:hover {
-    background-color: var(--tertiary-color);
+    opacity: 1;
+    box-shadow: inset 0px 0px 0px 3px var(--primary-color);
 }
 
 .sub-section-last-update {
@@ -495,7 +533,12 @@ h3 {
 }
 
 .section-selected {
-    background-color: var(--tertiary-color);
+    background-color: var(--on-primary-color);
+    opacity: 1;
+}
+
+.section-domain {
+    margin-bottom: 30px;
 }
 
 .link {
@@ -557,17 +600,20 @@ h3 {
 .tag-colour-left {
     border: 0px solid transparent;
     border-left-width: 15px;
-    border-style: solid;
 }
 
 .tag-colour-top {
     border: 0px solid transparent;
     border-top-width: 10px;
-    border-style: solid;
 }
 
-.filter-button-tag {
+.filter-button-tag, .filter-button-type {
     margin: 2px;
+}
+
+.button-sel {
+    background-color: var(--on-primary-color);
+    color: var(--primary-color);
 }
 
 .tag-colour-none {
@@ -576,7 +622,7 @@ h3 {
 
 
 .background-light-red {
-    background-color: #ff8e8e;
+    background-color: #ff8e8e99;
 }
 
 .tag-colour-none-bg {

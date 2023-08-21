@@ -4,7 +4,7 @@ var websites_json = {};
 
 var tab_id = 0;
 var tab_url = "";
-var current_urls = []; //0: domain, 1: page
+var current_urls = []; //0: global, 1: domain, 2: page
 
 var all_urls = {}; //url_domain: {0: domain, 1: page}
 
@@ -13,6 +13,9 @@ var sizes = {w: "300px", h: "300px"};
 var opacity = {value: 0.7};
 
 let opening_sticky = false;
+
+let page_domain_global = {"page": "Page", "domain": "Domain", "global": "Global"};
+let linkFirstLaunch = "https://saveriomorelli.com/projects/notefox/first-run"
 
 let sync_local;
 checkSyncLocal();
@@ -27,6 +30,19 @@ function checkSyncLocal() {
             sync_local = browser.storage.local;
         }
     });
+    browser.storage.sync.get("installation").then(result => {
+        if (result.installation === undefined) {
+            browser.storage.sync.set({
+                "installation": {
+                    "date": getDate(),
+                    "version": browser.runtime.getManifest().version
+                }
+            });
+
+            //first launch -> open tutorial
+            browser.tabs.create({url: linkFirstLaunch});
+        }
+    })
 }
 
 function changeIcon(index) {
@@ -59,44 +75,6 @@ function loaded() {
 }
 
 function loadDataFromSync() {
-    //BEFORE TO DO ANYTHING, THE ADDON CHECK DATA
-    /*
-    browser.storage.local.get([
-        "storage",
-        "settings",
-        "websites",
-        "sticky-notes-coords",
-        "sticky-notes-sizes",
-        "sticky-notes-opacity"
-    ]).then(result => {
-        if (result.storage === undefined && JSON.stringify(result) === "{}") {
-            //No data in sync
-            //console.log("No data to transfer from local to sync!");
-            browser.storage.local.set({"storage": "sync"});
-            loaded();
-        } else {
-            //If it's available "local" data, they are sent to "sync" data
-            if (result.storage !== undefined && result.storage === "sync") {
-                browser.storage.sync.set(result).then(result => {
-                    //If it entry here, it means "local" data are been exported in "sync" data
-
-                    //console.log("Data imported correctly in sync data!");
-
-                    //browser.storage.local.clear();
-
-                    browser.storage.local.set({"storage": "sync"});
-                    loaded();
-                }).catch((error) => {
-                    console.error("Error importing data to sync:", error);
-                });
-            } else {
-                //do not do anything: user choosen to use "local" data
-            }
-        }
-    }).catch((error) => {
-        console.error("Error retrieving data from local:", error);
-    });
-   */
     loaded();
 }
 
@@ -119,13 +97,13 @@ function tabUpdated(tabs) {
 }
 
 function checkStatus() {
-    current_urls = [getDomainUrl(tab_url), getPageUrl(tab_url)];
+    current_urls = ["**global", getDomainUrl(tab_url), getPageUrl(tab_url)];
     sync_local.get("settings", function (value) {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
-            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
-            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "yes";
-            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "yes";
+            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
+            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
+            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
         }
 
         continueCheckStatus();
@@ -139,6 +117,7 @@ function continueCheckStatus() {
             websites_json = value["websites"];
 
             checkIcon();
+            //console.log(">>>" + getTheCorrectUrl());
 
             if (websites_json[getTheCorrectUrl()] !== undefined && websites_json[getTheCorrectUrl()]["sticky"] !== undefined && websites_json[getTheCorrectUrl()]["sticky"]) {
                 openAsStickyNotes();
@@ -201,6 +180,10 @@ function listenerShortcuts() {
             //page
             browser.browserAction.openPopup();
             sync_local.set({"opened-by-shortcut": "page"});
+        } else if (command === "opened-by-global") {
+            //global
+            browser.browserAction.openPopup();
+            sync_local.set({"opened-by-shortcut": "global"});
         }
     });
 }
@@ -211,9 +194,9 @@ function listenerStickyNotes() {
         if (message["open-sticky"] !== undefined && message["open-sticky"]["open"] !== undefined && message["open-sticky"]["open"]) {
             //from main script (script.js)
             //the type indicated 0: domain, 1: page
-            let type = 1;
+            let type = 2;
             if (message["open-sticky"]["type"] !== undefined) type = message["open-sticky"]["type"];
-            all_urls[current_urls[1]] = {type: type};
+            all_urls[current_urls[2]] = {type: type};
             //console.log(JSON.stringify(all_urls));
             setOpenedSticky(true, false);
             openAsStickyNotes();
@@ -309,6 +292,7 @@ function listenerStickyNotes() {
                 }
                 if (message.ask === "notes") {
                     let url_to_use = getTheCorrectUrl();
+                    let page_domain_global_to_use = getTypeToShow(url_to_use);
                     if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["notes"] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) {
                         sendResponse({
                             notes: {
@@ -316,6 +300,7 @@ function listenerStickyNotes() {
                                 url: url_to_use,
                                 tag_colour: websites_json[url_to_use]["tag-colour"],
                                 website: websites_json[url_to_use],
+                                page_domain_global: page_domain_global_to_use,
                                 sticky_params: {
                                     coords: {x: coords.x, y: coords.y},
                                     sizes: {w: sizes.w, h: sizes.h},
@@ -349,19 +334,46 @@ function listenerStickyNotes() {
 }
 
 /**
+ * Get "Page" or "Domain" or "Global" (translated!)
+ */
+function getTypeToShow(url) {
+    let valueToReturn = "";
+    if (url === "**global") {
+        //global
+        valueToReturn = page_domain_global.global;
+    } else if (isAPage(url)) {
+        //page
+        valueToReturn = page_domain_global.page;
+    } else {
+        //domain
+        valueToReturn = page_domain_global.domain;
+    }
+    return valueToReturn;
+}
+
+/**
+ * @param url the url which you want to check if it's a page or not
+ * @returns {boolean} returns true if it's a page OR global, otherwise returns false
+ */
+function isAPage(url) {
+    return (url.replace("http://", "").replace("https://", "").split("/").length > 1);
+}
+
+/**
  * Returns the correct url (if exists "page" returns that, else if exists "domain" returns that one)
  */
 function getTheCorrectUrl() {
-    let default_url_index = 1;
+    let default_url_index = 2;
     if (settings_json !== undefined && settings_json["open-default"] !== undefined) {
-        if (settings_json["open-default"] === "page") default_url_index = 1;
-        else if (settings_json["open-default"] === "domain") default_url_index = 0;
+        if (settings_json["open-default"] === "page") default_url_index = 2;
+        else if (settings_json["open-default"] === "domain") default_url_index = 1;
+        else if (settings_json["open-default"] === "global") default_url_index = 0;
     }
 
     //console.log(JSON.stringify(all_urls));
 
     let url_to_use = tab_url;
-    let page = false, domain = false;
+    let page = false, domain = false, global = false;
     if (all_urls[getDomainUrl(tab_url)] !== undefined && all_urls[getDomainUrl(tab_url)].type !== undefined) {
         url_to_use = current_urls[all_urls[getDomainUrl(tab_url)].type];
         domain = true;
@@ -370,25 +382,34 @@ function getTheCorrectUrl() {
         url_to_use = current_urls[all_urls[getPageUrl(tab_url)].type];
         page = true;
     }
+    if (all_urls["**global"] !== undefined && all_urls["**global"].type !== undefined) {
+        url_to_use = current_urls[all_urls["**global"].type];
+        global = true;
+    }
 
     let domain_condition = websites_json[getDomainUrl(tab_url)] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"];
     let page_condition = websites_json[getPageUrl(tab_url)] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"];
-    if (!domain && !page) {
+    let global_condition = websites_json["**global"] !== undefined && websites_json["**global"]["sticky"] !== undefined && websites_json["**global"]["sticky"];
+    if (!domain && !page && !global) {
         if (domain_condition) {
-            url_to_use = current_urls[0];
+            url_to_use = current_urls[1];
             domain = true;
         }
         if (page_condition) {
-            url_to_use = current_urls[1];
+            url_to_use = current_urls[2];
             page = true;
         }
+        if (global_condition) {
+            url_to_use = current_urls[0];
+            global = true;
+        }
 
-        if (domain && page) {
+        if (domain && page && global) {
             //if enter here, this means both are in websites, so choose the default one
             url_to_use = current_urls[default_url_index];
         }
     } else {
-        //console.log(`Here! ${domain} ${page}`);
+        //console.log(`Here! ${global} ${domain} ${page}`);
         if (current_urls[all_urls[getPageUrl(tab_url)].type] !== 1) {
             url_to_use = current_urls[all_urls[getPageUrl(tab_url)].type];
         }
@@ -469,6 +490,9 @@ function checkIcon() {
         changeIcon(1);
     } else if (websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "") {
         changeIcon(1);
+    } else if (websites_json["**global"] !== undefined && websites_json["**global"]["last-update"] !== undefined && websites_json["**global"]["last-update"] != null && websites_json["**global"]["notes"] !== undefined && websites_json["**global"]["notes"] !== "") {
+        changeIcon(1);
+        //console.log(websites_json["**global"]);
     } else {
         changeIcon(0);
     }
@@ -484,9 +508,7 @@ function setOpenedSticky(sticky, minimized) {
                 websites_json[getTheCorrectUrl()]["sticky"] = sticky;
                 websites_json[getTheCorrectUrl()]["minimized"] = minimized;
 
-                sync_local.set({
-                    "websites": websites_json
-                }).then(result => {
+                sync_local.set({"websites": websites_json}).then(result => {
                     //updated websites with new data
                     //console.log("set || " + JSON.stringify(websites_json[tab_url]));
                     //console.log("set || " + JSON.stringify(websites_json));
