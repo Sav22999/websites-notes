@@ -680,7 +680,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
             }
 
 
-            if (websites_json_to_show[domain]["type"] === 0 || websites_json_to_show[domain]["type"] === 1) {
+            if (websites_json_to_show[domain]["type"] === 0 || websites_json_to_show[domain]["type"] === 1 && websites_json_to_show[domain]["domain"] === "") {
                 //global (0) or domain (1)
                 if (websites_json_by_domain[domain] === undefined) {
                     websites_json_by_domain[domain] = [];
