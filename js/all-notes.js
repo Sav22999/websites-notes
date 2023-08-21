@@ -998,7 +998,7 @@ function sortOnKeys(dict, dict2, sort_by) {
         }
     } else if (sort_by === "date-09") {
         //Sort by updated date: from the newer to the oldest
-        //TODO -- for the same domain: get its MIN date, and sort by that
+        //for the same domain: get its MIN date, and sort by that
         let dictToSortDate = {};
         for (let domain in dict) {
             dictToSortDate[domain] = {};
@@ -1039,7 +1039,7 @@ function sortOnKeys(dict, dict2, sort_by) {
         }
     } else if (sort_by === "date-90") {
         //Sort by updated date: from the oldest to the newer
-        //TODO -- for the same domain: get its MAX date, and sort by that
+        //for the same domain: get its MAX date, and sort by that
         let dictToSortDate = {};
         for (let domain in dict) {
             dictToSortDate[domain] = {};
