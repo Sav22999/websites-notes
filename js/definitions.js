@@ -65,8 +65,8 @@ function checkTheme() {
                 primary = "#ffa56f";
                 secondary = "#ffd8be";
                 on_primary = "#222222";
-                on_secondary = "#FFFFFF";
-                textbox_background = "#ffffff";
+                on_secondary = "#444444";
+                textbox_background = "#222222";
                 textbox_color = "#ffa56f";
                 setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
             } else {
