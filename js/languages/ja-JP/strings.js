@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': '選択したノートを消去してもよろしいですか？\n開始後にこのプロセスをキャンセルすることはできません。',
     'clear-all-notes-page-with-confirmation': '選択したノート（{{url}}）を消去してもよろしいですか？\nこのプロセスは開始後にキャンセルできません。',
     'close-button': '閉じる',
+    'title-label': 'Title',
     'copied-button': 'コピーしました',
     'clear-all-notes-of-this-domain-button': 'このドメインのすべてのメモを消去する',
     'no-notes-found-text': 'メモが見つかりません',

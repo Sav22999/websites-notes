@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': 'Är du säker på att du vill rensa de markerade anteckningarna?\nDu kan inte avbryta denna process när den har startats.',
     'clear-all-notes-page-with-confirmation': 'Är du säker på att du vill rensa de markerade anteckningarna ({{url}})?\nDu kan inte avbryta denna process när du har startat.',
     'close-button': 'Stäng',
+    'title-label': 'Title',
     'copied-button': 'Kopierat',
     'clear-all-notes-of-this-domain-button': 'Rensa alla anteckningar i denna domän',
     'no-notes-found-text': 'Inga anteckningar hittades',

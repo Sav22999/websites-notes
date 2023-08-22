@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': 'Er du sikker på, at du vil slette de valgte noter?\nDu kan ikke annullere denne proces når den er startet.',
     'clear-all-notes-page-with-confirmation': 'Er du sikker på, at du vil slette de valgte noter ({{url}})?\nDu kan ikke annullere denne proces når den er startet.',
     'close-button': 'Luk',
+    'title-label': 'Title',
     'copied-button': 'Kopieret',
     'clear-all-notes-of-this-domain-button': 'Ryd alle noter af dette domæne',
     'no-notes-found-text': 'Ingen noter fundet',

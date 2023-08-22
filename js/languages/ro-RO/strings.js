@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': 'Sunteţi sigur că doriţi să ştergeţi notele selectate?\nNu puteţi anula acest proces odată început.',
     'clear-all-notes-page-with-confirmation': 'Sunteți sigur că doriți să ștergeți notele selectate ({{url}})?\nNu puteți anula acest proces odată început.',
     'close-button': 'Inchide',
+    'title-label': 'Title',
     'copied-button': 'Copiat',
     'clear-all-notes-of-this-domain-button': 'Ştergeţi toate notele din acest domeniu',
     'no-notes-found-text': 'Nici o notă găsită',

@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': 'Вы уверены, что хотите очистить выбранные заметки?\nВы не можете отменить этот процесс после начала.',
     'clear-all-notes-page-with-confirmation': 'Вы уверены, что хотите очистить выбранные заметки ({{url}})?\nВы не можете отменить этот процесс после начала.',
     'close-button': 'Закрыть',
+    'title-label': 'Title',
     'copied-button': 'Скопировано',
     'clear-all-notes-of-this-domain-button': 'Очистить все заметки этого домена',
     'no-notes-found-text': 'Заметок не найдено',

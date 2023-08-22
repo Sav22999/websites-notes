@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': 'Czy na pewno chcesz wyczyścić zaznaczone notatki?\nNie możesz anulować tego procesu po jego uruchomieniu.',
     'clear-all-notes-page-with-confirmation': 'Czy na pewno chcesz wyczyścić zaznaczone notatki ({{url}})?\nNie możesz anulować tego procesu po jego rozpoczęciu.',
     'close-button': 'Zamknij',
+    'title-label': 'Title',
     'copied-button': 'Skopiowano',
     'clear-all-notes-of-this-domain-button': 'Wyczyść wszystkie notatki z tej domeny',
     'no-notes-found-text': 'Nie znaleziono notatek',
