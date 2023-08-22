@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': '您确定要清除选定的笔记吗？\n一旦启动，您不能取消此进程。',
     'clear-all-notes-page-with-confirmation': '您确定要清除选定的记事({{url}})？\n您不能在启动后取消此进程。',
     'close-button': '关闭',
+    'title-label': 'Title',
     'copied-button': '已复制',
     'clear-all-notes-of-this-domain-button': '清除此域的所有注释',
     'no-notes-found-text': '未找到备注',

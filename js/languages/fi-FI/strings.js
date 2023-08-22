@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': 'Oletko varma, että haluat tyhjentää valitut huomautukset?\nProsessi ei voi perua, kun se on aloitettu.',
     'clear-all-notes-page-with-confirmation': 'Oletko varma, että haluat tyhjentää valitut muistiinpanot ({{url}})?\nProsessi ei voi perua, kun se on aloitettu.',
     'close-button': 'Sulje',
+    'title-label': 'Title',
     'copied-button': 'Kopioitu',
     'clear-all-notes-of-this-domain-button': 'Tyhjennä kaikki tämän verkkotunnuksen merkinnät',
     'no-notes-found-text': 'Merkintöjä ei löytynyt',

@@ -748,13 +748,15 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
                     page.classList.add("sub-section");
                     let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
                     let notes = websites_json_to_show[urlPageDomain]["notes"];
+                    let title = websites_json_to_show[urlPageDomain]["title"];
+
                     let type_to_show = all_strings["domain-label"];
                     let type_to_use = "domain";
                     if (domain === "**global") {
                         type_to_show = all_strings["global-label"];
                         type_to_use = "global";
                     }
-                    page = generateNotes(page, urlPageDomain, notes, lastUpdate, type_to_show, urlPageDomain, type_to_use, true);
+                    page = generateNotes(page, urlPageDomain, notes, title, lastUpdate, type_to_show, urlPageDomain, type_to_use, true);
 
                     if (page !== -1) {
                         all_pages.append(page);
@@ -775,8 +777,9 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
                             // console.log(websites_json_to_show);
                             let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
                             let notes = websites_json_to_show[urlPageDomain]["notes"];
+                            let title = websites_json_to_show[urlPageDomain]["title"];
 
-                            page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["page-label"], urlPageDomain, "page", false);
+                            page = generateNotes(page, urlPage, notes, title, lastUpdate, all_strings["page-label"], urlPageDomain, "page", false);
 
                             if (page !== -1) {
                                 all_pages.append(page);
@@ -840,14 +843,16 @@ function sortObjectByKeys(o) {
     return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
 }
 
-function generateNotes(page, url, notes, lastUpdate, type, fullUrl, type_to_use, domain_again) {
+function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_to_use, domain_again) {
+    let row1 = document.createElement("div");
+    row1.classList.add("rows");
+
     let pageType = document.createElement("div");
     pageType.classList.add("sub-section-type");
     pageType.textContent = type;
 
-    page.append(pageType)
-
     let input_clear_all_notes_page = document.createElement("input");
+
     input_clear_all_notes_page.type = "button";
     input_clear_all_notes_page.value = all_strings["clear-notes-of-this-page-button"];
     input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button", "clear2-button");
@@ -858,8 +863,8 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl, type_to_use,
         }
         clearAllNotesPage(fullUrl, isDomain);
     }
-
     let inputCopyNotes = document.createElement("input");
+
     inputCopyNotes.type = "button";
     inputCopyNotes.value = all_strings["copy-notes-button"];
     inputCopyNotes.classList.add("button", "float-right", "very-small-button", "margin-right-5-px", "copy-button");
@@ -870,8 +875,8 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl, type_to_use,
             inputCopyNotes.value = all_strings["copy-notes-button"];
         }, 3000);
     }
-
     let tagsColour = document.createElement("select");
+
     let colourList = colourListDefault;
     colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
     for (let colour in colourList) {
@@ -889,22 +894,43 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl, type_to_use,
     tagsColour.onchange = function () {
         changeTagColour(fullUrl, tagsColour.value, type_to_use);
     }
-
     page.id = fullUrl;
 
-    page.append(input_clear_all_notes_page);
-    page.append(inputCopyNotes);
-    page.append(tagsColour);
+    row1.append(pageType)
+
+    row1.append(input_clear_all_notes_page);
+    row1.append(inputCopyNotes);
+    row1.append(tagsColour);
 
     if (type_to_use.toLowerCase() !== "domain" && type_to_use.toLowerCase() !== "global") {
+        //it's a page
         let pageUrl = document.createElement("h3");
         pageUrl.classList.add("link", "go-to-external");
         pageUrl.textContent = url;
+
         pageUrl.onclick = function () {
             browser.tabs.create({url: fullUrl});
         }
 
-        page.append(pageUrl);
+        row1.append(pageUrl);
+    }
+
+    page.append(row1);
+
+    if (title !== undefined && title !== "") {
+        let row2 = document.createElement("div");
+        row2.classList.add("rows");
+
+        let pageTitle = document.createElement("div");
+        pageTitle.classList.add("sub-section-title");
+        pageTitle.textContent = all_strings["title-label"];
+
+        let pageTitleH3 = document.createElement("h3");
+        pageTitleH3.classList.add("title");
+        pageTitleH3.textContent = title;
+        row2.append(pageTitle)
+        row2.append(pageTitleH3);
+        page.append(row2);
     }
 
     let pageNotes = document.createElement("div");

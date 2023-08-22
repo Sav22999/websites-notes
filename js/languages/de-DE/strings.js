@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': 'Sind Sie sicher, dass Sie die ausgewählten Notizen löschen möchten?\nSie können diesen Prozess nicht nach dem Start abbrechen.',
     'clear-all-notes-page-with-confirmation': 'Sind Sie sicher, dass Sie die ausgewählten Notizen löschen wollen ({{url}})?\nSie können diesen Prozess nicht abbrechen, sobald Sie begonnen haben.',
     'close-button': 'Schließen',
+    'title-label': 'Title',
     'copied-button': 'Kopiert',
     'clear-all-notes-of-this-domain-button': 'Alle Notizen dieser Domain löschen',
     'no-notes-found-text': 'Keine Notizen gefunden',
