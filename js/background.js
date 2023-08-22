@@ -4,6 +4,7 @@ var websites_json = {};
 
 var tab_id = 0;
 var tab_url = "";
+var tab_title = "";
 var current_urls = []; //0: global, 1: domain, 2: page
 
 var all_urls = {}; //url_domain: {0: domain, 1: page}
@@ -56,6 +57,7 @@ function loaded() {
         let activeTab = tabs[0];
         tab_id = activeTab.id;
         tab_url = activeTab.url;
+        tab_title = activeTab.title;
 
         //catch changing of tab
         browser.tabs.onActivated.addListener(tabUpdated);
@@ -90,6 +92,7 @@ function tabUpdated(tabs) {
         browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
             tab_id = tabs[0].tabId;
             tab_url = tabs[0].url;
+            tab_title = tabs[0].title;
         }).then((tabs) => {
             checkStatus();
         });
@@ -115,6 +118,15 @@ function continueCheckStatus() {
     sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
+
+            console.log(JSON.stringify(websites_json[getTheCorrectUrl()]));
+            console.log(tab_title);
+            if (websites_json[getTheCorrectUrl()] !== undefined && websites_json[getTheCorrectUrl()]["title"] === undefined) {
+                //if the title it's not specified yet, so it's set with the title of the tab
+                websites_json[getTheCorrectUrl()]["title"] = tab_title;
+                sync_local.set({"websites": websites_json}).then(resultSet => {
+                });
+            }
 
             checkIcon();
             //console.log(">>>" + getTheCorrectUrl());

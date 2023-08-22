@@ -1,7 +1,7 @@
 var websites_json = {};
 var settings_json = {};
 
-var currentUrl = []; //[domain, page]
+var currentUrl = []; //[global, domain, page]
 
 var selected_tab = 2; //{0: global | 1:domain | 2:page}
 var opened_by = -1;
@@ -113,6 +113,7 @@ function loadUI() {
             let activeTab = tabs[0];
             let activeTabId = activeTab.id;
             let activeTabUrl = activeTab.url;
+            let activeTabTitle = activeTab.title;
 
             setUrl(activeTabUrl);
 
@@ -120,8 +121,9 @@ function loadUI() {
                 sync_local.get("websites", function (value) {
                     //console.log("websites: "+JSON.stringify(value));
                     let default_index = 2;
-                    if (settings_json["open-default"] === "page") default_index = 2;
-                    else if (settings_json["open-default"] === "domain") default_index = 1;
+                    if (!isUrlSupported(activeTabUrl)) default_index = 1;
+                    if (settings_json["open-default"] === "page" && isUrlSupported(activeTabUrl)) default_index = 2;
+                    else if (settings_json["open-default"] === "domain" || !isUrlSupported(activeTabUrl) && settings_json["open-default"] === "page") default_index = 1;
                     else if (settings_json["open-default"] === "global") default_index = 0;
                     if (value["websites"] !== undefined) {
                         websites_json = value["websites"];
@@ -292,13 +294,21 @@ function setUrl(url) {
         currentUrl[0] = "**global";//global
         currentUrl[1] = getDomainUrl(url);
         currentUrl[2] = getPageUrl(url);
-        if (document.getElementById("tabs-section").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
-        if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+        //if (document.getElementById("tabs-section").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+        document.getElementById("global-button").style.width = "30%";
+        document.getElementById("domain-button").style.width = "40%";
+        document.getElementById("page-button").style.width = "30%";
+        if (document.getElementById("page-button").classList.contains("hidden")) document.getElementById("page-button").classList.remove("hidden");
+        if (stickyNotesSupported && document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
     } else {
         currentUrl[0] = "**global";
-        currentUrl[1] = "**global";
-        currentUrl[2] = "**global";
-        if (!document.getElementById("tabs-section").classList.contains("hidden")) document.getElementById("tabs-section").classList.add("hidden");
+        currentUrl[1] = getDomainUrl(url);
+        currentUrl[2] = getDomainUrl(url);
+        //if (!document.getElementById("tabs-section").classList.contains("hidden")) document.getElementById("tabs-section").classList.add("hidden");
+        document.getElementById("global-button").style.width = "50%";
+        document.getElementById("domain-button").style.width = "50%";
+        document.getElementById("domain-button").style.borderRadius = "0px 5px 5px 0px";
+        document.getElementById("page-button").classList.add("hidden");
         if (!document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.add("hidden");
     }
 

@@ -406,7 +406,7 @@ textarea::placeholder, .textbox::placeholder {
     background-color: #ff8e8e77;
 }
 
-.sub-section-type {
+.sub-section-type, .sub-section-title {
     background-color: var(--on-primary-color);
     color: var(--primary-color);
     border-radius: 5px;
@@ -469,6 +469,15 @@ textarea::placeholder, .textbox::placeholder {
     overflow: auto;
 }
 
+.rows {
+    background-color: transparent;
+    padding: 0px;
+    margin: 0px;
+    border: 0px solid transparent;
+    border-radius: 0px;
+    margin-bottom: -2px;
+}
+
 #text-import {
     overflow: visible;
 }
@@ -493,7 +502,7 @@ textarea::placeholder, .textbox::placeholder {
 
 .very-small-button {
     font-size: 10px;
-    height: 27px;
+    height: 25px;
 }
 
 h1, h2, h3 {
@@ -715,5 +724,5 @@ h3 {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
