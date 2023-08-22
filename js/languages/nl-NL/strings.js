@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': 'Weet u zeker dat u de geselecteerde notities wilt wissen?\nU kunt dit proces niet annuleren na het starten van dit proces.',
     'clear-all-notes-page-with-confirmation': 'Weet u zeker dat u de geselecteerde notities wilt wissen ({{url}})?\nU kunt dit proces niet annuleren na het starten van dit proces.',
     'close-button': 'Sluiten',
+    'title-label': 'Title',
     'copied-button': 'Gekopieerd',
     'clear-all-notes-of-this-domain-button': 'Alle notities van dit domein wissen',
     'no-notes-found-text': 'Geen notities gevonden',

@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': '您確定要清除所選筆記嗎？\n一旦開始就無法取消此進程。',
     'clear-all-notes-page-with-confirmation': '您確定要清除所選筆記（{{url}}）嗎？\n一旦開始就無法取消此進程。',
     'close-button': '關閉',
+    'title-label': 'Title',
     'copied-button': '已複製',
     'clear-all-notes-of-this-domain-button': '清除此網域的所有筆記',
     'no-notes-found-text': '找不到任何筆記',

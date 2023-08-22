@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': 'Jste si jisti, že chcete vymazat vybrané poznámky?\nPo spuštění nelze tento proces zrušit.',
     'clear-all-notes-page-with-confirmation': 'Jste si jisti, že chcete vymazat vybrané poznámky ({{url}})?\nPo spuštění nelze tento proces zrušit.',
     'close-button': 'Zavřít',
+    'title-label': 'Title',
     'copied-button': 'Zkopírováno',
     'clear-all-notes-of-this-domain-button': 'Vymazat všechny poznámky z této domény',
     'no-notes-found-text': 'Nebyly nalezeny žádné poznámky',

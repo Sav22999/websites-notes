@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': 'هل أنت متأكد من أنك تريد مسح الملاحظات المحددة؟\nلا يمكنك إلغاء هذه العملية بمجرد بدئها.',
     'clear-all-notes-page-with-confirmation': 'هل أنت متأكد من أنك تريد مسح الملاحظات المحددة ({{url}})؟\nلا يمكنك إلغاء هذه العملية بمجرد بدئها.',
     'close-button': 'إغلاق',
+    'title-label': 'Title',
     'copied-button': 'منسوخ',
     'clear-all-notes-of-this-domain-button': 'مسح جميع الملاحظات من هذا المجال',
     'no-notes-found-text': 'لم يتم العثور على ملاحظات',

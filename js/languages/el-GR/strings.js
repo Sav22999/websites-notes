@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': 'Είστε βέβαιοι ότι θέλετε να καθαρίσετε τις επιλεγμένες σημειώσεις?\nΔεν μπορείτε να ακυρώσετε αυτή τη διαδικασία μόλις ξεκίνησε.',
     'clear-all-notes-page-with-confirmation': 'Είστε βέβαιοι ότι θέλετε να καθαρίσετε τις επιλεγμένες σημειώσεις ({{url}})?\nΔεν μπορείτε να ακυρώσετε αυτή τη διεργασία μόλις ξεκινήσει.',
     'close-button': 'Κλείσιμο',
+    'title-label': 'Title',
     'copied-button': 'Αντιγράφηκε',
     'clear-all-notes-of-this-domain-button': 'Εκκαθάριση όλων των σημειώσεων αυτού του τομέα',
     'no-notes-found-text': 'Δεν βρέθηκαν σημειώσεις',

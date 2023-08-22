@@ -24,6 +24,7 @@ strings[lang] = {
     'clear-all-notes-page-without-url-confirmation': 'Êtes-vous sûr de vouloir effacer les notes sélectionnées ?\nVous ne pouvez pas annuler ce processus une fois démarré.',
     'clear-all-notes-page-with-confirmation': 'Êtes-vous sûr de vouloir effacer les notes sélectionnées ({{url}}) ?\nVous ne pouvez pas annuler ce processus une fois démarré.',
     'close-button': 'Fermer',
+    'title-label': 'Title',
     'copied-button': 'Copié',
     'clear-all-notes-of-this-domain-button': 'Effacer toutes les notes de ce domaine',
     'no-notes-found-text': 'Aucune note trouvée',
