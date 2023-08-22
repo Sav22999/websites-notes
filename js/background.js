@@ -40,19 +40,21 @@ function tabUpdated(tabId, changeInfo, tabInfo) {
     tab_id = tabId;
     tab_url = tabInfo.url;
 
-    setMessageSubject(tab_id).then(r => checkStatus());
+    if (getTheProtocol(tab_url) !== "moz-extension" && getTheProtocol(tab_url) !== "about") {
+        setMessageSubject(tab_id).then(r => checkStatus());
+    }
 }
 
 function checkStatus() {
     browser.storage.local.get("websites", function (value) {
-        if (value["websites"] != undefined) {
+        if (value["websites"] !== undefined && getTheProtocol(tab_url) !== "moz-extension") {
             websites_json = value["websites"];
 
             let domain_url = getShortUrl(tab_url);
 
-            if (websites_json[domain_url] != undefined && websites_json[domain_url]["last-update"] != undefined && websites_json[domain_url]["last-update"] != null && websites_json[domain_url]["notes"] != undefined && websites_json[domain_url]["notes"] != "") {
+            if (websites_json[domain_url] !== undefined && websites_json[domain_url]["last-update"] !== undefined && websites_json[domain_url]["last-update"] != null && websites_json[domain_url]["notes"] !== undefined && websites_json[domain_url]["notes"] !== "") {
                 changeIcon(1);
-            } else if (websites_json[tab_url] != undefined && websites_json[tab_url]["last-update"] != undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] != undefined && websites_json[tab_url]["notes"] != "") {
+            } else if (websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "") {
                 changeIcon(1);
             } else {
                 changeIcon(0);
@@ -75,7 +77,7 @@ function getShortUrl(url) {
 
     if (urlToReturn.includes("/")) {
         urlPartsTemp = urlToReturn.split("/");
-        if (urlPartsTemp[0] == "" && urlPartsTemp[1] == "") {
+        if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
             urlToReturn = urlPartsTemp[2];
         }
     }

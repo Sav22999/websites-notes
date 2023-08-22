@@ -358,8 +358,13 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl, typeCode, su
     page.append(tagsColour);
 
     let pageUrl = document.createElement("h3");
-    pageUrl.classList.add();
+    pageUrl.classList.add("link", "go-to-external");
     pageUrl.textContent = subject;
+    pageUrl.title = fullUrl;
+    pageUrl.onclick = function () {
+        //browser.tabs.create({ url: fullUrl });
+
+    }
 
     page.append(pageUrl);
 
