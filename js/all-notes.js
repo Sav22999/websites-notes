@@ -37,13 +37,13 @@ function checkSyncLocal() {
             browser.storage.local.set({"storage": "local"});
             sync_local = browser.storage.local;
         }
+        checkTheme();
     });
 }
 
 function loaded() {
-    checkSyncLocal()
+    checkSyncLocal();
     setLanguageUI();
-
     checkTheme();
 
     browser.storage.local.get([
@@ -884,7 +884,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         tagColour.value = colour;
         if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] !== undefined && websites_json[fullUrl]["tag-colour"] === colour) {
             tagColour.selected = true;
-            page.classList.add("tag-colour-left", "tag-colour-" + colour);
+            page.classList.add("tag-colour-left", "tag-colour-" + colour, "sub-section-domain");
         }
         tagColour.textContent = colourList[colour];
         //tagColour.classList.add(colour + "-background-tag");
