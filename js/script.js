@@ -27,13 +27,13 @@ function checkSyncLocal() {
             browser.storage.local.set({"storage": "local"});
             sync_local = browser.storage.local;
         }
+        checkTheme();
     });
 }
 
 function loaded() {
-    checkSyncLocal()
+    checkSyncLocal();
     loadSettings();
-
     checkTheme();
 }
 

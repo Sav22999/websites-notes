@@ -21,6 +21,7 @@ function checkSyncLocal() {
             browser.storage.local.set({"storage": "local"});
             sync_local = browser.storage.local;
         }
+        checkTheme();
     });
 }
 
@@ -31,7 +32,6 @@ var ctrl_alt_shift = ["default", "domain", "page"];
 function loaded() {
     checkSyncLocal()
     checkOperatingSystem();
-
     setLanguageUI();
     checkTheme();
 
@@ -225,7 +225,7 @@ function loadSettings() {
 }
 
 function saveSettings() {
-    console.log(JSON.stringify(settings_json));
+    //console.log(JSON.stringify(settings_json));
     browser.storage.local.get(["storage"]).then(resultSyncLocalValue => {
         sync_local.set({"settings": settings_json}).then(resultF => {
             //Saved

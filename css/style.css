@@ -550,6 +550,19 @@ h3 {
     margin-bottom: 30px;
 }
 
+.sub-section-domain {
+    margin: 10px 5px !important;
+    border: 0px solid var(--primary-color) !important;
+}
+
+.sub-section-domain:hover {
+    box-shadow: 0px 0px 0px 3px var(--primary-color);
+}
+
+b {
+    font-size: inherit;
+}
+
 .link {
     cursor: pointer;
     text-decoration: underline;
