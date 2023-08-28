@@ -620,13 +620,13 @@ b {
 
 
 .tag-colour-left {
-    border: 0px solid transparent;
-    border-left-width: 15px;
+    border: 0px solid transparent !important;
+    border-left-width: 15px !important;
 }
 
 .tag-colour-top {
-    border: 0px solid transparent;
-    border-top-width: 10px;
+    border: 0px solid transparent !important;
+    border-top-width: 10px !important;
 }
 
 .filter-button-tag, .filter-button-type {
@@ -639,96 +639,96 @@ b {
 }
 
 .tag-colour-none {
-    border: none;
+    border: none !important;
 }
 
 
 .background-light-red {
-    background-color: #ff8e8e99;
+    background-color: #ff8e8e99 !important;
 }
 
 .tag-colour-none-bg {
-    /*background-color: transparent;*/
+    /*background-color: transparent !important;*/
 }
 
 .tag-colour-red {
-    border-color: red;
+    border-color: red !important;
 }
 
 .tag-colour-red-bg {
-    background-color: red;
+    background-color: red !important;
 }
 
 .tag-colour-yellow {
-    border-color: yellow;
+    border-color: yellow !important;
 }
 
 .tag-colour-yellow-bg {
-    background-color: yellow;
+    background-color: yellow !important;
 }
 
 .tag-colour-green {
-    border-color: green;
+    border-color: green !important;
 }
 
 .tag-colour-green-bg {
-    background-color: green;
+    background-color: green !important;
 }
 
 .tag-colour-gray {
-    border-color: gray;
+    border-color: gray !important;
 }
 
 .tag-colour-gray-bg {
-    background-color: gray;
+    background-color: gray !important;
 }
 
 .tag-colour-purple {
-    border-color: purple;
+    border-color: purple !important;
 }
 
 .tag-colour-purple-bg {
-    background-color: purple;
+    background-color: purple !important;
 }
 
 .tag-colour-pink {
-    border-color: pink;
+    border-color: pink !important;
 }
 
 .tag-colour-pink-bg {
-    background-color: pink;
+    background-color: pink !important;
 }
 
 .tag-colour-black {
-    border-color: black;
+    border-color: black !important;
 }
 
 .tag-colour-black-bg {
-    background-color: black;
+    background-color: black !important;
 }
 
 .tag-colour-white {
-    border-color: white;
+    border-color: white !important;
 }
 
 .tag-colour-white-bg {
-    background-color: white;
+    background-color: white !important;
 }
 
 .tag-colour-orange {
-    border-color: orange;
+    border-color: orange !important;
 }
 
 .tag-colour-orange-bg {
-    background-color: orange;
+    background-color: orange !important;
 }
 
 .tag-colour-blue {
-    border-color: blue;
+    border-color: blue !important;
 }
 
 .tag-colour-blue-bg {
-    background-color: blue;
+    background-color: blue !important;
 }
 
 .padding-25px-lateral {
