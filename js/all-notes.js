@@ -729,9 +729,11 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
 
                     let h2 = document.createElement("h2");
                     h2.textContent = domain;
-                    h2.classList.add("link", "go-to-external");
-                    h2.onclick = function () {
-                        browser.tabs.create({url: domain});
+                    if (isUrlSupported(domain)) {
+                        h2.classList.add("link", "go-to-external");
+                        h2.onclick = function () {
+                            browser.tabs.create({url: domain});
+                        }
                     }
                     section.append(h2);
                 }
@@ -752,7 +754,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
 
                     let type_to_show = all_strings["domain-label"];
                     let type_to_use = "domain";
-                    if (domain === "**global") {
+                    if (domain === getGlobalUrl()) {
                         type_to_show = all_strings["global-label"];
                         type_to_use = "global";
                     }
@@ -764,7 +766,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
                     }
                 }
 
-                if (domain !== "**global") {
+                if (domain !== getGlobalUrl()) {
                     for (let index = 0; index < websites_json_by_domain[domain].length; index++) {
                         let urlPage = websites_json_by_domain[domain][index];
                         let urlPageDomain = domain + websites_json_by_domain[domain][index];
@@ -804,6 +806,37 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
 
         document.getElementById("all-website-sections").append(section);
     }
+}
+
+
+function getGlobalUrl() {
+    return "**global";
+}
+
+function getTheProtocol(url) {
+    return url.split(":")[0];
+}
+
+/**
+ * If the passed URL is a "supported url"
+ * @param url Url you want to check
+ * @returns {boolean} return true: the link is supported, false: the link is not supported
+ */
+function isUrlSupported(url) {
+    let valueToReturn = false;
+    switch (getTheProtocol(url)) {
+        case "http":
+        case "https":
+        case "moz-extension":
+            //the URL is supported
+            valueToReturn = true;
+            break;
+
+        default:
+            //this disables all unsupported website
+            valueToReturn = false;//TODO!TESTING | true->for testing, false->stable release
+    }
+    return valueToReturn;
 }
 
 function applyFilter() {
@@ -905,11 +938,13 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
     if (type_to_use.toLowerCase() !== "domain" && type_to_use.toLowerCase() !== "global") {
         //it's a page
         let pageUrl = document.createElement("h3");
-        pageUrl.classList.add("link", "go-to-external");
         pageUrl.textContent = url;
 
-        pageUrl.onclick = function () {
-            browser.tabs.create({url: fullUrl});
+        if (isUrlSupported(fullUrl)) {
+            pageUrl.classList.add("link", "go-to-external");
+            pageUrl.onclick = function () {
+                browser.tabs.create({url: fullUrl});
+            }
         }
 
         row1.append(pageUrl);

@@ -21,9 +21,7 @@ checkSyncLocal();
 function checkSyncLocal() {
     sync_local = browser.storage.local;
     browser.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = browser.storage.sync;
-        else if (result.storage === "sync") sync_local = browser.storage.sync;
-        else {
+        if (result.storage === "sync") sync_local = browser.storage.sync; else if (result.storage === "sync") sync_local = browser.storage.sync; else {
             browser.storage.local.set({"storage": "local"});
             sync_local = browser.storage.local;
         }
@@ -110,42 +108,33 @@ function loadUI() {
     //opened_by = {-1: default, 0: domain, 1: page}
     setLanguageUI();
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            let activeTab = tabs[0];
-            let activeTabId = activeTab.id;
-            let activeTabUrl = activeTab.url;
-            let activeTabTitle = activeTab.title;
+        let activeTab = tabs[0];
+        let activeTabId = activeTab.id;
+        let activeTabUrl = activeTab.url;
+        let activeTabTitle = activeTab.title;
 
-            setUrl(activeTabUrl);
+        setUrl(activeTabUrl);
 
-            if (currentUrl[1] !== "" && currentUrl[2] !== "") {
-                sync_local.get("websites", function (value) {
-                    //console.log("websites: "+JSON.stringify(value));
-                    let default_index = 2;
-                    if (!isUrlSupported(activeTabUrl)) default_index = 1;
-                    if (settings_json["open-default"] === "page" && isUrlSupported(activeTabUrl)) default_index = 2;
-                    else if (settings_json["open-default"] === "domain" || !isUrlSupported(activeTabUrl) && settings_json["open-default"] === "page") default_index = 1;
-                    else if (settings_json["open-default"] === "global") default_index = 0;
-                    if (value["websites"] !== undefined) {
-                        websites_json = value["websites"];
-                        let check_for_domain = websites_json[currentUrl[1]] !== undefined && websites_json[currentUrl[1]]["last-update"] !== undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] !== undefined && websites_json[currentUrl[1]]["notes"] !== "";
-                        let check_for_page = websites_json[currentUrl[2]] !== undefined && websites_json[currentUrl[2]]["last-update"] !== undefined && websites_json[currentUrl[2]]["last-update"] != null && websites_json[currentUrl[2]]["notes"] !== undefined && websites_json[currentUrl[2]]["notes"] !== "";
-                        let check_for_global = websites_json[currentUrl[0]] !== undefined && websites_json[currentUrl[0]]["last-update"] !== undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] !== undefined && websites_json[currentUrl[0]]["notes"] !== "";
-                        if (opened_by === 1 || (opened_by === -1 && check_for_domain && (default_index === 1 || default_index === 2 && !check_for_page || default_index === 0 && !check_for_global))) {
-                            //by domain
-                            setTab(1, currentUrl[1]);
-                        } else if (opened_by === 2 || (opened_by === -1 && check_for_page && (default_index === 2 || default_index === 1 && !check_for_domain || default_index === 0 && !check_for_global))) {
-                            //by page
-                            setTab(2, currentUrl[2]);
-                        } else if (opened_by === 0 || (opened_by === -1 && check_for_global && (default_index === 0 || default_index === 1 && !check_for_domain || default_index === 2 && !check_for_page))) {
-                            //by global
-                            setTab(0, currentUrl[0]);
-                        } else {
-                            //using default
-                            if (opened_by !== -1) {
-                                default_index = opened_by;
-                            }
-                            setTab(default_index, currentUrl[default_index]);
-                        }
+        if (currentUrl[1] !== "" && currentUrl[2] !== "") {
+            sync_local.get("websites", function (value) {
+                //console.log("websites: "+JSON.stringify(value));
+                let default_index = 2;
+                if (!isUrlSupported(activeTabUrl)) default_index = 1;
+                if (settings_json["open-default"] === "page" && isUrlSupported(activeTabUrl)) default_index = 2; else if (settings_json["open-default"] === "domain" || !isUrlSupported(activeTabUrl) && settings_json["open-default"] === "page") default_index = 1; else if (settings_json["open-default"] === "global") default_index = 0;
+                if (value["websites"] !== undefined) {
+                    websites_json = value["websites"];
+                    let check_for_domain = websites_json[currentUrl[1]] !== undefined && websites_json[currentUrl[1]]["last-update"] !== undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] !== undefined && websites_json[currentUrl[1]]["notes"] !== "";
+                    let check_for_page = websites_json[currentUrl[2]] !== undefined && websites_json[currentUrl[2]]["last-update"] !== undefined && websites_json[currentUrl[2]]["last-update"] != null && websites_json[currentUrl[2]]["notes"] !== undefined && websites_json[currentUrl[2]]["notes"] !== "";
+                    let check_for_global = websites_json[currentUrl[0]] !== undefined && websites_json[currentUrl[0]]["last-update"] !== undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] !== undefined && websites_json[currentUrl[0]]["notes"] !== "";
+                    if (opened_by === 1 || (opened_by === -1 && check_for_domain && (default_index === 1 || default_index === 2 && !check_for_page || default_index === 0 && !check_for_global))) {
+                        //by domain
+                        setTab(1, currentUrl[1]);
+                    } else if (opened_by === 2 || (opened_by === -1 && check_for_page && (default_index === 2 || default_index === 1 && !check_for_domain || default_index === 0 && !check_for_global))) {
+                        //by page
+                        setTab(2, currentUrl[2]);
+                    } else if (opened_by === 0 || (opened_by === -1 && check_for_global && (default_index === 0 || default_index === 1 && !check_for_domain || default_index === 2 && !check_for_page))) {
+                        //by global
+                        setTab(0, currentUrl[0]);
                     } else {
                         //using default
                         if (opened_by !== -1) {
@@ -153,15 +142,20 @@ function loadUI() {
                         }
                         setTab(default_index, currentUrl[default_index]);
                     }
+                } else {
+                    //using default
+                    if (opened_by !== -1) {
+                        default_index = opened_by;
+                    }
+                    setTab(default_index, currentUrl[default_index]);
+                }
 
-                    //console.log(JSON.stringify(websites_json));
-                });
-            } else {
-                //console.log("unsupported");
-            }
+                //console.log(JSON.stringify(websites_json));
+            });
+        } else {
+            //console.log("unsupported");
         }
-    )
-    ;
+    });
 
     document.getElementById("domain-button").onclick = function () {
         setTab(1, currentUrl[1]);
@@ -290,21 +284,25 @@ function tabUpdated(tabId, changeInfo, tabInfo) {
 }
 
 function setUrl(url) {
+    let otherPossibleUrls = getAllOtherPossibleUrls(url);
+    if (otherPossibleUrls.length > 0) {
+        //some other urls supported (.../*)
+        //console.log(otherPossibleUrls);
+        //TODO!!
+    }
     if (isUrlSupported(url)) {
-        currentUrl[0] = "**global";//global
+        currentUrl[0] = getGlobalUrl();
         currentUrl[1] = getDomainUrl(url);
         currentUrl[2] = getPageUrl(url);
-        //if (document.getElementById("tabs-section").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
         document.getElementById("global-button").style.width = "30%";
         document.getElementById("domain-button").style.width = "40%";
         document.getElementById("page-button").style.width = "30%";
         if (document.getElementById("page-button").classList.contains("hidden")) document.getElementById("page-button").classList.remove("hidden");
         if (stickyNotesSupported && document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
     } else {
-        currentUrl[0] = "**global";
+        currentUrl[0] = getGlobalUrl();
         currentUrl[1] = getDomainUrl(url);
-        currentUrl[2] = getDomainUrl(url);
-        //if (!document.getElementById("tabs-section").classList.contains("hidden")) document.getElementById("tabs-section").classList.add("hidden");
+        currentUrl[2] = getPageUrl(url);
         document.getElementById("global-button").style.width = "50%";
         document.getElementById("domain-button").style.width = "50%";
         document.getElementById("domain-button").style.borderRadius = "0px 5px 5px 0px";
@@ -313,6 +311,10 @@ function setUrl(url) {
     }
 
     //console.log("Current url [0] " + currentUrl[1] + " - [1] " + currentUrl[2]);
+}
+
+function getGlobalUrl() {
+    return "**global";
 }
 
 function getDomainUrl(url) {
@@ -350,6 +352,38 @@ function getPageUrl(url) {
     return urlToReturn;
 }
 
+/**
+ *
+ * @param url
+ * @returns {*[]} Returns urls without the domain ("/a/*", "/a/b/*", ...). To get the domain, use "getDomainUrl + this"
+ */
+function getAllOtherPossibleUrls(url) {
+    let urlToReturn = "";
+    let protocol = getTheProtocol(url);
+    if (url.includes(":")) {
+        let urlParts = url.split(":");
+        urlToReturn = urlParts[1];
+    }
+
+    let urlsToReturn = [];
+
+    if (urlToReturn.includes("/")) {
+        let urlPartsTemp = urlToReturn.split("/");
+        let urlConcat = "/";
+        for (let urlFor = 3; urlFor < urlPartsTemp.length; urlFor++) {
+            if (urlPartsTemp[urlFor] !== "") {
+                urlConcat += urlPartsTemp[urlFor];
+                if (urlConcat !== getDomainUrl(url)) {
+                    urlsToReturn.push(urlConcat + "/*");
+                }
+                urlConcat += "/";
+            }
+        }
+    }
+
+    return urlsToReturn;
+}
+
 function getTheProtocol(url) {
     return url.split(":")[0];
 }
@@ -364,6 +398,7 @@ function isUrlSupported(url) {
     switch (getTheProtocol(url)) {
         case "http":
         case "https":
+        case "moz-extension":
             //the URL is supported
             valueToReturn = true;
             break;
@@ -446,8 +481,7 @@ function setTab(index, url) {
 function openStickyNotes() {
     if (stickyNotesSupported) browser.runtime.sendMessage({
         "open-sticky": {
-            open: true,
-            type: selected_tab
+            open: true, type: selected_tab
         }
     });
 }

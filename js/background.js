@@ -119,8 +119,8 @@ function continueCheckStatus() {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            console.log(JSON.stringify(websites_json[getTheCorrectUrl()]));
-            console.log(tab_title);
+            //console.log(JSON.stringify(websites_json[getTheCorrectUrl()]));
+            //console.log(tab_title);
             if (websites_json[getTheCorrectUrl()] !== undefined && websites_json[getTheCorrectUrl()]["title"] === undefined) {
                 //if the title it's not specified yet, so it's set with the title of the tab
                 websites_json[getTheCorrectUrl()]["title"] = tab_title;
