@@ -192,7 +192,7 @@ function loadUI() {
                 window.close();
             });
         } catch (e) {
-            console.log("P2)) " + e);
+            console.error("P2)) " + e);
         }
     }
 }

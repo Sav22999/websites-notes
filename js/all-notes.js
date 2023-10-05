@@ -855,7 +855,9 @@ function search(value = "") {
         let condition_tag_color = filtersColors.indexOf(current_website_json["tag-colour"].toLowerCase()) !== -1 || filtersColors.length === 0;
         let condition_type = filtersTypes.indexOf(getType(websites_json[website], website)) !== -1 || filtersTypes.length === 0;
         //if (condition_type) console.log(getType(websites_json[website], website) + "   " + JSON.stringify(websites_json[website]))
-        if ((current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse)) && condition_tag_color && condition_type) {
+        let title_to_use = "";
+        if (current_website_json["title"] !== undefined) title_to_use = current_website_json["title"].toLowerCase();
+        if ((current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse) || current_website_json["last-update"].toLowerCase().includes(valueToUse) || title_to_use.includes(valueToUse) || website.includes(valueToUse)) && condition_tag_color && condition_type) {
             websites_json_to_show[website] = websites_json[website];
         }
     }
