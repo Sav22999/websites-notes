@@ -178,7 +178,7 @@ function loaded() {
     versionNumber.id = "version";
     notefox_json = {
         "version": browser.runtime.getManifest().version,
-        "id": browser.runtime.getManifest().author,
+        "author": browser.runtime.getManifest().author,
         "manifest_version": browser.runtime.getManifest().manifest_version
     };
     titleAllNotes.append(versionNumber);
@@ -729,9 +729,11 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
 
                     let h2 = document.createElement("h2");
                     h2.textContent = domain;
-                    h2.classList.add("link", "go-to-external");
-                    h2.onclick = function () {
-                        browser.tabs.create({url: domain});
+                    if (isUrlSupported(domain)) {
+                        h2.classList.add("link", "go-to-external");
+                        h2.onclick = function () {
+                            browser.tabs.create({url: domain});
+                        }
                     }
                     section.append(h2);
                 }
@@ -752,7 +754,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
 
                     let type_to_show = all_strings["domain-label"];
                     let type_to_use = "domain";
-                    if (domain === "**global") {
+                    if (domain === getGlobalUrl()) {
                         type_to_show = all_strings["global-label"];
                         type_to_use = "global";
                     }
@@ -764,7 +766,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
                     }
                 }
 
-                if (domain !== "**global") {
+                if (domain !== getGlobalUrl()) {
                     for (let index = 0; index < websites_json_by_domain[domain].length; index++) {
                         let urlPage = websites_json_by_domain[domain][index];
                         let urlPageDomain = domain + websites_json_by_domain[domain][index];
@@ -806,6 +808,37 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
     }
 }
 
+
+function getGlobalUrl() {
+    return "**global";
+}
+
+function getTheProtocol(url) {
+    return url.split(":")[0];
+}
+
+/**
+ * If the passed URL is a "supported url"
+ * @param url Url you want to check
+ * @returns {boolean} return true: the link is supported, false: the link is not supported
+ */
+function isUrlSupported(url) {
+    let valueToReturn = false;
+    switch (getTheProtocol(url)) {
+        case "http":
+        case "https":
+        case "moz-extension":
+            //the URL is supported
+            valueToReturn = true;
+            break;
+
+        default:
+            //this disables all unsupported website
+            valueToReturn = false;//TODO!TESTING | true->for testing, false->stable release
+    }
+    return valueToReturn;
+}
+
 function applyFilter() {
     if (document.getElementById("search-all-notes-text").value.replaceAll(" ", "") !== "") {
         search(document.getElementById("search-all-notes-text").value);
@@ -822,7 +855,9 @@ function search(value = "") {
         let condition_tag_color = filtersColors.indexOf(current_website_json["tag-colour"].toLowerCase()) !== -1 || filtersColors.length === 0;
         let condition_type = filtersTypes.indexOf(getType(websites_json[website], website)) !== -1 || filtersTypes.length === 0;
         //if (condition_type) console.log(getType(websites_json[website], website) + "   " + JSON.stringify(websites_json[website]))
-        if ((current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse)) && condition_tag_color && condition_type) {
+        let title_to_use = "";
+        if (current_website_json["title"] !== undefined) title_to_use = current_website_json["title"].toLowerCase();
+        if ((current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse) || current_website_json["last-update"].toLowerCase().includes(valueToUse) || title_to_use.includes(valueToUse) || website.includes(valueToUse)) && condition_tag_color && condition_type) {
             websites_json_to_show[website] = websites_json[website];
         }
     }
@@ -905,11 +940,13 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
     if (type_to_use.toLowerCase() !== "domain" && type_to_use.toLowerCase() !== "global") {
         //it's a page
         let pageUrl = document.createElement("h3");
-        pageUrl.classList.add("link", "go-to-external");
         pageUrl.textContent = url;
 
-        pageUrl.onclick = function () {
-            browser.tabs.create({url: fullUrl});
+        if (isUrlSupported(fullUrl)) {
+            pageUrl.classList.add("link", "go-to-external");
+            pageUrl.onclick = function () {
+                browser.tabs.create({url: fullUrl});
+            }
         }
 
         row1.append(pageUrl);

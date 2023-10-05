@@ -100,7 +100,7 @@ function tabUpdated(tabs) {
 }
 
 function checkStatus() {
-    current_urls = ["**global", getDomainUrl(tab_url), getPageUrl(tab_url)];
+    current_urls = [getGlobalUrl(), getDomainUrl(tab_url), getPageUrl(tab_url)];
     sync_local.get("settings", function (value) {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
@@ -119,8 +119,8 @@ function continueCheckStatus() {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            console.log(JSON.stringify(websites_json[getTheCorrectUrl()]));
-            console.log(tab_title);
+            //console.log(JSON.stringify(websites_json[getTheCorrectUrl()]));
+            //console.log(tab_title);
             if (websites_json[getTheCorrectUrl()] !== undefined && websites_json[getTheCorrectUrl()]["title"] === undefined) {
                 //if the title it's not specified yet, so it's set with the title of the tab
                 websites_json[getTheCorrectUrl()]["title"] = tab_title;
@@ -141,6 +141,10 @@ function continueCheckStatus() {
         }
         //console.log(JSON.stringify(websites_json));
     });
+}
+
+function getGlobalUrl() {
+    return "**global";
 }
 
 function getDomainUrl(url) {
