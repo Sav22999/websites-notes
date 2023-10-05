@@ -178,7 +178,7 @@ function loaded() {
     versionNumber.id = "version";
     notefox_json = {
         "version": browser.runtime.getManifest().version,
-        "id": browser.runtime.getManifest().author,
+        "author": browser.runtime.getManifest().author,
         "manifest_version": browser.runtime.getManifest().manifest_version
     };
     titleAllNotes.append(versionNumber);

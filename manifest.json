@@ -70,7 +70,9 @@
     "storage",
     "tabs",
     "unlimitedStorage",
-    "activeTab",
+    "activeTab"
+  ],
+  "optional_permissions": [
     "<all_urls>"
   ],
   "background": {

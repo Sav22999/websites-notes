@@ -174,10 +174,26 @@ function loadUI() {
         window.close();
     }
 
-    document.getElementById("open-sticky-button").onclick = function () {
+    document.getElementById("open-sticky-button").onclick = function (event) {
         //closed -> open it
-        openStickyNotes();
-        window.close();
+        const permissionsToRequest = {
+            origins: ["<all_urls>"]
+        }
+        try {
+            browser.permissions.request(permissionsToRequest).then(response => {
+                if (response) {
+                    //granted / obtained
+                    openStickyNotes();
+                    //console.log("Granted");
+                } else {
+                    //rejected
+                    //console.log("Rejected!");
+                }
+                window.close();
+            });
+        } catch (e) {
+            console.log("P2)) " + e);
+        }
     }
 }
 
@@ -479,11 +495,13 @@ function setTab(index, url) {
 }
 
 function openStickyNotes() {
-    if (stickyNotesSupported) browser.runtime.sendMessage({
-        "open-sticky": {
-            open: true, type: selected_tab
-        }
-    });
+    if (stickyNotesSupported) {
+        browser.runtime.sendMessage({
+            "open-sticky": {
+                open: true, type: selected_tab
+            }
+        });
+    }
 }
 
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
