@@ -5,6 +5,7 @@ let settings_json = {
     "open-popup-default": "Ctrl+Alt+O",
     "open-popup-domain": "Ctrl+Alt+D",
     "open-popup-page": "Ctrl+Alt+P",
+    "advanced-managing": "no"
 };
 
 const all_strings = strings[languageToUse];
@@ -72,6 +73,13 @@ function loaded() {
         settings_json["save-on-local-not-sync"] = document.getElementById("save-on-local-instead-of-sync-select").value;
     };
 
+    document.getElementById("advanced-managing-select").onchange = function () {
+        settings_json["advanced-managing"] = document.getElementById("advanced-managing-select").value;
+    };
+    document.getElementById("advanced-managing-select").onchange = function () {
+        settings_json["advanced-managing"] = document.getElementById("advanced-managing-select").value;
+    };
+
 
     document.getElementById("theme-select").onchange = function () {
         settings_json["theme"] = document.getElementById("theme-select").value;
@@ -104,6 +112,8 @@ function setLanguageUI() {
     document.getElementById("open-popup-default-shortcut-text").innerText = all_strings["open-popup-default-shortcut-text"];
     document.getElementById("open-popup-domain-shortcut-text").innerText = all_strings["open-popup-domain-shortcut-text"];
     document.getElementById("open-popup-page-shortcut-text").innerText = all_strings["open-popup-page-shortcut-text"];
+    document.getElementById("advanced-managing-text").innerText = all_strings["advanced-managing"];
+    document.getElementById("advanced-managing-detailed-text").innerHTML = all_strings["advanced-managing-detailed"];
 
     document.getElementById("theme-text").innerText = all_strings["theme-text"];
     document.getElementById("theme-select-light").innerText = all_strings["theme-choose-light-select"];
@@ -159,6 +169,7 @@ function loadSettings() {
                 if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
                 if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
                 if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
+                if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "no";
                 if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
             } else {
                 //settings undefined
@@ -168,6 +179,7 @@ function loadSettings() {
                 settings_json["open-popup-default"] = "Ctrl+Alt+O";
                 settings_json["open-popup-domain"] = "Ctrl+Alt+D";
                 settings_json["open-popup-page"] = "Ctrl+Alt+P";
+                settings_json["advanced-managing"] = "no";
                 settings_json["theme"] = "light";
             }
 
@@ -177,6 +189,7 @@ function loadSettings() {
             document.getElementById("open-by-default-select").value = settings_json["open-default"];
             document.getElementById("consider-parameters-select").value = settings_json["consider-parameters"];
             document.getElementById("consider-sections-select").value = settings_json["consider-sections"];
+            document.getElementById("advanced-managing-select").value = settings_json["advanced-managing"];
             document.getElementById("theme-select").value = settings_json["theme"];
             if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-select").value = "no";
             else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-select").value = "yes";

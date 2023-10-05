@@ -100,7 +100,7 @@ function tabUpdated(tabs) {
 }
 
 function checkStatus() {
-    current_urls = ["**global", getDomainUrl(tab_url), getPageUrl(tab_url)];
+    current_urls = [getGlobalUrl(), getDomainUrl(tab_url), getPageUrl(tab_url)];
     sync_local.get("settings", function (value) {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
@@ -141,6 +141,10 @@ function continueCheckStatus() {
         }
         //console.log(JSON.stringify(websites_json));
     });
+}
+
+function getGlobalUrl() {
+    return "**global";
 }
 
 function getDomainUrl(url) {
