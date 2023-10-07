@@ -291,7 +291,7 @@ function filterByColor(color, tagButton) {
         filtersColors.push(color);
         tagButton.classList.add("button-sel");
     }
-    search("");
+    applyFilter();
 }
 
 function filterByType(type, tagButton) {
@@ -304,7 +304,7 @@ function filterByType(type, tagButton) {
         filtersTypes.push(type);
         tagButton.classList.add("button-sel");
     }
-    search("");
+    applyFilter();
 }
 
 function loadDataFromBrowser(generate_section = true) {
@@ -327,6 +327,7 @@ function loadDataFromBrowser(generate_section = true) {
         }
         //console.log(JSON.stringify(settings_json));
     });
+    applyFilter();
 }
 
 function clearAllNotes() {
@@ -662,7 +663,7 @@ function hideBackgroundOpacity() {
     document.getElementById("background-opacity").style.display = "none";
 }
 
-function loadAllWebsites(clear = false, sort_by = "name-az") {
+function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true) {
     if (clear) {
         document.getElementById("all-website-sections").textContent = "";
     }
@@ -805,6 +806,10 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
         section.textContent = all_strings["no-notes-found-text"];
 
         document.getElementById("all-website-sections").append(section);
+    } else {
+        if (apply_filter) {
+            applyFilter();
+        }
     }
 }
 
@@ -861,7 +866,7 @@ function search(value = "") {
             websites_json_to_show[website] = websites_json[website];
         }
     }
-    loadAllWebsites(true, sort_by_selected);
+    loadAllWebsites(true, sort_by_selected, false);
 }
 
 function getType(website, url) {
@@ -1002,10 +1007,6 @@ function changeTagColour(url, colour) {
         sync_local.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
             hideBackgroundOpacity();
-            applyFilter();
-            setTimeout(function () {
-                search("");
-            }, 5000);
         });
     });
 }
