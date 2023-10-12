@@ -32,7 +32,6 @@ function checkSyncLocal() {
     sync_local = browser.storage.local;
     browser.storage.local.get("storage").then(result => {
         if (result.storage === "sync") sync_local = browser.storage.sync;
-        else if (result.storage === "sync") sync_local = browser.storage.sync;
         else {
             browser.storage.local.set({"storage": "local"});
             sync_local = browser.storage.local;
@@ -503,7 +502,7 @@ function importAllNotes() {
 
                                 if (storageTemp === undefined && resultSyncOrLocalToUse["storage"] !== undefined) storageTemp = resultSyncOrLocalToUse["storage"];
                                 else if ((storageTemp === "sync" || storageTemp === "local")) storageTemp = storageTemp; //do not do anything
-                                else storageTemp = "sync";
+                                else storageTemp = "local";
 
                                 if (continue_ok) {
                                     browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
@@ -535,7 +534,7 @@ function importAllNotes() {
                                                     "sticky-notes-opacity"
                                                 ]).then(result => {
                                                     //console.log(JSON.stringify(storageTemp));
-                                                    if (storageTemp === undefined || storageTemp === "sync") {
+                                                    if (storageTemp === "sync") {
                                                         if (JSON.stringify(json_old_version) === jsonImportElement.value) {
                                                             browser.storage.local.clear().then(result1 => {
                                                                 browser.storage.local.set({"storage": "sync"})

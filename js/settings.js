@@ -17,7 +17,6 @@ function checkSyncLocal() {
     sync_local = browser.storage.local;
     browser.storage.local.get("storage").then(result => {
         if (result.storage === "sync") sync_local = browser.storage.sync;
-        else if (result.storage === "sync") sync_local = browser.storage.sync;
         else {
             browser.storage.local.set({"storage": "local"});
             sync_local = browser.storage.local;
@@ -184,7 +183,7 @@ function loadSettings() {
             }
 
             let sync_or_local_settings = result["storage"];
-            if (sync_or_local_settings === undefined) sync_or_local_settings = "sync";
+            if (sync_or_local_settings === undefined) sync_or_local_settings = "local";
 
             document.getElementById("open-by-default-select").value = settings_json["open-default"];
             document.getElementById("consider-parameters-select").value = settings_json["consider-parameters"];
@@ -256,7 +255,7 @@ function saveSettings() {
 
 
             let sync_or_local_settings = document.getElementById("save-on-local-instead-of-sync-select").value;
-            if (sync_or_local_settings === undefined) sync_or_local_settings = "no";
+            if (sync_or_local_settings === undefined) sync_or_local_settings = "yes";
 
             if (sync_or_local_settings === "yes") {
                 //use local (from sync)
