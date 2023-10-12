@@ -32,7 +32,6 @@ function checkSyncLocal() {
     sync_local = browser.storage.local;
     browser.storage.local.get("storage").then(result => {
         if (result.storage === "sync") sync_local = browser.storage.sync;
-        else if (result.storage === "sync") sync_local = browser.storage.sync;
         else {
             browser.storage.local.set({"storage": "local"});
             sync_local = browser.storage.local;
@@ -291,7 +290,7 @@ function filterByColor(color, tagButton) {
         filtersColors.push(color);
         tagButton.classList.add("button-sel");
     }
-    search("");
+    applyFilter();
 }
 
 function filterByType(type, tagButton) {
@@ -304,7 +303,7 @@ function filterByType(type, tagButton) {
         filtersTypes.push(type);
         tagButton.classList.add("button-sel");
     }
-    search("");
+    applyFilter();
 }
 
 function loadDataFromBrowser(generate_section = true) {
@@ -327,6 +326,7 @@ function loadDataFromBrowser(generate_section = true) {
         }
         //console.log(JSON.stringify(settings_json));
     });
+    applyFilter();
 }
 
 function clearAllNotes() {
@@ -502,7 +502,7 @@ function importAllNotes() {
 
                                 if (storageTemp === undefined && resultSyncOrLocalToUse["storage"] !== undefined) storageTemp = resultSyncOrLocalToUse["storage"];
                                 else if ((storageTemp === "sync" || storageTemp === "local")) storageTemp = storageTemp; //do not do anything
-                                else storageTemp = "sync";
+                                else storageTemp = "local";
 
                                 if (continue_ok) {
                                     browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
@@ -534,7 +534,7 @@ function importAllNotes() {
                                                     "sticky-notes-opacity"
                                                 ]).then(result => {
                                                     //console.log(JSON.stringify(storageTemp));
-                                                    if (storageTemp === undefined || storageTemp === "sync") {
+                                                    if (storageTemp === "sync") {
                                                         if (JSON.stringify(json_old_version) === jsonImportElement.value) {
                                                             browser.storage.local.clear().then(result1 => {
                                                                 browser.storage.local.set({"storage": "sync"})
@@ -662,7 +662,7 @@ function hideBackgroundOpacity() {
     document.getElementById("background-opacity").style.display = "none";
 }
 
-function loadAllWebsites(clear = false, sort_by = "name-az") {
+function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true) {
     if (clear) {
         document.getElementById("all-website-sections").textContent = "";
     }
@@ -805,6 +805,10 @@ function loadAllWebsites(clear = false, sort_by = "name-az") {
         section.textContent = all_strings["no-notes-found-text"];
 
         document.getElementById("all-website-sections").append(section);
+    } else {
+        if (apply_filter) {
+            applyFilter();
+        }
     }
 }
 
@@ -861,7 +865,7 @@ function search(value = "") {
             websites_json_to_show[website] = websites_json[website];
         }
     }
-    loadAllWebsites(true, sort_by_selected);
+    loadAllWebsites(true, sort_by_selected, false);
 }
 
 function getType(website, url) {
@@ -1002,10 +1006,6 @@ function changeTagColour(url, colour) {
         sync_local.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
             hideBackgroundOpacity();
-            applyFilter();
-            setTimeout(function () {
-                search("");
-            }, 5000);
         });
     });
 }
