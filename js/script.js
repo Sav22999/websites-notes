@@ -12,6 +12,10 @@ var stickyNotesSupported = true;
 
 const all_strings = strings[languageToUse];
 
+let actions = [];
+let currentAction = 0;
+let undoAction = false;
+
 const linkReview = ["https://addons.mozilla.org/firefox/addon/websites-notes/"]; //{firefox add-ons}
 const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://ko-fi.com/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
 
@@ -160,10 +164,11 @@ function loadUI() {
     document.getElementById("global-button").onclick = function () {
         setTab(0, currentUrl[0]);
     }
-    document.getElementById("notes").oninput = function () {
+    let notes = document.getElementById("notes");
+    notes.oninput = function () {
         saveNotes();
     }
-    document.getElementById("notes").onpaste = function (e) {
+    notes.onpaste = function (e) {
         if (((e.originalEvent || e).clipboardData).getData("text/html") !== "") {
             e.preventDefault(); // Prevent the default paste action
             let clipboardData = (e.originalEvent || e).clipboardData;
@@ -172,9 +177,24 @@ function loadUI() {
             let sanitizedHTML = sanitizeHTML(pastedText)
             document.execCommand("insertHTML", false, sanitizedHTML);
         }
+        addAction()
     }
-    document.getElementById("notes").onkeyup = function () {
-        //console.log(getPosition());
+    notes.onkeydown = function (e) {
+        if (actions.length === 0) actions.push({text: sanitizeHTML(notes.innerHTML), position: 0});
+
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "z") {
+            redo();
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
+            redo();
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+            undo();
+        }
+    }
+    notes.onkeyup = function (e) {
+        if (e.key !== "Meta" && e.key !== "Alt" && e.key !== "Control" && e.key !== "Shift") {
+            addAction()
+            //console.log("Add action")
+        }
     }
     document.getElementById("all-notes-button").onclick = function () {
         browser.tabs.create({url: "./all-notes/index.html"});
@@ -203,7 +223,20 @@ function loadUI() {
         }
     }
 
-    loadFormatButtons();
+    loadFormatButtons(false, false);
+}
+
+function addAction() {
+    if (undoAction) {
+        undoAction = false;
+        for (let i = currentAction; i <= actions.length; i++) {
+            actions.pop();
+        }
+    }
+    actions.push({text: sanitizeHTML(notes.innerHTML), position: getPosition()});
+    currentAction = actions.length - 1;
+
+    //console.log(actions)
 }
 
 function loadSettings() {
@@ -219,17 +252,6 @@ function loadSettings() {
         //console.log(JSON.stringify(settings_json));
     });
 }
-
-/*function getPosition() {
-    let sel = window.getSelection(),
-        nd = sel.anchorNode,
-        text = nd.textContent.slice(0, sel.focusOffset);
-
-    let absolute_position = text.length;
-    //let line = text.split("\n").length;
-    //let col = text.split("\n").pop().length;
-    return absolute_position;
-}*/
 
 function getPosition() {
     const sel = window.getSelection();
@@ -264,7 +286,7 @@ function getPosition() {
 
 function setPosition(element, position) {
     try {
-        console.log(`Resetting position: ${position}`);
+        //console.log(`Resetting position: ${position}`);
 
         // Create a new range within the element's content
         const range = document.createRange();
@@ -296,7 +318,9 @@ function setPosition(element, position) {
 
         // Add the new range to the selection
         selection.addRange(range);
+        element.focus();
     } catch (e) {
+        element.focus();
         console.error(`Exception SetPosition\n${e}`);
     }
 }
@@ -318,7 +342,7 @@ function setPosition(element, position) {
 }*/
 
 function sanitizeHTML(input) {
-    console.log(input)
+    //console.log(input)
 
     let allowedTags = ["ul", "ol", "li", "b", "i", "u", "pre", "code", "span", "div", "img"];
     let allowedAttributes = ["src", "alt", "title"];
@@ -328,7 +352,7 @@ function sanitizeHTML(input) {
 
     let sanitizedHTML = sanitize(div_sanitize, allowedTags, allowedAttributes);
 
-    console.log(sanitizedHTML.innerHTML)
+    //console.log(sanitizedHTML.innerHTML)
 
     return sanitizedHTML.innerHTML;
 }
@@ -368,6 +392,10 @@ function saveNotes() {
         if (notes === "" || notes === "<br>") {
             //if notes field is empty, I delete the element from the "dictionary" (notes list)
             delete websites_json[currentUrl[selected_tab]];
+            loadFormatButtons(true, false);
+            setPosition(document.getElementById("notes"), 0);
+        } else {
+            loadFormatButtons(true, true);
         }
         if (currentUrl[1] !== "" && currentUrl[2] !== "") {
             //selected_tab : {0: global | 1:domain | 2:page}
@@ -402,11 +430,13 @@ function saveNotes() {
                 if (stickyNotesSupported) {
                     if (never_saved) {
                         document.getElementById("open-sticky-button").classList.add("hidden");
+                        setPosition(document.getElementById("notes"), 0);
                     } else {
                         if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
                     }
                 } else {
                     document.getElementById("open-sticky-button").classList.add("hidden");
+                    setPosition(document.getElementById("notes"), 0);
                 }
 
                 //console.log(JSON.stringify(websites_json));
@@ -420,6 +450,9 @@ function saveNotes() {
 
 function tabUpdated(tabId, changeInfo, tabInfo) {
     setUrl(tabInfo.url);
+    actions = [];
+    currentAction = 0;
+    undoAction = false;
 
     loadUI();
 }
@@ -576,6 +609,7 @@ function getDate() {
 }
 
 function setTab(index, url) {
+    loadFormatButtons(false, false)
     selected_tab = index;
     document.getElementById("domain-button").classList.remove("tab-sel");
     document.getElementById("page-button").classList.remove("tab-sel");
@@ -591,6 +625,9 @@ function setTab(index, url) {
         never_saved = false;
     }
     document.getElementById("notes").innerHTML = notes;
+    if (notes !== "<br>" && notes !== "") {
+        loadFormatButtons(true, true);
+    }
 
     let last_update = all_strings["never-update"];
     if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["last-update"] !== undefined) last_update = websites_json[getPageUrl(url)]["last-update"];
@@ -633,45 +670,85 @@ function openStickyNotes() {
 function bold() {
     //console.log("Bold B")
     document.execCommand("bold", false);
+    addAction()
 }
 
 function italic() {
     //console.log("Italic I")
     document.execCommand("italic", false);
+    addAction()
 }
 
 function underline() {
     //console.log("Underline U")
     document.execCommand("underline", false);
+    addAction()
 }
 
-function loadFormatButtons() {
+function undo() {
+    if (actions.length > 0 && currentAction > 0) {
+        undoAction = true;
+        document.getElementById("notes").innerHTML = actions[--currentAction].text;
+        saveNotes()
+        setPosition(document.getElementById("notes"), actions[currentAction].position);
+    }
+}
+
+function redo() {
+    if (currentAction < actions.length - 1) {
+        undoAction = false;
+        document.getElementById("notes").innerHTML = actions[++currentAction].text;
+        saveNotes()
+        setPosition(document.getElementById("notes"), actions[currentAction].position);
+    }
+}
+
+function loadFormatButtons(navigation = true, format = true) {
     let url = "/img/commands/"
-    let commands = [
-        {
-            action: "bold", html: "b", icon: `${url}bold.svg`, function: function () {
-                bold()
-            }
-        },
-        {
-            action: "italic", html: "i", icon: `${url}italic.svg`, function: function () {
-                italic()
-            }
-        },
-        {
-            action: "underline", html: "u", icon: `${url}underline.svg`, function: function () {
-                underline()
-            }
-        }
-    ]
+    let commands = [];
+    if (navigation) {
+        commands.push(
+            {
+                action: "undo", icon: `${url}undo.svg`, function: function () {
+                    undo()
+                }
+            },
+            {
+                action: "redo", icon: `${url}redo.svg`, function: function () {
+                    redo()
+                }
+            });
+    } else {
+        actions = [];
+        currentAction = 0;
+    }
+    if (format) {
+        commands.push(
+            {
+                action: "bold", icon: `${url}bold.svg`, function: function () {
+                    bold()
+                }
+            },
+            {
+                action: "italic", icon: `${url}italic.svg`, function: function () {
+                    italic()
+                }
+            },
+            {
+                action: "underline", icon: `${url}underline.svg`, function: function () {
+                    underline()
+                }
+            });
+    }
+
 
     buttons_container = document.getElementById("format-buttons");
     buttons_container.innerHTML = "";
     commands.forEach(value => {
         let button = document.createElement("button");
-        button.classList.add("button-format")
+        button.classList.add("button-format", "button");
         button.style.backgroundImage = `url('${value.icon}')`;
-        button.id = value.action;
+        button.id = `text-${value.action}`;
         button.onclick = value.function;
         buttons_container.appendChild(button);
     })
@@ -684,7 +761,12 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         document.getElementById("popup-content").style.backgroundColor = backgroundSection;
         //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
         document.getElementById("popup-content").style.color = primary;
-        var sticky_svg = window.btoa(getIconSvgEncoded("sticky-open", on_primary));
+        let sticky_svg = window.btoa(getIconSvgEncoded("sticky-open", on_primary));
+        let bold_svg = window.btoa(getIconSvgEncoded("bold", on_primary));
+        let italic_svg = window.btoa(getIconSvgEncoded("italic", on_primary));
+        let underline_svg = window.btoa(getIconSvgEncoded("underline", on_primary));
+        let undo_svg = window.btoa(getIconSvgEncoded("undo", on_primary));
+        let redo_svg = window.btoa(getIconSvgEncoded("redo", on_primary));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
@@ -717,6 +799,28 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 #open-sticky-button {
                     background-image: url('data:image/svg+xml;base64,${sticky_svg}');
                 }
+                
+                #text-bold {
+                    background-image: url('data:image/svg+xml;base64,${bold_svg}');
+                }
+                
+                #text-italic {
+                    background-image: url('data:image/svg+xml;base64,${italic_svg}');
+                }
+                
+                #text-underline {
+                    background-image: url('data:image/svg+xml;base64,${underline_svg}');
+                }
+                
+                #text-undo {
+                    background-image: url('data:image/svg+xml;base64,${undo_svg}');
+                }
+                
+                #text-redo {
+                    background-image: url('data:image/svg+xml;base64,${redo_svg}');
+                }
+                
+                
             </style>`;
     }
 }
