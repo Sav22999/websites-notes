@@ -101,7 +101,7 @@ function updateStickyNotes() {
             if (response !== undefined) {
                 let new_text = "";
                 if (response.notes !== undefined && response.notes.description !== undefined) new_text = response.notes.description;
-                text.value = new_text
+                text.innerHTML = new_text
 
                 let new_tag = "";
                 if (response.notes !== undefined && response.notes.tag_colour !== undefined) new_tag = response.notes.tag_colour;
@@ -184,9 +184,9 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         let textContainer = document.createElement("div");
         textContainer.id = "text-container--sticky-notes-notefox-addon";
 
-        let text = document.createElement("textarea");
+        let text = document.createElement("pre");
         text.id = "text--sticky-notes-notefox-addon";
-        text.value = notes.description;
+        text.innerHTML = notes.description;
         text.contentEditable = true;
         text.oninput = function () {
             onInputText(text);
@@ -531,7 +531,7 @@ function onClickClose(minimized = false) {
 }
 
 function onInputText(text) {
-    browser.runtime.sendMessage({from: "sticky", data: {new_text: text.value}});
+    browser.runtime.sendMessage({from: "sticky", data: {new_text: text.innerHTML}});
 }
 
 /**

@@ -20,6 +20,51 @@ let links = {
 };
 
 /**
+ * Recursive function to get the sanitized html code from an unsafe one
+ * @param element
+ * @param allowedTags
+ * @param allowedAttributes
+ * @returns {*}
+ */
+function sanitize(element, allowedTags, allowedAttributes) {
+    if (allowedTags === -1) allowedTags = ["ul", "ol", "li", "b", "i", "u", "pre", "code", "span", "div", "img"];
+    if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title"];
+
+    let sanitizedHTML = element;
+
+    //console.log(input)
+    for (var i = sanitizedHTML.childNodes.length - 1; i >= 0; i--) {
+        var node = sanitize(sanitizedHTML.childNodes[i], allowedTags, allowedAttributes);
+
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            if (allowedTags.includes(node.tagName.toLowerCase())) {
+                // Remove attributes unsupported of allowedTags
+                console.log(`Checking tag ... ${node.tagName}`)
+                var element = node;
+                for (var j = 0; j < element.attributes.length; j++) {
+                    var attribute = element.attributes[j];
+                    if (!allowedAttributes.includes(attribute.name.toLowerCase())) {
+                        console.log(`Removing attribute ... ${attribute.name} from ${node.tagName}`)
+                        element.removeAttribute(attribute.name);
+                    }
+                }
+                if (node.tagName.toLowerCase() === "img") node.setAttribute('style', 'width:100% !important');
+            } else {
+                // Remove unsupported tags
+                console.log(`Removing tag ... ${node.tagName}`)
+                sanitizedHTML.removeChild(node);
+            }
+        } else if (node.nodeType === Node.TEXT_NODE) {
+            console.log("Text supported")
+            // Text nodes are allowed and can be kept
+        } else {
+            console.log("????")
+        }
+    }
+    return sanitizedHTML
+}
+
+/**
  * Load the current theme for the page
  */
 function checkTheme() {

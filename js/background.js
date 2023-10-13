@@ -542,7 +542,9 @@ function setNewTextFromSticky(text) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            if (text === "") {
+            console.log(text)
+
+            if (text === "" || text === "<br>") {
                 //if notes field is empty, I delete the element from the "dictionary" (notes list)
                 delete websites_json[getTheCorrectUrl()];
                 closeStickyNotes();

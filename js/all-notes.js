@@ -912,8 +912,10 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         inputCopyNotes.value = all_strings["copied-button"];
         setTimeout(function () {
             inputCopyNotes.value = all_strings["copy-notes-button"];
+            textNotes.innerHTML = notes;
         }, 3000);
     }
+
     let tagsColour = document.createElement("select");
 
     let colourList = colourListDefault;
@@ -974,15 +976,19 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         page.append(row2);
     }
 
-    let pageNotes = document.createElement("div");
+    let pageNotes = document.createElement("pre");
     pageNotes.classList.add("sub-section-notes");
 
-    let textNotes = document.createElement("textarea");
+    let textNotesContainer = document.createElement("div");
+    textNotesContainer.classList.add("div-textnotes-container");
+    let textNotes = document.createElement("div");
     textNotes.readOnly = true;
-    textNotes.textContent = notes;
+    textNotes.innerHTML = notes;
+    textNotes.contentEditable = true;
     textNotes.classList.add("textarea-all-notes");
+    textNotesContainer.appendChild(textNotes);
 
-    pageNotes.append(textNotes);
+    pageNotes.append(textNotesContainer);
 
     page.append(pageNotes);
 
@@ -1011,9 +1017,18 @@ function changeTagColour(url, colour) {
 }
 
 function copyNotes(page, text) {
-    page.value = text;
-    page.select();
+    let div_sanitize = document.createElement("div");
+    div_sanitize.innerHTML = text;
+    page.innerHTML = sanitize(div_sanitize, -1, -1).innerHTML;
+    var range = document.createRange();
+    range.selectNodeContents(page);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    //page.select();
+    //document.execCommand("select")
     document.execCommand("copy");
+    page.innerText = text;
 }
 
 function isEmpty(obj) {

@@ -8,6 +8,11 @@
     src: url("../font/opensansbold.ttf");
 }
 
+@font-face {
+    font-family: open-sans-extra-bold;
+    src: url("../font/opensansextrabold.ttf");
+}
+
 :root {
     --primary-color: #ff6200;
     --secondary-color: #ffb788;
@@ -155,6 +160,7 @@ body {
 
 .copy-button {
     background-image: url("../img/copy.svg");
+    cursor: copy;
 }
 
 .tag-button {
@@ -224,7 +230,7 @@ body {
     opacity: 0.9;
 }
 
-#tabs-section > .tab:active, #tabs-section > .tab:focus, .button:active, .button:focus, textarea:focus, textarea:active, .textbox:focus, .textbox:active {
+#tabs-section > .tab:active, #tabs-section > .tab:focus, .button:active, .button:focus, textarea:focus, textarea:active, .div-textnotes-container:active, .div-textnotes-container:hover, .textbox:focus, .textbox:active {
     box-shadow: 0px 0px 0px 2px var(--primary-color), 0px 0px 0px 5px var(--secondary-color);
     border-radius: 5px;
     z-index: 2;
@@ -262,7 +268,7 @@ body {
     background-color: transparent;
 }
 
-#notes-section > #notes, textarea, .textbox {
+#notes-section > #notes, textarea, .textbox, .div-textnotes-container {
     width: 100%;
     height: 300px;
     border: 0px;
@@ -273,11 +279,12 @@ body {
     margin: 0px;
     padding: 5px;
     font-size: 14px;
-    overflow: auto;
+    overflow: scroll;
+    word-wrap: normal;
     box-shadow: 0px 0px 0px 1px var(--on-textbox-color);
 }
 
-textarea::placeholder, .textbox::placeholder {
+textarea::placeholder, .textbox::placeholder, pre::placeholder {
     color: var(--on-textbox-color);
 }
 
@@ -429,7 +436,7 @@ textarea::placeholder, .textbox::placeholder {
     */
 }
 
-.sub-section-notes:hover {
+.sub-section-notes:hover, .div-textnotes-container:hover {
     opacity: 1;
     box-shadow: inset 0px 0px 0px 3px var(--primary-color);
 }
@@ -535,6 +542,7 @@ h3 {
 
 .go-to-external {
     transition: 0.5s;
+    cursor: alias !important;
 }
 
 .go-to-external:hover::after {
@@ -613,12 +621,46 @@ b {
     margin-top: 5px;
 }
 
-.textarea-all-notes {
-    max-height: 200px;
-    background-color: transparent;
+.div-textnotes-container {
     border: 1px solid var(--primary-color);
+    resize: vertical;
+    min-height: 200px;
+    height: 200px;
+    overflow: scroll;
 }
 
+.textarea-all-notes {
+    background-color: transparent;
+    width: auto;
+    height: auto;
+    resize: none;
+    border: 0px solid transparent;
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+#notes b, .textarea-all-notes b {
+    font-family: open-sans-bold, serif !important;
+}
+
+#notes, .textarea-all-notes {
+    font-size: 14px !important;
+    cursor: text;
+}
+
+#notes {
+    padding-bottom: 30px !important;
+}
+
+#notes *, .textarea-all-notes * {
+    margin: 0px !important;
+    padding: 0px !important;
+    border: none !important;
+}
+
+.textarea-all-notes {
+    cursor: default;
+}
 
 .tag-colour-left {
     border: 0px solid transparent !important;
@@ -739,4 +781,33 @@ b {
 
 .hidden {
     display: none !important;
+}
+
+#format-buttons {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    z-index: 5;
+}
+
+button.button-format {
+    width: 30px !important;
+    height: 30px !important;
+    background-size: auto 70%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    border: 0px solid transparent;
+    cursor: pointer;
+    margin: 2px;
+    background-color: #ff6200;
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+button.button-format:hover {
+    background-color: #eeeeee;
+}
+
+button.button-format:active {
+    background-color: var(--secondary-color);
 }

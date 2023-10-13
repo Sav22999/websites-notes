@@ -36,12 +36,6 @@ function loaded() {
 }
 
 function continueLoaded() {
-    document.addEventListener("contextmenu", function (e) {
-        if (!(e.target.nodeName === "TEXTAREA")) {
-            e.preventDefault();
-        }
-    }, false);
-
     document.getElementById("notes").focus();
 
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
@@ -169,6 +163,19 @@ function loadUI() {
     document.getElementById("notes").oninput = function () {
         saveNotes();
     }
+    document.getElementById("notes").onpaste = function (e) {
+        if (((e.originalEvent || e).clipboardData).getData("text/html") !== "") {
+            e.preventDefault(); // Prevent the default paste action
+            let clipboardData = (e.originalEvent || e).clipboardData;
+            let pastedText = clipboardData.getData("text/html");
+            let allowedTags = ["p", "strong", "em", "a"]; // List of allowed tags
+            let sanitizedHTML = sanitizeHTML(pastedText)
+            document.execCommand("insertHTML", false, sanitizedHTML);
+        }
+    }
+    document.getElementById("notes").onkeyup = function () {
+        //console.log(getPosition());
+    }
     document.getElementById("all-notes-button").onclick = function () {
         browser.tabs.create({url: "./all-notes/index.html"});
         window.close();
@@ -195,6 +202,8 @@ function loadUI() {
             console.error("P2)) " + e);
         }
     }
+
+    loadFormatButtons();
 }
 
 function loadSettings() {
@@ -211,6 +220,119 @@ function loadSettings() {
     });
 }
 
+/*function getPosition() {
+    let sel = window.getSelection(),
+        nd = sel.anchorNode,
+        text = nd.textContent.slice(0, sel.focusOffset);
+
+    let absolute_position = text.length;
+    //let line = text.split("\n").length;
+    //let col = text.split("\n").pop().length;
+    return absolute_position;
+}*/
+
+function getPosition() {
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return -1;
+
+    const range = sel.getRangeAt(0);
+    const clonedRange = range.cloneRange();
+    clonedRange.selectNodeContents(document.body);
+    clonedRange.setEnd(range.startContainer, range.startOffset);
+
+    const div = document.createElement('div');
+    div.appendChild(clonedRange.cloneContents());
+
+    // Calculate the absolute position
+    let absolutePosition = 0;
+    const container = div;
+
+    while (container.firstChild) {
+        if (container.firstChild === range.startContainer) {
+            absolutePosition += range.startOffset;
+            break;
+        } else {
+            const child = container.firstChild;
+            absolutePosition += child.textContent.length;
+            container.removeChild(child);
+        }
+    }
+
+    return absolutePosition - 34;
+
+}
+
+function setPosition(element, position) {
+    try {
+        console.log(`Resetting position: ${position}`);
+
+        // Create a new range within the element's content
+        const range = document.createRange();
+        const nodeStack = [element];
+        let node, foundStart = false, stop = false;
+        let charCount = 0;
+
+        while (!stop && (node = nodeStack.pop())) {
+            if (node.nodeType === 3) {
+                const text = node.textContent;
+                if (charCount + text.length >= position) {
+                    range.setStart(node, position - charCount);
+                    range.setEnd(node, position - charCount);
+                    stop = true;
+                } else {
+                    charCount += text.length;
+                }
+            } else {
+                let i = node.childNodes.length;
+                while (i--) {
+                    nodeStack.push(node.childNodes[i]);
+                }
+            }
+        }
+
+        // Clear the current selection
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+
+        // Add the new range to the selection
+        selection.addRange(range);
+    } catch (e) {
+        console.error(`Exception SetPosition\n${e}`);
+    }
+}
+
+/*function setPosition(element, position) {
+    try {
+        console.log(`Resetting position: ${position}`)
+        console.log("-" + element.innerHTML)
+        var range = document.createRange();
+        range.setStart(element.childNodes[0], position); // start position (node, offset)
+        range.setEnd(element.childNodes[0], position);   // end position (node, offset)
+
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    } catch (e) {
+        console.error(`Exception SetPosition\n${e}`)
+    }
+}*/
+
+function sanitizeHTML(input) {
+    console.log(input)
+
+    let allowedTags = ["ul", "ol", "li", "b", "i", "u", "pre", "code", "span", "div", "img"];
+    let allowedAttributes = ["src", "alt", "title"];
+
+    let div_sanitize = document.createElement("div");
+    div_sanitize.innerHTML = input;
+
+    let sanitizedHTML = sanitize(div_sanitize, allowedTags, allowedAttributes);
+
+    console.log(sanitizedHTML.innerHTML)
+
+    return sanitizedHTML.innerHTML;
+}
+
 function saveNotes() {
     sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
@@ -219,7 +341,7 @@ function saveNotes() {
             websites_json = {};
         }
         if (websites_json[currentUrl[selected_tab]] === undefined) websites_json[currentUrl[selected_tab]] = {};
-        let notes = document.getElementById("notes").value;
+        let notes = document.getElementById("notes").innerHTML;
         websites_json[currentUrl[selected_tab]]["notes"] = notes;
         websites_json[currentUrl[selected_tab]]["last-update"] = getDate();
         if (websites_json[currentUrl[selected_tab]]["tag-colour"] === undefined) {
@@ -241,7 +363,9 @@ function saveNotes() {
             websites_json[currentUrl[selected_tab]]["type"] = 2;
             websites_json[currentUrl[selected_tab]]["domain"] = currentUrl[1];
         }
-        if (notes === "") {
+        let currentPosition = getPosition();
+        //console.log(currentPosition);
+        if (notes === "" || notes === "<br>") {
             //if notes field is empty, I delete the element from the "dictionary" (notes list)
             delete websites_json[currentUrl[selected_tab]];
         }
@@ -256,7 +380,8 @@ function saveNotes() {
                     notes = websites_json[currentUrl[selected_tab]]["notes"];
                     never_saved = false;
                 }
-                document.getElementById("notes").innerText = notes;
+                document.getElementById("notes").innerHTML = notes;
+                setPosition(document.getElementById("notes"), currentPosition);
 
                 let last_update = all_strings["never-update"];
                 if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["last-update"] !== undefined) last_update = websites_json[currentUrl[selected_tab]]["last-update"];
@@ -306,16 +431,16 @@ function setUrl(url) {
         //console.log(otherPossibleUrls);
         //TODO!!
     }
-    if (isUrlSupported(url)) {
-        currentUrl[0] = getGlobalUrl();
-        currentUrl[1] = getDomainUrl(url);
-        currentUrl[2] = getPageUrl(url);
-        document.getElementById("global-button").style.width = "30%";
-        document.getElementById("domain-button").style.width = "40%";
-        document.getElementById("page-button").style.width = "30%";
-        if (document.getElementById("page-button").classList.contains("hidden")) document.getElementById("page-button").classList.remove("hidden");
-        if (stickyNotesSupported && document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
-    } else {
+    //if (isUrlSupported(url)) {
+    currentUrl[0] = getGlobalUrl();
+    currentUrl[1] = getDomainUrl(url);
+    currentUrl[2] = getPageUrl(url);
+    document.getElementById("global-button").style.width = "30%";
+    document.getElementById("domain-button").style.width = "40%";
+    document.getElementById("page-button").style.width = "30%";
+    if (document.getElementById("page-button").classList.contains("hidden")) document.getElementById("page-button").classList.remove("hidden");
+    if (stickyNotesSupported && document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+    /*} else {
         currentUrl[0] = getGlobalUrl();
         currentUrl[1] = getDomainUrl(url);
         currentUrl[2] = getPageUrl(url);
@@ -324,7 +449,7 @@ function setUrl(url) {
         document.getElementById("domain-button").style.borderRadius = "0px 5px 5px 0px";
         document.getElementById("page-button").classList.add("hidden");
         if (!document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.add("hidden");
-    }
+    }*/
 
     //console.log("Current url [0] " + currentUrl[1] + " - [1] " + currentUrl[2]);
 }
@@ -465,7 +590,7 @@ function setTab(index, url) {
         notes = websites_json[getPageUrl(url)]["notes"];
         never_saved = false;
     }
-    document.getElementById("notes").value = notes;
+    document.getElementById("notes").innerHTML = notes;
 
     let last_update = all_strings["never-update"];
     if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["last-update"] !== undefined) last_update = websites_json[getPageUrl(url)]["last-update"];
@@ -502,6 +627,54 @@ function openStickyNotes() {
             }
         });
     }
+}
+
+
+function bold() {
+    //console.log("Bold B")
+    document.execCommand("bold", false);
+}
+
+function italic() {
+    //console.log("Italic I")
+    document.execCommand("italic", false);
+}
+
+function underline() {
+    //console.log("Underline U")
+    document.execCommand("underline", false);
+}
+
+function loadFormatButtons() {
+    let url = "/img/commands/"
+    let commands = [
+        {
+            action: "bold", html: "b", icon: `${url}bold.svg`, function: function () {
+                bold()
+            }
+        },
+        {
+            action: "italic", html: "i", icon: `${url}italic.svg`, function: function () {
+                italic()
+            }
+        },
+        {
+            action: "underline", html: "u", icon: `${url}underline.svg`, function: function () {
+                underline()
+            }
+        }
+    ]
+
+    buttons_container = document.getElementById("format-buttons");
+    buttons_container.innerHTML = "";
+    commands.forEach(value => {
+        let button = document.createElement("button");
+        button.classList.add("button-format")
+        button.style.backgroundImage = `url('${value.icon}')`;
+        button.id = value.action;
+        button.onclick = value.function;
+        buttons_container.appendChild(button);
+    })
 }
 
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
