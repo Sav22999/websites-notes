@@ -741,6 +741,12 @@ function loadFormatButtons(navigation = true, format = true) {
             });
     }
 
+    if (!format && !navigation) {
+        document.getElementById("notes").style.marginBottom = "0px";
+    } else {
+        document.getElementById("notes").style.marginBottom = "35px";
+    }
+
 
     buttons_container = document.getElementById("format-buttons");
     buttons_container.innerHTML = "";

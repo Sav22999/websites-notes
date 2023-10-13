@@ -26,7 +26,6 @@
 
 
 * {
-    overflow: hidden;
     box-sizing: border-box;
     font-family: open-sans, sans-serif;
     font-size: 16px;
@@ -47,6 +46,7 @@ body {
     font-family: open-sans, sans-serif;
     margin: 0px;
     padding: 0px;
+    overflow: auto;
 }
 
 #popup-content {
@@ -319,11 +319,10 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     background-color: #cccccc33;
     padding: 5px;
     width: 70%;
-    height: 100%;
+    height: auto;
     margin-left: auto;
     margin-right: auto;
     border-radius: 0px;
-    overflow: auto;
     box-shadow: 0px 0px 5px var(--primary-color);
 }
 
@@ -647,7 +646,7 @@ b {
 }
 
 #notes {
-    padding-bottom: 30px !important;
+    margin-bottom: 35px;
 }
 
 #notes *, .textarea-all-notes * {
