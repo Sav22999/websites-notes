@@ -438,13 +438,10 @@ function setPosition(element, position) {
 function sanitizeHTML(input) {
     //console.log(input)
 
-    let allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img"];
-    let allowedAttributes = ["src", "alt", "title"];
-
     let div_sanitize = document.createElement("div");
     div_sanitize.innerHTML = input;
 
-    let sanitizedHTML = sanitize(div_sanitize, allowedTags, allowedAttributes);
+    let sanitizedHTML = sanitize(div_sanitize, -1, -1);
 
     //console.log(sanitizedHTML.innerHTML)
 

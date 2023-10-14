@@ -982,7 +982,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
     let textNotes = document.createElement("div");
     textNotes.readOnly = true;
     textNotes.innerHTML = notes;
-    textNotes.contentEditable = true;
+    textNotes.contentEditable = false;
     textNotes.classList.add("textarea-all-notes");
     textNotesContainer.appendChild(textNotes);
 

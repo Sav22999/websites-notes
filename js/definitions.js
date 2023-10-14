@@ -27,14 +27,15 @@ let links = {
  * @returns {*}
  */
 function sanitize(element, allowedTags, allowedAttributes) {
-    if (allowedTags === -1) allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img"];
+    if (allowedTags === -1) allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p"];
     if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title"];
 
     let sanitizedHTML = element;
 
-    //console.log(input)
     for (var i = sanitizedHTML.childNodes.length - 1; i >= 0; i--) {
         var node = sanitize(sanitizedHTML.childNodes[i], allowedTags, allowedAttributes);
+
+        //console.log(node.nodeType + " : " + node.tagName);
 
         if (node.nodeType === Node.ELEMENT_NODE) {
             if (allowedTags.includes(node.tagName.toLowerCase())) {
@@ -48,7 +49,7 @@ function sanitize(element, allowedTags, allowedAttributes) {
                         element.removeAttribute(attribute.name);
                     }
                 }
-                //if (node.tagName.toLowerCase() === "img") node.setAttribute('style', 'width:100% !important;height:auto !important');
+                if (node.tagName.toLowerCase() === "img") node.setAttribute('style', 'width:auto; max-width:100% !important;height:auto !important');
             } else {
                 // Remove unsupported tags
                 //console.log(`Removing tag ... ${node.tagName}`)
@@ -61,6 +62,7 @@ function sanitize(element, allowedTags, allowedAttributes) {
             //console.log("????")
         }
     }
+    //console.log(sanitizedHTML)
     return sanitizedHTML
 }
 
