@@ -380,6 +380,7 @@ function getPosition() {
 
 function setPosition(element, position) {
     try {
+        element.focus();
         //console.log(`Resetting position: ${position}`);
 
         // Create a new range within the element's content
@@ -412,7 +413,6 @@ function setPosition(element, position) {
 
         // Add the new range to the selection
         selection.addRange(range);
-        element.focus();
     } catch (e) {
         element.focus();
         console.error(`Exception SetPosition\n${e}`);
@@ -800,6 +800,7 @@ function undo() {
         saveNotes()
         setPosition(document.getElementById("notes"), actions[currentAction].position);
     }
+    document.getElementById("notes").focus();
 }
 
 function redo() {
@@ -809,6 +810,7 @@ function redo() {
         saveNotes()
         setPosition(document.getElementById("notes"), actions[currentAction].position);
     }
+    document.getElementById("notes").focus();
 }
 
 function spellcheck(force = false, value = false) {
@@ -889,6 +891,7 @@ function loadFormatButtons(navigation = true, format = true) {
         button.onclick = value.function;
         buttons_container.appendChild(button);
     })
+    document.getElementById("notes").focus();
 }
 
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
@@ -938,24 +941,28 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 #open-sticky-button {
                     background-image: url('data:image/svg+xml;base64,${sticky_svg}');
+                    background-size: auto 80%;
                 }
                 
                 #text-bold {
                     background-image: url('data:image/svg+xml;base64,${bold_svg}');
+                    background-size: 60% auto;
                 }
                 
                 #text-italic {
                     background-image: url('data:image/svg+xml;base64,${italic_svg}');
+                    background-size: 60% auto;
                 }
                 
                 #text-underline {
                     background-image: url('data:image/svg+xml;base64,${underline_svg}');
+                    background-size: 60% auto;
                 }
                 
                 #text-strikethrough {
                     background-image: url('data:image/svg+xml;base64,${strikethrough_svg}');
+                    background-size: 60% auto;
                 }
-                
                 
                 #text-spellcheck {
                     background-image: url('data:image/svg+xml;base64,${spellcheck_svg}');
