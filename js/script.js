@@ -823,6 +823,7 @@ function spellcheck(force = false, value = false) {
         document.getElementById("notes").spellcheck = false;
         if (document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
     }
+    document.getElementById("notes").focus();
 }
 
 function loadFormatButtons(navigation = true, format = true) {
@@ -892,7 +893,7 @@ function loadFormatButtons(navigation = true, format = true) {
     })
     document.getElementById("notes").focus();
 
-    if(format) {
+    if (format) {
         spellcheck(force = true, value = true);
     }
 }
