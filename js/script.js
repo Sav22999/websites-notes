@@ -970,9 +970,11 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 
                 #text-spellcheck {
                     background-image: url('data:image/svg+xml;base64,${spellcheck_svg}');
+                    background-size: 60% auto;
                 }
                 .text-spellcheck-sel {
-                    background-image: url('data:image/svg+xml;base64,${spellcheck_sel_svg}') !important;               
+                    background-image: url('data:image/svg+xml;base64,${spellcheck_sel_svg}') !important;     
+                    background-size: 60% auto;          
                 }
                 
                 #text-undo {
