@@ -1,12 +1,4 @@
-@font-face {
-    font-family: open-sans;
-    src: url("../font/opensans.ttf");
-}
-
-@font-face {
-    font-family: open-sans-bold;
-    src: url("../font/opensansbold.ttf");
-}
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
 
 :root {
     --primary-color: #ff6200;
@@ -21,9 +13,8 @@
 
 
 * {
-    overflow: hidden;
     box-sizing: border-box;
-    font-family: open-sans, sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-size: 16px;
     transition: 0s;
     position: relative;
@@ -39,9 +30,10 @@ body {
     color: black;
     width: auto;
     height: auto;
-    font-family: open-sans, sans-serif;
+    font-family: 'Open Sans', sans-serif;
     margin: 0px;
     padding: 0px;
+    overflow: auto;
 }
 
 #popup-content {
@@ -77,7 +69,7 @@ body {
     display: inline-block;
 }
 
-#tabs-section > .tab, #version {
+#version, #tabs-section > .tab {
     border-radius: 0px;
 }
 
@@ -89,7 +81,7 @@ body {
     border: 2px solid var(--primary-color);
     border-radius: 5px;
     width: auto;
-    font-family: open-sans, sans-serif;
+    font-family: 'Open Sans', sans-serif;
     background-color: var(--on-primary-color);
     transition: 0.5s;
     cursor: pointer;
@@ -155,6 +147,7 @@ body {
 
 .copy-button {
     background-image: url("../img/copy.svg");
+    cursor: copy;
 }
 
 .tag-button {
@@ -209,14 +202,14 @@ body {
     border-radius: 5px;
     border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
-    width: 33%;
+    width: 30%;
 }
 
 #tabs-section > .tab:last-child {
     border-radius: 5px;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
-    width: 33%;
+    width: 30%;
 }
 
 #tabs-section > .tab:hover {
@@ -224,7 +217,7 @@ body {
     opacity: 0.9;
 }
 
-#tabs-section > .tab:active, #tabs-section > .tab:focus, .button:active, .button:focus, textarea:focus, textarea:active, .textbox:focus, .textbox:active {
+#tabs-section > .tab:active, #tabs-section > .tab:focus, .button:active, .button:focus, textarea:focus, textarea:active, .div-textnotes-container:active, .div-textnotes-container:hover, .textbox:focus, .textbox:active {
     box-shadow: 0px 0px 0px 2px var(--primary-color), 0px 0px 0px 5px var(--secondary-color);
     border-radius: 5px;
     z-index: 2;
@@ -232,7 +225,7 @@ body {
 }
 
 #tabs-section > .tab:active, #tabs-section > .tab:focus {
-    border-radius: 0px;
+    /*border-radius: 0px;*/
 }
 
 #notes-section > #notes:focus {
@@ -262,7 +255,7 @@ body {
     background-color: transparent;
 }
 
-#notes-section > #notes, textarea, .textbox {
+#notes-section > #notes, textarea, .textbox, .div-textnotes-container {
     width: 100%;
     height: 300px;
     border: 0px;
@@ -273,11 +266,12 @@ body {
     margin: 0px;
     padding: 5px;
     font-size: 14px;
-    overflow: auto;
+    overflow: scroll;
+    word-wrap: normal;
     box-shadow: 0px 0px 0px 1px var(--on-textbox-color);
 }
 
-textarea::placeholder, .textbox::placeholder {
+textarea::placeholder, .textbox::placeholder, pre::placeholder {
     color: var(--on-textbox-color);
 }
 
@@ -306,17 +300,74 @@ textarea::placeholder, .textbox::placeholder {
     padding: 5px;
     padding-top: 0px;
     background-color: transparent;
+    text-align: center;
+}
+
+#panel-other-tabs {
+    background-color: var(--tertiary);
+    padding: 5px 0px;
+    border-radius: 5px;
+    width: auto;
+    box-sizing: border-box;
+    height: auto;
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    left: 4px;
+    border: 1px solid var(--on-textbox-color);
+    z-index: 100;
+    max-height: 300px;
+    overflow: visible;
+}
+
+#arrow-down {
+    position: absolute;
+    top: -10px;
+    right: 5px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+
+    border-bottom: 15px solid var(--tertiary);
+}
+
+#subdomains-list {
+    height: auto;
+    overflow: auto;
+    border-radius: 0px;
+}
+
+.subdomain {
+    width: 100%;
+    background-color: var(--tertiary);
+    color: var(--on-textbox-color);
+    padding: 5px 10px;
+    border-radius: 0px;
+    text-align: left;
+    border: 0px solid transparent;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.subdomain-sel {
+    background-color: var(--on-textbox-color) !important;
+    color: var(--tertiary);
+}
+
+.subdomain:hover, .subdomain:active {
+    background-color: var(--tertiary-transparent);
 }
 
 #all-notes-dedication-section, #settings-dedication-section {
     background-color: #cccccc33;
     padding: 5px;
     width: 70%;
-    height: 100%;
+    height: auto;
     margin-left: auto;
     margin-right: auto;
     border-radius: 0px;
-    overflow: auto;
     box-shadow: 0px 0px 5px var(--primary-color);
 }
 
@@ -412,7 +463,7 @@ textarea::placeholder, .textbox::placeholder {
     border-radius: 5px;
     margin-right: 10px;
     padding: 5px;
-    font-family: open-sans;
+    font-family: 'Open Sans', sans-serif;
     font-size: 10px;
     min-width: 50px;
     display: inline-block;
@@ -429,7 +480,7 @@ textarea::placeholder, .textbox::placeholder {
     */
 }
 
-.sub-section-notes:hover {
+.sub-section-notes:hover, .div-textnotes-container:hover {
     opacity: 1;
     box-shadow: inset 0px 0px 0px 3px var(--primary-color);
 }
@@ -509,7 +560,8 @@ textarea::placeholder, .textbox::placeholder {
 h1, h2, h3 {
     color: var(--primary-color);
     font-size: 30px;
-    font-family: open-sans-bold;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bolder;
     padding: 0px;
     padding-left: 20px;
     margin: 0px;
@@ -521,7 +573,6 @@ h2 {
     font-size: 18px;
     padding: 5px;
     padding-left: 10px;
-    font-family: open-sans;
     height: 35px;
 }
 
@@ -529,12 +580,12 @@ h3 {
     color: var(--primary-color);
     font-size: 14px;
     padding: 3px;
-    font-family: open-sans;
     height: 25px;
 }
 
 .go-to-external {
     transition: 0.5s;
+    cursor: alias !important;
 }
 
 .go-to-external:hover::after {
@@ -570,7 +621,8 @@ b {
 }
 
 .bold, strong {
-    font-family: open-sans-bold;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bold;
 }
 
 .font-size-20px {
@@ -613,12 +665,47 @@ b {
     margin-top: 5px;
 }
 
-.textarea-all-notes {
-    max-height: 200px;
-    background-color: transparent;
+.div-textnotes-container {
     border: 1px solid var(--primary-color);
+    resize: vertical;
+    min-height: 200px;
+    height: 200px;
+    overflow: scroll;
 }
 
+.textarea-all-notes {
+    background-color: transparent;
+    width: auto;
+    height: auto;
+    resize: none;
+    border: 0px solid transparent;
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+#notes b, .textarea-all-notes b {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bolder;
+}
+
+#notes, .textarea-all-notes {
+}
+
+#notes {
+    margin-bottom: 35px;
+}
+
+#notes *, .textarea-all-notes * {
+    margin: 0px !important;
+    padding: 0px !important;
+    border: none !important;
+    font-size: 14px !important;
+    cursor: text;
+}
+
+.textarea-all-notes {
+    cursor: default;
+}
 
 .tag-colour-left {
     border: 0px solid transparent !important;
@@ -739,4 +826,23 @@ b {
 
 .hidden {
     display: none !important;
+}
+
+#format-buttons {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    z-index: 5;
+}
+
+button.button-format {
+    width: 30px !important;
+    height: 30px !important;
+    background-size: auto 70%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    border: 0px solid transparent;
+    cursor: pointer;
+    margin: 2px;
+    border-radius: 5px;
 }
