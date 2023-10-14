@@ -68,7 +68,7 @@ body {
 }
 
 #tabs-section > .tab, .button {
-    border-radius: 0px;
+    border-radius: 5px;
     border: 1px solid transparent;
     cursor: pointer;
     font-size: 14px;
@@ -82,7 +82,7 @@ body {
     display: inline-block;
 }
 
-#version {
+#version, #tabs-section > .tab {
     border-radius: 0px;
 }
 

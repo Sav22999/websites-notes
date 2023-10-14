@@ -189,7 +189,7 @@ function loadUI() {
     }
 
     document.getElementById("panel-other-tabs").onmouseleave = function () {
-        document.getElementById("panel-other-tabs").classList.add("hidden");
+        hideTabSubDomains();
     }
 
     let notes = document.getElementById("notes");
@@ -258,7 +258,10 @@ function showTabSubDomains() {
     let panel = document.getElementById("panel-other-tabs");
     let arrowDown = document.getElementById("arrow-down");
     if (panel.classList.contains("hidden")) panel.classList.remove("hidden");
-    else panel.classList.add("hidden");
+    else {
+        panel.classList.add("hidden");
+        document.getElementById("notes").focus();
+    }
 
     if (selected_tab === 3) {
         document.getElementById("subdomains-list").childNodes.forEach(node => {
@@ -279,6 +282,7 @@ function showTabSubDomains() {
 }
 
 function hideTabSubDomains() {
+    document.getElementById("notes").focus();
     document.getElementById("panel-other-tabs").classList.add("hidden");
     document.getElementById("subdomains-list").childNodes.forEach(node => {
         let class_text = "subdomain";
@@ -844,7 +848,7 @@ function loadFormatButtons(navigation = true, format = true) {
     commands.forEach(value => {
         let button = document.createElement("button");
         button.classList.add("button-format", "button");
-        button.style.backgroundImage = `url('${value.icon}')`;
+        //button.style.backgroundImage = `url('${value.icon}')`;
         button.id = `text-${value.action}`;
         button.onclick = value.function;
         buttons_container.appendChild(button);
