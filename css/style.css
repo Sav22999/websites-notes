@@ -68,7 +68,7 @@ body {
 }
 
 #tabs-section > .tab, .button {
-    border-radius: 5px;
+    border-radius: 0px;
     border: 1px solid transparent;
     cursor: pointer;
     font-size: 14px;
@@ -82,7 +82,7 @@ body {
     display: inline-block;
 }
 
-#tabs-section > .tab, #version {
+#version {
     border-radius: 0px;
 }
 
@@ -215,14 +215,14 @@ body {
     border-radius: 5px;
     border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
-    width: 33%;
+    width: 30%;
 }
 
 #tabs-section > .tab:last-child {
     border-radius: 5px;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
-    width: 33%;
+    width: 30%;
 }
 
 #tabs-section > .tab:hover {
@@ -238,7 +238,7 @@ body {
 }
 
 #tabs-section > .tab:active, #tabs-section > .tab:focus {
-    border-radius: 0px;
+    /*border-radius: 0px;*/
 }
 
 #notes-section > #notes:focus {
@@ -313,6 +313,62 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     padding: 5px;
     padding-top: 0px;
     background-color: transparent;
+    text-align: center;
+}
+
+#panel-other-tabs {
+    background-color: var(--tertiary);
+    padding: 5px 0px;
+    border-radius: 5px;
+    width: auto;
+    box-sizing: border-box;
+    height: auto;
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    left: 4px;
+    border: 1px solid var(--on-textbox-color);
+    z-index: 100;
+    max-height: 300px;
+    overflow: visible;
+}
+
+#arrow-down {
+    position: absolute;
+    top: -10px;
+    right: 5px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+
+    border-bottom: 15px solid var(--tertiary);
+}
+
+#subdomains-list {
+    height: auto;
+    overflow: auto;
+}
+
+.subdomain {
+    width: 100%;
+    background-color: var(--tertiary);
+    color: var(--on-textbox-color);
+    padding: 5px 10px;
+    border-radius: 0px;
+    text-align: left;
+    border: 0px solid transparent;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.subdomain-sel {
+    background-color: var(--tertiary-transparent);
+}
+
+.subdomain:hover, .subdomain:active {
+    background-color: var(--tertiary-transparent);
 }
 
 #all-notes-dedication-section, #settings-dedication-section {

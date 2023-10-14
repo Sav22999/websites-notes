@@ -1,9 +1,11 @@
 var websites_json = {};
 var settings_json = {};
 
-var currentUrl = []; //[global, domain, page]
+var advanced_managing = false;
 
-var selected_tab = 2; //{0: global | 1:domain | 2:page}
+var currentUrl = []; //[global, domain, page, other]
+
+var selected_tab = 2; //{0: global | 1:domain | 2:page | 3:other}
 var opened_by = -1;
 
 //urls WITHOUT the protocol! e.g. addons.mozilla.org
@@ -86,7 +88,7 @@ function listenerShortcuts() {
             opened_by = 2;
             loadUI();
         } else if (command === "opened-by-global") {
-            //page
+            //global
             opened_by = 0;
             loadUI();
         }
@@ -118,12 +120,26 @@ function loadUI() {
                 //console.log("websites: "+JSON.stringify(value));
                 let default_index = 2;
                 if (!isUrlSupported(activeTabUrl)) default_index = 1;
-                if (settings_json["open-default"] === "page" && isUrlSupported(activeTabUrl)) default_index = 2; else if (settings_json["open-default"] === "domain" || !isUrlSupported(activeTabUrl) && settings_json["open-default"] === "page") default_index = 1; else if (settings_json["open-default"] === "global") default_index = 0;
+                if (settings_json["open-default"] === "page" && isUrlSupported(activeTabUrl)) default_index = 2;
+                else if (settings_json["open-default"] === "domain" || !isUrlSupported(activeTabUrl) && settings_json["open-default"] === "page") default_index = 1;
+                else if (settings_json["open-default"] === "global") default_index = 0;
                 if (value["websites"] !== undefined) {
                     websites_json = value["websites"];
                     let check_for_domain = websites_json[currentUrl[1]] !== undefined && websites_json[currentUrl[1]]["last-update"] !== undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] !== undefined && websites_json[currentUrl[1]]["notes"] !== "";
                     let check_for_page = websites_json[currentUrl[2]] !== undefined && websites_json[currentUrl[2]]["last-update"] !== undefined && websites_json[currentUrl[2]]["last-update"] != null && websites_json[currentUrl[2]]["notes"] !== undefined && websites_json[currentUrl[2]]["notes"] !== "";
                     let check_for_global = websites_json[currentUrl[0]] !== undefined && websites_json[currentUrl[0]]["last-update"] !== undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] !== undefined && websites_json[currentUrl[0]]["notes"] !== "";
+                    let subdomains = getAllOtherPossibleUrls(activeTabUrl);
+                    let check_for_subdomains = false;
+                    subdomains.forEach(subdomain => {
+                        let url = getDomainUrl(activeTabUrl) + subdomain;
+                        let tmp_check = websites_json[url] !== undefined && websites_json[url]["last-update"] !== undefined && websites_json[url]["last-update"] != null && websites_json[url]["notes"] !== undefined && websites_json[url]["notes"] !== "";
+                        if (tmp_check) {
+                            check_for_subdomains = true;
+                            if (currentUrl.length === 4) currentUrl[3] = url;
+                            else currentUrl.push(url);
+                        }
+                        //console.log(url + " : " + tmp_check);
+                    });
                     if (opened_by === 1 || (opened_by === -1 && check_for_domain && (default_index === 1 || default_index === 2 && !check_for_page || default_index === 0 && !check_for_global))) {
                         //by domain
                         setTab(1, currentUrl[1]);
@@ -133,6 +149,9 @@ function loadUI() {
                     } else if (opened_by === 0 || (opened_by === -1 && check_for_global && (default_index === 0 || default_index === 1 && !check_for_domain || default_index === 2 && !check_for_page))) {
                         //by global
                         setTab(0, currentUrl[0]);
+                    } else if (opened_by === -1 && check_for_subdomains) {
+                        //by subdomain
+                        setTab(3, currentUrl[3]);
                     } else {
                         //using default
                         if (opened_by !== -1) {
@@ -164,6 +183,15 @@ function loadUI() {
     document.getElementById("global-button").onclick = function () {
         setTab(0, currentUrl[0]);
     }
+    document.getElementById("tab-other-button").onclick = function () {
+        //setTab(3, "");
+        showTabSubDomains();
+    }
+
+    document.getElementById("panel-other-tabs").onmouseleave = function () {
+        document.getElementById("panel-other-tabs").classList.add("hidden");
+    }
+
     let notes = document.getElementById("notes");
     notes.oninput = function () {
         saveNotes();
@@ -226,6 +254,57 @@ function loadUI() {
     loadFormatButtons(false, false);
 }
 
+function showTabSubDomains() {
+    let panel = document.getElementById("panel-other-tabs");
+    let arrowDown = document.getElementById("arrow-down");
+    if (panel.classList.contains("hidden")) panel.classList.remove("hidden");
+    else panel.classList.add("hidden");
+
+    if (selected_tab === 3) {
+        document.getElementById("subdomains-list").childNodes.forEach(node => {
+            let class_text = "";
+            for (let i = 0; i < node.attributes.length; i++) {
+                if (node.attributes[i].name.toString().toLowerCase() === "class") {
+                    class_text = node.attributes[i].nodeValue;
+                }
+                if (currentUrl.length === 4 && currentUrl[3].replace(currentUrl[1], "") === node.textContent) {
+                    if (!class_text.includes(" subdomain-sel")) class_text = class_text + " subdomain-sel";
+                } else {
+                    if (class_text.includes(" subdomain-sel")) class_text = class_text.replace(" subdomain-sel", "");
+                }
+            }
+            node.setAttribute("class", class_text);
+        });
+    }
+}
+
+function hideTabSubDomains() {
+    document.getElementById("panel-other-tabs").classList.add("hidden");
+    document.getElementById("subdomains-list").childNodes.forEach(node => {
+        let class_text = "subdomain";
+        node.setAttribute("class", class_text);
+    })
+}
+
+function appendSubDomains(subdomains) {
+    let list = document.getElementById("subdomains-list");
+    list.innerHTML = "";
+    showTabSubDomains();
+    subdomains.forEach(domain => {
+        let newSubDomain = document.createElement("button");
+        newSubDomain.classList.add("subdomain");
+        newSubDomain.innerText = domain;
+        let url = currentUrl[1] + domain;
+        newSubDomain.onclick = function () {
+            if (currentUrl.length === 3) currentUrl.push(url)
+            else if (currentUrl.length === 4) currentUrl[3] = url;
+
+            setTab(3, url);
+        }
+        list.appendChild(newSubDomain);
+    });
+}
+
 function addAction() {
     if (undoAction) {
         undoAction = false;
@@ -246,6 +325,10 @@ function loadSettings() {
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
             if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "yes";
             if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "yes";
+
+            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "no";
+            if (settings_json["advanced-managing"] === "yes") advanced_managing = true;
+            else advanced_managing = false;
         }
 
         continueLoaded();
@@ -460,17 +543,23 @@ function tabUpdated(tabId, changeInfo, tabInfo) {
 function setUrl(url) {
     let otherPossibleUrls = getAllOtherPossibleUrls(url);
     if (otherPossibleUrls.length > 0) {
-        //some other urls supported (.../*)
-        //console.log(otherPossibleUrls);
-        //TODO!!
+        appendSubDomains(otherPossibleUrls)
     }
     //if (isUrlSupported(url)) {
     currentUrl[0] = getGlobalUrl();
     currentUrl[1] = getDomainUrl(url);
     currentUrl[2] = getPageUrl(url);
     document.getElementById("global-button").style.width = "30%";
-    document.getElementById("domain-button").style.width = "40%";
     document.getElementById("page-button").style.width = "30%";
+    if (advanced_managing) {
+        document.getElementById("domain-button").style.width = "30%";
+        document.getElementById("tab-other-button").style.width = "10%";
+    } else {
+        document.getElementById("domain-button").style.width = "40%";
+        document.getElementById("tab-other-button").style.display = "none";
+        document.getElementById("page-button").style.borderBottomRightRadius = "5px";
+        document.getElementById("page-button").style.borderTopRightRadius = "5px";
+    }
     if (document.getElementById("page-button").classList.contains("hidden")) document.getElementById("page-button").classList.remove("hidden");
     if (stickyNotesSupported && document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
     /*} else {
@@ -609,11 +698,13 @@ function getDate() {
 }
 
 function setTab(index, url) {
-    loadFormatButtons(false, false)
+    loadFormatButtons(false, false);
+    hideTabSubDomains();
     selected_tab = index;
     document.getElementById("domain-button").classList.remove("tab-sel");
     document.getElementById("page-button").classList.remove("tab-sel");
     document.getElementById("global-button").classList.remove("tab-sel");
+    document.getElementById("tab-other-button").classList.remove("tab-sel");
 
     document.getElementsByClassName("tab")[index].classList.add("tab-sel");
 
@@ -660,7 +751,7 @@ function openStickyNotes() {
     if (stickyNotesSupported) {
         browser.runtime.sendMessage({
             "open-sticky": {
-                open: true, type: selected_tab
+                open: true, type: selected_tab, url: currentUrl[selected_tab]
             }
         });
     }
