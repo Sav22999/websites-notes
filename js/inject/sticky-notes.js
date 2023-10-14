@@ -713,13 +713,10 @@ function strikethrough() {
 function sanitizeHTML(input) {
     //console.log(input)
 
-    let allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img"];
-    let allowedAttributes = ["src", "alt", "title"];
-
     let div_sanitize = document.createElement("div");
     div_sanitize.innerHTML = input;
 
-    let sanitizedHTML = sanitize(div_sanitize, allowedTags, allowedAttributes);
+    let sanitizedHTML = sanitize(div_sanitize, -1, -1);
 
     //console.log(sanitizedHTML.innerHTML)
 
@@ -727,7 +724,7 @@ function sanitizeHTML(input) {
 }
 
 function sanitize(element, allowedTags, allowedAttributes) {
-    if (allowedTags === -1) allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img"];
+    if (allowedTags === -1) allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "label", "font", "section", "article", "blockquote", "q", "cite", "address", "abbr"];
     if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title"];
 
     let sanitizedHTML = element;
@@ -748,7 +745,7 @@ function sanitize(element, allowedTags, allowedAttributes) {
                         element.removeAttribute(attribute.name);
                     }
                 }
-                //if (node.tagName.toLowerCase() === "img") node.setAttribute('style', 'width:100% !important;height:auto !important');
+                if (node.tagName.toLowerCase() === "img") node.setAttribute('style', 'width:auto; max-width:100% !important;height:auto !important');
             } else {
                 // Remove unsupported tags
                 //console.log(`Removing tag ... ${node.tagName}`)

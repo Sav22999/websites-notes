@@ -438,13 +438,10 @@ function setPosition(element, position) {
 function sanitizeHTML(input) {
     //console.log(input)
 
-    let allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img"];
-    let allowedAttributes = ["src", "alt", "title"];
-
     let div_sanitize = document.createElement("div");
     div_sanitize.innerHTML = input;
 
-    let sanitizedHTML = sanitize(div_sanitize, allowedTags, allowedAttributes);
+    let sanitizedHTML = sanitize(div_sanitize, -1, -1);
 
     //console.log(sanitizedHTML.innerHTML)
 
@@ -823,6 +820,7 @@ function spellcheck(force = false, value = false) {
         document.getElementById("notes").spellcheck = false;
         if (document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
     }
+    document.getElementById("notes").focus();
 }
 
 function loadFormatButtons(navigation = true, format = true) {
@@ -892,7 +890,7 @@ function loadFormatButtons(navigation = true, format = true) {
     })
     document.getElementById("notes").focus();
 
-    if(format) {
+    if (format) {
         spellcheck(force = true, value = true);
     }
 }
@@ -969,9 +967,11 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 
                 #text-spellcheck {
                     background-image: url('data:image/svg+xml;base64,${spellcheck_svg}');
+                    background-size: 60% auto;
                 }
                 .text-spellcheck-sel {
-                    background-image: url('data:image/svg+xml;base64,${spellcheck_sel_svg}') !important;               
+                    background-image: url('data:image/svg+xml;base64,${spellcheck_sel_svg}') !important;     
+                    background-size: 60% auto;          
                 }
                 
                 #text-undo {
