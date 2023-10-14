@@ -1,7 +1,7 @@
 var websites_json = {};
 var settings_json = {};
 
-var advanced_managing = false;
+var advanced_managing = true;
 
 var currentUrl = []; //[global, domain, page, other]
 
@@ -330,7 +330,7 @@ function loadSettings() {
             if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "yes";
             if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "yes";
 
-            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "no";
+            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
             if (settings_json["advanced-managing"] === "yes") advanced_managing = true;
             else advanced_managing = false;
         }
@@ -555,7 +555,7 @@ function setUrl(url) {
     currentUrl[2] = getPageUrl(url);
     document.getElementById("global-button").style.width = "30%";
     document.getElementById("page-button").style.width = "30%";
-    if (advanced_managing) {
+    if (advanced_managing && otherPossibleUrls.length > 0) {
         document.getElementById("domain-button").style.width = "30%";
         document.getElementById("tab-other-button").style.width = "10%";
     } else {
@@ -755,7 +755,7 @@ function openStickyNotes() {
     if (stickyNotesSupported) {
         browser.runtime.sendMessage({
             "open-sticky": {
-                open: true, type: selected_tab, url: currentUrl[selected_tab]
+                open: true, type: selected_tab
             }
         });
     }

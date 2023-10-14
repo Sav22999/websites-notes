@@ -5,7 +5,7 @@ let settings_json = {
     "open-popup-default": "Ctrl+Alt+O",
     "open-popup-domain": "Ctrl+Alt+D",
     "open-popup-page": "Ctrl+Alt+P",
-    "advanced-managing": "no"
+    "advanced-managing": "yes"
 };
 
 const all_strings = strings[languageToUse];
@@ -168,7 +168,7 @@ function loadSettings() {
                 if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
                 if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
                 if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
-                if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "no";
+                if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
                 if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
             } else {
                 //settings undefined
@@ -178,7 +178,7 @@ function loadSettings() {
                 settings_json["open-popup-default"] = "Ctrl+Alt+O";
                 settings_json["open-popup-domain"] = "Ctrl+Alt+D";
                 settings_json["open-popup-page"] = "Ctrl+Alt+P";
-                settings_json["advanced-managing"] = "no";
+                settings_json["advanced-managing"] = "yes";
                 settings_json["theme"] = "light";
             }
 

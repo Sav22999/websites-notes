@@ -7,7 +7,8 @@ var tab_url = "";
 var tab_title = "";
 var current_urls = []; //0: global, 1: domain, 2: page
 
-var url_to_use = "";
+let all_urls = {} //"url":"value" //value as {0:global, 1:domain, 2:page, 3:subdomain}
+
 var type_to_use = -1;
 
 var coords = {x: "20px", y: "20px"};
@@ -83,8 +84,6 @@ function loadDataFromSync() {
 }
 
 function tabUpdated(tabs) {
-    url_to_use = "";
-    type_to_use = -1;
     sync_local = browser.storage.sync;
     browser.storage.local.get("storage").then(result => {
         if (result.storage === "sync") sync_local = browser.storage.sync;
@@ -125,9 +124,9 @@ function continueCheckStatus() {
 
             //console.log(JSON.stringify(websites_json[getTheCorrectUrl()]));
             //console.log(tab_title);
-            if (websites_json[getTheCorrectUrl()] !== undefined && websites_json[getTheCorrectUrl()]["title"] === undefined) {
+            if (websites_json[tab_url] !== undefined && websites_json[tab_url]["title"] === undefined) {
                 //if the title it's not specified yet, so it's set with the title of the tab
-                websites_json[getTheCorrectUrl()]["title"] = tab_title;
+                websites_json[tab_url]["title"] = tab_title;
                 sync_local.set({"websites": websites_json}).then(resultSet => {
                 });
             }
@@ -135,7 +134,8 @@ function continueCheckStatus() {
             checkIcon();
             //console.log(">>>" + getTheCorrectUrl());
 
-            if (websites_json[getTheCorrectUrl(true)] !== undefined && websites_json[getTheCorrectUrl(true)]["sticky"] !== undefined && websites_json[getTheCorrectUrl(true)]["sticky"]) {
+            let url = getTheCorrectUrl();
+            if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"]) {
                 openAsStickyNotes();
             } else {
                 closeStickyNotes();
@@ -214,9 +214,10 @@ function listenerStickyNotes() {
         if (message["open-sticky"] !== undefined && message["open-sticky"]["open"] !== undefined && message["open-sticky"]["open"]) {
             //from main script (script.js)
             //the type indicated 0: domain, 1: page
-            if (message["open-sticky"]["type"] !== undefined && message["open-sticky"]["url"] !== undefined) {
+            if (message["open-sticky"]["type"] !== undefined) {
                 type_to_use = message["open-sticky"]["type"];
-                url_to_use = message["open-sticky"]["url"];
+                all_urls[tab_url] = type_to_use;
+                //console.log("--->" + message["open-sticky"]["type"]);
             }
             //console.log(JSON.stringify(all_urls));
             setOpenedSticky(true, false);
@@ -312,7 +313,7 @@ function listenerStickyNotes() {
                     });
                 }
                 if (message.ask === "notes") {
-                    let url_to_use = getTheCorrectUrl(true);
+                    let url_to_use = getTheCorrectUrl();
                     let page_domain_global_to_use = getTypeToShow(type_to_use);
                     if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["notes"] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) {
                         sendResponse({
@@ -391,7 +392,7 @@ function isAPage(url) {
 /**
  * Returns the correct url (if exists "page" returns that, else if exists "domain" returns that one)
  */
-function getTheCorrectUrl(sticky = false) {
+function getTheCorrectUrl() {
     let default_url_index = 2;
     if (settings_json !== undefined && settings_json["open-default"] !== undefined) {
         if (settings_json["open-default"] === "page") default_url_index = 2;
@@ -401,36 +402,64 @@ function getTheCorrectUrl(sticky = false) {
 
     //console.log(JSON.stringify(all_urls));
 
-    let url_to_use = this.url_to_use;
-
-    if (sticky) {
-        let page = false, domain = false, global = false;
-        if (default_url_index === 2 && (type_to_use === -1 || type_to_use === 2) || type_to_use === 2) {
-            type_to_use = 2
-            page = true;
-            let page_condition = websites_json[getPageUrl(tab_url)] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"];
-            if (page_condition) return current_urls[2]
-        } else if (default_url_index === 0 && (type_to_use === -1 || type_to_use === 0) || type_to_use === 0) {
-            type_to_use = 0
-            global = true;
-            let global_condition = websites_json[getGlobalUrl()] !== undefined && websites_json[getGlobalUrl()]["sticky"] !== undefined && websites_json[getGlobalUrl()]["sticky"];
-            if (global_condition) return current_urls[0]
-        } else if (default_url_index === 1 && (type_to_use === -1 || type_to_use === 1) || type_to_use === 1) {
-            type_to_use = 1
-            domain = true;
-            let domain_condition = websites_json[getDomainUrl(tab_url)] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"];
-            if (domain_condition) return current_urls[1]
-        } else {
-            type_to_use = 3
-            let other_condition = websites_json[url_to_use] !== undefined && websites_json[url_to_use]["sticky"] !== undefined && websites_json[url_to_use]["sticky"];
-            if (other_condition) return url_to_use;
-        }
-
-        if (domain && page && global) {
-            type_to_use = default_url_index;
-            url_to_use = current_urls[type_to_use];
-        }
+    let type = type_to_use;
+    if (all_urls[tab_url] !== undefined) {
+        type_to_use = all_urls[tab_url].type
     }
+
+    let url_to_use = "";
+
+    //console.log(`type ${type_to_use} : url_to_use ${url_to_use}`)
+
+    let page_condition = websites_json[getPageUrl(tab_url)] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"];
+    let global_condition = websites_json[getGlobalUrl()] !== undefined && websites_json[getGlobalUrl()]["sticky"] !== undefined && websites_json[getGlobalUrl()]["sticky"];
+    let domain_condition = websites_json[getDomainUrl(tab_url)] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"];
+    let subdomains_condition = false;
+    let subdomain_url_to_use = "";
+    let subdomains = getAllOtherPossibleUrls(tab_url);
+    subdomains.forEach(subdomain => {
+        let subdomain_url = getDomainUrl(tab_url) + subdomain;
+        let tmp_check = websites_json[subdomain_url] !== undefined && websites_json[subdomain_url]["last-update"] !== undefined && websites_json[subdomain_url]["last-update"] != null && websites_json[subdomain_url]["notes"] !== undefined && websites_json[subdomain_url]["notes"] !== "";
+        if (tmp_check) {
+            subdomains_condition = true;
+            subdomain_url_to_use = subdomain_url;
+        }
+        //console.log(url + " : " + tmp_check);
+    });
+
+    //console.log(`page ${page_condition} - domain ${domain_condition} - global ${global_condition} - subdomain ${subdomains_condition}`)
+
+    let page = false, domain = false, global = false, subdomain = false;
+    if (type === 2 || (type_to_use === -1 && page_condition)) {
+        type = 2
+        page = true;
+        url_to_use = current_urls[2]
+    }
+    if (type === 1 || (type_to_use === -1 && domain_condition)) {
+        type = 1
+        domain = true;
+        url_to_use = current_urls[1]
+    }
+    if (type === 0 || (type_to_use === -1 && global_condition)) {
+        type = 0
+        global = true;
+        url_to_use = current_urls[0]
+    }
+    if (type === 3 || (type_to_use === -1 && subdomains_condition)) {
+        type = 3
+        subdomain = true;
+        url_to_use = subdomain_url_to_use
+    }
+
+    if (domain && page && global && subdomain) {
+        type = default_url_index;
+        if (type === 0 || type === 1 || type === 2) url_to_use = current_urls[type];
+        else if (type === 3) url_to_use = subdomain_url_to_use;
+    }
+
+    type_to_use = type;
+
+    //console.log(`type_to_use ${type} : url_to_use ${url_to_use}`)
 
     return url_to_use;
 }
@@ -555,10 +584,10 @@ function setOpenedSticky(sticky, minimized) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            if (websites_json[getTheCorrectUrl(true)] !== undefined) {
-
-                websites_json[getTheCorrectUrl(true)]["sticky"] = sticky;
-                websites_json[getTheCorrectUrl(true)]["minimized"] = minimized;
+            let url = getTheCorrectUrl();
+            if (websites_json[url] !== undefined) {
+                websites_json[url]["sticky"] = sticky;
+                websites_json[url]["minimized"] = minimized;
 
                 sync_local.set({"websites": websites_json}).then(result => {
                     //updated websites with new data
@@ -579,13 +608,15 @@ function setNewTextFromSticky(text) {
 
             //console.log(text)
 
+            let url = getTheCorrectUrl();
+
             if (text === "" || text === "<br>") {
                 //if notes field is empty, I delete the element from the "dictionary" (notes list)
-                delete websites_json[getTheCorrectUrl(true)];
+                delete websites_json[url];
                 closeStickyNotes();
             } else {
-                websites_json[getTheCorrectUrl()]["notes"] = text;
-                websites_json[getTheCorrectUrl()]["last-update"] = getDate();
+                websites_json[url]["notes"] = text;
+                websites_json[url]["last-update"] = getDate();
             }
 
             sync_local.set({
@@ -607,7 +638,8 @@ function checkStickyNotes() {
             websites_json = value["websites"];
 
             let status = false;
-            if (websites_json[getTheCorrectUrl(true)] !== undefined && websites_json[getTheCorrectUrl(true)]["sticky"] !== undefined) status = websites_json[getTheCorrectUrl(true)]["sticky"];
+            let url = getTheCorrectUrl();
+            if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined) status = websites_json[url]["sticky"];
 
             if (status) {
                 openAsStickyNotes();
