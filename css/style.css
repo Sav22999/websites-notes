@@ -335,6 +335,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 #subdomains-list {
     height: auto;
     overflow: auto;
+    border-radius: 0px;
 }
 
 .subdomain {
@@ -351,7 +352,8 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 }
 
 .subdomain-sel {
-    background-color: var(--tertiary-transparent);
+    background-color: var(--on-textbox-color) !important;
+    color: var(--tertiary);
 }
 
 .subdomain:hover, .subdomain:active {

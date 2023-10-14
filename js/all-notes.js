@@ -844,9 +844,7 @@ function isUrlSupported(url) {
 }
 
 function applyFilter() {
-    if (document.getElementById("search-all-notes-text").value.replaceAll(" ", "") !== "") {
-        search(document.getElementById("search-all-notes-text").value);
-    }
+    search(document.getElementById("search-all-notes-text").value.replaceAll(" ", ""));
 }
 
 function search(value = "") {
