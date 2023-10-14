@@ -865,13 +865,12 @@ function loadFormatButtons(navigation = true, format = true) {
                 action: "strikethrough", icon: `${url}strikethrough.svg`, function: function () {
                     strikethrough();
                 }
-            }/*,
+            },
             {
                 action: "spellcheck", icon: `${url}spellcheck.svg`, function: function () {
                     spellcheck();
                 }
-            }*/);
-        //spellcheck(force = true, value = true);
+            });
     }
 
     if (!format && !navigation) {
@@ -892,6 +891,10 @@ function loadFormatButtons(navigation = true, format = true) {
         buttons_container.appendChild(button);
     })
     document.getElementById("notes").focus();
+
+    if(format) {
+        spellcheck(force = true, value = true);
+    }
 }
 
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {

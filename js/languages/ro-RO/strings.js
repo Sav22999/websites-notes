@@ -61,6 +61,8 @@ strings[lang] = {
     'save-on-local-instead-of-sync-detailed': 'In the version 3.3 the add-on automatically saved notes on your Firefox account, instead of save them locally.\nWhen enable, the syncing is disabled and it\'s restored the saving on local storage.\nRecommended <b>Disable this option</b> – so, setting to Yes',
     'notefox-version-too-old-try-to-import-data-anyway': 'Aceste date sunt dintr-o versiune foarte veche a acestui supliment (înainte de 2.0). Suplimentul va încerca să importe oricum datele, dar ar putea fi unele probleme. Doriți să continuați?',
     'notefox-version-different-try-to-import-data-anyway': 'Aceste date sunt dintr-o versiune diferită a adăugării. Importul ar putea eșua (rar). Doriți să continuați?',
+    'advanced-managing': 'Advanced managing of urls',
+    'advanced-managing-detailed': 'When enabled you can save notes also per "sub-domains" like: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'search-textbox': 'Căutare…',
     'sort-by-button': 'Sortează după…',
     'sort-by-az-button': 'Nume: A-Z',
