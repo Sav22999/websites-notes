@@ -147,6 +147,12 @@ function updateStickyNotes() {
                 text.onchange = function () {
                     onInputText(text);
                 }
+                text.onkeydown = function (e) {
+                    onKeyDownText(text, e);
+                }
+                text.onpaste = function (e) {
+                    onPasteText(text, e);
+                }
                 opacityRange.oninput = function () {
                     var value = (this.value - this.min) / (this.max - this.min) * 100;
                     setSlider(opacityRange, stickyNotes, value, true);
@@ -193,6 +199,12 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         }
         text.onchange = function () {
             onInputText(text);
+        }
+        text.onkeydown = function (e) {
+            onKeyDownText(text, e);
+        }
+        text.onpaste = function (e) {
+            onPasteText(text, e);
         }
 
         textContainer.appendChild(text);
@@ -333,6 +345,12 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 background-position: left 50% bottom 10px;
                 background-repeat: no-repeat;
                 background-size: 50% auto;
+            }
+            #sticky-notes-notefox-addon * {
+                font-size: 14px !important;
+            }
+            #sticky-notes-notefox-addon b {
+                font-weight: bolder;
             }
             #move--sticky-notes-notefox-addon, #page-or-domain--sticky-notes-notefox-addon {
                 position: absolute;
@@ -534,6 +552,28 @@ function onInputText(text) {
     browser.runtime.sendMessage({from: "sticky", data: {new_text: text.innerHTML}});
 }
 
+function onKeyDownText(text, e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
+        bold();
+    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "i") {
+        italic();
+    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "u") {
+        underline();
+    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        strikethrough();
+    }
+}
+
+function onPasteText(text, e) {
+    if (((e.originalEvent || e).clipboardData).getData("text/html") !== "") {
+        e.preventDefault(); // Prevent the default paste action
+        let clipboardData = (e.originalEvent || e).clipboardData;
+        let pastedText = clipboardData.getData("text/html");
+        let sanitizedHTML = sanitizeHTML(pastedText)
+        document.execCommand("insertHTML", false, sanitizedHTML);
+    }
+}
+
 /**
  * Make "movable" the sticky-notes
  */
@@ -647,6 +687,81 @@ function checkCorrectNumber(number, otherwise) {
 
 function getInteger(number) {
     return parseInt(number.toString().replace("px", ""));
+}
+
+function bold() {
+    //console.log("Bold B")
+    document.execCommand("bold", false);
+}
+
+function italic() {
+    //console.log("Italic I")
+    document.execCommand("italic", false);
+}
+
+function underline() {
+    //console.log("Underline U")
+    document.execCommand("underline", false);
+}
+
+function strikethrough() {
+    //console.log("Strikethrough S")
+    document.execCommand("strikethrough", false);
+    addAction()
+}
+
+function sanitizeHTML(input) {
+    //console.log(input)
+
+    let allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img"];
+    let allowedAttributes = ["src", "alt", "title"];
+
+    let div_sanitize = document.createElement("div");
+    div_sanitize.innerHTML = input;
+
+    let sanitizedHTML = sanitize(div_sanitize, allowedTags, allowedAttributes);
+
+    //console.log(sanitizedHTML.innerHTML)
+
+    return sanitizedHTML.innerHTML;
+}
+
+function sanitize(element, allowedTags, allowedAttributes) {
+    if (allowedTags === -1) allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img"];
+    if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title"];
+
+    let sanitizedHTML = element;
+
+    //console.log(input)
+    for (var i = sanitizedHTML.childNodes.length - 1; i >= 0; i--) {
+        var node = sanitize(sanitizedHTML.childNodes[i], allowedTags, allowedAttributes);
+
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            if (allowedTags.includes(node.tagName.toLowerCase())) {
+                // Remove attributes unsupported of allowedTags
+                //console.log(`Checking tag ... ${node.tagName}`)
+                var element = node;
+                for (var j = 0; j < element.attributes.length; j++) {
+                    var attribute = element.attributes[j];
+                    if (!allowedAttributes.includes(attribute.name.toLowerCase())) {
+                        //console.log(`Removing attribute ... ${attribute.name} from ${node.tagName}`)
+                        element.removeAttribute(attribute.name);
+                    }
+                }
+                //if (node.tagName.toLowerCase() === "img") node.setAttribute('style', 'width:100% !important;height:auto !important');
+            } else {
+                // Remove unsupported tags
+                //console.log(`Removing tag ... ${node.tagName}`)
+                sanitizedHTML.removeChild(node);
+            }
+        } else if (node.nodeType === Node.TEXT_NODE) {
+            //console.log("Text supported")
+            // Text nodes are allowed and can be kept
+        } else {
+            //console.log("????")
+        }
+    }
+    return sanitizedHTML
 }
 
 function openMinimized() {

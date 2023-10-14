@@ -1,17 +1,4 @@
-@font-face {
-    font-family: open-sans;
-    src: url("../font/opensans.ttf");
-}
-
-@font-face {
-    font-family: open-sans-bold;
-    src: url("../font/opensansbold.ttf");
-}
-
-@font-face {
-    font-family: open-sans-extra-bold;
-    src: url("../font/opensansextrabold.ttf");
-}
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
 
 :root {
     --primary-color: #ff6200;
@@ -27,7 +14,7 @@
 
 * {
     box-sizing: border-box;
-    font-family: open-sans, sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-size: 16px;
     transition: 0s;
     position: relative;
@@ -43,7 +30,7 @@ body {
     color: black;
     width: auto;
     height: auto;
-    font-family: open-sans, sans-serif;
+    font-family: 'Open Sans', sans-serif;
     margin: 0px;
     padding: 0px;
     overflow: auto;
@@ -94,7 +81,7 @@ body {
     border: 2px solid var(--primary-color);
     border-radius: 5px;
     width: auto;
-    font-family: open-sans, sans-serif;
+    font-family: 'Open Sans', sans-serif;
     background-color: var(--on-primary-color);
     transition: 0.5s;
     cursor: pointer;
@@ -474,7 +461,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     border-radius: 5px;
     margin-right: 10px;
     padding: 5px;
-    font-family: open-sans;
+    font-family: 'Open Sans', sans-serif;
     font-size: 10px;
     min-width: 50px;
     display: inline-block;
@@ -571,7 +558,8 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 h1, h2, h3 {
     color: var(--primary-color);
     font-size: 30px;
-    font-family: open-sans-bold;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bolder;
     padding: 0px;
     padding-left: 20px;
     margin: 0px;
@@ -583,7 +571,6 @@ h2 {
     font-size: 18px;
     padding: 5px;
     padding-left: 10px;
-    font-family: open-sans;
     height: 35px;
 }
 
@@ -591,7 +578,6 @@ h3 {
     color: var(--primary-color);
     font-size: 14px;
     padding: 3px;
-    font-family: open-sans;
     height: 25px;
 }
 
@@ -633,7 +619,8 @@ b {
 }
 
 .bold, strong {
-    font-family: open-sans-bold;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bold;
 }
 
 .font-size-20px {
@@ -695,7 +682,8 @@ b {
 }
 
 #notes b, .textarea-all-notes b {
-    font-family: open-sans-bold, serif !important;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bolder;
 }
 
 #notes, .textarea-all-notes {

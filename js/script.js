@@ -201,7 +201,6 @@ function loadUI() {
             e.preventDefault(); // Prevent the default paste action
             let clipboardData = (e.originalEvent || e).clipboardData;
             let pastedText = clipboardData.getData("text/html");
-            let allowedTags = ["p", "strong", "em", "a"]; // List of allowed tags
             let sanitizedHTML = sanitizeHTML(pastedText)
             document.execCommand("insertHTML", false, sanitizedHTML);
         }
@@ -216,6 +215,14 @@ function loadUI() {
             redo();
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
             undo();
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
+            bold();
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "i") {
+            italic();
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "u") {
+            underline();
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+            strikethrough();
         }
     }
     notes.onkeyup = function (e) {
@@ -431,7 +438,7 @@ function setPosition(element, position) {
 function sanitizeHTML(input) {
     //console.log(input)
 
-    let allowedTags = ["ul", "ol", "li", "b", "i", "u", "pre", "code", "span", "div", "img"];
+    let allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img"];
     let allowedAttributes = ["src", "alt", "title"];
 
     let div_sanitize = document.createElement("div");
@@ -780,6 +787,12 @@ function underline() {
     addAction()
 }
 
+function strikethrough() {
+    //console.log("Strikethrough S")
+    document.execCommand("strikethrough", false);
+    addAction()
+}
+
 function undo() {
     if (actions.length > 0 && currentAction > 0) {
         undoAction = true;
@@ -795,6 +808,18 @@ function redo() {
         document.getElementById("notes").innerHTML = actions[++currentAction].text;
         saveNotes()
         setPosition(document.getElementById("notes"), actions[currentAction].position);
+    }
+}
+
+function spellcheck(force = false, value = false) {
+    if (!document.getElementById("notes").spellcheck || (force && value)) {
+        //enable spellCheck
+        document.getElementById("notes").spellcheck = true;
+        document.getElementById("text-spellcheck").classList.add("text-spellcheck-sel")
+    } else {
+        //disable spellCheck
+        document.getElementById("notes").spellcheck = false;
+        if (document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
     }
 }
 
@@ -821,19 +846,30 @@ function loadFormatButtons(navigation = true, format = true) {
         commands.push(
             {
                 action: "bold", icon: `${url}bold.svg`, function: function () {
-                    bold()
+                    bold();
                 }
             },
             {
                 action: "italic", icon: `${url}italic.svg`, function: function () {
-                    italic()
+                    italic();
                 }
             },
             {
                 action: "underline", icon: `${url}underline.svg`, function: function () {
-                    underline()
+                    underline();
                 }
-            });
+            },
+            {
+                action: "strikethrough", icon: `${url}strikethrough.svg`, function: function () {
+                    strikethrough();
+                }
+            }/*,
+            {
+                action: "spellcheck", icon: `${url}spellcheck.svg`, function: function () {
+                    spellcheck();
+                }
+            }*/);
+        //spellcheck(force = true, value = true);
     }
 
     if (!format && !navigation) {
@@ -866,6 +902,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let bold_svg = window.btoa(getIconSvgEncoded("bold", on_primary));
         let italic_svg = window.btoa(getIconSvgEncoded("italic", on_primary));
         let underline_svg = window.btoa(getIconSvgEncoded("underline", on_primary));
+        let strikethrough_svg = window.btoa(getIconSvgEncoded("strikethrough", on_primary));
+        let spellcheck_svg = window.btoa(getIconSvgEncoded("spellcheck", on_primary));
+        let spellcheck_sel_svg = window.btoa(getIconSvgEncoded("spellcheck_sel", on_primary));
         let undo_svg = window.btoa(getIconSvgEncoded("undo", on_primary));
         let redo_svg = window.btoa(getIconSvgEncoded("redo", on_primary));
 
@@ -911,6 +950,18 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 
                 #text-underline {
                     background-image: url('data:image/svg+xml;base64,${underline_svg}');
+                }
+                
+                #text-strikethrough {
+                    background-image: url('data:image/svg+xml;base64,${strikethrough_svg}');
+                }
+                
+                
+                #text-spellcheck {
+                    background-image: url('data:image/svg+xml;base64,${spellcheck_svg}');
+                }
+                .text-spellcheck-sel {
+                    background-image: url('data:image/svg+xml;base64,${spellcheck_sel_svg}') !important;               
                 }
                 
                 #text-undo {
