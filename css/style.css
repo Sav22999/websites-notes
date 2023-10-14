@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 :root {
     --primary-color: #ff6200;
@@ -683,9 +683,61 @@ b {
     margin: 0px !important;
 }
 
-#notes b, .textarea-all-notes b {
+#notes b, #notes strong, .textarea-all-notes b, .textarea-all-notes strong {
     font-family: 'Open Sans', sans-serif;
     font-weight: bolder;
+}
+
+#notes i, #notes em, #notes cite, #notes q, #notes blockquote, .textarea-all-notes i, .textarea-all-notes em, .textarea-all-notes cite, .textarea-all-notes q, .textarea-all-notes blockquote {
+    font-style: italic;
+}
+
+#notes code, #notes pre, .textarea-all-notes code, .textarea-all-notes pre {
+    font-family: 'Source Code Pro', monospace;
+}
+
+#notes h1, .textarea-all-notes h1 {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bolder;
+    font-size: 22px !important;
+}
+
+#notes h2, .textarea-all-notes h2 {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bolder;
+    font-size: 20px !important;
+}
+
+#notes h3, .textarea-all-notes h3 {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bolder;
+    font-size: 18px !important;
+}
+
+#notes h4, .textarea-all-notes h4 {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bolder;
+    font-size: 16px !important;
+}
+
+#notes h5, .textarea-all-notes h5 {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bolder;
+    font-size: 14px !important;
+}
+
+#notes h6, .textarea-all-notes h6 {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bolder;
+    font-size: 12px !important;
+}
+
+#notes big, .textarea-all-notes big {
+    font-size: 18px !important;
+}
+
+#notes small, .textarea-all-notes small, #notes sup, #notes sub, .textarea-all-notes sup, .textarea-all-notes sub {
+    font-size: 12px !important;
 }
 
 #notes, .textarea-all-notes {
