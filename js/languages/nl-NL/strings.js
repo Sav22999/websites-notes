@@ -61,6 +61,8 @@ strings[lang] = {
     'save-on-local-instead-of-sync-detailed': 'In the version 3.3 the add-on automatically saved notes on your Firefox account, instead of save them locally.\nWhen enable, the syncing is disabled and it\'s restored the saving on local storage.\nRecommended <b>Disable this option</b> – so, setting to Yes',
     'notefox-version-too-old-try-to-import-data-anyway': 'Deze gegevens komen uit een zeer oude versie van deze add-on (voor 2.0). De add-on zal proberen om de gegevens toch te importeren, maar kan problemen opleveren. Wilt u doorgaan?',
     'notefox-version-different-try-to-import-data-anyway': 'Deze gegevens komen van een andere versie van de addon. Het importeren kan mislukken (zelden). Wilt u doorgaan?',
+    'advanced-managing': 'Advanced managing of urls',
+    'advanced-managing-detailed': 'When enabled you can save notes also per "sub-domains" like: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'search-textbox': 'Zoek…',
     'sort-by-button': 'Sorteren op…',
     'sort-by-az-button': 'Naam: A-Z',
