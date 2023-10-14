@@ -28,7 +28,7 @@ let links = {
  */
 function sanitize(element, allowedTags, allowedAttributes) {
     if (allowedTags === -1) allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "label", "font", "section", "article", "blockquote", "q", "cite", "address", "abbr"];
-    if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title","cite"];
+    if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite"];
 
     let sanitizedHTML = element;
 
@@ -53,7 +53,13 @@ function sanitize(element, allowedTags, allowedAttributes) {
             } else {
                 // Remove unsupported tags
                 //console.log(`Removing tag ... ${node.tagName}`)
-                sanitizedHTML.removeChild(node);
+                //console.log(node.innerHTML)
+                let tmpNode = document.createElement("span");
+                if (node.innerText !== undefined) tmpNode.innerHTML = node.innerText;
+                else if (node.value !== undefined) tmpNode.innerHTML = node.value;
+                else tmpNode.innerText = "";
+                node.replaceWith(tmpNode);
+                //sanitizedHTML.remove(nod);
             }
         } else if (node.nodeType === Node.TEXT_NODE) {
             //console.log("Text supported")
