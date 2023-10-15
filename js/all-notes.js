@@ -1005,6 +1005,16 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         textNotes.innerHTML = notes;
         textNotes.contentEditable = false;
         textNotes.classList.add("textarea-all-notes");
+        let disable_word_wrap = false;
+        if (settings_json["disable-word-wrap"] !== undefined) {
+            if (settings_json["disable-word-wrap"] === "yes") disable_word_wrap = true;
+            else disable_word_wrap = false;
+        }
+        if (disable_word_wrap) {
+            textNotes.whiteSpace = "none";
+        } else {
+            textNotes.style.whiteSpace = "pre-wrap";
+        }
         textNotesContainer.appendChild(textNotes);
 
         pageNotes.append(textNotesContainer);

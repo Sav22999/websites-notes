@@ -329,7 +329,8 @@ function listenerStickyNotes() {
                                     opacity: {value: opacity.value}
                                 }
                             },
-                            websites: websites_json
+                            websites: websites_json,
+                            settings: settings_json
                         });
                     } else {
                         console.error(JSON.stringify(websites_json[url_to_use]));
