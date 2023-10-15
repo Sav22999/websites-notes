@@ -339,6 +339,9 @@ function loadSettings() {
 
             if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
             if (settings_json["advanced-managing"] === "yes") advanced_managing = true;
+
+            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
+            if (settings_json["html-text-formatting"] === "yes") advanced_managing = true;
             else advanced_managing = false;
         }
 
@@ -814,19 +817,26 @@ function spellcheck(force = false, value = false) {
     if (!document.getElementById("notes").spellcheck || (force && value)) {
         //enable spellCheck
         document.getElementById("notes").spellcheck = true;
-        document.getElementById("text-spellcheck").classList.add("text-spellcheck-sel")
+        if (document.getElementById("text-spellcheck")) document.getElementById("text-spellcheck").classList.add("text-spellcheck-sel");
     } else {
         //disable spellCheck
         document.getElementById("notes").spellcheck = false;
-        if (document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
+        if (document.getElementById("text-spellcheck") && document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
     }
     document.getElementById("notes").focus();
 }
 
 function loadFormatButtons(navigation = true, format = true) {
-    let url = "/img/commands/"
+    let url = "/img/commands/";
+
+    let html_text_formatting = true;
+    if (settings_json["html-text-formatting"] !== undefined) {
+        if (settings_json["html-text-formatting"] === "yes") html_text_formatting = true;
+        else html_text_formatting = false;
+    }
+
     let commands = [];
-    if (navigation) {
+    if (navigation && html_text_formatting) {
         commands.push(
             {
                 action: "undo", icon: `${url}undo.svg`, function: function () {
@@ -842,7 +852,7 @@ function loadFormatButtons(navigation = true, format = true) {
         actions = [];
         currentAction = 0;
     }
-    if (format) {
+    if (format && html_text_formatting) {
         commands.push(
             {
                 action: "bold", icon: `${url}bold.svg`, function: function () {
@@ -871,7 +881,7 @@ function loadFormatButtons(navigation = true, format = true) {
             });
     }
 
-    if (!format && !navigation) {
+    if (!format && !navigation || !html_text_formatting) {
         document.getElementById("notes").style.marginBottom = "0px";
     } else {
         document.getElementById("notes").style.marginBottom = "35px";

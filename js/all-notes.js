@@ -45,6 +45,7 @@ function loaded() {
     setLanguageUI();
     checkTheme();
 
+    /*
     browser.storage.local.get([
         "storage",
         "settings",
@@ -65,6 +66,7 @@ function loaded() {
     ]).then(result => {
         //console.log("sync: " + JSON.stringify(result));
     });
+    */
 
     /*
     browser.storage.local.get([
@@ -98,75 +100,79 @@ function loaded() {
     });
     */
 
-    browser.storage.local.get([
-        "storage"
-    ]).then(result => {
-        let property1 = all_strings["save-on-local-instead-of-sync"];
-        let property2 = all_strings["settings-select-button-yes"];
-        let alert_message = all_strings["disable-sync-message"]
-        alert_message = alert_message.replace("{{property1}}", `<span class="button-code" id="string-save-on-local-instead-of-sync">${property1}</span>`);
-        alert_message = alert_message.replace("{{property2}}", `<span class="button-code" id="string-save-on-local-instead-of-sync-yes">${property2}</span>`);
-        document.getElementById("disable-sync").innerHTML = alert_message;
+    try {
+        browser.storage.local.get([
+            "storage"
+        ]).then(result => {
+            let property1 = all_strings["save-on-local-instead-of-sync"];
+            let property2 = all_strings["settings-select-button-yes"];
+            let alert_message = all_strings["disable-sync-message"]
+            alert_message = alert_message.replace("{{property1}}", `<span class="button-code" id="string-save-on-local-instead-of-sync">${property1}</span>`);
+            alert_message = alert_message.replace("{{property2}}", `<span class="button-code" id="string-save-on-local-instead-of-sync-yes">${property2}</span>`);
+            document.getElementById("disable-sync").innerHTML = alert_message;
 
-        if (result.storage !== undefined && result.storage === "sync") {
-            if (document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.remove("hidden");
-        } else {
-            if (!document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.add("hidden");
+            if (result.storage !== undefined && result.storage === "sync") {
+                if (document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.remove("hidden");
+            } else {
+                if (!document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.add("hidden");
+            }
+        });
+
+        document.getElementById("refresh-all-notes-button").onclick = function () {
+            //location.reload();
+            loadDataFromBrowser(true);
         }
-    });
-
-    document.getElementById("refresh-all-notes-button").onclick = function () {
-        //location.reload();
-        loadDataFromBrowser(true);
-    }
-    document.getElementById("settings-all-notes-button").onclick = function () {
-        browser.tabs.create({url: "../settings/index.html"});
-    }
-    document.getElementById("buy-me-a-coffee-button").onclick = function () {
-        browser.tabs.create({url: links["donate"]});
-    }
-    document.getElementById("clear-all-notes-button").onclick = function () {
-        clearAllNotes();
-    }
-    document.getElementById("import-all-notes-button").onclick = function () {
-        importAllNotes();
-    }
-    document.getElementById("export-all-notes-button").onclick = function () {
-        exportAllNotes();
-    }
-
-    document.getElementById("search-all-notes-text").onkeyup = function () {
-        search(document.getElementById("search-all-notes-text").value);
-    }
-
-    document.getElementById("filter-all-notes-button").onclick = function () {
-        if (document.getElementById("filters").classList.contains("hidden")) {
-            //show because it's hidden
-            document.getElementById("filters").classList.remove("hidden");
-        } else {
-            //hide because it's visible
-            document.getElementById("filters").classList.add("hidden");
+        document.getElementById("settings-all-notes-button").onclick = function () {
+            browser.tabs.create({url: "../settings/index.html"});
         }
-    }
+        document.getElementById("buy-me-a-coffee-button").onclick = function () {
+            browser.tabs.create({url: links["donate"]});
+        }
+        document.getElementById("clear-all-notes-button").onclick = function () {
+            clearAllNotes();
+        }
+        document.getElementById("import-all-notes-button").onclick = function () {
+            importAllNotes();
+        }
+        document.getElementById("export-all-notes-button").onclick = function () {
+            exportAllNotes();
+        }
 
-    document.getElementById("sort-by-all-notes-button").value = sort_by_selected;
-    document.getElementById("sort-by-all-notes-button").onchange = function () {
-        sort_by_selected = document.getElementById("sort-by-all-notes-button").value;
-        loadAllWebsites(true, sort_by_selected);
-    }
+        document.getElementById("search-all-notes-text").onkeyup = function () {
+            search(document.getElementById("search-all-notes-text").value);
+        }
 
-    setTimeout(function () {
-        loadDataFromBrowser(true);
-    }, 10);
-
-    document.getElementById("all-notes-dedication-section").onscroll = function () {
-        if (document.getElementById("all-notes-dedication-section").scrollTop > 30) {
-            document.getElementById("actions").classList.add("section-selected");
-        } else {
-            if (document.getElementById("actions").classList.contains("section-selected")) {
-                document.getElementById("actions").classList.remove("section-selected");
+        document.getElementById("filter-all-notes-button").onclick = function () {
+            if (document.getElementById("filters").classList.contains("hidden")) {
+                //show because it's hidden
+                document.getElementById("filters").classList.remove("hidden");
+            } else {
+                //hide because it's visible
+                document.getElementById("filters").classList.add("hidden");
             }
         }
+
+        document.getElementById("sort-by-all-notes-button").value = sort_by_selected;
+        document.getElementById("sort-by-all-notes-button").onchange = function () {
+            sort_by_selected = document.getElementById("sort-by-all-notes-button").value;
+            loadAllWebsites(true, sort_by_selected);
+        }
+
+        setTimeout(function () {
+            loadDataFromBrowser(true);
+        }, 10);
+
+        document.getElementById("all-notes-dedication-section").onscroll = function () {
+            if (document.getElementById("all-notes-dedication-section").scrollTop > 30) {
+                document.getElementById("actions").classList.add("section-selected");
+            } else {
+                if (document.getElementById("actions").classList.contains("section-selected")) {
+                    document.getElementById("actions").classList.remove("section-selected");
+                }
+            }
+        }
+    } catch (e) {
+        console.error(`E-L1: ${e}`);
     }
 
     let titleAllNotes = document.getElementById("title-all-notes-dedication-section");
@@ -184,100 +190,104 @@ function loaded() {
 }
 
 function setLanguageUI() {
-    document.getElementById("refresh-all-notes-button").value = all_strings["refresh-data-button"];
-    document.getElementById("clear-all-notes-button").value = all_strings["clear-all-notes-button"];
-    document.getElementById("import-all-notes-button").value = all_strings["import-notes-button"];
-    document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
-    document.getElementById("search-all-notes-text").placeholder = all_strings["search-textbox"];
-    document.getElementById("settings-all-notes-button").value = all_strings["settings-button"];
-    document.getElementById("buy-me-a-coffee-button").value = all_strings["donate-button"];
-    //document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
-    document.getElementById("filter-all-notes-button").value = all_strings["filter-button"];
-    document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
-    document.getElementById("sort-by-name-az-select").textContent = all_strings["sort-by-az-button"];
-    document.getElementById("sort-by-name-za-select").textContent = all_strings["sort-by-za-button"];
-    document.getElementById("sort-by-date-09-select").textContent = all_strings["sort-by-edit-first-button"];
-    document.getElementById("sort-by-date-90-select").textContent = all_strings["sort-by-edit-last-button"];
-    document.title = all_strings["all-notes-title-page"];
+    try {
+        document.getElementById("refresh-all-notes-button").value = all_strings["refresh-data-button"];
+        document.getElementById("clear-all-notes-button").value = all_strings["clear-all-notes-button"];
+        document.getElementById("import-all-notes-button").value = all_strings["import-notes-button"];
+        document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
+        document.getElementById("search-all-notes-text").placeholder = all_strings["search-textbox"];
+        document.getElementById("settings-all-notes-button").value = all_strings["settings-button"];
+        document.getElementById("buy-me-a-coffee-button").value = all_strings["donate-button"];
+        //document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
+        document.getElementById("filter-all-notes-button").value = all_strings["filter-button"];
+        document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
+        document.getElementById("sort-by-name-az-select").textContent = all_strings["sort-by-az-button"];
+        document.getElementById("sort-by-name-za-select").textContent = all_strings["sort-by-za-button"];
+        document.getElementById("sort-by-date-09-select").textContent = all_strings["sort-by-edit-first-button"];
+        document.getElementById("sort-by-date-90-select").textContent = all_strings["sort-by-edit-last-button"];
+        document.title = all_strings["all-notes-title-page"];
 
-    document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
-    document.getElementById("text-export").innerHTML = all_strings["export-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
-    document.getElementById("cancel-import-all-notes-button").value = all_strings["cancel-button"];
-    document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
-    document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
-    document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
+        document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
+        document.getElementById("text-export").innerHTML = all_strings["export-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
+        document.getElementById("cancel-import-all-notes-button").value = all_strings["cancel-button"];
+        document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
+        document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
+        document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
 
-    let redFilterButton = document.getElementById("filter-tag-red-button");
-    let yellowFilterButton = document.getElementById("filter-tag-yellow-button");
-    let blackFilterButton = document.getElementById("filter-tag-black-button");
-    let orangeFilterButton = document.getElementById("filter-tag-orange-button");
-    let pinkFilterButton = document.getElementById("filter-tag-pink-button");
-    let purpleFilterButton = document.getElementById("filter-tag-purple-button");
-    let grayFilterButton = document.getElementById("filter-tag-gray-button");
-    let greenFilterButton = document.getElementById("filter-tag-green-button");
-    let blueFilterButton = document.getElementById("filter-tag-blue-button");
-    let whiteFilterButton = document.getElementById("filter-tag-white-button");
-    let noneFilterButton = document.getElementById("filter-tag-none-button");
-    let globalFilterButton = document.getElementById("filter-type-global-button");
-    let domainFilterButton = document.getElementById("filter-type-domain-button");
-    let pageFilterButton = document.getElementById("filter-type-page-button");
-    redFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["red-colour"]);
-    redFilterButton.onclick = function () {
-        //search("red");
-        filterByColor("red", redFilterButton);
-    };
-    yellowFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["yellow-colour"]);
-    yellowFilterButton.onclick = function () {
-        filterByColor("yellow", yellowFilterButton);
-    };
-    blackFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["black-colour"]);
-    blackFilterButton.onclick = function () {
-        filterByColor("black", blackFilterButton);
-    };
-    orangeFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["orange-colour"]);
-    orangeFilterButton.onclick = function () {
-        filterByColor("orange", orangeFilterButton);
-    };
-    pinkFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["pink-colour"]);
-    pinkFilterButton.onclick = function () {
-        filterByColor("pink", pinkFilterButton);
-    };
-    purpleFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["purple-colour"]);
-    purpleFilterButton.onclick = function () {
-        filterByColor("purple", purpleFilterButton);
-    };
-    grayFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["grey-colour"]);
-    grayFilterButton.onclick = function () {
-        filterByColor("gray", grayFilterButton);
-    };
-    greenFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["green-colour"]);
-    greenFilterButton.onclick = function () {
-        filterByColor("green", greenFilterButton);
-    };
-    blueFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["blue-colour"]);
-    blueFilterButton.onclick = function () {
-        filterByColor("blue", blueFilterButton);
-    };
-    whiteFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["white-colour"]);
-    whiteFilterButton.onclick = function () {
-        filterByColor("white", whiteFilterButton);
-    };
-    noneFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["none-colour"]);
-    noneFilterButton.onclick = function () {
-        filterByColor("none", noneFilterButton);
-    };
-    globalFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["global-label"]);
-    globalFilterButton.onclick = function () {
-        filterByType("global", globalFilterButton);
-    };
-    domainFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["domain-label"]);
-    domainFilterButton.onclick = function () {
-        filterByType("domain", domainFilterButton);
-    };
-    pageFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["page-label"]);
-    pageFilterButton.onclick = function () {
-        filterByType("page", pageFilterButton);
-    };
+        let redFilterButton = document.getElementById("filter-tag-red-button");
+        let yellowFilterButton = document.getElementById("filter-tag-yellow-button");
+        let blackFilterButton = document.getElementById("filter-tag-black-button");
+        let orangeFilterButton = document.getElementById("filter-tag-orange-button");
+        let pinkFilterButton = document.getElementById("filter-tag-pink-button");
+        let purpleFilterButton = document.getElementById("filter-tag-purple-button");
+        let grayFilterButton = document.getElementById("filter-tag-gray-button");
+        let greenFilterButton = document.getElementById("filter-tag-green-button");
+        let blueFilterButton = document.getElementById("filter-tag-blue-button");
+        let whiteFilterButton = document.getElementById("filter-tag-white-button");
+        let noneFilterButton = document.getElementById("filter-tag-none-button");
+        let globalFilterButton = document.getElementById("filter-type-global-button");
+        let domainFilterButton = document.getElementById("filter-type-domain-button");
+        let pageFilterButton = document.getElementById("filter-type-page-button");
+        redFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["red-colour"]);
+        redFilterButton.onclick = function () {
+            //search("red");
+            filterByColor("red", redFilterButton);
+        };
+        yellowFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["yellow-colour"]);
+        yellowFilterButton.onclick = function () {
+            filterByColor("yellow", yellowFilterButton);
+        };
+        blackFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["black-colour"]);
+        blackFilterButton.onclick = function () {
+            filterByColor("black", blackFilterButton);
+        };
+        orangeFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["orange-colour"]);
+        orangeFilterButton.onclick = function () {
+            filterByColor("orange", orangeFilterButton);
+        };
+        pinkFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["pink-colour"]);
+        pinkFilterButton.onclick = function () {
+            filterByColor("pink", pinkFilterButton);
+        };
+        purpleFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["purple-colour"]);
+        purpleFilterButton.onclick = function () {
+            filterByColor("purple", purpleFilterButton);
+        };
+        grayFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["grey-colour"]);
+        grayFilterButton.onclick = function () {
+            filterByColor("gray", grayFilterButton);
+        };
+        greenFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["green-colour"]);
+        greenFilterButton.onclick = function () {
+            filterByColor("green", greenFilterButton);
+        };
+        blueFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["blue-colour"]);
+        blueFilterButton.onclick = function () {
+            filterByColor("blue", blueFilterButton);
+        };
+        whiteFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["white-colour"]);
+        whiteFilterButton.onclick = function () {
+            filterByColor("white", whiteFilterButton);
+        };
+        noneFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["none-colour"]);
+        noneFilterButton.onclick = function () {
+            filterByColor("none", noneFilterButton);
+        };
+        globalFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["global-label"]);
+        globalFilterButton.onclick = function () {
+            filterByType("global", globalFilterButton);
+        };
+        domainFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["domain-label"]);
+        domainFilterButton.onclick = function () {
+            filterByType("domain", domainFilterButton);
+        };
+        pageFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["page-label"]);
+        pageFilterButton.onclick = function () {
+            filterByType("page", pageFilterButton);
+        };
+    } catch (e) {
+        console.error(`E-L2: ${e}`);
+    }
 }
 
 function filterByColor(color, tagButton) {
@@ -307,26 +317,30 @@ function filterByType(type, tagButton) {
 }
 
 function loadDataFromBrowser(generate_section = true) {
-    sync_local.get("websites", function (value) {
-        websites_json = {};
-        if (value["websites"] !== undefined) {
-            websites_json = value["websites"];
-            websites_json_to_show = websites_json;
-        }
-        if (generate_section) {
-            websites_json_by_domain = {};
-            loadAllWebsites(true, sort_by_selected);
-        }
-        //console.log(JSON.stringify(websites_json));
-    });
-    sync_local.get("settings", function (value) {
-        settings_json = {};
-        if (value["settings"] !== undefined) {
-            settings_json = value["settings"];
-        }
-        //console.log(JSON.stringify(settings_json));
-    });
-    applyFilter();
+    try {
+        sync_local.get("websites", function (value) {
+            websites_json = {};
+            if (value["websites"] !== undefined) {
+                websites_json = value["websites"];
+                websites_json_to_show = websites_json;
+            }
+            if (generate_section) {
+                websites_json_by_domain = {};
+                loadAllWebsites(true, sort_by_selected);
+            }
+            //console.log(JSON.stringify(websites_json));
+        });
+        sync_local.get("settings", function (value) {
+            settings_json = {};
+            if (value["settings"] !== undefined) {
+                settings_json = value["settings"];
+            }
+            //console.log(JSON.stringify(settings_json));
+        });
+        applyFilter();
+    } catch (e) {
+        console.error(`E-L3: ${e}`);
+    }
 }
 
 function clearAllNotes() {
@@ -399,201 +413,199 @@ function importAllNotes() {
         "sticky-notes-sizes",
         "sticky-notes-opacity",
     ]).then(result => {
-            let jsonImportElement = document.getElementById("json-import");
-            let json_old_version = {};
+        let jsonImportElement = document.getElementById("json-import");
+        let json_old_version = {};
 
-            //console.log(JSON.stringify(result));
-            if (show_conversion_message_attention) {
-                if (document.getElementById("import-now-all-notes-from-local-button")) {
-                    document.getElementById("import-now-all-notes-from-local-button").onclick = function () {
-                        result["notefox"] = {};
-                        result["notefox"]["version"] = "3.2";
-                        result["storage"] = "sync";
-                        result["sticky-notes"] = {};
-                        result["sticky-notes"]["coords"] = result["sticky-notes-coords"];
-                        result["sticky-notes"]["sizes"] = result["sticky-notes-sizes"];
-                        result["sticky-notes"]["opacity"] = result["sticky-notes-opacity"];
-                        delete result["sticky-notes-coords"];
-                        delete result["sticky-notes-sizes"];
-                        delete result["sticky-notes-opacity"];
-                        jsonImportElement.value = JSON.stringify(result);
-                        json_old_version = result;
-                    }
+        //console.log(JSON.stringify(result));
+        if (show_conversion_message_attention) {
+            if (document.getElementById("import-now-all-notes-from-local-button")) {
+                document.getElementById("import-now-all-notes-from-local-button").onclick = function () {
+                    result["notefox"] = {};
+                    result["notefox"]["version"] = "3.2";
+                    result["storage"] = "sync";
+                    result["sticky-notes"] = {};
+                    result["sticky-notes"]["coords"] = result["sticky-notes-coords"];
+                    result["sticky-notes"]["sizes"] = result["sticky-notes-sizes"];
+                    result["sticky-notes"]["opacity"] = result["sticky-notes-opacity"];
+                    delete result["sticky-notes-coords"];
+                    delete result["sticky-notes-sizes"];
+                    delete result["sticky-notes-opacity"];
+                    jsonImportElement.value = JSON.stringify(result);
+                    json_old_version = result;
                 }
-            } else {
-                if (document.getElementById("import-now-all-notes-from-local-button")) document.getElementById("import-now-all-notes-from-local-button").remove();
             }
+        } else {
+            if (document.getElementById("import-now-all-notes-from-local-button")) document.getElementById("import-now-all-notes-from-local-button").remove();
+        }
 
-            let n_errors = 0;
-            showBackgroundOpacity();
-            document.getElementById("import-section").style.display = "block";
-            jsonImportElement.value = "";
-            jsonImportElement.focus();
+        let n_errors = 0;
+        showBackgroundOpacity();
+        document.getElementById("import-section").style.display = "block";
+        jsonImportElement.value = "";
+        jsonImportElement.focus();
 
-            document.getElementById("cancel-import-all-notes-button").onclick = function () {
-                hideBackgroundOpacity();
-                document.getElementById("import-section").style.display = "none";
-            }
-            document.getElementById("import-now-all-notes-button").onclick = function () {
-                let value = jsonImportElement.value;
-                if (value.replaceAll(" ", "") !== "") {
-                    let error = false;
-                    let error_description = "";
-                    try {
-                        //json_to_export = {"notefox": notefox_json, "websites": websites_json, "settings": settings_json, "sticky-notes": sticky_notes_json};
-                        let json_to_export_temp = JSON.parse(value);
-                        let continue_ok = false;
-                        let cancel = false;
-                        if (json_to_export_temp["notefox"] === undefined || (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["notefox"]["version"] === undefined)) {
-                            //version before 2.0 (export in a different way)
-                            cancel = !confirm(all_strings["notefox-version-too-old-try-to-import-data-anyway"]);
-                            if (!cancel) {
-                                websites_json = json_to_export_temp;
-                                websites_json_to_show = websites_json;
-                            }
+        document.getElementById("cancel-import-all-notes-button").onclick = function () {
+            hideBackgroundOpacity();
+            document.getElementById("import-section").style.display = "none";
+        }
+        document.getElementById("import-now-all-notes-button").onclick = function () {
+            let value = jsonImportElement.value;
+            if (value.replaceAll(" ", "") !== "") {
+                let error = false;
+                let error_description = "";
+                try {
+                    //json_to_export = {"notefox": notefox_json, "websites": websites_json, "settings": settings_json, "sticky-notes": sticky_notes_json};
+                    let json_to_export_temp = JSON.parse(value);
+                    let continue_ok = false;
+                    let cancel = false;
+                    if (json_to_export_temp["notefox"] === undefined || (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["notefox"]["version"] === undefined)) {
+                        //version before 2.0 (export in a different way)
+                        cancel = !confirm(all_strings["notefox-version-too-old-try-to-import-data-anyway"]);
+                        if (!cancel) {
+                            websites_json = json_to_export_temp;
+                            websites_json_to_show = websites_json;
                         }
-                        if (json_to_export_temp["notefox"] !== undefined) {
-                            let check_version = checkTwoVersions(json_to_export_temp["notefox"]["version"], "3.3.1.8");
-                            if (check_version === "<") {
-                                cancel = !confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
-                                continue_ok = !cancel
-                            } else {
-                                continue_ok = true;
-                            }
-                        } else {
+                    }
+                    if (json_to_export_temp["notefox"] !== undefined) {
+                        let check_version = checkTwoVersions(json_to_export_temp["notefox"]["version"], "3.3.1.8");
+                        if (check_version === "<") {
                             cancel = !confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
-                            continue_ok = !cancel;
+                            continue_ok = !cancel
+                        } else {
+                            continue_ok = true;
                         }
+                    } else {
+                        cancel = !confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
+                        continue_ok = !cancel;
+                    }
 
-                        let sticky_notes = {};
+                    let sticky_notes = {};
 
-                        if (continue_ok) {
-                            if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["websites"] !== undefined) {
-                                websites_json = json_to_export_temp["websites"];
-                                websites_json_to_show = websites_json;
-                            }
-                            if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["settings"] !== undefined) settings_json = json_to_export_temp["settings"];
-                            if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["sticky-notes"] !== undefined) {
-                                if (json_to_export_temp["sticky-notes"].coords !== undefined) sticky_notes.coords = json_to_export_temp["sticky-notes"].coords;
-
-                                if (json_to_export_temp["sticky-notes"].sizes !== undefined) sticky_notes.sizes = json_to_export_temp["sticky-notes"].sizes;
-
-                                if (json_to_export_temp["sticky-notes"].opacity !== undefined) sticky_notes.opacity = json_to_export_temp["sticky-notes"].opacity;
-
-                                if (sticky_notes.coords === undefined || sticky_notes.coords === null) sticky_notes.coords = {
-                                    x: "20px",
-                                    y: "20px"
-                                };
-                                if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) sticky_notes.sizes = {
-                                    w: "300px",
-                                    h: "300px"
-                                };
-                                if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) sticky_notes.opacity = {value: 0.7};
-                            }
+                    if (continue_ok) {
+                        if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["websites"] !== undefined) {
+                            websites_json = json_to_export_temp["websites"];
+                            websites_json_to_show = websites_json;
                         }
+                        if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["settings"] !== undefined) settings_json = json_to_export_temp["settings"];
+                        if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["sticky-notes"] !== undefined) {
+                            if (json_to_export_temp["sticky-notes"].coords !== undefined) sticky_notes.coords = json_to_export_temp["sticky-notes"].coords;
 
-                        //console.log(JSON.stringify(json_to_export_temp));
+                            if (json_to_export_temp["sticky-notes"].sizes !== undefined) sticky_notes.sizes = json_to_export_temp["sticky-notes"].sizes;
 
-                        browser.storage.local.get([
-                            "storage"
-                        ]).then(resultSyncOrLocalToUse => {
-                                let storageTemp;
-                                if (json_to_export_temp["storage"] !== undefined) storageTemp = json_to_export_temp["storage"];
+                            if (json_to_export_temp["sticky-notes"].opacity !== undefined) sticky_notes.opacity = json_to_export_temp["sticky-notes"].opacity;
 
-                                if (storageTemp === undefined && resultSyncOrLocalToUse["storage"] !== undefined) storageTemp = resultSyncOrLocalToUse["storage"];
-                                else if ((storageTemp === "sync" || storageTemp === "local")) storageTemp = storageTemp; //do not do anything
-                                else storageTemp = "local";
+                            if (sticky_notes.coords === undefined || sticky_notes.coords === null) sticky_notes.coords = {
+                                x: "20px",
+                                y: "20px"
+                            };
+                            if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) sticky_notes.sizes = {
+                                w: "300px",
+                                h: "300px"
+                            };
+                            if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) sticky_notes.opacity = {value: 0.7};
+                        }
+                    }
 
-                                if (continue_ok) {
-                                    browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
-                                        checkSyncLocal();
+                    //console.log(JSON.stringify(json_to_export_temp));
 
-                                        document.getElementById("import-now-all-notes-button").disabled = true;
-                                        document.getElementById("cancel-import-all-notes-button").disabled = true;
-                                        document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
+                    browser.storage.local.get([
+                        "storage"
+                    ]).then(resultSyncOrLocalToUse => {
+                            let storageTemp;
+                            if (json_to_export_temp["storage"] !== undefined) storageTemp = json_to_export_temp["storage"];
+
+                            if (storageTemp === undefined && resultSyncOrLocalToUse["storage"] !== undefined) storageTemp = resultSyncOrLocalToUse["storage"];
+                            else if ((storageTemp === "sync" || storageTemp === "local")) storageTemp = storageTemp; //do not do anything
+                            else storageTemp = "local";
+
+                            if (continue_ok) {
+                                browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
+                                    checkSyncLocal();
+
+                                    document.getElementById("import-now-all-notes-button").disabled = true;
+                                    document.getElementById("cancel-import-all-notes-button").disabled = true;
+                                    document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
+                                    setTimeout(function () {
+                                        document.getElementById("import-now-all-notes-button").disabled = false;
+                                        document.getElementById("cancel-import-all-notes-button").disabled = false;
+                                        document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
                                         setTimeout(function () {
-                                            document.getElementById("import-now-all-notes-button").disabled = false;
-                                            document.getElementById("cancel-import-all-notes-button").disabled = false;
-                                            document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
-                                            setTimeout(function () {
-                                                document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
-                                            }, 500);
-                                            sync_local.set({
-                                                "websites": websites_json,
-                                                "settings": settings_json,
-                                                "sticky-notes-coords": sticky_notes.coords,
-                                                "sticky-notes-sizes": sticky_notes.sizes,
-                                                "sticky-notes-opacity": sticky_notes.opacity
-                                            }).then(function () {
-                                                //Imported all correctly
-                                                sync_local.get([
-                                                    "settings",
-                                                    "websites",
-                                                    "sticky-notes-coords",
-                                                    "sticky-notes-sizes",
-                                                    "sticky-notes-opacity"
-                                                ]).then(result => {
-                                                    //console.log(JSON.stringify(storageTemp));
-                                                    if (storageTemp === "sync") {
-                                                        if (JSON.stringify(json_old_version) === jsonImportElement.value) {
-                                                            browser.storage.local.clear().then(result1 => {
-                                                                browser.storage.local.set({"storage": "sync"})
-                                                            });
-                                                        } else browser.storage.local.set({"storage": "sync"})
-                                                    } else {
-                                                        if (JSON.stringify(json_old_version) === jsonImportElement.value) {
-                                                            browser.storage.local.clear().then(result1 => {
-                                                                browser.storage.local.set({"storage": "local"})
-                                                            });
-                                                        } else browser.storage.local.set({"storage": "local"})
-                                                    }
-                                                })
-                                                ;
-                                                loadDataFromBrowser(true);
+                                            document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
+                                        }, 500);
+                                        sync_local.set({
+                                            "websites": websites_json,
+                                            "settings": settings_json,
+                                            "sticky-notes-coords": sticky_notes.coords,
+                                            "sticky-notes-sizes": sticky_notes.sizes,
+                                            "sticky-notes-opacity": sticky_notes.opacity
+                                        }).then(function () {
+                                            //Imported all correctly
+                                            sync_local.get([
+                                                "settings",
+                                                "websites",
+                                                "sticky-notes-coords",
+                                                "sticky-notes-sizes",
+                                                "sticky-notes-opacity"
+                                            ]).then(result => {
+                                                //console.log(JSON.stringify(storageTemp));
+                                                if (storageTemp === "sync") {
+                                                    if (JSON.stringify(json_old_version) === jsonImportElement.value) {
+                                                        browser.storage.local.clear().then(result1 => {
+                                                            browser.storage.local.set({"storage": "sync"})
+                                                        });
+                                                    } else browser.storage.local.set({"storage": "sync"})
+                                                } else {
+                                                    if (JSON.stringify(json_old_version) === jsonImportElement.value) {
+                                                        browser.storage.local.clear().then(result1 => {
+                                                            browser.storage.local.set({"storage": "local"})
+                                                        });
+                                                    } else browser.storage.local.set({"storage": "local"})
+                                                }
+                                            })
+                                            ;
+                                            loadDataFromBrowser(true);
 
-                                                document.getElementById("import-section").style.display = "none";
-                                                hideBackgroundOpacity()
-                                            }).catch(function (error) {
-                                                console.error("E10: " + error);
-                                            });
-                                        }, 2000);
-                                    });
-                                }
+                                            document.getElementById("import-section").style.display = "none";
+                                            hideBackgroundOpacity()
+                                        }).catch(function (error) {
+                                            console.error("E10: " + error);
+                                        });
+                                    }, 2000);
+                                });
                             }
-                        )
-                        ;
-
-
-                        if (!continue_ok && !cancel) {
-                            error = true;
-                            error_description = "One or more parameters are not correct and it's not possible import data.";
                         }
-                        //console.log(JSON.stringify(json_to_export_temp));
-                    } catch
-                        (e) {
-                        //console.log("Error: " + e.toString());
+                    )
+                    ;
+
+
+                    if (!continue_ok && !cancel) {
                         error = true;
-                        error_description = e.toString()
+                        error_description = "One or more parameters are not correct and it's not possible import data.";
                     }
+                    //console.log(JSON.stringify(json_to_export_temp));
+                } catch
+                    (e) {
+                    //console.log("Error: " + e.toString());
+                    error = true;
+                    error_description = e.toString()
+                }
 
-                    if (error) {
-                        let errorSubSection = document.createElement("div");
-                        errorSubSection.classList.add("sub-section", "background-light-red");
-                        errorSubSection.id = "error-message-" + n_errors;
-                        errorSubSection.textContent = "Error: " + error_description;
-                        setTimeout(function () {
-                            errorSubSection.remove();
-                        }, 10000);
-                        n_errors++;
+                if (error) {
+                    let errorSubSection = document.createElement("div");
+                    errorSubSection.classList.add("sub-section", "background-light-red");
+                    errorSubSection.id = "error-message-" + n_errors;
+                    errorSubSection.textContent = "Error: " + error_description;
+                    setTimeout(function () {
+                        errorSubSection.remove();
+                    }, 10000);
+                    n_errors++;
 
-                        let mainSection = document.getElementById("import-sub-sections");
-                        mainSection.insertBefore(errorSubSection, mainSection.childNodes[0]);
-                    }
+                    let mainSection = document.getElementById("import-sub-sections");
+                    mainSection.insertBefore(errorSubSection, mainSection.childNodes[0]);
                 }
             }
         }
-    )
-    ;
+    });
 }
 
 function exportAllNotes() {
@@ -663,152 +675,156 @@ function hideBackgroundOpacity() {
 }
 
 function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true) {
-    if (clear) {
-        document.getElementById("all-website-sections").textContent = "";
-    }
-    let n_websites = 0;
-    if (!isEmpty(websites_json_to_show)) {
-        //there are websites saved
-
-        websites_json_by_domain = [];
-
-        for (let domain in websites_json_to_show) {
-            if (websites_json_to_show[domain]["type"] === undefined) {
-                websites_json_to_show[domain]["type"] = 1;
-                websites_json_to_show[domain]["domain"] = "";
-                websites_json_to_show[domain]["tag-colour"] = "none";
-            }
-
-
-            if (websites_json_to_show[domain]["type"] === 0 || websites_json_to_show[domain]["type"] === 1 && websites_json_to_show[domain]["domain"] === "") {
-                //global (0) or domain (1)
-                if (websites_json_by_domain[domain] === undefined) {
-                    websites_json_by_domain[domain] = [];
-                }
-            } else {
-                //page
-                let root_domain = websites_json_to_show[domain]["domain"];
-                let domain_to_add = domain.replace(root_domain, "");
-                if (websites_json_by_domain[root_domain] === undefined) {
-                    websites_json_by_domain[root_domain] = [];
-                }
-                if (websites_json_by_domain[root_domain].indexOf(domain_to_add) === -1) {
-                    websites_json_by_domain[root_domain].push(domain_to_add);
-                }
-            }
-
-            if (websites_json_to_show[domain]["tag-colour"] === undefined) {
-                websites_json_to_show[domain]["tag-colour"] = "none";
-            }
+    try {
+        if (clear) {
+            document.getElementById("all-website-sections").textContent = "";
         }
-        //console.log(JSON.stringify(websites_json_by_domain));
+        let n_websites = 0;
+        if (!isEmpty(websites_json_to_show)) {
+            //there are websites saved
 
-        websites_json_by_domain = sortOnKeys(websites_json_by_domain, websites_json_to_show, sort_by);
-        //console.log(JSON.stringify(sortOnKeys(websites_json_by_domain, websites_json_to_show, "date-90")));
+            websites_json_by_domain = [];
 
-        for (let domain in websites_json_by_domain) {
-            if (domain !== undefined && domain !== "undefined" && domain !== "") {
-                n_websites++;
+            for (let domain in websites_json_to_show) {
+                if (websites_json_to_show[domain]["type"] === undefined) {
+                    websites_json_to_show[domain]["type"] = 1;
+                    websites_json_to_show[domain]["domain"] = "";
+                    websites_json_to_show[domain]["tag-colour"] = "none";
+                }
 
-                websites_json_by_domain[domain].sort();
 
-                let section = document.createElement("div");
-                section.classList.add("section", "section-domain");
-
-                //console.log(domain);
-
-                if (domain !== "**global") {
-                    let input_clear_all_notes_domain = document.createElement("input");
-                    input_clear_all_notes_domain.type = "button";
-                    input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
-                    input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button");
-                    input_clear_all_notes_domain.onclick = function () {
-                        clearAllNotesDomain(domain);
+                if (websites_json_to_show[domain]["type"] === 0 || websites_json_to_show[domain]["type"] === 1 && websites_json_to_show[domain]["domain"] === "") {
+                    //global (0) or domain (1)
+                    if (websites_json_by_domain[domain] === undefined) {
+                        websites_json_by_domain[domain] = [];
                     }
-                    section.append(input_clear_all_notes_domain);
+                } else {
+                    //page
+                    let root_domain = websites_json_to_show[domain]["domain"];
+                    let domain_to_add = domain.replace(root_domain, "");
+                    if (websites_json_by_domain[root_domain] === undefined) {
+                        websites_json_by_domain[root_domain] = [];
+                    }
+                    if (websites_json_by_domain[root_domain].indexOf(domain_to_add) === -1) {
+                        websites_json_by_domain[root_domain].push(domain_to_add);
+                    }
+                }
 
-                    let h2 = document.createElement("h2");
-                    h2.textContent = domain;
-                    if (isUrlSupported(domain)) {
-                        h2.classList.add("link", "go-to-external");
-                        h2.onclick = function () {
-                            browser.tabs.create({url: domain});
+                if (websites_json_to_show[domain]["tag-colour"] === undefined) {
+                    websites_json_to_show[domain]["tag-colour"] = "none";
+                }
+            }
+            //console.log(JSON.stringify(websites_json_by_domain));
+
+            websites_json_by_domain = sortOnKeys(websites_json_by_domain, websites_json_to_show, sort_by);
+            //console.log(JSON.stringify(sortOnKeys(websites_json_by_domain, websites_json_to_show, "date-90")));
+
+            for (let domain in websites_json_by_domain) {
+                if (domain !== undefined && domain !== "undefined" && domain !== "") {
+                    n_websites++;
+
+                    websites_json_by_domain[domain].sort();
+
+                    let section = document.createElement("div");
+                    section.classList.add("section", "section-domain");
+
+                    //console.log(domain);
+
+                    if (domain !== "**global") {
+                        let input_clear_all_notes_domain = document.createElement("input");
+                        input_clear_all_notes_domain.type = "button";
+                        input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
+                        input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button");
+                        input_clear_all_notes_domain.onclick = function () {
+                            clearAllNotesDomain(domain);
+                        }
+                        section.append(input_clear_all_notes_domain);
+
+                        let h2 = document.createElement("h2");
+                        h2.textContent = domain;
+                        if (isUrlSupported(domain)) {
+                            h2.classList.add("link", "go-to-external");
+                            h2.onclick = function () {
+                                browser.tabs.create({url: domain});
+                            }
+                        }
+                        section.append(h2);
+                    }
+
+                    let all_pages = document.createElement("div");
+
+                    //console.log(JSON.stringify(websites_json_by_domain[domain]));
+                    let pages_added = 0;
+
+                    if (websites_json_to_show[domain] !== undefined) {
+                        //there is notes also for the domain
+                        let urlPageDomain = domain;
+                        let page = document.createElement("div");
+                        page.classList.add("sub-section");
+                        let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
+                        let notes = websites_json_to_show[urlPageDomain]["notes"];
+                        let title = websites_json_to_show[urlPageDomain]["title"];
+
+                        let type_to_show = all_strings["domain-label"];
+                        let type_to_use = "domain";
+                        if (domain === getGlobalUrl()) {
+                            type_to_show = all_strings["global-label"];
+                            type_to_use = "global";
+                        }
+                        page = generateNotes(page, urlPageDomain, notes, title, lastUpdate, type_to_show, urlPageDomain, type_to_use, true);
+
+                        if (page !== -1) {
+                            all_pages.append(page);
+                            pages_added++;
                         }
                     }
-                    section.append(h2);
-                }
 
-                let all_pages = document.createElement("div");
+                    if (domain !== getGlobalUrl()) {
+                        for (let index = 0; index < websites_json_by_domain[domain].length; index++) {
+                            let urlPage = websites_json_by_domain[domain][index];
+                            let urlPageDomain = domain + websites_json_by_domain[domain][index];
+                            if (websites_json_to_show[urlPageDomain] !== undefined) {
+                                let page = document.createElement("div");
+                                page.classList.add("sub-section");
 
-                //console.log(JSON.stringify(websites_json_by_domain[domain]));
-                let pages_added = 0;
+                                // console.log(urlPageDomain);
+                                // console.log(websites_json_by_domain);
+                                // console.log(websites_json_to_show);
+                                let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
+                                let notes = websites_json_to_show[urlPageDomain]["notes"];
+                                let title = websites_json_to_show[urlPageDomain]["title"];
 
-                if (websites_json_to_show[domain] !== undefined) {
-                    //there is notes also for the domain
-                    let urlPageDomain = domain;
-                    let page = document.createElement("div");
-                    page.classList.add("sub-section");
-                    let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
-                    let notes = websites_json_to_show[urlPageDomain]["notes"];
-                    let title = websites_json_to_show[urlPageDomain]["title"];
+                                page = generateNotes(page, urlPage, notes, title, lastUpdate, all_strings["page-label"], urlPageDomain, "page", false);
 
-                    let type_to_show = all_strings["domain-label"];
-                    let type_to_use = "domain";
-                    if (domain === getGlobalUrl()) {
-                        type_to_show = all_strings["global-label"];
-                        type_to_use = "global";
-                    }
-                    page = generateNotes(page, urlPageDomain, notes, title, lastUpdate, type_to_show, urlPageDomain, type_to_use, true);
-
-                    if (page !== -1) {
-                        all_pages.append(page);
-                        pages_added++;
-                    }
-                }
-
-                if (domain !== getGlobalUrl()) {
-                    for (let index = 0; index < websites_json_by_domain[domain].length; index++) {
-                        let urlPage = websites_json_by_domain[domain][index];
-                        let urlPageDomain = domain + websites_json_by_domain[domain][index];
-                        if (websites_json_to_show[urlPageDomain] !== undefined) {
-                            let page = document.createElement("div");
-                            page.classList.add("sub-section");
-
-                            // console.log(urlPageDomain);
-                            // console.log(websites_json_by_domain);
-                            // console.log(websites_json_to_show);
-                            let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
-                            let notes = websites_json_to_show[urlPageDomain]["notes"];
-                            let title = websites_json_to_show[urlPageDomain]["title"];
-
-                            page = generateNotes(page, urlPage, notes, title, lastUpdate, all_strings["page-label"], urlPageDomain, "page", false);
-
-                            if (page !== -1) {
-                                all_pages.append(page);
-                                pages_added++;
+                                if (page !== -1) {
+                                    all_pages.append(page);
+                                    pages_added++;
+                                }
                             }
                         }
                     }
+
+                    if (pages_added > 0) section.append(all_pages);
+
+                    document.getElementById("all-website-sections").append(section);
                 }
-
-                if (pages_added > 0) section.append(all_pages);
-
-                document.getElementById("all-website-sections").append(section);
             }
         }
-    }
 
-    if (n_websites === 0) {
-        //no websites
-        let section = document.createElement("div");
-        section.classList.add("section-empty");
-        section.textContent = all_strings["no-notes-found-text"];
+        if (n_websites === 0) {
+            //no websites
+            let section = document.createElement("div");
+            section.classList.add("section-empty");
+            section.textContent = all_strings["no-notes-found-text"];
 
-        document.getElementById("all-website-sections").append(section);
-    } else {
-        if (apply_filter) {
-            applyFilter();
+            document.getElementById("all-website-sections").append(section);
+        } else {
+            if (apply_filter) {
+                applyFilter();
+            }
         }
+    } catch (e) {
+        console.error(`E-L4: ${e}`);
     }
 }
 
@@ -848,22 +864,26 @@ function applyFilter() {
 }
 
 function search(value = "") {
-    //console.log(JSON.stringify(websites_json_to_show))
-    websites_json_to_show = {};
-    document.getElementById("search-all-notes-text").value = value.toString();
-    let valueToUse = value.toLowerCase();
-    for (const website in websites_json) {
-        let current_website_json = websites_json[website];
-        let condition_tag_color = filtersColors.indexOf(current_website_json["tag-colour"].toLowerCase()) !== -1 || filtersColors.length === 0;
-        let condition_type = filtersTypes.indexOf(getType(websites_json[website], website)) !== -1 || filtersTypes.length === 0;
-        //if (condition_type) console.log(getType(websites_json[website], website) + "   " + JSON.stringify(websites_json[website]))
-        let title_to_use = "";
-        if (current_website_json["title"] !== undefined) title_to_use = current_website_json["title"].toLowerCase();
-        if ((current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse) || current_website_json["last-update"].toLowerCase().includes(valueToUse) || title_to_use.includes(valueToUse) || website.includes(valueToUse)) && condition_tag_color && condition_type) {
-            websites_json_to_show[website] = websites_json[website];
+    try {
+        //console.log(JSON.stringify(websites_json_to_show))
+        websites_json_to_show = {};
+        document.getElementById("search-all-notes-text").value = value.toString();
+        let valueToUse = value.toLowerCase();
+        for (const website in websites_json) {
+            let current_website_json = websites_json[website];
+            let condition_tag_color = filtersColors.indexOf(current_website_json["tag-colour"].toLowerCase()) !== -1 || filtersColors.length === 0;
+            let condition_type = filtersTypes.indexOf(getType(websites_json[website], website)) !== -1 || filtersTypes.length === 0;
+            //if (condition_type) console.log(getType(websites_json[website], website) + "   " + JSON.stringify(websites_json[website]))
+            let title_to_use = "";
+            if (current_website_json["title"] !== undefined) title_to_use = current_website_json["title"].toLowerCase();
+            if ((current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse) || current_website_json["last-update"].toLowerCase().includes(valueToUse) || title_to_use.includes(valueToUse) || website.includes(valueToUse)) && condition_tag_color && condition_type) {
+                websites_json_to_show[website] = websites_json[website];
+            }
         }
+        loadAllWebsites(true, sort_by_selected, false);
+    } catch (e) {
+        console.error(`E-S1: ${e}`);
     }
-    loadAllWebsites(true, sort_by_selected, false);
 }
 
 function getType(website, url) {
@@ -881,121 +901,127 @@ function sortObjectByKeys(o) {
 }
 
 function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_to_use, domain_again) {
-    let row1 = document.createElement("div");
-    row1.classList.add("rows");
+    try {
+        let row1 = document.createElement("div");
+        row1.classList.add("rows");
 
-    let pageType = document.createElement("div");
-    pageType.classList.add("sub-section-type");
-    pageType.textContent = type;
+        let pageType = document.createElement("div");
+        pageType.classList.add("sub-section-type");
+        pageType.textContent = type;
 
-    let input_clear_all_notes_page = document.createElement("input");
+        let input_clear_all_notes_page = document.createElement("input");
 
-    input_clear_all_notes_page.type = "button";
-    input_clear_all_notes_page.value = all_strings["clear-notes-of-this-page-button"];
-    input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button", "clear2-button");
-    input_clear_all_notes_page.onclick = function () {
-        let isDomain = false;
-        if (fullUrl === url) {
-            isDomain = true;
-        }
-        clearAllNotesPage(fullUrl, isDomain);
-    }
-    let inputCopyNotes = document.createElement("input");
-
-    inputCopyNotes.type = "button";
-    inputCopyNotes.value = all_strings["copy-notes-button"];
-    inputCopyNotes.classList.add("button", "float-right", "very-small-button", "margin-right-5-px", "copy-button");
-    inputCopyNotes.onclick = function () {
-        copyNotes(textNotes, notes);
-        inputCopyNotes.value = all_strings["copied-button"];
-        setTimeout(function () {
-            inputCopyNotes.value = all_strings["copy-notes-button"];
-            textNotes.innerHTML = notes;
-        }, 3000);
-    }
-
-    let tagsColour = document.createElement("select");
-
-    let colourList = colourListDefault;
-    colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
-    for (let colour in colourList) {
-        let tagColour = document.createElement("option");
-        tagColour.value = colour;
-        if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] !== undefined && websites_json[fullUrl]["tag-colour"] === colour) {
-            tagColour.selected = true;
-            page.classList.add("tag-colour-left", "tag-colour-" + colour, "sub-section-domain");
-        }
-        tagColour.textContent = colourList[colour];
-        //tagColour.classList.add(colour + "-background-tag");
-        tagsColour.classList.add("button", "float-right", "very-small-button", "margin-right-5-px", "tag-button");
-        tagsColour.append(tagColour);
-    }
-    tagsColour.onchange = function () {
-        changeTagColour(fullUrl, tagsColour.value, type_to_use);
-    }
-    page.id = fullUrl;
-
-    row1.append(pageType)
-
-    row1.append(input_clear_all_notes_page);
-    row1.append(inputCopyNotes);
-    row1.append(tagsColour);
-
-    if (type_to_use.toLowerCase() !== "domain" && type_to_use.toLowerCase() !== "global") {
-        //it's a page
-        let pageUrl = document.createElement("h3");
-        pageUrl.textContent = url;
-
-        if (isUrlSupported(fullUrl)) {
-            pageUrl.classList.add("link", "go-to-external");
-            pageUrl.onclick = function () {
-                browser.tabs.create({url: fullUrl});
+        input_clear_all_notes_page.type = "button";
+        input_clear_all_notes_page.value = all_strings["clear-notes-of-this-page-button"];
+        input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button", "clear2-button");
+        input_clear_all_notes_page.onclick = function () {
+            let isDomain = false;
+            if (fullUrl === url) {
+                isDomain = true;
             }
+            clearAllNotesPage(fullUrl, isDomain);
+        }
+        let inputCopyNotes = document.createElement("input");
+
+        inputCopyNotes.type = "button";
+        inputCopyNotes.value = all_strings["copy-notes-button"];
+        inputCopyNotes.classList.add("button", "float-right", "very-small-button", "margin-right-5-px", "copy-button");
+        inputCopyNotes.onclick = function () {
+            copyNotes(textNotes, notes);
+            inputCopyNotes.value = all_strings["copied-button"];
+            setTimeout(function () {
+                inputCopyNotes.value = all_strings["copy-notes-button"];
+                textNotes.innerHTML = notes;
+            }, 3000);
         }
 
-        row1.append(pageUrl);
+        let tagsColour = document.createElement("select");
+
+        let colourList = colourListDefault;
+        colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
+        for (let colour in colourList) {
+            let tagColour = document.createElement("option");
+            tagColour.value = colour;
+            if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] !== undefined && websites_json[fullUrl]["tag-colour"] === colour) {
+                tagColour.selected = true;
+                page.classList.add("tag-colour-left", "tag-colour-" + colour, "sub-section-domain");
+            }
+            tagColour.textContent = colourList[colour];
+            //tagColour.classList.add(colour + "-background-tag");
+            tagsColour.classList.add("button", "float-right", "very-small-button", "margin-right-5-px", "tag-button");
+            tagsColour.append(tagColour);
+        }
+        tagsColour.onchange = function () {
+            changeTagColour(fullUrl, tagsColour.value, type_to_use);
+        }
+        page.id = fullUrl;
+
+        row1.append(pageType)
+
+        row1.append(input_clear_all_notes_page);
+        row1.append(inputCopyNotes);
+        row1.append(tagsColour);
+
+        if (type_to_use.toLowerCase() !== "domain" && type_to_use.toLowerCase() !== "global") {
+            //it's a page
+            let pageUrl = document.createElement("h3");
+            pageUrl.textContent = url;
+
+            if (isUrlSupported(fullUrl)) {
+                pageUrl.classList.add("link", "go-to-external");
+                pageUrl.onclick = function () {
+                    browser.tabs.create({url: fullUrl});
+                }
+            }
+
+            row1.append(pageUrl);
+        }
+
+        page.append(row1);
+
+        if (title !== undefined && title !== "") {
+            let row2 = document.createElement("div");
+            row2.classList.add("rows");
+
+            let pageTitle = document.createElement("div");
+            pageTitle.classList.add("sub-section-title");
+            pageTitle.textContent = all_strings["title-label"];
+
+            let pageTitleH3 = document.createElement("h3");
+            pageTitleH3.classList.add("title");
+            pageTitleH3.textContent = title;
+            row2.append(pageTitle)
+            row2.append(pageTitleH3);
+            page.append(row2);
+        }
+
+        let pageNotes = document.createElement("pre");
+        pageNotes.classList.add("sub-section-notes");
+
+        let textNotesContainer = document.createElement("div");
+        textNotesContainer.classList.add("div-textnotes-container");
+        let textNotes = document.createElement("div");
+        textNotes.readOnly = true;
+        textNotes.innerHTML = notes;
+        textNotes.contentEditable = false;
+        textNotes.classList.add("textarea-all-notes");
+        textNotesContainer.appendChild(textNotes);
+
+        pageNotes.append(textNotesContainer);
+
+        page.append(pageNotes);
+
+        let pageLastUpdate = document.createElement("div");
+        pageLastUpdate.classList.add("sub-section-last-update");
+        pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", lastUpdate);
+        page.append(pageLastUpdate);
+
+        return page;
+    } catch (e) {
+        console.error(`E-G1: ${e}`);
+
+        return undefined;
     }
-
-    page.append(row1);
-
-    if (title !== undefined && title !== "") {
-        let row2 = document.createElement("div");
-        row2.classList.add("rows");
-
-        let pageTitle = document.createElement("div");
-        pageTitle.classList.add("sub-section-title");
-        pageTitle.textContent = all_strings["title-label"];
-
-        let pageTitleH3 = document.createElement("h3");
-        pageTitleH3.classList.add("title");
-        pageTitleH3.textContent = title;
-        row2.append(pageTitle)
-        row2.append(pageTitleH3);
-        page.append(row2);
-    }
-
-    let pageNotes = document.createElement("pre");
-    pageNotes.classList.add("sub-section-notes");
-
-    let textNotesContainer = document.createElement("div");
-    textNotesContainer.classList.add("div-textnotes-container");
-    let textNotes = document.createElement("div");
-    textNotes.readOnly = true;
-    textNotes.innerHTML = notes;
-    textNotes.contentEditable = false;
-    textNotes.classList.add("textarea-all-notes");
-    textNotesContainer.appendChild(textNotes);
-
-    pageNotes.append(textNotesContainer);
-
-    page.append(pageNotes);
-
-    let pageLastUpdate = document.createElement("div");
-    pageLastUpdate.classList.add("sub-section-last-update");
-    pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", lastUpdate);
-    page.append(pageLastUpdate);
-
-    return page;
 }
 
 function changeTagColour(url, colour) {
@@ -1040,123 +1066,129 @@ function isEmpty(obj) {
  * @returns {{}} returns the dictionary (websites) sorted
  */
 function sortOnKeys(dict, dict2, sort_by) {
-    //console.log(JSON.stringify(dict))
-    //console.log(JSON.stringify(dict2))
+    try {
+        //console.log(JSON.stringify(dict))
+        //console.log(JSON.stringify(dict2))
 
-    let tempDict = {};
+        let tempDict = {};
 
-    //console.log(JSON.stringify(tempDict));
+        //console.log(JSON.stringify(tempDict));
 
-    if (sort_by !== "name-az" && sort_by !== "name-za" && sort_by !== "date-09" && sort_by !== "date-90") sort_by = "name-az";
-    if (sort_by === "name-az") {
-        //Sort by name: from "A" to "Z"
-        tempDict = {};
-        var sorted = [];
-        for (var key in dict) {
-            sorted[sorted.length] = key;
-        }
-        sorted.sort();
+        if (sort_by !== "name-az" && sort_by !== "name-za" && sort_by !== "date-09" && sort_by !== "date-90") sort_by = "name-az";
+        if (sort_by === "name-az") {
+            //Sort by name: from "A" to "Z"
+            tempDict = {};
+            var sorted = [];
+            for (var key in dict) {
+                sorted[sorted.length] = key;
+            }
+            sorted.sort();
 
-        for (let i = 0; i < sorted.length; i++) {
-            tempDict[sorted[i]] = dict[sorted[i]];
-        }
-    } else if (sort_by === "name-za") {
-        //Sort by name: from "Z" to "A"
-        tempDict = {};
-        var sorted = [];
-        for (var key in dict) {
-            sorted[sorted.length] = key;
-        }
-        sorted.sort().reverse();
+            for (let i = 0; i < sorted.length; i++) {
+                tempDict[sorted[i]] = dict[sorted[i]];
+            }
+        } else if (sort_by === "name-za") {
+            //Sort by name: from "Z" to "A"
+            tempDict = {};
+            var sorted = [];
+            for (var key in dict) {
+                sorted[sorted.length] = key;
+            }
+            sorted.sort().reverse();
 
-        for (let i = 0; i < sorted.length; i++) {
-            tempDict[sorted[i]] = dict[sorted[i]];
-        }
-    } else if (sort_by === "date-09") {
-        //Sort by updated date: from the newer to the oldest
-        //for the same domain: get its MIN date, and sort by that
-        let dictToSortDate = {};
-        for (let domain in dict) {
-            dictToSortDate[domain] = {};
-            dictToSortDate[domain]["last-update"] = null;
-            dictToSortDate[domain]["pages"] = [];
-            if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = dict2[domain]["last-update"];
-            for (let website in dict2) {
-                if (website.includes(domain)) {
-                    let date1 = new Date(dict2[website]["last-update"]);
-                    let date2 = new Date(dictToSortDate[domain]["last-update"]);
-                    if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 < date2) dictToSortDate[domain]["last-update"] = dict2[website]["last-update"];
+            for (let i = 0; i < sorted.length; i++) {
+                tempDict[sorted[i]] = dict[sorted[i]];
+            }
+        } else if (sort_by === "date-09") {
+            //Sort by updated date: from the newer to the oldest
+            //for the same domain: get its MIN date, and sort by that
+            let dictToSortDate = {};
+            for (let domain in dict) {
+                dictToSortDate[domain] = {};
+                dictToSortDate[domain]["last-update"] = null;
+                dictToSortDate[domain]["pages"] = [];
+                if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = dict2[domain]["last-update"];
+                for (let website in dict2) {
+                    if (website.includes(domain)) {
+                        let date1 = new Date(dict2[website]["last-update"]);
+                        let date2 = new Date(dictToSortDate[domain]["last-update"]);
+                        if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 < date2) dictToSortDate[domain]["last-update"] = dict2[website]["last-update"];
+                    }
                 }
             }
-        }
 
-        const sortedEntries = Object.entries(dictToSortDate).sort(([, a], [, b]) => {
-            const dateA = new Date(a["last-update"]);
-            const dateB = new Date(b["last-update"]);
-            return dateA - dateB;
-        });
+            const sortedEntries = Object.entries(dictToSortDate).sort(([, a], [, b]) => {
+                const dateA = new Date(a["last-update"]);
+                const dateB = new Date(b["last-update"]);
+                return dateA - dateB;
+            });
 
 
-        let temp2 = {};
-        var sorted = [];
-        for (var key in dict) {
-            sorted[sorted.length] = key;
-        }
-        sorted.sort();
+            let temp2 = {};
+            var sorted = [];
+            for (var key in dict) {
+                sorted[sorted.length] = key;
+            }
+            sorted.sort();
 
-        for (let i = 0; i < sorted.length; i++) {
-            temp2[sorted[i]] = dict[sorted[i]];
-        }
+            for (let i = 0; i < sorted.length; i++) {
+                temp2[sorted[i]] = dict[sorted[i]];
+            }
 
-        let tempDict2 = Object.fromEntries(sortedEntries);
+            let tempDict2 = Object.fromEntries(sortedEntries);
 
-        for (let temp in tempDict2) {
-            tempDict[temp] = temp2[temp];
-        }
-    } else if (sort_by === "date-90") {
-        //Sort by updated date: from the oldest to the newer
-        //for the same domain: get its MAX date, and sort by that
-        let dictToSortDate = {};
-        for (let domain in dict) {
-            dictToSortDate[domain] = {};
-            dictToSortDate[domain]["last-update"] = null;
-            dictToSortDate[domain]["pages"] = [];
-            if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = dict2[domain]["last-update"];
-            for (let website in dict2) {
-                if (website.includes(domain)) {
-                    let date1 = new Date(dict2[website]["last-update"]);
-                    let date2 = new Date(dictToSortDate[domain]["last-update"]);
-                    if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 > date2) dictToSortDate[domain]["last-update"] = dict2[website]["last-update"];
+            for (let temp in tempDict2) {
+                tempDict[temp] = temp2[temp];
+            }
+        } else if (sort_by === "date-90") {
+            //Sort by updated date: from the oldest to the newer
+            //for the same domain: get its MAX date, and sort by that
+            let dictToSortDate = {};
+            for (let domain in dict) {
+                dictToSortDate[domain] = {};
+                dictToSortDate[domain]["last-update"] = null;
+                dictToSortDate[domain]["pages"] = [];
+                if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = dict2[domain]["last-update"];
+                for (let website in dict2) {
+                    if (website.includes(domain)) {
+                        let date1 = new Date(dict2[website]["last-update"]);
+                        let date2 = new Date(dictToSortDate[domain]["last-update"]);
+                        if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 > date2) dictToSortDate[domain]["last-update"] = dict2[website]["last-update"];
+                    }
                 }
             }
+
+            const sortedEntries = Object.entries(dictToSortDate).sort(([, a], [, b]) => {
+                const dateA = new Date(a["last-update"]);
+                const dateB = new Date(b["last-update"]);
+                return dateB - dateA;
+            });
+
+            let temp2 = {};
+            var sorted = [];
+            for (var key in dict) {
+                sorted[sorted.length] = key;
+            }
+            sorted.sort();
+
+            for (let i = 0; i < sorted.length; i++) {
+                temp2[sorted[i]] = dict[sorted[i]];
+            }
+
+            let tempDict2 = Object.fromEntries(sortedEntries);
+
+            for (let temp in tempDict2) {
+                tempDict[temp] = temp2[temp];
+            }
         }
+        //console.log(JSON.stringify(tempDict));
 
-        const sortedEntries = Object.entries(dictToSortDate).sort(([, a], [, b]) => {
-            const dateA = new Date(a["last-update"]);
-            const dateB = new Date(b["last-update"]);
-            return dateB - dateA;
-        });
+        return tempDict;
+    } catch (e) {
+        console.error(`E-S2: ${e}`);
 
-        let temp2 = {};
-        var sorted = [];
-        for (var key in dict) {
-            sorted[sorted.length] = key;
-        }
-        sorted.sort();
-
-        for (let i = 0; i < sorted.length; i++) {
-            temp2[sorted[i]] = dict[sorted[i]];
-        }
-
-        let tempDict2 = Object.fromEntries(sortedEntries);
-
-        for (let temp in tempDict2) {
-            tempDict[temp] = temp2[temp];
-        }
+        return undefined;
     }
-    //console.log(JSON.stringify(tempDict));
-
-    return tempDict;
 }
 
 /**
