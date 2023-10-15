@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'Lorsque cette option est activée, vous pouvez également enregistrer des notes par "sous-domaines" comme: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Afficher le panneau de mise en forme du texte HTML dans la popup',
     'html-text-formatting-detailed': 'Lorsque cette option est activée, vous verrez quelques boutons utiles en bas de popup pour insérer le formatage du texte (gras, italique, etc.). et les boutons Annuler/Refaire – même si vous désactivez ceci, vous pourrez continuer à insérer le formatage de texte via les raccourcis clavier.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': 'Rechercher…',
     'sort-by-button': 'Trier par…',
     'sort-by-az-button': 'Nom : A-Z',

@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': '启用后，您也可以按"子域"保存笔记，比如： <span class=\'url-small\'>https://example.page/a-page/*</span>、 <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>。',
     'html-text-formatting': '在弹出窗口中显示 HTML 文本格式面板',
     'html-text-formatting-detailed': '启用后，您将在弹出窗口底部看到一些有用的按钮来插入文本格式(例如粗体字、斜体等)。 和撤消/重做按钮 — — 虽然您禁用了，但您将继续能够通过键盘快捷键插入文本格式。',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': '搜索…',
     'sort-by-button': '按… 排序',
     'sort-by-az-button': '姓名：A-Z',

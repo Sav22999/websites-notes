@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'Gdy włączone, możesz zapisać notatki również dla "poddomeny", takie jak: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Pokaż panel formatowania HTML w wyskakującym oknie',
     'html-text-formatting-detailed': 'Gdy włączone, zobaczysz kilka przydatnych przycisków na dole wyskakujących okienek, aby wstawić formatowanie tekstu (jak pogrubiony, kursywę itp. i cofnij / ponów przyciski - chociaż to wyłączasz, nadal będziesz mógł wstawiać formatowanie tekstowe za pomocą skrótów klawiaturowych.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': 'Szukaj…',
     'sort-by-button': 'Sortuj wg…',
     'sort-by-az-button': 'Nazwa: A-Z',

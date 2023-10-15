@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'При включении вы можете сохранять заметки также в поддоменах: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>',
     'html-text-formatting': 'Показывать панель форматирования HTML во всплывающем окне',
     'html-text-formatting-detailed': 'Когда включено, вы увидите некоторые полезные кнопки внизу всплывающего окна для вставки форматирования текста (как полужир, курсив и т.д. и кнопки отмены/повтора – хотя вы отключили эту опцию, вы по-прежнему сможете вставить текстовое форматирование с помощью клавиатурных клавиш.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': 'Поиск…',
     'sort-by-button': 'Сортировать по…',
     'sort-by-az-button': 'Название: А-Я',

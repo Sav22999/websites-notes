@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'When enabled you can save notes also per "sub-domains" like: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Show HTML text-formatting panel in the popup',
     'html-text-formatting-detailed': 'When enabled you will see some useful buttons in the bottom of popup to insert text formatting (like bold, italic, etc.) and undo/redo buttons – although you disable this, you will continue to be able to insert text-formatting via keyboard shortcuts.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': '搜尋…',
     'sort-by-button': '排序方式…',
     'sort-by-az-button': 'Name: A-Z',

@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'Cuando está habilitado, puedes guardar notas también por "sub-dominios" como: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Mostrar el panel de formato de texto HTML en la ventana emergente',
     'html-text-formatting-detailed': 'Cuando esté habilitado, verá algunos botones útiles en la parte inferior de la ventana emergente para insertar formato de texto (como negrita, cursiva, etc. y botones de deshacer/rehacer – aunque lo desactiva, seguirá siendo capaz de insertar el formato de texto mediante atajos de teclado.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': 'Buscar…',
     'sort-by-button': 'Ordenar por…',
     'sort-by-az-button': 'Nombre: A-Z',
