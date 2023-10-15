@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'När den är aktiverad kan du spara anteckningar även per "underdomäner" som: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Visa HTML-textformateringspanel i popup-fönstret',
     'html-text-formatting-detailed': 'När den är aktiverad kommer du att se några användbara knappar i botten av popup för att infoga textformatering (som fetstil, kursiv etc. och ångra / göra om knappar – även om du inaktiverar detta, kommer du att fortsätta att kunna infoga text-formatering via kortkommandon.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': 'Sök…',
     'sort-by-button': 'Sortera efter…',
     'sort-by-az-button': 'Namn: A-Ö',

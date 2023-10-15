@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'Pokud je povoleno, můžete uložit poznámky také pro "subdomény": <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Zobrazit HTML textové formátování ve vyskakovacím okně',
     'html-text-formatting-detailed': 'Pokud je povoleno, uvidíte některá užitečná tlačítka v dolní části vyskakovacího okna pro vložení textového formátování (jako tučný, kurzíva, atd. a vrátit zpět tlačítka - i když toto zakážete, budete moci nadále vkládat textové formátování pomocí klávesových zkratek.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': 'Hledat…',
     'sort-by-button': 'Seřadit podle…',
     'sort-by-az-button': 'Jméno: A-Z',

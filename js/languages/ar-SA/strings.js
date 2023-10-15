@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'عند التمكين يمكنك حفظ الملاحظات أيضا لكل "نطاقات فرعية" مثل: <span class=\'url-small\'>https://example.page/a-page/*</span>، <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'إظهار لوحة تنسيق نص HTML في النافذة المنبثقة',
     'html-text-formatting-detailed': 'عند تمكينك سوف ترى بعض الأزرار المفيدة في أسفل النوافذ المنبثقة لإدراج تنسيق النص (مثل الخط الداكن، الخط المائل، إلخ. و أزرار التراجع/إعادة الدو- على الرغم من تعطيل هذا، سوف تستمر في القدرة على إدراج تنسيق النصوص عن طريق اختصارات لوحة المفاتيح.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': 'البحث…',
     'sort-by-button': 'فرز حسب…',
     'sort-by-az-button': 'الاسم: A-Z',

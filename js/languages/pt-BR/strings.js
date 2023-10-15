@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'Quando ativado, você pode salvar as notas também por "subdomínios" como: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Mostrar painel de formatação de texto HTML no popup',
     'html-text-formatting-detailed': 'Quando ativado, você verá alguns botões úteis na parte inferior do pop-up para inserir a formatação de texto (como negrito, itálico, etc. e desfazer/refazer botões - embora você desative isso, você continuará capaz de inserir a formatação de texto através dos atalhos de teclado.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': 'Procurar…',
     'sort-by-button': 'Ordenar por…',
     'sort-by-az-button': 'Nome: A-Z',

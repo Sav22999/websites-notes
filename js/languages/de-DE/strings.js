@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'Wenn aktiviert, können Sie Notizen auch per "Subdomains" wie z.B. <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span> speichern.',
     'html-text-formatting': 'HTML-Textformatierungsfeld im Popup anzeigen',
     'html-text-formatting-detailed': 'Wenn aktiviert, sehen Sie einige nützliche Schaltflächen am unteren Rand des Popups, um Textformatierung (wie fett, kursiv, etc.) einzufügen. und Rückgängig-Knöpfe – obwohl Sie dies deaktivieren, können Sie weiterhin Textformatierung über Tastaturkürzel einfügen.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': 'Suche…',
     'sort-by-button': 'Sortieren nach…',
     'sort-by-az-button': 'Name: A-Z',

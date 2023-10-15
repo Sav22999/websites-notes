@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'Wanneer ingeschakeld, kunt u notities opslaan per "sub-domeinen" zoals: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Toon HTML tekstopmaak paneel in de popup',
     'html-text-formatting-detailed': 'Wanneer ingeschakeld, zie je enkele handige knoppen onderaan de popup om tekstopmaak in te voegen (zoals vet, cursief etc. en ongedaan maken/opnieuw maken knoppen – hoewel je dit uitschakelt, blijf je in staat om tekst-opmaak toe te voegen via sneltoetsen.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': 'Zoek…',
     'sort-by-button': 'Sorteren op…',
     'sort-by-az-button': 'Naam: A-Z',

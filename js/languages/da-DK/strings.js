@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'Når aktiveret kan du også gemme noter pr. "underdomæner" som: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Vis HTML tekstformateringspanel i popup',
     'html-text-formatting-detailed': 'Når aktiveret vil du se nogle nyttige knapper i bunden af popup for at indsætte tekstformatering (som fed, kursiv osv. og fortryd / redo knapper – selvom du deaktiverer dette, vil du fortsat være i stand til at indsætte tekstformatering via tastaturgenveje.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': 'Søg…',
     'sort-by-button': 'Sorter efter…',
     'sort-by-az-button': 'Navn: A-Z',

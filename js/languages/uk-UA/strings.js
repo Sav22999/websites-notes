@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'При включенні ви можете зберігати нотатки також за "піддомена": <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Показувати панель форматування HTML тексту в виринаючому вікні',
     'html-text-formatting-detailed': 'При включенні ви побачите деякі корисні кнопки у нижній частині спливаючого вікна для вставки форматування тексту (наприклад: bold, italic, і т. д. і кнопки undo/redo - хоча ви це вимкнете, ви будете продовжувати мати можливість вставити текстове форматування через ярлики клавіатури.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': 'Пошук…',
     'sort-by-button': 'Сортувати за…',
     'sort-by-az-button': 'Назва: А-Я',

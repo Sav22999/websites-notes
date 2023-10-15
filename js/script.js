@@ -339,10 +339,11 @@ function loadSettings() {
 
             if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
             if (settings_json["advanced-managing"] === "yes") advanced_managing = true;
+            else advanced_managing = false;
 
             if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
-            if (settings_json["html-text-formatting"] === "yes") advanced_managing = true;
-            else advanced_managing = false;
+
+            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
         }
 
         continueLoaded();
@@ -902,6 +903,17 @@ function loadFormatButtons(navigation = true, format = true) {
 
     if (format) {
         spellcheck(force = true, value = true);
+    }
+
+    let disable_word_wrap = false;
+    if (settings_json["disable-word-wrap"] !== undefined) {
+        if (settings_json["disable-word-wrap"] === "yes") disable_word_wrap = true;
+        else disable_word_wrap = false;
+    }
+    if (disable_word_wrap) {
+        document.getElementById("notes").style.whiteSpace = "none";
+    } else {
+        document.getElementById("notes").style.whiteSpace = "pre-wrap";
     }
 }
 

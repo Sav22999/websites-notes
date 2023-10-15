@@ -65,6 +65,7 @@ strings[lang] = {
     'advanced-managing-detailed': 'Kun käytössä, voit tallentaa muistiinpanoja myös "sub-domains": <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Näytä HTML-tekstin muotoilupaneeli ponnahdusikkunassa',
     'html-text-formatting-detailed': 'Kun käytössä, näet joitakin hyödyllisiä painikkeita popup alareunassa lisätä tekstin muotoilu (kuten lihavoitu, kursiivi, jne. ja kumoa tai kumoa painikkeet – vaikka poistat tämän käytöstä, voit edelleen lisätä tekstimuotoilua näppäimistön pikakuvakkeiden avulla.',
+    'disable-word-wrap': 'Disable word-wrap notes text',
     'search-textbox': 'Hae…',
     'sort-by-button': 'Järjestä…',
     'sort-by-az-button': 'Nimi: A-Z',
