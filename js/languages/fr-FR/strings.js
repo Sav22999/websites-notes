@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Frappe',
     'label-title-undo': 'Annuler',
     'label-title-redo': 'Refaire',
-    'label-title-spellcheck': 'Vérification orthographique de la langue'
+    'label-title-spellcheck': 'Vérification orthographique de la langue',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

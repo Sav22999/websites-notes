@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Strikethrough',
     'label-title-undo': 'Undo',
     'label-title-redo': 'Redo',
-    'label-title-spellcheck': 'Language spellcheck'
+    'label-title-spellcheck': 'Language spellcheck',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

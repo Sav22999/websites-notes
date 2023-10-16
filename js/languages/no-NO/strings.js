@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Gjennomstreking',
     'label-title-undo': 'Angre',
     'label-title-redo': 'Gjenta',
-    'label-title-spellcheck': 'Språkstavekontroll'
+    'label-title-spellcheck': 'Språkstavekontroll',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

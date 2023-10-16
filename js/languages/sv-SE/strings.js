@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Genomstruken',
     'label-title-undo': 'Ångra',
     'label-title-redo': 'Gör om',
-    'label-title-spellcheck': 'Språkinställningskontroll'
+    'label-title-spellcheck': 'Språkinställningskontroll',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

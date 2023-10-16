@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': '删除线',
     'label-title-undo': '撤消操作',
     'label-title-redo': '重做',
-    'label-title-spellcheck': '语言拼写检查'
+    'label-title-spellcheck': '语言拼写检查',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Úderná',
     'label-title-undo': 'Zpět',
     'label-title-redo': 'Znovu',
-    'label-title-spellcheck': 'Kontrola pravopisu jazyka'
+    'label-title-spellcheck': 'Kontrola pravopisu jazyka',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

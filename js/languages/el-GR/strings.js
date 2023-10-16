@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Επιγράμμιση',
     'label-title-undo': 'Αναίρεση',
     'label-title-redo': 'Επανάληψη',
-    'label-title-spellcheck': 'Ορθογραφικός έλεγχος γλώσσας'
+    'label-title-spellcheck': 'Ορθογραφικός έλεγχος γλώσσας',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Barrato',
     'label-title-undo': 'Annulla',
     'label-title-redo': 'Ripeti',
-    'label-title-spellcheck': 'Controllo ortografico lingua'
+    'label-title-spellcheck': 'Controllo ortografico lingua',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

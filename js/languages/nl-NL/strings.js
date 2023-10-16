@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Doorhalen',
     'label-title-undo': 'Herstel',
     'label-title-redo': 'Opnieuw',
-    'label-title-spellcheck': 'Taal spellingcontrole'
+    'label-title-spellcheck': 'Taal spellingcontrole',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Yliviivaus',
     'label-title-undo': 'Kumoa',
     'label-title-redo': 'Toista',
-    'label-title-spellcheck': 'Kielen oikeinkirjoitus'
+    'label-title-spellcheck': 'Kielen oikeinkirjoitus',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

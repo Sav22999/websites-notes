@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'ضربة',
     'label-title-undo': 'التراجع',
     'label-title-redo': 'إعادة',
-    'label-title-spellcheck': 'التدقيق الإملائي للغة'
+    'label-title-spellcheck': 'التدقيق الإملائي للغة',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

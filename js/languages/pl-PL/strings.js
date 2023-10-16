@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Przekreślenie',
     'label-title-undo': 'Cofnij',
     'label-title-redo': 'Ponów',
-    'label-title-spellcheck': 'Sprawdzanie pisowni języków'
+    'label-title-spellcheck': 'Sprawdzanie pisowni języków',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

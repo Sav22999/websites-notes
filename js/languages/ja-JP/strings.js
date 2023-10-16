@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': '取り消し線',
     'label-title-undo': '元に戻す',
     'label-title-redo': 'Redo',
-    'label-title-spellcheck': '言語のスペルチェック'
+    'label-title-spellcheck': '言語のスペルチェック',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

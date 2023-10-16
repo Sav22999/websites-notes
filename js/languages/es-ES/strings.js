@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Tachado',
     'label-title-undo': 'Deshacer',
     'label-title-redo': 'Rehacer',
-    'label-title-spellcheck': 'Corrección ortográfica del idioma'
+    'label-title-spellcheck': 'Corrección ortográfica del idioma',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

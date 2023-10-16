@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Закреслений',
     'label-title-undo': 'Скасувати',
     'label-title-redo': 'Повторити дію',
-    'label-title-spellcheck': 'Перевірка орфографії'
+    'label-title-spellcheck': 'Перевірка орфографії',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

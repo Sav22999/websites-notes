@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Riscado',
     'label-title-undo': 'Desfazer',
     'label-title-redo': 'Refazer',
-    'label-title-spellcheck': 'Verificação ortográfica'
+    'label-title-spellcheck': 'Verificação ortográfica',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

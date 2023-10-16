@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Зачёркнутый',
     'label-title-undo': 'Отменить',
     'label-title-redo': 'Повторить',
-    'label-title-spellcheck': 'Проверка орфографии языка'
+    'label-title-spellcheck': 'Проверка орфографии языка',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

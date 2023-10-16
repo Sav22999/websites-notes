@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Tăiat',
     'label-title-undo': 'Anulează',
     'label-title-redo': 'Reface',
-    'label-title-spellcheck': 'Verificare limbă'
+    'label-title-spellcheck': 'Verificare limbă',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

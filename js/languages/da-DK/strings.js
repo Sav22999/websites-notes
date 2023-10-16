@@ -112,5 +112,6 @@ strings[lang] = {
     'label-title-strikethrough': 'Gennemstreget',
     'label-title-undo': 'Fortryd',
     'label-title-redo': 'Gendan',
-    'label-title-spellcheck': 'Sprog stavekontrol'
+    'label-title-spellcheck': 'Sprog stavekontrol',
+    'label-results-for': 'Results for:  {{keywords}}'
 };
