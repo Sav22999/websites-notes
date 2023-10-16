@@ -123,7 +123,7 @@ function loaded() {
             loadDataFromBrowser(true);
         }
         document.getElementById("settings-all-notes-button").onclick = function () {
-            browser.tabs.create({url: "../settings/index.html"});
+            window.open("../settings/index.html", "_self");
         }
         document.getElementById("buy-me-a-coffee-button").onclick = function () {
             browser.tabs.create({url: links["donate"]});
