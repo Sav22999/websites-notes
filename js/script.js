@@ -277,10 +277,10 @@ function loadUI() {
 }
 
 function notesGotFocus() {
-    
+    hideTabSubDomains();
 }
 function notesLostFocus() {
-
+    //
 }
 
 function showTabSubDomains() {
