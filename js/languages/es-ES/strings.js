@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'Cuando está habilitado, puedes guardar notas también por "sub-dominios" como: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Mostrar el panel de formato de texto HTML en la ventana emergente',
     'html-text-formatting-detailed': 'Cuando esté habilitado, verá algunos botones útiles en la parte inferior de la ventana emergente para insertar formato de texto (como negrita, cursiva, etc. y botones de deshacer/rehacer – aunque lo desactiva, seguirá siendo capaz de insertar el formato de texto mediante atajos de teclado.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Desactivar texto de notas de palabras',
+    'spellcheck-detection': 'Habilitada la desactivación ortográfica de idioma para obtener notas',
     'search-textbox': 'Buscar…',
     'sort-by-button': 'Ordenar por…',
     'sort-by-az-button': 'Nombre: A-Z',
@@ -104,5 +105,12 @@ strings[lang] = {
     'theme-detailed-text': 'Si eliges {{property1}} , esto significa que el tema no está optimizado para el complemento, aunque intentará usar el mismo tema correctamente.',
     'theme-choose-light-select': 'Claro',
     'theme-choose-dark-select': 'Oscuro',
-    'theme-choose-firefox-select': 'Sigue el tema de Firefox'
+    'theme-choose-firefox-select': 'Sigue el tema de Firefox',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Bajo línea',
+    'label-title-strikethrough': 'Tachado',
+    'label-title-undo': 'Deshacer',
+    'label-title-redo': 'Rehacer',
+    'label-title-spellcheck': 'Corrección ortográfica del idioma'
 };

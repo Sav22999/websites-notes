@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'При включенні ви можете зберігати нотатки також за "піддомена": <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Показувати панель форматування HTML тексту в виринаючому вікні',
     'html-text-formatting-detailed': 'При включенні ви побачите деякі корисні кнопки у нижній частині спливаючого вікна для вставки форматування тексту (наприклад: bold, italic, і т. д. і кнопки undo/redo - хоча ви це вимкнете, ви будете продовжувати мати можливість вставити текстове форматування через ярлики клавіатури.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Вимкнути текст заміни примітки до словника',
+    'spellcheck-detection': 'Увімкнути мовне виявлення орфографії для нотаток',
     'search-textbox': 'Пошук…',
     'sort-by-button': 'Сортувати за…',
     'sort-by-az-button': 'Назва: А-Я',
@@ -104,5 +105,12 @@ strings[lang] = {
     'theme-detailed-text': 'Якщо ви оберете {{property1}} , це означає, що тема не оптимізована для додатку, хоча вона намагатиметься використовувати ту ж тему правильно.',
     'theme-choose-light-select': 'Світла',
     'theme-choose-dark-select': 'Темна',
-    'theme-choose-firefox-select': 'Дотримуйтесь теми Firefox'
+    'theme-choose-firefox-select': 'Дотримуйтесь теми Firefox',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Підкреслений',
+    'label-title-strikethrough': 'Закреслений',
+    'label-title-undo': 'Скасувати',
+    'label-title-redo': 'Повторити дію',
+    'label-title-spellcheck': 'Перевірка орфографії'
 };

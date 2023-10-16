@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'Gdy włączone, możesz zapisać notatki również dla "poddomeny", takie jak: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Pokaż panel formatowania HTML w wyskakującym oknie',
     'html-text-formatting-detailed': 'Gdy włączone, zobaczysz kilka przydatnych przycisków na dole wyskakujących okienek, aby wstawić formatowanie tekstu (jak pogrubiony, kursywę itp. i cofnij / ponów przyciski - chociaż to wyłączasz, nadal będziesz mógł wstawiać formatowanie tekstowe za pomocą skrótów klawiaturowych.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Wyłącz tekst notatek na słowo',
+    'spellcheck-detection': 'Włączone wykrywanie pisowni językowych dla notatek',
     'search-textbox': 'Szukaj…',
     'sort-by-button': 'Sortuj wg…',
     'sort-by-az-button': 'Nazwa: A-Z',
@@ -104,5 +105,12 @@ strings[lang] = {
     'theme-detailed-text': 'Jeśli wybierzesz {{property1}} , oznacza to, że motyw nie jest zoptymalizowany dla dodatku, chociaż spróbuje użyć tego samego motywu poprawnie.',
     'theme-choose-light-select': 'Jasny',
     'theme-choose-dark-select': 'Ciemny',
-    'theme-choose-firefox-select': 'Śledź motyw Firefoksa'
+    'theme-choose-firefox-select': 'Śledź motyw Firefoksa',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Podkreślenie',
+    'label-title-strikethrough': 'Przekreślenie',
+    'label-title-undo': 'Cofnij',
+    'label-title-redo': 'Ponów',
+    'label-title-spellcheck': 'Sprawdzanie pisowni języków'
 };

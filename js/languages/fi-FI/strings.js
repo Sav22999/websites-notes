@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'Kun käytössä, voit tallentaa muistiinpanoja myös "sub-domains": <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Näytä HTML-tekstin muotoilupaneeli ponnahdusikkunassa',
     'html-text-formatting-detailed': 'Kun käytössä, näet joitakin hyödyllisiä painikkeita popup alareunassa lisätä tekstin muotoilu (kuten lihavoitu, kursiivi, jne. ja kumoa tai kumoa painikkeet – vaikka poistat tämän käytöstä, voit edelleen lisätä tekstimuotoilua näppäimistön pikakuvakkeiden avulla.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Poista tekstikenttä käytöstä',
+    'spellcheck-detection': 'Käytössä kielen oikoluku tunnistus muistiinpanoja varten',
     'search-textbox': 'Hae…',
     'sort-by-button': 'Järjestä…',
     'sort-by-az-button': 'Nimi: A-Z',
@@ -104,5 +105,12 @@ strings[lang] = {
     'theme-detailed-text': 'Jos valitset {{property1}} tämä tarkoittaa, että teema ei ole optimoitu lisäosalle, vaikka se yrittää käyttää samaa teemaa oikein.',
     'theme-choose-light-select': 'Vaalea',
     'theme-choose-dark-select': 'Tumma',
-    'theme-choose-firefox-select': 'Seuraa Firefoxin teemaa'
+    'theme-choose-firefox-select': 'Seuraa Firefoxin teemaa',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Alleviivaa',
+    'label-title-strikethrough': 'Yliviivaus',
+    'label-title-undo': 'Kumoa',
+    'label-title-redo': 'Toista',
+    'label-title-spellcheck': 'Kielen oikeinkirjoitus'
 };

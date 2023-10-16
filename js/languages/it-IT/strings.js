@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'Quando abilitato puoi salvare le note anche per "sotto-dominio" come: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Mostra il pannello di formattazione del testo HTML nel popup',
     'html-text-formatting-detailed': 'Quando abilitato vedrai alcuni pulsanti utili nella parte inferiore del popup per inserire la formattazione del testo (come grassetto, corsivo, ecc. e i pulsanti annulla/ripeti – anche se disabilitate, continuerai ad essere in grado di inserire la formattazione del testo tramite le scorciatoie da tastiera.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Disabilita il testo delle note a capo automatico',
+    'spellcheck-detection': 'Abilitato controllo ortografico per le note',
     'search-textbox': 'Cerca…',
     'sort-by-button': 'Ordina per…',
     'sort-by-az-button': 'Nome: A-Z',
@@ -104,5 +105,12 @@ strings[lang] = {
     'theme-detailed-text': 'Se scegli {{property1}} questo significa che il tema non sarà ottimizzato per il componente aggiuntivo anche se si proverà a usare lo stesso tema del browser.',
     'theme-choose-light-select': 'Chiaro',
     'theme-choose-dark-select': 'Scuro',
-    'theme-choose-firefox-select': 'Segui il tema di Firefox'
+    'theme-choose-firefox-select': 'Segui il tema di Firefox',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Sottolineato',
+    'label-title-strikethrough': 'Barrato',
+    'label-title-undo': 'Annulla',
+    'label-title-redo': 'Ripeti',
+    'label-title-spellcheck': 'Controllo ortografico lingua'
 };

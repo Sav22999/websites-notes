@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'Όταν ενεργοποιηθεί, μπορείτε να αποθηκεύσετε σημειώσεις και ανά "subdomains" όπως: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Εμφάνιση πίνακα μορφοποίησης κειμένου HTML στο αναδυόμενο παράθυρο',
     'html-text-formatting-detailed': 'Όταν ενεργοποιηθεί, θα δείτε μερικά χρήσιμα κουμπιά στο κάτω μέρος του αναδυόμενου παραθύρου για την εισαγωγή μορφοποίησης κειμένου (όπως τολμηρή, πλάγια, κλπ. και τα κουμπιά αναίρεσης/αναίρεσης – αν και το απενεργοποιήσετε, θα συνεχίσετε να είστε σε θέση να εισάγετε μορφοποίηση κειμένου μέσω συντομεύσεων πληκτρολογίου.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Απενεργοποίηση κειμένου αναδίπλωσης λέξεων',
+    'spellcheck-detection': 'Ενεργοποιημένος εντοπισμός ορθογραφικού ελέγχου γλώσσας για σημειώσεις',
     'search-textbox': 'Αναζήτηση…',
     'sort-by-button': 'Ταξινόμηση κατά…',
     'sort-by-az-button': 'Όνομα: A-Z',
@@ -104,5 +105,12 @@ strings[lang] = {
     'theme-detailed-text': 'Αν επιλέξετε {{property1}} αυτό σημαίνει ότι το θέμα δεν είναι βελτιστοποιημένο για το πρόσθετο αν και θα προσπαθήσει να χρησιμοποιήσει το ίδιο θέμα σωστά.',
     'theme-choose-light-select': 'Φωτεινό',
     'theme-choose-dark-select': 'Σκοτεινό',
-    'theme-choose-firefox-select': 'Ακολουθήστε το θέμα του Firefox'
+    'theme-choose-firefox-select': 'Ακολουθήστε το θέμα του Firefox',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Υπογράμμιση',
+    'label-title-strikethrough': 'Επιγράμμιση',
+    'label-title-undo': 'Αναίρεση',
+    'label-title-redo': 'Επανάληψη',
+    'label-title-spellcheck': 'Ορθογραφικός έλεγχος γλώσσας'
 };
