@@ -68,7 +68,7 @@ strings[lang] = {
     "html-text-formatting": "Show HTML text-formatting panel in the popup",
     "html-text-formatting-detailed": "When enabled you will see some useful buttons in the bottom of popup to insert text formatting (like bold, italic, etc.) and undo/redo buttons – although you disable this, you will continue to be able to insert text-formatting via keyboard shortcuts.",
     "disable-word-wrap": "Disable word-wrap notes text",
-    "spellcheck-detection": "Enabled language spellcheck detecntion for notes",
+    "spellcheck-detection": "Enabled language spellcheck detection for notes",
     "search-textbox": "Search…",
     "sort-by-button": "Sort by…",
     "sort-by-az-button": "Name: A-Z", //from website "a" to "z"
