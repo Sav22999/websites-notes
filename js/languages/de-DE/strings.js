@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'Wenn aktiviert, können Sie Notizen auch per "Subdomains" wie z.B. <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span> speichern.',
     'html-text-formatting': 'HTML-Textformatierungsfeld im Popup anzeigen',
     'html-text-formatting-detailed': 'Wenn aktiviert, sehen Sie einige nützliche Schaltflächen am unteren Rand des Popups, um Textformatierung (wie fett, kursiv, etc.) einzufügen. und Rückgängig-Knöpfe – obwohl Sie dies deaktivieren, können Sie weiterhin Textformatierung über Tastaturkürzel einfügen.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Text der Wort-Wrap-Notizen deaktivieren',
+    'spellcheck-detection': 'Sprach-Rechtschreibprüfung für Notizen aktiviert',
     'search-textbox': 'Suche…',
     'sort-by-button': 'Sortieren nach…',
     'sort-by-az-button': 'Name: A-Z',
@@ -104,5 +105,13 @@ strings[lang] = {
     'theme-detailed-text': 'Wenn Sie {{property1}} wählen, bedeutet dies, dass das Theme nicht für das Add-on optimiert ist, obwohl es versucht, das gleiche Theme korrekt zu verwenden.',
     'theme-choose-light-select': 'Hell',
     'theme-choose-dark-select': 'Dunkel',
-    'theme-choose-firefox-select': 'Folgen Sie dem Firefox-Theme'
+    'theme-choose-firefox-select': 'Folgen Sie dem Firefox-Theme',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Unterstrichen',
+    'label-title-strikethrough': 'Durchstreichen',
+    'label-title-undo': 'Rückgängig',
+    'label-title-redo': 'Wiederholen',
+    'label-title-spellcheck': 'Rechtschreibprüfung',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

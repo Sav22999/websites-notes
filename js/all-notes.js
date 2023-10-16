@@ -860,7 +860,7 @@ function isUrlSupported(url) {
 }
 
 function applyFilter() {
-    search(document.getElementById("search-all-notes-text").value.replaceAll(" ", ""));
+    search(document.getElementById("search-all-notes-text").value);
 }
 
 function search(value = "") {
@@ -868,7 +868,20 @@ function search(value = "") {
         //console.log(JSON.stringify(websites_json_to_show))
         websites_json_to_show = {};
         document.getElementById("search-all-notes-text").value = value.toString();
-        let valueToUse = value.toLowerCase();
+        let valueToUse = value.toLowerCase().split(";");
+        let results = document.getElementById("results-searching");
+        let keywordsHTML = "";
+        let valid_results = 0;
+        valueToUse.forEach(key => {
+            if (key.replaceAll(" ", "") !== "") {
+                keywordsHTML += `<span class='button-code result-button'>${key}</span>`;
+                valid_results++;
+            }
+        });
+        results.innerHTML = all_strings["label-results-for"].replaceAll("{{keywords}}", keywordsHTML);
+        if (valid_results > 0) {
+            if (results.classList.contains("hidden")) results.classList.remove("hidden");
+        } else results.classList.add("hidden");
         for (const website in websites_json) {
             let current_website_json = websites_json[website];
             let condition_tag_color = filtersColors.indexOf(current_website_json["tag-colour"].toLowerCase()) !== -1 || filtersColors.length === 0;
@@ -876,9 +889,14 @@ function search(value = "") {
             //if (condition_type) console.log(getType(websites_json[website], website) + "   " + JSON.stringify(websites_json[website]))
             let title_to_use = "";
             if (current_website_json["title"] !== undefined) title_to_use = current_website_json["title"].toLowerCase();
-            if ((current_website_json["notes"].toLowerCase().includes(valueToUse) || current_website_json["domain"].toLowerCase().includes(valueToUse) || current_website_json["last-update"].toLowerCase().includes(valueToUse) || title_to_use.includes(valueToUse) || website.includes(valueToUse)) && condition_tag_color && condition_type) {
-                websites_json_to_show[website] = websites_json[website];
-            }
+            valueToUse.forEach(key => {
+                if (valid_results > 0 && key.replaceAll(" ", "") !== "" || valid_results === 0) {
+                    if ((current_website_json["notes"].toLowerCase().includes(key) || current_website_json["domain"].toLowerCase().includes(key) || current_website_json["last-update"].toLowerCase().includes(key) || title_to_use.includes(key) || website.includes(key)) && condition_tag_color && condition_type) {
+                        websites_json_to_show[website] = websites_json[website];
+                    }
+                }
+            });
+            console.log(valueToUse)
         }
         loadAllWebsites(true, sort_by_selected, false);
     } catch (e) {

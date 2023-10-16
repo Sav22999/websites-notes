@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': '有効にすると、以下のような "sub-domains" でもノートを保存できます: <span class=\'url-small\'>https://example.page/a-page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'ポップアップにHTMLテキスト書式設定パネルを表示する',
     'html-text-formatting-detailed': '有効にすると、ポップアップの下部にテキスト書式を挿入するための便利なボタンが表示されます (太字、斜体など)。 そして元に戻す/やり直しボタン – これを無効にすると、キーボードショートカットを介してテキスト書式を挿入することができます。',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'ノートの単語ラップを無効にする',
+    'spellcheck-detection': 'メモのスペルチェックを有効にする',
     'search-textbox': '検索…',
     'sort-by-button': '… でソート',
     'sort-by-az-button': '名前: A-Z',
@@ -104,5 +105,13 @@ strings[lang] = {
     'theme-detailed-text': '{{property1}} を選択した場合、テーマは同じテーマを正しく使用しようとしますが、アドオンに最適化されていないことを意味します。',
     'theme-choose-light-select': 'ライト',
     'theme-choose-dark-select': 'ダーク',
-    'theme-choose-firefox-select': 'Firefoxテーマをフォロー'
+    'theme-choose-firefox-select': 'Firefoxテーマをフォロー',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'アンダーライン',
+    'label-title-strikethrough': '取り消し線',
+    'label-title-undo': '元に戻す',
+    'label-title-redo': 'Redo',
+    'label-title-spellcheck': '言語のスペルチェック',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

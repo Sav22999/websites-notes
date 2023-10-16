@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'Når aktivert kan du lagre notater som også er per "underdomener" som: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Vis HTML tekst-formateringspanel i popup',
     'html-text-formatting-detailed': 'Når aktivert vil du se noen nyttige knapper nederst i sprettoppvinduet for å sette inn tekstformatering (som fet til, kursiv osv. og angre/redo-knapper – selv om du deaktiverer dette, vil du fortsette å kunne sette inn tekstformatering via tastatursnarveier.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Deaktiver tekst for lydbryting av notater',
+    'spellcheck-detection': 'Aktiverte språk stavekontrolldetektering for notater',
     'search-textbox': 'Søk…',
     'sort-by-button': 'Sorter etter…',
     'sort-by-az-button': 'Navn: A-Å',
@@ -104,5 +105,13 @@ strings[lang] = {
     'theme-detailed-text': 'Hvis du velger {{property1}} betyr betyr at temaet ikke er optimalisert for tillegg selv om det vil forsøke å bruke samme tema riktig.',
     'theme-choose-light-select': 'Lys',
     'theme-choose-dark-select': 'Mørk',
-    'theme-choose-firefox-select': 'Følg Firefox-temaet'
+    'theme-choose-firefox-select': 'Følg Firefox-temaet',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Understreking',
+    'label-title-strikethrough': 'Gjennomstreking',
+    'label-title-undo': 'Angre',
+    'label-title-redo': 'Gjenta',
+    'label-title-spellcheck': 'Språkstavekontroll',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

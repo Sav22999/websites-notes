@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'Wanneer ingeschakeld, kunt u notities opslaan per "sub-domeinen" zoals: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Toon HTML tekstopmaak paneel in de popup',
     'html-text-formatting-detailed': 'Wanneer ingeschakeld, zie je enkele handige knoppen onderaan de popup om tekstopmaak in te voegen (zoals vet, cursief etc. en ongedaan maken/opnieuw maken knoppen – hoewel je dit uitschakelt, blijf je in staat om tekst-opmaak toe te voegen via sneltoetsen.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Tekst tekstomslag uitschakelen',
+    'spellcheck-detection': 'Ingeschakelde taalspellingscontrole detectie voor notities',
     'search-textbox': 'Zoek…',
     'sort-by-button': 'Sorteren op…',
     'sort-by-az-button': 'Naam: A-Z',
@@ -104,5 +105,13 @@ strings[lang] = {
     'theme-detailed-text': 'Als u {{property1}} kiest, betekent dit dat het thema niet geoptimaliseerd is voor de add-on, hoewel het zal proberen hetzelfde thema correct te gebruiken.',
     'theme-choose-light-select': 'Licht',
     'theme-choose-dark-select': 'Donker',
-    'theme-choose-firefox-select': 'Volg het Firefox thema'
+    'theme-choose-firefox-select': 'Volg het Firefox thema',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Onderstrepen',
+    'label-title-strikethrough': 'Doorhalen',
+    'label-title-undo': 'Herstel',
+    'label-title-redo': 'Opnieuw',
+    'label-title-spellcheck': 'Taal spellingcontrole',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

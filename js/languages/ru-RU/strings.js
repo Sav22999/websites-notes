@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'При включении вы можете сохранять заметки также в поддоменах: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>',
     'html-text-formatting': 'Показывать панель форматирования HTML во всплывающем окне',
     'html-text-formatting-detailed': 'Когда включено, вы увидите некоторые полезные кнопки внизу всплывающего окна для вставки форматирования текста (как полужир, курсив и т.д. и кнопки отмены/повтора – хотя вы отключили эту опцию, вы по-прежнему сможете вставить текстовое форматирование с помощью клавиатурных клавиш.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Отключить перенос текста заметок',
+    'spellcheck-detection': 'Обнаружение проверки орфографии для заметок',
     'search-textbox': 'Поиск…',
     'sort-by-button': 'Сортировать по…',
     'sort-by-az-button': 'Название: А-Я',
@@ -104,5 +105,13 @@ strings[lang] = {
     'theme-detailed-text': 'Если вы выбрали {{property1}} , это означает, что тема не оптимизирована для дополнения, хотя она попытается правильно использовать ту же тему.',
     'theme-choose-light-select': 'Светлая',
     'theme-choose-dark-select': 'Темная',
-    'theme-choose-firefox-select': 'Следить за темой Firefox'
+    'theme-choose-firefox-select': 'Следить за темой Firefox',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Подчёркивание',
+    'label-title-strikethrough': 'Зачёркнутый',
+    'label-title-undo': 'Отменить',
+    'label-title-redo': 'Повторить',
+    'label-title-spellcheck': 'Проверка орфографии языка',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

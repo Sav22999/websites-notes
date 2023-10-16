@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'När den är aktiverad kan du spara anteckningar även per "underdomäner" som: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Visa HTML-textformateringspanel i popup-fönstret',
     'html-text-formatting-detailed': 'När den är aktiverad kommer du att se några användbara knappar i botten av popup för att infoga textformatering (som fetstil, kursiv etc. och ångra / göra om knappar – även om du inaktiverar detta, kommer du att fortsätta att kunna infoga text-formatering via kortkommandon.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Inaktivera text för ord-wrap',
+    'spellcheck-detection': 'Aktiverad spellcheck detektering av språk för anteckningar',
     'search-textbox': 'Sök…',
     'sort-by-button': 'Sortera efter…',
     'sort-by-az-button': 'Namn: A-Ö',
@@ -104,5 +105,13 @@ strings[lang] = {
     'theme-detailed-text': 'Om du väljer {{property1}} betyder detta att temat inte är optimerat för tillägget även om det kommer att försöka använda samma tema korrekt.',
     'theme-choose-light-select': 'Ljust',
     'theme-choose-dark-select': 'Mörkt',
-    'theme-choose-firefox-select': 'Följ Firefox tema'
+    'theme-choose-firefox-select': 'Följ Firefox tema',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Understruken',
+    'label-title-strikethrough': 'Genomstruken',
+    'label-title-undo': 'Ångra',
+    'label-title-redo': 'Gör om',
+    'label-title-spellcheck': 'Språkinställningskontroll',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

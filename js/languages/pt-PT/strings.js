@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'Quando ativado, você pode salvar as notas também por "subdomínios" como: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Mostrar painel de formatação de texto HTML no popup',
     'html-text-formatting-detailed': 'Quando ativado, você verá alguns botões úteis na parte inferior do pop-up para inserir a formatação de texto (como negrito, itálico, etc. e desfazer/refazer botões - embora você desative isso, você continuará capaz de inserir a formatação de texto através dos atalhos de teclado.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Desabilitar texto de notas com word-wrap',
+    'spellcheck-detection': 'Detecção de correção ortográfica de idioma habilitada para notas',
     'search-textbox': 'Procurar…',
     'sort-by-button': 'Ordenar por…',
     'sort-by-az-button': 'Nome: A-Z',
@@ -104,5 +105,13 @@ strings[lang] = {
     'theme-detailed-text': 'Se você escolher {{property1}} , isso significa que o tema não é otimizado para o complemento, embora ele tentará usar o mesmo tema corretamente.',
     'theme-choose-light-select': 'Claro',
     'theme-choose-dark-select': 'Escuro',
-    'theme-choose-firefox-select': 'Seguir o tema do Firefox'
+    'theme-choose-firefox-select': 'Seguir o tema do Firefox',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Sublinhar',
+    'label-title-strikethrough': 'Riscado',
+    'label-title-undo': 'Desfazer',
+    'label-title-redo': 'Refazer',
+    'label-title-spellcheck': 'Verificação ortográfica',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

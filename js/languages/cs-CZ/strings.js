@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'Pokud je povoleno, můžete uložit poznámky také pro "subdomény": <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Zobrazit HTML textové formátování ve vyskakovacím okně',
     'html-text-formatting-detailed': 'Pokud je povoleno, uvidíte některá užitečná tlačítka v dolní části vyskakovacího okna pro vložení textového formátování (jako tučný, kurzíva, atd. a vrátit zpět tlačítka - i když toto zakážete, budete moci nadále vkládat textové formátování pomocí klávesových zkratek.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Zakázat text poznámek ke slovu',
+    'spellcheck-detection': 'Kontrola pravopisu povolena u poznámek',
     'search-textbox': 'Hledat…',
     'sort-by-button': 'Seřadit podle…',
     'sort-by-az-button': 'Jméno: A-Z',
@@ -104,5 +105,13 @@ strings[lang] = {
     'theme-detailed-text': 'Pokud zvolíte {{property1}} , znamená to, že téma není optimalizováno pro doplněk, i když se pokusí použít stejný motiv správně.',
     'theme-choose-light-select': 'Světlý',
     'theme-choose-dark-select': 'Tmavý',
-    'theme-choose-firefox-select': 'Sledujte šablonu Firefoxu'
+    'theme-choose-firefox-select': 'Sledujte šablonu Firefoxu',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Podtrhnout',
+    'label-title-strikethrough': 'Úderná',
+    'label-title-undo': 'Zpět',
+    'label-title-redo': 'Znovu',
+    'label-title-spellcheck': 'Kontrola pravopisu jazyka',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

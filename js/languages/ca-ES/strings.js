@@ -66,6 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'Show HTML text-formatting panel in the popup',
     'html-text-formatting-detailed': 'When enabled you will see some useful buttons in the bottom of popup to insert text formatting (like bold, italic, etc.) and undo/redo buttons – although you disable this, you will continue to be able to insert text-formatting via keyboard shortcuts.',
     'disable-word-wrap': 'Disable word-wrap notes text',
+    'spellcheck-detection': 'Enabled language spellcheck detecntion for notes',
     'search-textbox': 'Search…',
     'sort-by-button': 'Sort by…',
     'sort-by-az-button': 'Name: A-Z',
@@ -104,5 +105,13 @@ strings[lang] = {
     'theme-detailed-text': 'If you choose {{property1}} this means the theme is not optimised for the add-on although it will try to use the same theme correctly.',
     'theme-choose-light-select': 'Clar',
     'theme-choose-dark-select': 'Fosc',
-    'theme-choose-firefox-select': 'Follow the Firefox theme'
+    'theme-choose-firefox-select': 'Follow the Firefox theme',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Underline',
+    'label-title-strikethrough': 'Strikethrough',
+    'label-title-undo': 'Undo',
+    'label-title-redo': 'Redo',
+    'label-title-spellcheck': 'Language spellcheck',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

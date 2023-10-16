@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'Lorsque cette option est activée, vous pouvez également enregistrer des notes par "sous-domaines" comme: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Afficher le panneau de mise en forme du texte HTML dans la popup',
     'html-text-formatting-detailed': 'Lorsque cette option est activée, vous verrez quelques boutons utiles en bas de popup pour insérer le formatage du texte (gras, italique, etc.). et les boutons Annuler/Refaire – même si vous désactivez ceci, vous pourrez continuer à insérer le formatage de texte via les raccourcis clavier.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Désactiver le texte des notes de retour de mot',
+    'spellcheck-detection': 'Détection de vérification orthographique de la langue activée pour les notes',
     'search-textbox': 'Rechercher…',
     'sort-by-button': 'Trier par…',
     'sort-by-az-button': 'Nom : A-Z',
@@ -104,5 +105,13 @@ strings[lang] = {
     'theme-detailed-text': 'Si vous choisissez {{property1}} , cela signifie que le thème n\'est pas optimisé pour le module, bien qu\'il tentera d\'utiliser le même thème correctement.',
     'theme-choose-light-select': 'Clair',
     'theme-choose-dark-select': 'Sombre',
-    'theme-choose-firefox-select': 'Suivez le thème Firefox'
+    'theme-choose-firefox-select': 'Suivez le thème Firefox',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Souligné',
+    'label-title-strikethrough': 'Frappe',
+    'label-title-undo': 'Annuler',
+    'label-title-redo': 'Refaire',
+    'label-title-spellcheck': 'Vérification orthographique de la langue',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'عند التمكين يمكنك حفظ الملاحظات أيضا لكل "نطاقات فرعية" مثل: <span class=\'url-small\'>https://example.page/a-page/*</span>، <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'إظهار لوحة تنسيق نص HTML في النافذة المنبثقة',
     'html-text-formatting-detailed': 'عند تمكينك سوف ترى بعض الأزرار المفيدة في أسفل النوافذ المنبثقة لإدراج تنسيق النص (مثل الخط الداكن، الخط المائل، إلخ. و أزرار التراجع/إعادة الدو- على الرغم من تعطيل هذا، سوف تستمر في القدرة على إدراج تنسيق النصوص عن طريق اختصارات لوحة المفاتيح.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'تعطيل نص ملاحظات الكلمات',
+    'spellcheck-detection': 'تمكين الكشف عن التدقيق الإملائي للغة للملاحظات',
     'search-textbox': 'البحث…',
     'sort-by-button': 'فرز حسب…',
     'sort-by-az-button': 'الاسم: A-Z',
@@ -104,5 +105,13 @@ strings[lang] = {
     'theme-detailed-text': 'إذا اخترت {{property1}} فهذا يعني أن السمة لم يتم تحسينها للإضافة، على الرغم من أنها ستحاول استخدام نفس السمة بشكل صحيح.',
     'theme-choose-light-select': 'فاتح',
     'theme-choose-dark-select': 'داكن',
-    'theme-choose-firefox-select': 'اتبع ثيم فايرفوكس'
+    'theme-choose-firefox-select': 'اتبع ثيم فايرفوكس',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'أسفل',
+    'label-title-strikethrough': 'ضربة',
+    'label-title-undo': 'التراجع',
+    'label-title-redo': 'إعادة',
+    'label-title-spellcheck': 'التدقيق الإملائي للغة',
+    'label-results-for': 'Results for:  {{keywords}}'
 };

@@ -65,7 +65,8 @@ strings[lang] = {
     'advanced-managing-detailed': 'Când este activată, puteți salva note și pe "sub-domenii" cum ar fi: <span class=\'url-small\'>https://example.page/a-page/*</span>, <span class=\'url-small\'> https://example.page/a-page/other-page/*</span>.',
     'html-text-formatting': 'Arată panoul de formatare text HTML în popup',
     'html-text-formatting-detailed': 'Când este activată, vei vedea unele butoane utile în partea de jos a popup-ului pentru a insera formatarea textului (cum ar fi bold, italic, etc. si butoane undo/redo - desi dezactivezi acest lucru, vei continua sa introduci formatarea textului prin comenzi rapide de tastatura.',
-    'disable-word-wrap': 'Disable word-wrap notes text',
+    'disable-word-wrap': 'Dezactivează textul cuvintelor-cadou notelor',
+    'spellcheck-detection': 'Detectare ortografie lingvistică activată pentru note',
     'search-textbox': 'Căutare…',
     'sort-by-button': 'Sortează după…',
     'sort-by-az-button': 'Nume: A-Z',
@@ -104,5 +105,13 @@ strings[lang] = {
     'theme-detailed-text': 'Dacă alegeți {{property1}} acest lucru înseamnă că tema nu este optimizată pentru extensie deși va încerca să folosească aceeași temă corect.',
     'theme-choose-light-select': 'Luminos',
     'theme-choose-dark-select': 'Întunecat',
-    'theme-choose-firefox-select': 'Urmărește tema Firefox'
+    'theme-choose-firefox-select': 'Urmărește tema Firefox',
+    'label-title-bold': 'Bold',
+    'label-title-italic': 'Italic',
+    'label-title-underline': 'Subliniere',
+    'label-title-strikethrough': 'Tăiat',
+    'label-title-undo': 'Anulează',
+    'label-title-redo': 'Reface',
+    'label-title-spellcheck': 'Verificare limbă',
+    'label-results-for': 'Results for:  {{keywords}}'
 };
