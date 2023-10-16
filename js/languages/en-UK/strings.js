@@ -68,6 +68,7 @@ strings[lang] = {
     "html-text-formatting": "Show HTML text-formatting panel in the popup",
     "html-text-formatting-detailed": "When enabled you will see some useful buttons in the bottom of popup to insert text formatting (like bold, italic, etc.) and undo/redo buttons – although you disable this, you will continue to be able to insert text-formatting via keyboard shortcuts.",
     "disable-word-wrap": "Disable word-wrap notes text",
+    "spellcheck-detection": "Enabled language spellcheck detecntion for notes",
     "search-textbox": "Search…",
     "sort-by-button": "Sort by…",
     "sort-by-az-button": "Name: A-Z", //from website "a" to "z"
@@ -103,4 +104,11 @@ strings[lang] = {
     "theme-choose-light-select": "Light",
     "theme-choose-dark-select": "Dark",
     "theme-choose-firefox-select": "Follow the Firefox theme",
+    "label-title-bold": "Bold",
+    "label-title-italic": "Italic",
+    "label-title-underline": "Underline",
+    "label-title-strikethrough": "Strikethrough",
+    "label-title-undo": "Undo",
+    "label-title-redo": "Redo",
+    "label-title-spellcheck": "Language spellcheck"
 }

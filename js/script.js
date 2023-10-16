@@ -204,10 +204,13 @@ function loadUI() {
             let sanitizedHTML = sanitizeHTML(pastedText)
             document.execCommand("insertHTML", false, sanitizedHTML);
         }
-        addAction()
+        addAction();
     }
     notes.onkeydown = function (e) {
-        if (actions.length === 0) actions.push({text: sanitizeHTML(notes.innerHTML), position: 0});
+        if (actions.length === 0) {
+            //first action on notes add the "initial state" of it
+            actions.push({text: sanitizeHTML(notes.innerHTML), position: 0});
+        }
 
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "z") {
             redo();
@@ -226,11 +229,23 @@ function loadUI() {
         }
     }
     notes.onkeyup = function (e) {
-        if (e.key !== "Meta" && e.key !== "Alt" && e.key !== "Control" && e.key !== "Shift") {
-            addAction()
+        if (e.key !== "Meta" && e.key !== "Alt" && e.key !== "Control" && e.key !== "Shift" && e.key !== "Tab") {
+            addAction();
             //console.log("Add action")
         }
     }
+    notes.onclick = function (e) {
+        hideTabSubDomains();
+        document.getElementById("notes").contentEditable = true;
+        addAction();
+    }
+    notes.onfocus=function (e) {
+        notesGotFocus();
+    }
+    notes.onblur=function (e) {
+        notesLostFocus();
+    }
+
     document.getElementById("all-notes-button").onclick = function () {
         browser.tabs.create({url: "./all-notes/index.html"});
         window.close();
@@ -261,12 +276,23 @@ function loadUI() {
     loadFormatButtons(false, false);
 }
 
+function notesGotFocus() {
+    
+}
+function notesLostFocus() {
+
+}
+
 function showTabSubDomains() {
+    document.getElementById("notes").contentEditable = false;
     let panel = document.getElementById("panel-other-tabs");
     let arrowDown = document.getElementById("arrow-down");
-    if (panel.classList.contains("hidden")) panel.classList.remove("hidden");
-    else {
+    if (panel.classList.contains("hidden")) {
+        panel.classList.remove("hidden");
+        document.getElementById("notes").contentEditable = false;
+    } else {
         panel.classList.add("hidden");
+        document.getElementById("notes").contentEditable = true;
         document.getElementById("notes").focus();
     }
 
@@ -289,6 +315,7 @@ function showTabSubDomains() {
 }
 
 function hideTabSubDomains() {
+    document.getElementById("notes").contentEditable = true;
     document.getElementById("notes").focus();
     document.getElementById("panel-other-tabs").classList.add("hidden");
     document.getElementById("subdomains-list").childNodes.forEach(node => {
@@ -301,10 +328,12 @@ function appendSubDomains(subdomains) {
     let list = document.getElementById("subdomains-list");
     list.innerHTML = "";
     showTabSubDomains();
+    let tabIndex = 0;
     subdomains.forEach(domain => {
         let newSubDomain = document.createElement("button");
         newSubDomain.classList.add("subdomain");
         newSubDomain.innerText = domain;
+        newSubDomain.tabIndex = tabIndex;
         let url = currentUrl[1] + domain;
         newSubDomain.onclick = function () {
             if (currentUrl.length === 3) currentUrl.push(url)
@@ -317,6 +346,7 @@ function appendSubDomains(subdomains) {
 }
 
 function addAction() {
+    hideTabSubDomains();
     if (undoAction) {
         undoAction = false;
         for (let i = currentAction; i <= actions.length; i++) {
@@ -342,8 +372,8 @@ function loadSettings() {
             else advanced_managing = false;
 
             if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
-
             if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
+            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = "yes";
         }
 
         continueLoaded();
@@ -795,6 +825,7 @@ function strikethrough() {
 }
 
 function undo() {
+    hideTabSubDomains();
     if (actions.length > 0 && currentAction > 0) {
         undoAction = true;
         document.getElementById("notes").innerHTML = actions[--currentAction].text;
@@ -805,6 +836,7 @@ function undo() {
 }
 
 function redo() {
+    hideTabSubDomains();
     if (currentAction < actions.length - 1) {
         undoAction = false;
         document.getElementById("notes").innerHTML = actions[++currentAction].text;
@@ -815,16 +847,41 @@ function redo() {
 }
 
 function spellcheck(force = false, value = false) {
-    if (!document.getElementById("notes").spellcheck || (force && value)) {
-        //enable spellCheck
-        document.getElementById("notes").spellcheck = true;
-        if (document.getElementById("text-spellcheck")) document.getElementById("text-spellcheck").classList.add("text-spellcheck-sel");
-    } else {
-        //disable spellCheck
-        document.getElementById("notes").spellcheck = false;
-        if (document.getElementById("text-spellcheck") && document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
-    }
-    document.getElementById("notes").focus();
+    hideTabSubDomains();
+    sync_local.get("settings", function (value) {
+        if (value["settings"] !== undefined) {
+            settings_json = value["settings"];
+            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
+            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "yes";
+            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "yes";
+
+            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
+            if (settings_json["advanced-managing"] === "yes") advanced_managing = true;
+            else advanced_managing = false;
+
+            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
+            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
+            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = "yes";
+        }
+
+        if (!document.getElementById("notes").spellcheck || (force && value)) {
+            //enable spellCheck
+            document.getElementById("notes").spellcheck = true;
+            settings_json["spellcheck-detection"] = "yes";
+            if (document.getElementById("text-spellcheck")) {
+                document.getElementById("text-spellcheck").classList.add("text-spellcheck-sel");
+            }
+        } else {
+            //disable spellCheck
+            document.getElementById("notes").spellcheck = false;
+            settings_json["spellcheck-detection"] = "no";
+            if (document.getElementById("text-spellcheck") && document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) {
+                document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
+            }
+        }
+        document.getElementById("notes").focus();
+        sync_local.set({"settings": settings_json});
+    });
 }
 
 function loadFormatButtons(navigation = true, format = true) {
@@ -840,12 +897,12 @@ function loadFormatButtons(navigation = true, format = true) {
     if (navigation && html_text_formatting) {
         commands.push(
             {
-                action: "undo", icon: `${url}undo.svg`, function: function () {
+                action: "undo", icon: `${url}undo.svg`, title: all_strings["label-title-undo"], function: function () {
                     undo()
                 }
             },
             {
-                action: "redo", icon: `${url}redo.svg`, function: function () {
+                action: "redo", icon: `${url}redo.svg`, title: all_strings["label-title-redo"], function: function () {
                     redo()
                 }
             });
@@ -856,27 +913,42 @@ function loadFormatButtons(navigation = true, format = true) {
     if (format && html_text_formatting) {
         commands.push(
             {
-                action: "bold", icon: `${url}bold.svg`, function: function () {
+                action: "bold",
+                icon: `${url}bold.svg`,
+                title: all_strings["label-title-bold"],
+                function: function () {
                     bold();
                 }
             },
             {
-                action: "italic", icon: `${url}italic.svg`, function: function () {
+                action: "italic",
+                icon: `${url}italic.svg`,
+                title: all_strings["label-title-italic"],
+                function: function () {
                     italic();
                 }
             },
             {
-                action: "underline", icon: `${url}underline.svg`, function: function () {
+                action: "underline",
+                icon: `${url}underline.svg`,
+                title: all_strings["label-title-underline"],
+                function: function () {
                     underline();
                 }
             },
             {
-                action: "strikethrough", icon: `${url}strikethrough.svg`, function: function () {
+                action: "strikethrough",
+                icon: `${url}strikethrough.svg`,
+                title: all_strings["label-title-strikethrough"],
+                function: function () {
                     strikethrough();
                 }
             },
             {
-                action: "spellcheck", icon: `${url}spellcheck.svg`, function: function () {
+                action: "spellcheck",
+                icon: `${url}spellcheck.svg`,
+                title: all_strings["label-title-spellcheck"],
+                function: function () {
                     spellcheck();
                 }
             });
@@ -891,26 +963,34 @@ function loadFormatButtons(navigation = true, format = true) {
 
     buttons_container = document.getElementById("format-buttons");
     buttons_container.innerHTML = "";
+    let tabIndex = 1;
     commands.forEach(value => {
         let button = document.createElement("button");
         button.classList.add("button-format", "button");
         //button.style.backgroundImage = `url('${value.icon}')`;
         button.id = `text-${value.action}`;
         button.onclick = value.function;
+        button.title = value.title;
+        button.tabIndex = tabIndex;
         buttons_container.appendChild(button);
     })
     document.getElementById("notes").focus();
 
     if (format) {
-        spellcheck(force = true, value = true);
+        if (settings_json !== undefined && settings_json["spellcheck-detection"] !== undefined && settings_json["spellcheck-detection"] === "no") {
+            document.getElementById("notes").spellcheck = false;
+            if (document.getElementById("text-spellcheck") && document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) {
+                document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
+            }
+        } else {
+            document.getElementById("notes").spellcheck = true;
+            if (document.getElementById("text-spellcheck")) {
+                document.getElementById("text-spellcheck").classList.add("text-spellcheck-sel");
+            }
+        }
     }
 
-    let disable_word_wrap = false;
-    if (settings_json["disable-word-wrap"] !== undefined) {
-        if (settings_json["disable-word-wrap"] === "yes") disable_word_wrap = true;
-        else disable_word_wrap = false;
-    }
-    if (disable_word_wrap) {
+    if (settings_json !== undefined && settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && settings_json["disable-word-wrap"] === "yes") {
         document.getElementById("notes").style.whiteSpace = "none";
     } else {
         document.getElementById("notes").style.whiteSpace = "pre-wrap";

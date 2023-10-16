@@ -356,7 +356,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     color: var(--tertiary);
 }
 
-.subdomain:hover, .subdomain:active {
+.subdomain:hover, .subdomain:active, .subdomain:focus {
     background-color: var(--tertiary-transparent);
 }
 
@@ -753,6 +753,7 @@ b {
     border: none !important;
     font-size: 14px !important;
     cursor: text;
+    white-space: inherit;
 }
 
 .textarea-all-notes {
