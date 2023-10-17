@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Εντολή - Μετατόπιση',
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'Επιλογή Της Μετατόπισης "+',
+    'label-disable-shortcut': 'Απενεργοποιημένο',
     'disable-sync-settings-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.',
     'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.',
     'theme-text': 'Επιλέξτε το θέμα που θα χρησιμοποιηθεί',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'Αναίρεση',
     'label-title-redo': 'Επανάληψη',
     'label-title-spellcheck': 'Ορθογραφικός έλεγχος γλώσσας',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Αποτελέσματα για:  {{keywords}}'
 };

@@ -66,7 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'Vis HTML tekst-formateringspanel i popup',
     'html-text-formatting-detailed': 'Når aktivert vil du se noen nyttige knapper nederst i sprettoppvinduet for å sette inn tekstformatering (som fet til, kursiv osv. og angre/redo-knapper – selv om du deaktiverer dette, vil du fortsette å kunne sette inn tekstformatering via tastatursnarveier.',
     'disable-word-wrap': 'Deaktiver tekst for lydbryting av notater',
-    'spellcheck-detection': 'Aktiverte språk stavekontrolldetektering for notater',
+    'spellcheck-detection': 'Aktivert språkoppdagelse for notater',
     'search-textbox': 'Søk…',
     'sort-by-button': 'Sorter etter…',
     'sort-by-az-button': 'Navn: A-Å',
@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Kommando ⌘ + Shift ∙',
     'label-alt-shift-default': 'Alt + Skift',
     'label-alt-shift-mac': 'Alternativ: + reseptpliktig',
+    'label-disable-shortcut': 'Deaktivert',
     'disable-sync-settings-message': 'På grunn av plassbegrensning med synk anbefaler jeg deg å deaktivere synkronisert data på denne siden. Ellers må tillegget ikke fungere ordentlig!<br>For å gjøre det, finn {{property1}} og sett til {{property2}}.',
     'disable-sync-message': 'På grunn av plassbegrensning med synk anbefaler jeg deg å deaktivere synkronisert data på denne siden. Ellers må ikke tillegget fungere ordentlig!<br>For å gjøre det i tillegg finner du  {{property1}} og satt til {{property2}}.',
     'theme-text': 'Velg temaet du vil bruke',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'Angre',
     'label-title-redo': 'Gjenta',
     'label-title-spellcheck': 'Språkstavekontroll',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Resultater for:  {{keywords}}'
 };

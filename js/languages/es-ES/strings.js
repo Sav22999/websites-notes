@@ -66,7 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'Mostrar el panel de formato de texto HTML en la ventana emergente',
     'html-text-formatting-detailed': 'Cuando esté habilitado, verá algunos botones útiles en la parte inferior de la ventana emergente para insertar formato de texto (como negrita, cursiva, etc. y botones de deshacer/rehacer – aunque lo desactiva, seguirá siendo capaz de insertar el formato de texto mediante atajos de teclado.',
     'disable-word-wrap': 'Desactivar texto de notas de palabras',
-    'spellcheck-detection': 'Habilitada la desactivación ortográfica de idioma para obtener notas',
+    'spellcheck-detection': 'Activar la detección de corrección ortográfica de idioma para notas',
     'search-textbox': 'Buscar…',
     'sort-by-button': 'Ordenar por…',
     'sort-by-az-button': 'Nombre: A-Z',
@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Command ⌘ + Shift ⇧',
     'label-alt-shift-default': 'Alt + Mayús',
     'label-alt-shift-mac': 'Option ⌥ + Shift ⇧',
+    'label-disable-shortcut': 'Deshabilitado',
     'disable-sync-settings-message': 'Debido a algunas limitaciones de espacio con sincronización, te aconsejo desactivar los datos sincronizados en esta página. ¡De lo contrario, el complemento ya no debería funcionar correctamente!<br>Para hacerlo, encuentra {{property1}} y ajusta a {{property2}}.',
     'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.',
     'theme-text': 'Elija el tema a usar',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'Deshacer',
     'label-title-redo': 'Rehacer',
     'label-title-spellcheck': 'Corrección ortográfica del idioma',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Resultados para:  {{keywords}}'
 };

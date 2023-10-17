@@ -66,7 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'Toon HTML tekstopmaak paneel in de popup',
     'html-text-formatting-detailed': 'Wanneer ingeschakeld, zie je enkele handige knoppen onderaan de popup om tekstopmaak in te voegen (zoals vet, cursief etc. en ongedaan maken/opnieuw maken knoppen – hoewel je dit uitschakelt, blijf je in staat om tekst-opmaak toe te voegen via sneltoetsen.',
     'disable-word-wrap': 'Tekst tekstomslag uitschakelen',
-    'spellcheck-detection': 'Ingeschakelde taalspellingscontrole detectie voor notities',
+    'spellcheck-detection': 'Ingeschakelde taalspellingcontrole detectie voor notities',
     'search-textbox': 'Zoek…',
     'sort-by-button': 'Sorteren op…',
     'sort-by-az-button': 'Naam: A-Z',
@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Commando >+ Verschuift 58',
     'label-alt-shift-default': 'ALT + Shift',
     'label-alt-shift-mac': 'Optie +unnamed@@0 + Shift ×',
+    'label-disable-shortcut': 'Uitgeschakeld',
     'disable-sync-settings-message': 'Vanwege enige ruimtebeperking met sync raad ik u aan de gegevens op deze pagina uit te schakelen. Anders zou de add-on niet meer goed moeten werken!<br>Om dat te doen, zoek {{property1}} en stel je in op {{property2}}.',
     'disable-sync-message': 'Vanwege enige ruimtebeperking met sync raad ik u aan de gegevens op deze pagina uit te schakelen. Anders zou de toevoeging niet meer goed kunnen werken!<br>Om dat te doen, vindt u in de add-on instellingen  {{property1}} en zet u in op {{property2}}.',
     'theme-text': 'Kies het te gebruiken thema',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'Herstel',
     'label-title-redo': 'Opnieuw',
     'label-title-spellcheck': 'Taal spellingcontrole',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Resultaten voor:  {{keywords}}'
 };

@@ -66,7 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'إظهار لوحة تنسيق نص HTML في النافذة المنبثقة',
     'html-text-formatting-detailed': 'عند تمكينك سوف ترى بعض الأزرار المفيدة في أسفل النوافذ المنبثقة لإدراج تنسيق النص (مثل الخط الداكن، الخط المائل، إلخ. و أزرار التراجع/إعادة الدو- على الرغم من تعطيل هذا، سوف تستمر في القدرة على إدراج تنسيق النصوص عن طريق اختصارات لوحة المفاتيح.',
     'disable-word-wrap': 'تعطيل نص ملاحظات الكلمات',
-    'spellcheck-detection': 'تمكين الكشف عن التدقيق الإملائي للغة للملاحظات',
+    'spellcheck-detection': 'تمكين الكشف عن تهجئة اللغة للملاحظات',
     'search-textbox': 'البحث…',
     'sort-by-button': 'فرز حسب…',
     'sort-by-az-button': 'الاسم: A-Z',
@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'الأمر <unk> + Shift <unk>',
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'الخيار <unk> + تحويل <unk>',
+    'label-disable-shortcut': 'معطل',
     'disable-sync-settings-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.',
     'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.',
     'theme-text': 'اختر السمة المراد استخدامها',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'التراجع',
     'label-title-redo': 'إعادة',
     'label-title-spellcheck': 'التدقيق الإملائي للغة',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'النتائج لـ:  {{keywords}}'
 };

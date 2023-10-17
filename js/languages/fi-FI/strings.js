@@ -66,7 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'Näytä HTML-tekstin muotoilupaneeli ponnahdusikkunassa',
     'html-text-formatting-detailed': 'Kun käytössä, näet joitakin hyödyllisiä painikkeita popup alareunassa lisätä tekstin muotoilu (kuten lihavoitu, kursiivi, jne. ja kumoa tai kumoa painikkeet – vaikka poistat tämän käytöstä, voit edelleen lisätä tekstimuotoilua näppäimistön pikakuvakkeiden avulla.',
     'disable-word-wrap': 'Poista tekstikenttä käytöstä',
-    'spellcheck-detection': 'Käytössä kielen oikoluku tunnistus muistiinpanoja varten',
+    'spellcheck-detection': 'Käytössä kielen oikoluvun tunnistus muistiinpanoja varten',
     'search-textbox': 'Hae…',
     'sort-by-button': 'Järjestä…',
     'sort-by-az-button': 'Nimi: A-Z',
@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Komento - + Vaihto -',
     'label-alt-shift-default': 'Alt + Vaihto',
     'label-alt-shift-mac': 'Valinta - + Vaihto -',
+    'label-disable-shortcut': 'Pois Käytöstä',
     'disable-sync-settings-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, find {{property1}} and set to {{property2}}.',
     'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.',
     'theme-text': 'Valitse käytettävä teema',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'Kumoa',
     'label-title-redo': 'Toista',
     'label-title-spellcheck': 'Kielen oikeinkirjoitus',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Tulokset:  {{keywords}}'
 };

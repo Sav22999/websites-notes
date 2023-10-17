@@ -426,6 +426,7 @@ function getOperatingSystem(info) {
     else currentOS = "default";
 
     ctrl_alt_shift.forEach(value => {
+        document.getElementById("select-disable-shortcut-" + value).textContent = all_strings["label-disable-shortcut"];
         document.getElementById("select-ctrl-shortcut-" + value).textContent = all_strings["label-ctrl-" + currentOS];
         document.getElementById("select-alt-shortcut-" + value).textContent = all_strings["label-alt-" + currentOS];
         document.getElementById("select-ctrl-alt-shortcut-" + value).textContent = all_strings["label-ctrl-alt-" + currentOS];

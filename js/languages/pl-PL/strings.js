@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Polecenie <unk> + Shift <unk>',
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'Opcja <unk> + zmiana <unk>',
+    'label-disable-shortcut': 'Wyłączone',
     'disable-sync-settings-message': 'Ze względu na pewne ograniczenia przestrzeni z synchronizacją zalecam wyłączenie danych zsynchronizowanych na tej stronie. W przeciwnym razie dodatek nie powinien już działać poprawnie!<br>Aby to zrobić, znajdź {{property1}} i ustaw {{property2}}.',
     'disable-sync-message': 'Ze względu na pewne ograniczenia przestrzeni z synchronizacją zalecam wyłączenie danych zsynchronizowanych na tej stronie. W przeciwnym razie dodatek nie powinien już działać poprawnie!<br>Aby to zrobić, w Ustawieniach dodatku znajdź  {{property1}} i ustaw {{property2}}.',
     'theme-text': 'Wybierz motyw do użycia',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'Cofnij',
     'label-title-redo': 'Ponów',
     'label-title-spellcheck': 'Sprawdzanie pisowni języków',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Wyniki dla:  {{keywords}}'
 };
