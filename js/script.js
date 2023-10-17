@@ -21,7 +21,7 @@ let undoAction = false;
 const linkReview = ["https://addons.mozilla.org/firefox/addon/websites-notes/"]; //{firefox add-ons}
 const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://ko-fi.com/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
 
-let sync_local;
+let sync_local = browser.storage.local;
 checkSyncLocal();
 
 function checkSyncLocal() {

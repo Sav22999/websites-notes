@@ -21,7 +21,7 @@ let colourListDefault = sortObjectByKeys({
 
 let show_conversion_message_attention = false;
 
-let sync_local;
+let sync_local = browser.storage.local;
 checkSyncLocal();
 
 let sort_by_selected = "name-az";
