@@ -207,6 +207,8 @@ function setLanguageUI() {
         document.getElementById("sort-by-date-90-select").textContent = all_strings["sort-by-edit-last-button"];
         document.title = all_strings["all-notes-title-page"];
 
+        document.getElementById("info-tooltip-search").title = all_strings["tooltip-info-search"];
+
         document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
         document.getElementById("text-export").innerHTML = all_strings["export-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
         document.getElementById("cancel-import-all-notes-button").value = all_strings["cancel-button"];
@@ -1291,6 +1293,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         var refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
         var sort_by_svg = window.btoa(getIconSvgEncoded("sort-by", on_primary));
+        var info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", primary));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
@@ -1358,6 +1361,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .sort-by-button {
                     background-image: url('data:image/svg+xml;base64,${sort_by_svg}');
+                }
+                #info-tooltip-search {
+                    background-image: url('data:image/svg+xml;base64,${info_tooltip_svg}');
                 }
             </style>`;
     }

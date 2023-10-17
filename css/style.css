@@ -801,6 +801,17 @@ button.button-format:active, button.button-format:focus {
     border-radius: 5px !important;
 }
 
+#info-tooltip-search {
+    background-color: transparent;
+    background-image: url("../img/info.svg");
+    background-size: 80% auto;
+    background-repeat: no-repeat;
+    background-position: top left;
+    height: 20px;
+    width: 20px;
+    display: inline-block;
+}
+
 .result-button {
     margin: 0px 2px;
 }
