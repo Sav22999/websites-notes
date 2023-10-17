@@ -39,6 +39,23 @@ function loaded() {
     checkSyncLocal();
     loadSettings();
     checkTheme();
+    checkTimesOpened();
+}
+
+function checkTimesOpened() {
+    sync_local.get("times-opened").then(result => {
+        let times = 0;
+        if (result !== undefined && result["times-opened"] !== undefined) {
+            times = result["times-opened"];
+            let interval_to_check = [1000, 5000, 20000, 50000, 100000, 1000000, 5000000];
+            if (times > 0 && interval_to_check.includes(times + 1)) {
+                browser.tabs.create({url: "https://www.saveriomorelli.com/projects/notefox/opened-times/"});
+                //window.close();
+            }
+        }
+        times++;
+        sync_local.set({"times-opened": times});
+    });
 }
 
 function continueLoaded() {
@@ -53,6 +70,7 @@ function continueLoaded() {
         loadUI();
     });
 
+    browser.tabs.onActivated.addListener(tabUpdated);
     browser.tabs.onUpdated.addListener(tabUpdated);
 
     checkOpenedBy();
@@ -239,10 +257,10 @@ function loadUI() {
         document.getElementById("notes").contentEditable = true;
         addAction();
     }
-    notes.onfocus=function (e) {
+    notes.onfocus = function (e) {
         notesGotFocus();
     }
-    notes.onblur=function (e) {
+    notes.onblur = function (e) {
         notesLostFocus();
     }
 
@@ -279,6 +297,7 @@ function loadUI() {
 function notesGotFocus() {
     hideTabSubDomains();
 }
+
 function notesLostFocus() {
     //
 }
@@ -573,13 +592,18 @@ function saveNotes() {
     });
 }
 
-function tabUpdated(tabId, changeInfo, tabInfo) {
-    setUrl(tabInfo.url);
-    actions = [];
-    currentAction = 0;
-    undoAction = false;
+function tabUpdated(tabs) {
+    browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
+        let tab_id = tabs[0].tabId;
+        let tab_url = tabs[0].url;
 
-    loadUI();
+        setUrl(tab_url);
+        actions = [];
+        currentAction = 0;
+        undoAction = false;
+    }).then((tabs) => {
+        loadUI();
+    });
 }
 
 function setUrl(url) {

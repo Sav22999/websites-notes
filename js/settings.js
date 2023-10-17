@@ -234,29 +234,48 @@ function loadSettings() {
             ctrl_alt_shift.forEach(value => {
                 let keyboardShortcutCtrlAltShift = document.getElementById("key-shortcut-ctrl-alt-shift-" + value + "-selected");
                 let keyboardShortcutLetterNumber = document.getElementById("key-shortcut-" + value + "-selected");
-                let splitKeyboardShortcut = settings_json["open-popup-" + value].split("+");
-                let letterNumberShortcut = splitKeyboardShortcut[splitKeyboardShortcut.length - 1];
-                let ctrlAltShiftShortcut = settings_json["open-popup-" + value].substring(0, settings_json["open-popup-" + value].length - 2);
-                keyboardShortcutLetterNumber.value = letterNumberShortcut;
-                keyboardShortcutCtrlAltShift.value = ctrlAltShiftShortcut;
+                if (settings_json["open-popup-" + value] !== undefined && settings_json["open-popup-" + value] !== "disabled") {
+                    if (keyboardShortcutLetterNumber.classList.contains("hidden")) keyboardShortcutLetterNumber.classList.remove("hidden");
+                    if (document.getElementById("label-plus-shortcut-" + value).classList.contains("hidden")) document.getElementById("label-plus-shortcut-" + value).classList.remove("hidden");
+                    let splitKeyboardShortcut = settings_json["open-popup-" + value].split("+");
+                    let letterNumberShortcut = splitKeyboardShortcut[splitKeyboardShortcut.length - 1];
+                    let ctrlAltShiftShortcut = settings_json["open-popup-" + value].substring(0, settings_json["open-popup-" + value].length - 2);
+                    keyboardShortcutLetterNumber.value = letterNumberShortcut;
+                    keyboardShortcutCtrlAltShift.value = ctrlAltShiftShortcut;
 
-                let commandName = "_execute_browser_action";
-                if (value === "domain") commandName = "opened-by-domain";
-                else if (value === "page") commandName = "opened-by-page";
-                else if (value === "global") commandName = "opened-by-global";
+                    let commandName = "_execute_browser_action";
+                    if (value === "domain") commandName = "opened-by-domain";
+                    else if (value === "page") commandName = "opened-by-page";
+                    else if (value === "global") commandName = "opened-by-global";
 
-                document.getElementById("key-shortcut-ctrl-alt-shift-" + value + "-selected").onchange = function () {
-                    settings_json["open-popup-" + value] = document.getElementById("key-shortcut-ctrl-alt-shift-" + value + "-selected").value + "+" + document.getElementById("key-shortcut-" + value + "-selected").value;
-                    //updateShortcut(commandName, settings_json["open-popup-" + value]);
-                }
-                document.getElementById("key-shortcut-" + value + "-selected").onchange = function () {
-                    settings_json["open-popup-" + value] = document.getElementById("key-shortcut-ctrl-alt-shift-" + value + "-selected").value + "+" + document.getElementById("key-shortcut-" + value + "-selected").value;
-                    //updateShortcut(commandName, settings_json["open-popup-" + value]);
+                    onChangeShortcut(keyboardShortcutCtrlAltShift, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json);
+                    onChangeShortcut(keyboardShortcutLetterNumber, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json);
+                } else {
+                    keyboardShortcutCtrlAltShift.value = settings_json["open-popup-" + value];
+                    keyboardShortcutLetterNumber.classList.add("hidden");
+                    document.getElementById("label-plus-shortcut-" + value).classList.add("hidden");
+
+                    onChangeShortcut(keyboardShortcutCtrlAltShift, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json);
+                    onChangeShortcut(keyboardShortcutLetterNumber, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json);
                 }
             });
             //console.log(JSON.stringify(settings_json));
         });
     });
+}
+
+function onChangeShortcut(element, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json) {
+    element.onchange = function () {
+        if (keyboardShortcutCtrlAltShift.value !== "disabled") {
+            if (keyboardShortcutLetterNumber.classList.contains("hidden")) keyboardShortcutLetterNumber.classList.remove("hidden");
+            if (document.getElementById("label-plus-shortcut-" + value).classList.contains("hidden")) document.getElementById("label-plus-shortcut-" + value).classList.remove("hidden");
+            settings_json["open-popup-" + value] = keyboardShortcutCtrlAltShift.value + "+" + keyboardShortcutLetterNumber.value;
+        } else {
+            keyboardShortcutLetterNumber.classList.add("hidden");
+            document.getElementById("label-plus-shortcut-" + value).classList.add("hidden");
+            settings_json["open-popup-" + value] = "disabled";
+        }
+    }
 }
 
 function saveSettings() {
@@ -266,16 +285,6 @@ function saveSettings() {
             //Saved
             let buttonSave = document.getElementById("save-settings-button");
             buttonSave.value = all_strings["saved-button"];
-
-            ctrl_alt_shift.forEach(value => {
-                let commandName = "_execute_browser_action";
-                if (value === "domain") commandName = "opened-by-domain";
-                else if (value === "page") commandName = "opened-by-page";
-                else if (value === "global") commandName = "opened-by-global";
-
-                updateShortcut(commandName, settings_json["open-popup-" + value]);
-            });
-
 
             let sync_or_local_settings = document.getElementById("save-on-local-instead-of-sync-select").value;
             if (sync_or_local_settings === undefined) sync_or_local_settings = "yes";
@@ -305,6 +314,19 @@ function saveSettings() {
                             if (result2["sticky-notes-coords"] === {} || result2["sticky-notes-coords"] === null) browser.storage.sync.remove("sticky-notes-coords");
                             if (result2["sticky-notes-sizes"] === {} || result2["sticky-notes-sizes"] === null) browser.storage.sync.remove("sticky-notes-sizes");
                             if (result2["sticky-notes-opacity"] === {} || result2["sticky-notes-opacity"] === null) browser.storage.sync.remove("sticky-notes-opacity");
+
+                            ctrl_alt_shift.forEach(value => {
+                                let commandName = "_execute_browser_action";
+                                if (value === "domain") commandName = "opened-by-domain";
+                                else if (value === "page") commandName = "opened-by-page";
+                                else if (value === "global") commandName = "opened-by-global";
+
+                                //commandName = "open-by-"+value;
+                                let shortcutToSet = settings_json["open-popup-" + value];
+                                if (shortcutToSet === "disabled") shortcutToSet = "";
+
+                                updateShortcut(commandName, shortcutToSet);
+                            });
 
                             //console.log("-1->" + JSON.stringify(result));
                             //console.log("-2->" + JSON.stringify(result2));
@@ -352,6 +374,21 @@ function saveSettings() {
                             //console.log("-1->" + JSON.stringify(result));
                             //console.log("-2->" + JSON.stringify(result2));
                             //console.log(JSON.stringify(result) === JSON.stringify(result2));
+
+                            ctrl_alt_shift.forEach(value => {
+                                //console.log("1>"+settings_json["open-popup-" + value])
+                                let commandName = "_execute_browser_action";
+                                if (value === "domain") commandName = "opened-by-domain";
+                                else if (value === "page") commandName = "opened-by-page";
+                                else if (value === "global") commandName = "opened-by-global";
+
+                                //commandName = "open-by-"+value;
+                                let shortcutToSet = settings_json["open-popup-" + value];
+                                if (shortcutToSet === "disabled") shortcutToSet = "";
+
+                                updateShortcut(commandName, shortcutToSet);
+                            });
+
                             if (JSON.stringify(result) === JSON.stringify(result2)) browser.storage.local.clear().then(
                                 result3 => {
                                     browser.storage.local.set({"storage": "sync"});
@@ -404,6 +441,7 @@ function getCurrentShortcuts(commands) {
 }
 
 function updateShortcut(commandName, shortcut) {
+    //to disable the shortcut -> the "shortcut" value have to be an empty string
     browser.commands.update({
         name: commandName, shortcut: shortcut
     });
