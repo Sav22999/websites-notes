@@ -667,7 +667,7 @@ b {
 }
 
 .div-textnotes-container {
-    border: 1px solid var(--primary-color);
+    /*border: 1px solid var(--primary-color);*/
     resize: vertical;
     min-height: 200px;
     height: 200px;
