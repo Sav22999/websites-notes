@@ -114,5 +114,6 @@ strings[lang] = {
     'label-title-undo': 'Angre',
     'label-title-redo': 'Gjenta',
     'label-title-spellcheck': 'Språkstavekontroll',
-    'label-results-for': 'Resultater for:  {{keywords}}'
+    'label-results-for': 'Resultater for:  {{keywords}}',
+    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
 };
