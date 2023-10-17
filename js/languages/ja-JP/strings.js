@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Command ⌘+ Shift <unk>',
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'Option <unk> + Shift <unk>',
+    'label-disable-shortcut': '無効',
     'disable-sync-settings-message': '同期にスペースが制限されているため、このページで同期されたデータを無効にすることをお勧めします。 それ以外の場合、アドオンはもう正常に動作しないはずです！<br>これを行うには、 {{property1}} を見つけて、 {{property2}} に設定します。',
     'disable-sync-message': '同期にスペースが制限されているため、このページで同期されたデータを無効にすることをお勧めします。 そうでなければ、アドオンはもう正常に動作しないはずです!<br>これを行うには、アドオン設定で  {{property1}} を見つけ、 {{property2}} に設定します。',
     'theme-text': '使用するテーマを選択',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': '元に戻す',
     'label-title-redo': 'Redo',
     'label-title-spellcheck': '言語のスペルチェック',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': '{{keywords}} の検索結果'
 };

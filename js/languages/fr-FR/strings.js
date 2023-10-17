@@ -66,7 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'Afficher le panneau de mise en forme du texte HTML dans la popup',
     'html-text-formatting-detailed': 'Lorsque cette option est activée, vous verrez quelques boutons utiles en bas de popup pour insérer le formatage du texte (gras, italique, etc.). et les boutons Annuler/Refaire – même si vous désactivez ceci, vous pourrez continuer à insérer le formatage de texte via les raccourcis clavier.',
     'disable-word-wrap': 'Désactiver le texte des notes de retour de mot',
-    'spellcheck-detection': 'Détection de vérification orthographique de la langue activée pour les notes',
+    'spellcheck-detection': 'Correction orthographique activée pour les notes',
     'search-textbox': 'Rechercher…',
     'sort-by-button': 'Trier par…',
     'sort-by-az-button': 'Nom : A-Z',
@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Commande <unk> + Maj <unk>',
     'label-alt-shift-default': 'Alt + Maj',
     'label-alt-shift-mac': 'Option <unk> + Maj <unk>',
+    'label-disable-shortcut': 'Désactivé',
     'disable-sync-settings-message': 'En raison d\'une certaine limitation d\'espace avec la synchronisation, je vous conseille de désactiver les données synchronisées dans cette page. Sinon, le module ne devrait plus fonctionner correctement !<br>Pour cela, trouvez {{property1}} et réglez sur {{property2}}.',
     'disable-sync-message': 'Due to some space limitation with sync I advise you to disable the data synced in this page. Otherwise, the add-on should not work properly anymore!<br>To do that, in the add-on Settings find  {{property1}} and set to {{property2}}.',
     'theme-text': 'Choisissez le thème à utiliser',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'Annuler',
     'label-title-redo': 'Refaire',
     'label-title-spellcheck': 'Vérification orthographique de la langue',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Résultats pour :  {{keywords}}'
 };

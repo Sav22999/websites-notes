@@ -66,7 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'Mostrar painel de formatação de texto HTML no popup',
     'html-text-formatting-detailed': 'Quando ativado, você verá alguns botões úteis na parte inferior do pop-up para inserir a formatação de texto (como negrito, itálico, etc. e desfazer/refazer botões - embora você desative isso, você continuará capaz de inserir a formatação de texto através dos atalhos de teclado.',
     'disable-word-wrap': 'Desabilitar texto de notas com word-wrap',
-    'spellcheck-detection': 'Detecção de correção ortográfica de idioma habilitada para notas',
+    'spellcheck-detection': 'Detecção de verificação ortográfica de idioma habilitada para notas',
     'search-textbox': 'Procurar…',
     'sort-by-button': 'Ordenar por…',
     'sort-by-az-button': 'Nome: A-Z',
@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Comando ├+ Shift ├',
     'label-alt-shift-default': 'ALT + Shift',
     'label-alt-shift-mac': 'Opção 「+ Mudança de Ritmo',
+    'label-disable-shortcut': 'Desabilitado',
     'disable-sync-settings-message': 'Devido a alguma limitação de espaço com sincronização, eu recomendo que você desativar os dados sincronizados nesta página. Caso contrário, o complemento não deve mais funcionar corretamente!<br>Para fazer isso, encontre {{property1}} e defina como {{property2}}.',
     'disable-sync-message': 'Devido a alguma limitação de espaço com sincronização, eu recomendo que você desativar os dados sincronizados nesta página. Caso contrário, o complemento não deverá funcionar adequadamente!<br>Para fazer isso, nas Configurações do complemento encontre  {{property1}} e configure para {{property2}}.',
     'theme-text': 'Escolha o tema a ser usado',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'Desfazer',
     'label-title-redo': 'Refazer',
     'label-title-spellcheck': 'Verificação ortográfica',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Resultados para:  {{keywords}}'
 };

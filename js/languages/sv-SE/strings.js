@@ -66,7 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'Visa HTML-textformateringspanel i popup-fönstret',
     'html-text-formatting-detailed': 'När den är aktiverad kommer du att se några användbara knappar i botten av popup för att infoga textformatering (som fetstil, kursiv etc. och ångra / göra om knappar – även om du inaktiverar detta, kommer du att fortsätta att kunna infoga text-formatering via kortkommandon.',
     'disable-word-wrap': 'Inaktivera text för ord-wrap',
-    'spellcheck-detection': 'Aktiverad spellcheck detektering av språk för anteckningar',
+    'spellcheck-detection': 'Aktiverad språkstavningskontroll för anteckningar',
     'search-textbox': 'Sök…',
     'sort-by-button': 'Sortera efter…',
     'sort-by-az-button': 'Namn: A-Ö',
@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Kommando <unk> + Shift <unk>',
     'label-alt-shift-default': 'Alt + Skift',
     'label-alt-shift-mac': 'Alternativ <unk> + Skift <unk>',
+    'label-disable-shortcut': 'Inaktiverad',
     'disable-sync-settings-message': 'På grund av lite utrymme begränsning med synkronisering råder jag dig att inaktivera data synkroniserad på denna sida. Annars ska tillägget inte fungera korrekt längre!<br>För att göra det, hitta {{property1}} och sätt till {{property2}}.',
     'disable-sync-message': 'På grund av lite utrymme begränsning med synkronisering råder jag dig att inaktivera data synkroniserad på denna sida. Annars bör tillägget inte fungera korrekt längre!<br>För att göra det hittar du  {{property1}} i tilläggsinställningarna och är inställd på {{property2}}.',
     'theme-text': 'Välj tema att använda',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'Ångra',
     'label-title-redo': 'Gör om',
     'label-title-spellcheck': 'Språkinställningskontroll',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Resultat för:  {{keywords}}'
 };

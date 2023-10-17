@@ -472,6 +472,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 }
 
 .sub-section-notes {
+    margin: 0px;
     margin-top: 10px;
     opacity: 1;
     /*
@@ -482,7 +483,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 
 .sub-section-notes:hover, .div-textnotes-container:hover {
     opacity: 1;
-    box-shadow: inset 0px 0px 0px 3px var(--primary-color);
+    box-shadow: 0px 0px 0px 3px var(--primary-color);
 }
 
 .sub-section-last-update {

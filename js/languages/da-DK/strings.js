@@ -66,7 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'Vis HTML tekstformateringspanel i popup',
     'html-text-formatting-detailed': 'Når aktiveret vil du se nogle nyttige knapper i bunden af popup for at indsætte tekstformatering (som fed, kursiv osv. og fortryd / redo knapper – selvom du deaktiverer dette, vil du fortsat være i stand til at indsætte tekstformatering via tastaturgenveje.',
     'disable-word-wrap': 'Deaktiver tekst-wrap noter tekst',
-    'spellcheck-detection': 'Aktiverede sprogstavekontrol detektering for noter',
+    'spellcheck-detection': 'Aktiverede detektering af sprogstavekontrol for noter',
     'search-textbox': 'Søg…',
     'sort-by-button': 'Sorter efter…',
     'sort-by-az-button': 'Navn: A-Z',
@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Kommando - + Shift -',
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'Valgmulighed: + Skiftsplatform',
+    'label-disable-shortcut': 'Deaktiveret',
     'disable-sync-settings-message': 'På grund af en vis pladsbegrænsning med synkronisering råder jeg dig til at deaktivere de data, der synkroniseres på denne side. Ellers, tilføjelsen bør ikke fungere korrekt længere!<br>For at gøre det, find {{property1}} og sæt til {{property2}}.',
     'disable-sync-message': 'På grund af en vis pladsbegrænsning med synkronisering råder jeg dig til at deaktivere de data, der synkroniseres på denne side. Ellers bør tilføjelsen ikke længere fungere korrekt!<br>For at gøre det, i tilføjelsesindstillingerne skal du finde  {{property1}} og indstille til {{property2}}.',
     'theme-text': 'Vælg det tema, der skal bruges',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'Fortryd',
     'label-title-redo': 'Gendan',
     'label-title-spellcheck': 'Sprog stavekontrol',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Resultater for:  {{keywords}}'
 };

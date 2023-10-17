@@ -66,7 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'HTML-Textformatierungsfeld im Popup anzeigen',
     'html-text-formatting-detailed': 'Wenn aktiviert, sehen Sie einige nützliche Schaltflächen am unteren Rand des Popups, um Textformatierung (wie fett, kursiv, etc.) einzufügen. und Rückgängig-Knöpfe – obwohl Sie dies deaktivieren, können Sie weiterhin Textformatierung über Tastaturkürzel einfügen.',
     'disable-word-wrap': 'Text der Wort-Wrap-Notizen deaktivieren',
-    'spellcheck-detection': 'Sprach-Rechtschreibprüfung für Notizen aktiviert',
+    'spellcheck-detection': 'Sprachrechtschreibprüfung für Notizen aktiviert',
     'search-textbox': 'Suche…',
     'sort-by-button': 'Sortieren nach…',
     'sort-by-az-button': 'Name: A-Z',
@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Befehl <unk> + Umschalt<unk>',
     'label-alt-shift-default': 'Alt + Schicht',
     'label-alt-shift-mac': 'Option <unk> + Schicht <unk>',
+    'label-disable-shortcut': 'Deaktiviert',
     'disable-sync-settings-message': 'Aufgrund einiger Speicherbeschränkungen mit Synchronisation empfehle ich Ihnen, die auf dieser Seite synchronisierten Daten zu deaktivieren. Andernfalls sollte das Add-on nicht mehr ordnungsgemäß funktionieren!<br>Um das zu tun, finden Sie {{property1}} und setzen Sie auf {{property2}}.',
     'disable-sync-message': 'Aufgrund einiger Speicherbeschränkungen mit Synchronisation empfehle ich Ihnen, die auf dieser Seite synchronisierten Daten zu deaktivieren. Andernfalls sollte das Add-on nicht mehr ordnungsgemäß funktionieren!<br>Dazu finden Sie in den Add-on-Einstellungen  {{property1}} und setzen Sie auf {{property2}}.',
     'theme-text': 'Wähle das zu verwendende Theme',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'Rückgängig',
     'label-title-redo': 'Wiederholen',
     'label-title-spellcheck': 'Rechtschreibprüfung',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Ergebnisse für:  {{keywords}}'
 };

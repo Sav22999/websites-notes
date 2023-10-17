@@ -66,7 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'Zobrazit HTML textové formátování ve vyskakovacím okně',
     'html-text-formatting-detailed': 'Pokud je povoleno, uvidíte některá užitečná tlačítka v dolní části vyskakovacího okna pro vložení textového formátování (jako tučný, kurzíva, atd. a vrátit zpět tlačítka - i když toto zakážete, budete moci nadále vkládat textové formátování pomocí klávesových zkratek.',
     'disable-word-wrap': 'Zakázat text poznámek ke slovu',
-    'spellcheck-detection': 'Kontrola pravopisu povolena u poznámek',
+    'spellcheck-detection': 'Detekce kontroly pravopisu v jazyce pro poznámky',
     'search-textbox': 'Hledat…',
     'sort-by-button': 'Seřadit podle…',
     'sort-by-az-button': 'Jméno: A-Z',
@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Příkaz <unk> + Shift <unk>',
     'label-alt-shift-default': 'Alt + Shift',
     'label-alt-shift-mac': 'Možnost <unk> + Shift <unk>',
+    'label-disable-shortcut': 'Zakázáno',
     'disable-sync-settings-message': 'Z důvodu omezení místa se synchronizací doporučuji zakázat synchronizaci dat na této stránce. V opačném případě by doplněk již neměl správně fungovat!<br>Chcete-li to udělat, najděte {{property1}} a nastavte na {{property2}}.',
     'disable-sync-message': 'Z důvodu omezení místa se synchronizací doporučuji zakázat synchronizaci dat na této stránce. Jinak by doplněk již neměl správně fungovat!<br>Chcete-li tak učinit, v nastavení doplňku najděte  {{property1}} a nastavte na {{property2}}.',
     'theme-text': 'Vyberte motiv, který chcete použít',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'Zpět',
     'label-title-redo': 'Znovu',
     'label-title-spellcheck': 'Kontrola pravopisu jazyka',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Výsledky pro:  {{keywords}}'
 };

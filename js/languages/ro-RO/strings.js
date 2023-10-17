@@ -66,7 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'Arată panoul de formatare text HTML în popup',
     'html-text-formatting-detailed': 'Când este activată, vei vedea unele butoane utile în partea de jos a popup-ului pentru a insera formatarea textului (cum ar fi bold, italic, etc. si butoane undo/redo - desi dezactivezi acest lucru, vei continua sa introduci formatarea textului prin comenzi rapide de tastatura.',
     'disable-word-wrap': 'Dezactivează textul cuvintelor-cadou notelor',
-    'spellcheck-detection': 'Detectare ortografie lingvistică activată pentru note',
+    'spellcheck-detection': 'Permis de detectare a ortografiei limbii pentru note',
     'search-textbox': 'Căutare…',
     'sort-by-button': 'Sortează după…',
     'sort-by-az-button': 'Nume: A-Z',
@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Comanda <unk> + Shift',
     'label-alt-shift-default': 'Alt + Schimb',
     'label-alt-shift-mac': 'Opţiunea <unk> + Shift',
+    'label-disable-shortcut': 'Dezactivat',
     'disable-sync-settings-message': 'Din cauza unei limitări a spaţiului cu sincronizare vă sfătuiesc să dezactivaţi datele sincronizate în această pagină. Altfel, suplimentul nu mai trebuie să funcționeze corespunzător!<br>Pentru a face asta, găsește {{property1}} și setează {{property2}}.',
     'disable-sync-message': 'Din cauza unei limitări a spaţiului cu sincronizare vă sfătuiesc să dezactivaţi datele sincronizate în această pagină. Altfel, suplimentul nu ar mai trebui să funcționeze corespunzător!<br>Pentru a face asta, în Setările suplimentelor găsește  {{property1}} și setează {{property2}}.',
     'theme-text': 'Alege tema de folosit',
@@ -113,5 +114,5 @@ strings[lang] = {
     'label-title-undo': 'Anulează',
     'label-title-redo': 'Reface',
     'label-title-spellcheck': 'Verificare limbă',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Rezultate pentru:  {{keywords}}'
 };

@@ -66,7 +66,7 @@ strings[lang] = {
     'html-text-formatting': 'Mostra il pannello di formattazione del testo HTML nel popup',
     'html-text-formatting-detailed': 'Quando abilitato vedrai alcuni pulsanti utili nella parte inferiore del popup per inserire la formattazione del testo (come grassetto, corsivo, ecc. e i pulsanti annulla/ripeti – anche se disabilitate, continuerai ad essere in grado di inserire la formattazione del testo tramite le scorciatoie da tastiera.',
     'disable-word-wrap': 'Disabilita il testo delle note a capo automatico',
-    'spellcheck-detection': 'Abilitato controllo ortografico per le note',
+    'spellcheck-detection': 'Rilevamento controllo ortografico per le note',
     'search-textbox': 'Cerca…',
     'sort-by-button': 'Ordina per…',
     'sort-by-az-button': 'Nome: A-Z',
@@ -99,6 +99,7 @@ strings[lang] = {
     'label-ctrl-shift-mac': 'Command ⌘ + Shift ⇧',
     'label-alt-shift-default': 'Alt + Maiusc',
     'label-alt-shift-mac': 'Opzione ⌥ + Shift ⇧',
+    'label-disable-shortcut': 'Disabilitato',
     'disable-sync-settings-message': 'A causa di alcuni limiti di spazio con la sincronizzazione vi consiglio di disabilitare i dati sincronizzati in questa pagina. Altrimenti, l\'add-on non dovrebbe più funzionare correttamente!<br>Per farlo, trova {{property1}} e imposta {{property2}}.',
     'disable-sync-message': 'A causa di alcuni limiti di spazio con la sincronizzazione vi consiglio di disabilitare i dati sincronizzati in questa pagina. Altrimenti, l\'add-on non dovrebbe più funzionare correttamente!<br>Per farlo, nelle Impostazioni add-on trovare  {{property1}} e impostare {{property2}}.',
     'theme-text': 'Scegli il tema da usare',
@@ -106,12 +107,12 @@ strings[lang] = {
     'theme-choose-light-select': 'Chiaro',
     'theme-choose-dark-select': 'Scuro',
     'theme-choose-firefox-select': 'Segui il tema di Firefox',
-    'label-title-bold': 'Bold',
-    'label-title-italic': 'Italic',
+    'label-title-bold': 'Grassetto',
+    'label-title-italic': 'Corsivo',
     'label-title-underline': 'Sottolineato',
     'label-title-strikethrough': 'Barrato',
     'label-title-undo': 'Annulla',
     'label-title-redo': 'Ripeti',
     'label-title-spellcheck': 'Controllo ortografico lingua',
-    'label-results-for': 'Results for:  {{keywords}}'
+    'label-results-for': 'Risultati per:  {{keywords}}'
 };
