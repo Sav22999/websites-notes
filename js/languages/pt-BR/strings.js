@@ -114,5 +114,6 @@ strings[lang] = {
     'label-title-undo': 'Desfazer',
     'label-title-redo': 'Refazer',
     'label-title-spellcheck': 'Verificação ortográfica',
-    'label-results-for': 'Resultados para:  {{keywords}}'
+    'label-results-for': 'Resultados para:  {{keywords}}',
+    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
 };

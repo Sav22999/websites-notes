@@ -667,7 +667,7 @@ b {
 }
 
 .div-textnotes-container {
-    border: 1px solid var(--primary-color);
+    /*border: 1px solid var(--primary-color);*/
     resize: vertical;
     min-height: 200px;
     height: 200px;
@@ -759,6 +759,61 @@ b {
 
 .textarea-all-notes {
     cursor: default;
+}
+
+#format-buttons {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    z-index: 5;
+}
+
+button.button-format {
+    width: 30px !important;
+    height: 30px !important;
+    background-size: auto 70%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    border: 0px solid transparent;
+    cursor: pointer;
+    margin: 2px;
+    border-radius: 5px;
+}
+
+#text-bold, #text-undo {
+    margin-right: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+#text-italic, #text-underline {
+    margin: 2px 0px;
+    border-radius: 0px;
+}
+
+#text-strikethrough, #text-redo {
+    margin-left: 0px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+button.button-format:active, button.button-format:focus {
+    border-radius: 5px !important;
+}
+
+#info-tooltip-search {
+    background-color: transparent;
+    background-image: url("../img/info.svg");
+    background-size: 80% auto;
+    background-repeat: no-repeat;
+    background-position: top left;
+    height: 20px;
+    width: 20px;
+    display: inline-block;
+}
+
+.result-button {
+    margin: 0px 2px;
 }
 
 .tag-colour-left {
@@ -880,27 +935,4 @@ b {
 
 .hidden {
     display: none !important;
-}
-
-#format-buttons {
-    position: absolute;
-    bottom: 2px;
-    left: 2px;
-    z-index: 5;
-}
-
-button.button-format {
-    width: 30px !important;
-    height: 30px !important;
-    background-size: auto 70%;
-    background-repeat: no-repeat;
-    background-position: center center;
-    border: 0px solid transparent;
-    cursor: pointer;
-    margin: 2px;
-    border-radius: 5px;
-}
-
-.result-button {
-    margin: 0px 2px;
 }

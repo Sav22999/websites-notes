@@ -21,7 +21,7 @@ let undoAction = false;
 const linkReview = ["https://addons.mozilla.org/firefox/addon/websites-notes/"]; //{firefox add-ons}
 const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://ko-fi.com/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
 
-let sync_local;
+let sync_local = browser.storage.local;
 checkSyncLocal();
 
 function checkSyncLocal() {
@@ -472,22 +472,6 @@ function setPosition(element, position) {
     }
 }
 
-/*function setPosition(element, position) {
-    try {
-        console.log(`Resetting position: ${position}`)
-        console.log("-" + element.innerHTML)
-        var range = document.createRange();
-        range.setStart(element.childNodes[0], position); // start position (node, offset)
-        range.setEnd(element.childNodes[0], position);   // end position (node, offset)
-
-        var selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-    } catch (e) {
-        console.error(`Exception SetPosition\n${e}`)
-    }
-}*/
-
 function sanitizeHTML(input) {
     //console.log(input)
 
@@ -532,7 +516,6 @@ function saveNotes() {
             websites_json[currentUrl[selected_tab]]["domain"] = currentUrl[1];
         }
         let currentPosition = getPosition();
-        //console.log(currentPosition);
         if (notes === "" || notes === "<br>") {
             //if notes field is empty, I delete the element from the "dictionary" (notes list)
             delete websites_json[currentUrl[selected_tab]];
@@ -574,13 +557,11 @@ function saveNotes() {
                 if (stickyNotesSupported) {
                     if (never_saved) {
                         document.getElementById("open-sticky-button").classList.add("hidden");
-                        setPosition(document.getElementById("notes"), 0);
                     } else {
                         if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
                     }
                 } else {
                     document.getElementById("open-sticky-button").classList.add("hidden");
-                    setPosition(document.getElementById("notes"), 0);
                 }
 
                 //console.log(JSON.stringify(websites_json));

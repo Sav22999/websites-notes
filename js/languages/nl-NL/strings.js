@@ -114,5 +114,6 @@ strings[lang] = {
     'label-title-undo': 'Herstel',
     'label-title-redo': 'Opnieuw',
     'label-title-spellcheck': 'Taal spellingcontrole',
-    'label-results-for': 'Resultaten voor:  {{keywords}}'
+    'label-results-for': 'Resultaten voor:  {{keywords}}',
+    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
 };
