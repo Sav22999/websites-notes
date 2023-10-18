@@ -18,12 +18,12 @@ let sync_local;
 checkSyncLocal();
 
 function checkSyncLocal() {
-    sync_local = browser.storage.local;
-    browser.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = browser.storage.sync;
+    sync_local = chrome.storage.local;
+    chrome.storage.local.get("storage").then(result => {
+        if (result.storage === "sync") sync_local = chrome.storage.sync;
         else {
-            browser.storage.local.set({"storage": "local"});
-            sync_local = browser.storage.local;
+            chrome.storage.local.set({"storage": "local"});
+            sync_local = chrome.storage.local;
         }
         checkTheme();
     });
@@ -35,7 +35,7 @@ var ctrl_alt_shift = ["default", "domain", "page"];
 
 function loaded() {
     checkSyncLocal()
-    checkOperatingSystem();
+    //checkOperatingSystem();//TODO:chrome
     setLanguageUI();
     checkTheme();
 
@@ -43,19 +43,19 @@ function loaded() {
         saveSettings();
     }
     document.getElementById("translate-addon").onclick = function () {
-        browser.tabs.create({url: links.translate});
+        chrome.tabs.create({url: links.translate});
     }
     document.getElementById("support-telegram-button").onclick = function () {
-        browser.tabs.create({url: links.support_telegram});
+        chrome.tabs.create({url: links.support_telegram});
     }
     document.getElementById("support-email-button").onclick = function () {
-        browser.tabs.create({url: links.support_email});
+        chrome.tabs.create({url: links.support_email});
     }
     document.getElementById("support-github-button").onclick = function () {
-        browser.tabs.create({url: links.support_github});
+        chrome.tabs.create({url: links.support_github});
     }
-    document.getElementById("review-on-firefox-addons-button").onclick = function () {
-        browser.tabs.create({url: links.review});
+    document.getElementById("review-on-chrome-addons-button").onclick = function () {
+        chrome.tabs.create({url: links.review});
     }
 
     document.getElementById("open-by-default-select").onchange = function () {
@@ -137,7 +137,7 @@ function setLanguageUI() {
     document.getElementById("support-telegram-button").value = all_strings["support-telegram-button"];
     document.getElementById("support-email-button").value = all_strings["support-email-button"];
     document.getElementById("support-github-button").value = all_strings["support-github-button"];
-    document.getElementById("review-on-firefox-addons-button").value = all_strings["review-on-firefox-addons-button"];
+    document.getElementById("review-on-chrome-addons-button").value = all_strings["review-on-firefox-addons-button"];
     document.getElementById("save-settings-button").value = all_strings["save-settings-button"];
     document.getElementById("translate-addon").value = all_strings["translate-addon-button"];
 
@@ -149,10 +149,10 @@ function setLanguageUI() {
 }
 
 function loadSettings() {
-    let shortcuts = browser.commands.getAll();
-    shortcuts.then(getCurrentShortcuts);
+    //let shortcuts = chrome.commands.getAll();//TODO:chrome
+    //shortcuts.then(getCurrentShortcuts);//TODO:chrome
 
-    browser.storage.local.get([
+    chrome.storage.local.get([
         "storage"
     ]).then(result => {
         let property1 = all_strings["save-on-local-instead-of-sync"];
@@ -171,7 +171,7 @@ function loadSettings() {
         }
     });
 
-    browser.storage.local.get(["storage"]).then(result => {
+    chrome.storage.local.get(["storage"]).then(result => {
         sync_local.get("settings", function (value) {
             settings_json = {};
             if (value["settings"] !== undefined) {
@@ -216,7 +216,8 @@ function loadSettings() {
             if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-select").value = "no";
             else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-select").value = "yes";
 
-            let keyboardShortcutCtrlAltShiftDefault = document.getElementById("key-shortcut-ctrl-alt-shift-default-selected");
+            //TODO:chrome
+            /*let keyboardShortcutCtrlAltShiftDefault = document.getElementById("key-shortcut-ctrl-alt-shift-default-selected");
             let keyboardShortcutLetterNumberDefault = document.getElementById("key-shortcut-default-selected");
             let keyboardShortcutCtrlAltShiftDomain = document.getElementById("key-shortcut-ctrl-alt-shift-domain-selected");
             let keyboardShortcutLetterNumberDomain = document.getElementById("key-shortcut-domain-selected");
@@ -259,6 +260,7 @@ function loadSettings() {
                     onChangeShortcut(keyboardShortcutLetterNumber, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json);
                 }
             });
+            */
             //console.log(JSON.stringify(settings_json));
         });
     });
@@ -280,7 +282,7 @@ function onChangeShortcut(element, keyboardShortcutLetterNumber, keyboardShortcu
 
 function saveSettings() {
     //console.log(JSON.stringify(settings_json));
-    browser.storage.local.get(["storage"]).then(resultSyncLocalValue => {
+    chrome.storage.local.get(["storage"]).then(resultSyncLocalValue => {
         sync_local.set({"settings": settings_json}).then(resultF => {
             //Saved
             let buttonSave = document.getElementById("save-settings-button");
@@ -291,17 +293,17 @@ function saveSettings() {
 
             if (sync_or_local_settings === "yes") {
                 //use local (from sync)
-                sync_local = browser.storage.local;
-                browser.storage.local.set({"storage": "local"});
-                browser.storage.sync.get([
+                sync_local = chrome.storage.local;
+                chrome.storage.local.set({"storage": "local"});
+                chrome.storage.sync.get([
                     "settings",
                     "websites",
                     "sticky-notes-coords",
                     "sticky-notes-sizes",
                     "sticky-notes-opacity"
                 ]).then(result => {
-                    browser.storage.local.set(result).then(resultSet => {
-                        browser.storage.sync.get([
+                    chrome.storage.local.set(result).then(resultSet => {
+                        chrome.storage.sync.get([
                             "settings",
                             "websites",
                             "sticky-notes-coords",
@@ -309,13 +311,14 @@ function saveSettings() {
                             "sticky-notes-opacity"
                         ]).then(result2 => {
 
-                            if (result2["settings"] === {} || result2["settings"] === null) browser.storage.sync.remove("settings");
-                            if (result2["websites"] === {} || result2["websites"] === null) browser.storage.sync.remove("websites");
-                            if (result2["sticky-notes-coords"] === {} || result2["sticky-notes-coords"] === null) browser.storage.sync.remove("sticky-notes-coords");
-                            if (result2["sticky-notes-sizes"] === {} || result2["sticky-notes-sizes"] === null) browser.storage.sync.remove("sticky-notes-sizes");
-                            if (result2["sticky-notes-opacity"] === {} || result2["sticky-notes-opacity"] === null) browser.storage.sync.remove("sticky-notes-opacity");
+                            if (result2["settings"] === {} || result2["settings"] === null) chrome.storage.sync.remove("settings");
+                            if (result2["websites"] === {} || result2["websites"] === null) chrome.storage.sync.remove("websites");
+                            if (result2["sticky-notes-coords"] === {} || result2["sticky-notes-coords"] === null) chrome.storage.sync.remove("sticky-notes-coords");
+                            if (result2["sticky-notes-sizes"] === {} || result2["sticky-notes-sizes"] === null) chrome.storage.sync.remove("sticky-notes-sizes");
+                            if (result2["sticky-notes-opacity"] === {} || result2["sticky-notes-opacity"] === null) chrome.storage.sync.remove("sticky-notes-opacity");
 
-                            ctrl_alt_shift.forEach(value => {
+                            //TODO:chrome
+                            /*ctrl_alt_shift.forEach(value => {
                                 let commandName = "_execute_browser_action";
                                 if (value === "domain") commandName = "opened-by-domain";
                                 else if (value === "page") commandName = "opened-by-page";
@@ -326,19 +329,19 @@ function saveSettings() {
                                 if (shortcutToSet === "disabled") shortcutToSet = "";
 
                                 updateShortcut(commandName, shortcutToSet);
-                            });
+                            });*/
 
                             //console.log("-1->" + JSON.stringify(result));
                             //console.log("-2->" + JSON.stringify(result2));
                             //console.log(JSON.stringify(result) === JSON.stringify(result2));
                             if (JSON.stringify(result) === JSON.stringify(result2)) {
-                                browser.storage.sync.clear().then(
+                                chrome.storage.sync.clear().then(
                                     result3 => {
-                                        browser.storage.local.set({"storage": "local"});
+                                        chrome.storage.local.set({"storage": "local"});
                                     });
                             }
                         });
-                        browser.storage.local.set({"storage": "local"});
+                        chrome.storage.local.set({"storage": "local"});
                     }).catch((error) => {
                         console.error("Error importing data to local:", error);
                     });
@@ -347,9 +350,9 @@ function saveSettings() {
                 });
             } else if (sync_or_local_settings === "no") {
                 //use sync (from local)
-                sync_local = browser.storage.sync;
-                browser.storage.local.set({"storage": "sync"});
-                browser.storage.local.get([
+                sync_local = chrome.storage.sync;
+                chrome.storage.local.set({"storage": "sync"});
+                chrome.storage.local.get([
                     "settings",
                     "websites",
                     "sticky-notes-coords",
@@ -357,8 +360,8 @@ function saveSettings() {
                     "sticky-notes-opacity"
                 ]).then(result => {
                     //console.log(JSON.stringify(result));
-                    browser.storage.sync.set(result).then(resultSet => {
-                        browser.storage.local.get([
+                    chrome.storage.sync.set(result).then(resultSet => {
+                        chrome.storage.local.get([
                             "settings",
                             "websites",
                             "sticky-notes-coords",
@@ -366,16 +369,17 @@ function saveSettings() {
                             "sticky-notes-opacity"
                         ]).then(result2 => {
 
-                            if (result2["settings"] === {} || result2["settings"] === null) browser.storage.local.remove("settings");
-                            if (result2["websites"] === {} || result2["websites"] === null) browser.storage.local.remove("websites");
-                            if (result2["sticky-notes-coords"] === {} || result2["sticky-notes-coords"] === null) browser.storage.local.remove("sticky-notes-coords");
-                            if (result2["sticky-notes-sizes"] === {} || result2["sticky-notes-sizes"] === null) browser.storage.local.remove("sticky-notes-sizes");
-                            if (result2["sticky-notes-opacity"] === {} || result2["sticky-notes-opacity"] === null) browser.storage.local.remove("sticky-notes-opacity");
+                            if (result2["settings"] === {} || result2["settings"] === null) chrome.storage.local.remove("settings");
+                            if (result2["websites"] === {} || result2["websites"] === null) chrome.storage.local.remove("websites");
+                            if (result2["sticky-notes-coords"] === {} || result2["sticky-notes-coords"] === null) chrome.storage.local.remove("sticky-notes-coords");
+                            if (result2["sticky-notes-sizes"] === {} || result2["sticky-notes-sizes"] === null) chrome.storage.local.remove("sticky-notes-sizes");
+                            if (result2["sticky-notes-opacity"] === {} || result2["sticky-notes-opacity"] === null) chrome.storage.local.remove("sticky-notes-opacity");
                             //console.log("-1->" + JSON.stringify(result));
                             //console.log("-2->" + JSON.stringify(result2));
                             //console.log(JSON.stringify(result) === JSON.stringify(result2));
 
-                            ctrl_alt_shift.forEach(value => {
+                            //TODO:chrome
+                            /*ctrl_alt_shift.forEach(value => {
                                 //console.log("1>"+settings_json["open-popup-" + value])
                                 let commandName = "_execute_browser_action";
                                 if (value === "domain") commandName = "opened-by-domain";
@@ -387,14 +391,14 @@ function saveSettings() {
                                 if (shortcutToSet === "disabled") shortcutToSet = "";
 
                                 updateShortcut(commandName, shortcutToSet);
-                            });
+                            });*/
 
-                            if (JSON.stringify(result) === JSON.stringify(result2)) browser.storage.local.clear().then(
+                            if (JSON.stringify(result) === JSON.stringify(result2)) chrome.storage.local.clear().then(
                                 result3 => {
-                                    browser.storage.local.set({"storage": "sync"});
+                                    chrome.storage.local.set({"storage": "sync"});
                                 });
                         });
-                        browser.storage.local.set({"storage": "sync"});
+                        chrome.storage.local.set({"storage": "sync"});
                     }).catch((error) => {
                         console.error("Error importing data to sync:", error);
                     });
@@ -415,7 +419,7 @@ function saveSettings() {
 }
 
 function checkOperatingSystem() {
-    let info = browser.runtime.getPlatformInfo();
+    let info = chrome.runtime.getPlatformInfo();
     info.then(getOperatingSystem);
     //"mac", "win", "linux", "openbsd", "cros", ...
     // Docs: (https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/PlatformOs)ˇ
@@ -443,7 +447,7 @@ function getCurrentShortcuts(commands) {
 
 function updateShortcut(commandName, shortcut) {
     //to disable the shortcut -> the "shortcut" value have to be an empty string
-    browser.commands.update({
+    chrome.commands.update({
         name: commandName, shortcut: shortcut
     });
 }

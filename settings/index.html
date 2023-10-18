@@ -17,8 +17,8 @@ Created by Saverio Morelli - saveriomorelli.com
         <input type="button" value="Support on Telegram" id="support-telegram-button" class="button telegram-button"/>
         <input type="button" value="Support on GitHub" id="support-github-button" class="button github-button"/>
         <input type="button" value="Support via email" id="support-email-button" class="button email-button"/>
-        <input type="button" value="Rate the add-on" id="review-on-firefox-addons-button"
-               class="button firefox-button"/>
+        <input type="button" value="Rate the add-on" id="review-on-chrome-addons-button"
+               class="button review-button chrome-button"/>
 
         <input type="button" value="Translate on Crowdin" id="translate-addon" class="button translate-button"/>
         <input type="button" value="Save settings" id="save-settings-button" class="button save-button"/>
@@ -78,7 +78,7 @@ Created by Saverio Morelli - saveriomorelli.com
             </span>
         </div>
 
-        <div class="section settings-section-grid">
+        <div class="section settings-section-grid hidden">
             <span class="section-left padding-25px-lateral settings-section-grid-column"
                   id="open-popup-default-shortcut-text">
                 Keyboard shortcut to open pop-up using the default tab chosen
@@ -98,7 +98,7 @@ Created by Saverio Morelli - saveriomorelli.com
             </span>
         </div>
 
-        <div class="section settings-section-grid">
+        <div class="section settings-section-grid hidden">
             <span class="section-left padding-25px-lateral settings-section-grid-column"
                   id="open-popup-domain-shortcut-text">
                 Keyboard shortcut to open pop-up using the domain tab
@@ -118,7 +118,7 @@ Created by Saverio Morelli - saveriomorelli.com
             </span>
         </div>
 
-        <div class="section settings-section-grid">
+        <div class="section settings-section-grid hidden">
             <span class="section-left padding-25px-lateral settings-section-grid-column"
                   id="open-popup-page-shortcut-text">
                 Keyboard shortcut to open pop-up using the page tab
@@ -167,7 +167,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <select name="theme" id="theme-select" class="select-box">
                     <option value="light" id="theme-select-light">Light</option>
                     <option value="dark" id="theme-select-dark">Dark</option>
-                    <option value="auto" id="theme-select-firefox">Follow the Account theme</option>
+                    <option value="auto" class="hidden" id="theme-select-firefox">Follow the Account theme</option>
                 </select>
             </span>
         </div>

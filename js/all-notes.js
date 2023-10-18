@@ -6,6 +6,8 @@ let notefox_json = {};
 
 const all_strings = strings[languageToUse];
 
+const webBrowserUsed = "chrome";//TODO:change manually
+
 let colourListDefault = sortObjectByKeys({
     "red": all_strings["red-colour"],
     "yellow": all_strings["yellow-colour"],
@@ -21,7 +23,7 @@ let colourListDefault = sortObjectByKeys({
 
 let show_conversion_message_attention = false;
 
-let sync_local = browser.storage.local;
+let sync_local = chrome.storage.local;
 checkSyncLocal();
 
 let sort_by_selected = "name-az";
@@ -29,12 +31,12 @@ let filtersColors = [];
 let filtersTypes = [];
 
 function checkSyncLocal() {
-    sync_local = browser.storage.local;
-    browser.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = browser.storage.sync;
+    sync_local = chrome.storage.local;
+    chrome.storage.local.get("storage").then(result => {
+        if (result.storage === "sync") sync_local = chrome.storage.sync;
         else {
-            browser.storage.local.set({"storage": "local"});
-            sync_local = browser.storage.local;
+            chrome.storage.local.set({"storage": "local"});
+            sync_local = chrome.storage.local;
         }
         checkTheme();
     });
@@ -46,7 +48,7 @@ function loaded() {
     checkTheme();
 
     /*
-    browser.storage.local.get([
+    chrome.storage.local.get([
         "storage",
         "settings",
         "websites",
@@ -56,7 +58,7 @@ function loaded() {
     ]).then(result => {
         //console.log("local: " + JSON.stringify(result));
     });
-    browser.storage.sync.get([
+    chrome.storage.sync.get([
         "storage",
         "settings",
         "websites",
@@ -69,7 +71,7 @@ function loaded() {
     */
 
     /*
-    browser.storage.local.get([
+    chrome.storage.local.get([
         "storage",
         "settings",
         "websites",
@@ -79,7 +81,7 @@ function loaded() {
     ]).then(result => {
         //console.log("1" + JSON.stringify(result));
         if (result.storage !== undefined && result.storage === "sync" && result.storage !== "local") {
-            browser.storage.sync.get([
+            chrome.storage.sync.get([
                 "storage",
                 "settings",
                 "websites",
@@ -101,7 +103,7 @@ function loaded() {
     */
 
     try {
-        browser.storage.local.get([
+        chrome.storage.local.get([
             "storage"
         ]).then(result => {
             let property1 = all_strings["save-on-local-instead-of-sync"];
@@ -126,7 +128,7 @@ function loaded() {
             window.open("../settings/index.html", "_self");
         }
         document.getElementById("buy-me-a-coffee-button").onclick = function () {
-            browser.tabs.create({url: links["donate"]});
+            chrome.tabs.create({url: links["donate"]});
         }
         document.getElementById("clear-all-notes-button").onclick = function () {
             clearAllNotes();
@@ -179,12 +181,13 @@ function loaded() {
     titleAllNotes.textContent = all_strings["all-notes-title"];
     let versionNumber = document.createElement("div");
     versionNumber.classList.add("float-right", "small-button");
-    versionNumber.textContent = browser.runtime.getManifest().version;
+    versionNumber.textContent = chrome.runtime.getManifest().version;
     versionNumber.id = "version";
     notefox_json = {
-        "version": browser.runtime.getManifest().version,
-        "author": browser.runtime.getManifest().author,
-        "manifest_version": browser.runtime.getManifest().manifest_version
+        "version": chrome.runtime.getManifest().version,
+        "author": chrome.runtime.getManifest().author,
+        "manifest_version": chrome.runtime.getManifest().manifest_version,
+        "browser": webBrowserUsed
     };
     titleAllNotes.append(versionNumber);
 }
@@ -407,7 +410,7 @@ function onError(e) {
 }
 
 function importAllNotes() {
-    browser.storage.local.get([
+    chrome.storage.local.get([
         "storage",
         "settings",
         "websites",
@@ -481,6 +484,10 @@ function importAllNotes() {
                         continue_ok = !cancel;
                     }
 
+                    if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["notefox"]["browser"] !== undefined && json_to_export_temp["notefox"]["browser"] !== webBrowserUsed) {
+                        continue_ok = confirm("You exported notes from a browser different to the current one. Some features can be not available in all browsers.");
+                    }
+
                     let sticky_notes = {};
 
                     if (continue_ok) {
@@ -510,7 +517,7 @@ function importAllNotes() {
 
                     //console.log(JSON.stringify(json_to_export_temp));
 
-                    browser.storage.local.get([
+                    chrome.storage.local.get([
                         "storage"
                     ]).then(resultSyncOrLocalToUse => {
                             let storageTemp;
@@ -521,7 +528,7 @@ function importAllNotes() {
                             else storageTemp = "local";
 
                             if (continue_ok) {
-                                browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
+                                chrome.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
                                     checkSyncLocal();
 
                                     document.getElementById("import-now-all-notes-button").disabled = true;
@@ -552,16 +559,16 @@ function importAllNotes() {
                                                 //console.log(JSON.stringify(storageTemp));
                                                 if (storageTemp === "sync") {
                                                     if (JSON.stringify(json_old_version) === jsonImportElement.value) {
-                                                        browser.storage.local.clear().then(result1 => {
-                                                            browser.storage.local.set({"storage": "sync"})
+                                                        chrome.storage.local.clear().then(result1 => {
+                                                            chrome.storage.local.set({"storage": "sync"})
                                                         });
-                                                    } else browser.storage.local.set({"storage": "sync"})
+                                                    } else chrome.storage.local.set({"storage": "sync"})
                                                 } else {
                                                     if (JSON.stringify(json_old_version) === jsonImportElement.value) {
-                                                        browser.storage.local.clear().then(result1 => {
-                                                            browser.storage.local.set({"storage": "local"})
+                                                        chrome.storage.local.clear().then(result1 => {
+                                                            chrome.storage.local.set({"storage": "local"})
                                                         });
-                                                    } else browser.storage.local.set({"storage": "local"})
+                                                    } else chrome.storage.local.set({"storage": "local"})
                                                 }
                                             })
                                             ;
@@ -612,7 +619,7 @@ function importAllNotes() {
 
 function exportAllNotes() {
     showBackgroundOpacity();
-    browser.storage.local.get(["storage"]).then(getStorageTemp => {
+    chrome.storage.local.get(["storage"]).then(getStorageTemp => {
         sync_local.get([
             "sticky-notes-coords",
             "sticky-notes-opacity",
@@ -747,7 +754,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                         if (isUrlSupported(domain)) {
                             h2.classList.add("link", "go-to-external");
                             h2.onclick = function () {
-                                browser.tabs.create({url: domain});
+                                chrome.tabs.create({url: domain});
                             }
                         }
                         section.append(h2);
@@ -990,7 +997,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             if (isUrlSupported(fullUrl)) {
                 pageUrl.classList.add("link", "go-to-external");
                 pageUrl.onclick = function () {
-                    browser.tabs.create({url: fullUrl});
+                    chrome.tabs.create({url: fullUrl});
                 }
             }
 

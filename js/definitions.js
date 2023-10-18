@@ -3,7 +3,7 @@ var lang = "";
 var strings = []; //strings[language_code] = {};
 
 let supportedLanguages = ["en", "it", "ar", "zh-cn", "zh-tw", "cs", "da", "nl", "fi", "fr", "de", "el", "ja", "pl", "pt-pt", "pt-br", "ro", "ru", "es", "sv-SE", "uk"];
-let languageToUse = browser.i18n.getUILanguage().toString();
+let languageToUse = chrome.i18n.getUILanguage().toString();
 
 if (!supportedLanguages.includes(languageToUse)) languageToUse = "en";
 
@@ -16,7 +16,7 @@ let links = {
     "support_email": "mailto:saverio.morelli@protonmail.com",
     "support_github": "https://github.com/Sav22999/websites-notes/issues",
     "translate": "https://crowdin.com/project/notefox",
-    "review": "https://addons.mozilla.org/firefox/addon/websites-notes/"
+    "review": ""
 };
 
 /**
@@ -94,7 +94,13 @@ function checkTheme() {
 
         if (force_theme !== "" || result !== undefined && result["settings"] !== undefined && result["settings"]["theme"] !== undefined) {
             if (force_theme === "auto" || result["settings"] !== undefined && result["settings"]["theme"] && result["settings"]["theme"] === "auto") {
-                browser.theme.getCurrent().then(theme => {
+                force_theme = "light";
+                default_theme = true;
+            }
+
+            if (force_theme === "auto" || result["settings"] !== undefined && result["settings"]["theme"] && result["settings"]["theme"] === "auto") {
+                //TODO:chrome
+                /*chrome.theme.getCurrent().then(theme => {
                     //console.log(JSON.stringify(theme));
                     if (theme !== undefined && theme["colors"] !== undefined && theme["colors"] !== null) {
                         background = theme.colors.frame;
@@ -110,7 +116,7 @@ function checkTheme() {
                     } else {
                         default_theme = true;
                     }
-                });
+                });*/
             } else if (force_theme === "dark" || result["settings"] !== undefined && result["settings"]["theme"] !== undefined && result["settings"]["theme"] === "dark") {
                 //use the dark theme
                 background = "#000000";

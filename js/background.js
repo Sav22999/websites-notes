@@ -1,4 +1,7 @@
 const icons = ["../img/icon.svg", "../img/icon-bordered.svg"];
+const icons16 = ["../img/icons/icon-16.png", "../img/icons/icon-bordered-16.png"];
+const icons48 = ["../img/icons/icon-48.png", "../img/icons/icon-bordered-48.png"];
+const icons128 = ["../img/icons/icon-128.png", "../img/icons/icon-bordered-128.png"];
 var settings_json = {};
 var websites_json = {};
 
@@ -20,41 +23,41 @@ let opening_sticky = false;
 let page_domain_global = {"page": "Page", "domain": "Domain", "global": "Global", "subdomain": "•••"};
 let linkFirstLaunch = "https://saveriomorelli.com/projects/notefox/first-run"
 
-let sync_local = browser.storage.local;
+let sync_local = chrome.storage.local;
 checkSyncLocal();
 
 function checkSyncLocal() {
-    sync_local = browser.storage.local;
-    browser.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = browser.storage.sync;
+    sync_local = chrome.storage.local;
+    chrome.storage.local.get("storage").then(result => {
+        if (result.storage === "sync") sync_local = chrome.storage.sync;
         else {
-            browser.storage.local.set({"storage": "local"});
-            sync_local = browser.storage.local;
+            chrome.storage.local.set({"storage": "local"});
+            sync_local = chrome.storage.local;
         }
     });
-    browser.storage.sync.get("installation").then(result => {
+    chrome.storage.sync.get("installation").then(result => {
         //console.log("Installation")
         //console.log(result)
         if (result.installation === undefined) {
-            browser.storage.sync.set({
+            chrome.storage.sync.set({
                 "installation": {
                     "date": getDate(),
-                    "version": browser.runtime.getManifest().version
+                    "version": chrome.runtime.getManifest().version
                 }
             });
 
             //first launch -> open tutorial
-            browser.tabs.create({url: linkFirstLaunch});
+            chrome.tabs.create({url: linkFirstLaunch});
         }
     })
 }
 
 function changeIcon(index) {
-    browser.browserAction.setIcon({path: icons[index], tabId: tab_id});
+    chrome.action.setIcon({path: {"16": icons16[index], "48": icons48[index], "128": icons128[index]}});
 }
 
 function loaded() {
-    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         // since only one tab should be active and in the current window at once
         // the return variable should only have one entry
         let activeTab = tabs[0];
@@ -63,18 +66,18 @@ function loaded() {
         tab_title = activeTab.title;
 
         //catch changing of tab
-        browser.tabs.onActivated.addListener(tabUpdated);
-        browser.tabs.onUpdated.addListener(tabUpdated);
+        chrome.tabs.onActivated.addListener(tabUpdated);
+        chrome.tabs.onUpdated.addListener(tabUpdated);
 
-        browser.runtime.onMessage.addListener((message) => {
+        chrome.runtime.onMessage.addListener((message) => {
             if (message["updated"] !== undefined && message["updated"]) {
                 checkStatus();
                 checkStickyNotes();
             }
         });
 
-        listenerShortcuts();
-        listenerStickyNotes();
+        //listenerShortcuts();//TODO:chrome
+        //listenerStickyNotes();//TODO:chrome
         checkStatus();
     });
 }
@@ -84,15 +87,15 @@ function loadDataFromSync() {
 }
 
 function tabUpdated(tabs) {
-    sync_local = browser.storage.sync;
-    browser.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = browser.storage.sync;
-        else if (result.storage === "local") sync_local = browser.storage.local;
+    sync_local = chrome.storage.sync;
+    chrome.storage.local.get("storage").then(result => {
+        if (result.storage === "sync") sync_local = chrome.storage.sync;
+        else if (result.storage === "local") sync_local = chrome.storage.local;
         else {
-            browser.storage.local.set({"storage": "local"});
-            sync_local = browser.storage.local;
+            chrome.storage.local.set({"storage": "local"});
+            sync_local = chrome.storage.local;
         }
-        browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
+        chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
             tab_id = tabs[0].tabId;
             tab_url = tabs[0].url;
             tab_title = tabs[0].title;
@@ -153,33 +156,38 @@ function getGlobalUrl() {
 
 function getDomainUrl(url) {
     let urlToReturn = "";
-    let protocol = getTheProtocol(url);
-    if (url.includes(":")) {
-        urlParts = url.split(":");
-        urlToReturn = urlParts[1];
-    }
-
-    if (urlToReturn.includes("/")) {
-        urlPartsTemp = urlToReturn.split("/");
-        if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
-            urlToReturn = urlPartsTemp[2];
+    if (url !== undefined) {
+        let protocol = getTheProtocol(url);
+        if (url.includes(":")) {
+            let urlParts = url.split(":");
+            urlToReturn = urlParts[1];
         }
-    }
 
-    return (protocol + "://" + urlToReturn);
+        if (urlToReturn.includes("/")) {
+            let urlPartsTemp = urlToReturn.split("/");
+            if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
+                urlToReturn = urlPartsTemp[2];
+            }
+        }
+        return (protocol + "://" + urlToReturn);
+    }
+    return "";
 }
 
 function getPageUrl(url) {
-    let urlToReturn = url;
+    let urlToReturn = "";
 
-    //https://page.example/search#section1
-    if (settings_json["consider-sections"] === "no") {
-        if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
-    }
+    if (url !== undefined) {
+        urlToReturn = url;
+        //https://page.example/search#section1
+        if (settings_json["consider-sections"] === "no") {
+            if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
+        }
 
-    //https://page.example/search?parameters
-    if (settings_json["consider-parameters"] === "no") {
-        if (url.includes("?")) urlToReturn = urlToReturn.split("?")[0];
+        //https://page.example/search?parameters
+        if (settings_json["consider-parameters"] === "no") {
+            if (url.includes("?")) urlToReturn = urlToReturn.split("?")[0];
+        }
     }
 
     //console.log(urlToReturn);
@@ -191,25 +199,28 @@ function getTheProtocol(url) {
 }
 
 function listenerShortcuts() {
-    browser.commands.onCommand.addListener((command) => {
+    /*
+    chrome.commands.onCommand.addListener((command) => {
         if (command === "opened-by-domain") {
             //domain
-            browser.browserAction.openPopup();
+            chrome.browserAction.openPopup();
             sync_local.set({"opened-by-shortcut": "domain"});
         } else if (command === "opened-by-page") {
             //page
-            browser.browserAction.openPopup();
+            chrome.browserAction.openPopup();
             sync_local.set({"opened-by-shortcut": "page"});
         } else if (command === "opened-by-global") {
             //global
-            browser.browserAction.openPopup();
+            chrome.browserAction.openPopup();
             sync_local.set({"opened-by-shortcut": "global"});
         }
     });
+    */
 }
 
 function listenerStickyNotes() {
-    browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    /*
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         //console.log("Call: " + JSON.stringify(message));
         if (message["open-sticky"] !== undefined && message["open-sticky"]["open"] !== undefined && message["open-sticky"]["open"]) {
             //from main script (script.js)
@@ -279,21 +290,6 @@ function listenerStickyNotes() {
                         opacity.value = message.data.opacity.value;
                     });
                 }
-
-                /*
-                if (message.data.notes !== undefined) {
-                    //save W (width) and H (height) sizes of the sticky
-                    //these sizes will be used to open with that size
-
-                    sync_local.set({
-                        "websites": {
-                            //set notes -- modified in sticky-notes
-                        }
-                    }).then(result => {
-                        //updated websites with new notes
-                    });
-                }
-                */
             } else if (message.ask !== undefined) {
                 //want something as response
                 if (message.ask === "coords") {
@@ -354,6 +350,7 @@ function listenerStickyNotes() {
             }
         }
     });
+    */
 }
 
 /**
@@ -469,6 +466,7 @@ function getTheCorrectUrl() {
  * open sticky notes
  */
 function openAsStickyNotes() {
+    /*
     if (!opening_sticky) {
         opening_sticky = true;
         sync_local.get([
@@ -494,9 +492,9 @@ function openAsStickyNotes() {
             if (value_3 !== undefined) {
                 opacity.value = value_3.value;
             }
-            browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                 const activeTab = tabs[0];
-                browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
+                chrome.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
                     //console.log("Sticky notes ('open')");
                     opening_sticky = false;
                 }).catch(function (error) {
@@ -508,16 +506,18 @@ function openAsStickyNotes() {
             console.error("Error retrieving data:", error);
         });
     }
+    */
 }
 
 /**
  * close sticky notes if exists and the status changed to "closed"
  */
 function closeStickyNotes() {
+    /*
     checkIcon();
-    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         const activeTab = tabs[0];
-        browser.tabs.executeScript({
+        chrome.tabs.executeScript({
             code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
         }).then(function () {
             //console.log("Sticky notes ('close')");
@@ -526,6 +526,7 @@ function closeStickyNotes() {
         });
     });
     opening_sticky = false;
+    */
 }
 
 function checkIcon() {
@@ -555,29 +556,31 @@ function checkIcon() {
 
 function getAllOtherPossibleUrls(url) {
     let urlToReturn = "";
-    let protocol = getTheProtocol(url);
-    if (url.includes(":")) {
-        let urlParts = url.split(":");
-        urlToReturn = urlParts[1];
-    }
+    if (url !== undefined) {
+        let protocol = getTheProtocol(url);
+        if (url.includes(":")) {
+            let urlParts = url.split(":");
+            urlToReturn = urlParts[1];
+        }
 
-    let urlsToReturn = [];
+        let urlsToReturn = [];
 
-    if (urlToReturn.includes("/")) {
-        let urlPartsTemp = urlToReturn.split("/");
-        let urlConcat = "/";
-        for (let urlFor = 3; urlFor < urlPartsTemp.length; urlFor++) {
-            if (urlPartsTemp[urlFor] !== "") {
-                urlConcat += urlPartsTemp[urlFor];
-                if (urlConcat !== getDomainUrl(url)) {
-                    urlsToReturn.push(urlConcat + "/*");
+        if (urlToReturn.includes("/")) {
+            let urlPartsTemp = urlToReturn.split("/");
+            let urlConcat = "/";
+            for (let urlFor = 3; urlFor < urlPartsTemp.length; urlFor++) {
+                if (urlPartsTemp[urlFor] !== "") {
+                    urlConcat += urlPartsTemp[urlFor];
+                    if (urlConcat !== getDomainUrl(url)) {
+                        urlsToReturn.push(urlConcat + "/*");
+                    }
+                    urlConcat += "/";
                 }
-                urlConcat += "/";
             }
         }
+        return urlsToReturn;
     }
-
-    return urlsToReturn;
+    return [];
 }
 
 function setOpenedSticky(sticky, minimized) {
