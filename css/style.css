@@ -746,6 +746,7 @@ b {
 
 #notes {
     margin-bottom: 35px;
+    cursor: text !important;
 }
 
 #notes *, .textarea-all-notes * {
@@ -757,7 +758,7 @@ b {
     white-space: inherit;
 }
 
-.textarea-all-notes {
+.textarea-all-notes, .textarea-all-notes * {
     cursor: default;
 }
 
