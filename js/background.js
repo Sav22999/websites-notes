@@ -526,10 +526,11 @@ function closeStickyNotes() {
             code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
         }).then(function () {
             //console.log("Sticky notes ('close')");
+            tabUpdated();
         }).catch(function (error) {
             console.error("E1: " + error + "\nin " + activeTab.url);
         });
-    });
+    })
     opening_sticky = false;
 }
 

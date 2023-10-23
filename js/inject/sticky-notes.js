@@ -182,6 +182,10 @@ function updateStickyNotes() {
  */
 function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity = 0.7, websites_json, settings_json) {
     if (!document.getElementById("sticky-notes-notefox-addon")) {
+        let css = document.createElement("style");
+        css.innerText = getCSS(notes, x, y, w, h, opacity, websites_json, settings_json);
+        document.body.appendChild(css);
+
         if (document.getElementById("restore--sticky-notes-notefox-addon")) document.getElementById("restore--sticky-notes-notefox-addon").remove();
 
         let move = document.createElement("div");
@@ -291,11 +295,8 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
 
         stickyNote.appendChild(resize);
         stickyNote.appendChild(textContainer);
-        document.body.appendChild(stickyNote);
 
-        let css = document.createElement("style");
-        css.innerText = getCSS(notes, x, y, w, h, opacity, websites_json, settings_json);
-        document.head.appendChild(css);
+        document.body.appendChild(stickyNote);
 
         browser.runtime.sendMessage({from: "sticky", data: {sticky: true, minimized: false}});
     } else {
@@ -805,8 +806,8 @@ function openMinimized() {
         restore.id = "restore--sticky-notes-notefox-addon";
         let css = document.createElement("style");
         css.innerText = getCSSMinimized();
+        document.body.appendChild(css);
         document.body.appendChild(restore);
-        document.head.appendChild(css);
 
     } else {
         restore = document.getElementById("restore--sticky-notes-notefox-addon");
