@@ -574,6 +574,7 @@ function saveNotes() {
 }
 
 function tabUpdated(tabs) {
+    window.close();
     browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
         let tab_id = tabs[0].tabId;
         let tab_url = tabs[0].url;
