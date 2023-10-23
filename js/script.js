@@ -796,9 +796,22 @@ function setTab(index, url) {
 
 function openStickyNotes() {
     if (stickyNotesSupported) {
-        browser.runtime.sendMessage({
-            "open-sticky": {
-                open: true, type: selected_tab
+        sync_local.get("websites", function (value) {
+            if (value["websites"] !== undefined) {
+                websites_json = value["websites"];
+
+                if (websites_json[currentUrl[selected_tab]] !== undefined) {
+                    websites_json[currentUrl[selected_tab]]["sticky"] = true;
+                    websites_json[currentUrl[selected_tab]]["minimized"] = false;
+
+                    sync_local.set({"websites": websites_json}).then(result => {
+                        browser.runtime.sendMessage({
+                            "open-sticky": {
+                                open: true, type: selected_tab
+                            }
+                        });
+                    });
+                }
             }
         });
     }

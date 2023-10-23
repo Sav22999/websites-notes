@@ -1,6 +1,8 @@
 <h1 align="center">
     <br>
-    <img width="70" src="img/icon.svg" alt="Limite icon" />
+    <img width="70" src="img/icon.svg" alt=“Notefox icon" />
+    <br>
+    Notefox
     <br>
 </h1>
 Official repo of https://addons.mozilla.org/it/firefox/addon/websites-notes/.
