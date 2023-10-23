@@ -567,10 +567,14 @@ function saveNotes() {
                 //console.log(JSON.stringify(websites_json));
 
                 //send message to "background.js" to update the icon
-                browser.runtime.sendMessage({"updated": true});
+                sendMessageUpdateToBackground();
             });
         }
     });
+}
+
+function sendMessageUpdateToBackground() {
+    browser.runtime.sendMessage({"updated": true});
 }
 
 function tabUpdated(tabs) {
@@ -899,7 +903,9 @@ function spellcheck(force = false, value = false) {
             }
         }
         document.getElementById("notes").focus();
-        sync_local.set({"settings": settings_json});
+        sync_local.set({"settings": settings_json}).then(() => {
+            sendMessageUpdateToBackground();
+        });
     });
 }
 
