@@ -27,7 +27,7 @@ let links = {
  * @returns {*}
  */
 function sanitize(element, allowedTags, allowedAttributes) {
-    if (allowedTags === -1) allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "label", "font", "section", "article", "blockquote", "q", "cite", "address", "abbr"];
+    if (allowedTags === -1) allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "label", "font", "section", "article", "blockquote", "q", "cite", "address", "abbr"];
     if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite"];
 
     let sanitizedHTML = element;
@@ -42,20 +42,27 @@ function sanitize(element, allowedTags, allowedAttributes) {
                 // Remove attributes unsupported of allowedTags
                 //console.log(`Checking tag ... ${node.tagName}`)
                 var element = node;
+                let attributes_to_remove = [];
                 for (var j = 0; j < element.attributes.length; j++) {
                     var attribute = element.attributes[j];
                     if (!allowedAttributes.includes(attribute.name.toLowerCase())) {
                         //console.log(`Removing attribute ... ${attribute.name} from ${node.tagName}`)
-                        element.removeAttribute(attribute.name);
+                        //element.removeAttribute(attribute.name);
+                        attributes_to_remove.push(attribute.name);
+                    } else {
+                        //console.log(`OK attribute ${attribute.name} from ${node.tagName}`)
                     }
                 }
-                if (node.tagName.toLowerCase() === "img") node.setAttribute('style', 'width:auto; max-width:100% !important; height:auto !important');
+                attributes_to_remove.forEach(attribute => {
+                    element.removeAttribute(attribute);
+                })
+                if (node.tagName.toLowerCase() === "img") node.setAttribute('style', 'width:auto; max-width:100% !important;height:auto !important');
             } else {
                 // Remove unsupported tags
                 //console.log(`Removing tag ... ${node.tagName}`)
                 //console.log(node.innerHTML)
                 let tmpNode = document.createElement("span");
-                if (node.innerText !== undefined) tmpNode.innerHTML = node.innerText;
+                if (node.innerHTML !== undefined) tmpNode.innerHTML = node.innerHTML;
                 else if (node.value !== undefined) tmpNode.innerHTML = node.value;
                 else tmpNode.innerText = "";
                 node.replaceWith(tmpNode);

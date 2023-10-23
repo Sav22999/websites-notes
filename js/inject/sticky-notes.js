@@ -137,6 +137,8 @@ function updateStickyNotes() {
                 if (pageDomainGlobalToUse === undefined) pageDomainGlobalToUse = "";
                 pageOrDomain.innerText = pageDomainGlobalToUse;
 
+                //console.log(pageDomainGlobalToUse);
+
                 checkDisableWordWrap(text, response.settings);
                 checkLanguageSpellcheck(text, response.settings);
 
@@ -353,7 +355,6 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
     let svg_background_image = `base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj48c3ZnIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAzOSAxMCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4bWw6c3BhY2U9InByZXNlcnZlIiB4bWxuczpzZXJpZj0iaHR0cDovL3d3dy5zZXJpZi5jb20vIiBzdHlsZT0iZmlsbC1ydWxlOmV2ZW5vZGQ7Y2xpcC1ydWxlOmV2ZW5vZGQ7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS1taXRlcmxpbWl0OjEuNTsiPjxwYXRoIGQ9Ik03LjQ0NywwLjM0OWMtMCwwIC01LjgyNiwtMC4wODkgLTYuODc0LDAuMDA3Yy0wLjA5NCwwLjAwOSAtMC4xNTgsMC4wMzYgLTAuMTkyLDAuMTUxYy0wLjAzNSwwLjEyIC0wLjA2OCwxLjI4NiAtMC4wNjgsMi4wM2MtMCwxLjU3MSAtMCw1LjIzNSAtMCw2LjAxMWMtMCwwLjQ5OSAwLjA0NSwwLjg5OCAwLjA2NCwxLjAxM2MwLjAxMywwLjA3NCAwLjEsMC4wNjYgMC4xLDAuMDY2bDIuMDcxLDBjMS43NjQsMCA0LjI1NiwwLjA4NCA0Ljc2MywtMC4wMzZjMC4xNTUsLTAuMDM3IDAuMTg3LC0wLjExNSAwLjIwOSwtMC4yNTljMC4wNzgsLTAuNTA5IDAuMTExLC00LjE5MiAwLjExMSwtNS45NDNsLTAsLTIuODY4bC0wLjA5MiwtMC4wODRsLTAuMDkyLC0wLjA4OFoiIHN0eWxlPSJmaWxsOiMwMGE4MWM7ZmlsbC1vcGFjaXR5OjAuMTtmaWxsLXJ1bGU6bm9uemVybzsiLz48cGF0aCBkPSJNMC4zNTEsOS4zNDRjLTAuMTk2LDAuMTIzIDAuMTIxLDAuNTg5IDAuMTI2LDAuNTk2Yy0wLjA4MSwtMC4wMDEgLTAuMzYsLTAuMDQgLTAuNDA4LC0wLjMyOGMtMC4wMiwtMC4xMjEgLTAuMDY5LC0wLjU0IC0wLjA2OSwtMS4wNjRjMCwtMC43NzYgLTAsLTQuNDQgLTAsLTYuMDExYy0wLC0wLjc3NiAwLjA0NCwtMS45OTIgMC4wODEsLTIuMTE4YzAuMDQzLC0wLjE0NSAwLjExNSwtMC4yMjggMC4xOTYsLTAuMjg0YzAuMDczLC0wLjA1MSAwLjE2LC0wLjA4IDAuMjY4LC0wLjA5YzEuMDUyLC0wLjA5NiA2LjkwNywtMC4wMDggNi45MDcsLTAuMDA4YzAuMDgyLDAuMDAxIDAuMTU2LDAuMDM0IDAuMjExLDAuMDg3bDAuMDg5LDAuMDg1bDAuMDg4LDAuMDc5YzAuMTAxLDAuMDkzIDAuMTAxLDAuMTkxIDAuMDU5LDAuMjc3bDAuMDQ0LC0wLjA0NGwwLDIuODY4YzAsMS43NjUgLTAuMDM2LDUuNDc3IC0wLjExNCw1Ljk5MWMtMC4wMjYsMC4xNjggLTAuMDc3LDAuMjgyIC0wLjE2NSwwLjM2OGMtMC4wNjMsMC4wNjIgLTAuMTQ5LDAuMTE1IC0wLjI4MSwwLjE0N2MtMC41MTQsMC4xMjIgLTMuMDQ0LDAuMDQ1IC00LjgzNSwwLjA0NWwtMi4wNzEsLTBsMC4wMDIsLTBsLTAuMDAyLC0wbC0wLC0wLjMxM2wyLjA3MSwwYzEuNzY0LDAgNC4yNTYsMC4wODQgNC43NjMsLTAuMDM2YzAuMTU1LC0wLjAzNyAwLjE4NywtMC4xMTUgMC4yMDksLTAuMjU5YzAuMDc4LC0wLjUwOSAwLjExMSwtNC4xOTIgMC4xMTEsLTUuOTQzbC0wLC0yLjg2OGwtMC4wOTIsLTAuMDg0bC0wLjA5MiwtMC4wODhjLTAsMCAtNS44MjYsLTAuMDg5IC02Ljg3NCwwLjAwN2MtMC4wOTQsMC4wMDkgLTAuMTU4LDAuMDM2IC0wLjE5MiwwLjE1MWMtMC4wMzUsMC4xMiAtMC4wNjgsMS4yODYgLTAuMDY4LDIuMDNjLTAsMS41NzEgLTAsNS4yMzUgLTAsNi4wMTFjLTAsMC4zMjQgMC4wMTksMC42MDcgMC4wMzgsMC43OTZaIiBzdHlsZT0iZmlsbDojZmZmO2ZpbGwtb3BhY2l0eTowLjE7Ii8+PHBhdGggZD0iTTYuMzIsNC4xNTZjMS4zNjIsLTAuODUgMi42NDQsLTEuNDY1IDIuNjU2LC0xLjQ3N2MwLjAxMSwtMC4wMDcgMC4wMTksLTAuMTQxIDAuMDE1LC0wLjI5NWMtMC4wMDQsLTAuNDg4IC0wLjI0MiwtMC44NjIgLTAuNjg2LC0xLjA4NmwtMC4yMzQsLTAuMTE4Yy0wLC0wIC0xLjM0NiwxLjA0MSAtMi41NTcsMS43OTJsLTIuNDI5LDEuMzIxYy0wLDAgLTAuNzM1LDEuMzIxIC0wLjYxMSwxLjQzM2MwLjEwNCwwLjA5NSAxLjIzNSwtMC4wMDMgMS41MTYsLTAuMDMyYzAuMDA3LC0wIDAuNzc1LC0wLjU2NyAyLjMzLC0xLjUzOFoiIHN0eWxlPSJmaWxsOiMwMDM2MWM7ZmlsbC1vcGFjaXR5OjAuMTtmaWxsLXJ1bGU6bm9uemVybzsiLz48cGF0aCBkPSJNOS4xNywyLjkyM2wtMC4wMTksMC4wMTVjMC4wMzUsLTAuMDIzIDAuMDkyLC0wLjA2OSAwLjEyNCwtMC4xNjVjMC4wMTQsLTAuMDM5IDAuMDMzLC0wLjIwNSAwLjAyOSwtMC4zOTRjLTAuMDA2LC0wLjYxIC0wLjMwMiwtMS4wNzkgLTAuODU5LC0xLjM2bC0wLjIzNCwtMC4xMThjLTAuMTA3LC0wLjA1NCAtMC4yMzYsLTAuMDQyIC0wLjMzMiwwLjAzMmMwLC0wIC0xLjMyNCwxLjAyNSAtMi41MjEsMS43NjdjLTAuMDAyLDAuMDAxIC0yLjQyMywxLjMxOSAtMi40MjMsMS4zMTljLTAuMDUyLDAuMDI4IC0wLjA5NCwwLjA3MSAtMC4xMjMsMC4xMjJjLTAsMCAtMC40OSwwLjg4NSAtMC42MiwxLjI5OWMtMC4wMzksMC4xMjQgLTAuMDQ5LDAuMjI0IC0wLjA0MiwwLjI4NmMwLjAxMSwwLjEwOSAwLjA2LDAuMTgyIDAuMTE0LDAuMjMxYzAuMDQ1LDAuMDQyIDAuMTY5LDAuMTA1IDAuMzYxLDAuMTE3YzAuMzY1LDAuMDIzIDEuMTY0LC0wLjA0NSAxLjM5NywtMC4wNjljMC4wMDQsLTAgMC4wNzQsLTAuMDAyIDAuMTczLC0wLjA3MmMwLjE0MiwtMC4xMDEgMC45LC0wLjY0NCAyLjI5MSwtMS41MTJsLTAsLTBjMS4yMTQsLTAuNzU4IDIuMzY0LC0xLjMyNyAyLjU5LC0xLjQ0MWMwLjA0NCwtMC4wMjIgMC4wNzQsLTAuMDQzIDAuMDk0LC0wLjA1N1ptLTIuODUsMS4yMzNjMS4zNjIsLTAuODUgMi42NDQsLTEuNDY1IDIuNjU2LC0xLjQ3N2MwLjAxMSwtMC4wMDcgMC4wMTksLTAuMTQxIDAuMDE1LC0wLjI5NWMtMC4wMDQsLTAuNDg4IC0wLjI0MiwtMC44NjIgLTAuNjg2LC0xLjA4NmwtMC4yMzQsLTAuMTE4Yy0wLC0wIC0xLjM0NiwxLjA0MSAtMi41NTcsMS43OTJsLTIuNDI5LDEuMzIxYy0wLDAgLTAuNzM1LDEuMzIxIC0wLjYxMSwxLjQzM2MwLjEwNCwwLjA5NSAxLjIzNSwtMC4wMDMgMS41MTYsLTAuMDMyYzAuMDA3LC0wIDAuNzc1LC0wLjU2NyAyLjMzLC0xLjUzOFoiIHN0eWxlPSJmaWxsOiNmZmY7ZmlsbC1vcGFjaXR5OjAuMTsiLz48cGF0aCBkPSJNMS4yMjMsMS44NTFjLTAsLTAuMDMxIDAuMDI5LC0wLjA1NiAwLjA0NCwtMC4wODRjMC4wNSwtMC4wOTcgMC4xMTUsLTAuMTkgMC4xNzIsLTAuMjgzYzAuMDA2LC0wLjAwOSAwLjAzMSwtMC4wNjQgMC4wNDksLTAuMDc5YzAuMDEsLTAuMDA5IDAuMDMxLC0wLjA0IDAuMDMxLC0wLjAyN2MtMCwwLjIwOCAwLjAyNiwwLjQxMiAwLjAyNiwwLjYxOWwwLDAuMjY1YzAsMC4wMTEgMC4wMDMsMC4wNzYgMC4wMjcsMC4wNThjMC4xNTUsLTAuMTIxIDAuMjkyLC0wLjMzNCAwLjQ2NCwtMC40MmMwLjAxNiwtMC4wMDggMC4wMzEsMC4wMTggMC4wNDQsMC4wMzFjMC4wNDEsMC4wNDEgMC4wODUsMC4wODQgMC4xNDYsMC4wOTdjMC4wNjksMC4wMTUgMC4wNzEsLTAuMDY5IDAuMTE1LC0wLjA4YzAuMDg2LC0wLjAyMSAwLjE3NSwwLjA1OCAwLjI3LDAuMDI3YzAuMTQ2LC0wLjA0NyAwLjIzOCwtMC4xNDMgMC4zNTcsLTAuMjM0YzAuMDIsLTAuMDE1IDAuMDgxLC0wLjA3OCAwLjEyLC0wLjA2MmMwLjAzOSwwLjAxNiAwLjA0OCwwLjA0OSAwLjA3NSwwLjA3NWMwLjA3NCwwLjA3IDAuMTYzLDAuMTUgMC4yNDMsMC4yMDNjMC4wMzMsMC4wMjIgMC4xMTEsLTAuMDkxIDAuMTI4LC0wLjEwNmMwLjEwMiwtMC4wODcgMC4yMjMsLTAuMTU5IDAuMzU0LC0wLjE5YzAuMDI5LC0wLjAwNyAwLjA2NCwtMC4wMjkgMC4wODgsLTAuMDEzYzAuMDM2LDAuMDI0IDAuMDM1LDAuMDkgMC4wNDQsMC4xMjhjMC4wMTgsMC4wNzIgMC4wODksMC4yNzMgMC4xOTQsMC4yODdjMC4yMTksMC4wMjcgMC4zNTQsLTAuMjgyIDAuNTUzLC0wLjMyN2MwLjA5OSwtMC4wMjIgMC4xNDcsMC4xODIgMC4yNDQsMC4yMDRjMC4wNTgsMC4wMTMgMC4xMSwtMC4wMjkgMC4xNjcsLTAuMDM2YzAuMDk5LC0wLjAxMSAwLjIwMiwwLjAwNSAwLjMwMSwwLjAwNSIgc3R5bGU9ImZpbGw6bm9uZTtzdHJva2U6I2ZmZjtzdHJva2Utb3BhY2l0eTowLjI7c3Ryb2tlLXdpZHRoOjAuMzFweDsiLz48cGF0aCBkPSJNMS4xMzksNC4wMjJjMC4wMjQsLTAuMDE3IDAuMDEyLC0wLjA0OCAwLjAxMywtMC4wNzZjMC4wMDQsLTAuMDY4IDAuMDA3LC0wLjEzNSAwLjAxMywtMC4yMDNjMC4wMTIsLTAuMTI1IDAuMDQxLC0wLjI1OCAwLjExMiwtMC4zNjRjMC4wMTcsLTAuMDI3IDAuMDYzLC0wLjA4NyAwLjEsLTAuMDkxYzAuMjM3LC0wLjAyOCAwLjIzNywwLjI0MSAwLjM2MywwLjM2N2MwLjAzMSwwLjAzMSAwLjIsLTAuMDUgMC4yMjEsLTAuMDUzYzAuMDYsLTAuMDExIDAuMDc4LDAuMDggMC4xNDEsMC4xMDFjMC4xMDEsMC4wMzQgMC4zMTUsMC4wMTkgMC40MDIsLTAuMDA0YzAuMDY4LC0wLjAxOCAwLjE2NSwtMC4wNTIgMC4yMTMsLTAuMTA2YzAuMDIsLTAuMDI0IDAuMDIyLC0wLjA5NyAwLjA0OCwtMC4wOGMwLjEyMywwLjA4MiAwLjM4NSwwLjE2OCAwLjUwOCwwLjEwNiIgc3R5bGU9ImZpbGw6bm9uZTtzdHJva2U6I2ZmZjtzdHJva2Utb3BhY2l0eTowLjI7c3Ryb2tlLXdpZHRoOjAuMzFweDsiLz48ZyB0cmFuc2Zvcm09Im1hdHJpeCg4LjA1NDIsMCwwLDguMDU0MiwzOC4yNTM2LDcuODY2NTgpIj48L2c+PHRleHQgeD0iMTAuNDk3cHgiIHk9IjcuODY3cHgiIHN0eWxlPSJmb250LWZhbWlseTonQXJpYWxNVCcsICdBcmlhbCcsIHNhbnMtc2VyaWY7Zm9udC1zaXplOjguMDU0cHg7ZmlsbDojMDBhODFjO2ZpbGwtb3BhY2l0eTowLjE7Ij5Ob3RlZm94PC90ZXh0Pjwvc3ZnPg==`;
 
     return `
-            @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
             #sticky-notes-notefox-addon {
                 position: fixed;
                 top: ${y};
@@ -377,12 +378,6 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 background-position: left 50% bottom 10px;
                 background-repeat: no-repeat;
                 background-size: 50% auto;
-            }
-            #sticky-notes-notefox-addon * {
-                font-size: 14px !important;
-            }
-            #sticky-notes-notefox-addon b {
-                font-weight: bolder;
             }
             #move--sticky-notes-notefox-addon, #page-or-domain--sticky-notes-notefox-addon {
                 position: absolute;
@@ -465,9 +460,84 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 resize: none;
                 transition: 0.2s;
                 font-family: 'Open Sans', sans-serif;
+                font-size: 14px !important;
             }
             #text--sticky-notes-notefox-addon * {
                 white-space: inherit;
+                padding: 0px;
+                margin: 0px;
+                background-color: transparent;
+                color: inherit;
+                border: 0px solid transparent;
+                font-size: inherit;
+            }
+            #text--sticky-notes-notefox-addon b, #text--sticky-notes-notefox-addon strong {
+                font-family: 'Open Sans', sans-serif;
+                font-weight: bolder;
+            }
+            
+            #text--sticky-notes-notefox-addon i, #text--sticky-notes-notefox-addon em, #text--sticky-notes-notefox-addon cite, #text--sticky-notes-notefox-addon q, #text--sticky-notes-notefox-addon blockquote {
+                font-style: italic;
+            }
+            
+            #text--sticky-notes-notefox-addon code, #text--sticky-notes-notefox-addon pre {
+                font-family: 'Source Code Pro', monospace;
+            }
+            
+            #text--sticky-notes-notefox-addon h1 {
+                font-family: 'Open Sans', sans-serif;
+                font-weight: bolder;
+                font-size: 22px !important;
+            }
+            
+            #text--sticky-notes-notefox-addon h2 {
+                font-family: 'Open Sans', sans-serif;
+                font-weight: bolder;
+                font-size: 20px !important;
+            }
+            
+            #text--sticky-notes-notefox-addon h3 {
+                font-family: 'Open Sans', sans-serif;
+                font-weight: bolder;
+                font-size: 18px !important;
+            }
+            
+            #text--sticky-notes-notefox-addon h4 {
+                font-family: 'Open Sans', sans-serif;
+                font-weight: bolder;
+                font-size: 16px !important;
+            }
+            
+            #text--sticky-notes-notefox-addon h5 {
+                font-family: 'Open Sans', sans-serif;
+                font-weight: bolder;
+                font-size: 14px !important;
+            }
+            
+            #text--sticky-notes-notefox-addon h6 {
+                font-family: 'Open Sans', sans-serif;
+                font-weight: bolder;
+                font-size: 12px !important;
+            }
+            
+            #text--sticky-notes-notefox-addon big {
+                font-size: 18px !important;
+            }
+            
+            #text--sticky-notes-notefox-addon small, #text--sticky-notes-notefox-addon sup, #text--sticky-notes-notefox-addon sub {
+                font-size: 12px !important;
+            }
+            
+            #text--sticky-notes-notefox-addon img {
+                border-radius: 5px;
+            }
+            
+            #text--sticky-notes-notefox-addon li {
+                padding-left: 0px !important;
+            }
+            
+            #text--sticky-notes-notefox-addon ul {
+                padding-left: 20px !important;
             }
             #text-container--sticky-notes-notefox-addon {
                 position: absolute;
@@ -750,6 +820,8 @@ function sanitizeHTML(input) {
     let div_sanitize = document.createElement("div");
     div_sanitize.innerHTML = input;
 
+    //console.log(input);
+
     let sanitizedHTML = sanitize(div_sanitize, -1, -1);
 
     //console.log(sanitizedHTML.innerHTML)
@@ -758,8 +830,8 @@ function sanitizeHTML(input) {
 }
 
 function sanitize(element, allowedTags, allowedAttributes) {
-    if (allowedTags === -1) allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "label", "font", "section", "article", "blockquote", "q", "cite", "address", "abbr"];
-    if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title"];
+    if (allowedTags === -1) allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "label", "font", "section", "article", "blockquote", "q", "cite", "address", "abbr"];
+    if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite"];
 
     let sanitizedHTML = element;
 
@@ -772,18 +844,31 @@ function sanitize(element, allowedTags, allowedAttributes) {
                 // Remove attributes unsupported of allowedTags
                 //console.log(`Checking tag ... ${node.tagName}`)
                 var element = node;
+                let attributes_to_remove = [];
                 for (var j = 0; j < element.attributes.length; j++) {
                     var attribute = element.attributes[j];
                     if (!allowedAttributes.includes(attribute.name.toLowerCase())) {
                         //console.log(`Removing attribute ... ${attribute.name} from ${node.tagName}`)
-                        element.removeAttribute(attribute.name);
+                        //element.removeAttribute(attribute.name);
+                        attributes_to_remove.push(attribute.name);
+                    } else {
+                        //console.log(`OK attribute ${attribute.name} from ${node.tagName}`)
                     }
                 }
+                attributes_to_remove.forEach(attribute => {
+                    element.removeAttribute(attribute);
+                })
                 if (node.tagName.toLowerCase() === "img") node.setAttribute('style', 'width:auto; max-width:100% !important;height:auto !important');
             } else {
                 // Remove unsupported tags
                 //console.log(`Removing tag ... ${node.tagName}`)
-                sanitizedHTML.removeChild(node);
+                //console.log(node.innerHTML)
+                let tmpNode = document.createElement("span");
+                if (node.innerHTML !== undefined) tmpNode.innerHTML = node.innerHTML;
+                else if (node.value !== undefined) tmpNode.innerHTML = node.value;
+                else tmpNode.innerText = "";
+                node.replaceWith(tmpNode);
+                //sanitizedHTML.remove(nod);
             }
         } else if (node.nodeType === Node.TEXT_NODE) {
             //console.log("Text supported")
@@ -792,7 +877,7 @@ function sanitize(element, allowedTags, allowedAttributes) {
             //console.log("????")
         }
     }
-    return sanitizedHTML
+    return sanitizedHTML;
 }
 
 function openMinimized() {

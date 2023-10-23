@@ -530,7 +530,7 @@ function closeStickyNotes() {
         }).catch(function (error) {
             console.error("E1: " + error + "\nin " + activeTab.url);
         });
-    })
+    });
     opening_sticky = false;
 }
 
