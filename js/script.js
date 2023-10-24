@@ -567,14 +567,17 @@ function saveNotes() {
                 //console.log(JSON.stringify(websites_json));
 
                 //send message to "background.js" to update the icon
-                browser.runtime.sendMessage({"updated": true});
+                sendMessageUpdateToBackground();
             });
         }
     });
 }
 
+function sendMessageUpdateToBackground() {
+    browser.runtime.sendMessage({"updated": true});
+}
+
 function tabUpdated(tabs) {
-    window.close();
     browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
         let tab_id = tabs[0].tabId;
         let tab_url = tabs[0].url;
@@ -584,7 +587,8 @@ function tabUpdated(tabs) {
         currentAction = 0;
         undoAction = false;
     }).then((tabs) => {
-        loadUI();
+        window.close();
+        //loadUI();
     });
 }
 
@@ -796,16 +800,22 @@ function setTab(index, url) {
 }
 
 function openStickyNotes() {
+    console.log("Opening...")
     if (stickyNotesSupported) {
+        console.log("Opening... <1>")
         sync_local.get("websites", function (value) {
+            console.log("Opening... <2>")
             if (value["websites"] !== undefined) {
+                console.log("Opening... <3>")
                 websites_json = value["websites"];
 
                 if (websites_json[currentUrl[selected_tab]] !== undefined) {
+                    console.log("Opening... <4>")
                     websites_json[currentUrl[selected_tab]]["sticky"] = true;
                     websites_json[currentUrl[selected_tab]]["minimized"] = false;
 
                     sync_local.set({"websites": websites_json}).then(result => {
+                        console.log("Opening... <5>")
                         browser.runtime.sendMessage({
                             "open-sticky": {
                                 open: true, type: selected_tab
@@ -899,7 +909,9 @@ function spellcheck(force = false, value = false) {
             }
         }
         document.getElementById("notes").focus();
-        sync_local.set({"settings": settings_json});
+        sync_local.set({"settings": settings_json}).then(() => {
+            sendMessageUpdateToBackground();
+        });
     });
 }
 
