@@ -363,7 +363,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 height:  ${h};
                 background-color: #fffd7d;
                 opacity: ${opacity};
-                z-index: 99999;
+                z-index: 99999999999;
                 padding: 15px !important;
                 margin: 0px !important;
                 box-sizing: border-box !important;
@@ -908,7 +908,7 @@ function getCSSMinimized() {
                 position: fixed;
                 height: 80px;
                 width: 20px;
-                z-index: 99999;
+                z-index: 99999999999;
                 top: 15%;
                 left: 0px;
                 right: auto;

@@ -63,7 +63,10 @@ function loaded() {
         tab_title = activeTab.title;
 
         //catch changing of tab
-        browser.tabs.onActivated.addListener(tabUpdated);
+        browser.tabs.onActivated.addListener(function () {
+            tabUpdated();
+            type_to_use = -1;
+        });
         browser.tabs.onUpdated.addListener(tabUpdated);
 
         browser.runtime.onMessage.addListener((message) => {
@@ -85,7 +88,6 @@ function loadDataFromSync() {
 
 function tabUpdated(tabs) {
     //console.log(JSON.stringify(all_urls));
-
     sync_local = browser.storage.sync;
     browser.storage.local.get("storage").then(result => {
         if (result.storage === "sync") sync_local = browser.storage.sync;
@@ -220,7 +222,7 @@ function listenerStickyNotes() {
             if (message["open-sticky"]["type"] !== undefined) {
                 type_to_use = message["open-sticky"]["type"];
                 all_urls[tab_url] = type_to_use;
-                //console.log("--->" + message["open-sticky"]["type"]);
+                console.log("--->" + all_urls[tab_url] + " : " + type_to_use);
             }
             //console.log(">9>" + JSON.stringify(all_urls));
             //setOpenedSticky(true, false);
@@ -319,6 +321,7 @@ function listenerStickyNotes() {
                 if (message.ask === "notes") {
                     let url_to_use = getTheCorrectUrl();
                     let page_domain_global_to_use = getTypeToShow(type_to_use);
+                    // console.log(url_to_use + " :: " + page_domain_global_to_use);
                     if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["notes"] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) {
                         sendResponse({
                             notes: {
@@ -409,12 +412,18 @@ function getTheCorrectUrl(do_not_check_opened = false) {
 
     let type = type_to_use;
     if (type === undefined || type === -1) {
+        //set by default if it's "-1" (or undefined)
         type = default_url_index;
+    }
+
+    if (all_urls[tab_url] !== undefined) {
+        //set using the index saved in the current session
+        type = all_urls[tab_url];
     }
 
     let url_to_use = "";
 
-    //console.log(`type ${type_to_use} : url_to_use ${url_to_use}`)
+    // console.log(`type ${type_to_use}`);
 
     let global_condition = websites_json[getGlobalUrl()] !== undefined && (websites_json[getGlobalUrl()]["sticky"] !== undefined && websites_json[getGlobalUrl()]["sticky"] || do_not_check_opened);
     let domain_condition = websites_json[getDomainUrl(tab_url)] !== undefined && (websites_json[getDomainUrl(tab_url)]["sticky"] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"] || do_not_check_opened);
@@ -432,7 +441,7 @@ function getTheCorrectUrl(do_not_check_opened = false) {
         //console.log(url + " : " + tmp_check);
     });
 
-    //console.log(`page ${page_condition} - domain ${domain_condition} - global ${global_condition} - subdomain ${subdomains_condition}`)
+    // console.log(`page ${page_condition} - domain ${domain_condition} - global ${global_condition} - subdomain ${subdomains_condition}`)
 
     let exists = (page_condition || domain_condition || global_condition || subdomains_condition);
 
@@ -450,15 +459,19 @@ function getTheCorrectUrl(do_not_check_opened = false) {
         } else if (global_condition) {
             //console.log("Global condition true!");
             url_to_use = current_urls[0];
+            type = 0;
         } else if (domain_condition) {
             //console.log("Domain condition true!");
             url_to_use = current_urls[1];
+            type = 1;
         } else if (page_condition) {
             //console.log("Page condition true!");
             url_to_use = current_urls[2];
+            type = 2;
         } else if (subdomains_condition) {
             //console.log("Subdomain condition true!");
             url_to_use = subdomain_url_to_use;
+            type = 3;
         }
     } else {
         //No otes available
