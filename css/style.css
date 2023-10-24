@@ -757,6 +757,9 @@ b {
 
 #notes img, .textarea-all-notes img {
     border-radius: 5px;
+    width: auto;
+    max-width: 100%;
+    height: auto;
 }
 
 #notes, .textarea-all-notes {
@@ -774,14 +777,6 @@ b {
     font-size: 14px !important;
     cursor: text;
     white-space: inherit;
-}
-
-#notes li, .textarea-all-notes li {
-    padding-left: 0px !important;
-}
-
-#notes ul, .textarea-all-notes ul {
-    padding-left: 20px !important;
 }
 
 .textarea-all-notes, .textarea-all-notes * {

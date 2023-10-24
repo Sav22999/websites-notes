@@ -27,7 +27,7 @@ let links = {
  * @returns {*}
  */
 function sanitize(element, allowedTags, allowedAttributes) {
-    if (allowedTags === -1) allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "label", "font", "section", "article", "blockquote", "q", "cite", "address", "abbr"];
+    if (allowedTags === -1) allowedTags = ["b", "i", "u", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q"];
     if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite"];
 
     let sanitizedHTML = element;
@@ -41,10 +41,9 @@ function sanitize(element, allowedTags, allowedAttributes) {
             if (allowedTags.includes(node.tagName.toLowerCase())) {
                 // Remove attributes unsupported of allowedTags
                 //console.log(`Checking tag ... ${node.tagName}`)
-                var element = node;
                 let attributes_to_remove = [];
-                for (var j = 0; j < element.attributes.length; j++) {
-                    var attribute = element.attributes[j];
+                for (var j = 0; j < node.attributes.length; j++) {
+                    var attribute = node.attributes[j];
                     if (!allowedAttributes.includes(attribute.name.toLowerCase())) {
                         //console.log(`Removing attribute ... ${attribute.name} from ${node.tagName}`)
                         //element.removeAttribute(attribute.name);
@@ -54,9 +53,8 @@ function sanitize(element, allowedTags, allowedAttributes) {
                     }
                 }
                 attributes_to_remove.forEach(attribute => {
-                    element.removeAttribute(attribute);
-                })
-                if (node.tagName.toLowerCase() === "img") node.setAttribute('style', 'width:auto; max-width:100% !important;height:auto !important');
+                    node.removeAttribute(attribute);
+                });
             } else {
                 // Remove unsupported tags
                 //console.log(`Removing tag ... ${node.tagName}`)
@@ -75,7 +73,6 @@ function sanitize(element, allowedTags, allowedAttributes) {
             //console.log("????")
         }
     }
-    //console.log(sanitizedHTML)
     return sanitizedHTML
 }
 
