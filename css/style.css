@@ -110,7 +110,7 @@ body {
     opacity: 1;
 }
 
-.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button {
+.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button, .download-button {
     padding-left: 35px;
     padding-right: 10px;
     background-image: url("../img/delete.svg");
@@ -141,6 +141,10 @@ body {
 
 .save-button {
     background-image: url("../img/save.svg");
+}
+
+.download-button {
+    background-image: url("../img/download.svg");
 }
 
 .clear2-button {

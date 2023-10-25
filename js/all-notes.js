@@ -137,6 +137,12 @@ function loaded() {
         document.getElementById("export-all-notes-button").onclick = function () {
             exportAllNotes();
         }
+        document.getElementById("export-to-file-button").onclick = function () {
+            exportAllNotes(to_file = true)
+        }
+        document.getElementById("import-from-file-button").onclick = function () {
+            importAllNotes(from_file = true);
+        }
 
         document.getElementById("search-all-notes-text").onkeyup = function () {
             search(document.getElementById("search-all-notes-text").value);
@@ -406,7 +412,7 @@ function onError(e) {
     console.error(e);
 }
 
-function importAllNotes() {
+function importAllNotes(from_file = false) {
     browser.storage.local.get([
         "storage",
         "settings",
@@ -417,6 +423,8 @@ function importAllNotes() {
     ]).then(result => {
         let jsonImportElement = document.getElementById("json-import");
         let json_old_version = {};
+
+        document.getElementById("import-from-file-button").value = all_strings["import-notes-from-file-button"];
 
         //console.log(JSON.stringify(result));
         if (show_conversion_message_attention) {
@@ -607,10 +615,53 @@ function importAllNotes() {
                 }
             }
         }
+
+        if (from_file) {
+            importFromFile();
+        }
     });
 }
 
-function exportAllNotes() {
+function importFromFile() {
+    try {
+        let input = document.getElementById("import-from-file-input-hidden");
+        input.value = ""; //Reset to empty
+        input.onchange = function (e) {
+            const file = this.files[0];
+            //console.log(file);
+            if (file === undefined || file.name === '') {
+                return;
+            }
+            if (file.type === undefined || file.type !== undefined && file.type !== "application/json") {
+                return;
+            }
+
+            const filename = file.name;
+
+            const fileReaderOnLoadHandler = function () {
+                let data = undefined;
+                try {
+                    data = JSON.parse(this.result);
+                    //console.log(data);
+
+                    document.getElementById("json-import").value = JSON.stringify(data);
+                    document.getElementById("import-now-all-notes-button").click();
+                } catch (e) {
+                    console.error(`I-E2: ${e}`)
+                }
+            };
+
+            const fr = new FileReader();
+            fr.onload = fileReaderOnLoadHandler;
+            fr.readAsText(file);
+        };
+        input.click();
+    } catch (e) {
+        console.error(`I-E1: ${e}`);
+    }
+}
+
+function exportAllNotes(to_file = false) {
     showBackgroundOpacity();
     browser.storage.local.get(["storage"]).then(getStorageTemp => {
         sync_local.get([
@@ -662,10 +713,36 @@ function exportAllNotes() {
                 document.getElementById("json-export").select();
                 document.execCommand("copy");
             }
-        }).catch((error) => {
-            console.error("Error retrieving data:", error);
+
+            document.getElementById("export-to-file-button").value = all_strings["export-notes-to-file-button"];
+            if (to_file) {
+                exportToFile();
+            }
+        }).catch((e) => {
+            console.error(`E-E2: ${e}`);
         });
     });
+}
+
+function exportToFile() {
+    const data = JSON.stringify(json_to_export);
+    const blob = new Blob([data], {type: "application/json"});
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-based, so add 1
+    const day = String(today.getDate()).padStart(2, '0');
+
+    const formattedDate = `${year}_${month}_${day}`;
+
+    browser.downloads.download({
+        url: URL.createObjectURL(blob),
+        filename: "notefox_" + notefox_json.version.toString() + "_" + formattedDate + "_" + Date.now() + ".json",
+        saveAs: false, // Show the file save dialog
+    });
+
+    document.getElementById("cancel-export-all-notes-button").value = all_strings["close-button"];
+    document.getElementById("export-to-file-button").value = all_strings["exported-notes-to-file-button"];
 }
 
 function showBackgroundOpacity() {
@@ -1285,6 +1362,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
         var import_svg = window.btoa(getIconSvgEncoded("import", on_primary));
         var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
+        var download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
         var delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
         var delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
         var copy_svg = window.btoa(getIconSvgEncoded("copy", on_primary));
@@ -1337,6 +1415,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .export-button {
                     background-image: url('data:image/svg+xml;base64,${export_svg}');
+                }
+                .download-button {
+                    background-image: url('data:image/svg+xml;base64,${download_svg}');
                 }
                 .clear-button {
                     background-image: url('data:image/svg+xml;base64,${delete_svg}');
