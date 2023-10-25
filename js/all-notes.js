@@ -138,7 +138,23 @@ function loaded() {
             exportAllNotes();
         }
         document.getElementById("export-to-file-button").onclick = function () {
-            exportAllNotes(to_file = true)
+            const permissionsToRequest = {
+                permissions: ["downloads"]
+            }
+            try {
+                browser.permissions.request(permissionsToRequest).then(response => {
+                    if (response) {
+                        //granted / obtained
+                        exportAllNotes(to_file = true);
+                        //console.log("Granted");
+                    } else {
+                        //rejected
+                        //console.log("Rejected!");
+                    }
+                });
+            } catch (e) {
+                console.error("P3)) " + e);
+            }
         }
         document.getElementById("import-from-file-button").onclick = function () {
             importAllNotes(from_file = true);
@@ -740,6 +756,12 @@ function exportToFile() {
         filename: "notefox_" + notefox_json.version.toString() + "_" + formattedDate + "_" + Date.now() + ".json",
         saveAs: false, // Show the file save dialog
     });
+
+    setTimeout(function () {
+        if (document.getElementById("export-section").style.display !== "none") {
+            document.getElementById("cancel-export-all-notes-button").click();
+        }
+    }, 1000);
 
     document.getElementById("cancel-export-all-notes-button").value = all_strings["close-button"];
     document.getElementById("export-to-file-button").value = all_strings["exported-notes-to-file-button"];

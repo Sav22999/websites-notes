@@ -70,11 +70,11 @@
     "storage",
     "tabs",
     "unlimitedStorage",
-    "activeTab",
-    "downloads"
+    "activeTab"
   ],
   "optional_permissions": [
-    "<all_urls>"
+    "<all_urls>",
+    "downloads"
   ],
   "background": {
     "scripts": [

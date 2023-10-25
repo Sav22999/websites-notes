@@ -108,44 +108,49 @@ function tabUpdated(update = false) {
 
 function checkStatus(update = false) {
     current_urls = [getGlobalUrl(), getDomainUrl(tab_url), getPageUrl(tab_url)];
-    sync_local.get("settings").then(value => {
-        if (value["settings"] !== undefined) {
-            settings_json = value["settings"];
-            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
-            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
-            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
-        }
-        //console.log(JSON.stringify(settings_json));
-    }).then(() => {
-        sync_local.get("websites", function (value) {
-            if (value["websites"] !== undefined) {
-                websites_json = value["websites"];
-
-                //console.log(JSON.stringify(websites_json[getTheCorrectUrl()]));
-                //console.log(tab_title);
-                if (websites_json[tab_url] !== undefined && websites_json[tab_url]["title"] === undefined) {
-                    //if the title it's not specified yet, so it's set with the title of the tab
-                    websites_json[tab_url]["title"] = tab_title;
-                    sync_local.set({"websites": websites_json}).then(resultSet => {
-                    });
-                }
-
-                checkIcon();
-                //console.log(">>>" + getTheCorrectUrl());
-
-                let url = getTheCorrectUrl();
-                //console.log(url);
-                if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"]) {
-                    openAsStickyNotes();
-                } else {
-                    closeStickyNotes(update);
-                }
-            } else {
-                changeIcon(0);
+    sync_local.get("settings")
+        .then(value => {
+            if (value["settings"] !== undefined) {
+                settings_json = value["settings"];
+                if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
+                if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
+                if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
             }
-            //console.log(JSON.stringify(websites_json));
+            //console.log(JSON.stringify(settings_json));
+            //console.log("checkStatus");
+            //console.log(value);
+        })
+        .then(() => {
+            sync_local.get("websites", function (value) {
+                if (value["websites"] !== undefined) {
+                    websites_json = value["websites"];
+
+                    //console.log(JSON.stringify(websites_json[getTheCorrectUrl()]));
+                    //console.log(tab_title);
+                    if (websites_json[tab_url] !== undefined && websites_json[tab_url]["title"] === undefined) {
+                        //if the title it's not specified yet, so it's set with the title of the tab
+                        websites_json[tab_url]["title"] = tab_title;
+                        sync_local.set({"websites": websites_json}).then(resultSet => {
+                        });
+                    }
+
+                    checkIcon();
+                    //console.log(">>>" + getTheCorrectUrl());
+
+                    let url = getTheCorrectUrl();
+                    //console.log(url);
+                    if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"]) {
+                        openAsStickyNotes();
+                    } else {
+                        closeStickyNotes(update);
+                    }
+                } else {
+                    changeIcon(0);
+                }
+                //console.log(JSON.stringify(websites_json));
+            });
+            //console.log("checkStatus (continued)");
         });
-    });
 }
 
 function getGlobalUrl() {
