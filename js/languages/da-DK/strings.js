@@ -4,7 +4,10 @@ strings[lang] = {
     'all-notes-title': 'Alle noter',
     'all-notes-title-page': 'Notefox - Alle noter',
     'export-all-notes-button': 'Eksporter alle noter…',
+    'export-notes-to-file-button': 'Eksportér direkte til fil',
+    'exported-notes-to-file-button': 'Eksporteret til fil',
     'import-notes-button': 'Importer noter…',
+    'import-notes-from-file-button': 'Importer fra fil…',
     'refresh-data-button': 'Opdater data',
     'clear-all-notes-button': 'Ryd alle noter',
     'import-json-message-dialog-text': 'Indsæt det JSON (eller tekst) filindhold, du eksporterede tidligere, og klik derefter på <span {{parameters}}>Importer nu</span> knappen. Siden vil automatisk blive genindlæst, hvis det lykkes at importere noter.',
@@ -115,5 +118,5 @@ strings[lang] = {
     'label-title-redo': 'Gendan',
     'label-title-spellcheck': 'Sprog stavekontrol',
     'label-results-for': 'Resultater for:  {{keywords}}',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': 'Du kan søge efter flere søgeord. Hvert søgeord (eller sætning) skal adskilles med symbolet \';\'. De viste resultater vil være en sammenføjning af alle resultater svarende til nøgleord.\nEksempel: \'hello world;goodbye\'. Resultater vil være alle noter med \'hello verden\' ELLER \'goodbye\'.'
 };

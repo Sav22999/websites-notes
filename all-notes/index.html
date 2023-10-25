@@ -22,7 +22,8 @@ Created by Saverio Morelli - saveriomorelli.com
         <input type="button" value="Clear all notes" id="clear-all-notes-button" class="button clear-button"/>
     </div>
     <div class="section text-align-left" id="search-filter-sortby">
-        <input type="search" value="" placeholder="Search…" id="search-all-notes-text" class="textbox search-box"/><span id="info-tooltip-search"></span>
+        <input type="search" value="" placeholder="Search…" id="search-all-notes-text" class="textbox search-box"/><span
+            id="info-tooltip-search"></span>
         <!--<input type="button" value="Sort by…" id="sort-by-all-notes-button" class="button sort-by-button float-right"/>-->
         <input type="button" value="Filter…" id="filter-all-notes-button" class="button filter-button float-right"/>
         <span class="float-right">
@@ -87,11 +88,14 @@ Created by Saverio Morelli - saveriomorelli.com
                 </div>
             </div>
             <div class="section">
-                <textarea id="json-import"></textarea>
+                <textarea id="json-import" spellcheck="false"></textarea>
             </div>
             <div class="section text-align-right">
                 <input type="button" value="Get local data" id="import-now-all-notes-from-local-button"
                        class="button import-button"/>
+                <input type="button" value="Import from file" id="import-from-file-button"
+                       class="button import-button float-left"/>
+                <input type="file" value="" id="import-from-file-input-hidden" class="button import-button hidden float-left"/>
                 <input type="button" value="Cancel" id="cancel-import-all-notes-button" class="button"/>
                 <input type="button" value="Import now" id="import-now-all-notes-button" class="button import-button"/>
             </div>
@@ -106,9 +110,11 @@ Created by Saverio Morelli - saveriomorelli.com
                 </div>
             </div>
             <div class="section">
-                <textarea id="json-export" readonly></textarea>
+                <textarea id="json-export" readonly spellcheck="false"></textarea>
             </div>
             <div class="section text-align-right">
+                <input type="button" value="Export directly to file" id="export-to-file-button"
+                       class="button download-button float-left"/>
                 <input type="button" value="Cancel" id="cancel-export-all-notes-button" class="button"/>
                 <input type="button" value="Copy now" id="copy-now-all-notes-button" class="button copy-button"/>
             </div>

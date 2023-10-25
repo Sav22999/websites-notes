@@ -4,7 +4,10 @@ strings[lang] = {
     'all-notes-title': 'すべてのノート',
     'all-notes-title-page': 'Notefox - すべてのノート',
     'export-all-notes-button': 'すべてのメモをエクスポート…',
+    'export-notes-to-file-button': '直接ファイルにエクスポート',
+    'exported-notes-to-file-button': 'ファイルにエクスポートしました',
     'import-notes-button': 'メモをインポート…',
+    'import-notes-from-file-button': 'Import from file…',
     'refresh-data-button': 'データを更新',
     'clear-all-notes-button': 'すべてのメモを消去',
     'import-json-message-dialog-text': '以前にエクスポートしたJSON(またはテキスト)ファイルの内容をここに貼り付け、 <span {{parameters}}>Import now</span> ボタンをクリックします。 ノートのインポートに成功すると、ページは自動的に再読み込みされます。',
@@ -115,5 +118,5 @@ strings[lang] = {
     'label-title-redo': 'Redo',
     'label-title-spellcheck': '言語のスペルチェック',
     'label-results-for': '{{keywords}} の検索結果',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': '複数のキーワードを検索することができます。各キーワード(または文)は\';\'記号で区切らなければなりません。 表示される結果は、キーワードに対応するすべての結果の結合になります。\n例: \'hello world;さようなら\' 結果は、\'hello world\' または \'goodbye\' のすべてのメモになります。'
 };

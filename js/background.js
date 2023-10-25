@@ -86,7 +86,7 @@ function loadDataFromSync() {
     loaded();
 }
 
-function tabUpdated(tabs) {
+function tabUpdated(update = false) {
     //console.log(JSON.stringify(all_urls));
     sync_local = browser.storage.sync;
     browser.storage.local.get("storage").then(result => {
@@ -101,55 +101,56 @@ function tabUpdated(tabs) {
             tab_url = tabs[0].url;
             tab_title = tabs[0].title;
         }).then((tabs) => {
-            checkStatus();
+            checkStatus(update);
         });
     });
 }
 
-function checkStatus() {
+function checkStatus(update = false) {
     current_urls = [getGlobalUrl(), getDomainUrl(tab_url), getPageUrl(tab_url)];
-    sync_local.get("settings", function (value) {
-        if (value["settings"] !== undefined) {
-            settings_json = value["settings"];
-            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
-            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
-            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
-        }
-
-        continueCheckStatus();
-        //console.log(JSON.stringify(settings_json));
-    });
-}
-
-function continueCheckStatus() {
-    sync_local.get("websites", function (value) {
-        if (value["websites"] !== undefined) {
-            websites_json = value["websites"];
-
-            //console.log(JSON.stringify(websites_json[getTheCorrectUrl()]));
-            //console.log(tab_title);
-            if (websites_json[tab_url] !== undefined && websites_json[tab_url]["title"] === undefined) {
-                //if the title it's not specified yet, so it's set with the title of the tab
-                websites_json[tab_url]["title"] = tab_title;
-                sync_local.set({"websites": websites_json}).then(resultSet => {
-                });
+    sync_local.get("settings")
+        .then(value => {
+            if (value["settings"] !== undefined) {
+                settings_json = value["settings"];
+                if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
+                if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
+                if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
             }
+            //console.log(JSON.stringify(settings_json));
+            //console.log("checkStatus");
+            //console.log(value);
+        })
+        .then(() => {
+            sync_local.get("websites", function (value) {
+                if (value["websites"] !== undefined) {
+                    websites_json = value["websites"];
 
-            checkIcon();
-            //console.log(">>>" + getTheCorrectUrl());
+                    //console.log(JSON.stringify(websites_json[getTheCorrectUrl()]));
+                    //console.log(tab_title);
+                    if (websites_json[tab_url] !== undefined && websites_json[tab_url]["title"] === undefined) {
+                        //if the title it's not specified yet, so it's set with the title of the tab
+                        websites_json[tab_url]["title"] = tab_title;
+                        sync_local.set({"websites": websites_json}).then(resultSet => {
+                        });
+                    }
 
-            let url = getTheCorrectUrl();
-            //console.log(url);
-            if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"]) {
-                openAsStickyNotes();
-            } else {
-                closeStickyNotes();
-            }
-        } else {
-            changeIcon(0);
-        }
-        //console.log(JSON.stringify(websites_json));
-    });
+                    checkIcon();
+                    //console.log(">>>" + getTheCorrectUrl());
+
+                    let url = getTheCorrectUrl();
+                    //console.log(url);
+                    if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"]) {
+                        openAsStickyNotes();
+                    } else {
+                        closeStickyNotes(update);
+                    }
+                } else {
+                    changeIcon(0);
+                }
+                //console.log(JSON.stringify(websites_json));
+            });
+            //console.log("checkStatus (continued)");
+        });
 }
 
 function getGlobalUrl() {
@@ -222,7 +223,7 @@ function listenerStickyNotes() {
             if (message["open-sticky"]["type"] !== undefined) {
                 type_to_use = message["open-sticky"]["type"];
                 all_urls[tab_url] = type_to_use;
-                console.log("--->" + all_urls[tab_url] + " : " + type_to_use);
+                //console.log("--->" + all_urls[tab_url] + " : " + type_to_use);
             }
             //console.log(">9>" + JSON.stringify(all_urls));
             //setOpenedSticky(true, false);
@@ -531,7 +532,7 @@ function openAsStickyNotes() {
 /**
  * close sticky notes if exists and the status changed to "closed"
  */
-function closeStickyNotes() {
+function closeStickyNotes(update = true) {
     checkIcon();
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         const activeTab = tabs[0];
@@ -539,7 +540,7 @@ function closeStickyNotes() {
             code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
         }).then(function () {
             //console.log("Sticky notes ('close')");
-            tabUpdated();
+            if (update) tabUpdated(false);
         }).catch(function (error) {
             console.error("E1: " + error + "\nin " + activeTab.url);
         });

@@ -4,7 +4,10 @@ strings[lang] = {
     'all-notes-title': 'Все заметки',
     'all-notes-title-page': 'Notefox - Все заметки',
     'export-all-notes-button': 'Экспортировать все заметки…',
+    'export-notes-to-file-button': 'Экспорт непосредственно в файл',
+    'exported-notes-to-file-button': 'Экспортировано в файл',
     'import-notes-button': 'Импорт заметок…',
+    'import-notes-from-file-button': 'Импорт из файла…',
     'refresh-data-button': 'Обновить данные',
     'clear-all-notes-button': 'Очистить все заметки',
     'import-json-message-dialog-text': 'Вставьте сюда содержимое файла JSON (или текстового), который вы экспортировали ранее, а затем нажмите кнопку <span {{parameters}}>Импортировать сейчас</span> . Страница будет автоматически перезагружена, если заметки успешно импортированы.',
@@ -115,5 +118,5 @@ strings[lang] = {
     'label-title-redo': 'Повторить',
     'label-title-spellcheck': 'Проверка орфографии языка',
     'label-results-for': 'Результаты для:  {{keywords}}',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': 'Вы можете искать в нескольких ключевых словах. Каждое ключевое слово (или предложение) должно быть разделено символом \';\'. Показаны результаты совмещения всех результатов, соответствующих ключевым словам.\nПример: «Привет, мир;хорошо». Результаты будут все заметки с «приветственный мир» или «хорошо».'
 };

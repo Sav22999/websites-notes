@@ -4,7 +4,10 @@ strings[lang] = {
     'all-notes-title': 'Alla anteckningar',
     'all-notes-title-page': 'Notefox - Alla anteckningar',
     'export-all-notes-button': 'Exportera alla anteckningar…',
+    'export-notes-to-file-button': 'Exportera direkt till fil',
+    'exported-notes-to-file-button': 'Exporterad till fil',
     'import-notes-button': 'Importera anteckningar…',
+    'import-notes-from-file-button': 'Importera från fil…',
     'refresh-data-button': 'Uppdatera data',
     'clear-all-notes-button': 'Rensa alla anteckningar',
     'import-json-message-dialog-text': 'Klistra in JSON (eller text) filinnehåll som du exporterade tidigare, klicka sedan på <span {{parameters}}>Importera nu</span> -knappen. Sidan kommer automatiskt att laddas om om anteckningar importeras.',
@@ -115,5 +118,5 @@ strings[lang] = {
     'label-title-redo': 'Gör om',
     'label-title-spellcheck': 'Språkinställningskontroll',
     'label-results-for': 'Resultat för:  {{keywords}}',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': 'Du kan söka i multinyckelord. Varje sökord (eller mening) måste separeras med symbolen \';\'. Resultaten som visas kommer att vara sammanfogningen av alla resultat som motsvarar sökord.\nExempel: \'hej världen;adjö\'. Resultaten kommer att vara alla anteckningar med \'hej världen\' ELLER \'adjö\'.'
 };

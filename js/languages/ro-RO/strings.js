@@ -4,7 +4,10 @@ strings[lang] = {
     'all-notes-title': 'Toate notele',
     'all-notes-title-page': 'Notefox - Toate notele',
     'export-all-notes-button': 'Exportă toate notele…',
+    'export-notes-to-file-button': 'Exportă direct în fișier',
+    'exported-notes-to-file-button': 'Exportat în fișier',
     'import-notes-button': 'Importă notițe…',
+    'import-notes-from-file-button': 'Importă din fișierul…',
     'refresh-data-button': 'Reîmprospătare date',
     'clear-all-notes-button': 'Șterge toate notele',
     'import-json-message-dialog-text': 'Lipiţi aici conţinutul fişierului JSON (sau text) exportat anterior, apoi faceţi clic pe butonul <span {{parameters}}>Importă acum</span> . Pagina va fi reîncărcată automat dacă notele sunt importate cu succes.',
@@ -115,5 +118,5 @@ strings[lang] = {
     'label-title-redo': 'Reface',
     'label-title-spellcheck': 'Verificare limbă',
     'label-results-for': 'Rezultate pentru:  {{keywords}}',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': 'Puteţi căuta cuvinte multi-cheie. Fiecare cuvânt cheie (sau propoziţie) trebuie să fie separat de simbolul ";". Rezultatele afișate vor fi alăturarea tuturor rezultatelor corespunzătoare cuvintelor-cheie.\nExemplu: \'hello world;goodby\'. Rezultatele vor fi toate notele cu \'hello world\' SAU \'goodby\'.'
 };

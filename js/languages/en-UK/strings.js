@@ -6,7 +6,10 @@ strings[lang] = {
     "all-notes-title": "All notes",
     "all-notes-title-page": "Notefox - All notes",
     "export-all-notes-button": "Export all notes…",
+    "export-notes-to-file-button": "Export directly to file",
+    "exported-notes-to-file-button": "Exported to file",
     "import-notes-button": "Import notes…",
+    "import-notes-from-file-button": "Import from file…",
     "refresh-data-button": "Refresh data",
     "clear-all-notes-button": "Clear all notes",
     "import-json-message-dialog-text": "Paste here the JSON (or text) file content you exported previously, then click the <span {{parameters}}>Import now</span> button. The page will be automatically reloaded if notes are successfully imported.",
@@ -113,5 +116,5 @@ strings[lang] = {
     "label-title-redo": "Redo",
     "label-title-spellcheck": "Language spellcheck",
     "label-results-for": "Results for:  {{keywords}}",
-    "tooltip-info-search":"You can search multi-keyword. Each keyword (or sentence) have to be separated with the ';' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: 'hello world;goodbye'. Results will be all notes with 'hello world' OR 'goodbye'."
+    "tooltip-info-search": "You can search multi-keyword. Each keyword (or sentence) have to be separated with the ';' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: 'hello world;goodbye'. Results will be all notes with 'hello world' OR 'goodbye'."
 }

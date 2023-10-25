@@ -4,7 +4,10 @@ strings[lang] = {
     'all-notes-title': 'Alle notities',
     'all-notes-title-page': 'Notefox - Alle notities',
     'export-all-notes-button': 'Alle notities exporteren…',
+    'export-notes-to-file-button': 'Exporteer direct naar bestand',
+    'exported-notes-to-file-button': 'geëxporteerd naar bestand',
     'import-notes-button': 'Notities importeren…',
+    'import-notes-from-file-button': 'Importeren uit bestand…',
     'refresh-data-button': 'Gegevens actualiseren',
     'clear-all-notes-button': 'Alle notities wissen',
     'import-json-message-dialog-text': 'Plak hier de inhoud van JSON (of tekst) bestanden die je eerder geëxporteerd hebt, en klik vervolgens op de knop <span {{parameters}}>importeren nu</span> De pagina wordt automatisch opnieuw geladen als notities met succes worden geïmporteerd.',
@@ -115,5 +118,5 @@ strings[lang] = {
     'label-title-redo': 'Opnieuw',
     'label-title-spellcheck': 'Taal spellingcontrole',
     'label-results-for': 'Resultaten voor:  {{keywords}}',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': 'U kunt op meerdere trefwoorden zoeken. Elk trefwoord (of zin) moet gescheiden worden door het symbool \';\'. De getoonde resultaten zullen samenvoegen van alle resultaten die overeenkomen met trefwoorden.\nVoorbeeld: \'hallo wereld;goodby\'. Resultaten zijn alle notities met \'hallo wereld\' OF \'Afscheiden\'.'
 };

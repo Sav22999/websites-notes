@@ -4,7 +4,10 @@ strings[lang] = {
     'all-notes-title': 'Всі нотатки',
     'all-notes-title-page': 'Нотефокс - Усі нотатки',
     'export-all-notes-button': 'Експортувати усі нотатки…',
+    'export-notes-to-file-button': 'Експортувати безпосередньо у файл',
+    'exported-notes-to-file-button': 'Експортовано в файл',
     'import-notes-button': 'Імпорт нотаток…',
+    'import-notes-from-file-button': 'Імпорт з файлу…',
     'refresh-data-button': 'Оновити дані',
     'clear-all-notes-button': 'Очистити всі нотатки',
     'import-json-message-dialog-text': 'Вставте сюди вміст файлу JSON (або текст) який ви раніше експортували, потім натисніть <span {{parameters}}>Імпортувати зараз</span> кнопку. Сторінка буде автоматично перезавантажена, якщо нотатки успішно імпортовано.',
@@ -115,5 +118,5 @@ strings[lang] = {
     'label-title-redo': 'Повторити дію',
     'label-title-spellcheck': 'Перевірка орфографії',
     'label-results-for': 'Results for:  {{keywords}}',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': 'Пошук можна виконати за мно-ключовим словом. Кожне ключове слово (або речення) має бути розділене символом «;». Отримані результати будуть приєднуватися до всіх результатів, які відповідають ключовим словам.\nПриклад: \'Привіт світ;goodbye\'. Результати будуть усіма нотатками з \'Привіт світ\' або \'прощання\'.'
 };
