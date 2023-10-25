@@ -4,7 +4,10 @@ strings[lang] = {
     'all-notes-title': 'Wszystkie notatki',
     'all-notes-title-page': 'Notatnik - Wszystkie notatki',
     'export-all-notes-button': 'Eksportuj wszystkie notatki…',
+    'export-notes-to-file-button': 'Eksportuj bezpośrednio do pliku',
+    'exported-notes-to-file-button': 'Wyeksportowano do pliku',
     'import-notes-button': 'Importuj notatki…',
+    'import-notes-from-file-button': 'Importuj z pliku…',
     'refresh-data-button': 'Odśwież dane',
     'clear-all-notes-button': 'Wyczyść wszystkie notatki',
     'import-json-message-dialog-text': 'Wklej tutaj zawartość pliku JSON (lub tekstu), którą wyeksportowałeś wcześniej, a następnie kliknij przycisk <span {{parameters}}>Importuj teraz</span> . Strona zostanie automatycznie przeładowana jeśli notatki zostaną pomyślnie zaimportowane.',
@@ -115,5 +118,5 @@ strings[lang] = {
     'label-title-redo': 'Ponów',
     'label-title-spellcheck': 'Sprawdzanie pisowni języków',
     'label-results-for': 'Wyniki dla:  {{keywords}}',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': 'Możesz wyszukać wiele słów kluczowych. Każde słowo kluczowe (lub zdanie) musi być oddzielone symbolem \';\'. Pokazane wyniki będą dołączane do wszystkich wyników odpowiadających słowom kluczowym.\nPrzykład: \'hello world;goodbye\'. Wyniki będą wszystkie notatki z \'hello world\' LUB \'goodbye\'.'
 };

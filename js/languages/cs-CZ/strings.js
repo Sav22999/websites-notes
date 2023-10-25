@@ -4,7 +4,10 @@ strings[lang] = {
     'all-notes-title': 'Všechny poznámky',
     'all-notes-title-page': 'Notefox - všechny poznámky',
     'export-all-notes-button': 'Exportovat všechny poznámky…',
+    'export-notes-to-file-button': 'Exportovat přímo do souboru',
+    'exported-notes-to-file-button': 'Exportováno do souboru',
     'import-notes-button': 'Importovat poznámky…',
+    'import-notes-from-file-button': 'Importovat ze souboru…',
     'refresh-data-button': 'Aktualizovat data',
     'clear-all-notes-button': 'Vymazat všechny poznámky',
     'import-json-message-dialog-text': 'Zde vložte JSON (nebo text) obsah, který jste exportovali dříve, a klikněte na tlačítko <span {{parameters}}>Importovat nyní</span> . Stránka bude automaticky znovu načtena, pokud jsou poznámky úspěšně importovány.',
@@ -115,5 +118,5 @@ strings[lang] = {
     'label-title-redo': 'Znovu',
     'label-title-spellcheck': 'Kontrola pravopisu jazyka',
     'label-results-for': 'Výsledky pro:  {{keywords}}',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': 'Můžete hledat více klíčových slov. Každé klíčové slovo (nebo věta) musí být odděleno symbolem ";". Zobrazené výsledky budou připojeny ke všem výsledkům, které odpovídají klíčovým slovům.\nPříklad: \'ahoj světa;lubye\'. Výsledky budou všechny poznámky s \'ahoj světa\' NEBO \'sbohem\'.'
 };

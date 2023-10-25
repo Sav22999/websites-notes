@@ -4,7 +4,10 @@ strings[lang] = {
     'all-notes-title': '所有笔记',
     'all-notes-title-page': '笔记——所有笔记',
     'export-all-notes-button': '导出所有便笺…',
+    'export-notes-to-file-button': '直接导出到文件',
+    'exported-notes-to-file-button': '导出到文件',
     'import-notes-button': '导入便笺…',
+    'import-notes-from-file-button': 'Import from file…',
     'refresh-data-button': '刷新数据',
     'clear-all-notes-button': '清除所有笔记',
     'import-json-message-dialog-text': '在此粘贴您先前导出的 JSON (或文本) 文件内容，然后点击 <span {{parameters}}>导入现在的</span> 按钮。 如果成功导入笔记，页面将自动重新加载。',
@@ -115,5 +118,5 @@ strings[lang] = {
     'label-title-redo': '重做',
     'label-title-spellcheck': '语言拼写检查',
     'label-results-for': 'Results for:  {{keywords}}',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': '您可以搜索多个关键字。每个关键字(或句子)必须用符号分隔。 显示的结果将是与关键字对应的所有结果的合并。\n示例：“hello world;goodbye”。结果将是“hello world”或者“goodbye”。'
 };

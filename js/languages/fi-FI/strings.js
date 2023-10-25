@@ -4,7 +4,10 @@ strings[lang] = {
     'all-notes-title': 'Kaikki merkinnät',
     'all-notes-title-page': 'Notefox - Kaikki merkinnät',
     'export-all-notes-button': 'Vie kaikki muistiinpanot…',
+    'export-notes-to-file-button': 'Vie suoraan tiedostoon',
+    'exported-notes-to-file-button': 'Viety tiedostoon',
     'import-notes-button': 'Tuo muistiinpanoja…',
+    'import-notes-from-file-button': 'Tuo tiedostosta…',
     'refresh-data-button': 'Päivitä tiedot',
     'clear-all-notes-button': 'Tyhjennä kaikki merkinnät',
     'import-json-message-dialog-text': 'Liitä tähän aiemmin viemäsi JSON (tai teksti) tiedoston sisältö ja napsauta sitten <span {{parameters}}>Tuo nyt</span> -painiketta. Sivu ladataan automaattisesti uudelleen, jos muistiinpanot tuodaan onnistuneesti.',
@@ -115,5 +118,5 @@ strings[lang] = {
     'label-title-redo': 'Toista',
     'label-title-spellcheck': 'Kielen oikeinkirjoitus',
     'label-results-for': 'Tulokset:  {{keywords}}',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': 'Voit etsiä usean avainsanan. Jokainen avainsana (tai lause) on erotettava merkillä \';\'. Näytettävät tulokset ovat kaikkien avainsanoja vastaavien tulosten liittymä.\nEsimerkki: \'hello world;goodbye\'. Tulokset ovat kaikki muistiinpanoja \'hello world\' TAI \'goodbye\'.'
 };

@@ -4,7 +4,10 @@ strings[lang] = {
     'all-notes-title': 'Todas las notas',
     'all-notes-title-page': 'Notefox - Todas las notas',
     'export-all-notes-button': 'Exportar todas las notas…',
+    'export-notes-to-file-button': 'Exportar directamente al archivo',
+    'exported-notes-to-file-button': 'Exportado al archivo',
     'import-notes-button': 'Importar notas…',
+    'import-notes-from-file-button': 'Importar desde el archivo…',
     'refresh-data-button': 'Actualizar',
     'clear-all-notes-button': 'Borrar todas las notas',
     'import-json-message-dialog-text': 'Copiar aquí el contenido del fichero JSON (o texto) que has exportado anteriormente, entonces haz clic en el botón <span {{parameters}}>Importar ahora</span>. La página se recargará automáticamente si las notas se han importado correctamente.',
@@ -115,5 +118,5 @@ strings[lang] = {
     'label-title-redo': 'Rehacer',
     'label-title-spellcheck': 'Corrección ortográfica del idioma',
     'label-results-for': 'Resultados para:  {{keywords}}',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': 'Puede buscar palabras clave múltiples. Cada palabra (o frase) tiene que separarse con el símbolo \';\'. Los resultados mostrados serán la unión de todos los resultados correspondientes a las palabras clave.\nEjemplo: \'hola mundo;adió\'. Los resultados serán todas las notas con \'hola munda\' O \'adió\'.'
 };

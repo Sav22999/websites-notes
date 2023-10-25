@@ -4,7 +4,10 @@ strings[lang] = {
     'all-notes-title': 'Alle notater',
     'all-notes-title-page': 'Notefox - Alle notater',
     'export-all-notes-button': 'Eksporter alle notater…',
+    'export-notes-to-file-button': 'Eksporter direkte til fil',
+    'exported-notes-to-file-button': 'Eksportert til fil',
     'import-notes-button': 'Importer notater…',
+    'import-notes-from-file-button': 'Importer fra fil…',
     'refresh-data-button': 'Oppdater data',
     'clear-all-notes-button': 'Fjern alle notater',
     'import-json-message-dialog-text': 'Lim inn her JSON (eller tekst) filinnhold du eksporterte tidligere. Klikk på <span {{parameters}}>Importer nå</span> knappen. Siden vil automatisk bli lastet på nytt dersom notater er importert.',
@@ -115,5 +118,5 @@ strings[lang] = {
     'label-title-redo': 'Gjenta',
     'label-title-spellcheck': 'Språkstavekontroll',
     'label-results-for': 'Resultater for:  {{keywords}}',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': 'Du kan søke flere søkeord. Hvert nøkkelord (eller setning) må separeres med \';\'-symbolet. Resultatene som vises vil være med i alle resultatene som tilsvarer nøkkelord.\nEksempel: \'hallo world;goodbye\'. Resultatene vil være alle notater med \'hallo world\' ELLER \'goodbye\'.'
 };
