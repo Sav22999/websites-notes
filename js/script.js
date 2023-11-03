@@ -59,8 +59,6 @@ function checkTimesOpened() {
 }
 
 function continueLoaded() {
-    document.getElementById("notes").focus();
-
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         var activeTab = tabs[0];
         var activeTabId = activeTab.id;
@@ -74,6 +72,7 @@ function continueLoaded() {
     browser.tabs.onUpdated.addListener(tabUpdated);
 
     checkOpenedBy();
+    document.getElementById("notes").focus();
 }
 
 function checkOpenedBy() {
@@ -800,22 +799,22 @@ function setTab(index, url) {
 }
 
 function openStickyNotes() {
-    console.log("Opening...")
+    //console.log("Opening...")
     if (stickyNotesSupported) {
-        console.log("Opening... <1>")
+        //console.log("Opening... <1>")
         sync_local.get("websites", function (value) {
-            console.log("Opening... <2>")
+            //console.log("Opening... <2>")
             if (value["websites"] !== undefined) {
-                console.log("Opening... <3>")
+                //console.log("Opening... <3>")
                 websites_json = value["websites"];
 
                 if (websites_json[currentUrl[selected_tab]] !== undefined) {
-                    console.log("Opening... <4>")
+                    //console.log("Opening... <4>")
                     websites_json[currentUrl[selected_tab]]["sticky"] = true;
                     websites_json[currentUrl[selected_tab]]["minimized"] = false;
 
                     sync_local.set({"websites": websites_json}).then(result => {
-                        console.log("Opening... <5>")
+                        //console.log("Opening... <5>")
                         browser.runtime.sendMessage({
                             "open-sticky": {
                                 open: true, type: selected_tab
@@ -1005,7 +1004,6 @@ function loadFormatButtons(navigation = true, format = true) {
         button.tabIndex = tabIndex;
         buttons_container.appendChild(button);
     })
-    document.getElementById("notes").focus();
 
     if (format) {
         if (settings_json !== undefined && settings_json["spellcheck-detection"] !== undefined && settings_json["spellcheck-detection"] === "no") {
@@ -1026,6 +1024,7 @@ function loadFormatButtons(navigation = true, format = true) {
     } else {
         document.getElementById("notes").style.whiteSpace = "pre-wrap";
     }
+    document.getElementById("notes").focus();
 }
 
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
