@@ -854,6 +854,7 @@ button.button-format:active, button.button-format:focus {
 
 .filter-button-tag, .filter-button-type {
     margin: 2px;
+    border-left-width: 5px;
 }
 
 .button-sel {

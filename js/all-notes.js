@@ -6,6 +6,7 @@ let notefox_json = {};
 
 const all_strings = strings[languageToUse];
 
+//Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
     "red": all_strings["red-colour"],
     "yellow": all_strings["yellow-colour"],
@@ -255,65 +256,33 @@ function setLanguageUI() {
         document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
         document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
 
-        let redFilterButton = document.getElementById("filter-tag-red-button");
-        let yellowFilterButton = document.getElementById("filter-tag-yellow-button");
-        let blackFilterButton = document.getElementById("filter-tag-black-button");
-        let orangeFilterButton = document.getElementById("filter-tag-orange-button");
-        let pinkFilterButton = document.getElementById("filter-tag-pink-button");
-        let purpleFilterButton = document.getElementById("filter-tag-purple-button");
-        let grayFilterButton = document.getElementById("filter-tag-gray-button");
-        let greenFilterButton = document.getElementById("filter-tag-green-button");
-        let blueFilterButton = document.getElementById("filter-tag-blue-button");
-        let whiteFilterButton = document.getElementById("filter-tag-white-button");
-        let noneFilterButton = document.getElementById("filter-tag-none-button");
         let globalFilterButton = document.getElementById("filter-type-global-button");
         let domainFilterButton = document.getElementById("filter-type-domain-button");
         let pageFilterButton = document.getElementById("filter-type-page-button");
-        redFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["red-colour"]);
-        redFilterButton.onclick = function () {
-            //search("red");
-            filterByColor("red", redFilterButton);
-        };
-        yellowFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["yellow-colour"]);
-        yellowFilterButton.onclick = function () {
-            filterByColor("yellow", yellowFilterButton);
-        };
-        blackFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["black-colour"]);
-        blackFilterButton.onclick = function () {
-            filterByColor("black", blackFilterButton);
-        };
-        orangeFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["orange-colour"]);
-        orangeFilterButton.onclick = function () {
-            filterByColor("orange", orangeFilterButton);
-        };
-        pinkFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["pink-colour"]);
-        pinkFilterButton.onclick = function () {
-            filterByColor("pink", pinkFilterButton);
-        };
-        purpleFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["purple-colour"]);
-        purpleFilterButton.onclick = function () {
-            filterByColor("purple", purpleFilterButton);
-        };
-        grayFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["grey-colour"]);
-        grayFilterButton.onclick = function () {
-            filterByColor("gray", grayFilterButton);
-        };
-        greenFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["green-colour"]);
-        greenFilterButton.onclick = function () {
-            filterByColor("green", greenFilterButton);
-        };
-        blueFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["blue-colour"]);
-        blueFilterButton.onclick = function () {
-            filterByColor("blue", blueFilterButton);
-        };
-        whiteFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["white-colour"]);
-        whiteFilterButton.onclick = function () {
-            filterByColor("white", whiteFilterButton);
-        };
+
+        // <input type="button" value="Tag: Red" id="filter-tag-red-button"
+        //                class="button filter-button-tag"/>
+        let containerColours = document.getElementById("filter-colours-container");
+        containerColours.innerHTML = ""
+        for (let colour in colourListDefault) {
+            let colourFilterButton = document.createElement("input");
+            colourFilterButton.type = "button";
+            colourFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", colourListDefault[colour]);
+            colourFilterButton.id = `filter-tag-${colour}-button`;
+            colourFilterButton.classList.add("button", "filter-button-tag", `tag-colour-${colour}`);
+            colourFilterButton.onclick = function () {
+                filterByColor(colour, colourFilterButton);
+            }
+            containerColours.appendChild(colourFilterButton);
+        }
+        let noneFilterButton = document.createElement("input");
+        noneFilterButton.type = "button";
         noneFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["none-colour"]);
+        noneFilterButton.id = `filter-tag-none-button`;
+        noneFilterButton.classList.add("button", "filter-button-tag");
         noneFilterButton.onclick = function () {
             filterByColor("none", noneFilterButton);
-        };
+        }
         globalFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["global-label"]);
         globalFilterButton.onclick = function () {
             filterByType("global", globalFilterButton);
@@ -332,6 +301,7 @@ function setLanguageUI() {
 }
 
 function filterByColor(color, tagButton) {
+    console.log(color)
     if (filtersColors.indexOf(color) !== -1) {
         //present: remove red
         filtersColors.splice(filtersColors.indexOf(color), 1);
