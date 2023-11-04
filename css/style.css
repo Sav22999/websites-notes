@@ -954,6 +954,142 @@ button.button-format:active, button.button-format:focus {
     background-color: blue !important;
 }
 
+.tag-colour-aquamarine {
+    border-color: aquamarine !important;
+}
+
+.tag-colour-aquamarine-bg {
+    background-color: aquamarine !important;
+}
+
+.tag-colour-turquoise {
+    border-color: turquoise !important;
+}
+
+.tag-colour-turquoise-bg {
+    background-color: turquoise !important;
+}
+
+.tag-colour-brown {
+    border-color: brown !important;
+}
+
+.tag-colour-brown-bg {
+    background-color: brown !important;
+}
+
+.tag-colour-coral {
+    border-color: coral !important;
+}
+
+.tag-colour-coral-bg {
+    background-color: coral !important;
+}
+
+.tag-colour-cyan {
+    border-color: cyan !important;
+}
+
+.tag-colour-cyan-bg {
+    background-color: cyan !important;
+}
+
+.tag-colour-darkgreen {
+    border-color: darkgreen !important;
+}
+
+.tag-colour-darkgreen-bg {
+    background-color: darkgreen !important;
+}
+
+.tag-colour-violet {
+    border-color: violet !important;
+}
+
+.tag-colour-violet-bg {
+    background-color: violet !important;
+}
+
+.tag-colour-lime {
+    border-color: lime !important;
+}
+
+.tag-colour-lime-bg {
+    background-color: lime !important;
+}
+
+.tag-colour-fuchsia {
+    border-color: fuchsia !important;
+}
+
+.tag-colour-fuchsia-bg {
+    background-color: fuchsia !important;
+}
+
+.tag-colour-indigo {
+    border-color: indigo !important;
+}
+
+.tag-colour-indigo-bg {
+    background-color: indigo !important;
+}
+
+.tag-colour-lavender {
+    border-color: lavender !important;
+}
+
+.tag-colour-lavender-bg {
+    background-color: lavender !important;
+}
+
+.tag-colour-teal {
+    border-color: teal !important;
+}
+
+.tag-colour-teal-bg {
+    background-color: teal !important;
+}
+
+.tag-colour-navy {
+    border-color: navy !important;
+}
+
+.tag-colour-navy-bg {
+    background-color: navy !important;
+}
+
+.tag-colour-olive {
+    border-color: olive !important;
+}
+
+.tag-colour-olive-bg {
+    background-color: olive !important;
+}
+
+.tag-colour-plum {
+    border-color: plum !important;
+}
+
+.tag-colour-plum-bg {
+    background-color: plum !important;
+}
+
+.tag-colour-salmon {
+    border-color: salmon !important;
+}
+
+.tag-colour-salmon-bg {
+    background-color: salmon !important;
+}
+
+.tag-colour-snow {
+    border-color: snow !important;
+}
+
+.tag-colour-snow-bg {
+    background-color: snow !important;
+}
+
 .padding-25px-lateral {
     padding-left: 25px;
     padding-right: 25px;

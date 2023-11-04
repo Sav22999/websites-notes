@@ -16,7 +16,24 @@ let colourListDefault = sortObjectByKeys({
     "gray": all_strings["grey-colour"],
     "green": all_strings["green-colour"],
     "blue": all_strings["blue-colour"],
-    "white": all_strings["white-colour"]
+    "white": all_strings["white-colour"],
+    "aquamarine": all_strings["aquamarine-colour"],
+    "turquoise": all_strings["turquoise-colour"],
+    "brown": all_strings["brown-colour"],
+    "coral": all_strings["coral-colour"],
+    "cyan": all_strings["cyan-colour"],
+    "darkgreen": all_strings["darkgreen-colour"],
+    "violet": all_strings["violet-colour"],
+    "lime": all_strings["lime-colour"],
+    "fuchsia": all_strings["fuchsia-colour"],
+    "indigo": all_strings["indigo-colour"],
+    "lavender": all_strings["lavender-colour"],
+    "teal": all_strings["teal-colour"],
+    "navy": all_strings["navy-colour"],
+    "olive": all_strings["olive-colour"],
+    "plum": all_strings["plum-colour"],
+    "salmon": all_strings["salmon-colour"],
+    "snow": all_strings["snow-colour"]
 });
 
 let show_conversion_message_attention = false;
