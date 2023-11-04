@@ -291,6 +291,10 @@ function loadUI() {
     }
 
     loadFormatButtons(false, false);
+    setTimeout(function () {
+        document.getElementById("notes").blur();
+        document.getElementById("notes").focus();
+    }, 200);
 }
 
 function notesGotFocus() {
@@ -519,7 +523,11 @@ function saveNotes() {
             //if notes field is empty, I delete the element from the "dictionary" (notes list)
             delete websites_json[currentUrl[selected_tab]];
             loadFormatButtons(true, false);
-            setPosition(document.getElementById("notes"), 0);
+            setPosition(document.getElementById("notes"), 1);
+            setTimeout(function () {
+                document.getElementById("notes").blur();
+                document.getElementById("notes").focus();
+            }, 100);
         } else {
             loadFormatButtons(true, true);
         }
