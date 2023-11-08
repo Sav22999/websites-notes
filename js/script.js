@@ -113,6 +113,35 @@ function listenerShortcuts() {
     });
 }
 
+function listenerLinks() {
+    let notes = document.getElementById("notes");
+    if (notes.innerHTML !== "" && notes.innerHTML !== "<br>") {
+        let links = notes.querySelectorAll('a');
+        links.forEach(link => {
+            link.onmouseover = function (event) {
+                if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
+                    link.style.textDecoration = "underline";
+                    link.style.cursor = "pointer";
+                } else {
+                    // Prevent the default link behavior
+                }
+            }
+            link.onmouseleave = function (event) {
+                link.style.textDecoration = "none";
+                link.style.cursor = "inherit";
+            }
+            link.onclick = function (event) {
+                if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
+                    browser.tabs.create({url: link.href});
+                } else {
+                    // Prevent the default link behavior
+                }
+                event.preventDefault();
+            }
+        });
+    }
+}
+
 function setLanguageUI() {
     document.getElementById("domain-button").value = all_strings["domain-label"];
     document.getElementById("page-button").value = all_strings["page-label"];
@@ -396,6 +425,8 @@ function loadSettings() {
             if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
             if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
             if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = "yes";
+
+            if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
         }
 
         continueLoaded();
@@ -544,6 +575,7 @@ function saveNotes() {
                 }
                 document.getElementById("notes").innerHTML = notes;
                 setPosition(document.getElementById("notes"), currentPosition);
+                listenerLinks();
 
                 let last_update = all_strings["never-update"];
                 if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["last-update"] !== undefined) last_update = websites_json[currentUrl[selected_tab]]["last-update"];
@@ -577,6 +609,7 @@ function saveNotes() {
                 sendMessageUpdateToBackground();
             });
         }
+        listenerLinks();
     });
 }
 
@@ -772,9 +805,11 @@ function setTab(index, url) {
     if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["notes"] !== undefined) {
         //notes saved (also it's empty)
         notes = websites_json[getPageUrl(url)]["notes"];
+        listenerLinks();
         never_saved = false;
     }
     document.getElementById("notes").innerHTML = notes;
+    listenerLinks();
     if (notes !== "<br>" && notes !== "") {
         loadFormatButtons(true, true);
     }
@@ -865,7 +900,7 @@ function undo() {
     if (actions.length > 0 && currentAction > 0) {
         undoAction = true;
         document.getElementById("notes").innerHTML = actions[--currentAction].text;
-        saveNotes()
+        saveNotes();
         setPosition(document.getElementById("notes"), actions[currentAction].position);
     }
     document.getElementById("notes").focus();
@@ -876,7 +911,7 @@ function redo() {
     if (currentAction < actions.length - 1) {
         undoAction = false;
         document.getElementById("notes").innerHTML = actions[++currentAction].text;
-        saveNotes()
+        saveNotes();
         setPosition(document.getElementById("notes"), actions[currentAction].position);
     }
     document.getElementById("notes").focus();

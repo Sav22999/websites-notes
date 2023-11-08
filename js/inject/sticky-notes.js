@@ -175,6 +175,7 @@ function updateStickyNotes() {
                     openMinimized();
                 }
             }
+            listenerLinks(text, response.settings);
         });
     }
 }
@@ -198,6 +199,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
 
         let textContainer = document.createElement("div");
         textContainer.id = "text-container--sticky-notes-notefox-addon";
+        listenerLinks(textContainer, settings_json);
 
         let text = document.createElement("pre");
         text.id = "text--sticky-notes-notefox-addon";
@@ -440,6 +442,10 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 border-right: 10px solid #ff6200;
                 width: 0;
             }
+            #text--sticky-notes-notefox-addon {
+                scrollbar-color: #ff6200 transparent;
+                scrollbar-width: thin;
+            }
             #text--sticky-notes-notefox-addon, #text-container--sticky-notes-notefox-addon {
                 position: relative;
                 top: 0px;
@@ -533,6 +539,11 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 width: auto;
                 max-width: 100%;
                 height: auto;
+            }
+            
+            #text--sticky-notes-notefox-addon a {
+                text-decoration: none;
+                color: inherit;
             }
             
             #text-container--sticky-notes-notefox-addon {
@@ -825,9 +836,38 @@ function sanitizeHTML(input) {
     return sanitizedHTML.innerHTML;
 }
 
+function listenerLinks(element, settings_json) {
+    let notes = element;
+    if (notes.innerHTML !== "" && notes.innerHTML !== "<br>") {
+        let links = notes.querySelectorAll('a');
+        links.forEach(link => {
+            link.onmouseover = function (event) {
+                if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
+                    link.style.textDecoration = "underline";
+                    link.style.cursor = "pointer";
+                } else {
+                    // Prevent the default link behavior
+                }
+            }
+            link.onmouseleave = function (event) {
+                link.style.textDecoration = "none";
+                link.style.cursor = "inherit";
+            }
+            link.onclick = function (event) {
+                if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
+                    window.open(link.href);
+                } else {
+                    // Prevent the default link behavior
+                }
+                event.preventDefault();
+            }
+        });
+    }
+}
+
 function sanitize(element, allowedTags, allowedAttributes) {
-    if (allowedTags === -1) allowedTags = ["b", "i", "u", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q"];
-    if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite"];
+    if (allowedTags === -1) allowedTags = ["b", "i", "u", "a", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q"];
+    if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite", "href"];
 
     let sanitizedHTML = element;
 

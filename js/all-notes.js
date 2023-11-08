@@ -327,6 +327,35 @@ function filterByType(type, tagButton) {
     applyFilter();
 }
 
+function listenerLinks(element) {
+    let notes = element;
+    if (notes.innerHTML !== "" && notes.innerHTML !== "<br>") {
+        let links = notes.querySelectorAll('a');
+        links.forEach(link => {
+            link.onmouseover = function (event) {
+                if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
+                    link.style.textDecoration = "underline";
+                    link.style.cursor = "pointer";
+                } else {
+                    // Prevent the default link behavior
+                }
+            }
+            link.onmouseleave = function (event) {
+                link.style.textDecoration = "none";
+                link.style.cursor = "inherit";
+            }
+            link.onclick = function (event) {
+                if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
+                    browser.tabs.create({url: link.href});
+                } else {
+                    // Prevent the default link behavior
+                }
+                event.preventDefault();
+            }
+        });
+    }
+}
+
 function loadDataFromBrowser(generate_section = true) {
     try {
         sync_local.get("websites", function (value) {
@@ -1111,6 +1140,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         textNotes.innerHTML = notes;
         textNotes.contentEditable = false;
         textNotes.classList.add("textarea-all-notes");
+        listenerLinks(textNotes);
         let disable_word_wrap = false;
         if (settings_json["disable-word-wrap"] !== undefined) {
             if (settings_json["disable-word-wrap"] === "yes") disable_word_wrap = true;

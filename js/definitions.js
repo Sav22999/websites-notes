@@ -27,8 +27,8 @@ let links = {
  * @returns {*}
  */
 function sanitize(element, allowedTags, allowedAttributes) {
-    if (allowedTags === -1) allowedTags = ["b", "i", "u", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q"];
-    if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite"];
+    if (allowedTags === -1) allowedTags = ["b", "i", "u", "a", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q"];
+    if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite", "href"];
 
     let sanitizedHTML = element;
 
