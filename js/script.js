@@ -399,6 +399,7 @@ function changeTagColour(url, colour) {
                 loadUI();
             });
         }
+        saveNotes();
     });
 }
 
