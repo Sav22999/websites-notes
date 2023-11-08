@@ -95,6 +95,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'When enabled the addon icon in the toolbar will be <b>green</b> if you previously saved <b>Page</b> notes for that page.',
     'check-green-icon-subdomain': 'Green addon icon when there are Subdomain notes saved',
     'check-green-icon-subdomain-detailed': 'When enabled the addon icon in the toolbar will be <b>green</b> if you previously saved <b>Subdomain</b> notes for that subdomain.',
+    'open-links-only-with-ctrl': 'Open links in the notes – only while pressing and holding the Ctrl/Command/Control keyboard button',
+    'open-links-only-with-ctrl-detailed': 'When enabled you\'ll be able to open links but <b>only</b> while you are pressing and holding <b>Ctrl/Command/Control</b> keyboard button. If disabled, you won\'t be able to open links at all.',
     'search-textbox': 'Cerca…',
     'sort-by-button': 'Ordina per…',
     'sort-by-az-button': 'Nome: A-Z',
