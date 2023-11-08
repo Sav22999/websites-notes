@@ -669,15 +669,7 @@ function saveNotes() {
                 }
                 */
 
-                if (stickyNotesSupported) {
-                    if (never_saved) {
-                        document.getElementById("open-sticky-button").classList.add("hidden");
-                    } else {
-                        if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
-                    }
-                } else {
-                    document.getElementById("open-sticky-button").classList.add("hidden");
-                }
+                checkNeverSaved(never_saved)
 
                 //console.log(JSON.stringify(websites_json));
 
@@ -687,6 +679,24 @@ function saveNotes() {
         }
         listenerLinks();
     });
+}
+
+function checkNeverSaved(never_saved) {
+    if (stickyNotesSupported) {
+        if (never_saved) {
+            document.getElementById("open-sticky-button").classList.add("hidden");
+            document.getElementById("tag-select-grid").classList.add("hidden");
+            document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
+        } else {
+            if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+            if (document.getElementById("tag-select-grid").classList.contains("hidden")) document.getElementById("tag-select-grid").classList.remove("hidden");
+            document.getElementById("all-notes-section").style.gridTemplateAreas = "'tag all-notes all-notes all-notes all-notes'";
+        }
+    } else {
+        document.getElementById("open-sticky-button").classList.add("hidden");
+        document.getElementById("tag-select-grid").classList.add("hidden");
+        document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
+    }
 }
 
 function sendMessageUpdateToBackground() {
@@ -907,15 +917,7 @@ function setTab(index, url) {
 
     document.getElementById("notes").focus();
 
-    if (stickyNotesSupported) {
-        if (never_saved) {
-            document.getElementById("open-sticky-button").classList.add("hidden");
-        } else {
-            if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
-        }
-    } else {
-        document.getElementById("open-sticky-button").classList.add("hidden");
-    }
+    checkNeverSaved(never_saved);
 }
 
 function openStickyNotes() {
