@@ -97,7 +97,6 @@ body {
     width: auto;
     font-family: 'Open Sans', sans-serif;
     background-color: var(--on-primary-color);
-    transition: 0.5s;
     cursor: pointer;
     margin-left: 10px;
     margin-right: 10px;
@@ -263,11 +262,6 @@ body {
     opacity: 1;
 }
 
-
-#all-notes-button {
-    width: 100%;
-}
-
 #notes-section, #all-notes-section {
     padding: 5px;
     background-color: transparent;
@@ -415,6 +409,34 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 
 .settings-section-grid-column {
 
+}
+
+#all-notes-section {
+    display: grid;
+    grid-template-areas: 'tag all-notes all-notes all-notes all-notes';
+    grid-column-gap: 5px;
+}
+#tag-select-grid {
+    grid-area: tag;
+    background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
+    background-repeat: no-repeat;
+    background-position: center left 5px, center right 5px;
+    background-size: auto 60%, auto 60%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 0px;
+    text-overflow: '';
+    padding: 0px 10px;
+    font-size: 0px; /*This permits to "hide" the textContext from the select but NOT from the options*/
+}
+#all-notes-button-grid {
+    grid-area: all-notes;
+    width: 100%;
+    background-image: url("../img/page-in-all-notes.svg");
+    background-repeat: no-repeat;
+    background-position: center right 10px;
+    background-size: auto 80%;
+    padding-right: 30px;
 }
 
 .section, .sub-section, .section-empty {
@@ -766,6 +788,15 @@ b {
     height: auto;
 }
 
+#notes a, .textarea-all-notes a {
+    color: inherit;
+    text-decoration: none;
+}
+
+#notes a:hover, .textarea-all-notes a:hover {
+    /*text-decoration: underline;*/
+}
+
 #notes, .textarea-all-notes {
 }
 
@@ -854,6 +885,7 @@ button.button-format:active, button.button-format:focus {
 
 .filter-button-tag, .filter-button-type {
     margin: 2px;
+    border-left-width: 5px;
 }
 
 .button-sel {
@@ -952,6 +984,142 @@ button.button-format:active, button.button-format:focus {
 
 .tag-colour-blue-bg {
     background-color: blue !important;
+}
+
+.tag-colour-aquamarine {
+    border-color: aquamarine !important;
+}
+
+.tag-colour-aquamarine-bg {
+    background-color: aquamarine !important;
+}
+
+.tag-colour-turquoise {
+    border-color: turquoise !important;
+}
+
+.tag-colour-turquoise-bg {
+    background-color: turquoise !important;
+}
+
+.tag-colour-brown {
+    border-color: brown !important;
+}
+
+.tag-colour-brown-bg {
+    background-color: brown !important;
+}
+
+.tag-colour-coral {
+    border-color: coral !important;
+}
+
+.tag-colour-coral-bg {
+    background-color: coral !important;
+}
+
+.tag-colour-cyan {
+    border-color: cyan !important;
+}
+
+.tag-colour-cyan-bg {
+    background-color: cyan !important;
+}
+
+.tag-colour-darkgreen {
+    border-color: darkgreen !important;
+}
+
+.tag-colour-darkgreen-bg {
+    background-color: darkgreen !important;
+}
+
+.tag-colour-violet {
+    border-color: violet !important;
+}
+
+.tag-colour-violet-bg {
+    background-color: violet !important;
+}
+
+.tag-colour-lime {
+    border-color: lime !important;
+}
+
+.tag-colour-lime-bg {
+    background-color: lime !important;
+}
+
+.tag-colour-fuchsia {
+    border-color: fuchsia !important;
+}
+
+.tag-colour-fuchsia-bg {
+    background-color: fuchsia !important;
+}
+
+.tag-colour-indigo {
+    border-color: indigo !important;
+}
+
+.tag-colour-indigo-bg {
+    background-color: indigo !important;
+}
+
+.tag-colour-lavender {
+    border-color: lavender !important;
+}
+
+.tag-colour-lavender-bg {
+    background-color: lavender !important;
+}
+
+.tag-colour-teal {
+    border-color: teal !important;
+}
+
+.tag-colour-teal-bg {
+    background-color: teal !important;
+}
+
+.tag-colour-navy {
+    border-color: navy !important;
+}
+
+.tag-colour-navy-bg {
+    background-color: navy !important;
+}
+
+.tag-colour-olive {
+    border-color: olive !important;
+}
+
+.tag-colour-olive-bg {
+    background-color: olive !important;
+}
+
+.tag-colour-plum {
+    border-color: plum !important;
+}
+
+.tag-colour-plum-bg {
+    background-color: plum !important;
+}
+
+.tag-colour-salmon {
+    border-color: salmon !important;
+}
+
+.tag-colour-salmon-bg {
+    background-color: salmon !important;
+}
+
+.tag-colour-snow {
+    border-color: snow !important;
+}
+
+.tag-colour-snow-bg {
+    background-color: snow !important;
 }
 
 .padding-25px-lateral {
