@@ -97,7 +97,6 @@ body {
     width: auto;
     font-family: 'Open Sans', sans-serif;
     background-color: var(--on-primary-color);
-    transition: 0.5s;
     cursor: pointer;
     margin-left: 10px;
     margin-right: 10px;
