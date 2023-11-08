@@ -391,12 +391,14 @@ function changeTagColour(url, colour) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
         }
-        //console.log(`url ${url}`);
-        websites_json[url]["tag-colour"] = colour;
-        websites_json_to_show = websites_json;
-        sync_local.set({"websites": websites_json}, function () {
-            loadUI();
-        });
+        if (websites_json[url] !== undefined) {
+            //console.log(`url ${url}`);
+            websites_json[url]["tag-colour"] = colour;
+            websites_json_to_show = websites_json;
+            sync_local.set({"websites": websites_json}, function () {
+                loadUI();
+            });
+        }
     });
 }
 
@@ -896,7 +898,7 @@ function setTab(index, url) {
     document.getElementById("tag-colour-section").removeAttribute("class");
     if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["tag-colour"] !== undefined) colour = websites_json[getPageUrl(url)]["tag-colour"];
     document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
-    document.getElementById("tag-select-grid").value = websites_json[getPageUrl(url)]["tag-colour"];
+    if (websites_json[currentUrl[selected_tab]] !== undefined) document.getElementById("tag-select-grid").value = websites_json[currentUrl[selected_tab]]["tag-colour"];
 
     let sticky = false;
     if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["sticky"] !== undefined) sticky = websites_json[getPageUrl(url)]["sticky"];
