@@ -1,16 +1,4 @@
-let settings_json = {
-    "open-default": "page",
-    "consider-parameters": "no",
-    "consider-sections": "no",
-    "open-popup-default": "Ctrl+Alt+O",
-    "open-popup-domain": "Ctrl+Alt+D",
-    "open-popup-page": "Ctrl+Alt+P",
-    "advanced-managing": "yes",
-    "html-text-formatting": "yes",
-    "disable-word-wrap": "no",
-    "spellcheck-detection": "yes",
-    "theme": "light"
-};
+let settings_json = {};
 
 const all_strings = strings[languageToUse];
 
@@ -89,9 +77,24 @@ function loaded() {
         settings_json["spellcheck-detection"] = document.getElementById("spellcheck-detection-select").value;
     };
 
-
     document.getElementById("theme-select").onchange = function () {
         settings_json["theme"] = document.getElementById("theme-select").value;
+    };
+
+    document.getElementById("check-green-icon-global-select").onchange = function () {
+        settings_json["check-green-icon-global"] = document.getElementById("check-green-icon-global-select").value;
+    };
+
+    document.getElementById("check-green-icon-domain-select").onchange = function () {
+        settings_json["check-green-icon-domain"] = document.getElementById("check-green-icon-domain-select").value;
+    };
+
+    document.getElementById("check-green-icon-page-select").onchange = function () {
+        settings_json["check-green-icon-page"] = document.getElementById("check-green-icon-page-select").value;
+    };
+
+    document.getElementById("check-green-icon-subdomain-select").onchange = function () {
+        settings_json["check-green-icon-subdomain"] = document.getElementById("check-green-icon-subdomain-select").value;
     };
 
     loadSettings();
@@ -127,6 +130,14 @@ function setLanguageUI() {
     document.getElementById("html-text-formatting-detailed-text").innerHTML = all_strings["html-text-formatting-detailed"];
     document.getElementById("disable-word-wrap-text").innerText = all_strings["disable-word-wrap"];
     document.getElementById("spellcheck-detection-text").innerText = all_strings["spellcheck-detection"];
+    document.getElementById("check-green-icon-global-text").innerText = all_strings["check-green-icon-global"];
+    document.getElementById("check-green-icon-global-detailed-text").innerHTML = all_strings["check-green-icon-global"];
+    document.getElementById("check-green-icon-domain-text").innerText = all_strings["check-green-icon-domain"];
+    document.getElementById("check-green-icon-domain-detailed-text").innerHTML = all_strings["check-green-icon-domain"];
+    document.getElementById("check-green-icon-page-text").innerText = all_strings["check-green-icon-page"];
+    document.getElementById("check-green-icon-page-detailed-text").innerHTML = all_strings["check-green-icon-page"];
+    document.getElementById("check-green-icon-subdomain-text").innerText = all_strings["check-green-icon-subdomain"];
+    document.getElementById("check-green-icon-subdomain-detailed-text").innerHTML = all_strings["check-green-icon-subdomain"];
 
     document.getElementById("theme-text").innerText = all_strings["theme-text"];
     document.getElementById("theme-select-light").innerText = all_strings["theme-choose-light-select"];
@@ -174,33 +185,22 @@ function loadSettings() {
     browser.storage.local.get(["storage"]).then(result => {
         sync_local.get("settings", function (value) {
             settings_json = {};
-            if (value["settings"] !== undefined) {
-                settings_json = value["settings"];
-                if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
-                if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
-                if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
-                if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
-                if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
-                if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
-                if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
-                if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
-                if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
-                if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = "yes";
-                if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
-            } else {
-                //settings undefined
-                settings_json["open-default"] = "page";
-                settings_json["consider-parameters"] = "no";
-                settings_json["consider-sections"] = "no";
-                settings_json["open-popup-default"] = "Ctrl+Alt+O";
-                settings_json["open-popup-domain"] = "Ctrl+Alt+D";
-                settings_json["open-popup-page"] = "Ctrl+Alt+P";
-                settings_json["advanced-managing"] = "yes";
-                settings_json["html-text-formatting"] = "yes";
-                settings_json["disable-word-wrap"] = "no";
-                settings_json["spellcheck-detection"] = "yes";
-                settings_json["theme"] = "light";
-            }
+            if (value["settings"] !== undefined) settings_json = value["settings"];
+            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
+            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
+            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
+            if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
+            if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
+            if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
+            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
+            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
+            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
+            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = "yes";
+            if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
+            if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = "yes";
+            if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = "yes";
+            if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
+            if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
 
             let sync_or_local_settings = result["storage"];
             if (sync_or_local_settings === undefined) sync_or_local_settings = "local";
@@ -213,6 +213,10 @@ function loadSettings() {
             document.getElementById("disable-word-wrap-select").value = settings_json["disable-word-wrap"];
             document.getElementById("spellcheck-detection-select").value = settings_json["spellcheck-detection"];
             document.getElementById("theme-select").value = settings_json["theme"];
+            document.getElementById("check-green-icon-global-select").value = settings_json["check-green-icon-global"];
+            document.getElementById("check-green-icon-domain-select").value = settings_json["check-green-icon-domain"];
+            document.getElementById("check-green-icon-page-select").value = settings_json["check-green-icon-page"];
+            document.getElementById("check-green-icon-subdomain-select").value = settings_json["check-green-icon-subdomain"];
             if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-select").value = "no";
             else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-select").value = "yes";
 
@@ -276,6 +280,10 @@ function onChangeShortcut(element, keyboardShortcutLetterNumber, keyboardShortcu
             settings_json["open-popup-" + value] = "disabled";
         }
     }
+}
+
+function sendMessageUpdateToBackground() {
+    browser.runtime.sendMessage({"updated": true});
 }
 
 function saveSettings() {
@@ -402,6 +410,7 @@ function saveSettings() {
                     console.error("Error retrieving data from local:", error);
                 });
             }
+            sendMessageUpdateToBackground();
 
             setTimeout(function () {
                 buttonSave.value = all_strings["save-settings-button"];

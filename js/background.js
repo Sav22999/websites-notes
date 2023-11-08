@@ -115,6 +115,11 @@ function checkStatus(update = false) {
                 if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
                 if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
                 if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
+
+                if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = "yes";
+                if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = "yes";
+                if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
+                if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
             }
             //console.log(JSON.stringify(settings_json));
             //console.log("checkStatus");
@@ -578,20 +583,23 @@ function checkIcon() {
     let domain_url = getDomainUrl(tab_url);
     let page_url = getPageUrl(tab_url);
     let global_url = getGlobalUrl();
-    let check_domain = websites_json[domain_url] !== undefined && websites_json[domain_url]["last-update"] !== undefined && websites_json[domain_url]["last-update"] != null && websites_json[domain_url]["notes"] !== undefined && websites_json[domain_url]["notes"] !== "";
-    let check_tab_url = websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "";
-    let check_page = websites_json[page_url] !== undefined && websites_json[page_url]["last-update"] !== undefined && websites_json[page_url]["last-update"] != null && websites_json[page_url]["notes"] !== undefined && websites_json[page_url]["notes"] !== "";
-    let check_global = websites_json[global_url] !== undefined && websites_json[global_url]["last-update"] !== undefined && websites_json[global_url]["last-update"] != null && websites_json[global_url]["notes"] !== undefined && websites_json[global_url]["notes"] !== ""
+    let check_domain = settings_json["check-green-icon-domain"] === "yes" && websites_json[domain_url] !== undefined && websites_json[domain_url]["last-update"] !== undefined && websites_json[domain_url]["last-update"] != null && websites_json[domain_url]["notes"] !== undefined && websites_json[domain_url]["notes"] !== "";
+    //let check_tab_url = (settings_json["check-green-icon-domain"] === "yes" || settings_json["check-green-icon-page"] === "yes") && websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "";
+    let check_tab_url = false;
+    let check_page = settings_json["check-green-icon-page"] === "yes" && websites_json[page_url] !== undefined && websites_json[page_url]["last-update"] !== undefined && websites_json[page_url]["last-update"] != null && websites_json[page_url]["notes"] !== undefined && websites_json[page_url]["notes"] !== "";
+    let check_global = settings_json["check-green-icon-global"] === "yes" && websites_json[global_url] !== undefined && websites_json[global_url]["last-update"] !== undefined && websites_json[global_url]["last-update"] != null && websites_json[global_url]["notes"] !== undefined && websites_json[global_url]["notes"] !== ""
     let check_subdomains = false;
     let subdomains = getAllOtherPossibleUrls(tab_url);
-    subdomains.forEach(subdomain => {
-        let subdomain_url = domain_url + subdomain;
-        let tmp_check = websites_json[subdomain_url] !== undefined && websites_json[subdomain_url]["last-update"] !== undefined && websites_json[subdomain_url]["last-update"] != null && websites_json[subdomain_url]["notes"] !== undefined && websites_json[subdomain_url]["notes"] !== "";
-        if (tmp_check) {
-            check_subdomains = true;
-        }
-        //console.log(url + " : " + tmp_check);
-    });
+    if (settings_json["check-green-icon-subdomain"] === "yes") {
+        subdomains.forEach(subdomain => {
+            let subdomain_url = domain_url + subdomain;
+            let tmp_check = websites_json[subdomain_url] !== undefined && websites_json[subdomain_url]["last-update"] !== undefined && websites_json[subdomain_url]["last-update"] != null && websites_json[subdomain_url]["notes"] !== undefined && websites_json[subdomain_url]["notes"] !== "";
+            if (tmp_check) {
+                check_subdomains = true;
+            }
+            //console.log(url + " : " + tmp_check);
+        });
+    }
     if (check_domain || check_page || check_tab_url || check_global || check_subdomains) {
         changeIcon(1);
     } else {
