@@ -14,6 +14,37 @@ var stickyNotesSupported = true;
 
 const all_strings = strings[languageToUse];
 
+//Do not add "None" because it's treated in a different way!
+let colourListDefault = sortObjectByKeys({
+    "red": all_strings["red-colour"],
+    "yellow": all_strings["yellow-colour"],
+    "black": all_strings["black-colour"],
+    "orange": all_strings["orange-colour"],
+    "pink": all_strings["pink-colour"],
+    "purple": all_strings["purple-colour"],
+    "gray": all_strings["grey-colour"],
+    "green": all_strings["green-colour"],
+    "blue": all_strings["blue-colour"],
+    "white": all_strings["white-colour"],
+    "aquamarine": all_strings["aquamarine-colour"],
+    "turquoise": all_strings["turquoise-colour"],
+    "brown": all_strings["brown-colour"],
+    "coral": all_strings["coral-colour"],
+    "cyan": all_strings["cyan-colour"],
+    "darkgreen": all_strings["darkgreen-colour"],
+    "violet": all_strings["violet-colour"],
+    "lime": all_strings["lime-colour"],
+    "fuchsia": all_strings["fuchsia-colour"],
+    "indigo": all_strings["indigo-colour"],
+    "lavender": all_strings["lavender-colour"],
+    "teal": all_strings["teal-colour"],
+    "navy": all_strings["navy-colour"],
+    "olive": all_strings["olive-colour"],
+    "plum": all_strings["plum-colour"],
+    "salmon": all_strings["salmon-colour"],
+    "snow": all_strings["snow-colour"]
+});
+
 let actions = [];
 let currentAction = 0;
 let undoAction = false;
@@ -118,17 +149,29 @@ function listenerLinks() {
     if (notes.innerHTML !== "" && notes.innerHTML !== "<br>") {
         let links = notes.querySelectorAll('a');
         links.forEach(link => {
-            link.onmouseover = function (event) {
+            function onMouseOverDown(event, settings_json, link) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
                     link.style.textDecoration = "underline";
                     link.style.cursor = "pointer";
-                } else {
-                    // Prevent the default link behavior
                 }
             }
-            link.onmouseleave = function (event) {
+
+            function onMouseLeaveUp(link) {
                 link.style.textDecoration = "none";
                 link.style.cursor = "inherit";
+            }
+
+            link.onmousedown = function (event) {
+                onMouseOverDown(event, settings_json, link);
+            }
+            link.onmouseover = function (event) {
+                onMouseOverDown(event, settings_json, link);
+            }
+            link.onmouseup = function (event) {
+                onMouseLeaveUp(link);
+            }
+            link.onmouseleave = function (event) {
+                onMouseLeaveUp(link);
             }
             link.onclick = function (event) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
@@ -146,7 +189,7 @@ function setLanguageUI() {
     document.getElementById("domain-button").value = all_strings["domain-label"];
     document.getElementById("page-button").value = all_strings["page-label"];
     document.getElementById("global-button").value = all_strings["global-label"];
-    document.getElementById("all-notes-button").value = all_strings["see-all-notes-button"];
+    document.getElementById("all-notes-button-grid").value = all_strings["see-all-notes-button"];
     document.getElementById("last-updated-section").value = all_strings["last-update-text"].replaceAll("{{date_time}}", "----/--/-- --:--:--");
 }
 
@@ -292,9 +335,25 @@ function loadUI() {
         notesLostFocus();
     }
 
-    document.getElementById("all-notes-button").onclick = function () {
+    document.getElementById("all-notes-button-grid").onclick = function () {
         browser.tabs.create({url: "./all-notes/index.html"});
         window.close();
+    }
+
+
+    let tagSelect = document.getElementById("tag-select-grid");
+    tagSelect.innerText = "";
+    let colourList = colourListDefault;
+    colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
+    for (let colour in colourList) {
+        let tagColour = document.createElement("option");
+        tagColour.value = colour;
+        tagColour.textContent = colourList[colour];
+        //tagColour.classList.add(colour + "-background-tag");
+        tagSelect.append(tagColour);
+    }
+    tagSelect.onchange = function () {
+        changeTagColour(currentUrl[selected_tab], tagSelect.value);
     }
 
     document.getElementById("open-sticky-button").onclick = function (event) {
@@ -324,6 +383,21 @@ function loadUI() {
         document.getElementById("notes").blur();
         document.getElementById("notes").focus();
     }, 200);
+}
+
+function changeTagColour(url, colour) {
+    sync_local.get("websites", function (value) {
+        websites_json = {};
+        if (value["websites"] !== undefined) {
+            websites_json = value["websites"];
+        }
+        //console.log(`url ${url}`);
+        websites_json[url]["tag-colour"] = colour;
+        websites_json_to_show = websites_json;
+        sync_local.set({"websites": websites_json}, function () {
+            loadUI();
+        });
+    });
 }
 
 function notesGotFocus() {
@@ -822,6 +896,7 @@ function setTab(index, url) {
     document.getElementById("tag-colour-section").removeAttribute("class");
     if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["tag-colour"] !== undefined) colour = websites_json[getPageUrl(url)]["tag-colour"];
     document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
+    document.getElementById("tag-select-grid").value = websites_json[getPageUrl(url)]["tag-colour"];
 
     let sticky = false;
     if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["sticky"] !== undefined) sticky = websites_json[getPageUrl(url)]["sticky"];
@@ -1086,6 +1161,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let spellcheck_sel_svg = window.btoa(getIconSvgEncoded("spellcheck_sel", on_primary));
         let undo_svg = window.btoa(getIconSvgEncoded("undo", on_primary));
         let redo_svg = window.btoa(getIconSvgEncoded("redo", on_primary));
+        let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
+        let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
+        let arrow_right_svg = window.btoa(getIconSvgEncoded("arrow-right", on_primary));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
@@ -1157,7 +1235,13 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     background-image: url('data:image/svg+xml;base64,${redo_svg}');
                 }
                 
+                #tag-select-grid {
+                    background-image: url('data:image/svg+xml;base64,${tag_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
+                }
                 
+                #all-notes-button-grid {
+                    background-image: url('data:image/svg+xml;base64,${arrow_right_svg}');
+                }
             </style>`;
     }
 }

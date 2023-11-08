@@ -494,6 +494,21 @@ function getIconSvgEncoded(icon, color) {
                 '    </g>\n' +
                 '</svg>';
             break;
+        case "arrow-select":
+            svgToReturn = '<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path fill-rule="evenodd" clip-rule="evenodd"\n' +
+                '          d="M4.43057 8.51192C4.70014 8.19743 5.17361 8.161 5.48811 8.43057L12 14.0122L18.5119 8.43057C18.8264 8.16101 19.2999 8.19743 19.5695 8.51192C19.839 8.82642 19.8026 9.29989 19.4881 9.56946L12.4881 15.5695C12.2072 15.8102 11.7928 15.8102 11.5119 15.5695L4.51192 9.56946C4.19743 9.29989 4.161 8.82641 4.43057 8.51192Z"\n' +
+                '          fill="' + color + '"/>\n' +
+                '</svg>';
+            break;
+        case "arrow-right":
+            svgToReturn = '<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"\n' +
+                '     xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"\n' +
+                '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">\n' +
+                '    <path d="M448.99,182.322C458.753,172.559 474.58,172.559 484.343,182.322L684.343,382.323C694.107,392.087 694.107,407.913 684.343,417.677L484.343,617.677C474.58,627.44 458.753,627.44 448.99,617.677C439.227,607.913 439.227,592.087 448.99,582.323L606.31,425L133.333,425C119.526,425 108.333,413.807 108.333,400C108.333,386.193 119.526,375 133.333,375L606.31,375L448.99,217.678C439.227,207.915 439.227,192.085 448.99,182.322Z"\n' +
+                '          style="fill:' + color + '"/>\n' +
+                '</svg>';
+            break;
         /*
     case "":
         svgToReturn = '';
@@ -501,4 +516,8 @@ function getIconSvgEncoded(icon, color) {
          */
     }
     return svgToReturn;
+}
+
+function sortObjectByKeys(o) {
+    return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
 }

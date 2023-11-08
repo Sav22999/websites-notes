@@ -841,17 +841,29 @@ function listenerLinks(element, settings_json) {
     if (notes.innerHTML !== "" && notes.innerHTML !== "<br>") {
         let links = notes.querySelectorAll('a');
         links.forEach(link => {
-            link.onmouseover = function (event) {
+            function onMouseOverDown(event, settings_json, link) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
                     link.style.textDecoration = "underline";
                     link.style.cursor = "pointer";
-                } else {
-                    // Prevent the default link behavior
                 }
             }
-            link.onmouseleave = function (event) {
+
+            function onMouseLeaveUp(link) {
                 link.style.textDecoration = "none";
                 link.style.cursor = "inherit";
+            }
+
+            link.onmousedown = function (event) {
+                onMouseOverDown(event, settings_json, link);
+            }
+            link.onmouseover = function (event) {
+                onMouseOverDown(event, settings_json, link);
+            }
+            link.onmouseup = function (event) {
+                onMouseLeaveUp(link);
+            }
+            link.onmouseleave = function (event) {
+                onMouseLeaveUp(link);
             }
             link.onclick = function (event) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {

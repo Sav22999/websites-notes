@@ -262,11 +262,6 @@ body {
     opacity: 1;
 }
 
-
-#all-notes-button {
-    width: 100%;
-}
-
 #notes-section, #all-notes-section {
     padding: 5px;
     background-color: transparent;
@@ -414,6 +409,34 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 
 .settings-section-grid-column {
 
+}
+
+#all-notes-section {
+    display: grid;
+    grid-template-areas: 'tag all-notes all-notes all-notes all-notes';
+    grid-column-gap: 5px;
+}
+#tag-select-grid {
+    grid-area: tag;
+    background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
+    background-repeat: no-repeat;
+    background-position: center left 5px, center right 5px;
+    background-size: auto 60%, auto 60%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 0px;
+    text-overflow: '';
+    padding: 0px 10px;
+    font-size: 0px; /*This permits to "hide" the textContext from the select but NOT from the options*/
+}
+#all-notes-button-grid {
+    grid-area: all-notes;
+    width: 100%;
+    background-image: url("../img/page-in-all-notes.svg");
+    background-repeat: no-repeat;
+    background-position: center right 10px;
+    background-size: auto 80%;
+    padding-right: 30px;
 }
 
 .section, .sub-section, .section-empty {

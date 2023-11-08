@@ -332,17 +332,29 @@ function listenerLinks(element) {
     if (notes.innerHTML !== "" && notes.innerHTML !== "<br>") {
         let links = notes.querySelectorAll('a');
         links.forEach(link => {
-            link.onmouseover = function (event) {
+            function onMouseOverDown(event, settings_json, link) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
                     link.style.textDecoration = "underline";
                     link.style.cursor = "pointer";
-                } else {
-                    // Prevent the default link behavior
                 }
             }
-            link.onmouseleave = function (event) {
+
+            function onMouseLeaveUp(link) {
                 link.style.textDecoration = "none";
                 link.style.cursor = "inherit";
+            }
+
+            link.onmousedown = function (event) {
+                onMouseOverDown(event, settings_json, link);
+            }
+            link.onmouseover = function (event) {
+                onMouseOverDown(event, settings_json, link);
+            }
+            link.onmouseup = function (event) {
+                onMouseLeaveUp(link);
+            }
+            link.onmouseleave = function (event) {
+                onMouseLeaveUp(link);
             }
             link.onclick = function (event) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
@@ -1029,10 +1041,6 @@ function getType(website, url) {
         else valueToReturn = "domain";
     }
     return valueToReturn;
-}
-
-function sortObjectByKeys(o) {
-    return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
 }
 
 function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_to_use, domain_again) {
