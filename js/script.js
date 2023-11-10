@@ -150,14 +150,15 @@ function listenerLinks() {
         let links = notes.querySelectorAll('a');
         links.forEach(link => {
             function onMouseOverDown(event, settings_json, link) {
+                if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
-                    link.style.textDecoration = "underline";
+                    link.style.textDecorationStyle = "solid";
                     link.style.cursor = "pointer";
                 }
             }
 
             function onMouseLeaveUp(link) {
-                link.style.textDecoration = "none";
+                link.style.textDecorationStyle = "dotted";
                 link.style.cursor = "inherit";
             }
 

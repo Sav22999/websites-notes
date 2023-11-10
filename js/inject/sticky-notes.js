@@ -542,7 +542,8 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
             }
             
             #text--sticky-notes-notefox-addon a {
-                text-decoration: none;
+                text-decoration: underline;
+                text-decoration-style: dotted;
                 color: inherit;
             }
             
@@ -843,13 +844,13 @@ function listenerLinks(element, settings_json) {
         links.forEach(link => {
             function onMouseOverDown(event, settings_json, link) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
-                    link.style.textDecoration = "underline";
+                    link.style.textDecorationStyle = "solid";
                     link.style.cursor = "pointer";
                 }
             }
 
             function onMouseLeaveUp(link) {
-                link.style.textDecoration = "none";
+                link.style.textDecorationStyle = "dotted";
                 link.style.cursor = "inherit";
             }
 

@@ -333,14 +333,15 @@ function listenerLinks(element) {
         let links = notes.querySelectorAll('a');
         links.forEach(link => {
             function onMouseOverDown(event, settings_json, link) {
+                if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
-                    link.style.textDecoration = "underline";
+                    link.style.textDecorationStyle = "solid";
                     link.style.cursor = "pointer";
                 }
             }
 
             function onMouseLeaveUp(link) {
-                link.style.textDecoration = "none";
+                link.style.textDecorationStyle = "dotted";
                 link.style.cursor = "inherit";
             }
 
@@ -1072,9 +1073,9 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         inputCopyNotes.onclick = function () {
             copyNotes(textNotes, notes);
             inputCopyNotes.value = all_strings["copied-button"];
+            textNotes.innerHTML = notes;
             setTimeout(function () {
                 inputCopyNotes.value = all_strings["copy-notes-button"];
-                textNotes.innerHTML = notes;
             }, 3000);
         }
 
@@ -1110,10 +1111,14 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             let pageUrl = document.createElement("h3");
             pageUrl.textContent = url;
 
-            if (isUrlSupported(fullUrl)) {
+            let fullUrlToUse = fullUrl;
+            if (fullUrlToUse.substring(fullUrlToUse.length - 1, fullUrlToUse.length) === "*") {
+                fullUrlToUse = fullUrlToUse.substring(0, fullUrlToUse.length - 1);
+            }
+            if (isUrlSupported(fullUrlToUse)) {
                 pageUrl.classList.add("link", "go-to-external");
                 pageUrl.onclick = function () {
-                    browser.tabs.create({url: fullUrl});
+                    browser.tabs.create({url: fullUrlToUse});
                 }
             }
 

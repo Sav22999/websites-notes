@@ -790,7 +790,9 @@ b {
 
 #notes a, .textarea-all-notes a {
     color: inherit;
-    text-decoration: none;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-thickness: 2px;
 }
 
 #notes a:hover, .textarea-all-notes a:hover {
@@ -812,6 +814,7 @@ b {
     font-size: 14px !important;
     cursor: text;
     white-space: inherit;
+    text-decoration-thickness: 2px;
 }
 
 .textarea-all-notes, .textarea-all-notes * {
