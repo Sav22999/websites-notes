@@ -152,6 +152,7 @@ body {
     padding: 5px;
     padding-top: 0px;
     background-color: transparent;
+    text-align: center;
 }
 
 #all-notes-dedication-section {
@@ -325,7 +326,7 @@ h3 {
 }
 
 .go-to-external:hover::after {
-    content: url('../img/open-external.svg');
+    /*content: url('../img/open-external.svg');*/
     margin-left: 5px;
 }
 

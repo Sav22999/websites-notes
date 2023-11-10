@@ -25,23 +25,34 @@ function loaded() {
         var activeTabId = activeTab.id;
         var activeTabUrl = activeTab.url;
 
-        setMessageSubject(activeTabId).then(r => {
-            setUrl(activeTabUrl);
+        setMessageSubject(activeTab).then(r => {
+            if (activeTabUrl !== undefined) {
+                setUrl(activeTabUrl);
+            } else {
+                setUrl("**global");
+            }
             loadUI();
         });
     });
 
     browser.tabs.onUpdated.addListener(tabUpdated);
+    browser.tabs.onActivated.addListener(tabUpdated);
 }
 
-async function setMessageSubject(tabId) {
-    let message = await messenger.messageDisplay.getDisplayedMessage(tabId);
-    currentSubject = message.subject;
+async function setMessageSubject(activeTab) {
+    if (activeTab["type"] !== undefined && activeTab["type"] === "messageDisplay") {
+        setUrl(activeTab.url);
+        let message = await messenger.messageDisplay.getDisplayedMessage(activeTab.id);
+        currentSubject = message.subject;
+    } else {
+        setUrl("**global");
+        currentSubject = "Global notes";
+    }
 }
 
 function setLanguageUI() {
-    document.getElementById("domain-button").value = all_strings["domain-label"];
-    document.getElementById("page-button").value = all_strings["page-label"];
+    document.getElementById("global-button").value = all_strings["global-label"];
+    document.getElementById("email-button").value = all_strings["email-label"];
     document.getElementById("all-notes-button").value = all_strings["see-all-notes-button"];
     document.getElementById("last-updated-section").value = all_strings["last-update-text"].replaceAll("{{date_time}}", "----/--/-- --:--:--");
 }
@@ -59,17 +70,18 @@ function loadUI() {
             browser.storage.local.get("websites", function (value) {
                 if (value["websites"] != undefined) {
                     websites_json = value["websites"];
-                    if (websites_json[currentUrl[0]] != undefined && websites_json[currentUrl[0]]["last-update"] != undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] != undefined && websites_json[currentUrl[0]]["notes"] != "") {
-                        setTab(0, currentUrl[0]);
-                    } else if (websites_json[currentUrl[1]] != undefined && websites_json[currentUrl[1]]["last-update"] != undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] != undefined && websites_json[currentUrl[1]]["notes"] != "") {
+                    if (websites_json[currentUrl[1]] != undefined && websites_json[currentUrl[1]]["last-update"] != undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] != undefined && websites_json[currentUrl[1]]["notes"] != "") {
                         setTab(1, currentUrl[1]);
-                    } else {
+                    } else if (websites_json[currentUrl[0]] != undefined && websites_json[currentUrl[0]]["last-update"] != undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] != undefined && websites_json[currentUrl[0]]["notes"] != "") {
                         setTab(0, currentUrl[0]);
+                    } else {
+                        setTab(1, currentUrl[1]);
                     }
                 } else {
-                    setTab(0, currentUrl[0]);
+                    setTab(1, currentUrl[1]);
                 }
 
+                document.getElementById("notes").focus();
                 //console.log(JSON.stringify(websites_json));
             });
         } else {
@@ -77,10 +89,10 @@ function loadUI() {
         }
     });
 
-    document.getElementById("domain-button").onclick = function () {
+    document.getElementById("global-button").onclick = function () {
         setTab(0, currentUrl[0]);
     }
-    document.getElementById("page-button").onclick = function () {
+    document.getElementById("email-button").onclick = function () {
         setTab(1, currentUrl[1]);
     }
     document.getElementById("notes").oninput = function () {
@@ -94,31 +106,31 @@ function loadUI() {
 
 function saveNotes() {
     browser.storage.local.get("websites", function (value) {
-        if (value["websites"] != undefined) {
+        if (value["websites"] !== undefined) {
             websites_json = value["websites"];
         } else {
             websites_json = {};
         }
-        if (websites_json[currentUrl[selected_tab]] == undefined) websites_json[currentUrl[selected_tab]] = {};
+        if (websites_json[currentUrl[selected_tab]] === undefined) websites_json[currentUrl[selected_tab]] = {};
         let notes = document.getElementById("notes").value;
         websites_json[currentUrl[selected_tab]]["notes"] = notes;
         websites_json[currentUrl[selected_tab]]["last-update"] = getDate();
         websites_json[currentUrl[selected_tab]]["subject"] = currentSubject;
-        if (websites_json[currentUrl[selected_tab]]["tag-colour"] == undefined) {
+        if (websites_json[currentUrl[selected_tab]]["tag-colour"] === undefined) {
             websites_json[currentUrl[selected_tab]]["tag-colour"] = "none";
         }
-        if (selected_tab == 0) {
+        if (selected_tab === 0) {
             websites_json[currentUrl[selected_tab]]["type"] = 0;
             websites_json[currentUrl[selected_tab]]["domain"] = "";
         } else {
             websites_json[currentUrl[selected_tab]]["type"] = 1;
             websites_json[currentUrl[selected_tab]]["domain"] = currentUrl[0];
         }
-        if (notes == "") {
+        if (notes === "") {
             //if notes field is empty, I delete the element from the "dictionary" (notes list)
             delete websites_json[currentUrl[selected_tab]];
         }
-        if (currentUrl[0] != "" && currentUrl[1] != "") {
+        if (currentUrl[0] !== "" && currentUrl[1] !== "") {
             //selected_tab : {0:domain | 1:page}
             browser.storage.local.set({"websites": websites_json}, function () {
                 let notes = "";
@@ -143,60 +155,23 @@ function saveNotes() {
     });
 }
 
-function tabUpdated(tabId, changeInfo, tabInfo) {
-    setUrl(tabInfo.url);
+function tabUpdated() {
+    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        if (tabs.url !== undefined) {
+            setUrl(tabs.url);
+        } else {
+            setUrl("**global");
+        }
 
-    loadUI();
+        loadUI();
+    });
 }
 
 function setUrl(url) {
-    if (isUrlSupported(url)) {
-        currentUrl[0] = getShortUrl(url);
-        currentUrl[1] = url;
-        document.getElementById("tabs-section").style.display = "block";
-    } else {
-        currentUrl[0] = url;
-        currentUrl[1] = url;
-        document.getElementById("tabs-section").style.display = "none";
-    }
-}
-
-function getShortUrl(url) {
-    let urlToReturn = "";
-    let protocol = getTheProtocol(url);
-    if (url.includes(":")) {
-        urlParts = url.split(":");
-        urlToReturn = urlParts[1];
-    }
-
-    if (urlToReturn.includes("/")) {
-        urlPartsTemp = urlToReturn.split("/");
-        if (urlPartsTemp[0] == "" && urlPartsTemp[1] == "") {
-            urlToReturn = urlPartsTemp[2];
-        }
-    }
-
-    return (protocol + "://" + urlToReturn);
-}
-
-function getTheProtocol(url) {
-    return url.split(":")[0];
-}
-
-function isUrlSupported(url) {
-    let valueToReturn = false;
-    switch (getTheProtocol(url)) {
-        case "http":
-        case "https":
-            //the URL is supported
-            valueToReturn = true;
-            break;
-
-        default:
-            //this disable all unsupported website
-            valueToReturn = false;//todo | true->for testing, false->stable release
-    }
-    return valueToReturn;
+    if (url === undefined) url = "**global";
+    currentUrl[0] = "**global";
+    currentUrl[1] = url;
+    if (currentUrl[1] === "**global") document.getElementById("tabs-section").style.display = "none";
 }
 
 function getDate() {
@@ -224,8 +199,8 @@ function getDate() {
 
 function setTab(index, url) {
     selected_tab = index;
-    document.getElementById("domain-button").classList.remove("tab-sel");
-    document.getElementById("page-button").classList.remove("tab-sel");
+    document.getElementById("global-button").classList.remove("tab-sel");
+    document.getElementById("email-button").classList.remove("tab-sel");
 
     document.getElementsByClassName("tab")[index].classList.add("tab-sel");
 

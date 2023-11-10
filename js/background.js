@@ -16,13 +16,14 @@ function loaded() {
         tab_id = activeTab.id;
         tab_url = activeTab.url;
 
-        setMessageSubject(tab_id);
+        setMessageSubject(activeTab);
 
         checkStatus();
     });
 
     //catch changing of tab
     browser.tabs.onUpdated.addListener(tabUpdated);
+    browser.tabs.onActivated.addListener(tabUpdated);
 
     browser.runtime.onMessage.addListener((message) => {
         if (message["updated"] != undefined && message["updated"]) {
@@ -31,30 +32,38 @@ function loaded() {
     });
 }
 
-async function setMessageSubject(tabId) {
-    let message = await messenger.messageDisplay.getDisplayedMessage(tabId);
-    message_subject = message.subject;
+async function setMessageSubject(activeTab) {
+    tab_id = activeTab.id;
+
+    //console.log(JSON.stringify(activeTab));
+
+    if (activeTab["type"] !== undefined && activeTab["type"] === "messageDisplay") {
+        tab_url = activeTab.url;
+        let message = await messenger.messageDisplay.getDisplayedMessage(tab_id);
+        message_subject = message.subject;
+    } else {
+        tab_url = "**global";
+        message_subject = "Global notes";
+    }
 }
 
-function tabUpdated(tabId, changeInfo, tabInfo) {
-    tab_id = tabId;
-    tab_url = tabInfo.url;
+function tabUpdated() {
+    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        // since only one tab should be active and in the current window at once
+        // the return variable should only have one entry
+        let activeTab = tabs[0];
+        tab_id = activeTab.id;
 
-    if (getTheProtocol(tab_url) !== "moz-extension" && getTheProtocol(tab_url) !== "about") {
-        setMessageSubject(tab_id).then(r => checkStatus());
-    }
+        setMessageSubject(activeTab).then(r => checkStatus());
+    });
 }
 
 function checkStatus() {
     browser.storage.local.get("websites", function (value) {
-        if (value["websites"] !== undefined && getTheProtocol(tab_url) !== "moz-extension") {
+        if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            let domain_url = getShortUrl(tab_url);
-
-            if (websites_json[domain_url] !== undefined && websites_json[domain_url]["last-update"] !== undefined && websites_json[domain_url]["last-update"] != null && websites_json[domain_url]["notes"] !== undefined && websites_json[domain_url]["notes"] !== "") {
-                changeIcon(1);
-            } else if (websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "") {
+            if (websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "") {
                 changeIcon(1);
             } else {
                 changeIcon(0);
@@ -65,28 +74,6 @@ function checkStatus() {
 
         //console.log(JSON.stringify(websites_json));
     });
-}
-
-function getShortUrl(url) {
-    let urlToReturn = "";
-    let protocol = getTheProtocol(url);
-    if (url.includes(":")) {
-        urlParts = url.split(":");
-        urlToReturn = urlParts[1];
-    }
-
-    if (urlToReturn.includes("/")) {
-        urlPartsTemp = urlToReturn.split("/");
-        if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
-            urlToReturn = urlPartsTemp[2];
-        }
-    }
-
-    return (protocol + "://" + urlToReturn);
-}
-
-function getTheProtocol(url) {
-    return url.split(":")[0];
 }
 
 loaded();

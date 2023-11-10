@@ -59,7 +59,7 @@ function setLanguageUI() {
 function loadDataFromBrowser(generate_section = true) {
     browser.storage.local.get("websites", function (value) {
         websites_json = {};
-        if (value["websites"] != undefined) {
+        if (value["websites"] !== undefined) {
             websites_json = value["websites"];
         }
         if (generate_section) {
@@ -259,17 +259,19 @@ function loadAllWebsites() {
 
             for (let index = 0; index < websites_json_by_domain[domain].length; index++) {
                 let urlPage = websites_json_by_domain[domain][index];
-                let urlPageDomain = domain + websites_json_by_domain[domain][index];
+                let urlPageDomain = websites_json_by_domain[domain][index];
                 let page = document.createElement("div");
                 page.classList.add("sub-section");
 
-                let lastUpdate = websites_json[urlPageDomain]["last-update"];
-                let notes = websites_json[urlPageDomain]["notes"];
-                let subject = websites_json[urlPageDomain]["subject"];
+                if (websites_json[urlPageDomain] !== undefined) {
+                    let lastUpdate = websites_json[urlPageDomain]["last-update"];
+                    let notes = websites_json[urlPageDomain]["notes"];
+                    let subject = websites_json[urlPageDomain]["subject"];
 
-                page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["email-label"], urlPageDomain, "email", subject);
+                    page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["email-label"], urlPageDomain, "email", subject);
 
-                all_pages.append(page);
+                    all_pages.append(page);
+                }
             }
 
             section.append(all_pages);
@@ -386,10 +388,6 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl, typeCode, su
     page.append(pageLastUpdate);
 
     return page;
-}
-
-function onCreated(tab) {
-    console.log(`Created new tab: ${tab.id}`)
 }
 
 function onError(error) {
