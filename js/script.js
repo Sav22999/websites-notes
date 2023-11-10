@@ -632,7 +632,7 @@ function saveNotes() {
             //if notes field is empty, I delete the element from the "dictionary" (notes list)
             delete websites_json[currentUrl[selected_tab]];
             loadFormatButtons(true, false);
-            setPosition(document.getElementById("notes"), 1);
+            //setPosition(document.getElementById("notes"), 1);
             setTimeout(function () {
                 document.getElementById("notes").blur();
                 document.getElementById("notes").focus();
@@ -651,8 +651,7 @@ function saveNotes() {
                     notes = websites_json[currentUrl[selected_tab]]["notes"];
                     never_saved = false;
                 }
-                document.getElementById("notes").innerHTML = notes;
-                setPosition(document.getElementById("notes"), currentPosition);
+                //setPosition(document.getElementById("notes"), currentPosition);
                 listenerLinks();
 
                 let last_update = all_strings["never-update"];
