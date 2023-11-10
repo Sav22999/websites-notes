@@ -675,6 +675,15 @@ function onKeyDownText(text, e) {
         underline();
     } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         strikethrough();
+    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
+        let selectedText = "";
+        if (window.getSelection) {
+            selectedText = window.getSelection().toString();
+        } else if (document.selection && document.selection.type !== 'Control') {
+            // For older versions of Internet Explorer
+            selectedText = document.selection.createRange().text;
+        }
+        insertLink(selectedText);
     }
 }
 
@@ -822,6 +831,18 @@ function strikethrough() {
     //console.log("Strikethrough S")
     document.execCommand("strikethrough", false);
     addAction()
+}
+
+function insertLink(value) {
+    //if (isValidURL(value)) {
+    document.execCommand('createLink', false, value);
+    addAction();
+    //}
+}
+
+function isValidURL(url) {
+    var urlPattern = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?$/;
+    return urlPattern.test(url);
 }
 
 function sanitizeHTML(input) {
