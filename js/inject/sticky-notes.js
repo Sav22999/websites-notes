@@ -830,13 +830,11 @@ function underline() {
 function strikethrough() {
     //console.log("Strikethrough S")
     document.execCommand("strikethrough", false);
-    addAction()
 }
 
 function insertLink(value) {
     //if (isValidURL(value)) {
     document.execCommand('createLink', false, value);
-    addAction();
     //}
 }
 
