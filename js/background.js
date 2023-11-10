@@ -43,7 +43,7 @@ async function setMessageSubject(activeTab) {
         message_subject = message.subject;
     } else {
         tab_url = "**global";
-        message_subject = "Global notes";
+        message_subject = "";
     }
 }
 

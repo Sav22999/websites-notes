@@ -40,7 +40,8 @@ function loaded() {
 }
 
 async function setMessageSubject(activeTab) {
-    if (activeTab["type"] !== undefined && activeTab["type"] === "messageDisplay") {
+    //console.log(JSON.stringify(activeTab));
+    if (activeTab["url"] !== undefined) {
         setUrl(activeTab.url);
         let message = await messenger.messageDisplay.getDisplayedMessage(activeTab.id);
         currentSubject = message.subject;
@@ -78,7 +79,7 @@ function loadUI() {
                         setTab(1, currentUrl[1]);
                     }
                 } else {
-                    setTab(1, currentUrl[1]);
+                    setTab(0, currentUrl[0]);
                 }
 
                 document.getElementById("notes").focus();
@@ -124,7 +125,7 @@ function saveNotes() {
             websites_json[currentUrl[selected_tab]]["domain"] = "";
         } else {
             websites_json[currentUrl[selected_tab]]["type"] = 1;
-            websites_json[currentUrl[selected_tab]]["domain"] = currentUrl[0];
+            websites_json[currentUrl[selected_tab]]["domain"] = "";
         }
         if (notes === "") {
             //if notes field is empty, I delete the element from the "dictionary" (notes list)
@@ -169,9 +170,12 @@ function tabUpdated() {
 
 function setUrl(url) {
     if (url === undefined) url = "**global";
+    console.log(url);
     currentUrl[0] = "**global";
     currentUrl[1] = url;
-    if (currentUrl[1] === "**global") document.getElementById("tabs-section").style.display = "none";
+    if (currentUrl[1] === "**global") {
+        document.getElementById("tabs-section").style.display = "none";
+    }
 }
 
 function getDate() {

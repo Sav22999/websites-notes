@@ -1,9 +1,7 @@
-<!-- This Source Code Form is subject to the terms of the Mozilla Public
-   - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-    <path fill="#FFFFFF"
-          d="M14 3h-2v2h2v8H2V5h7V3h-.849L6.584 1.538A2 2 0 0 0 5.219 1H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM2 3h3.219l1.072 1H2z"></path>
-    <path fill="#FFFFFF"
-          d="M8.146 6.146a.5.5 0 0 0 0 .707l2 2a.5.5 0 0 0 .707 0l2-2a.5.5 0 1 0-.707-.707L11 7.293V.5a.5.5 0 0 0-1 0v6.793L8.854 6.146a.5.5 0 0 0-.708 0z"></path>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"
+     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <path d="M650,500L650,666.667C650,703.333 620,733.333 583.333,733.333L183.333,733.333C146.667,733.333 116.667,703.333 116.667,666.667L116.667,133.333C116.667,96.667 146.667,66.667 183.333,66.667L583.333,66.667C620,66.667 650,96.667 650,133.333L650,300L450,300L450,142.608L143.991,400L450,657.392L450,500L650,500ZM400,450L400,550L221.667,400L400,250L400,350L700,350L700,450L400,450Z"/>
 </svg>

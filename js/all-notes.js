@@ -196,21 +196,14 @@ function loadAllWebsites() {
             }
 
 
-            if (websites_json[domain]["type"] == 0) {
-                //domain
-                if (websites_json_by_domain[domain] == undefined) {
-                    websites_json_by_domain[domain] = [];
-                }
-            } else {
-                //page
-                let root_domain = websites_json[domain]["domain"];
-                let domain_to_add = domain.replace(root_domain, "");
-                if (websites_json_by_domain[root_domain] == undefined) {
-                    websites_json_by_domain[root_domain] = [];
-                }
-                if (websites_json_by_domain[root_domain].indexOf(domain_to_add) == -1) {
-                    websites_json_by_domain[root_domain].push(domain_to_add);
-                }
+            //page
+            let root_domain = websites_json[domain]["domain"];
+            let domain_to_add = domain.replace(root_domain, "");
+            if (websites_json_by_domain[root_domain] == undefined) {
+                websites_json_by_domain[root_domain] = [];
+            }
+            if (websites_json_by_domain[root_domain].indexOf(domain_to_add) == -1) {
+                websites_json_by_domain[root_domain].push(domain_to_add);
             }
 
             if (websites_json[domain]["tag-colour"] == undefined) {
@@ -243,8 +236,9 @@ function loadAllWebsites() {
 
             //console.log(JSON.stringify(websites_json_by_domain[domain]));
 
-            if (websites_json[domain] != undefined) {
+            if (websites_json[domain] !== undefined) {
                 //there is notes also for the domain
+                console.log(domain);
                 let urlPageDomain = domain;
                 let page = document.createElement("div");
                 page.classList.add("sub-section", "no-margin", "padding-10-px", "background-transparent");
@@ -252,13 +246,13 @@ function loadAllWebsites() {
                 let notes = websites_json[urlPageDomain]["notes"];
                 let subject = websites_json[urlPageDomain]["subject"];
                 let type = all_strings["email-label"];
-                
+
                 if (urlPageDomain === "**global") {
                     subject = "";
                     type = all_strings["global-label"];
                 }
 
-                page = generateNotes(page, urlPageDomain, notes, lastUpdate, type, urlPageDomain, "email", subject);
+                page = generateNotes(page, urlPageDomain, notes, lastUpdate, type, "", "email", subject);
 
                 all_pages.append(page);
             }
@@ -269,6 +263,9 @@ function loadAllWebsites() {
                 let page = document.createElement("div");
                 page.classList.add("sub-section");
 
+                //console.log(urlPage)
+                //console.log(urlPageDomain)
+                //console.log("\n");
                 if (websites_json[urlPageDomain] !== undefined) {
                     let lastUpdate = websites_json[urlPageDomain]["last-update"];
                     let notes = websites_json[urlPageDomain]["notes"];
@@ -280,7 +277,7 @@ function loadAllWebsites() {
                         type = all_strings["global-label"];
                     }
 
-                    page = generateNotes(page, urlPage, notes, lastUpdate, type, urlPageDomain, "email", subject);
+                    page = generateNotes(page, urlPage, notes, lastUpdate, type, "", "email", subject);
 
                     all_pages.append(page);
                 }
@@ -317,11 +314,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl, typeCode, su
     input_clear_all_notes_page.value = all_strings["clear-notes-of-this-email-button"];
     input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button", "clear-button");
     input_clear_all_notes_page.onclick = function () {
-        let isDomain = false;
-        if (fullUrl === url) {
-            isDomain = true;
-        }
-        clearAllNotesPage(fullUrl, isDomain);
+        clearAllNotesPage(fullUrl, false);
     }
 
     let inputCopyNotes = document.createElement("input");
@@ -352,7 +345,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl, typeCode, su
     for (let colour in colourList) {
         let tagColour = document.createElement("option");
         tagColour.value = colour;
-        if (websites_json[fullUrl]["tag-colour"] != undefined && websites_json[fullUrl]["tag-colour"] == colour) {
+        if (websites_json[url]["tag-colour"] != undefined && websites_json[url]["tag-colour"] == colour) {
             tagColour.selected = true;
             page.classList.add("tag-colour-left", "tag-colour-" + colour);
         }
