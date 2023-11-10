@@ -13,7 +13,7 @@ var type_to_use = -1;
 
 var coords = {x: "20px", y: "20px"};
 var sizes = {w: "300px", h: "300px"};
-var opacity = {value: 0.7};
+var opacity = {value: 0.8};
 
 let opening_sticky = false;
 
@@ -170,7 +170,7 @@ function checkStatus(update = false) {
                             if (value["sticky-notes-opacity"] !== undefined && value["sticky-notes-opacity"]["value"] !== undefined) {
                                 opacity = {value: value["sticky-notes-opacity"]["value"]};
                             } else {
-                                opacity = {value: 0.7};
+                                opacity = {value: 0.8};
                             }
                         }
 

@@ -150,14 +150,15 @@ function listenerLinks() {
         let links = notes.querySelectorAll('a');
         links.forEach(link => {
             function onMouseOverDown(event, settings_json, link) {
+                if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
-                    link.style.textDecoration = "underline";
+                    link.style.textDecorationStyle = "solid";
                     link.style.cursor = "pointer";
                 }
             }
 
             function onMouseLeaveUp(link) {
-                link.style.textDecoration = "none";
+                link.style.textDecorationStyle = "dotted";
                 link.style.cursor = "inherit";
             }
 
@@ -631,7 +632,7 @@ function saveNotes() {
             //if notes field is empty, I delete the element from the "dictionary" (notes list)
             delete websites_json[currentUrl[selected_tab]];
             loadFormatButtons(true, false);
-            setPosition(document.getElementById("notes"), 1);
+            //setPosition(document.getElementById("notes"), 1);
             setTimeout(function () {
                 document.getElementById("notes").blur();
                 document.getElementById("notes").focus();
@@ -650,8 +651,7 @@ function saveNotes() {
                     notes = websites_json[currentUrl[selected_tab]]["notes"];
                     never_saved = false;
                 }
-                document.getElementById("notes").innerHTML = notes;
-                setPosition(document.getElementById("notes"), currentPosition);
+                //setPosition(document.getElementById("notes"), currentPosition);
                 listenerLinks();
 
                 let last_update = all_strings["never-update"];
