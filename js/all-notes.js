@@ -251,8 +251,14 @@ function loadAllWebsites() {
                 let lastUpdate = websites_json[urlPageDomain]["last-update"];
                 let notes = websites_json[urlPageDomain]["notes"];
                 let subject = websites_json[urlPageDomain]["subject"];
+                let type = all_strings["email-label"];
+                
+                if (urlPageDomain === "**global") {
+                    subject = "";
+                    type = all_strings["global-label"];
+                }
 
-                page = generateNotes(page, urlPageDomain, notes, lastUpdate, all_strings["email-label"], urlPageDomain, "email", subject);
+                page = generateNotes(page, urlPageDomain, notes, lastUpdate, type, urlPageDomain, "email", subject);
 
                 all_pages.append(page);
             }
@@ -267,8 +273,14 @@ function loadAllWebsites() {
                     let lastUpdate = websites_json[urlPageDomain]["last-update"];
                     let notes = websites_json[urlPageDomain]["notes"];
                     let subject = websites_json[urlPageDomain]["subject"];
+                    let type = all_strings["email-label"];
 
-                    page = generateNotes(page, urlPage, notes, lastUpdate, all_strings["email-label"], urlPageDomain, "email", subject);
+                    if (urlPageDomain === "**global") {
+                        subject = "";
+                        type = all_strings["global-label"];
+                    }
+
+                    page = generateNotes(page, urlPage, notes, lastUpdate, type, urlPageDomain, "email", subject);
 
                     all_pages.append(page);
                 }
@@ -306,7 +318,7 @@ function generateNotes(page, url, notes, lastUpdate, type, fullUrl, typeCode, su
     input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button", "clear-button");
     input_clear_all_notes_page.onclick = function () {
         let isDomain = false;
-        if (fullUrl == url) {
+        if (fullUrl === url) {
             isDomain = true;
         }
         clearAllNotesPage(fullUrl, isDomain);
