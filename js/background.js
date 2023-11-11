@@ -1,11 +1,11 @@
 const icons = ["../img/icon.svg", "../img/icon-bordered.svg"];
 
-var tab_id = 0;
-var tab_url = "";
-var message_subject = "";
+var currentUrl = []; //[global, email]
 
 function changeIcon(index) {
-    browser.browserAction.setIcon({path: icons[index], tabId: tab_id});
+    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        browser.browserAction.setIcon({path: icons[index], tabId: tabs.id});
+    });
 }
 
 function loaded() {
@@ -13,10 +13,11 @@ function loaded() {
         // since only one tab should be active and in the current window at once
         // the return variable should only have one entry
         let activeTab = tabs[0];
-        tab_id = activeTab.id;
-        tab_url = activeTab.url;
-
-        setMessageSubject(activeTab);
+        if (activeTab.url !== undefined) {
+            setUrl(activeTab.url);
+        } else {
+            setUrl("**global");
+        }
 
         checkStatus();
     });
@@ -32,29 +33,21 @@ function loaded() {
     });
 }
 
-async function setMessageSubject(activeTab) {
-    tab_id = activeTab.id;
-
-    //console.log(JSON.stringify(activeTab));
-
-    if (activeTab["type"] !== undefined && activeTab["type"] === "messageDisplay") {
-        tab_url = activeTab.url;
-        let message = await messenger.messageDisplay.getDisplayedMessage(tab_id);
-        message_subject = message.subject;
-    } else {
-        tab_url = "**global";
-        message_subject = "";
-    }
+function setUrl(url) {
+    if (url === undefined) url = "**global";
+    currentUrl[0] = "**global";
+    currentUrl[1] = url;
 }
 
 function tabUpdated() {
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
-        // since only one tab should be active and in the current window at once
-        // the return variable should only have one entry
-        let activeTab = tabs[0];
-        tab_id = activeTab.id;
+        if (tabs[0].url !== undefined) {
+            setUrl(tabs[0].url);
+        } else {
+            setUrl("**global");
+        }
 
-        setMessageSubject(activeTab).then(r => checkStatus());
+        checkStatus();
     });
 }
 
@@ -63,7 +56,10 @@ function checkStatus() {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            if (websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "") {
+            let email_condition = websites_json[currentUrl[1]] !== undefined && websites_json[currentUrl[1]]["last-update"] !== undefined && websites_json[currentUrl[1]]["last-update"] !== null && websites_json[currentUrl[1]]["notes"] !== undefined && websites_json[currentUrl[1]]["notes"] !== "";
+            let global_condition = websites_json[currentUrl[0]] !== undefined && websites_json[currentUrl[0]]["last-update"] !== undefined && websites_json[currentUrl[0]]["last-update"] !== null && websites_json[currentUrl[0]]["notes"] !== undefined && websites_json[currentUrl[0]]["notes"] !== "";
+
+            if (email_condition) {
                 changeIcon(1);
             } else {
                 changeIcon(0);

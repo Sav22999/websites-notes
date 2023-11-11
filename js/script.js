@@ -1,9 +1,9 @@
 var websites_json = {};
 
-var currentUrl = []; //[domain, page]
+var currentUrl = []; //[global, email]
 var currentSubject = [];
 
-var selected_tab = 0; //{0:domain | 1:page}
+var selected_tab = 0; //{0:global | 1:email}
 
 const all_strings = strings[languageToUse];
 
@@ -158,8 +158,8 @@ function saveNotes() {
 
 function tabUpdated() {
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
-        if (tabs.url !== undefined) {
-            setUrl(tabs.url);
+        if (tabs[0].url !== undefined) {
+            setUrl(tabs[0].url);
         } else {
             setUrl("**global");
         }
@@ -170,7 +170,7 @@ function tabUpdated() {
 
 function setUrl(url) {
     if (url === undefined) url = "**global";
-    console.log(url);
+    //console.log(url);
     currentUrl[0] = "**global";
     currentUrl[1] = url;
     if (currentUrl[1] === "**global") {
