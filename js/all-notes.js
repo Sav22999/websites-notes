@@ -359,7 +359,12 @@ function listenerLinks(element) {
             }
             link.onclick = function (event) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
-                    browser.tabs.create({url: link.href});
+                    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                        browser.tabs.create({
+                            url: link.href,
+                            index: tabs[0].index + 1
+                        });
+                    });
                 } else {
                     // Prevent the default link behavior
                 }
