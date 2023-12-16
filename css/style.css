@@ -416,6 +416,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     grid-template-areas: 'tag all-notes all-notes all-notes all-notes';
     grid-column-gap: 5px;
 }
+
 #tag-select-grid {
     grid-area: tag;
     background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
@@ -429,6 +430,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     padding: 0px 10px;
     font-size: 0px; /*This permits to "hide" the textContext from the select but NOT from the options*/
 }
+
 #all-notes-button-grid {
     grid-area: all-notes;
     width: 100%;
@@ -788,6 +790,10 @@ b {
     height: auto;
 }
 
+#notes *, .textarea-all-notes * {
+    text-decoration: none;
+}
+
 #notes a, .textarea-all-notes a {
     color: inherit;
     text-decoration: underline;
@@ -814,7 +820,18 @@ b {
     font-size: 14px !important;
     cursor: text;
     white-space: inherit;
+}
+
+#notes u, .textarea-all-notes u {
+    text-decoration: underline;
     text-decoration-thickness: 2px;
+    text-decoration-style: solid;
+}
+
+#notes s, #notes strike, .textarea-all-notes s, .textarea-all-notes strike {
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    text-decoration-style: solid;
 }
 
 .textarea-all-notes, .textarea-all-notes * {
