@@ -22,7 +22,9 @@
     "activeTab"
   ],
   "host_permissions": [
-    "*://*/*",
+    "*://*/*"
+  ],
+  "optional_permissions": [
     "downloads"
   ],
   "background": {

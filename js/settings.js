@@ -293,7 +293,7 @@ function onChangeShortcut(element, keyboardShortcutLetterNumber, keyboardShortcu
 }
 
 function sendMessageUpdateToBackground() {
-    browser.runtime.sendMessage({"updated": true});
+    chrome.runtime.sendMessage({"updated": true});
 }
 
 function saveSettings() {

@@ -541,9 +541,9 @@ function openAsStickyNotes() {
     if (!opening_sticky) {
         opening_sticky = true;
 
-        browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             const activeTab = tabs[0];
-            browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
+            chrome.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
                 //console.log("Sticky notes ('open')");
                 opening_sticky = false;
             }).catch(function (error) {

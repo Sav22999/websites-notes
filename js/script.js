@@ -179,7 +179,7 @@ function listenerLinks() {
             }
             link.onclick = function (event) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
-                    browser.tabs.create({url: link.href});
+                    chrome.tabs.create({url: link.href});
                 } else {
                     // Prevent the default link behavior
                 }
@@ -349,7 +349,7 @@ function loadUI() {
     }
 
     document.getElementById("all-notes-button-grid").onclick = function () {
-        browser.tabs.create({url: "./all-notes/index.html"});
+        chrome.tabs.create({url: "./all-notes/index.html"});
         window.close();
     }
 

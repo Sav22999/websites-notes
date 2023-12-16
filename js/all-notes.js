@@ -161,7 +161,7 @@ function loaded() {
                 permissions: ["downloads"]
             }
             try {
-                browser.permissions.request(permissionsToRequest).then(response => {
+                chrome.permissions.request(permissionsToRequest).then(response => {
                     if (response) {
                         //granted / obtained
                         exportAllNotes(to_file = true);
@@ -361,7 +361,7 @@ function listenerLinks(element) {
             }
             link.onclick = function (event) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
-                    browser.tabs.create({url: link.href});
+                    chrome.tabs.create({url: link.href});
                 } else {
                     // Prevent the default link behavior
                 }
@@ -460,7 +460,7 @@ function onError(e) {
 }
 
 function importAllNotes(from_file = false) {
-    browser.storage.local.get([
+    chrome.storage.local.get([
         "storage",
         "settings",
         "websites",
@@ -786,7 +786,7 @@ function exportToFile() {
 
     const formattedDate = `${year}_${month}_${day}`;
 
-    browser.downloads.download({
+    chrome.downloads.download({
         url: URL.createObjectURL(blob),
         filename: "notefox_" + notefox_json.version.toString() + "_" + formattedDate + "_" + Date.now() + ".json",
         saveAs: false, // Show the file save dialog

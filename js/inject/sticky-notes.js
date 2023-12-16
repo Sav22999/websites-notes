@@ -9,11 +9,11 @@ function load() {
         openMinimized();
     } else {
         //no sticky-noes no minimized are present, so it's necessary understand what function to call
-        browser.runtime.sendMessage({from: "sticky", ask: "sticky-minimized"}, (responseRuntime) => {
+        chrome.runtime.sendMessage({from: "sticky", ask: "sticky-minimized"}, (responseRuntime) => {
             //console.log(responseRuntime);
             if (responseRuntime === undefined || responseRuntime.sticky && !responseRuntime.minimized || !responseRuntime.sticky && !responseRuntime.minimized || !responseRuntime.sticky && responseRuntime.minimized) {
                 //create new
-                browser.runtime.sendMessage({from: "sticky", ask: "coords-sizes-opacity"}, (response) => {
+                chrome.runtime.sendMessage({from: "sticky", ask: "coords-sizes-opacity"}, (response) => {
                     let x = "20px";
                     let y = "20px";
                     let w = "300px";
@@ -48,7 +48,7 @@ function load() {
 }
 
 function createNewDescription(x, y, w, h, opacity) {
-    browser.runtime.sendMessage({from: "sticky", ask: "notes"}, (response) => {
+    chrome.runtime.sendMessage({from: "sticky", ask: "notes"}, (response) => {
         if (response !== undefined) {
             let notes = {description: "", url: "", page_domain_global: "", tag_colour: "", website: {}, type: "page"};
             //console.log("get3 || " + JSON.stringify(response.websites));
@@ -97,7 +97,7 @@ function updateStickyNotes() {
         let move = document.getElementById("move--sticky-notes-notefox-addon");
         let minimize = document.getElementById("minimize--sticky-notes-notefox-addon");
 
-        browser.runtime.sendMessage({from: "sticky", ask: "notes"}, (response) => {
+        chrome.runtime.sendMessage({from: "sticky", ask: "notes"}, (response) => {
             if (response !== undefined) {
                 let new_text = "";
                 if (response.notes !== undefined && response.notes.description !== undefined) new_text = response.notes.description;
@@ -302,7 +302,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
 
         document.body.appendChild(stickyNote);
 
-        browser.runtime.sendMessage({from: "sticky", data: {sticky: true, minimized: false}});
+        chrome.runtime.sendMessage({from: "sticky", data: {sticky: true, minimized: false}});
     } else {
         alreadyExists();
     }
@@ -313,7 +313,7 @@ function setSlider(opacityRange, stickyNote, value, update = true) {
     opacityRange.value = value;
     opacityRange.style.background = 'linear-gradient(to right, #ff6200 0%, #ff6200 ' + value + '%, #eeeeee ' + value + '%, #eeeeee 100%)';
     if (update) {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             from: "sticky",
             data: {opacity: {value: (value / 100)}}
         });
@@ -658,12 +658,12 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
  * @param type 0: close totally, 1: minimised
  */
 function onClickClose(minimized = false) {
-    browser.runtime.sendMessage({from: "sticky", data: {sticky: false, minimized: false}});
+    chrome.runtime.sendMessage({from: "sticky", data: {sticky: false, minimized: false}});
     document.getElementById("sticky-notes-notefox-addon").remove();
 }
 
 function onInputText(text) {
-    browser.runtime.sendMessage({from: "sticky", data: {new_text: text.innerHTML}});
+    chrome.runtime.sendMessage({from: "sticky", data: {new_text: text.innerHTML}});
 }
 
 function onKeyDownText(text, e) {
@@ -734,7 +734,7 @@ function onMouseDownMove(e, stickyNote, isDragging) {
         if (stickyNote.style.left.replace("px", "") > (screenWidth - stickyNote.offsetWidth)) stickyNote.style.left = (screenWidth - stickyNote.offsetWidth) + "px";
         if (stickyNote.style.top.replace("px", "") > (screenHeight - stickyNote.offsetHeight)) stickyNote.style.top = (screenHeight - stickyNote.offsetHeight) + "px";
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             from: "sticky",
             data: {coords: {x: stickyNote.style.left, y: stickyNote.style.top}}
         });
@@ -785,7 +785,7 @@ function onMouseDownResize(e, stickyNote, isResizing) {
         if (stickyNote.style.width.replace("px", "") > (screenWidth / 2)) stickyNote.style.width = (screenWidth / 2) + "px";
         if (stickyNote.style.height.replace("px", "") > (screenHeight / 2)) stickyNote.style.height = (screenHeight / 2) + "px";
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             from: "sticky",
             data: {sizes: {w: stickyNote.style.width, h: stickyNote.style.height}}
         });
@@ -968,9 +968,9 @@ function openMinimized() {
         restore = document.getElementById("restore--sticky-notes-notefox-addon");
     }
 
-    browser.runtime.sendMessage({from: "sticky", data: {sticky: true, minimized: true}});
+    chrome.runtime.sendMessage({from: "sticky", data: {sticky: true, minimized: true}});
     restore.onclick = function () {
-        browser.runtime.sendMessage({from: "sticky", data: {sticky: true, minimized: false}}).then(result => {
+        chrome.runtime.sendMessage({from: "sticky", data: {sticky: true, minimized: false}}).then(result => {
             restore.remove();
             load();
         });
