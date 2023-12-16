@@ -27,8 +27,8 @@ let links = {
  * @returns {*}
  */
 function sanitize(element, allowedTags, allowedAttributes) {
-    if (allowedTags === -1) allowedTags = ["ul", "ol", "li", "b", "i", "u", "strike", "pre", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "label", "font", "section", "article", "blockquote", "q", "cite", "address", "abbr"];
-    if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite"];
+    if (allowedTags === -1) allowedTags = ["b", "i", "u", "a", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q"];
+    if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite", "href"];
 
     let sanitizedHTML = element;
 
@@ -41,21 +41,26 @@ function sanitize(element, allowedTags, allowedAttributes) {
             if (allowedTags.includes(node.tagName.toLowerCase())) {
                 // Remove attributes unsupported of allowedTags
                 //console.log(`Checking tag ... ${node.tagName}`)
-                var element = node;
-                for (var j = 0; j < element.attributes.length; j++) {
-                    var attribute = element.attributes[j];
+                let attributes_to_remove = [];
+                for (var j = 0; j < node.attributes.length; j++) {
+                    var attribute = node.attributes[j];
                     if (!allowedAttributes.includes(attribute.name.toLowerCase())) {
                         //console.log(`Removing attribute ... ${attribute.name} from ${node.tagName}`)
-                        element.removeAttribute(attribute.name);
+                        //element.removeAttribute(attribute.name);
+                        attributes_to_remove.push(attribute.name);
+                    } else {
+                        //console.log(`OK attribute ${attribute.name} from ${node.tagName}`)
                     }
                 }
-                if (node.tagName.toLowerCase() === "img") node.setAttribute('style', 'width:auto; max-width:100% !important; height:auto !important');
+                attributes_to_remove.forEach(attribute => {
+                    node.removeAttribute(attribute);
+                });
             } else {
                 // Remove unsupported tags
                 //console.log(`Removing tag ... ${node.tagName}`)
                 //console.log(node.innerHTML)
                 let tmpNode = document.createElement("span");
-                if (node.innerText !== undefined) tmpNode.innerHTML = node.innerText;
+                if (node.innerHTML !== undefined) tmpNode.innerHTML = node.innerHTML;
                 else if (node.value !== undefined) tmpNode.innerHTML = node.value;
                 else tmpNode.innerText = "";
                 node.replaceWith(tmpNode);
@@ -68,7 +73,6 @@ function sanitize(element, allowedTags, allowedAttributes) {
             //console.log("????")
         }
     }
-    //console.log(sanitizedHTML)
     return sanitizedHTML
 }
 
@@ -188,22 +192,20 @@ function getIconSvgEncoded(icon, color) {
                 '</svg>';
             break;
         case "import":
-            svgToReturn = '<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n' +
-                '    <path fill-rule="evenodd" clip-rule="evenodd"\n' +
-                '          d="M12 1.25C11.5858 1.25 11.25 1.58579 11.25 2V12.9726L9.56944 11.0119C9.29988 10.6974 8.8264 10.661 8.51191 10.9306C8.19741 11.2001 8.16099 11.6736 8.43056 11.9881L11.4306 15.4881C11.573 15.6543 11.7811 15.75 12 15.75C12.2189 15.75 12.427 15.6543 12.5694 15.4881L15.5694 11.9881C15.839 11.6736 15.8026 11.2001 15.4881 10.9306C15.1736 10.661 14.7001 10.6974 14.4306 11.0119L12.75 12.9726L12.75 2C12.75 1.58579 12.4142 1.25 12 1.25Z"\n' +
-                '          fill="' + color + '"/>\n' +
-                '    <path d="M14.25 9V9.37828C14.9836 9.11973 15.8312 9.2491 16.4642 9.79167C17.4077 10.6004 17.517 12.0208 16.7083 12.9643L13.7083 16.4643C13.2808 16.963 12.6568 17.25 12 17.25C11.3431 17.25 10.7191 16.963 10.2916 16.4643L7.29163 12.9643C6.48293 12.0208 6.5922 10.6004 7.53568 9.79167C8.16868 9.2491 9.01637 9.11973 9.74996 9.37828V9H8C5.17157 9 3.75736 9 2.87868 9.87868C2 10.7574 2 12.1716 2 15V16C2 18.8284 2 20.2426 2.87868 21.1213C3.75736 22 5.17157 22 7.99999 22H16C18.8284 22 20.2426 22 21.1213 21.1213C22 20.2426 22 18.8284 22 16V15C22 12.1716 22 10.7574 21.1213 9.87868C20.2426 9 18.8284 9 16 9H14.25Z"\n' +
-                '          fill="' + color + '"/>\n' +
+            svgToReturn = '<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"\n' +
+                '     xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"\n' +
+                '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">\n' +
+                '    <path d="M650,500L650,666.667C650,703.333 620,733.333 583.333,733.333L183.333,733.333C146.667,733.333 116.667,703.333 116.667,666.667L116.667,133.333C116.667,96.667 146.667,66.667 183.333,66.667L583.333,66.667C620,66.667 650,96.667 650,133.333L650,300L450,300L450,142.608L143.991,400L450,657.392L450,500L650,500ZM400,450L400,550L221.667,400L400,250L400,350L700,350L700,450L400,450Z"' +
+                '           fill="' + color + '"/>\n' +
                 '</svg>';
             break;
         case "export":
-            svgToReturn = '<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n' +
-                '    <path fill-rule="evenodd" clip-rule="evenodd"\n' +
-                '          d="M8.84467 7.90533C9.13756 8.19822 9.61244 8.19822 9.90533 7.90533L11.625 6.18566L11.625 14.375C11.625 14.7892 11.9608 15.125 12.375 15.125C12.7892 15.125 13.125 14.7892 13.125 14.375V6.18566L14.8447 7.90533C15.1376 8.19822 15.6124 8.19822 15.9053 7.90533C16.1982 7.61244 16.1982 7.13756 15.9053 6.84467L12.9053 3.84467C12.6124 3.55178 12.1376 3.55178 11.8447 3.84467L8.84467 6.84467C8.55178 7.13756 8.55178 7.61244 8.84467 7.90533Z"\n' +
-                '          fill="' + color + '"/>\n' +
-                '    <path d="M12.375 20.375C16.7933 20.375 20.375 16.7933 20.375 12.375L16.625 12.375C15.6822 12.375 15.2108 12.375 14.9179 12.6679C14.625 12.9608 14.625 13.4322 14.625 14.375C14.625 15.6176 13.6176 16.625 12.375 16.625C11.1324 16.625 10.125 15.6176 10.125 14.375C10.125 13.4322 10.125 12.9608 9.83211 12.6679C9.53921 12.375 9.06781 12.375 8.125 12.375H4.375C4.375 16.7933 7.95672 20.375 12.375 20.375Z"\n' +
-                '          fill="' + color + '"/>\n' +
-                '</svg>';
+            svgToReturn = '<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"\n' +
+                '     xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"\n' +
+                '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">\n' +
+                '    <path d="M650,517.205L650,666.667C650,703.333 620,733.333 583.333,733.333L183.333,733.333C146.667,733.333 116.667,703.333 116.667,666.667L116.667,133.333C116.667,96.667 146.667,66.667 183.333,66.667L583.333,66.667C620,66.667 650,96.667 650,133.333L650,282.795L483.333,142.609L483.333,300L183.333,300L183.333,500L483.333,500L483.333,657.391L650,517.205ZM533.333,450L233.333,450L233.333,350L533.333,350L533.333,250L711.667,400L533.333,550L533.333,450Z"' +
+                '           fill="' + color + '"/>\n' +
+                '</svg>\n';
             break;
         case "delete":
             svgToReturn = '<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n' +
@@ -255,11 +257,16 @@ function getIconSvgEncoded(icon, color) {
                 '          fill="' + color + '"/>\n' +
                 '</svg>';
             break;
-        case "save":
+        case "download":
             svgToReturn = '<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n' +
                 '    <path fill-rule="evenodd" clip-rule="evenodd"\n' +
                 '          d="M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12ZM12 6.25C12.4142 6.25 12.75 6.58579 12.75 7V12.1893L14.4697 10.4697C14.7626 10.1768 15.2374 10.1768 15.5303 10.4697C15.8232 10.7626 15.8232 11.2374 15.5303 11.5303L12.5303 14.5303C12.3897 14.671 12.1989 14.75 12 14.75C11.8011 14.75 11.6103 14.671 11.4697 14.5303L8.46967 11.5303C8.17678 11.2374 8.17678 10.7626 8.46967 10.4697C8.76256 10.1768 9.23744 10.1768 9.53033 10.4697L11.25 12.1893V7C11.25 6.58579 11.5858 6.25 12 6.25ZM8 16.25C7.58579 16.25 7.25 16.5858 7.25 17C7.25 17.4142 7.58579 17.75 8 17.75H16C16.4142 17.75 16.75 17.4142 16.75 17C16.75 16.5858 16.4142 16.25 16 16.25H8Z"\n' +
                 '          fill="' + color + '"/>\n' +
+                '</svg>';
+            break;
+        case "save":
+            svgToReturn = '<svg fill="' + color + '" width="800px" height="800px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path d="M21,20V8.414a1,1,0,0,0-.293-.707L16.293,3.293A1,1,0,0,0,15.586,3H4A1,1,0,0,0,3,4V20a1,1,0,0,0,1,1H20A1,1,0,0,0,21,20ZM9,8h4a1,1,0,0,1,0,2H9A1,1,0,0,1,9,8Zm7,11H8V15a1,1,0,0,1,1-1h6a1,1,0,0,1,1,1Z"/>\n' +
                 '</svg>';
             break;
         case "translate":
@@ -493,6 +500,21 @@ function getIconSvgEncoded(icon, color) {
                 '    </g>\n' +
                 '</svg>';
             break;
+        case "arrow-select":
+            svgToReturn = '<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path fill-rule="evenodd" clip-rule="evenodd"\n' +
+                '          d="M4.43057 8.51192C4.70014 8.19743 5.17361 8.161 5.48811 8.43057L12 14.0122L18.5119 8.43057C18.8264 8.16101 19.2999 8.19743 19.5695 8.51192C19.839 8.82642 19.8026 9.29989 19.4881 9.56946L12.4881 15.5695C12.2072 15.8102 11.7928 15.8102 11.5119 15.5695L4.51192 9.56946C4.19743 9.29989 4.161 8.82641 4.43057 8.51192Z"\n' +
+                '          fill="' + color + '"/>\n' +
+                '</svg>';
+            break;
+        case "arrow-right":
+            svgToReturn = '<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"\n' +
+                '     xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"\n' +
+                '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">\n' +
+                '    <path d="M448.99,182.322C458.753,172.559 474.58,172.559 484.343,182.322L684.343,382.323C694.107,392.087 694.107,407.913 684.343,417.677L484.343,617.677C474.58,627.44 458.753,627.44 448.99,617.677C439.227,607.913 439.227,592.087 448.99,582.323L606.31,425L133.333,425C119.526,425 108.333,413.807 108.333,400C108.333,386.193 119.526,375 133.333,375L606.31,375L448.99,217.678C439.227,207.915 439.227,192.085 448.99,182.322Z"\n' +
+                '          style="fill:' + color + '"/>\n' +
+                '</svg>';
+            break;
         /*
     case "":
         svgToReturn = '';
@@ -500,4 +522,8 @@ function getIconSvgEncoded(icon, color) {
          */
     }
     return svgToReturn;
+}
+
+function sortObjectByKeys(o) {
+    return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
 }

@@ -1,4 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@font-face {
+    font-family: 'Open Sans';
+    src: url('../font/opensans.ttf');
+}
+
+@font-face {
+    font-family: 'Source Code Pro';
+    src: url('../font/source-code-pro.ttf');
+}
+
+@font-face {
+    font-family: 'Victor Mono';
+    src: url('../font/victor-mono.ttf');
+}
+
 
 :root {
     --primary-color: #ff6200;
@@ -83,7 +97,6 @@ body {
     width: auto;
     font-family: 'Open Sans', sans-serif;
     background-color: var(--on-primary-color);
-    transition: 0.5s;
     cursor: pointer;
     margin-left: 10px;
     margin-right: 10px;
@@ -96,7 +109,7 @@ body {
     opacity: 1;
 }
 
-.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .review-button, .sort-by-button {
+.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button, .download-button {
     padding-left: 35px;
     padding-right: 10px;
     background-image: url("../img/delete.svg");
@@ -127,6 +140,10 @@ body {
 
 .save-button {
     background-image: url("../img/save.svg");
+}
+
+.download-button {
+    background-image: url("../img/download.svg");
 }
 
 .clear2-button {
@@ -187,23 +204,7 @@ body {
 }
 
 .firefox-button {
-    background-image: url("../img/browsers/firefox.svg");
-}
-
-.chrome-button {
-    background-image: url("../img/browsers/chrome.svg");
-}
-
-.edge-button {
-    background-image: url("../img/browsers/edge.svg");
-}
-
-.opera-button {
-    background-image: url("../img/browsers/opera.svg");
-}
-
-.thunderbird-button {
-    background-image: url("../img/browsers/thunderbird.svg");
+    background-image: url("../img/firefox.svg");
 }
 
 #tag-colour-section {
@@ -259,11 +260,6 @@ body {
     /*background-color: var(--primary-color);*/
     /*border-color: var(--primary-color);*/
     opacity: 1;
-}
-
-
-#all-notes-button {
-    width: 100%;
 }
 
 #notes-section, #all-notes-section {
@@ -413,6 +409,34 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 
 .settings-section-grid-column {
 
+}
+
+#all-notes-section {
+    display: grid;
+    grid-template-areas: 'tag all-notes all-notes all-notes all-notes';
+    grid-column-gap: 5px;
+}
+#tag-select-grid {
+    grid-area: tag;
+    background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
+    background-repeat: no-repeat;
+    background-position: center left 5px, center right 5px;
+    background-size: auto 60%, auto 60%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 0px;
+    text-overflow: '';
+    padding: 0px 10px;
+    font-size: 0px; /*This permits to "hide" the textContext from the select but NOT from the options*/
+}
+#all-notes-button-grid {
+    grid-area: all-notes;
+    width: 100%;
+    background-image: url("../img/page-in-all-notes.svg");
+    background-repeat: no-repeat;
+    background-position: center right 10px;
+    background-size: auto 80%;
+    padding-right: 30px;
 }
 
 .section, .sub-section, .section-empty {
@@ -757,11 +781,30 @@ b {
     font-size: 12px !important;
 }
 
+#notes img, .textarea-all-notes img {
+    border-radius: 5px;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+}
+
+#notes a, .textarea-all-notes a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-thickness: 2px;
+}
+
+#notes a:hover, .textarea-all-notes a:hover {
+    /*text-decoration: underline;*/
+}
+
 #notes, .textarea-all-notes {
 }
 
 #notes {
     margin-bottom: 35px;
+    cursor: text !important;
 }
 
 #notes *, .textarea-all-notes * {
@@ -771,9 +814,10 @@ b {
     font-size: 14px !important;
     cursor: text;
     white-space: inherit;
+    text-decoration-thickness: 2px;
 }
 
-.textarea-all-notes {
+.textarea-all-notes, .textarea-all-notes * {
     cursor: default;
 }
 
@@ -844,6 +888,7 @@ button.button-format:active, button.button-format:focus {
 
 .filter-button-tag, .filter-button-type {
     margin: 2px;
+    border-left-width: 5px;
 }
 
 .button-sel {
@@ -942,6 +987,142 @@ button.button-format:active, button.button-format:focus {
 
 .tag-colour-blue-bg {
     background-color: blue !important;
+}
+
+.tag-colour-aquamarine {
+    border-color: aquamarine !important;
+}
+
+.tag-colour-aquamarine-bg {
+    background-color: aquamarine !important;
+}
+
+.tag-colour-turquoise {
+    border-color: turquoise !important;
+}
+
+.tag-colour-turquoise-bg {
+    background-color: turquoise !important;
+}
+
+.tag-colour-brown {
+    border-color: brown !important;
+}
+
+.tag-colour-brown-bg {
+    background-color: brown !important;
+}
+
+.tag-colour-coral {
+    border-color: coral !important;
+}
+
+.tag-colour-coral-bg {
+    background-color: coral !important;
+}
+
+.tag-colour-cyan {
+    border-color: cyan !important;
+}
+
+.tag-colour-cyan-bg {
+    background-color: cyan !important;
+}
+
+.tag-colour-darkgreen {
+    border-color: darkgreen !important;
+}
+
+.tag-colour-darkgreen-bg {
+    background-color: darkgreen !important;
+}
+
+.tag-colour-violet {
+    border-color: violet !important;
+}
+
+.tag-colour-violet-bg {
+    background-color: violet !important;
+}
+
+.tag-colour-lime {
+    border-color: lime !important;
+}
+
+.tag-colour-lime-bg {
+    background-color: lime !important;
+}
+
+.tag-colour-fuchsia {
+    border-color: fuchsia !important;
+}
+
+.tag-colour-fuchsia-bg {
+    background-color: fuchsia !important;
+}
+
+.tag-colour-indigo {
+    border-color: indigo !important;
+}
+
+.tag-colour-indigo-bg {
+    background-color: indigo !important;
+}
+
+.tag-colour-lavender {
+    border-color: lavender !important;
+}
+
+.tag-colour-lavender-bg {
+    background-color: lavender !important;
+}
+
+.tag-colour-teal {
+    border-color: teal !important;
+}
+
+.tag-colour-teal-bg {
+    background-color: teal !important;
+}
+
+.tag-colour-navy {
+    border-color: navy !important;
+}
+
+.tag-colour-navy-bg {
+    background-color: navy !important;
+}
+
+.tag-colour-olive {
+    border-color: olive !important;
+}
+
+.tag-colour-olive-bg {
+    background-color: olive !important;
+}
+
+.tag-colour-plum {
+    border-color: plum !important;
+}
+
+.tag-colour-plum-bg {
+    background-color: plum !important;
+}
+
+.tag-colour-salmon {
+    border-color: salmon !important;
+}
+
+.tag-colour-salmon-bg {
+    background-color: salmon !important;
+}
+
+.tag-colour-snow {
+    border-color: snow !important;
+}
+
+.tag-colour-snow-bg {
+    background-color: snow !important;
 }
 
 .padding-25px-lateral {

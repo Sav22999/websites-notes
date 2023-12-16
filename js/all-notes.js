@@ -7,7 +7,7 @@ let notefox_json = {};
 const all_strings = strings[languageToUse];
 
 const webBrowserUsed = "chrome";//TODO:change manually
-
+//Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
     "red": all_strings["red-colour"],
     "yellow": all_strings["yellow-colour"],
@@ -18,7 +18,24 @@ let colourListDefault = sortObjectByKeys({
     "gray": all_strings["grey-colour"],
     "green": all_strings["green-colour"],
     "blue": all_strings["blue-colour"],
-    "white": all_strings["white-colour"]
+    "white": all_strings["white-colour"],
+    "aquamarine": all_strings["aquamarine-colour"],
+    "turquoise": all_strings["turquoise-colour"],
+    "brown": all_strings["brown-colour"],
+    "coral": all_strings["coral-colour"],
+    "cyan": all_strings["cyan-colour"],
+    "darkgreen": all_strings["darkgreen-colour"],
+    "violet": all_strings["violet-colour"],
+    "lime": all_strings["lime-colour"],
+    "fuchsia": all_strings["fuchsia-colour"],
+    "indigo": all_strings["indigo-colour"],
+    "lavender": all_strings["lavender-colour"],
+    "teal": all_strings["teal-colour"],
+    "navy": all_strings["navy-colour"],
+    "olive": all_strings["olive-colour"],
+    "plum": all_strings["plum-colour"],
+    "salmon": all_strings["salmon-colour"],
+    "snow": all_strings["snow-colour"]
 });
 
 let show_conversion_message_attention = false;
@@ -139,6 +156,28 @@ function loaded() {
         document.getElementById("export-all-notes-button").onclick = function () {
             exportAllNotes();
         }
+        document.getElementById("export-to-file-button").onclick = function () {
+            const permissionsToRequest = {
+                permissions: ["downloads"]
+            }
+            try {
+                browser.permissions.request(permissionsToRequest).then(response => {
+                    if (response) {
+                        //granted / obtained
+                        exportAllNotes(to_file = true);
+                        //console.log("Granted");
+                    } else {
+                        //rejected
+                        //console.log("Rejected!");
+                    }
+                });
+            } catch (e) {
+                console.error("P3)) " + e);
+            }
+        }
+        document.getElementById("import-from-file-button").onclick = function () {
+            importAllNotes(from_file = true);
+        }
 
         document.getElementById("search-all-notes-text").onkeyup = function () {
             search(document.getElementById("search-all-notes-text").value);
@@ -219,65 +258,33 @@ function setLanguageUI() {
         document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
         document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
 
-        let redFilterButton = document.getElementById("filter-tag-red-button");
-        let yellowFilterButton = document.getElementById("filter-tag-yellow-button");
-        let blackFilterButton = document.getElementById("filter-tag-black-button");
-        let orangeFilterButton = document.getElementById("filter-tag-orange-button");
-        let pinkFilterButton = document.getElementById("filter-tag-pink-button");
-        let purpleFilterButton = document.getElementById("filter-tag-purple-button");
-        let grayFilterButton = document.getElementById("filter-tag-gray-button");
-        let greenFilterButton = document.getElementById("filter-tag-green-button");
-        let blueFilterButton = document.getElementById("filter-tag-blue-button");
-        let whiteFilterButton = document.getElementById("filter-tag-white-button");
-        let noneFilterButton = document.getElementById("filter-tag-none-button");
         let globalFilterButton = document.getElementById("filter-type-global-button");
         let domainFilterButton = document.getElementById("filter-type-domain-button");
         let pageFilterButton = document.getElementById("filter-type-page-button");
-        redFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["red-colour"]);
-        redFilterButton.onclick = function () {
-            //search("red");
-            filterByColor("red", redFilterButton);
-        };
-        yellowFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["yellow-colour"]);
-        yellowFilterButton.onclick = function () {
-            filterByColor("yellow", yellowFilterButton);
-        };
-        blackFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["black-colour"]);
-        blackFilterButton.onclick = function () {
-            filterByColor("black", blackFilterButton);
-        };
-        orangeFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["orange-colour"]);
-        orangeFilterButton.onclick = function () {
-            filterByColor("orange", orangeFilterButton);
-        };
-        pinkFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["pink-colour"]);
-        pinkFilterButton.onclick = function () {
-            filterByColor("pink", pinkFilterButton);
-        };
-        purpleFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["purple-colour"]);
-        purpleFilterButton.onclick = function () {
-            filterByColor("purple", purpleFilterButton);
-        };
-        grayFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["grey-colour"]);
-        grayFilterButton.onclick = function () {
-            filterByColor("gray", grayFilterButton);
-        };
-        greenFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["green-colour"]);
-        greenFilterButton.onclick = function () {
-            filterByColor("green", greenFilterButton);
-        };
-        blueFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["blue-colour"]);
-        blueFilterButton.onclick = function () {
-            filterByColor("blue", blueFilterButton);
-        };
-        whiteFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["white-colour"]);
-        whiteFilterButton.onclick = function () {
-            filterByColor("white", whiteFilterButton);
-        };
+
+        // <input type="button" value="Tag: Red" id="filter-tag-red-button"
+        //                class="button filter-button-tag"/>
+        let containerColours = document.getElementById("filter-colours-container");
+        containerColours.innerHTML = ""
+        for (let colour in colourListDefault) {
+            let colourFilterButton = document.createElement("input");
+            colourFilterButton.type = "button";
+            colourFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", colourListDefault[colour]);
+            colourFilterButton.id = `filter-tag-${colour}-button`;
+            colourFilterButton.classList.add("button", "filter-button-tag", `tag-colour-${colour}`);
+            colourFilterButton.onclick = function () {
+                filterByColor(colour, colourFilterButton);
+            }
+            containerColours.appendChild(colourFilterButton);
+        }
+        let noneFilterButton = document.createElement("input");
+        noneFilterButton.type = "button";
         noneFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["none-colour"]);
+        noneFilterButton.id = `filter-tag-none-button`;
+        noneFilterButton.classList.add("button", "filter-button-tag");
         noneFilterButton.onclick = function () {
             filterByColor("none", noneFilterButton);
-        };
+        }
         globalFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["global-label"]);
         globalFilterButton.onclick = function () {
             filterByType("global", globalFilterButton);
@@ -296,6 +303,7 @@ function setLanguageUI() {
 }
 
 function filterByColor(color, tagButton) {
+    console.log(color)
     if (filtersColors.indexOf(color) !== -1) {
         //present: remove red
         filtersColors.splice(filtersColors.indexOf(color), 1);
@@ -319,6 +327,48 @@ function filterByType(type, tagButton) {
         tagButton.classList.add("button-sel");
     }
     applyFilter();
+}
+
+function listenerLinks(element) {
+    let notes = element;
+    if (notes.innerHTML !== "" && notes.innerHTML !== "<br>") {
+        let links = notes.querySelectorAll('a');
+        links.forEach(link => {
+            function onMouseOverDown(event, settings_json, link) {
+                if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
+                if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
+                    link.style.textDecorationStyle = "solid";
+                    link.style.cursor = "pointer";
+                }
+            }
+
+            function onMouseLeaveUp(link) {
+                link.style.textDecorationStyle = "dotted";
+                link.style.cursor = "inherit";
+            }
+
+            link.onmousedown = function (event) {
+                onMouseOverDown(event, settings_json, link);
+            }
+            link.onmouseover = function (event) {
+                onMouseOverDown(event, settings_json, link);
+            }
+            link.onmouseup = function (event) {
+                onMouseLeaveUp(link);
+            }
+            link.onmouseleave = function (event) {
+                onMouseLeaveUp(link);
+            }
+            link.onclick = function (event) {
+                if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
+                    browser.tabs.create({url: link.href});
+                } else {
+                    // Prevent the default link behavior
+                }
+                event.preventDefault();
+            }
+        });
+    }
 }
 
 function loadDataFromBrowser(generate_section = true) {
@@ -409,8 +459,8 @@ function onError(e) {
     console.error(e);
 }
 
-function importAllNotes() {
-    chrome.storage.local.get([
+function importAllNotes(from_file = false) {
+    browser.storage.local.get([
         "storage",
         "settings",
         "websites",
@@ -420,6 +470,8 @@ function importAllNotes() {
     ]).then(result => {
         let jsonImportElement = document.getElementById("json-import");
         let json_old_version = {};
+
+        document.getElementById("import-from-file-button").value = all_strings["import-notes-from-file-button"];
 
         //console.log(JSON.stringify(result));
         if (show_conversion_message_attention) {
@@ -614,10 +666,53 @@ function importAllNotes() {
                 }
             }
         }
+
+        if (from_file) {
+            importFromFile();
+        }
     });
 }
 
-function exportAllNotes() {
+function importFromFile() {
+    try {
+        let input = document.getElementById("import-from-file-input-hidden");
+        input.value = ""; //Reset to empty
+        input.onchange = function (e) {
+            const file = this.files[0];
+            //console.log(file);
+            if (file === undefined || file.name === '') {
+                return;
+            }
+            if (file.type === undefined || file.type !== undefined && file.type !== "application/json") {
+                return;
+            }
+
+            const filename = file.name;
+
+            const fileReaderOnLoadHandler = function () {
+                let data = undefined;
+                try {
+                    data = JSON.parse(this.result);
+                    //console.log(data);
+
+                    document.getElementById("json-import").value = JSON.stringify(data);
+                    document.getElementById("import-now-all-notes-button").click();
+                } catch (e) {
+                    console.error(`I-E2: ${e}`)
+                }
+            };
+
+            const fr = new FileReader();
+            fr.onload = fileReaderOnLoadHandler;
+            fr.readAsText(file);
+        };
+        input.click();
+    } catch (e) {
+        console.error(`I-E1: ${e}`);
+    }
+}
+
+function exportAllNotes(to_file = false) {
     showBackgroundOpacity();
     chrome.storage.local.get(["storage"]).then(getStorageTemp => {
         sync_local.get([
@@ -669,10 +764,42 @@ function exportAllNotes() {
                 document.getElementById("json-export").select();
                 document.execCommand("copy");
             }
-        }).catch((error) => {
-            console.error("Error retrieving data:", error);
+
+            document.getElementById("export-to-file-button").value = all_strings["export-notes-to-file-button"];
+            if (to_file) {
+                exportToFile();
+            }
+        }).catch((e) => {
+            console.error(`E-E2: ${e}`);
         });
     });
+}
+
+function exportToFile() {
+    const data = JSON.stringify(json_to_export);
+    const blob = new Blob([data], {type: "application/json"});
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-based, so add 1
+    const day = String(today.getDate()).padStart(2, '0');
+
+    const formattedDate = `${year}_${month}_${day}`;
+
+    browser.downloads.download({
+        url: URL.createObjectURL(blob),
+        filename: "notefox_" + notefox_json.version.toString() + "_" + formattedDate + "_" + Date.now() + ".json",
+        saveAs: false, // Show the file save dialog
+    });
+
+    setTimeout(function () {
+        if (document.getElementById("export-section").style.display !== "none") {
+            document.getElementById("cancel-export-all-notes-button").click();
+        }
+    }, 1000);
+
+    document.getElementById("cancel-export-all-notes-button").value = all_strings["close-button"];
+    document.getElementById("export-to-file-button").value = all_strings["exported-notes-to-file-button"];
 }
 
 function showBackgroundOpacity() {
@@ -923,10 +1050,6 @@ function getType(website, url) {
     return valueToReturn;
 }
 
-function sortObjectByKeys(o) {
-    return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
-}
-
 function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_to_use, domain_again) {
     try {
         let row1 = document.createElement("div");
@@ -956,9 +1079,9 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         inputCopyNotes.onclick = function () {
             copyNotes(textNotes, notes);
             inputCopyNotes.value = all_strings["copied-button"];
+            textNotes.innerHTML = notes;
             setTimeout(function () {
                 inputCopyNotes.value = all_strings["copy-notes-button"];
-                textNotes.innerHTML = notes;
             }, 3000);
         }
 
@@ -994,7 +1117,11 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             let pageUrl = document.createElement("h3");
             pageUrl.textContent = url;
 
-            if (isUrlSupported(fullUrl)) {
+            let fullUrlToUse = fullUrl;
+            if (fullUrlToUse.substring(fullUrlToUse.length - 1, fullUrlToUse.length) === "*") {
+                fullUrlToUse = fullUrlToUse.substring(0, fullUrlToUse.length - 1);
+            }
+            if (isUrlSupported(fullUrlToUse)) {
                 pageUrl.classList.add("link", "go-to-external");
                 pageUrl.onclick = function () {
                     chrome.tabs.create({url: fullUrl});
@@ -1032,6 +1159,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         textNotes.innerHTML = notes;
         textNotes.contentEditable = false;
         textNotes.classList.add("textarea-all-notes");
+        listenerLinks(textNotes);
         let disable_word_wrap = false;
         if (settings_json["disable-word-wrap"] !== undefined) {
             if (settings_json["disable-word-wrap"] === "yes") disable_word_wrap = true;
@@ -1292,6 +1420,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
         var import_svg = window.btoa(getIconSvgEncoded("import", on_primary));
         var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
+        var download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
         var delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
         var delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
         var copy_svg = window.btoa(getIconSvgEncoded("copy", on_primary));
@@ -1344,6 +1473,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .export-button {
                     background-image: url('data:image/svg+xml;base64,${export_svg}');
+                }
+                .download-button {
+                    background-image: url('data:image/svg+xml;base64,${download_svg}');
                 }
                 .clear-button {
                     background-image: url('data:image/svg+xml;base64,${delete_svg}');
