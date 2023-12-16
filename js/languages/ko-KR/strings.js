@@ -11,7 +11,7 @@ strings[lang] = {
     'refresh-data-button': 'Refresh data',
     'clear-all-notes-button': 'Clear all notes',
     'import-json-message-dialog-text': 'Paste here the JSON (or text) file content you exported previously, then click the <span {{parameters}}>Import now</span> button. The page will be automatically reloaded if notes are successfully imported.',
-    'cancel-button': 'Cancel',
+    'cancel-button': '취소',
     'import-now-button': 'Import now',
     'importing-button': 'Importing…',
     'imported-button': 'Imported',

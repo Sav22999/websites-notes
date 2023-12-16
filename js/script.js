@@ -522,6 +522,9 @@ function loadSettings() {
         if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
         if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
 
+        if (settings_json["advanced-managing"] === "yes") advanced_managing = true;
+        else advanced_managing = false;
+
         continueLoaded();
         //console.log(JSON.stringify(settings_json));
     });
