@@ -703,6 +703,7 @@ function saveNotes() {
 
 function checkNeverSaved(never_saved) {
     if (never_saved) {
+        document.getElementById("open-sticky-button").classList.add("hidden");
         document.getElementById("tag-select-grid").classList.add("hidden");
         document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
     } else {
