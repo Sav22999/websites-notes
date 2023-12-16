@@ -702,20 +702,12 @@ function saveNotes() {
 }
 
 function checkNeverSaved(never_saved) {
-    if (stickyNotesSupported) {
-        if (never_saved) {
-            document.getElementById("open-sticky-button").classList.add("hidden");
-            document.getElementById("tag-select-grid").classList.add("hidden");
-            document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
-        } else {
-            if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
-            if (document.getElementById("tag-select-grid").classList.contains("hidden")) document.getElementById("tag-select-grid").classList.remove("hidden");
-            document.getElementById("all-notes-section").style.gridTemplateAreas = "'tag all-notes all-notes all-notes all-notes'";
-        }
-    } else {
-        document.getElementById("open-sticky-button").classList.add("hidden");
+    if (never_saved) {
         document.getElementById("tag-select-grid").classList.add("hidden");
         document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
+    } else {
+        if (document.getElementById("tag-select-grid").classList.contains("hidden")) document.getElementById("tag-select-grid").classList.remove("hidden");
+        document.getElementById("all-notes-section").style.gridTemplateAreas = "'tag all-notes all-notes all-notes all-notes'";
     }
 }
 
