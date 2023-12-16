@@ -113,17 +113,15 @@ function checkStatus(update = false) {
     current_urls = [getGlobalUrl(), getDomainUrl(tab_url), getPageUrl(tab_url)];
     sync_local.get("settings")
         .then(value => {
-            if (value["settings"] !== undefined) {
-                settings_json = value["settings"];
-                if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
-                if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
-                if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
-
-                if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = "yes";
-                if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = "yes";
-                if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
-                if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
-            }
+            settings_json = {};
+            if (value["settings"] !== undefined) settings_json = value["settings"];
+            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
+            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
+            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
+            if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = "yes";
+            if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = "yes";
+            if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
+            if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
             //console.log(JSON.stringify(settings_json));
             //console.log("checkStatus");
             //console.log(value);

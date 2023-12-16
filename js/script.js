@@ -180,7 +180,12 @@ function listenerLinks() {
             }
             link.onclick = function (event) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
-                    chrome.tabs.create({url: link.href});
+                    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                        chrome.tabs.create({
+                            url: link.href,
+                            index: tabs[0].index + 1
+                        });
+                    });
                 } else {
                     // Prevent the default link behavior
                 }
@@ -503,22 +508,23 @@ function addAction() {
 
 function loadSettings() {
     sync_local.get("settings", function (value) {
-        if (value["settings"] !== undefined) {
-            settings_json = value["settings"];
-            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
-            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "yes";
-            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "yes";
-
-            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
-            if (settings_json["advanced-managing"] === "yes") advanced_managing = true;
-            else advanced_managing = false;
-
-            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
-            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
-            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = "yes";
-
-            if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
-        }
+        if (value["settings"] !== undefined) settings_json = value["settings"];
+        if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
+        if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
+        if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
+        if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
+        if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
+        if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
+        if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
+        if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
+        if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
+        if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = "yes";
+        if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
+        if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = "yes";
+        if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = "yes";
+        if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
+        if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
+        if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
 
         continueLoaded();
         //console.log(JSON.stringify(settings_json));
