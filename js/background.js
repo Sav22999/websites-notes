@@ -66,7 +66,11 @@ function loaded() {
         tab_title = activeTab.title;
 
         //catch changing of tab
-        chrome.tabs.onActivated.addListener(tabUpdated);
+        //catch changing of tab
+        chrome.tabs.onActivated.addListener(function () {
+            tabUpdated();
+            type_to_use = -1;
+        });
         chrome.tabs.onUpdated.addListener(tabUpdated);
 
         chrome.runtime.onMessage.addListener((message) => {
@@ -86,7 +90,7 @@ function loadDataFromSync() {
     loaded();
 }
 
-function tabUpdated(tabs) {
+function tabUpdated(update = false) {
     sync_local = chrome.storage.sync;
     chrome.storage.local.get("storage").then(result => {
         if (result.storage === "sync") sync_local = chrome.storage.sync;

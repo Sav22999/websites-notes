@@ -1,6 +1,7 @@
 var websites_json = {};
 var settings_json = {};
 
+
 var advanced_managing = true;
 
 var currentUrl = []; //[global, domain, page, other]
