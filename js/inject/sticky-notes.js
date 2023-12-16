@@ -830,13 +830,11 @@ function underline() {
 function strikethrough() {
     //console.log("Strikethrough S")
     document.execCommand("strikethrough", false);
-    addAction()
 }
 
 function insertLink(value) {
     //if (isValidURL(value)) {
     document.execCommand('createLink', false, value);
-    addAction();
     //}
 }
 
@@ -864,6 +862,7 @@ function listenerLinks(element, settings_json) {
     let notes = element;
     if (notes.innerHTML !== "" && notes.innerHTML !== "<br>") {
         let links = notes.querySelectorAll('a');
+        if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
         links.forEach(link => {
             function onMouseOverDown(event, settings_json, link) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
@@ -891,7 +890,7 @@ function listenerLinks(element, settings_json) {
             }
             link.onclick = function (event) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
-                    window.open(link.href);
+                    window.open(link.href, '_blank');
                 } else {
                     // Prevent the default link behavior
                 }
