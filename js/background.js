@@ -68,6 +68,7 @@ function loaded() {
             type_to_use = -1;
         });
         browser.tabs.onUpdated.addListener(tabUpdated);
+        browser.windows.onFocusChanged.addListener(tabUpdated);
 
         browser.runtime.onMessage.addListener((message) => {
             if (message["updated"] !== undefined && message["updated"]) {

@@ -81,6 +81,7 @@ body {
     width: 34%;
     box-sizing: border-box;
     display: inline-block;
+    text-align: center;
 }
 
 #version, #tabs-section > .tab {
