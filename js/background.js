@@ -61,7 +61,7 @@ function loaded() {
         // since only one tab should be active and in the current window at once
         // the return variable should only have one entry
         let activeTab = tabs[0];
-        tab_id = activeTab.id;
+        //tab_id = activeTab.id;
         tab_url = activeTab.url;
         tab_title = activeTab.title;
 
@@ -101,7 +101,7 @@ function tabUpdated(update = false) {
             sync_local = chrome.storage.local;
         }
         chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
-            tab_id = tabs[0].id;
+            //tab_id = tabs[0].id;
             tab_url = tabs[0].url;
             tab_title = tabs[0].title;
         }).then((tabs) => {
