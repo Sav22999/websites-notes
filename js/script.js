@@ -377,21 +377,18 @@ function loadUI() {
 
     document.getElementById("open-sticky-button").onclick = function (event) {
         //closed -> open it
-        console.log("<1>");
         const permissionsToRequest = {
             origins: ["<all_urls>"]
         }
-        console.log("<2>");
         try {
-            chrome.permissions.request(permissionsToRequest).then(response => {
-                console.log("<3>");
+            browser.permissions.request(permissionsToRequest).then(response => {
                 if (response) {
                     //granted / obtained
                     openStickyNotes();
-                    console.log("Granted");
+                    //console.log("Granted");
                 } else {
                     //rejected
-                    console.log("Rejected!");
+                    //console.log("Rejected!");
                 }
                 window.close();
             });
