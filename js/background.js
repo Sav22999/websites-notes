@@ -97,10 +97,12 @@ function tabUpdated(update = false) {
             browser.storage.local.set({"storage": "local"});
             sync_local = browser.storage.local;
         }
-        browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
-            tab_id = tabs[0].tabId;
-            tab_url = tabs[0].url;
-            tab_title = tabs[0].title;
+        browser.tabs.query({active: true, currentWindow: true}).then(tabs => {
+            if (tabs !== undefined && tabs.length > 0) {
+                tab_id = tabs[0].id;
+                tab_url = tabs[0].url;
+                tab_title = tabs[0].title;
+            }
         }).then((tabs) => {
             checkStatus(update);
         });
@@ -198,33 +200,38 @@ function getGlobalUrl() {
 
 function getDomainUrl(url) {
     let urlToReturn = "";
-    let protocol = getTheProtocol(url);
-    if (url.includes(":")) {
-        urlParts = url.split(":");
-        urlToReturn = urlParts[1];
-    }
-
-    if (urlToReturn.includes("/")) {
-        urlPartsTemp = urlToReturn.split("/");
-        if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
-            urlToReturn = urlPartsTemp[2];
+    if (url !== undefined) {
+        let protocol = getTheProtocol(url);
+        if (url.includes(":")) {
+            let urlParts = url.split(":");
+            urlToReturn = urlParts[1];
         }
-    }
 
-    return (protocol + "://" + urlToReturn);
+        if (urlToReturn.includes("/")) {
+            let urlPartsTemp = urlToReturn.split("/");
+            if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
+                urlToReturn = urlPartsTemp[2];
+            }
+        }
+        return (protocol + "://" + urlToReturn);
+    }
+    return "";
 }
 
 function getPageUrl(url) {
     let urlToReturn = url;
 
-    //https://page.example/search#section1
-    if (settings_json["consider-sections"] === "no") {
-        if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
-    }
+    if (url !== undefined) {
+        urlToReturn = url;
+        //https://page.example/search#section1
+        if (settings_json["consider-sections"] === "no") {
+            if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
+        }
 
-    //https://page.example/search?parameters
-    if (settings_json["consider-parameters"] === "no") {
-        if (url.includes("?")) urlToReturn = urlToReturn.split("?")[0];
+        //https://page.example/search?parameters
+        if (settings_json["consider-parameters"] === "no") {
+            if (url.includes("?")) urlToReturn = urlToReturn.split("?")[0];
+        }
     }
 
     //console.log(urlToReturn);
@@ -566,14 +573,16 @@ function closeStickyNotes(update = true) {
     checkIcon();
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         const activeTab = tabs[0];
-        browser.tabs.executeScript({
-            code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
-        }).then(function () {
-            //console.log("Sticky notes ('close')");
-            if (update) tabUpdated(false);
-        }).catch(function (error) {
-            console.error("E1: " + error + "\nin " + activeTab.url);
-        });
+        if (tabs !== undefined && tabs.length > 0) {
+            browser.tabs.executeScript({
+                code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
+            }).then(function () {
+                //console.log("Sticky notes ('close')");
+                if (update) tabUpdated(false);
+            }).catch(function (error) {
+                console.error("E1: " + error + "\nin " + activeTab.url);
+            });
+        }
     });
     opening_sticky = false;
 }

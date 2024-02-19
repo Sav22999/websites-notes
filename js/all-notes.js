@@ -6,6 +6,7 @@ let notefox_json = {};
 
 const all_strings = strings[languageToUse];
 
+const webBrowserUsed = "chromium";//TODO:change manually
 //Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
     "red": all_strings["red-colour"],
@@ -222,10 +223,15 @@ function loaded() {
     versionNumber.textContent = browser.runtime.getManifest().version;
     versionNumber.id = "version";
     notefox_json = {
-        "version": browser.runtime.getManifest().version,
-        "author": browser.runtime.getManifest().author,
-        "manifest_version": browser.runtime.getManifest().manifest_version
+        "version": chrome.runtime.getManifest().version,
+        "author": chrome.runtime.getManifest().author,
+        "manifest_version": chrome.runtime.getManifest().manifest_version,
+        "os": "?",
+        "browser": webBrowserUsed,
     };
+    browser.runtime.getPlatformInfo((platformInfo) => {
+        notefox_json["os"] = platformInfo.os
+    });
     titleAllNotes.append(versionNumber);
 }
 
@@ -419,11 +425,11 @@ function clearAllNotes() {
     let confirmationClearAllNotes = confirm(all_strings["clear-all-notes-confirmation"]);
     if (confirmationClearAllNotes) {
         sync_local.set({
-            "websites": undefined,
-            "settings": undefined,
-            "sticky-notes-coords": undefined,
-            "sticky-notes-sizes": undefined,
-            "sticky-notes-opacity": undefined
+            "websites": {},
+            "settings": {},
+            "sticky-notes-coords": {},
+            "sticky-notes-sizes": {},
+            "sticky-notes-opacity": {}
         }).then(result => {
             websites_json_to_show = {};
             loadDataFromBrowser(true);
