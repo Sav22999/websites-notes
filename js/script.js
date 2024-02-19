@@ -739,7 +739,7 @@ function setUrl(url) {
     if (otherPossibleUrls.length > 0) {
         appendSubDomains(otherPossibleUrls)
     }
-    if (isUrlSupported(url)) {
+    //if (isUrlSupported(url)) {
     currentUrl[0] = getGlobalUrl();
     currentUrl[1] = getDomainUrl(url);
     currentUrl[2] = getPageUrl(url);
@@ -756,7 +756,7 @@ function setUrl(url) {
     }
     if (document.getElementById("page-button").classList.contains("hidden")) document.getElementById("page-button").classList.remove("hidden");
     if (stickyNotesSupported && document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
-    } else {
+    /*} else {
         currentUrl[0] = getGlobalUrl();
         currentUrl[1] = getDomainUrl(url);
         currentUrl[2] = getPageUrl(url);
@@ -765,7 +765,7 @@ function setUrl(url) {
         document.getElementById("domain-button").style.borderRadius = "0px 5px 5px 0px";
         document.getElementById("page-button").classList.add("hidden");
         if (!document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.add("hidden");
-    }
+    }*/
 
     //console.log("Current url [0] " + currentUrl[1] + " - [1] " + currentUrl[2]);
 }
