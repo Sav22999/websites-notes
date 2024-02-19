@@ -61,7 +61,7 @@ function loaded() {
         // since only one tab should be active and in the current window at once
         // the return variable should only have one entry
         let activeTab = tabs[0];
-        //tab_id = activeTab.id;
+        tab_id = activeTab.id;
         tab_url = activeTab.url;
         tab_title = activeTab.title;
 
@@ -81,7 +81,7 @@ function loaded() {
             }
         });
 
-        listenerShortcuts();//TODO:chrome
+        //listenerShortcuts();//TODO:chrome
         listenerStickyNotes();//TODO:chrome
         checkStatus();
     });
@@ -100,10 +100,12 @@ function tabUpdated(update = false) {
             chrome.storage.local.set({"storage": "local"});
             sync_local = chrome.storage.local;
         }
-        chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
-            //tab_id = tabs[0].id;
-            tab_url = tabs[0].url;
-            tab_title = tabs[0].title;
+        chrome.tabs.query({active: true, currentWindow: true}).then(tabs => {
+            if (tabs !== undefined && tabs.length > 0) {
+                tab_id = tabs[0].id;
+                tab_url = tabs[0].url;
+                tab_title = tabs[0].title;
+            }
         }).then((tabs) => {
             checkStatus(update);
         });
@@ -557,14 +559,19 @@ function openAsStickyNotes() {
         opening_sticky = true;
 
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            const activeTab = tabs[0];
-            chrome.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
-                //console.log("Sticky notes ('open')");
-                opening_sticky = false;
-            }).catch(function (error) {
-                console.error("E2: " + error);
-                opening_sticky = false;
-            });
+            if (tabs !== undefined && tabs.length > 0) {
+                const activeTab = tabs[0];
+                chrome.scripting.executeScript({
+                    target: {tabId: activeTab.id},
+                    files: ['./js/inject/sticky-notes.js']
+                }).then(() => {
+                    // Script executed successfully
+                    opening_sticky = false;
+                }).catch((error) => {
+                    console.error("E2: " + error);
+                    opening_sticky = false;
+                });
+            }
         });
     }
 }
@@ -576,14 +583,24 @@ function closeStickyNotes(update = true) {
     checkIcon();
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         const activeTab = tabs[0];
-        chrome.tabs.executeScript({
-            code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
-        }).then(function () {
-            //console.log("Sticky notes ('close')");
-            if (update) tabUpdated(false);
-        }).catch(function (error) {
-            console.error("E1: " + error + "\nin " + activeTab.url);
-        });
+        if (tabs !== undefined && tabs.length > 0) {
+            chrome.scripting.executeScript({
+                target: {tabId: activeTab.id},
+                func: () => {
+                    if (document.getElementById("sticky-notes-notefox-addon")) {
+                        document.getElementById("sticky-notes-notefox-addon").remove();
+                    }
+                    if (document.getElementById("restore--sticky-notes-notefox-addon")) {
+                        document.getElementById("restore--sticky-notes-notefox-addon").remove();
+                    }
+                }
+            }).then(() => {
+                // Script executed successfully
+                if (update) tabUpdated(false);
+            }).catch((error) => {
+                console.error("E1: " + error + "\nin " + activeTab.url);
+            });
+        }
     });
     opening_sticky = false;
 }

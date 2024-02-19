@@ -23,7 +23,7 @@ var ctrl_alt_shift = ["default", "domain", "page"];
 
 function loaded() {
     checkSyncLocal()
-    //checkOperatingSystem();//TODO:chrome
+    checkOperatingSystem();
     setLanguageUI();
     checkTheme();
 
@@ -219,6 +219,9 @@ function loadSettings() {
             document.getElementById("html-text-formatting-select").value = settings_json["html-text-formatting"];
             document.getElementById("disable-word-wrap-select").value = settings_json["disable-word-wrap"];
             document.getElementById("spellcheck-detection-select").value = settings_json["spellcheck-detection"];
+
+            if (settings_json["theme"] === "auto") settings_json["theme"] = "light"; //TODO:chrome
+
             document.getElementById("theme-select").value = settings_json["theme"];
             document.getElementById("check-green-icon-global-select").value = settings_json["check-green-icon-global"];
             document.getElementById("check-green-icon-domain-select").value = settings_json["check-green-icon-domain"];
@@ -436,8 +439,9 @@ function saveSettings() {
 }
 
 function checkOperatingSystem() {
-    let info = chrome.runtime.getPlatformInfo();
-    info.then(getOperatingSystem);
+    chrome.runtime.getPlatformInfo((platformInfo) => {
+        getOperatingSystem(platformInfo.os);
+    });
     //"mac", "win", "linux", "openbsd", "cros", ...
     // Docs: (https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/PlatformOs)ˇ
 }

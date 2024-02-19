@@ -226,8 +226,12 @@ function loaded() {
         "version": chrome.runtime.getManifest().version,
         "author": chrome.runtime.getManifest().author,
         "manifest_version": chrome.runtime.getManifest().manifest_version,
-        "browser": webBrowserUsed
+        "os": "?",
+        "browser": webBrowserUsed,
     };
+    chrome.runtime.getPlatformInfo((platformInfo) => {
+        notefox_json["os"] = platformInfo.os
+    });
     titleAllNotes.append(versionNumber);
 }
 
@@ -421,11 +425,11 @@ function clearAllNotes() {
     let confirmationClearAllNotes = confirm(all_strings["clear-all-notes-confirmation"]);
     if (confirmationClearAllNotes) {
         sync_local.set({
-            "websites": undefined,
-            "settings": undefined,
-            "sticky-notes-coords": undefined,
-            "sticky-notes-sizes": undefined,
-            "sticky-notes-opacity": undefined
+            "websites": {},
+            "settings": {},
+            "sticky-notes-coords": {},
+            "sticky-notes-sizes": {},
+            "sticky-notes-opacity": {}
         }).then(result => {
             websites_json_to_show = {};
             loadDataFromBrowser(true);
@@ -553,10 +557,6 @@ function importAllNotes(from_file = false) {
                     } else {
                         cancel = !confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
                         continue_ok = !cancel;
-                    }
-
-                    if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["notefox"]["browser"] !== undefined && json_to_export_temp["notefox"]["browser"] !== webBrowserUsed) {
-                        continue_ok = confirm("You exported notes from a browser different to the current one. Some features can be not available in all browsers.");
                     }
 
                     let sticky_notes = {};

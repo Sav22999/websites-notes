@@ -15,18 +15,21 @@
       "48": "./img/icons/icon-48.png",
       "128": "./img/icons/icon-128.png"
     },
-    "default_popup": "./popup.html"
+    "default_popup": "./popup.html",
+    "default_title": "Notefox: Websites notes"
   },
   "permissions": [
     "storage",
     "activeTab",
-    "tabs"
+    "tabs",
+    "unlimitedStorage"
   ],
   "host_permissions": [
-    "*://*/*"
+    "<all_urls>"
   ],
   "optional_permissions": [
-    "downloads"
+    "downloads",
+    "scripting"
   ],
   "background": {
     "service_worker": "./js/background.js",

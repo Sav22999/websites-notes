@@ -1,7 +1,6 @@
 var websites_json = {};
 var settings_json = {};
 
-
 var advanced_managing = true;
 
 var currentUrl = []; //[global, domain, page, other]
@@ -10,8 +9,8 @@ var selected_tab = 2; //{0: global | 1:domain | 2:page | 3:other}
 var opened_by = -1;
 
 //urls WITHOUT the protocol! e.g. addons.mozilla.org
-var urls_unsupported_by_sticky_notes = ["addons.mozilla.org"];//TODO!MANUAL change this manually in case of new unsupported urls
-var stickyNotesSupported = true;//TODO:chrome (false in chrome)
+var urls_unsupported_by_sticky_notes = [];//TODO!MANUAL change this manually in case of new unsupported urls
+var stickyNotesSupported = true;
 
 const all_strings = strings[languageToUse];
 
@@ -91,7 +90,7 @@ function checkTimesOpened() {
 }
 
 function continueLoaded() {
-    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         var activeTab = tabs[0];
         var activeTabId = activeTab.id;
         var activeTabUrl = activeTab.url;
@@ -355,7 +354,7 @@ function loadUI() {
 
     document.getElementById("all-notes-button-grid").onclick = function () {
         chrome.tabs.create({url: "./all-notes/index.html"});
-        window.close();
+        window.close();//
     }
 
 
@@ -377,19 +376,21 @@ function loadUI() {
     document.getElementById("open-sticky-button").onclick = function (event) {
         //closed -> open it
         const permissionsToRequest = {
-            origins: ["<all_urls>"]
+            origins: ["<all_urls>"],
+            permissions: ["scripting"]
         }
         try {
-            browser.permissions.request(permissionsToRequest).then(response => {
+            chrome.permissions.request(permissionsToRequest).then(response => {
                 if (response) {
                     //granted / obtained
                     openStickyNotes();
-                    console.log("Granted");
+                    //console.log("Granted");
                 } else {
                     //rejected
-                    console.log("Rejected!");
+                    //console.log("Rejected!");
                 }
-                window.close();
+            }).then(() => {
+                //window.close();
             });
         } catch (e) {
             console.error("P2)) " + e);
@@ -727,7 +728,7 @@ function sendMessageUpdateToBackground() {
 
 function tabUpdated() {
     chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
-        let tab_id = tabs[0].tabId;
+        let tab_id = tabs[0].id;
         let tab_url = tabs[0].url;
 
         setUrl(tab_url);
@@ -943,7 +944,7 @@ function setTab(index, url) {
 }
 
 function openStickyNotes() {
-    console.log("Opening...")
+    //console.log("Opening...")
     if (stickyNotesSupported) {
         //console.log("Opening... <1>")
         sync_local.get("websites", function (value) {
@@ -959,10 +960,12 @@ function openStickyNotes() {
 
                     sync_local.set({"websites": websites_json}).then(result => {
                         //console.log("Opening... <5>")
-                        browser.runtime.sendMessage({
+                        chrome.runtime.sendMessage({
                             "open-sticky": {
                                 open: true, type: selected_tab
                             }
+                        }).then(() => {
+                            window.close();//TODO:chrome
                         });
                     });
                 }

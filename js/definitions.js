@@ -97,12 +97,14 @@ function checkTheme() {
         let default_theme = false;
 
         if (force_theme !== "" || result !== undefined && result["settings"] !== undefined && result["settings"]["theme"] !== undefined) {
+
             if (force_theme === "auto" || result["settings"] !== undefined && result["settings"]["theme"] && result["settings"]["theme"] === "auto") {
                 force_theme = "light";
                 default_theme = true;
             }
 
             if (force_theme === "auto" || result["settings"] !== undefined && result["settings"]["theme"] && result["settings"]["theme"] === "auto") {
+                default_theme = true;
                 //TODO:chrome
                 /*chrome.theme.getCurrent().then(theme => {
                     //console.log(JSON.stringify(theme));
