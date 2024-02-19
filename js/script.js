@@ -125,11 +125,11 @@ function checkOpenedBy() {
         }
         sync_local.set({"opened-by-shortcut": "default"});
     });
-    //listenerShortcuts();
+    listenerShortcuts();
 }
 
 function listenerShortcuts() {
-    /*chrome.commands.onCommand.addListener((command) => {
+    chrome.commands.onCommand.addListener((command) => {
         if (command === "opened-by-domain") {
             //domain
             opened_by = 1;
@@ -145,7 +145,6 @@ function listenerShortcuts() {
         }
         sync_local.set({"opened-by-shortcut": "default"});
     });
-    */
 }
 
 function listenerLinks() {
