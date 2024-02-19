@@ -16,7 +16,7 @@ let links = {
     "support_email": "mailto:saverio.morelli@protonmail.com",
     "support_github": "https://github.com/Sav22999/websites-notes/issues",
     "translate": "https://crowdin.com/project/notefox",
-    "review": "https://chromewebstore.google.com/detail/notefox-websites-notes/agcdffobijddcccbfnhfjmaohnljefpm"
+    "review": "https://chromewebstore.google.com/detail/agcdffobijddcccbfnhfjmaohnljefpm"
 };
 
 /**
