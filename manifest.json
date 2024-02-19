@@ -17,17 +17,6 @@
     },
     "default_popup": "./popup.html"
   },
-  "commands": {
-    "opened-by-domain": {
-      "description": "Open by domain"
-    },
-    "opened-by-page": {
-      "description": "Open by page"
-    },
-    "opened-by-global": {
-      "description": "Open globally"
-    }
-  },
   "permissions": [
     "storage",
     "activeTab"

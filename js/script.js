@@ -91,9 +91,7 @@ function checkTimesOpened() {
 }
 
 function continueLoaded() {
-    document.getElementById("notes").focus();
-
-    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         var activeTab = tabs[0];
         var activeTabId = activeTab.id;
         var activeTabUrl = activeTab.url;
@@ -129,6 +127,7 @@ function checkOpenedBy() {
 }
 
 function listenerShortcuts() {
+    /*
     chrome.commands.onCommand.addListener((command) => {
         if (command === "opened-by-domain") {
             //domain
@@ -145,6 +144,7 @@ function listenerShortcuts() {
         }
         sync_local.set({"opened-by-shortcut": "default"});
     });
+    */
 }
 
 function listenerLinks() {
@@ -384,10 +384,10 @@ function loadUI() {
                 if (response) {
                     //granted / obtained
                     openStickyNotes();
-                    //console.log("Granted");
+                    console.log("Granted");
                 } else {
                     //rejected
-                    //console.log("Rejected!");
+                    console.log("Rejected!");
                 }
                 window.close();
             });
@@ -704,13 +704,20 @@ function saveNotes() {
 }
 
 function checkNeverSaved(never_saved) {
-    if (never_saved) {
+    if (stickyNotesSupported) {
+        if (never_saved) {
+            document.getElementById("open-sticky-button").classList.add("hidden");
+            document.getElementById("tag-select-grid").classList.add("hidden");
+            document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
+        } else {
+            if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+            if (document.getElementById("tag-select-grid").classList.contains("hidden")) document.getElementById("tag-select-grid").classList.remove("hidden");
+            document.getElementById("all-notes-section").style.gridTemplateAreas = "'tag all-notes all-notes all-notes all-notes'";
+        }
+    } else {
         document.getElementById("open-sticky-button").classList.add("hidden");
         document.getElementById("tag-select-grid").classList.add("hidden");
         document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
-    } else {
-        if (document.getElementById("tag-select-grid").classList.contains("hidden")) document.getElementById("tag-select-grid").classList.remove("hidden");
-        document.getElementById("all-notes-section").style.gridTemplateAreas = "'tag all-notes all-notes all-notes all-notes'";
     }
 }
 
@@ -718,7 +725,7 @@ function sendMessageUpdateToBackground() {
     chrome.runtime.sendMessage({"updated": true});
 }
 
-function tabUpdated(tabs) {
+function tabUpdated() {
     chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
         let tab_id = tabs[0].tabId;
         let tab_url = tabs[0].url;

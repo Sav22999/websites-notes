@@ -72,6 +72,7 @@ function loaded() {
             type_to_use = -1;
         });
         chrome.tabs.onUpdated.addListener(tabUpdated);
+        chrome.windows.onFocusChanged.addListener(tabUpdated);
 
         chrome.runtime.onMessage.addListener((message) => {
             if (message["updated"] !== undefined && message["updated"]) {
@@ -100,7 +101,7 @@ function tabUpdated(update = false) {
             sync_local = chrome.storage.local;
         }
         chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
-            tab_id = tabs[0].tabId;
+            tab_id = tabs[0].id;
             tab_url = tabs[0].url;
             tab_title = tabs[0].title;
         }).then((tabs) => {
@@ -243,6 +244,7 @@ function getTheProtocol(url) {
 }
 
 function listenerShortcuts() {
+    /*
     chrome.commands.onCommand.addListener((command) => {
         if (command === "opened-by-domain") {
             //domain
@@ -258,6 +260,7 @@ function listenerShortcuts() {
             sync_local.set({"opened-by-shortcut": "global"});
         }
     });
+    */
 }
 
 function listenerStickyNotes() {
@@ -357,6 +360,21 @@ function listenerStickyNotes() {
                         }
                     });
                 }
+
+                /*
+                if (message.data.notes !== undefined) {
+                    //save W (width) and H (height) sizes of the sticky
+                    //these sizes will be used to open with that size
+
+                    sync_local.set({
+                        "websites": {
+                            //set notes -- modified in sticky-notes
+                        }
+                    }).then(result => {
+                        //updated websites with new notes
+                    });
+                }
+                */
             } else if (message.ask !== undefined) {
                 //want something as response
                 if (message.ask === "coords-sizes-opacity") {
@@ -554,7 +572,7 @@ function openAsStickyNotes() {
 /**
  * close sticky notes if exists and the status changed to "closed"
  */
-function closeStickyNotes() {
+function closeStickyNotes(update = true) {
     checkIcon();
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         const activeTab = tabs[0];
@@ -600,31 +618,29 @@ function checkIcon() {
 
 function getAllOtherPossibleUrls(url) {
     let urlToReturn = "";
-    if (url !== undefined) {
-        let protocol = getTheProtocol(url);
-        if (url.includes(":")) {
-            let urlParts = url.split(":");
-            urlToReturn = urlParts[1];
-        }
+    let protocol = getTheProtocol(url);
+    if (url.includes(":")) {
+        let urlParts = url.split(":");
+        urlToReturn = urlParts[1];
+    }
 
-        let urlsToReturn = [];
+    let urlsToReturn = [];
 
-        if (urlToReturn.includes("/")) {
-            let urlPartsTemp = urlToReturn.split("/");
-            let urlConcat = "/";
-            for (let urlFor = 3; urlFor < urlPartsTemp.length; urlFor++) {
-                if (urlPartsTemp[urlFor] !== "") {
-                    urlConcat += urlPartsTemp[urlFor];
-                    if (urlConcat !== getDomainUrl(url)) {
-                        urlsToReturn.push(urlConcat + "/*");
-                    }
-                    urlConcat += "/";
+    if (urlToReturn.includes("/")) {
+        let urlPartsTemp = urlToReturn.split("/");
+        let urlConcat = "/";
+        for (let urlFor = 3; urlFor < urlPartsTemp.length; urlFor++) {
+            if (urlPartsTemp[urlFor] !== "") {
+                urlConcat += urlPartsTemp[urlFor];
+                if (urlConcat !== getDomainUrl(url)) {
+                    urlsToReturn.push(urlConcat + "/*");
                 }
+                urlConcat += "/";
             }
         }
-        return urlsToReturn;
     }
-    return [];
+
+    return urlsToReturn;
 }
 
 function setOpenedSticky(sticky, minimized) {

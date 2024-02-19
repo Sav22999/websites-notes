@@ -381,6 +381,11 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 background-repeat: no-repeat;
                 background-size: 50% auto;
             }
+            #sticky-notes-notefox-addon * {
+                min-width: 0px;
+                min-height: 0px;
+                line-height: normal;
+            }
             #move--sticky-notes-notefox-addon, #page-or-domain--sticky-notes-notefox-addon {
                 position: absolute;
                 top: 0px;
@@ -582,6 +587,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 margin: 0px !important;
                 padding: 0px !important;
                 box-sizing: border-box !important;
+                font-size: 8px;
             }
             #close--sticky-notes-notefox-addon:active, #close--sticky-notes-notefox-addon:focus, #minimize--sticky-notes-notefox-addon:active, #minimize--sticky-notes-notefox-addon:focus {
                 box-shadow: 0px 0px 0px 2px #ff6200, 0px 0px 0px 5px #ffb788;
@@ -1002,6 +1008,11 @@ function getCSSMinimized() {
                 box-sizing: border-box !important;
                 box-shadow: 0px 0px 5px rgba(255,98,0,0.27);
                 transition: 0.5s;
+                font-size: 8px;
+                
+                min-width: 0px;
+                min-height: 0px;
+                line-height: normal;
             }
             #restore--sticky-notes-notefox-addon:active, #restore--sticky-notes-notefox-addon:focus {
                 box-shadow: 0px 0px 0px 2px #ff6200, 0px 0px 0px 5px #ffb788;
