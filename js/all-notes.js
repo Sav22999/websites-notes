@@ -6,7 +6,7 @@ let notefox_json = {};
 
 const all_strings = strings[languageToUse];
 
-const webBrowserUsed = "chrome";//TODO:change manually
+const webBrowserUsed = "chromium";//TODO:change manually
 //Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
     "red": all_strings["red-colour"],
