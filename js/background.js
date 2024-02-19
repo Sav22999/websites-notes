@@ -80,8 +80,8 @@ function loaded() {
             }
         });
 
-        //listenerShortcuts();//TODO:chrome
-        //listenerStickyNotes();//TODO:chrome
+        listenerShortcuts();//TODO:chrome
+        listenerStickyNotes();//TODO:chrome
         checkStatus();
     });
 }
@@ -243,7 +243,6 @@ function getTheProtocol(url) {
 }
 
 function listenerShortcuts() {
-    /*
     chrome.commands.onCommand.addListener((command) => {
         if (command === "opened-by-domain") {
             //domain
@@ -259,11 +258,9 @@ function listenerShortcuts() {
             sync_local.set({"opened-by-shortcut": "global"});
         }
     });
-    */
 }
 
 function listenerStickyNotes() {
-    /*
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         //console.log("Call: " + JSON.stringify(message));
         if (message["open-sticky"] !== undefined && message["open-sticky"]["open"] !== undefined && message["open-sticky"]["open"]) {
@@ -412,7 +409,6 @@ function listenerStickyNotes() {
             }
         }
     });
-    */
 }
 
 /**
@@ -539,7 +535,6 @@ function getTheCorrectUrl(do_not_check_opened = false) {
  * open sticky notes
  */
 function openAsStickyNotes() {
-    /*
     if (!opening_sticky) {
         opening_sticky = true;
 
@@ -554,14 +549,12 @@ function openAsStickyNotes() {
             });
         });
     }
-    */
 }
 
 /**
  * close sticky notes if exists and the status changed to "closed"
  */
 function closeStickyNotes() {
-    /*
     checkIcon();
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         const activeTab = tabs[0];
@@ -575,7 +568,6 @@ function closeStickyNotes() {
         });
     });
     opening_sticky = false;
-    */
 }
 
 function checkIcon() {

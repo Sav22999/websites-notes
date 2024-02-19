@@ -377,18 +377,21 @@ function loadUI() {
 
     document.getElementById("open-sticky-button").onclick = function (event) {
         //closed -> open it
+        console.log("<1>");
         const permissionsToRequest = {
             origins: ["<all_urls>"]
         }
+        console.log("<2>");
         try {
             chrome.permissions.request(permissionsToRequest).then(response => {
+                console.log("<3>");
                 if (response) {
                     //granted / obtained
                     openStickyNotes();
-                    //console.log("Granted");
+                    console.log("Granted");
                 } else {
                     //rejected
-                    //console.log("Rejected!");
+                    console.log("Rejected!");
                 }
                 window.close();
             });
@@ -739,7 +742,7 @@ function setUrl(url) {
     if (otherPossibleUrls.length > 0) {
         appendSubDomains(otherPossibleUrls)
     }
-    //if (isUrlSupported(url)) {
+    if (isUrlSupported(url)) {
     currentUrl[0] = getGlobalUrl();
     currentUrl[1] = getDomainUrl(url);
     currentUrl[2] = getPageUrl(url);
@@ -756,7 +759,7 @@ function setUrl(url) {
     }
     if (document.getElementById("page-button").classList.contains("hidden")) document.getElementById("page-button").classList.remove("hidden");
     if (stickyNotesSupported && document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
-    /*} else {
+    } else {
         currentUrl[0] = getGlobalUrl();
         currentUrl[1] = getDomainUrl(url);
         currentUrl[2] = getPageUrl(url);
@@ -765,7 +768,7 @@ function setUrl(url) {
         document.getElementById("domain-button").style.borderRadius = "0px 5px 5px 0px";
         document.getElementById("page-button").classList.add("hidden");
         if (!document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.add("hidden");
-    }*/
+    }
 
     //console.log("Current url [0] " + currentUrl[1] + " - [1] " + currentUrl[2]);
 }
@@ -867,9 +870,8 @@ function isUrlSupported(url) {
     stickyNotesSupported = valueToReturn;
     //additional checks for sticky
     //console.log(url)
-    stickyNotesSupported = false;//TODO:chrome (always false)
     if (urls_unsupported_by_sticky_notes.includes(getDomainUrl(url).replace(getTheProtocol(url), "").replace("://", ""))) {
-        //stickyNotesSupported = false;
+        stickyNotesSupported = false;
     }
     return valueToReturn;
 }
@@ -938,7 +940,7 @@ function setTab(index, url) {
 }
 
 function openStickyNotes() {
-    //console.log("Opening...")
+    console.log("Opening...")
     if (stickyNotesSupported) {
         chrome.runtime.sendMessage({
             "open-sticky": {
