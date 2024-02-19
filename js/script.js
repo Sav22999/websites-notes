@@ -386,7 +386,8 @@ function loadUI() {
                     //rejected
                     //console.log("Rejected!");
                 }
-                window.close();
+            }).then(() => {
+                //window.close();
             });
         } catch (e) {
             console.error("P2)) " + e);
@@ -722,9 +723,9 @@ function sendMessageUpdateToBackground() {
     browser.runtime.sendMessage({"updated": true});
 }
 
-function tabUpdated(tabs) {
+function tabUpdated() {
     browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
-        let tab_id = tabs[0].tabId;
+        let tab_id = tabs[0].id;
         let tab_url = tabs[0].url;
 
         setUrl(tab_url);
@@ -960,6 +961,8 @@ function openStickyNotes() {
                             "open-sticky": {
                                 open: true, type: selected_tab
                             }
+                        }).then(() => {
+                            window.close();//TODO:chrome
                         });
                     });
                 }
