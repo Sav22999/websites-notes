@@ -49,8 +49,8 @@ let actions = [];
 let currentAction = 0;
 let undoAction = false;
 
-const linkReview = ["https://addons.mozilla.org/firefox/addon/websites-notes/"]; //{firefox add-ons}
-const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://ko-fi.com/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
+const linkReview = ["https://github.com/Sav22999/websites-notes"]; //{firefox add-ons}
+const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
 
 let sync_local = chrome.storage.local;
 checkSyncLocal();
