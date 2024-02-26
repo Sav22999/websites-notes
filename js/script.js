@@ -782,10 +782,10 @@ function setUrl(url) {
 }
 
 function checkAllSupportedProtocols(url, json) {
-    //Supported: http, https, moz-extension
+    //Supported: http, https, extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined)
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["extension://" + getUrlWithoutProtocol(url)] !== undefined)
             return true;
         else
             return false;
@@ -795,12 +795,12 @@ function checkAllSupportedProtocols(url, json) {
 }
 
 function getUrlWithSupportedProtocol(url, json) {
-    //Supported: http, https, moz-extension
+    //Supported: http, https, extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
         if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
         else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
-        else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url);
+        else if (json["extension://" + getUrlWithoutProtocol(url)] !== undefined) return "extension://" + getUrlWithoutProtocol(url);
         else return "";
     } else {
         return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
@@ -916,7 +916,7 @@ function isUrlSupported(url) {
     switch (getTheProtocol(url)) {
         case "http":
         case "https":
-        case "moz-extension":
+        case "extension":
             //the URL is supported
             valueToReturn = true;
             break;
