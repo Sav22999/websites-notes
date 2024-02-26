@@ -97,6 +97,8 @@ strings[lang] = {
     'check-green-icon-subdomain-detailed': 'Când este activată, pictograma adaugare în bara de instrumente va fi <b>green</b> dacă ați salvat anterior notele <b>Subdomeniu</b> pentru subdomeniu.',
     'open-links-only-with-ctrl': 'Deschideți link-uri în note – doar în timp ce apăsați și mențineți apăsat butonul Ctrl/Comandă/Control tastatură',
     'open-links-only-with-ctrl-detailed': 'Când este activat, vei putea deschide link-uri dar doar <b></b> în timp ce apeşi şi ţineţi apăsat butonul de tastatură <b>Ctrl/Comandă/Control</b> . Dacă este dezactivat, nu veți mai putea deschide link-uri.',
+    'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
+    'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
     'search-textbox': 'Căutare…',
     'sort-by-button': 'Sortează după…',
     'sort-by-az-button': 'Nume: A-Z',

@@ -6,7 +6,7 @@ let notefox_json = {};
 
 const all_strings = strings[languageToUse];
 
-const webBrowserUsed = "chrome";//TODO:change manually
+const webBrowserUsed = "firefox";//TODO:change manually
 //Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
     "red": all_strings["red-colour"],
@@ -1002,7 +1002,7 @@ function isUrlSupported(url) {
     switch (getTheProtocol(url)) {
         case "http":
         case "https":
-        case "moz-extension":
+        case "extension":
             //the URL is supported
             valueToReturn = true;
             break;
