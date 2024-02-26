@@ -97,6 +97,8 @@ strings[lang] = {
     'check-green-icon-subdomain-detailed': 'Kun käytössä on lisäosan kuvake työkalupalkissa on <b>vihreä</b> jos olet aiemmin tallentanut <b>Subdomain</b> -merkinnän tälle aliverkkotunnukselle.',
     'open-links-only-with-ctrl': 'Avaa linkit muistiinpanoissa – vain painamalla Ctrl/Command/Control näppäimistöä ja pitämällä sitä painettuna',
     'open-links-only-with-ctrl-detailed': 'Kun käytössä, voit avata linkkejä, mutta <b>vain</b> , kun painat ja pidät pohjassa <b>Ctrl/Command/Control</b> näppäimistöä. Jos poistettu käytöstä, et voi avata linkkejä lainkaan.',
+    'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
+    'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
     'search-textbox': 'Hae…',
     'sort-by-button': 'Järjestä…',
     'sort-by-az-button': 'Nimi: A-Z',

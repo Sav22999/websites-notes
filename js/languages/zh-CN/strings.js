@@ -97,6 +97,8 @@ strings[lang] = {
     'check-green-icon-subdomain-detailed': '启用后，工具栏中的附加组件图标将是 <b>绿色</b> 如果您先前为该子域保存了 <b>子域</b> 笔记。',
     'open-links-only-with-ctrl': '在笔记中打开链接 - 只在按下 Ctrl/Command/Control 键盘按钮',
     'open-links-only-with-ctrl-detailed': 'When enabled you\'ll be able to open links but <b>only</b> while you are pressing and holding <b>Ctrl/Command/Control</b> keyboard button. If disabled, you won\'t be able to open links at all.',
+    'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
+    'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
     'search-textbox': '搜索…',
     'sort-by-button': '按… 排序',
     'sort-by-az-button': '姓名：A-Z',

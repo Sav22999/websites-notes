@@ -97,6 +97,8 @@ strings[lang] = {
     'check-green-icon-subdomain-detailed': 'När aktiverad kommer addon-ikonen i verktygsfältet att vara <b>grön</b> om du tidigare sparade <b>underdomän</b> anteckningar för den deldomänen.',
     'open-links-only-with-ctrl': 'Öppna länkar i anteckningarna – endast när du trycker på och håller i Ctrl/Kommandotangentbordsknappen',
     'open-links-only-with-ctrl-detailed': 'När aktiverad kommer du att kunna öppna länkar men <b>bara</b> medan du trycker på och håller i <b>Ctrl/Command/Control</b> tangentbordsknappen. Om inaktiverad kommer du inte att kunna öppna länkar alls.',
+    'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
+    'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
     'search-textbox': 'Sök…',
     'sort-by-button': 'Sortera efter…',
     'sort-by-az-button': 'Namn: A-Ö',

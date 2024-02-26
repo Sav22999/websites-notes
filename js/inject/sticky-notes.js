@@ -233,6 +233,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         close.onclick = function () {
             onClickClose(false);
         }
+        //close.value = "⋏";
         stickyNote.appendChild(close);
 
         let minimize = document.createElement("input");
@@ -242,6 +243,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
             stickyNote.remove();
             openMinimized();
         }
+        //minimize.value = "≺";
         stickyNote.appendChild(minimize);
 
         //notes.tag_colour
@@ -964,6 +966,7 @@ function openMinimized() {
         restore = document.createElement("input");
         restore.type = "button";
         restore.id = "restore--sticky-notes-notefox-addon";
+        //restore.value = "≻";
         let css = document.createElement("style");
         css.innerText = getCSSMinimized();
         document.body.appendChild(css);

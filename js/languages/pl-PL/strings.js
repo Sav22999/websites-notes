@@ -97,6 +97,8 @@ strings[lang] = {
     'check-green-icon-subdomain-detailed': 'Po włączeniu ikona dodatku na pasku narzędzi będzie <b>zielona</b> jeśli wcześniej zapisałeś <b>Subdomena</b> notatki dla tej subdomeny.',
     'open-links-only-with-ctrl': 'Otwórz linki w notatkach - tylko podczas naciśnięcia i przytrzymania przycisku Ctrl/Comming/Control',
     'open-links-only-with-ctrl-detailed': 'Po włączeniu będziesz mógł otwierać linki, ale <b>tylko</b> podczas naciskania i przytrzymywania klawiatury <b>Ctrl/Comming/Control</b> . Jeśli wyłączone, w ogóle nie będziesz mógł otwierać linków.',
+    'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
+    'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
     'search-textbox': 'Szukaj…',
     'sort-by-button': 'Sortuj wg…',
     'sort-by-az-button': 'Nazwa: A-Z',
