@@ -97,6 +97,8 @@ strings[lang] = {
     'check-green-icon-subdomain-detailed': 'Når aktiveret vil ikonet addon i værktøjslinjen være <b>grøn</b> hvis du tidligere har gemt <b>Subdomain</b> noter til dette subdomæne.',
     'open-links-only-with-ctrl': 'Åbn links i noterne – kun mens du trykker og holder Ctrl/Kommando/Control tastatur knappen',
     'open-links-only-with-ctrl-detailed': 'Når aktiveret vil du kunne åbne links, men <b>kun</b> mens du trykker på og holder <b>Ctrl/Kommand/Control</b> tastaturknappen. Hvis deaktiveret, vil du slet ikke kunne åbne links.',
+    'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
+    'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
     'search-textbox': 'Søg…',
     'sort-by-button': 'Sorter efter…',
     'sort-by-az-button': 'Navn: A-Z',

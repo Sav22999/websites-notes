@@ -97,6 +97,8 @@ strings[lang] = {
     'check-green-icon-subdomain-detailed': 'When enabled the addon icon in the toolbar will be <b>green</b> if you previously saved <b>Subdomain</b> notes for that subdomain.',
     'open-links-only-with-ctrl': 'Открывать ссылки в заметках – только при нажатии и удерживании клавиши Ctrl/Command/Control',
     'open-links-only-with-ctrl-detailed': 'При включении вы сможете открывать ссылки, но <b>только</b> во время нажатия и удерживания кнопки <b>Ctrl/Command/Control</b> . Если отключено, вы не сможете открывать ссылки вообще.',
+    'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
+    'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
     'search-textbox': 'Поиск…',
     'sort-by-button': 'Сортировать по…',
     'sort-by-az-button': 'Название: А-Я',

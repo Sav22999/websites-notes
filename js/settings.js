@@ -101,6 +101,10 @@ function loaded() {
         settings_json["open-links-only-with-ctrl"] = document.getElementById("open-links-only-with-ctrl-select").value;
     };
 
+    document.getElementById("check-with-all-supported-protocols-select").onchange = function () {
+        settings_json["check-with-all-supported-protocols"] = document.getElementById("check-with-all-supported-protocols-select").value;
+    };
+
     loadSettings();
 
     let titleAllNotes = document.getElementById("title-settings-dedication-section");
@@ -144,6 +148,8 @@ function setLanguageUI() {
     document.getElementById("check-green-icon-subdomain-detailed-text").innerHTML = all_strings["check-green-icon-subdomain-detailed"];
     document.getElementById("open-links-only-with-ctrl-text").innerHTML = all_strings["open-links-only-with-ctrl"];
     document.getElementById("open-links-only-with-ctrl-detailed-text").innerHTML = all_strings["open-links-only-with-ctrl-detailed"];
+    document.getElementById("check-with-all-supported-protocols-text").innerHTML = all_strings["check-with-all-supported-protocols"];
+    document.getElementById("check-with-all-supported-protocols-detailed-text").innerHTML = all_strings["check-with-all-supported-protocols-detailed"];
 
     document.getElementById("theme-text").innerText = all_strings["theme-text"];
     document.getElementById("theme-select-light").innerText = all_strings["theme-choose-light-select"];
@@ -208,6 +214,7 @@ function loadSettings() {
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
+            if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = "no";
 
             let sync_or_local_settings = result["storage"];
             if (sync_or_local_settings === undefined) sync_or_local_settings = "local";
@@ -225,6 +232,7 @@ function loadSettings() {
             document.getElementById("check-green-icon-page-select").value = settings_json["check-green-icon-page"];
             document.getElementById("check-green-icon-subdomain-select").value = settings_json["check-green-icon-subdomain"];
             document.getElementById("open-links-only-with-ctrl-select").value = settings_json["open-links-only-with-ctrl"];
+            document.getElementById("check-with-all-supported-protocols-select").value = settings_json["check-with-all-supported-protocols"];
             if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-select").value = "no";
             else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-select").value = "yes";
 
