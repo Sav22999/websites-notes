@@ -97,6 +97,8 @@ strings[lang] = {
     'check-green-icon-subdomain-detailed': 'Wanneer ingeschakeld zal het add-on-pictogram in de werkbalk <b>groen</b> zijn als je eerder <b>Subdomein</b> notities hebt opgeslagen voor dat subdomein.',
     'open-links-only-with-ctrl': 'Koppelingen in de notities openen – alleen tijdens het indrukken en ingedrukt houden van de Ctrl/Commando/Control-toets',
     'open-links-only-with-ctrl-detailed': 'When enabled you\'ll be able to open links but <b>only</b> while you are pressing and holding <b>Ctrl/Command/Control</b> keyboard button. If disabled, you won\'t be able to open links at all.',
+    'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
+    'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
     'search-textbox': 'Zoek…',
     'sort-by-button': 'Sorteren op…',
     'sort-by-az-button': 'Naam: A-Z',

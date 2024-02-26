@@ -220,14 +220,14 @@ function loadUI() {
                 else if (settings_json["open-default"] === "global") default_index = 0;
                 if (value["websites"] !== undefined) {
                     websites_json = value["websites"];
-                    let check_for_domain = websites_json[currentUrl[1]] !== undefined && websites_json[currentUrl[1]]["last-update"] !== undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] !== undefined && websites_json[currentUrl[1]]["notes"] !== "";
-                    let check_for_page = websites_json[currentUrl[2]] !== undefined && websites_json[currentUrl[2]]["last-update"] !== undefined && websites_json[currentUrl[2]]["last-update"] != null && websites_json[currentUrl[2]]["notes"] !== undefined && websites_json[currentUrl[2]]["notes"] !== "";
-                    let check_for_global = websites_json[currentUrl[0]] !== undefined && websites_json[currentUrl[0]]["last-update"] !== undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] !== undefined && websites_json[currentUrl[0]]["notes"] !== "";
+                    let check_for_domain = checkAllSupportedProtocols(currentUrl[1], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["notes"] !== "";
+                    let check_for_page = checkAllSupportedProtocols(currentUrl[2], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["notes"] !== "";
+                    let check_for_global = checkAllSupportedProtocols(currentUrl[0], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["notes"] !== "";
                     let subdomains = getAllOtherPossibleUrls(activeTabUrl);
                     let check_for_subdomains = false;
                     subdomains.forEach(subdomain => {
-                        let url = getDomainUrl(activeTabUrl) + subdomain;
-                        let tmp_check = websites_json[url] !== undefined && websites_json[url]["last-update"] !== undefined && websites_json[url]["last-update"] != null && websites_json[url]["notes"] !== undefined && websites_json[url]["notes"] !== "";
+                        let url = getDomainUrl(activeTabUrl, true) + subdomain;
+                        let tmp_check = checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["notes"] !== "";
                         if (tmp_check) {
                             check_for_subdomains = true;
                             if (currentUrl.length === 4) currentUrl[3] = url;
@@ -522,6 +522,7 @@ function loadSettings() {
         if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
         if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
         if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
+        if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = "no";
 
         if (settings_json["advanced-managing"] === "yes") advanced_managing = true;
         else advanced_managing = false;
@@ -623,28 +624,31 @@ function saveNotes() {
         } else {
             websites_json = {};
         }
-        if (websites_json[currentUrl[selected_tab]] === undefined) websites_json[currentUrl[selected_tab]] = {};
+
+        let url_to_use = getUrlWithSupportedProtocol(currentUrl[selected_tab], websites_json);
+
+        if (websites_json[url_to_use] === undefined) websites_json[url_to_use] = {};
         let notes = document.getElementById("notes").innerHTML;
-        websites_json[currentUrl[selected_tab]]["notes"] = notes;
-        websites_json[currentUrl[selected_tab]]["last-update"] = getDate();
-        if (websites_json[currentUrl[selected_tab]]["tag-colour"] === undefined) {
-            websites_json[currentUrl[selected_tab]]["tag-colour"] = "none";
+        websites_json[url_to_use]["notes"] = notes;
+        websites_json[url_to_use]["last-update"] = getDate();
+        if (websites_json[url_to_use]["tag-colour"] === undefined) {
+            websites_json[url_to_use]["tag-colour"] = "none";
         }
-        if (websites_json[currentUrl[selected_tab]]["sticky"] === undefined) {
-            websites_json[currentUrl[selected_tab]]["sticky"] = false;
+        if (websites_json[url_to_use]["sticky"] === undefined) {
+            websites_json[url_to_use]["sticky"] = false;
         }
-        if (websites_json[currentUrl[selected_tab]]["minimized"] === undefined) {
-            websites_json[currentUrl[selected_tab]]["minimized"] = false;
+        if (websites_json[url_to_use]["minimized"] === undefined) {
+            websites_json[url_to_use]["minimized"] = false;
         }
         if (selected_tab === 0 || document.getElementById("tabs-section").classList.contains("hidden")) {
-            websites_json[currentUrl[selected_tab]]["type"] = 0;
-            websites_json[currentUrl[selected_tab]]["domain"] = "";
+            websites_json[url_to_use]["type"] = 0;
+            websites_json[url_to_use]["domain"] = "";
         } else if (selected_tab === 1) {
-            websites_json[currentUrl[selected_tab]]["type"] = 1;
-            websites_json[currentUrl[selected_tab]]["domain"] = "";
+            websites_json[url_to_use]["type"] = 1;
+            websites_json[url_to_use]["domain"] = "";
         } else {
-            websites_json[currentUrl[selected_tab]]["type"] = 2;
-            websites_json[currentUrl[selected_tab]]["domain"] = currentUrl[1];
+            websites_json[url_to_use]["type"] = 2;
+            websites_json[url_to_use]["domain"] = currentUrl[1];
         }
         let currentPosition = getPosition();
         if (notes === "" || notes === "<br>") {
@@ -665,21 +669,21 @@ function saveNotes() {
                 let never_saved = true;
 
                 let notes = "";
-                if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["notes"] !== undefined) {
+                if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["notes"] !== undefined) {
                     //exists
-                    notes = websites_json[currentUrl[selected_tab]]["notes"];
+                    notes = websites_json[url_to_use]["notes"];
                     never_saved = false;
                 }
                 //setPosition(document.getElementById("notes"), currentPosition);
                 listenerLinks();
 
                 let last_update = all_strings["never-update"];
-                if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["last-update"] !== undefined) last_update = websites_json[currentUrl[selected_tab]]["last-update"];
+                if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["last-update"] !== undefined) last_update = websites_json[url_to_use]["last-update"];
                 document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
 
                 let colour = "none";
                 document.getElementById("tag-colour-section").removeAttribute("class");
-                if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["tag-colour"] !== undefined) colour = websites_json[currentUrl[selected_tab]]["tag-colour"];
+                if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) colour = websites_json[url_to_use]["tag-colour"];
                 document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
 
                 /*
@@ -771,14 +775,45 @@ function setUrl(url) {
         if (!document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.add("hidden");
     }*/
 
-    //console.log("Current url [0] " + currentUrl[1] + " - [1] " + currentUrl[2]);
+    //console.log(`Current url [global] ${currentUrl[0]} [domain] ${currentUrl[1]} - [page]  ${currentUrl[2]}`);
+}
+
+function checkAllSupportedProtocols(url, json) {
+    //Supported: http, https, moz-extension
+    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
+    if (checkInAllSupportedProtocols) {
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined)
+            return true;
+        else
+            return false;
+    } else {
+        return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined;
+    }
+}
+
+function getUrlWithSupportedProtocol(url, json) {
+    //Supported: http, https, moz-extension
+    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
+    if (checkInAllSupportedProtocols) {
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
+        else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
+        else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url);
+        else return "";
+    } else {
+        return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
+    }
+}
+
+function getUrlWithoutProtocol(url) {
+    return url.split("://")[1];
 }
 
 function getGlobalUrl() {
     return "**global";
 }
 
-function getDomainUrl(url) {
+/**Returns the domain url without the protocol (https, http, ftp, ...)!*/
+function getDomainUrl(url, with_protocol = true) {
     let urlToReturn = "";
     let protocol = getTheProtocol(url);
     if (url.includes(":")) {
@@ -793,11 +828,28 @@ function getDomainUrl(url) {
         }
     }
 
-    return (protocol + "://" + urlToReturn);
+    if (with_protocol) return protocol + "://" + urlToReturn;
+    else return urlToReturn;
 }
 
-function getPageUrl(url) {
-    let urlToReturn = url;
+/**Returns the page url without the protocol (https, http, ftp, ...)!*/
+function getPageUrl(url, with_protocol = true) {
+    let urlToReturn = "";
+    let protocol = getTheProtocol(url);
+    if (url.includes(":")) {
+        let urlParts = url.split(":");
+        urlToReturn = urlParts[1];
+    }
+
+    if (urlToReturn.includes("/")) {
+        let urlPartsTemp = urlToReturn.split("/");
+        if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
+            urlToReturn = urlPartsTemp[2];
+            for (let i = 3; i < urlPartsTemp.length; i++) {
+                urlToReturn += "/" + urlPartsTemp[i];
+            }
+        }
+    }
 
     //https://page.example/search#section1
     if (settings_json["consider-sections"] === "no") {
@@ -810,7 +862,9 @@ function getPageUrl(url) {
     }
 
     //console.log(urlToReturn);
-    return urlToReturn;
+
+    if (with_protocol) return protocol + "://" + urlToReturn;
+    else return urlToReturn;
 }
 
 /**
@@ -908,9 +962,9 @@ function setTab(index, url) {
 
     let never_saved = true;
     let notes = "";
-    if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["notes"] !== undefined) {
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"] !== undefined) {
         //notes saved (also it's empty)
-        notes = websites_json[getPageUrl(url)]["notes"];
+        notes = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"];
         listenerLinks();
         never_saved = false;
     }
@@ -921,19 +975,19 @@ function setTab(index, url) {
     }
 
     let last_update = all_strings["never-update"];
-    if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["last-update"] !== undefined) last_update = websites_json[getPageUrl(url)]["last-update"];
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"] !== undefined) last_update = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"];
     document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
 
     let colour = "none";
     document.getElementById("tag-colour-section").removeAttribute("class");
-    if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["tag-colour"] !== undefined) colour = websites_json[getPageUrl(url)]["tag-colour"];
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"] !== undefined) colour = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"];
     document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
     if (websites_json[currentUrl[selected_tab]] !== undefined) document.getElementById("tag-select-grid").value = websites_json[currentUrl[selected_tab]]["tag-colour"];
 
     let sticky = false;
-    if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["sticky"] !== undefined) sticky = websites_json[getPageUrl(url)]["sticky"];
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"] !== undefined) sticky = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"];
     let minimized = false;
-    if (websites_json[getPageUrl(url)] !== undefined && websites_json[getPageUrl(url)]["minimized"] !== undefined) minimized = websites_json[getPageUrl(url)]["minimized"];
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"] !== undefined) minimized = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"];
 
     document.getElementById("notes").focus();
 

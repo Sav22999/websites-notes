@@ -97,6 +97,8 @@ strings[lang] = {
     'check-green-icon-subdomain-detailed': 'عند تمكين رمز الاضافة في شريط الأدوات سيكون <b>الأخضر</b> إذا قمت سابقا بحفظ <b>المجال الفرعي</b> ملاحظات لذلك المجال الفرعي.',
     'open-links-only-with-ctrl': 'فتح الروابط في الملاحظات - فقط أثناء الضغط على زر Ctrl/Comme/Control',
     'open-links-only-with-ctrl-detailed': 'عند التمكين ستتمكن من فتح الروابط ولكن <b>فقط</b> أثناء الضغط على زر <b>Ctrl/Comme/Control</b> . إذا تم التعطيل، لن تتمكن من فتح الروابط على الإطلاق.',
+    'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
+    'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
     'search-textbox': 'البحث…',
     'sort-by-button': 'فرز حسب…',
     'sort-by-az-button': 'الاسم: A-Z',

@@ -97,6 +97,8 @@ strings[lang] = {
     'check-green-icon-subdomain-detailed': 'ツールバーのアドオンアイコンを有効にすると、以前にそのサブドメインの <b>サブドメイン</b> ノートを保存した場合、 <b>緑色の</b> になります。',
     'open-links-only-with-ctrl': 'format@@0/Command/Control キーボードボタンを押したままノート内のリンクを開きます',
     'open-links-only-with-ctrl-detailed': 'When enabled you\'ll be able to open links but <b>only</b> while you are pressing and holding <b>Ctrl/Command/Control</b> keyboard button. If disabled, you won\'t be able to open links at all.',
+    'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
+    'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
     'search-textbox': '検索…',
     'sort-by-button': '… でソート',
     'sort-by-az-button': '名前: A-Z',
