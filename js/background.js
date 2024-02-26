@@ -125,6 +125,7 @@ function checkStatus(update = false) {
             if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = "yes";
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
+            if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = "no";
             //console.log(JSON.stringify(settings_json));
             //console.log("checkStatus");
             //console.log(value);
@@ -197,48 +198,145 @@ function checkStatus(update = false) {
         });
 }
 
+function checkAllSupportedProtocols(url, json) {
+    //Supported: http, https, moz-extension
+    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
+    if (checkInAllSupportedProtocols) {
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined)
+            return true;
+        else
+            return false;
+    } else {
+        return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined;
+    }
+}
+
+function checkAllSupportedProtocolsSticky(url, json) {
+    //Supported: http, https, moz-extension
+    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
+    if (checkInAllSupportedProtocols) {
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined)
+            return true;
+        else
+            return false;
+    } else {
+        return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined;
+    }
+}
+
+function checkAllSupportedProtocolsLastUpdate(url, json) {
+    //Supported: http, https, moz-extension
+    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
+    if (checkInAllSupportedProtocols) {
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["last-update"] !== null)
+            return true;
+        else
+            return false;
+    } else {
+        return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["last-update"] !== null;
+    }
+}
+
+function checkAllSupportedProtocolsNotes(url, json) {
+    //Supported: http, https, moz-extension
+    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
+    if (checkInAllSupportedProtocols) {
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["notes"] !== "" || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["notes"] !== "" || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["notes"] !== "")
+            return true;
+        else
+            return false;
+    } else {
+        return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["notes"] !== "";
+    }
+}
+
+function getUrlWithSupportedProtocol(url, json) {
+    //Supported: http, https, moz-extension
+    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
+    if (checkInAllSupportedProtocols) {
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
+        else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
+        else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url);
+        else return "";
+    } else {
+        return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
+    }
+}
+
+function getUrlWithSupportedProtocolSticky(url, json) {
+    //Supported: http, https, moz-extension
+    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
+    if (checkInAllSupportedProtocols) {
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
+        else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
+        else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url);
+        else return "";
+    } else {
+        return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
+    }
+}
+
+function getUrlWithoutProtocol(url) {
+    return url.split("://")[1];
+}
+
 function getGlobalUrl() {
     return "**global";
 }
 
-function getDomainUrl(url) {
+/**Returns the domain url without the protocol (https, http, ftp, ...)!*/
+function getDomainUrl(url, with_protocol = true) {
     let urlToReturn = "";
-    if (url !== undefined) {
-        let protocol = getTheProtocol(url);
-        if (url.includes(":")) {
-            let urlParts = url.split(":");
-            urlToReturn = urlParts[1];
-        }
-
-        if (urlToReturn.includes("/")) {
-            let urlPartsTemp = urlToReturn.split("/");
-            if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
-                urlToReturn = urlPartsTemp[2];
-            }
-        }
-        return (protocol + "://" + urlToReturn);
+    let protocol = getTheProtocol(url);
+    if (url.includes(":")) {
+        let urlParts = url.split(":");
+        urlToReturn = urlParts[1];
     }
-    return "";
+
+    if (urlToReturn.includes("/")) {
+        let urlPartsTemp = urlToReturn.split("/");
+        if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
+            urlToReturn = urlPartsTemp[2];
+        }
+    }
+
+    if (with_protocol) return protocol + "://" + urlToReturn;
+    else return urlToReturn;
 }
 
-function getPageUrl(url) {
+/**Returns the page url without the protocol (https, http, ftp, ...)!*/
+function getPageUrl(url, with_protocol = true) {
     let urlToReturn = "";
+    let protocol = getTheProtocol(url);
+    if (url.includes(":")) {
+        let urlParts = url.split(":");
+        urlToReturn = urlParts[1];
+    }
 
-    if (url !== undefined) {
-        urlToReturn = url;
-        //https://page.example/search#section1
-        if (settings_json["consider-sections"] === "no") {
-            if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
+    if (urlToReturn.includes("/")) {
+        let urlPartsTemp = urlToReturn.split("/");
+        if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
+            urlToReturn = urlPartsTemp[2];
+            for (let i = 3; i < urlPartsTemp.length; i++) {
+                urlToReturn += "/" + urlPartsTemp[i];
+            }
         }
+    }
 
-        //https://page.example/search?parameters
-        if (settings_json["consider-parameters"] === "no") {
-            if (url.includes("?")) urlToReturn = urlToReturn.split("?")[0];
-        }
+    //https://page.example/search#section1
+    if (settings_json["consider-sections"] === "no") {
+        if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
+    }
+
+    //https://page.example/search?parameters
+    if (settings_json["consider-parameters"] === "no") {
+        if (url.includes("?")) urlToReturn = urlToReturn.split("?")[0];
     }
 
     //console.log(urlToReturn);
-    return urlToReturn;
+
+    if (with_protocol) return protocol + "://" + urlToReturn;
+    else return urlToReturn;
 }
 
 function getTheProtocol(url) {
@@ -494,8 +592,8 @@ function getTheCorrectUrl(do_not_check_opened = false) {
     // console.log(`type ${type_to_use}`);
 
     let global_condition = websites_json[getGlobalUrl()] !== undefined && (websites_json[getGlobalUrl()]["sticky"] !== undefined && websites_json[getGlobalUrl()]["sticky"] || do_not_check_opened);
-    let domain_condition = websites_json[getDomainUrl(tab_url)] !== undefined && (websites_json[getDomainUrl(tab_url)]["sticky"] !== undefined && websites_json[getDomainUrl(tab_url)]["sticky"] || do_not_check_opened);
-    let page_condition = websites_json[getPageUrl(tab_url)] !== undefined && (websites_json[getPageUrl(tab_url)]["sticky"] !== undefined && websites_json[getPageUrl(tab_url)]["sticky"] || do_not_check_opened);
+    let domain_condition = checkAllSupportedProtocols(getDomainUrl(tab_url), websites_json) && checkAllSupportedProtocolsSticky(getDomainUrl(tab_url), websites_json) && getUrlWithSupportedProtocolSticky(getDomainUrl(tab_url), websites_json) || do_not_check_opened;
+    let page_condition = checkAllSupportedProtocols(getPageUrl(tab_url), websites_json) && checkAllSupportedProtocolsSticky(getPageUrl(tab_url), websites_json) && getUrlWithSupportedProtocolSticky(getPageUrl(tab_url), websites_json) || do_not_check_opened;
     let subdomains_condition = false;
     let subdomain_url_to_use = "";
     let subdomains = getAllOtherPossibleUrls(tab_url);
@@ -606,20 +704,20 @@ function closeStickyNotes(update = true) {
 }
 
 function checkIcon() {
-    let domain_url = getDomainUrl(tab_url);
-    let page_url = getPageUrl(tab_url);
+    let domain_url = getUrlWithSupportedProtocol(getDomainUrl(tab_url), websites_json);
+    let page_url = getUrlWithSupportedProtocol(getPageUrl(tab_url), websites_json);
     let global_url = getGlobalUrl();
-    let check_domain = settings_json["check-green-icon-domain"] === "yes" && websites_json[domain_url] !== undefined && websites_json[domain_url]["last-update"] !== undefined && websites_json[domain_url]["last-update"] != null && websites_json[domain_url]["notes"] !== undefined && websites_json[domain_url]["notes"] !== "";
+    let check_domain = settings_json["check-green-icon-domain"] === "yes" && checkAllSupportedProtocols(getDomainUrl(tab_url), websites_json) && checkAllSupportedProtocolsLastUpdate(getDomainUrl(tab_url), websites_json) && checkAllSupportedProtocolsNotes(getDomainUrl(tab_url), websites_json);
     //let check_tab_url = (settings_json["check-green-icon-domain"] === "yes" || settings_json["check-green-icon-page"] === "yes") && websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "";
     let check_tab_url = false;
-    let check_page = settings_json["check-green-icon-page"] === "yes" && websites_json[page_url] !== undefined && websites_json[page_url]["last-update"] !== undefined && websites_json[page_url]["last-update"] != null && websites_json[page_url]["notes"] !== undefined && websites_json[page_url]["notes"] !== "";
+    let check_page = settings_json["check-green-icon-page"] === "yes" && checkAllSupportedProtocols(getPageUrl(tab_url), websites_json) && checkAllSupportedProtocolsLastUpdate(getPageUrl(tab_url), websites_json) && checkAllSupportedProtocolsNotes(getPageUrl(tab_url), websites_json);
     let check_global = settings_json["check-green-icon-global"] === "yes" && websites_json[global_url] !== undefined && websites_json[global_url]["last-update"] !== undefined && websites_json[global_url]["last-update"] != null && websites_json[global_url]["notes"] !== undefined && websites_json[global_url]["notes"] !== ""
     let check_subdomains = false;
     let subdomains = getAllOtherPossibleUrls(tab_url);
     if (settings_json["check-green-icon-subdomain"] === "yes") {
         subdomains.forEach(subdomain => {
             let subdomain_url = domain_url + subdomain;
-            let tmp_check = websites_json[subdomain_url] !== undefined && websites_json[subdomain_url]["last-update"] !== undefined && websites_json[subdomain_url]["last-update"] != null && websites_json[subdomain_url]["notes"] !== undefined && websites_json[subdomain_url]["notes"] !== "";
+            let tmp_check = checkAllSupportedProtocols(subdomain_url, websites_json) && checkAllSupportedProtocolsLastUpdate(subdomain_url, websites_json) && checkAllSupportedProtocolsNotes(subdomain_url, websites_json);
             if (tmp_check) {
                 check_subdomains = true;
             }

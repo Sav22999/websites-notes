@@ -97,6 +97,8 @@ strings[lang] = {
     'check-green-icon-subdomain-detailed': 'Όταν ενεργοποιηθεί το εικονίδιο πρόσθετου στη γραμμή εργαλείων θα είναι <b>πράσινο</b> αν έχετε αποθηκεύσει προηγουμένως <b>Subdomain</b> σημειώσεις για αυτόν τον υποτομέα.',
     'open-links-only-with-ctrl': 'Άνοιγμα συνδέσμων στις σημειώσεις – μόνο πατώντας και κρατώντας πατημένο το πλήκτρο Ctrl/Command/Control πληκτρολόγιο',
     'open-links-only-with-ctrl-detailed': 'Όταν ενεργοποιηθεί, θα μπορείτε να ανοίξετε συνδέσμους αλλά <b>μόνο</b> ενώ πατάτε και κρατάτε πατημένο το πλήκτρο <b>Ctrl/Command/Control</b> . Αν απενεργοποιηθεί, δεν θα μπορείτε να ανοίξετε συνδέσμους καθόλου.',
+    'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
+    'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
     'search-textbox': 'Αναζήτηση…',
     'sort-by-button': 'Ταξινόμηση κατά…',
     'sort-by-az-button': 'Όνομα: A-Z',

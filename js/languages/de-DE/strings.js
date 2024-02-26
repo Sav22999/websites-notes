@@ -97,6 +97,8 @@ strings[lang] = {
     'check-green-icon-subdomain-detailed': 'Wenn aktiviert, wird das Addon-Symbol in der Symbolleiste <b>grün</b> sein, wenn Sie zuvor <b>Subdomain</b> Notizen für diese Subdomain gespeichert haben.',
     'open-links-only-with-ctrl': 'Links in den Notizen öffnen - nur während der Tastatur Strg/Befehl/Steuerung gedrückt wird',
     'open-links-only-with-ctrl-detailed': 'Wenn aktiviert, können Sie Links aber nur <b>nur</b> öffnen, während Sie <b>Strg/Befehl/Kontrolle</b> Tastatur drücken. Wenn deaktiviert, können Sie keine Links öffnen.',
+    'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
+    'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
     'search-textbox': 'Suche…',
     'sort-by-button': 'Sortieren nach…',
     'sort-by-az-button': 'Name: A-Z',
