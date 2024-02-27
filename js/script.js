@@ -322,14 +322,7 @@ function loadUI() {
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
             strikethrough();
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
-            let selectedText = "";
-            if (window.getSelection) {
-                selectedText = window.getSelection().toString();
-            } else if (document.selection && document.selection.type !== 'Control') {
-                // For older versions of Internet Explorer
-                selectedText = document.selection.createRange().text;
-            }
-            insertLink(selectedText);
+            insertLink();
         }
     }
     notes.onkeyup = function (e) {
@@ -1050,9 +1043,16 @@ function strikethrough() {
     addAction();
 }
 
-function insertLink(value) {
+function insertLink() {
     //if (isValidURL(value)) {
-    document.execCommand('createLink', false, value);
+    let selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    } else if (document.selection && document.selection.type !== 'Control') {
+        // For older versions of Internet Explorer
+        selectedText = document.selection.createRange().text;
+    }
+    document.execCommand('createLink', false, selectedText);
     addAction();
     //}
 }
@@ -1185,6 +1185,14 @@ function loadFormatButtons(navigation = true, format = true) {
                 }
             },
             {
+                action: "link",
+                icon: `${url}link.svg`,
+                title: all_strings["label-title-link"],
+                function: function () {
+                    insertLink();
+                }
+            },
+            {
                 action: "spellcheck",
                 icon: `${url}spellcheck.svg`,
                 title: all_strings["label-title-spellcheck"],
@@ -1251,6 +1259,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let strikethrough_svg = window.btoa(getIconSvgEncoded("strikethrough", on_primary));
         let spellcheck_svg = window.btoa(getIconSvgEncoded("spellcheck", on_primary));
         let spellcheck_sel_svg = window.btoa(getIconSvgEncoded("spellcheck_sel", on_primary));
+        let link_svg = window.btoa(getIconSvgEncoded("link", on_primary));
         let undo_svg = window.btoa(getIconSvgEncoded("undo", on_primary));
         let redo_svg = window.btoa(getIconSvgEncoded("redo", on_primary));
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
@@ -1317,6 +1326,11 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 .text-spellcheck-sel {
                     background-image: url('data:image/svg+xml;base64,${spellcheck_sel_svg}') !important;     
                     background-size: 60% auto;          
+                }
+                
+                #text-link {
+                    background-image: url('data:image/svg+xml;base64,${link_svg}');
+                    background-size: 60% auto;
                 }
                 
                 #text-undo {
