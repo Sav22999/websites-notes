@@ -691,14 +691,7 @@ function onKeyDownText(text, e) {
     } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         strikethrough();
     } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
-        let selectedText = "";
-        if (window.getSelection) {
-            selectedText = window.getSelection().toString();
-        } else if (document.selection && document.selection.type !== 'Control') {
-            // For older versions of Internet Explorer
-            selectedText = document.selection.createRange().text;
-        }
-        insertLink(selectedText);
+        insertLink();
     }
 }
 
@@ -847,9 +840,67 @@ function strikethrough() {
     document.execCommand("strikethrough", false);
 }
 
-function insertLink(value) {
+
+function hasAncestorAnchor(element) {
+    while (element) {
+        if (element.tagName && element.tagName.toLowerCase() === 'a') {
+            return true; // Found an anchor element
+        }
+        element = element.parentNode; // Move up to the parent node
+    }
+    return false; // Reached the top of the DOM tree without finding an anchor element
+}
+
+function getTheAncestorAnchor(element) {
+    while (element) {
+        if (element.tagName && element.tagName.toLowerCase() === 'a') {
+            return [element, element.parentNode]; // Found an anchor element
+        }
+        element = element.parentNode; // Move up to the parent node
+    }
+    return [false, false]; // Reached the top of the DOM tree without finding an anchor element
+}
+
+function insertLink() {
     //if (isValidURL(value)) {
-    document.execCommand('createLink', false, value);
+    let selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    } else if (document.selection && document.selection.type !== 'Control') {
+        // For older versions of Internet Explorer
+        selectedText = document.selection.createRange().text;
+    }
+
+    // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
+    let isLink = hasAncestorAnchor(window.getSelection().anchorNode);
+
+    // If it's already a link, remove the link; otherwise, add the link
+    if (isLink) {
+        // Remove the link
+        let elements = getTheAncestorAnchor(window.getSelection().anchorNode);
+        let anchorElement = elements[0];
+        let parentAnchor = elements[1];
+
+        if (anchorElement && parentAnchor) {
+            // Move children of the anchor element to its parent
+            while (anchorElement.firstChild) {
+                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
+            }
+            // Remove the anchor element itself
+            parentAnchor.removeChild(anchorElement);
+        }
+
+        let text_input = document.getElementById("text--sticky-notes-notefox-addon");
+        onInputText(text_input);
+    } else {
+        /*let url = prompt("Enter the URL:");
+
+        if (url) {
+            document.execCommand('createLink', false, url);
+        }*/
+        //Creating link with the same selectedText
+        document.execCommand('createLink', false, selectedText);
+    }
     //}
 }
 
