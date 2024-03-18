@@ -50,7 +50,7 @@ let currentAction = 0;
 let undoAction = false;
 
 const linkReview = ["https://addons.mozilla.org/firefox/addon/websites-notes/"]; //{firefox add-ons}
-const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://ko-fi.com/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
+const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, liberapay}
 
 let sync_local = browser.storage.local;
 checkSyncLocal();
@@ -775,10 +775,10 @@ function setUrl(url) {
 function checkAllSupportedProtocols(url, json) {
     //Supported: http, https, moz-extension
     if (url === getGlobalUrl()) return true;
-    //console.log("--1--");
+
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined)
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["extension://" + getUrlWithoutProtocol(url)] !== undefined || json["chrome-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["about://" + getUrlWithoutProtocol(url)] !== undefined)
             return true;
         else
             return false;
@@ -790,13 +790,16 @@ function checkAllSupportedProtocols(url, json) {
 function getUrlWithSupportedProtocol(url, json) {
     //Supported: http, https, moz-extension
     if (url === getGlobalUrl()) return url;
-    //console.log("--2--");
+
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
         if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
         else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
         else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url);
-        else return "";
+        else if (json["extension://" + getUrlWithoutProtocol(url)] !== undefined) return "extension://" + getUrlWithoutProtocol(url);
+        else if (json["chrome-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "chrome-extension://" + getUrlWithoutProtocol(url);
+        else if (json["about://" + getUrlWithoutProtocol(url)] !== undefined) return "about://" + getUrlWithoutProtocol(url);
+        else return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
     } else {
         return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
     }
