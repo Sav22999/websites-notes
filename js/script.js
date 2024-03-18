@@ -220,9 +220,9 @@ function loadUI() {
                 else if (settings_json["open-default"] === "global") default_index = 0;
                 if (value["websites"] !== undefined) {
                     websites_json = value["websites"];
-                    let check_for_domain = checkAllSupportedProtocols(currentUrl[1], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["notes"] !== "";
-                    let check_for_page = checkAllSupportedProtocols(currentUrl[2], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["notes"] !== "";
-                    let check_for_global = checkAllSupportedProtocols(currentUrl[0], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["notes"] !== "";
+                    let check_for_domain = checkAllSupportedProtocols(currentUrl[1], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["notes"] !== "";
+                    let check_for_page = checkAllSupportedProtocols(currentUrl[2], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["notes"] !== "";
+                    let check_for_global = checkAllSupportedProtocols(currentUrl[0], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["notes"] !== "";
                     let subdomains = getAllOtherPossibleUrls(activeTabUrl);
                     let check_for_subdomains = false;
                     subdomains.forEach(subdomain => {
@@ -322,14 +322,7 @@ function loadUI() {
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
             strikethrough();
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
-            let selectedText = "";
-            if (window.getSelection) {
-                selectedText = window.getSelection().toString();
-            } else if (document.selection && document.selection.type !== 'Control') {
-                // For older versions of Internet Explorer
-                selectedText = document.selection.createRange().text;
-            }
-            insertLink(selectedText);
+            insertLink();
         }
     }
     notes.onkeyup = function (e) {
@@ -626,6 +619,7 @@ function saveNotes() {
         }
 
         let url_to_use = getUrlWithSupportedProtocol(currentUrl[selected_tab], websites_json);
+        //console.log(`url_to_use: ${url_to_use}`);
 
         if (websites_json[url_to_use] === undefined) websites_json[url_to_use] = {};
         let notes = document.getElementById("notes").innerHTML;
@@ -780,6 +774,8 @@ function setUrl(url) {
 
 function checkAllSupportedProtocols(url, json) {
     //Supported: http, https, moz-extension
+    if (url === getGlobalUrl()) return true;
+    //console.log("--1--");
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
         if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined)
@@ -793,6 +789,8 @@ function checkAllSupportedProtocols(url, json) {
 
 function getUrlWithSupportedProtocol(url, json) {
     //Supported: http, https, moz-extension
+    if (url === getGlobalUrl()) return url;
+    //console.log("--2--");
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
         if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
@@ -805,6 +803,7 @@ function getUrlWithSupportedProtocol(url, json) {
 }
 
 function getUrlWithoutProtocol(url) {
+    if (url === getGlobalUrl()) return url;
     return url.split("://")[1];
 }
 
@@ -834,6 +833,8 @@ function getDomainUrl(url, with_protocol = true) {
 
 /**Returns the page url without the protocol (https, http, ftp, ...)!*/
 function getPageUrl(url, with_protocol = true) {
+    if (url === getGlobalUrl()) return url;
+
     let urlToReturn = "";
     let protocol = getTheProtocol(url);
     if (url.includes(":")) {
@@ -962,7 +963,7 @@ function setTab(index, url) {
 
     let never_saved = true;
     let notes = "";
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"] !== undefined) {
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"] !== undefined) {
         //notes saved (also it's empty)
         notes = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"];
         listenerLinks();
@@ -975,19 +976,19 @@ function setTab(index, url) {
     }
 
     let last_update = all_strings["never-update"];
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"] !== undefined) last_update = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"];
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"] !== undefined) last_update = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"];
     document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
 
     let colour = "none";
     document.getElementById("tag-colour-section").removeAttribute("class");
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"] !== undefined) colour = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"];
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"] !== undefined) colour = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"];
     document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
     if (websites_json[currentUrl[selected_tab]] !== undefined) document.getElementById("tag-select-grid").value = websites_json[currentUrl[selected_tab]]["tag-colour"];
 
     let sticky = false;
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"] !== undefined) sticky = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"];
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"] !== undefined) sticky = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"];
     let minimized = false;
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"] !== undefined) minimized = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"];
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"] !== undefined) minimized = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"];
 
     document.getElementById("notes").focus();
 
@@ -1050,9 +1051,63 @@ function strikethrough() {
     addAction();
 }
 
-function insertLink(value) {
+function hasAncestorAnchor(element) {
+    while (element) {
+        if (element.tagName && element.tagName.toLowerCase() === 'a') {
+            return true; // Found an anchor element
+        }
+        element = element.parentNode; // Move up to the parent node
+    }
+    return false; // Reached the top of the DOM tree without finding an anchor element
+}
+
+function getTheAncestorAnchor(element) {
+    while (element) {
+        if (element.tagName && element.tagName.toLowerCase() === 'a') {
+            return [element, element.parentNode]; // Found an anchor element
+        }
+        element = element.parentNode; // Move up to the parent node
+    }
+    return [false, false]; // Reached the top of the DOM tree without finding an anchor element
+}
+
+function insertLink() {
     //if (isValidURL(value)) {
-    document.execCommand('createLink', false, value);
+    let selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    } else if (document.selection && document.selection.type !== 'Control') {
+        // For older versions of Internet Explorer
+        selectedText = document.selection.createRange().text;
+    }
+
+    // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
+    let isLink = hasAncestorAnchor(window.getSelection().anchorNode);
+
+    // If it's already a link, remove the link; otherwise, add the link
+    if (isLink) {
+        // Remove the link
+        let elements = getTheAncestorAnchor(window.getSelection().anchorNode);
+        let anchorElement = elements[0];
+        let parentAnchor = elements[1];
+
+        if (anchorElement && parentAnchor) {
+            // Move children of the anchor element to its parent
+            while (anchorElement.firstChild) {
+                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
+            }
+            // Remove the anchor element itself
+            parentAnchor.removeChild(anchorElement);
+        }
+        saveNotes();
+    } else {
+        /*let url = prompt("Enter the URL:");
+
+        if (url) {
+            document.execCommand('createLink', false, url);
+        }*/
+        document.execCommand('createLink', false, selectedText);
+    }
     addAction();
     //}
 }
@@ -1185,6 +1240,14 @@ function loadFormatButtons(navigation = true, format = true) {
                 }
             },
             {
+                action: "link",
+                icon: `${url}link.svg`,
+                title: all_strings["label-title-link"],
+                function: function () {
+                    insertLink();
+                }
+            },
+            {
                 action: "spellcheck",
                 icon: `${url}spellcheck.svg`,
                 title: all_strings["label-title-spellcheck"],
@@ -1251,6 +1314,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let strikethrough_svg = window.btoa(getIconSvgEncoded("strikethrough", on_primary));
         let spellcheck_svg = window.btoa(getIconSvgEncoded("spellcheck", on_primary));
         let spellcheck_sel_svg = window.btoa(getIconSvgEncoded("spellcheck_sel", on_primary));
+        let link_svg = window.btoa(getIconSvgEncoded("link", on_primary));
         let undo_svg = window.btoa(getIconSvgEncoded("undo", on_primary));
         let redo_svg = window.btoa(getIconSvgEncoded("redo", on_primary));
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
@@ -1317,6 +1381,11 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 .text-spellcheck-sel {
                     background-image: url('data:image/svg+xml;base64,${spellcheck_sel_svg}') !important;     
                     background-size: 60% auto;          
+                }
+                
+                #text-link {
+                    background-image: url('data:image/svg+xml;base64,${link_svg}');
+                    background-size: 60% auto;
                 }
                 
                 #text-undo {
