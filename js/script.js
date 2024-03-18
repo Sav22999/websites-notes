@@ -9,7 +9,7 @@ var selected_tab = 2; //{0: global | 1:domain | 2:page | 3:other}
 var opened_by = -1;
 
 //urls WITHOUT the protocol! e.g. addons.mozilla.org
-var urls_unsupported_by_sticky_notes = ["addons.mozilla.org"];//TODO!MANUAL change this manually in case of new unsupported urls
+var urls_unsupported_by_sticky_notes = [];//TODO!MANUAL change this manually in case of new unsupported urls
 var stickyNotesSupported = true;
 
 const all_strings = strings[languageToUse];
@@ -49,18 +49,18 @@ let actions = [];
 let currentAction = 0;
 let undoAction = false;
 
-const linkReview = ["https://addons.mozilla.org/firefox/addon/websites-notes/"]; //{firefox add-ons}
-const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://ko-fi.com/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
+const linkReview = ["https://chromewebstore.google.com/detail/agcdffobijddcccbfnhfjmaohnljefpm"]; //{firefox add-ons}
+const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, libera-pay}
 
-let sync_local = browser.storage.local;
+let sync_local = chrome.storage.local;
 checkSyncLocal();
 
 function checkSyncLocal() {
-    sync_local = browser.storage.local;
-    browser.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = browser.storage.sync; else if (result.storage === "sync") sync_local = browser.storage.sync; else {
-            browser.storage.local.set({"storage": "local"});
-            sync_local = browser.storage.local;
+    sync_local = chrome.storage.local;
+    chrome.storage.local.get("storage").then(result => {
+        if (result.storage === "sync") sync_local = chrome.storage.sync; else if (result.storage === "sync") sync_local = chrome.storage.sync; else {
+            chrome.storage.local.set({"storage": "local"});
+            sync_local = chrome.storage.local;
         }
         checkTheme();
     });
@@ -80,7 +80,7 @@ function checkTimesOpened() {
             times = result["times-opened"];
             let interval_to_check = [1000, 5000, 20000, 50000, 100000, 1000000, 5000000];
             if (times > 0 && interval_to_check.includes(times + 1)) {
-                browser.tabs.create({url: "https://www.saveriomorelli.com/projects/notefox/opened-times/"});
+                chrome.tabs.create({url: "https://www.saveriomorelli.com/projects/notefox/opened-times/"});
                 //window.close();
             }
         }
@@ -90,7 +90,7 @@ function checkTimesOpened() {
 }
 
 function continueLoaded() {
-    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         var activeTab = tabs[0];
         var activeTabId = activeTab.id;
         var activeTabUrl = activeTab.url;
@@ -99,8 +99,8 @@ function continueLoaded() {
         loadUI();
     });
 
-    browser.tabs.onActivated.addListener(tabUpdated);
-    browser.tabs.onUpdated.addListener(tabUpdated);
+    chrome.tabs.onActivated.addListener(tabUpdated);
+    chrome.tabs.onUpdated.addListener(tabUpdated);
 
     checkOpenedBy();
     document.getElementById("notes").focus();
@@ -126,7 +126,7 @@ function checkOpenedBy() {
 }
 
 function listenerShortcuts() {
-    browser.commands.onCommand.addListener((command) => {
+    chrome.commands.onCommand.addListener((command) => {
         if (command === "opened-by-domain") {
             //domain
             opened_by = 1;
@@ -176,8 +176,8 @@ function listenerLinks() {
             }
             link.onclick = function (event) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
-                    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                        browser.tabs.create({
+                    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                        chrome.tabs.create({
                             url: link.href,
                             index: tabs[0].index + 1
                         });
@@ -202,7 +202,7 @@ function setLanguageUI() {
 function loadUI() {
     //opened_by = {-1: default, 0: domain, 1: page}
     setLanguageUI();
-    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         let activeTab = tabs[0];
         let activeTabId = activeTab.id;
         let activeTabUrl = activeTab.url;
@@ -344,7 +344,7 @@ function loadUI() {
     }
 
     document.getElementById("all-notes-button-grid").onclick = function () {
-        browser.tabs.create({url: "./all-notes/index.html"});
+        chrome.tabs.create({url: "./all-notes/index.html"});
         window.close();
     }
 
@@ -370,7 +370,7 @@ function loadUI() {
             origins: ["<all_urls>"]
         }
         try {
-            browser.permissions.request(permissionsToRequest).then(response => {
+            chrome.permissions.request(permissionsToRequest).then(response => {
                 if (response) {
                     //granted / obtained
                     openStickyNotes();
@@ -718,11 +718,11 @@ function checkNeverSaved(never_saved) {
 }
 
 function sendMessageUpdateToBackground() {
-    browser.runtime.sendMessage({"updated": true});
+    chrome.runtime.sendMessage({"updated": true});
 }
 
 function tabUpdated() {
-    browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
+    chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
         let tab_id = tabs[0].id;
         let tab_url = tabs[0].url;
 
@@ -1012,7 +1012,7 @@ function openStickyNotes() {
 
                     sync_local.set({"websites": websites_json}).then(result => {
                         //console.log("Opening... <5>")
-                        browser.runtime.sendMessage({
+                        chrome.runtime.sendMessage({
                             "open-sticky": {
                                 open: true, type: selected_tab
                             }
