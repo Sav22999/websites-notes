@@ -9,7 +9,7 @@ var selected_tab = 2; //{0: global | 1:domain | 2:page | 3:other}
 var opened_by = -1;
 
 //urls WITHOUT the protocol! e.g. addons.mozilla.org
-var urls_unsupported_by_sticky_notes = [];//TODO!MANUAL change this manually in case of new unsupported urls
+var urls_unsupported_by_sticky_notes = ["addons.mozilla.org"];//TODO!MANUAL change this manually in case of new unsupported urls
 var stickyNotesSupported = true;
 
 const all_strings = strings[languageToUse];
@@ -49,18 +49,18 @@ let actions = [];
 let currentAction = 0;
 let undoAction = false;
 
-const linkReview = ["https://github.com/Sav22999/websites-notes"]; //{firefox add-ons}
-const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
+const linkReview = ["https://addons.mozilla.org/firefox/addon/websites-notes/"]; //{firefox add-ons}
+const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://ko-fi.com/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
 
-let sync_local = chrome.storage.local;
+let sync_local = browser.storage.local;
 checkSyncLocal();
 
 function checkSyncLocal() {
-    sync_local = chrome.storage.local;
-    chrome.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = chrome.storage.sync; else if (result.storage === "sync") sync_local = chrome.storage.sync; else {
-            chrome.storage.local.set({"storage": "local"});
-            sync_local = chrome.storage.local;
+    sync_local = browser.storage.local;
+    browser.storage.local.get("storage").then(result => {
+        if (result.storage === "sync") sync_local = browser.storage.sync; else if (result.storage === "sync") sync_local = browser.storage.sync; else {
+            browser.storage.local.set({"storage": "local"});
+            sync_local = browser.storage.local;
         }
         checkTheme();
     });
@@ -80,7 +80,7 @@ function checkTimesOpened() {
             times = result["times-opened"];
             let interval_to_check = [1000, 5000, 20000, 50000, 100000, 1000000, 5000000];
             if (times > 0 && interval_to_check.includes(times + 1)) {
-                chrome.tabs.create({url: "https://www.saveriomorelli.com/projects/notefox/opened-times/"});
+                browser.tabs.create({url: "https://www.saveriomorelli.com/projects/notefox/opened-times/"});
                 //window.close();
             }
         }
@@ -90,7 +90,7 @@ function checkTimesOpened() {
 }
 
 function continueLoaded() {
-    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         var activeTab = tabs[0];
         var activeTabId = activeTab.id;
         var activeTabUrl = activeTab.url;
@@ -99,8 +99,8 @@ function continueLoaded() {
         loadUI();
     });
 
-    chrome.tabs.onActivated.addListener(tabUpdated);
-    chrome.tabs.onUpdated.addListener(tabUpdated);
+    browser.tabs.onActivated.addListener(tabUpdated);
+    browser.tabs.onUpdated.addListener(tabUpdated);
 
     checkOpenedBy();
     document.getElementById("notes").focus();
@@ -126,8 +126,7 @@ function checkOpenedBy() {
 }
 
 function listenerShortcuts() {
-    /*
-    chrome.commands.onCommand.addListener((command) => {
+    browser.commands.onCommand.addListener((command) => {
         if (command === "opened-by-domain") {
             //domain
             opened_by = 1;
@@ -143,7 +142,6 @@ function listenerShortcuts() {
         }
         sync_local.set({"opened-by-shortcut": "default"});
     });
-    */
 }
 
 function listenerLinks() {
@@ -178,8 +176,8 @@ function listenerLinks() {
             }
             link.onclick = function (event) {
                 if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
-                    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                        chrome.tabs.create({
+                    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                        browser.tabs.create({
                             url: link.href,
                             index: tabs[0].index + 1
                         });
@@ -204,7 +202,7 @@ function setLanguageUI() {
 function loadUI() {
     //opened_by = {-1: default, 0: domain, 1: page}
     setLanguageUI();
-    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         let activeTab = tabs[0];
         let activeTabId = activeTab.id;
         let activeTabUrl = activeTab.url;
@@ -222,9 +220,9 @@ function loadUI() {
                 else if (settings_json["open-default"] === "global") default_index = 0;
                 if (value["websites"] !== undefined) {
                     websites_json = value["websites"];
-                    let check_for_domain = checkAllSupportedProtocols(currentUrl[1], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["notes"] !== "";
-                    let check_for_page = checkAllSupportedProtocols(currentUrl[2], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["notes"] !== "";
-                    let check_for_global = checkAllSupportedProtocols(currentUrl[0], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["notes"] !== "";
+                    let check_for_domain = checkAllSupportedProtocols(currentUrl[1], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["notes"] !== "";
+                    let check_for_page = checkAllSupportedProtocols(currentUrl[2], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]["notes"] !== "";
+                    let check_for_global = checkAllSupportedProtocols(currentUrl[0], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]["notes"] !== "";
                     let subdomains = getAllOtherPossibleUrls(activeTabUrl);
                     let check_for_subdomains = false;
                     subdomains.forEach(subdomain => {
@@ -324,14 +322,7 @@ function loadUI() {
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
             strikethrough();
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
-            let selectedText = "";
-            if (window.getSelection) {
-                selectedText = window.getSelection().toString();
-            } else if (document.selection && document.selection.type !== 'Control') {
-                // For older versions of Internet Explorer
-                selectedText = document.selection.createRange().text;
-            }
-            insertLink(selectedText);
+            insertLink();
         }
     }
     notes.onkeyup = function (e) {
@@ -353,8 +344,8 @@ function loadUI() {
     }
 
     document.getElementById("all-notes-button-grid").onclick = function () {
-        chrome.tabs.create({url: "./all-notes/index.html"});
-        window.close();//
+        browser.tabs.create({url: "./all-notes/index.html"});
+        window.close();
     }
 
 
@@ -376,11 +367,10 @@ function loadUI() {
     document.getElementById("open-sticky-button").onclick = function (event) {
         //closed -> open it
         const permissionsToRequest = {
-            origins: ["<all_urls>"],
-            permissions: ["scripting"]
+            origins: ["<all_urls>"]
         }
         try {
-            chrome.permissions.request(permissionsToRequest).then(response => {
+            browser.permissions.request(permissionsToRequest).then(response => {
                 if (response) {
                     //granted / obtained
                     openStickyNotes();
@@ -629,6 +619,7 @@ function saveNotes() {
         }
 
         let url_to_use = getUrlWithSupportedProtocol(currentUrl[selected_tab], websites_json);
+        //console.log(`url_to_use: ${url_to_use}`);
 
         if (websites_json[url_to_use] === undefined) websites_json[url_to_use] = {};
         let notes = document.getElementById("notes").innerHTML;
@@ -727,11 +718,11 @@ function checkNeverSaved(never_saved) {
 }
 
 function sendMessageUpdateToBackground() {
-    chrome.runtime.sendMessage({"updated": true});
+    browser.runtime.sendMessage({"updated": true});
 }
 
 function tabUpdated() {
-    chrome.tabs.query({active: true, currentWindow: true}).then((tabs) => {
+    browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
         let tab_id = tabs[0].id;
         let tab_url = tabs[0].url;
 
@@ -782,10 +773,12 @@ function setUrl(url) {
 }
 
 function checkAllSupportedProtocols(url, json) {
-    //Supported: http, https, extension
+    //Supported: http, https, moz-extension
+    if (url === getGlobalUrl()) return true;
+    //console.log("--1--");
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["extension://" + getUrlWithoutProtocol(url)] !== undefined)
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined)
             return true;
         else
             return false;
@@ -795,12 +788,14 @@ function checkAllSupportedProtocols(url, json) {
 }
 
 function getUrlWithSupportedProtocol(url, json) {
-    //Supported: http, https, extension
+    //Supported: http, https, moz-extension
+    if (url === getGlobalUrl()) return url;
+    //console.log("--2--");
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
         if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
         else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
-        else if (json["extension://" + getUrlWithoutProtocol(url)] !== undefined) return "extension://" + getUrlWithoutProtocol(url);
+        else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url);
         else return "";
     } else {
         return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
@@ -808,6 +803,7 @@ function getUrlWithSupportedProtocol(url, json) {
 }
 
 function getUrlWithoutProtocol(url) {
+    if (url === getGlobalUrl()) return url;
     return url.split("://")[1];
 }
 
@@ -837,6 +833,8 @@ function getDomainUrl(url, with_protocol = true) {
 
 /**Returns the page url without the protocol (https, http, ftp, ...)!*/
 function getPageUrl(url, with_protocol = true) {
+    if (url === getGlobalUrl()) return url;
+
     let urlToReturn = "";
     let protocol = getTheProtocol(url);
     if (url.includes(":")) {
@@ -916,7 +914,7 @@ function isUrlSupported(url) {
     switch (getTheProtocol(url)) {
         case "http":
         case "https":
-        case "extension":
+        case "moz-extension":
             //the URL is supported
             valueToReturn = true;
             break;
@@ -965,7 +963,7 @@ function setTab(index, url) {
 
     let never_saved = true;
     let notes = "";
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"] !== undefined) {
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"] !== undefined) {
         //notes saved (also it's empty)
         notes = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"];
         listenerLinks();
@@ -978,19 +976,19 @@ function setTab(index, url) {
     }
 
     let last_update = all_strings["never-update"];
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"] !== undefined) last_update = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"];
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"] !== undefined) last_update = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"];
     document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
 
     let colour = "none";
     document.getElementById("tag-colour-section").removeAttribute("class");
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"] !== undefined) colour = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"];
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"] !== undefined) colour = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"];
     document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
     if (websites_json[currentUrl[selected_tab]] !== undefined) document.getElementById("tag-select-grid").value = websites_json[currentUrl[selected_tab]]["tag-colour"];
 
     let sticky = false;
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"] !== undefined) sticky = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"];
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"] !== undefined) sticky = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"];
     let minimized = false;
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"] !== undefined) minimized = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"];
+    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"] !== undefined) minimized = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"];
 
     document.getElementById("notes").focus();
 
@@ -1014,7 +1012,7 @@ function openStickyNotes() {
 
                     sync_local.set({"websites": websites_json}).then(result => {
                         //console.log("Opening... <5>")
-                        chrome.runtime.sendMessage({
+                        browser.runtime.sendMessage({
                             "open-sticky": {
                                 open: true, type: selected_tab
                             }
@@ -1053,9 +1051,63 @@ function strikethrough() {
     addAction();
 }
 
-function insertLink(value) {
+function hasAncestorAnchor(element) {
+    while (element) {
+        if (element.tagName && element.tagName.toLowerCase() === 'a') {
+            return true; // Found an anchor element
+        }
+        element = element.parentNode; // Move up to the parent node
+    }
+    return false; // Reached the top of the DOM tree without finding an anchor element
+}
+
+function getTheAncestorAnchor(element) {
+    while (element) {
+        if (element.tagName && element.tagName.toLowerCase() === 'a') {
+            return [element, element.parentNode]; // Found an anchor element
+        }
+        element = element.parentNode; // Move up to the parent node
+    }
+    return [false, false]; // Reached the top of the DOM tree without finding an anchor element
+}
+
+function insertLink() {
     //if (isValidURL(value)) {
-    document.execCommand('createLink', false, value);
+    let selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    } else if (document.selection && document.selection.type !== 'Control') {
+        // For older versions of Internet Explorer
+        selectedText = document.selection.createRange().text;
+    }
+
+    // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
+    let isLink = hasAncestorAnchor(window.getSelection().anchorNode);
+
+    // If it's already a link, remove the link; otherwise, add the link
+    if (isLink) {
+        // Remove the link
+        let elements = getTheAncestorAnchor(window.getSelection().anchorNode);
+        let anchorElement = elements[0];
+        let parentAnchor = elements[1];
+
+        if (anchorElement && parentAnchor) {
+            // Move children of the anchor element to its parent
+            while (anchorElement.firstChild) {
+                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
+            }
+            // Remove the anchor element itself
+            parentAnchor.removeChild(anchorElement);
+        }
+        saveNotes();
+    } else {
+        /*let url = prompt("Enter the URL:");
+
+        if (url) {
+            document.execCommand('createLink', false, url);
+        }*/
+        document.execCommand('createLink', false, selectedText);
+    }
     addAction();
     //}
 }
@@ -1188,6 +1240,14 @@ function loadFormatButtons(navigation = true, format = true) {
                 }
             },
             {
+                action: "link",
+                icon: `${url}link.svg`,
+                title: all_strings["label-title-link"],
+                function: function () {
+                    insertLink();
+                }
+            },
+            {
                 action: "spellcheck",
                 icon: `${url}spellcheck.svg`,
                 title: all_strings["label-title-spellcheck"],
@@ -1254,6 +1314,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let strikethrough_svg = window.btoa(getIconSvgEncoded("strikethrough", on_primary));
         let spellcheck_svg = window.btoa(getIconSvgEncoded("spellcheck", on_primary));
         let spellcheck_sel_svg = window.btoa(getIconSvgEncoded("spellcheck_sel", on_primary));
+        let link_svg = window.btoa(getIconSvgEncoded("link", on_primary));
         let undo_svg = window.btoa(getIconSvgEncoded("undo", on_primary));
         let redo_svg = window.btoa(getIconSvgEncoded("redo", on_primary));
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
@@ -1320,6 +1381,11 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 .text-spellcheck-sel {
                     background-image: url('data:image/svg+xml;base64,${spellcheck_sel_svg}') !important;     
                     background-size: 60% auto;          
+                }
+                
+                #text-link {
+                    background-image: url('data:image/svg+xml;base64,${link_svg}');
+                    background-size: 60% auto;
                 }
                 
                 #text-undo {
