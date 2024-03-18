@@ -4,6 +4,11 @@
 }
 
 @font-face {
+    font-family: 'Shantell Sans';
+    src: url('../font/shantell-sans.ttf');
+}
+
+@font-face {
     font-family: 'Source Code Pro';
     src: url('../font/source-code-pro.ttf');
 }
@@ -833,6 +838,10 @@ b {
     text-decoration: line-through;
     text-decoration-thickness: 2px;
     text-decoration-style: solid;
+}
+
+#notes, #notes *, .textarea-all-notes, .textarea-all-notes * {
+    font-family: 'Shantell Sans', sans-serif;
 }
 
 .textarea-all-notes, .textarea-all-notes * {
