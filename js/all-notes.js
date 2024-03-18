@@ -1002,7 +1002,7 @@ function isUrlSupported(url) {
     switch (getTheProtocol(url)) {
         case "http":
         case "https":
-        case "extension":
+        case "moz-extension":
             //the URL is supported
             valueToReturn = true;
             break;
