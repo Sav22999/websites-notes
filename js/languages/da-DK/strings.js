@@ -99,6 +99,8 @@ strings[lang] = {
     'open-links-only-with-ctrl-detailed': 'Når aktiveret vil du kunne åbne links, men <b>kun</b> mens du trykker på og holder <b>Ctrl/Kommand/Control</b> tastaturknappen. Hvis deaktiveret, vil du slet ikke kunne åbne links.',
     'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
     'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
+    'font-family': 'Font family: choose the font family to use for the notes text',
+    'font-family-detailed': '<b>Shantell Sans</b> is the default font family, and it\'s a handwriting font (marker-style). <b>Open Sans</b> is a sans serif font',
     'search-textbox': 'Søg…',
     'sort-by-button': 'Sorter efter…',
     'sort-by-az-button': 'Navn: A-Z',

@@ -94,11 +94,13 @@ strings[lang] = {
     'check-green-icon-page': 'Ícone adicional verde quando há notas de página salvas',
     'check-green-icon-page-detailed': 'Quando ativado, o ícone de adição na barra de ferramentas será <b>verde</b> se você salvou previamente <b>página</b> notas para aquela página.',
     'check-green-icon-subdomain': 'Ícone addon verde quando há notas de subdomínio salvas',
-    'check-green-icon-subdomain-detailed': 'When enabled the addon icon in the toolbar will be <b>green</b> if you previously saved <b>Subdomain</b> notes for that subdomain.',
+    'check-green-icon-subdomain-detailed': 'Quando ativado, o ícone da extensão na barra de ferramentas será <b>verde</b> se você salvou previamente <b>Subdomínio</b> notas para aquele subdomínio.',
     'open-links-only-with-ctrl': 'Abrir links nas notas - apenas enquanto pressionar e pressionar o botão Ctrl/Comando/Controle do teclado',
     'open-links-only-with-ctrl-detailed': 'Quando ativado, você será capaz de abrir links mas <b>apenas</b> enquanto você estiver pressionando e segurando o botão do teclado <b>Ctrl/Command/Control</b> . Se desativado, você não será capaz de abrir links.',
-    'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',
-    'check-with-all-supported-protocols-detailed': 'When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.',
+    'check-with-all-supported-protocols': 'Verificar a existência de notas com todos os protocolos suportados',
+    'check-with-all-supported-protocols-detailed': 'Quando ativado, haverá notas verificadas para todos os protocolos suportados. Por exemplo, se você está em uma página com o protocolo <b>https</b>, a extensão irá verificar notas para os protocolos <b>http</b> e <b>https</b>.',
+    'font-family': 'Font family: choose the font family to use for the notes text',
+    'font-family-detailed': '<b>Shantell Sans</b> is the default font family, and it\'s a handwriting font (marker-style). <b>Open Sans</b> is a sans serif font',
     'search-textbox': 'Procurar…',
     'sort-by-button': 'Ordenar por…',
     'sort-by-az-button': 'Nome: A-Z',
@@ -147,5 +149,5 @@ strings[lang] = {
     'label-title-redo': 'Refazer',
     'label-title-spellcheck': 'Verificação ortográfica',
     'label-results-for': 'Resultados para:  {{keywords}}',
-    'tooltip-info-search': 'You can search multi-keyword. Each keyword (or sentence) have to be separated with the \';\' symbol. The results shown will be the join of all results corresponding to keywords.\nExample: \'hello world;goodbye\'. Results will be all notes with \'hello world\' OR \'goodbye\'.'
+    'tooltip-info-search': 'Você pode procurar várias palavras-chave. Cada palavra-chave (ou frase) deve ser separado pelo símbolo \';\'. Os resultados mostrados serão a junção de todos os resultados correspondentes a palavras-chave\nExemplo: \'olá mundo;adeus\'. Resultados serão todas notas com \'olá mundo\' OU \'adeus\'.'
 };
