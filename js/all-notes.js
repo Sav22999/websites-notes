@@ -382,19 +382,14 @@ function listenerLinks(element) {
 
 function loadDataFromBrowser(generate_section = true) {
     try {
-        sync_local.get("websites", function (value) {
+        sync_local.get(["websites", "settings"], function (value) {
             websites_json = {};
             if (value["websites"] !== undefined) {
                 websites_json = value["websites"];
                 websites_json_to_show = websites_json;
             }
-            if (generate_section) {
-                websites_json_by_domain = {};
-                loadAllWebsites(true, sort_by_selected);
-            }
             //console.log(JSON.stringify(websites_json));
-        });
-        sync_local.get("settings", function (value) {
+
             settings_json = {};
             if (value["settings"] !== undefined) settings_json = value["settings"];
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
@@ -413,7 +408,13 @@ function loadDataFromBrowser(generate_section = true) {
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
+            if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+
             //console.log(JSON.stringify(settings_json));
+            if (generate_section) {
+                websites_json_by_domain = {};
+                loadAllWebsites(true, sort_by_selected);
+            }
         });
         applyFilter();
     } catch (e) {
@@ -1098,6 +1099,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         inputCopyNotes.onclick = function () {
             copyNotes(textNotes, notes);
             inputCopyNotes.value = all_strings["copied-button"];
+
             textNotes.innerHTML = notes;
             setTimeout(function () {
                 inputCopyNotes.value = all_strings["copy-notes-button"];
@@ -1189,6 +1191,11 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         } else {
             textNotes.style.whiteSpace = "pre-wrap";
         }
+
+        if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+
+        textNotes.style.fontFamily = `'${settings_json["font-family"]}'`;
+
         textNotesContainer.appendChild(textNotes);
 
         pageNotes.append(textNotesContainer);
