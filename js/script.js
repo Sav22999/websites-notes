@@ -202,6 +202,8 @@ function setLanguageUI() {
 function loadUI() {
     //opened_by = {-1: default, 0: domain, 1: page}
     setLanguageUI();
+    let notes = document.getElementById("notes");
+    notes.style.fontFamily = `'${settings_json["font-family"]}'`;
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         let activeTab = tabs[0];
         let activeTabId = activeTab.id;
@@ -287,7 +289,7 @@ function loadUI() {
         hideTabSubDomains();
     }
 
-    let notes = document.getElementById("notes");
+
     notes.oninput = function () {
         saveNotes();
     }
@@ -516,6 +518,7 @@ function loadSettings() {
         if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
         if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
         if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = "no";
+        if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
 
         if (settings_json["advanced-managing"] === "yes") advanced_managing = true;
         else advanced_managing = false;

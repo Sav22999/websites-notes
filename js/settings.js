@@ -105,6 +105,10 @@ function loaded() {
         settings_json["check-with-all-supported-protocols"] = document.getElementById("check-with-all-supported-protocols-select").value;
     };
 
+    document.getElementById("font-family-select").onchange = function () {
+        settings_json["font-family"] = document.getElementById("font-family-select").value;
+    };
+
     loadSettings();
 
     let titleAllNotes = document.getElementById("title-settings-dedication-section");
@@ -150,6 +154,8 @@ function setLanguageUI() {
     document.getElementById("open-links-only-with-ctrl-detailed-text").innerHTML = all_strings["open-links-only-with-ctrl-detailed"];
     document.getElementById("check-with-all-supported-protocols-text").innerHTML = all_strings["check-with-all-supported-protocols"];
     document.getElementById("check-with-all-supported-protocols-detailed-text").innerHTML = all_strings["check-with-all-supported-protocols-detailed"];
+    document.getElementById("font-family-text").innerHTML = all_strings["font-family"];
+    document.getElementById("font-family-detailed-text").innerHTML = all_strings["font-family-detailed"];
 
     document.getElementById("theme-text").innerText = all_strings["theme-text"];
     document.getElementById("theme-select-light").innerText = all_strings["theme-choose-light-select"];
@@ -215,6 +221,7 @@ function loadSettings() {
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = "no";
+            if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
 
             let sync_or_local_settings = result["storage"];
             if (sync_or_local_settings === undefined) sync_or_local_settings = "local";
@@ -233,6 +240,7 @@ function loadSettings() {
             document.getElementById("check-green-icon-subdomain-select").value = settings_json["check-green-icon-subdomain"];
             document.getElementById("open-links-only-with-ctrl-select").value = settings_json["open-links-only-with-ctrl"];
             document.getElementById("check-with-all-supported-protocols-select").value = settings_json["check-with-all-supported-protocols"];
+            document.getElementById("font-family-select").value = settings_json["font-family"];
             if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-select").value = "no";
             else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-select").value = "yes";
 
