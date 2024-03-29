@@ -28,6 +28,7 @@
     --on-textbox-color: #ff6200;
     --tertiary: #ffffffff;
     --tertiary-transparent: #ffffff88;
+    --tertiary-transparent-2: #ffffff88;
 }
 
 
@@ -491,6 +492,20 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     z-index: 4;
 }
 
+#search-filter-sortby {
+    top: 43.5px;
+    z-index: 9;
+}
+
+#filters {
+    position: sticky;
+    top: 89px;
+}
+
+#actions, #search-filter-sortby, #filters {
+    background-color: var(--tertiary-transparent-2);
+}
+
 .sub-section {
     background-color: #d0d0d022;
     padding: 10px;
@@ -841,7 +856,7 @@ b {
 }
 
 #notes, #notes *, .textarea-all-notes, .textarea-all-notes * {
-    font-family: 'Shantell Sans', sans-serif;
+    font-family: inherit;
 }
 
 .textarea-all-notes, .textarea-all-notes * {
