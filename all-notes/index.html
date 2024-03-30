@@ -12,30 +12,20 @@ Created by Saverio Morelli - saveriomorelli.com
 
 <body>
 <aside>
-    <a href="/all-notes/index.html">
-        <button id="all-notes-aside" class="sel">All notes</button>
-    </a>
-    <a href="/settings/index.html">
-        <button id="settings-aside">Settings</button>
-    </a>
-    <a href="https://notefox.eu/help/index.html">
-        <button id="help-aside">Help</button>
-    </a>
-    <a href="https://www.notefox.eu/donate/">
-        <button id="donate-aside">Buy me a coffee</button>
-    </a>
-    <a href="https://addons.mozilla.org/en-GB/firefox/addon/websites-notes/">
-        <button id="review-aside">Review</button>
-    </a>
-    <a href="https://notefox.eu/">
-        <button id="website-aside">Website</button>
-    </a>
+    <button id="all-notes-aside" class="aside-button sel"></button>
+    <button id="settings-aside" class="aside-button"></button>
+    <button id="help-aside" class="aside-button"></button>
+    <button id="donate-aside" class="aside-button"></button>
+    <button id="translate-aside" class="aside-button"></button>
+    <button id="website-aside" class="aside-button"></button>
+
+    <div id="version-aside"></div>
 </aside>
 <div id="all-notes-dedication-section">
-    <h1 id="title-all-notes-dedication-section">All notes</h1>
-    <div class="section text-align-right sticky-section" id="actions">
-        <input type="button" value="Buy me a coffee!" id="buy-me-a-coffee-button" class="button donate-button"/>
-        <input type="button" value="Settings" id="settings-all-notes-button" class="button settings-button"/>
+    <h1 id="title-all-notes-dedication-section" class="hidden">All notes</h1>
+    <div class="section text-align-right" id="actions">
+        <input type="button" value="Buy me a coffee!" id="buy-me-a-coffee-button" class="button donate-button hidden"/>
+        <input type="button" value="Settings" id="settings-all-notes-button" class="button settings-button hidden"/>
         <input type="button" value="Export all notes…" id="export-all-notes-button" class="button export-button"/>
         <input type="button" value="Import notes…" id="import-all-notes-button" class="button import-button"/>
         <input type="button" value="Refresh data" id="refresh-all-notes-button" class="button refresh-button"/>

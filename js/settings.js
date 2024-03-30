@@ -1,5 +1,6 @@
 let settings_json = {};
 
+
 const all_strings = strings[languageToUse];
 
 let sync_local;
@@ -26,6 +27,9 @@ function loaded() {
     checkOperatingSystem();
     setLanguageUI();
     checkTheme();
+
+    browser.tabs.onActivated.addListener(checkTheme);
+    browser.tabs.onUpdated.addListener(checkTheme);
 
     document.getElementById("save-settings-button").onclick = function () {
         saveSettings();
@@ -113,6 +117,8 @@ function loaded() {
 
     let titleAllNotes = document.getElementById("title-settings-dedication-section");
     titleAllNotes.textContent = all_strings["settings-title"];
+
+    loadAsideBar();
 }
 
 function setLanguageUI() {
@@ -250,7 +256,6 @@ function loadSettings() {
             let keyboardShortcutLetterNumberDomain = document.getElementById("key-shortcut-domain-selected");
             let keyboardShortcutCtrlAltShiftPage = document.getElementById("key-shortcut-ctrl-alt-shift-page-selected");
             let keyboardShortcutLetterNumberPage = document.getElementById("key-shortcut-page-selected");
-
 
             keyboardShortcutCtrlAltShiftDefault.value = "Ctrl+Alt";
             keyboardShortcutLetterNumberDefault.value = "O";
@@ -447,6 +452,43 @@ function saveSettings() {
     });
 }
 
+function loadAsideBar() {
+    let all_notes = document.getElementById("all-notes-aside");
+    let settings = document.getElementById("settings-aside");
+    let help = document.getElementById("help-aside");
+    let website = document.getElementById("website-aside");
+    let donate = document.getElementById("donate-aside");
+    let translate = document.getElementById("translate-aside");
+    let version = document.getElementById("version-aside");
+
+    all_notes.innerHTML = all_strings["all-notes-aside"];
+    all_notes.onclick = function () {
+        window.open(links_aside_bar["all-notes"], "_self");
+    }
+    settings.innerHTML = all_strings["settings-aside"];
+    settings.onclick = function () {
+        window.open(links_aside_bar["settings"], "_self");
+    }
+    help.innerHTML = all_strings["help-aside"];
+    help.onclick = function () {
+        window.open(links_aside_bar["help"], "_self");
+    }
+    website.innerHTML = all_strings["website-aside"];
+    website.onclick = function () {
+        window.open(links_aside_bar["website"], "_self")
+    }
+    donate.innerHTML = all_strings["donate-aside"];
+    donate.onclick = function () {
+        window.open(links_aside_bar["donate"], "_self");
+    }
+    translate.innerHTML = all_strings["translate-aside"];
+    translate.onclick = function () {
+        window.open(links_aside_bar["translate"], "_self");
+    }
+
+    version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", browser.runtime.getManifest().version);
+}
+
 function checkOperatingSystem() {
     let info = browser.runtime.getPlatformInfo();
     info.then(getOperatingSystem);
@@ -500,6 +542,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var review_aside_svg = window.btoa(getIconSvgEncoded("review", primary));
         var website_aside_svg = window.btoa(getIconSvgEncoded("website", primary));
         var donate_aside_svg = window.btoa(getIconSvgEncoded("donate", primary));
+        var translate_aside_svg = window.btoa(getIconSvgEncoded("translate", primary));
+        let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", primary));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
@@ -568,6 +612,12 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 #donate-aside {
                     background-image: url('data:image/svg+xml;base64,${donate_aside_svg}');
+                }
+                #translate-aside {
+                    background-image: url('data:image/svg+xml;base64,${translate_aside_svg}');
+                }
+                .select-box {
+                    background-image: url('data:image/svg+xml;base64,${arrow_select_svg}');
                 }
             </style>`;
     }

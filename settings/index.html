@@ -12,35 +12,25 @@ Created by Saverio Morelli - saveriomorelli.com
 
 <body>
 <aside>
-    <a href="/all-notes/index.html">
-        <button id="all-notes-aside">All notes</button>
-    </a>
-    <a href="/settings/index.html">
-        <button id="settings-aside" class="sel">Settings</button>
-    </a>
-    <a href="https://notefox.eu/help/index.html">
-        <button id="help-aside">Help</button>
-    </a>
-    <a href="https://www.notefox.eu/donate/">
-        <button id="donate-aside">Buy me a coffee</button>
-    </a>
-    <a href="https://addons.mozilla.org/en-GB/firefox/addon/websites-notes/">
-        <button id="review-aside">Review</button>
-    </a>
-    <a href="https://notefox.eu/">
-        <button id="website-aside">Website</button>
-    </a>
+    <button id="all-notes-aside" class="aside-button"></button>
+    <button id="settings-aside" class="aside-button sel"></button>
+    <button id="help-aside" class="aside-button"></button>
+    <button id="donate-aside" class="aside-button"></button>
+    <button id="translate-aside" class="aside-button"></button>
+    <button id="website-aside" class="aside-button"></button>
+
+    <div id="version-aside"></div>
 </aside>
 <div id="settings-dedication-section">
-    <h1 id="title-settings-dedication-section">Settings</h1>
+    <h1 id="title-settings-dedication-section" class="hidden">Settings</h1>
     <div class="section text-align-right sticky-section" id="actions">
-        <input type="button" value="Support on Telegram" id="support-telegram-button" class="button telegram-button"/>
-        <input type="button" value="Support on GitHub" id="support-github-button" class="button github-button"/>
-        <input type="button" value="Support via email" id="support-email-button" class="button email-button"/>
+        <input type="button" value="Support on Telegram" id="support-telegram-button" class="button telegram-button hidden"/>
+        <input type="button" value="Support on GitHub" id="support-github-button" class="button github-button hidden"/>
+        <input type="button" value="Support via email" id="support-email-button" class="button email-button hidden"/>
         <input type="button" value="Rate the add-on" id="review-on-firefox-addons-button"
                class="button firefox-button"/>
 
-        <input type="button" value="Translate on Crowdin" id="translate-addon" class="button translate-button"/>
+        <input type="button" value="Translate on Crowdin" id="translate-addon" class="button translate-button hidden"/>
         <input type="button" value="Save settings" id="save-settings-button" class="button save-button"/>
     </div>
 

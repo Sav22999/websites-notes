@@ -16,8 +16,20 @@ let links = {
     "support_email": "mailto:saverio.morelli@protonmail.com",
     "support_github": "https://github.com/Sav22999/websites-notes/issues",
     "translate": "https://crowdin.com/project/notefox",
-    "review": "https://addons.mozilla.org/firefox/addon/websites-notes/"
+    "review": "https://addons.mozilla.org/firefox/addon/websites-notes/",
+    "help-search": "https://www.notefox.eu/help/search/",
 };
+
+const links_aside_bar = {
+    "all-notes": "../all-notes/index.html",
+    "settings": "../settings/index.html",
+    "help": "https://www.notefox.eu/help/",
+    "review": "https://www.notefox.eu/install/",
+    "website": "https://www.notefox.eu",
+    "donate": "https://www.notefox.eu/donate/",
+    "translate": "https://crowdin.com/project/notefox"
+};
+
 
 /**
  * Recursive function to get the sanitized html code from an unsafe one

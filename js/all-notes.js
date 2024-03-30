@@ -4,7 +4,10 @@ let websites_json_to_show = {};
 let settings_json = {};
 let notefox_json = {};
 
+
 const all_strings = strings[languageToUse];
+
+var importing = false;
 
 const webBrowserUsed = "firefox";//TODO:change manually
 //Do not add "None" because it's treated in a different way!
@@ -63,6 +66,11 @@ function loaded() {
     checkSyncLocal();
     setLanguageUI();
     checkTheme();
+
+    browser.tabs.onActivated.addListener(checkTheme);
+    browser.tabs.onUpdated.addListener(checkTheme);
+
+    loadAsideBar();
 
     /*
     browser.storage.local.get([
@@ -187,9 +195,12 @@ function loaded() {
             if (document.getElementById("filters").classList.contains("hidden")) {
                 //show because it's hidden
                 document.getElementById("filters").classList.remove("hidden");
+                document.getElementById("search-filter-sortby").classList.add("filters-visibile");
             } else {
                 //hide because it's visible
                 document.getElementById("filters").classList.add("hidden");
+                if (document.getElementById("search-filter-sortby").classList.contains("filters-visibile"))
+                    document.getElementById("search-filter-sortby").classList.remove("filters-visibile");
             }
         }
 
@@ -223,9 +234,9 @@ function loaded() {
     versionNumber.textContent = browser.runtime.getManifest().version;
     versionNumber.id = "version";
     notefox_json = {
-        "version": chrome.runtime.getManifest().version,
-        "author": chrome.runtime.getManifest().author,
-        "manifest_version": chrome.runtime.getManifest().manifest_version,
+        "version": browser.runtime.getManifest().version,
+        "author": browser.runtime.getManifest().author,
+        "manifest_version": browser.runtime.getManifest().manifest_version,
         "os": "?",
         "browser": webBrowserUsed,
     };
@@ -253,7 +264,9 @@ function setLanguageUI() {
         document.getElementById("sort-by-date-90-select").textContent = all_strings["sort-by-edit-last-button"];
         document.title = all_strings["all-notes-title-page"];
 
-        document.getElementById("info-tooltip-search").title = all_strings["tooltip-info-search"];
+        document.getElementById("info-tooltip-search").onclick = function () {
+            window.open(links["help-search"], "_blank");
+        }
 
         document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
         document.getElementById("text-export").innerHTML = all_strings["export-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
@@ -306,8 +319,57 @@ function setLanguageUI() {
     }
 }
 
+function loadAsideBar() {
+    let all_notes = document.getElementById("all-notes-aside");
+    let settings = document.getElementById("settings-aside");
+    let help = document.getElementById("help-aside");
+    let website = document.getElementById("website-aside");
+    let donate = document.getElementById("donate-aside");
+    let translate = document.getElementById("translate-aside");
+    let version = document.getElementById("version-aside");
+
+    all_notes.innerHTML = all_strings["all-notes-aside"];
+    all_notes.onclick = function () {
+        if (!importing) {
+            window.open(links_aside_bar["all-notes"], "_self");
+        }
+    }
+    settings.innerHTML = all_strings["settings-aside"];
+    settings.onclick = function () {
+        if (!importing) {
+            window.open(links_aside_bar["settings"], "_self");
+        }
+    }
+    help.innerHTML = all_strings["help-aside"];
+    help.onclick = function () {
+        if (!importing) {
+            window.open(links_aside_bar["help"], "_self");
+        }
+    }
+    website.innerHTML = all_strings["website-aside"];
+    website.onclick = function () {
+        if (!importing) {
+            window.open(links_aside_bar["website"], "_self")
+        }
+    }
+    donate.innerHTML = all_strings["donate-aside"];
+    donate.onclick = function () {
+        if (!importing) {
+            window.open(links_aside_bar["donate"], "_self");
+        }
+    }
+    translate.innerHTML = all_strings["translate-aside"];
+    translate.onclick = function () {
+        if (!importing) {
+            window.open(links_aside_bar["translate"], "_self");
+        }
+    }
+
+    version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", browser.runtime.getManifest().version);
+}
+
 function filterByColor(color, tagButton) {
-    console.log(color)
+    //console.log(color)
     if (filtersColors.indexOf(color) !== -1) {
         //present: remove red
         filtersColors.splice(filtersColors.indexOf(color), 1);
@@ -484,6 +546,8 @@ function onError(e) {
 }
 
 function importAllNotes(from_file = false) {
+    document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
+
     browser.storage.local.get([
         "storage",
         "settings",
@@ -600,6 +664,10 @@ function importAllNotes(from_file = false) {
                             else storageTemp = "local";
 
                             if (continue_ok) {
+                                importing = true;
+                                document.getElementById("cancel-import-all-notes-button").style.display = "none";
+                                document.getElementById("import-from-file-button").style.display = "none";
+
                                 browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
                                     checkSyncLocal();
 
@@ -610,9 +678,7 @@ function importAllNotes(from_file = false) {
                                         document.getElementById("import-now-all-notes-button").disabled = false;
                                         document.getElementById("cancel-import-all-notes-button").disabled = false;
                                         document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
-                                        setTimeout(function () {
-                                            document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
-                                        }, 500);
+
                                         sync_local.set({
                                             "websites": websites_json,
                                             "settings": settings_json,
@@ -645,6 +711,13 @@ function importAllNotes(from_file = false) {
                                             })
                                             ;
                                             loadDataFromBrowser(true);
+
+                                            importing = false;
+                                            document.getElementById("cancel-import-all-notes-button").style.display = "inline-block";
+                                            document.getElementById("import-from-file-button").style.display = "inline-block";
+                                            document.getElementById("import-now-all-notes-button").disabled = false;
+                                            document.getElementById("cancel-import-all-notes-button").disabled = false;
+                                            document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
 
                                             document.getElementById("import-section").style.display = "none";
                                             hideBackgroundOpacity()
@@ -1119,7 +1192,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             }
             tagColour.textContent = colourList[colour];
             //tagColour.classList.add(colour + "-background-tag");
-            tagsColour.classList.add("button", "float-right", "very-small-button", "margin-right-5-px", "tag-button");
+            tagsColour.classList.add("select-tag-all-notes", "button", "float-right", "very-small-button", "margin-right-5-px", "tag-button");
             tagsColour.append(tagColour);
         }
         tagsColour.onchange = function () {
@@ -1449,6 +1522,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var review_aside_svg = window.btoa(getIconSvgEncoded("review", primary));
         var website_aside_svg = window.btoa(getIconSvgEncoded("website", primary));
         var donate_aside_svg = window.btoa(getIconSvgEncoded("donate", primary));
+        var translate_aside_svg = window.btoa(getIconSvgEncoded("translate", primary));
         var import_svg = window.btoa(getIconSvgEncoded("import", on_primary));
         var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
         var download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
@@ -1460,7 +1534,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         var refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
         var sort_by_svg = window.btoa(getIconSvgEncoded("sort-by", on_primary));
-        var info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", primary));
+        var info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", on_primary));
+        let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
@@ -1521,6 +1596,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 #donate-aside {
                     background-image: url('data:image/svg+xml;base64,${donate_aside_svg}');
                 }
+                #translate-aside {
+                    background-image: url('data:image/svg+xml;base64,${translate_aside_svg}');
+                }
                 .import-button {
                     background-image: url('data:image/svg+xml;base64,${import_svg}');
                 }
@@ -1556,6 +1634,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 #info-tooltip-search {
                     background-image: url('data:image/svg+xml;base64,${info_tooltip_svg}');
+                }
+                .select-tag-all-notes {
+                    background-image: url('data:image/svg+xml;base64,${tag_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
                 }
             </style>`;
     }

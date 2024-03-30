@@ -725,18 +725,7 @@ function sendMessageUpdateToBackground() {
 }
 
 function tabUpdated() {
-    browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
-        let tab_id = tabs[0].id;
-        let tab_url = tabs[0].url;
-
-        setUrl(tab_url);
-        actions = [];
-        currentAction = 0;
-        undoAction = false;
-    }).then((tabs) => {
-        window.close();
-        //loadUI();
-    });
+    loaded();
 }
 
 function setUrl(url) {
@@ -753,6 +742,8 @@ function setUrl(url) {
     if (advanced_managing && otherPossibleUrls.length > 0) {
         document.getElementById("domain-button").style.width = "30%";
         document.getElementById("tab-other-button").style.width = "10%";
+        document.getElementById("page-button").style.borderRadius = "0px";
+        document.getElementById("tab-other-button").style.display = "inline-block";
     } else {
         document.getElementById("domain-button").style.width = "40%";
         document.getElementById("tab-other-button").style.display = "none";

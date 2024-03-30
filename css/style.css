@@ -95,11 +95,10 @@ body {
 }
 
 .select-box {
-    padding: 5px;
     color: var(--primary-color);
     box-sizing: border-box;
     font-size: 14px;
-    border: 2px solid var(--primary-color);
+    border: 0px solid var(--primary-color);
     border-radius: 5px;
     width: auto;
     font-family: 'Open Sans', sans-serif;
@@ -108,8 +107,16 @@ body {
     margin-left: 10px;
     margin-right: 10px;
 
-    background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
     opacity: 0.8;
+    background-repeat: no-repeat;
+    background-position: center right 5px;
+    background-size: auto 60%;
+    background-image: url("../img/arrow-select.svg");
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 0px;
+    text-overflow: '';
+    padding: 5px 30px 5px 5px;
 }
 
 .select-box:hover {
@@ -396,13 +403,13 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     }
 }
 
-@media screen and (max-width: 1500px) {
+@media screen and (max-width: 1700px) {
     #all-notes-dedication-section, #settings-dedication-section {
         width: 90%;
     }
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1200px) {
     #all-notes-dedication-section, #settings-dedication-section {
         width: 100%;
     }
@@ -422,6 +429,19 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     display: grid;
     grid-template-areas: 'tag all-notes all-notes all-notes all-notes';
     grid-column-gap: 5px;
+}
+
+.select-tag-all-notes {
+    background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
+    background-repeat: no-repeat;
+    background-position: center left 5px, center right 5px;
+    background-size: auto 60%, auto 60%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 0px;
+    text-overflow: '';
+    padding: 0px 25px !important;
+    font-size: 0px !important; /*This permits to "hide" the textContext from the select but NOT from the options*/
 }
 
 #tag-select-grid {
@@ -493,13 +513,19 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 }
 
 #search-filter-sortby {
-    top: 43.5px;
+    top: 3.5px;
     z-index: 9;
 }
 
 #filters {
     position: sticky;
-    top: 89px;
+    top: 49px;
+    margin-top: -5px;
+    border-radius: 0px 0px 5px 5px;
+}
+
+.filters-visibile {
+    border-radius: 5px 5px 0px 0px;
 }
 
 #actions, #search-filter-sortby, #filters {
@@ -944,62 +970,107 @@ aside {
     top: 0px;
     left: 0px;
     bottom: 0px;
-    width: 80px;
     height: 100%;
     border-radius: 0px;
     background-color: var(--tertiary);
     z-index: 2;
     overflow: hidden;
     padding: 0px;
+    width: 10%;
+    color: var(--primary-color);
 }
 
-aside button {
+aside > .aside-button {
     padding: 10px;
-    padding-top: 50px;
-    font-size: 14px;
     box-sizing: border-box;
     width: 100%;
     height: auto;
     border: 0px solid transparent;
     border-radius: 0px;
     background-color: var(--tertiary);
-    color: var(--primary-color);
+    color: inherit;
+    background-repeat: no-repeat;
+    text-align: left;
+    padding-left: 35px;
+    background-position: left 10px center;
+    background-size: auto 40% !important;
+    font-size: 1em;
 }
 
-aside button:hover {
+aside > .aside-button:hover {
     background-color: var(--tertiary-transparent);
-    color: var(--primary-color);
+    color: inherit;
 }
 
-aside button.sel {
+aside > button.sel, aside > button.sel:hover {
     background-color: var(--primary-color);
     color: var(--on-primary-color);
+}
+
+@media screen and (max-width: 2000px) {
 
 }
 
-#settings-aside, #all-notes-aside, #help-aside, #donate-aside, #review-aside, #website-aside {
-    background-repeat: no-repeat;
-    background-position: center top 10px;
-    background-size: auto 40%;
+@media screen and (max-width: 1700px) {
+    aside {
+        width: 5%;
+    }
+
+    aside > .aside-button {
+        text-align: center;
+        padding: 10px;
+        padding-top: 50px;
+        background-position: center top 10px;
+        background-size: 40% auto !important;
+        font-size: 0.6em;
+    }
 }
-#settings-aside{
+
+@media screen and (max-width: 1200px) {
+    aside {
+        display: none;
+    }
+}
+
+#settings-aside {
     background-image: url("../img/settings.svg");
 }
+
 #all-notes-aside {
     background-image: url("../img/page-in-all-notes.svg");
 }
+
 #help-aside {
     background-image: url("../img/help.svg");
 }
+
 #donate-aside {
     background-size: auto 35%;
     background-image: url("../img/donate.svg");
 }
+
 #review-aside {
     background-image: url("../img/review.svg");
 }
+
 #website-aside {
     background-image: url("../img/website.svg");
+}
+
+#translate-aside {
+    background-image: url("../img/globe.svg");
+}
+
+#version-aside {
+    float: left;
+    width: 100%;
+    text-align: center;
+    font-size: 0.7em;
+    color: inherit;
+    padding: 10px 2px;
+    position: absolute;
+    top: auto;
+    bottom: 0px;
 }
 
 /*generic*/

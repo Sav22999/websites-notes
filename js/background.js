@@ -18,7 +18,7 @@ var opacity = {value: 0.8};
 let opening_sticky = false;
 
 let page_domain_global = {"page": "Page", "domain": "Domain", "global": "Global", "subdomain": "•••"};
-let linkFirstLaunch = "https://saveriomorelli.com/projects/notefox/first-run"
+let linkFirstLaunch = "https://notefox.eu/help/first-run"
 
 let sync_local = browser.storage.local;
 checkSyncLocal();
