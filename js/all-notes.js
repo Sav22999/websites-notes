@@ -1431,7 +1431,6 @@ function checkTwoVersions(version1, version2) {
     return valueToReturn;
 }
 
-
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
     if (background !== undefined && backgroundSection !== undefined && primary !== undefined && secondary !== undefined && on_primary !== undefined && on_secondary !== undefined) {
         document.body.style.backgroundColor = background;
@@ -1444,6 +1443,12 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var open_external_svg = window.btoa(getIconSvgEncoded("open-external", primary));
         var donate_svg = window.btoa(getIconSvgEncoded("donate", on_primary));
         var settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
+        var all_notes_aside_svg = window.btoa(getIconSvgEncoded("all-notes", on_primary));
+        var settings_aside_svg = window.btoa(getIconSvgEncoded("settings", primary));
+        var help_aside_svg = window.btoa(getIconSvgEncoded("help", primary));
+        var review_aside_svg = window.btoa(getIconSvgEncoded("review", primary));
+        var website_aside_svg = window.btoa(getIconSvgEncoded("website", primary));
+        var donate_aside_svg = window.btoa(getIconSvgEncoded("donate", primary));
         var import_svg = window.btoa(getIconSvgEncoded("import", on_primary));
         var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
         var download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
@@ -1497,6 +1502,24 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .settings-button {
                     background-image: url('data:image/svg+xml;base64,${settings_svg}');
+                }
+                #settings-aside {
+                background-image: url('data:image/svg+xml;base64,${settings_aside_svg}');
+                }
+                #all-notes-aside {
+                    background-image: url('data:image/svg+xml;base64,${all_notes_aside_svg}');
+                }
+                #help-aside {
+                    background-image: url('data:image/svg+xml;base64,${help_aside_svg}');
+                }
+                #review-aside {
+                    background-image: url('data:image/svg+xml;base64,${review_aside_svg}');
+                }
+                #website-aside {
+                    background-image: url('data:image/svg+xml;base64,${website_aside_svg}');
+                }
+                #donate-aside {
+                    background-image: url('data:image/svg+xml;base64,${donate_aside_svg}');
                 }
                 .import-button {
                     background-image: url('data:image/svg+xml;base64,${import_svg}');

@@ -494,9 +494,16 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var email_svg = window.btoa(getIconSvgEncoded("email", on_primary));
         var firefox_svg = window.btoa(getIconSvgEncoded("firefox", on_primary));
         var telegram_svg = window.btoa(getIconSvgEncoded("telegram", on_primary));
+        var all_notes_aside_svg = window.btoa(getIconSvgEncoded("all-notes", primary));
+        var settings_aside_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
+        var help_aside_svg = window.btoa(getIconSvgEncoded("help", primary));
+        var review_aside_svg = window.btoa(getIconSvgEncoded("review", primary));
+        var website_aside_svg = window.btoa(getIconSvgEncoded("website", primary));
+        var donate_aside_svg = window.btoa(getIconSvgEncoded("donate", primary));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
+        let tertiaryTransparent2 = primary;
         if (tertiaryTransparent.includes("rgb(")) {
             let rgb_temp = tertiaryTransparent.replace("rgb(", "");
             let rgb_temp_arr = rgb_temp.split(",");
@@ -505,9 +512,11 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 let green = rgb_temp_arr[1].replace(" ", "");
                 let blue = rgb_temp_arr[2].replace(")", "").replace(" ", "");
                 tertiaryTransparent = `rgba(${red}, ${green}, ${blue}, 0.2)`;
+                tertiaryTransparent2 = `rgba(${red}, ${green}, ${blue}, 0.8)`;
             }
         } else if (tertiaryTransparent.includes("#")) {
             tertiaryTransparent += "22";
+            tertiaryTransparent2 += "88";
         }
         //console.log(tertiaryTransparent);
 
@@ -522,6 +531,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     --on-textbox-color: ${textbox_color};
                     --tertiary: ${tertiary};
                     --tertiary-transparent: ${tertiaryTransparent};
+                    --tertiary-transparent-2: ${tertiaryTransparent2};
                 }
                 .save-button {
                     background-image: url('data:image/svg+xml;base64,${save_svg}');
@@ -540,6 +550,24 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .telegram-button {
                     background-image: url('data:image/svg+xml;base64,${telegram_svg}');
+                }
+                #settings-aside {
+                background-image: url('data:image/svg+xml;base64,${settings_aside_svg}');
+                }
+                #all-notes-aside {
+                    background-image: url('data:image/svg+xml;base64,${all_notes_aside_svg}');
+                }
+                #help-aside {
+                    background-image: url('data:image/svg+xml;base64,${help_aside_svg}');
+                }
+                #review-aside {
+                    background-image: url('data:image/svg+xml;base64,${review_aside_svg}');
+                }
+                #website-aside {
+                    background-image: url('data:image/svg+xml;base64,${website_aside_svg}');
+                }
+                #donate-aside {
+                    background-image: url('data:image/svg+xml;base64,${donate_aside_svg}');
                 }
             </style>`;
     }

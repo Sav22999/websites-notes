@@ -938,6 +938,72 @@ button.button-format:active, button.button-format:focus {
     color: var(--primary-color);
 }
 
+/*sidebar*/
+aside {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    width: 80px;
+    height: 100%;
+    border-radius: 0px;
+    background-color: var(--tertiary);
+    z-index: 2;
+    overflow: hidden;
+    padding: 0px;
+}
+
+aside button {
+    padding: 10px;
+    padding-top: 50px;
+    font-size: 14px;
+    box-sizing: border-box;
+    width: 100%;
+    height: auto;
+    border: 0px solid transparent;
+    border-radius: 0px;
+    background-color: var(--tertiary);
+    color: var(--primary-color);
+}
+
+aside button:hover {
+    background-color: var(--tertiary-transparent);
+    color: var(--primary-color);
+}
+
+aside button.sel {
+    background-color: var(--primary-color);
+    color: var(--on-primary-color);
+
+}
+
+#settings-aside, #all-notes-aside, #help-aside, #donate-aside, #review-aside, #website-aside {
+    background-repeat: no-repeat;
+    background-position: center top 10px;
+    background-size: auto 40%;
+}
+#settings-aside{
+    background-image: url("../img/settings.svg");
+}
+#all-notes-aside {
+    background-image: url("../img/page-in-all-notes.svg");
+}
+#help-aside {
+    background-image: url("../img/help.svg");
+}
+#donate-aside {
+    background-size: auto 35%;
+    background-image: url("../img/donate.svg");
+}
+#review-aside {
+    background-image: url("../img/review.svg");
+}
+#website-aside {
+    background-image: url("../img/website.svg");
+}
+
+/*generic*/
+
 .tag-colour-none {
     border: none !important;
 }
