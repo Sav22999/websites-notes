@@ -1593,3 +1593,7 @@ aside > button.sel, aside > button.sel:hover {
 .hidden {
     display: none !important;
 }
+
+.display-block {
+    display: block !important;
+}

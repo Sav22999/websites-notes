@@ -50,8 +50,6 @@ function loaded() {
         browser.tabs.create({url: links.review});
     }
 
-    //TODO!! v4.0
-
     document.getElementById("open-by-default-select").onchange = function () {
         settings_json["open-default"] = document.getElementById("open-by-default-select").value;
 
@@ -99,11 +97,7 @@ function loaded() {
         saveSettings();
     };
 
-    document.getElementById("theme-select").onchange = function () {
-        settings_json["theme"] = document.getElementById("theme-select").value;
-
-        saveSettings();
-    };
+    setThemeChooser();
 
     document.getElementById("check-green-icon-global-check").onchange = function () {
         settings_json["check-green-icon-global"] = document.getElementById("check-green-icon-global-check").checked;
@@ -155,6 +149,31 @@ function loaded() {
     loadAsideBar();
 }
 
+function setThemeChooser() {
+    document.querySelectorAll('.item-radio-theme input[name="theme-radio"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            setThemeChooserByElement(input);
+        });
+    });
+}
+
+function resetThemeChooser() {
+    document.querySelectorAll('.item-radio-theme input[name="theme-radio"]').forEach(function (input) {
+        input.closest('.item-radio-theme').style.boxShadow = 'none';
+    });
+
+}
+
+function setThemeChooserByElement(element, set_variable = true) {
+    resetThemeChooser();
+    element.closest('.item-radio-theme').style.boxShadow = '0px 0px 0px 5px var(--tertiary-transparent-2)';
+    if (set_variable) {
+        settings_json["theme"] = element.value;
+        saveSettings();
+    }
+    checkTheme();
+}
+
 function tabUpdated() {
     checkTheme();
     browser.storage.local.get([
@@ -174,8 +193,6 @@ function setLanguageUI() {
     document.getElementById("appearance-title-settings").innerText = all_strings["appearance-title-settings"];
     document.getElementById("shortcuts-title-settings").innerText = all_strings["shortcuts-title-settings"];
     document.getElementById("icon-behaviour-title-settings").innerText = all_strings["icon-behaviour-title-settings"];
-
-    //TODO!! v4.0
     document.getElementById("open-by-default-text").innerText = all_strings["open-popup-by-default"];
     document.getElementById("open-by-default-domain-text").innerText = all_strings["domain-label"];
     document.getElementById("open-by-default-page-text").innerText = all_strings["page-label"];
@@ -210,13 +227,11 @@ function setLanguageUI() {
     document.getElementById("check-with-all-supported-protocols-detailed-text").innerHTML = all_strings["check-with-all-supported-protocols-detailed"];
     document.getElementById("font-family-text").innerHTML = all_strings["font-family"];
     document.getElementById("font-family-detailed-text").innerHTML = all_strings["font-family-detailed"];
-
     document.getElementById("theme-text").innerText = all_strings["theme-text"];
     document.getElementById("theme-select-light").innerText = all_strings["theme-choose-light-select"];
     document.getElementById("theme-select-dark").innerText = all_strings["theme-choose-dark-select"];
     document.getElementById("theme-select-firefox").innerText = all_strings["theme-choose-firefox-select"];
     document.getElementById("theme-detailed-text").innerHTML = all_strings["theme-detailed-text"].replace("{{property1}}", `<span class="button-code very-small-button">` + all_strings["theme-choose-firefox-select"] + `</span>`);
-
     document.getElementById("support-telegram-button").value = all_strings["support-telegram-button"];
     document.getElementById("support-email-button").value = all_strings["support-email-button"];
     document.getElementById("support-github-button").value = all_strings["support-github-button"];
@@ -280,7 +295,6 @@ function loadSettings() {
             let sync_or_local_settings = result["storage"];
             if (sync_or_local_settings === undefined) sync_or_local_settings = "local";
 
-            //TODO!! v4.0
             document.getElementById("open-by-default-select").value = settings_json["open-default"];
             document.getElementById("consider-parameters-check").checked = settings_json["consider-parameters"] === true || settings_json["consider-parameters"] === "yes";
             document.getElementById("consider-sections-check").checked = settings_json["consider-sections"] === true || settings_json["consider-sections"] === "yes";
@@ -293,7 +307,9 @@ function loadSettings() {
             document.getElementById("check-green-icon-page-check").checked = settings_json["check-green-icon-page"] === true || settings_json["check-green-icon-page"] === "yes";
             document.getElementById("check-green-icon-subdomain-check").checked = settings_json["check-green-icon-subdomain"] === true || settings_json["check-green-icon-subdomain"] === "yes";
 
-            document.getElementById("theme-select").value = settings_json["theme"];
+            if (settings_json["theme"] === "light") setThemeChooserByElement(document.getElementById("item-radio-theme-light"), false);
+            else if (settings_json["theme"] === "dark") setThemeChooserByElement(document.getElementById("item-radio-theme-dark"), false);
+            else if (settings_json["theme"] === "auto") setThemeChooserByElement(document.getElementById("item-radio-theme-auto"), false);
 
             document.getElementById("open-links-only-with-ctrl-check").checked = settings_json["open-links-only-with-ctrl"] === true || settings_json["open-links-only-with-ctrl"] === "yes";
             document.getElementById("check-with-all-supported-protocols-check").checked = settings_json["check-with-all-supported-protocols"] === true || settings_json["check-with-all-supported-protocols"] === "yes";
@@ -350,7 +366,7 @@ function loadSettings() {
 
 
     checkTheme(false, "auto", function (params) {
-        document.getElementById("item-radio-theme-auto").style.backgroundColor = params[0];
+        document.getElementById("item-radio-theme-auto").style.backgroundColor = params[1];
         document.getElementById("theme-select-firefox").style.color = params[2];
         document.getElementById("primary-auto").style.backgroundColor = params[2];
         document.getElementById("primary-auto").style.color = params[4];
