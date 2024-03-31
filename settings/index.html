@@ -44,6 +44,28 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
 
     <span id="settings-sections">
+        <!--<div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id=""></span>
+                <input type="checkbox" id="-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings yes-not-item" id=""></span>
+        </div>-->
+
+        <!--<div class="option-settings">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id=""></span>
+                <span class="section-grid-item-select">
+                    <select class="select-box" id="-select">
+                        <option value="" id=""></option>
+                    </select>
+                </span>
+                <span class="description-option-settings" id=""></span>
+            </span>
+        </div>-->
+
+        <!--====================-->
         <!--General section-->
         <div class="section-title-settings" id="general-title-settings"></div>
 
@@ -52,7 +74,7 @@ Created by Saverio Morelli - saveriomorelli.com
             <span class="item-settings section-grid-container">
                 <span class="title-option-settings section-grid-item-text" id="open-by-default-text"></span>
                 <span class="section-grid-item-select">
-                    <select name="open-by-default" class="select-box" id="open-by-default-select">
+                    <select class="select-box" id="open-by-default-select">
                         <option value="domain" id="open-by-default-domain-text">Domain</option>
                         <option value="page" id="open-by-default-page-text">Page</option>
                     </select>
@@ -60,10 +82,39 @@ Created by Saverio Morelli - saveriomorelli.com
             </span>
         </div>
 
+        <!--Disable word wrap section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="disable-word-wrap-text"></span>
+                <input type="checkbox" id="disable-word-wrap-check"/>
+                <span class="checkmark"></span>
+            </label>
+        </div>
+
+        <!--Spellcheck detection section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="spellcheck-detection-text"></span>
+                <input type="checkbox" id="spellcheck-detection-check"/>
+                <span class="checkmark"></span>
+            </label>
+        </div>
+
+        <!--Open links only with Ctrl section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="open-links-only-with-ctrl-text"></span>
+                <input type="checkbox" id="open-links-only-with-ctrl-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings yes-no-item" id="open-links-only-with-ctrl-detailed-text"></span>
+        </div>
+
+        <!--====================-->
         <!--Keyboard Shortcuts section-->
         <div class="section-title-settings" id="shortcuts-title-settings"></div>
 
-        <!--Default shortcut-->
+        <!--Default shortcut section-->
         <div class="option-settings">
             <span class="item-settings section-grid-container">
                 <span class="title-option-settings section-grid-item-text" id="open-popup-default-shortcut-text"></span>
@@ -123,36 +174,139 @@ Created by Saverio Morelli - saveriomorelli.com
             </span>
         </div>
 
+        <!--====================-->
         <!--Appearance section-->
         <div class="section-title-settings" id="appearance-title-settings"></div>
 
+        <!--Show HTML text formatting section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="html-text-formatting-text"></span>
+                <input type="checkbox" id="html-text-formatting-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings yes-no-item" id="html-text-formatting-detailed-text"></span>
+        </div>
+
+        <!--Theme section-->
+        <div class="option-settings">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id="theme-text"></span>
+                <span class="section-grid-item-select">
+                    <select class="select-box" id="theme-select">
+                        <option value="light" id="theme-select-light">Light</option>
+                        <option value="dark" id="theme-select-dark">Dark</option>
+                        <option value="auto" id="theme-select-firefox">Follow the Account theme</option>
+                    </select>
+                </span>
+                <span class="description-option-settings" id="theme-detailed-text"></span>
+            </span>
+        </div>
+
+        <!--Font family section-->
+        <div class="option-settings">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id="font-family-text"></span>
+                <span class="section-grid-item-select">
+                    <select class="select-box" id="font-family-select">
+                        <option value="Open Sans" id="font-family-button-opensans">Open Sans</option>
+                        <option value="Shantell Sans" id="font-family-button-shantellsans">Shantell Sans</option>
+                    </select>
+                </span>
+                <span class="description-option-settings" id="font-family-detailed-text"></span>
+            </span>
+        </div>
+
+        <!--====================-->
         <!--Icon Behaviour section-->
         <div class="section-title-settings" id="icon-behaviour-title-settings"></div>
 
+        <!--Check green icon (domain) section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="check-green-icon-domain-text"></span>
+                <input type="checkbox" id="check-green-icon-domain-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings yes-no-item" id="check-green-icon-domain-detailed-text"></span>
+        </div>
+
+        <!--Check green icon (page) section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="check-green-icon-page-text"></span>
+                <input type="checkbox" id="check-green-icon-page-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings yes-no-item" id="check-green-icon-page-detailed-text"></span>
+        </div>
+
+        <!--Check green icon (subdomain) section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="check-green-icon-subdomain-text"></span>
+                <input type="checkbox" id="check-green-icon-subdomain-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings yes-no-item" id="check-green-icon-subdomain-detailed-text"></span>
+        </div>
+
+        <!--Check green icon (global) section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="check-green-icon-global-text"></span>
+                <input type="checkbox" id="check-green-icon-global-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings yes-no-item" id="check-green-icon-global-detailed-text"></span>
+        </div>
+
+        <!--====================-->
         <!--Advanced section-->
         <div class="section-title-settings" id="advanced-title-settings"></div>
 
+        <!--Consider parameters section-->
         <div class="option-settings">
             <label class="item-settings">
                 <span class="title-option-settings yes-no-item" id="consider-parameters-text"></span>
-              <input type="checkbox" name="open-by-default" id="consider-parameters-check"/>
-              <span class="checkmark"></span>
+                <input type="checkbox" id="consider-parameters-check"/>
+                <span class="checkmark"></span>
             </label>
-            <span class="description-option-settings" id="consider-parameters-detailed-text"></span>
+            <span class="description-option-settings yes-no-item" id="consider-parameters-detailed-text"></span>
         </div>
 
+        <!--Consider sections section-->
         <div class="option-settings">
             <label class="item-settings">
                 <span class="title-option-settings yes-no-item" id="consider-sections-text"></span>
-              <input type="checkbox" name="open-by-default" id="consider-sections-check"/>
-              <span class="checkmark"></span>
+                <input type="checkbox" id="consider-sections-check"/>
+                <span class="checkmark"></span>
             </label>
-            <span class="description-option-settings" id="consider-sections-detailed-text"></span>
+            <span class="description-option-settings yes-no-item" id="consider-sections-detailed-text"></span>
         </div>
-    </span>
 
-    <span id="settings-sections">
+        <!--Advanced managing section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="advanced-managing-text"></span>
+                <input type="checkbox" id="advanced-managing-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings yes-no-item" id="advanced-managing-detailed-text"></span>
+        </div>
 
+        <!--Check with all supported protocols section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="check-with-all-supported-protocols-text"></span>
+                <input type="checkbox" id="check-with-all-supported-protocols-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings yes-no-item" id="check-with-all-supported-protocols-detailed-text"></span>
+        </div>
+
+        <!--====================-->
+        <!--Sync / Local section || legacy! -->
         <div class="section settings-section-grid hidden" id="sync-instead-of-local">
             <span class="section-left padding-25px-lateral settings-section-grid-column">
                 <span id="save-on-local-instead-of-sync-text">Save data locally instead of sync with Firefox account</span>
@@ -162,194 +316,9 @@ Created by Saverio Morelli - saveriomorelli.com
                 </div>
             </span>
             <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="save-on-local-instead-of-sync-select">
+                <select class="select-box" id="save-on-local-instead-of-sync-select">
                     <option value="yes" id="save-on-local-instead-of-sync-button-yes">Yes</option>
                     <option value="no" id="save-on-local-instead-of-sync-button-no">No</option>
-                </select>
-            </span>
-        </div>
-
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="theme-text">Choose the theme to use</span>
-                <br/>
-                <div class="detailed-option" id="theme-detailed-text">
-                    If you choose <span class="button-code">Follow the Account theme</span> this means the theme is not optimised for the add-on, although it will try to use the same theme correctly.
-
-                </div>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="theme" id="theme-select" class="select-box">
-                    <option value="light" id="theme-select-light">Light</option>
-                    <option value="dark" id="theme-select-dark">Dark</option>
-                    <option value="auto" id="theme-select-firefox">Follow the Account theme</option>
-                </select>
-            </span>
-        </div>
-
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="advanced-managing-text">Avdanced managing of urls</span>
-                <br/>
-                <div class="detailed-option" id="advanced-managing-detailed-text">
-                    When enabled you can save notes also per "sub-domains" like: <span class="url-small">https://example.page/a-page/*</span>, <span
-                        class="url-small"> https://example.page/a-page/other-page/*</span>.
-                </div>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="advanced-managing-select">
-                    <option value="yes" id="advanced-managing-button-yes">Yes</option>
-                    <option value="no" id="advanced-managing-button-no">No</option>
-                </select>
-            </span>
-        </div>
-        
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="html-text-formatting-text">Show HTML text-formatting panel in the popup</span>
-                <br/>
-                <div class="detailed-option" id="html-text-formatting-detailed-text">
-                    When enabled you will see some buttons useful to insert text formatting (like bold, italic, etc.) in the popup – also you disable this, you will continue to be able to insert text-formatting via keyboard shortcuts.
-                </div>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="html-text-formatting-select">
-                    <option value="yes" id="html-text-formatting-button-yes">Yes</option>
-                    <option value="no" id="html-text-formatting-button-no">No</option>
-                </select>
-            </span>
-        </div>
-
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="disable-word-wrap-text">Disable word-wrap notes text</span>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="disable-word-wrap-select">
-                    <option value="yes" id="disable-word-wrap-button-yes">Yes</option>
-                    <option value="no" id="disable-word-wrap-button-no">No</option>
-                </select>
-            </span>
-        </div>
-
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="spellcheck-detection-text">Enable the language spellcheck detection for notes</span>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="spellcheck-detection-select">
-                    <option value="yes" id="spellcheck-detection-button-yes">Yes</option>
-                    <option value="no" id="spellcheck-detection-button-no">No</option>
-                </select>
-            </span>
-        </div>
-
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="check-green-icon-global-text">Green addon icon when there are Global notes saved</span>
-                <br/>
-                <div class="detailed-option" id="check-green-icon-global-detailed-text">
-                    When enabled the addon icon in the toolbar will be <b>green</b> if you previously saved <b>Global</b> notes.
-                </div>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="check-green-icon-global-select">
-                    <option value="yes" id="check-green-icon-global-button-yes">Yes</option>
-                    <option value="no" id="check-green-icon-global-button-no">No</option>
-                </select>
-            </span>
-        </div>
-
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="check-green-icon-domain-text">Green addon icon when there are Domain notes saved</span>
-                <br/>
-                <div class="detailed-option" id="check-green-icon-domain-detailed-text">
-                    When enabled the addon icon in the toolbar will be <b>green</b> if you previously saved <b>Domain</b> notes for that domain.
-                </div>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="check-green-icon-domain-select">
-                    <option value="yes" id="check-green-icon-domain-button-yes">Yes</option>
-                    <option value="no" id="check-green-icon-domain-button-no">No</option>
-                </select>
-            </span>
-        </div>
-
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="check-green-icon-page-text">Green addon icon when there are Page notes saved</span>
-                <br/>
-                <div class="detailed-option" id="check-green-icon-page-detailed-text">
-                    When enabled the addon icon in the toolbar will be <b>green</b> if you previously saved <b>Page</b> notes for that page.
-                </div>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="check-green-icon-page-select">
-                    <option value="yes" id="check-green-icon-page-button-yes">Yes</option>
-                    <option value="no" id="check-green-icon-page-button-no">No</option>
-                </select>
-            </span>
-        </div>
-
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="check-green-icon-subdomain-text">Green addon icon when there are Subdomain notes saved</span>
-                <br/>
-                <div class="detailed-option" id="check-green-icon-subdomain-detailed-text">
-                    When enabled the addon icon in the toolbar will be <b>green</b> if you previously saved <b>Subdomain</b> notes for that subdomain.
-                </div>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="check-green-icon-subdomain-select">
-                    <option value="yes" id="check-green-icon-subdomain-button-yes">Yes</option>
-                    <option value="no" id="check-green-icon-subdomain-button-no">No</option>
-                </select>
-            </span>
-        </div>
-
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="open-links-only-with-ctrl-text"></span>
-                <br/>
-                <div class="detailed-option" id="open-links-only-with-ctrl-detailed-text">
-
-                </div>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="open-links-only-with-ctrl-select">
-                    <option value="yes" id="open-links-only-with-ctrl-button-yes">Yes</option>
-                    <option value="no" id="open-links-only-with-ctrl-button-no">No</option>
-                </select>
-            </span>
-        </div>
-
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="check-with-all-supported-protocols-text"></span>
-                <br/>
-                <div class="detailed-option" id="check-with-all-supported-protocols-detailed-text">
-                </div>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="check-with-all-supported-protocols-select">
-                    <option value="yes" id="check-with-all-supported-protocols-button-yes">Yes</option>
-                    <option value="no" id="check-with-all-supported-protocols-button-no">No</option>
-                </select>
-            </span>
-        </div>
-
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="font-family-text"></span>
-                <br/>
-                <div class="detailed-option" id="font-family-detailed-text">
-                </div>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="font-family-select">
-                    <option value="Open Sans" id="font-family-button-opensans">Open Sans</option>
-                    <option value="Shantell Sans" id="font-family-button-shantellsans">Shantell Sans</option>
                 </select>
             </span>
         </div>

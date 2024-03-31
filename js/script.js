@@ -502,25 +502,25 @@ function loadSettings() {
     sync_local.get("settings", function (value) {
         if (value["settings"] !== undefined) settings_json = value["settings"];
         if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
-        if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
-        if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
+        if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
+        if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
         if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
         if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
         if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
-        if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
-        if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
-        if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
-        if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = "yes";
+        if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
+        if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
+        if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
+        if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = true;
         if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
-        if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = "yes";
-        if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = "yes";
-        if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
-        if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
-        if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
-        if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = "no";
+        if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
+        if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = true;
+        if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
+        if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
+        if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
+        if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
         if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
 
-        if (settings_json["advanced-managing"] === "yes") advanced_managing = true;
+        if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
         else advanced_managing = false;
 
         continueLoaded();
@@ -1142,29 +1142,29 @@ function spellcheck(force = false, value = false) {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
-            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "yes";
-            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "yes";
+            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = true;
+            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = true;
 
-            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
-            if (settings_json["advanced-managing"] === "yes") advanced_managing = true;
+            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
+            if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
             else advanced_managing = false;
 
-            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
-            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
-            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = "yes";
+            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
+            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
+            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = true;
         }
 
         if (!document.getElementById("notes").spellcheck || (force && value)) {
             //enable spellCheck
             document.getElementById("notes").spellcheck = true;
-            settings_json["spellcheck-detection"] = "yes";
+            settings_json["spellcheck-detection"] = true;
             if (document.getElementById("text-spellcheck")) {
                 document.getElementById("text-spellcheck").classList.add("text-spellcheck-sel");
             }
         } else {
             //disable spellCheck
             document.getElementById("notes").spellcheck = false;
-            settings_json["spellcheck-detection"] = "no";
+            settings_json["spellcheck-detection"] = false;
             if (document.getElementById("text-spellcheck") && document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) {
                 document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
             }
@@ -1181,7 +1181,7 @@ function loadFormatButtons(navigation = true, format = true) {
 
     let html_text_formatting = true;
     if (settings_json["html-text-formatting"] !== undefined) {
-        if (settings_json["html-text-formatting"] === "yes") html_text_formatting = true;
+        if (settings_json["html-text-formatting"] === "yes" || settings_json["html-text-formatting"] === true) html_text_formatting = true;
         else html_text_formatting = false;
     }
 
@@ -1276,7 +1276,7 @@ function loadFormatButtons(navigation = true, format = true) {
     })
 
     if (format) {
-        if (settings_json !== undefined && settings_json["spellcheck-detection"] !== undefined && settings_json["spellcheck-detection"] === "no") {
+        if (settings_json !== undefined && settings_json["spellcheck-detection"] !== undefined && (settings_json["spellcheck-detection"] === "no" || settings_json["spellcheck-detection"] === false)) {
             document.getElementById("notes").spellcheck = false;
             if (document.getElementById("text-spellcheck") && document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) {
                 document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
@@ -1289,7 +1289,7 @@ function loadFormatButtons(navigation = true, format = true) {
         }
     }
 
-    if (settings_json !== undefined && settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && settings_json["disable-word-wrap"] === "yes") {
+    if (settings_json !== undefined && settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true)) {
         document.getElementById("notes").style.whiteSpace = "none";
     } else {
         document.getElementById("notes").style.whiteSpace = "pre-wrap";

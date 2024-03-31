@@ -330,7 +330,7 @@ function alreadyExists() {
 
 function checkDisableWordWrap(text, settings_json) {
     let disable_word_wrap = false;
-    if (settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && settings_json["disable-word-wrap"] === "yes") {
+    if (settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === "true")) {
         disable_word_wrap = true;
     } else {
         disable_word_wrap = false;
@@ -344,7 +344,7 @@ function checkDisableWordWrap(text, settings_json) {
 
 function checkLanguageSpellcheck(text, settings_json) {
     let spellcheck = true;
-    if (settings_json !== undefined && settings_json["spellcheck-detection"] === "no") spellcheck = false;
+    if (settings_json !== undefined && (settings_json["spellcheck-detection"] === "no" || settings_json["spellcheck-detection"] === false)) spellcheck = false;
     else spellcheck = true;
     text.spellcheck = spellcheck;
 }

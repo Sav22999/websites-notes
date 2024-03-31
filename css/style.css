@@ -37,7 +37,7 @@
     font-family: 'Open Sans', sans-serif;
     font-size: 16px;
     transition: 0s;
-    /*position: relative;*/
+    position: relative;
     z-index: 1;
     scrollbar-color: var(--primary-color) transparent;
     scrollbar-width: thin;
@@ -1076,6 +1076,10 @@ aside > button.sel, aside > button.sel:hover {
 
 /*settings*/
 
+#settings-dedication-section > * {
+    position: static;
+}
+
 .section-title-settings {
     padding: 10px;
     font-size: 1.7em;
@@ -1095,7 +1099,7 @@ aside > button.sel, aside > button.sel:hover {
 
 .item-settings {
     font-size: 1em;
-    display: block;
+    display: inline-block;
     position: relative;
     padding: 0px;
     -webkit-user-select: none;
@@ -1155,11 +1159,8 @@ aside > button.sel, aside > button.sel:hover {
     border-radius: 0px;
 }
 
-.yes-no-item {
-    padding-left: 35px;
-}
-
 .option-settings {
+    position: static;
     padding: 10px;
     font-size: 1em;
     z-index: 4;
@@ -1167,10 +1168,16 @@ aside > button.sel, aside > button.sel:hover {
 }
 
 .description-option-settings {
-    padding-left: 35px;
+    padding: 5px 0px;
     font-size: 0.8em;
     opacity: 0.7;
     color: var(--primary-color);
+    display: block;
+    width: 60%;
+}
+
+.yes-no-item {
+    padding-left: 35px;
 }
 
 .section-grid-container {
@@ -1180,28 +1187,54 @@ aside > button.sel, aside > button.sel:hover {
     padding: 5px;
 }
 
-@media screen and (max-width: 2000px) {
-}
-
-@media screen and (max-width: 1700px) {
-    .section-grid-container {
-        width: 70%;
-    }
-}
-
-@media screen and (max-width: 1200px) {
-    .section-grid-container {
-        width: 100%;
-    }
-}
-
 .section-grid-item-text {
     grid-area: text;
     text-align: left;
+    padding: 5px 0px;
 }
 .section-grid-item-select {
     grid-area: select;
     text-align: right;
+}
+
+@media screen and (max-width: 2000px) {
+}
+
+@media screen and (max-width: 1700px) {
+    .section-grid-container, .description-option-settings {
+        width: 70%;
+    }
+}
+
+@media screen and (max-width: 150px) {
+    .section-grid-container, .description-option-settings {
+        width: 80%;
+    }
+}
+
+@media screen and (max-width: 1300px) {
+    .section-grid-container, .description-option-settings {
+        width: 90%;
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    .section-grid-container, .description-option-settings {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .section-grid-container {
+        grid-template-areas: 'text'
+                            'select';
+    }
+    .section-grid-item-text, .section-grid-item-select {
+        text-align: left;
+    }
+    .section-grid-container, .description-option-settings {
+        width: 100%;
+    }
 }
 
 /*global*/

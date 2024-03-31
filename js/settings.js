@@ -28,8 +28,8 @@ function loaded() {
     setLanguageUI();
     checkTheme();
 
-    browser.tabs.onActivated.addListener(checkTheme);
-    browser.tabs.onUpdated.addListener(checkTheme);
+    browser.tabs.onActivated.addListener(tabUpdated);
+    browser.tabs.onUpdated.addListener(tabUpdated);
 
     document.getElementById("save-settings-button").onclick = function () {
         saveSettings();
@@ -71,54 +71,80 @@ function loaded() {
 
     document.getElementById("save-on-local-instead-of-sync-select").onchange = function () {
         settings_json["save-on-local-not-sync"] = document.getElementById("save-on-local-instead-of-sync-select").value;
+
+        saveSettings();
     };
 
-    document.getElementById("advanced-managing-select").onchange = function () {
-        settings_json["advanced-managing"] = document.getElementById("advanced-managing-select").value;
+    document.getElementById("advanced-managing-check").onchange = function () {
+        settings_json["advanced-managing"] = document.getElementById("advanced-managing-check").checked;
+
+        saveSettings();
     };
 
-    document.getElementById("html-text-formatting-select").onchange = function () {
-        settings_json["html-text-formatting"] = document.getElementById("html-text-formatting-select").value;
+    document.getElementById("html-text-formatting-check").onchange = function () {
+        settings_json["html-text-formatting"] = document.getElementById("html-text-formatting-check").checked;
+
+        saveSettings();
     };
 
-    document.getElementById("disable-word-wrap-select").onchange = function () {
-        settings_json["disable-word-wrap"] = document.getElementById("disable-word-wrap-select").value;
+    document.getElementById("disable-word-wrap-check").onchange = function () {
+        settings_json["disable-word-wrap"] = document.getElementById("disable-word-wrap-check").checked;
+
+        saveSettings();
     };
 
-    document.getElementById("spellcheck-detection-select").onchange = function () {
-        settings_json["spellcheck-detection"] = document.getElementById("spellcheck-detection-select").value;
+    document.getElementById("spellcheck-detection-check").onchange = function () {
+        settings_json["spellcheck-detection"] = document.getElementById("spellcheck-detection-check").checked;
+
+        saveSettings();
     };
 
     document.getElementById("theme-select").onchange = function () {
         settings_json["theme"] = document.getElementById("theme-select").value;
+
+        saveSettings();
     };
 
-    document.getElementById("check-green-icon-global-select").onchange = function () {
-        settings_json["check-green-icon-global"] = document.getElementById("check-green-icon-global-select").value;
+    document.getElementById("check-green-icon-global-check").onchange = function () {
+        settings_json["check-green-icon-global"] = document.getElementById("check-green-icon-global-check").checked;
+
+        saveSettings();
     };
 
-    document.getElementById("check-green-icon-domain-select").onchange = function () {
-        settings_json["check-green-icon-domain"] = document.getElementById("check-green-icon-domain-select").value;
+    document.getElementById("check-green-icon-domain-check").onchange = function () {
+        settings_json["check-green-icon-domain"] = document.getElementById("check-green-icon-domain-check").checked;
+
+        saveSettings();
     };
 
-    document.getElementById("check-green-icon-page-select").onchange = function () {
-        settings_json["check-green-icon-page"] = document.getElementById("check-green-icon-page-select").value;
+    document.getElementById("check-green-icon-page-check").onchange = function () {
+        settings_json["check-green-icon-page"] = document.getElementById("check-green-icon-page-check").checked;
+
+        saveSettings();
     };
 
-    document.getElementById("check-green-icon-subdomain-select").onchange = function () {
-        settings_json["check-green-icon-subdomain"] = document.getElementById("check-green-icon-subdomain-select").value;
+    document.getElementById("check-green-icon-subdomain-check").onchange = function () {
+        settings_json["check-green-icon-subdomain"] = document.getElementById("check-green-icon-subdomain-check").checked;
+
+        saveSettings();
     };
 
-    document.getElementById("open-links-only-with-ctrl-select").onchange = function () {
-        settings_json["open-links-only-with-ctrl"] = document.getElementById("open-links-only-with-ctrl-select").value;
+    document.getElementById("open-links-only-with-ctrl-check").onchange = function () {
+        settings_json["open-links-only-with-ctrl"] = document.getElementById("open-links-only-with-ctrl-check").checked;
+
+        saveSettings();
     };
 
-    document.getElementById("check-with-all-supported-protocols-select").onchange = function () {
-        settings_json["check-with-all-supported-protocols"] = document.getElementById("check-with-all-supported-protocols-select").value;
+    document.getElementById("check-with-all-supported-protocols-check").onchange = function () {
+        settings_json["check-with-all-supported-protocols"] = document.getElementById("check-with-all-supported-protocols-check").checked;
+
+        saveSettings();
     };
 
     document.getElementById("font-family-select").onchange = function () {
         settings_json["font-family"] = document.getElementById("font-family-select").value;
+
+        saveSettings();
     };
 
     loadSettings();
@@ -127,6 +153,17 @@ function loaded() {
     titleAllNotes.textContent = all_strings["settings-title"];
 
     loadAsideBar();
+}
+
+function tabUpdated() {
+    checkTheme();
+    browser.storage.local.get([
+        "settings"
+    ]).then(result => {
+        if (result.settings !== undefined && result.settings !== settings_json) {
+            loadSettings();
+        }
+    });
 }
 
 function setLanguageUI() {
@@ -146,7 +183,6 @@ function setLanguageUI() {
     document.getElementById("consider-parameters-detailed-text").innerHTML = all_strings["consider-parameters-detailed"];
     document.getElementById("consider-sections-text").innerText = all_strings["consider-sections"];
     document.getElementById("consider-sections-detailed-text").innerHTML = all_strings["consider-sections-detailed"];
-
     document.getElementById("save-on-local-instead-of-sync-text").innerText = all_strings["save-on-local-instead-of-sync"];
     document.getElementById("save-on-local-instead-of-sync-button-yes").innerText = all_strings["settings-select-button-yes"];
     document.getElementById("save-on-local-instead-of-sync-button-no").innerText = all_strings["settings-select-button-no"];
@@ -223,22 +259,22 @@ function loadSettings() {
             settings_json = {};
             if (value["settings"] !== undefined) settings_json = value["settings"];
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
-            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
-            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
+            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
+            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
             if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
             if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
             if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
-            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
-            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
-            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
-            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = "yes";
+            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
+            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
+            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
+            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = true;
             if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
-            if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = "yes";
-            if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = "yes";
-            if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
-            if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
-            if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
-            if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = "no";
+            if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
+            if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = true;
+            if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
+            if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
+            if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
+            if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
             if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
 
             let sync_or_local_settings = result["storage"];
@@ -248,19 +284,21 @@ function loadSettings() {
             document.getElementById("open-by-default-select").value = settings_json["open-default"];
             document.getElementById("consider-parameters-check").checked = settings_json["consider-parameters"] === true || settings_json["consider-parameters"] === "yes";
             document.getElementById("consider-sections-check").checked = settings_json["consider-sections"] === true || settings_json["consider-sections"] === "yes";
+            document.getElementById("advanced-managing-check").checked = settings_json["advanced-managing"] === true || settings_json["advanced-managing"] === "yes";
+            document.getElementById("html-text-formatting-check").checked = settings_json["html-text-formatting"] === true || settings_json["html-text-formatting"] === "yes";
+            document.getElementById("disable-word-wrap-check").checked = settings_json["disable-word-wrap"] === true || settings_json["disable-word-wrap"] === "yes";
+            document.getElementById("spellcheck-detection-check").checked = settings_json["spellcheck-detection"] === true || settings_json["spellcheck-detection"] === "yes";
+            document.getElementById("check-green-icon-global-check").checked = settings_json["check-green-icon-global"] === true || settings_json["check-green-icon-global"] === "yes";
+            document.getElementById("check-green-icon-domain-check").checked = settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-domain"] === "yes";
+            document.getElementById("check-green-icon-page-check").checked = settings_json["check-green-icon-page"] === true || settings_json["check-green-icon-page"] === "yes";
+            document.getElementById("check-green-icon-subdomain-check").checked = settings_json["check-green-icon-subdomain"] === true || settings_json["check-green-icon-subdomain"] === "yes";
 
-            document.getElementById("advanced-managing-select").value = settings_json["advanced-managing"];
-            document.getElementById("html-text-formatting-select").value = settings_json["html-text-formatting"];
-            document.getElementById("disable-word-wrap-select").value = settings_json["disable-word-wrap"];
-            document.getElementById("spellcheck-detection-select").value = settings_json["spellcheck-detection"];
             document.getElementById("theme-select").value = settings_json["theme"];
-            document.getElementById("check-green-icon-global-select").value = settings_json["check-green-icon-global"];
-            document.getElementById("check-green-icon-domain-select").value = settings_json["check-green-icon-domain"];
-            document.getElementById("check-green-icon-page-select").value = settings_json["check-green-icon-page"];
-            document.getElementById("check-green-icon-subdomain-select").value = settings_json["check-green-icon-subdomain"];
-            document.getElementById("open-links-only-with-ctrl-select").value = settings_json["open-links-only-with-ctrl"];
-            document.getElementById("check-with-all-supported-protocols-select").value = settings_json["check-with-all-supported-protocols"];
+
+            document.getElementById("open-links-only-with-ctrl-check").checked = settings_json["open-links-only-with-ctrl"] === true || settings_json["open-links-only-with-ctrl"] === "yes";
+            document.getElementById("check-with-all-supported-protocols-check").checked = settings_json["check-with-all-supported-protocols"] === true || settings_json["check-with-all-supported-protocols"] === "yes";
             document.getElementById("font-family-select").value = settings_json["font-family"];
+
             if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-select").value = "no";
             else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-select").value = "yes";
 

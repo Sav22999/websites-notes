@@ -116,13 +116,13 @@ function checkStatus(update = false) {
             settings_json = {};
             if (value["settings"] !== undefined) settings_json = value["settings"];
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
-            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
-            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
-            if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = "yes";
-            if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = "yes";
-            if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
-            if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
-            if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = "no";
+            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
+            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
+            if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
+            if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = true;
+            if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
+            if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
+            if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
             //console.log(JSON.stringify(settings_json));
             //console.log("checkStatus");
             //console.log(value);
@@ -689,14 +689,14 @@ function checkIcon() {
     let domain_url = getUrlWithSupportedProtocol(getDomainUrl(tab_url), websites_json);
     let page_url = getUrlWithSupportedProtocol(getPageUrl(tab_url), websites_json);
     let global_url = getGlobalUrl();
-    let check_domain = settings_json["check-green-icon-domain"] === "yes" && checkAllSupportedProtocols(getDomainUrl(tab_url), websites_json) && checkAllSupportedProtocolsLastUpdate(getDomainUrl(tab_url), websites_json) && checkAllSupportedProtocolsNotes(getDomainUrl(tab_url), websites_json);
-    //let check_tab_url = (settings_json["check-green-icon-domain"] === "yes" || settings_json["check-green-icon-page"] === "yes") && websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "";
+    let check_domain = (settings_json["check-green-icon-domain"] === "yes" || settings_json["check-green-icon-domain"] === true) && checkAllSupportedProtocols(getDomainUrl(tab_url), websites_json) && checkAllSupportedProtocolsLastUpdate(getDomainUrl(tab_url), websites_json) && checkAllSupportedProtocolsNotes(getDomainUrl(tab_url), websites_json);
+    //let check_tab_url = (settings_json["check-green-icon-domain"] === "yes" || settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-page"] === "yes" || settings_json["check-green-icon-page"] === true) && websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "";
     let check_tab_url = false;
-    let check_page = settings_json["check-green-icon-page"] === "yes" && checkAllSupportedProtocols(getPageUrl(tab_url), websites_json) && checkAllSupportedProtocolsLastUpdate(getPageUrl(tab_url), websites_json) && checkAllSupportedProtocolsNotes(getPageUrl(tab_url), websites_json);
-    let check_global = settings_json["check-green-icon-global"] === "yes" && websites_json[global_url] !== undefined && websites_json[global_url]["last-update"] !== undefined && websites_json[global_url]["last-update"] != null && websites_json[global_url]["notes"] !== undefined && websites_json[global_url]["notes"] !== ""
+    let check_page = (settings_json["check-green-icon-page"] === "yes" || settings_json["check-green-icon-page"] === true) && checkAllSupportedProtocols(getPageUrl(tab_url), websites_json) && checkAllSupportedProtocolsLastUpdate(getPageUrl(tab_url), websites_json) && checkAllSupportedProtocolsNotes(getPageUrl(tab_url), websites_json);
+    let check_global = (settings_json["check-green-icon-global"] === "yes" || settings_json["check-green-icon-global"] === true) && websites_json[global_url] !== undefined && websites_json[global_url]["last-update"] !== undefined && websites_json[global_url]["last-update"] != null && websites_json[global_url]["notes"] !== undefined && websites_json[global_url]["notes"] !== "";
     let check_subdomains = false;
     let subdomains = getAllOtherPossibleUrls(tab_url);
-    if (settings_json["check-green-icon-subdomain"] === "yes") {
+    if (settings_json["check-green-icon-subdomain"] === "yes" || settings_json["check-green-icon-subdomain"] === true) {
         subdomains.forEach(subdomain => {
             let subdomain_url = domain_url + subdomain;
             let tmp_check = checkAllSupportedProtocols(subdomain_url, websites_json) && checkAllSupportedProtocolsLastUpdate(subdomain_url, websites_json) && checkAllSupportedProtocolsNotes(subdomain_url, websites_json);

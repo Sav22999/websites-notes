@@ -455,21 +455,21 @@ function loadDataFromBrowser(generate_section = true) {
             settings_json = {};
             if (value["settings"] !== undefined) settings_json = value["settings"];
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
-            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
-            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
+            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
+            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
             if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
             if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
             if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
-            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
-            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
-            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
-            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = "yes";
+            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
+            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
+            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
+            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = true;
             if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
-            if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = "yes";
-            if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = "yes";
-            if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
-            if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
-            if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
+            if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
+            if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = true;
+            if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
+            if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
+            if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
             if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
 
             //console.log(JSON.stringify(settings_json));
@@ -1256,7 +1256,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         listenerLinks(textNotes);
         let disable_word_wrap = false;
         if (settings_json["disable-word-wrap"] !== undefined) {
-            if (settings_json["disable-word-wrap"] === "yes") disable_word_wrap = true;
+            if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true;
             else disable_word_wrap = false;
         }
         if (disable_word_wrap) {
