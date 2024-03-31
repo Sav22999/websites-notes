@@ -95,7 +95,6 @@ body {
 }
 
 .select-box {
-    color: var(--primary-color);
     box-sizing: border-box;
     font-size: 14px;
     border: 0px solid var(--primary-color);
@@ -104,7 +103,6 @@ body {
     font-family: 'Open Sans', sans-serif;
     background-color: var(--primary-color);
     color: var(--on-primary-color);
-    cursor: pointer;
     margin-left: 10px;
     margin-right: 10px;
 
@@ -127,7 +125,6 @@ body {
 .clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button, .download-button {
     padding-left: 35px;
     padding-right: 10px;
-    background-image: url("../img/delete.svg");
     background-size: auto 60%;
     background-repeat: no-repeat;
     background-position: 10px center;
@@ -159,6 +156,10 @@ body {
 
 .download-button {
     background-image: url("../img/download.svg");
+}
+
+.clear-button {
+    background-image: url("../img/delete.svg");
 }
 
 .clear2-button {
@@ -1038,7 +1039,7 @@ aside > button.sel, aside > button.sel:hover {
 }
 
 #all-notes-aside {
-    background-image: url("../img/page-in-all-notes.svg");
+    background-image: url("../img/all-notes.svg");
 }
 
 #help-aside {
