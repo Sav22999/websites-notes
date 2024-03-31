@@ -1202,6 +1202,10 @@ aside > button.sel, aside > button.sel:hover {
     display: none;
 }
 
+.title-option-settings {
+    font-weight: 500;
+}
+
 .theme-section-radio-container {
     display: grid;
     text-align: center;
