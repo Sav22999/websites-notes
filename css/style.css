@@ -1213,23 +1213,38 @@ aside > button.sel, aside > button.sel:hover {
     gap: 10px 10px;
 }
 
+hr {
+    border: 0px solid transparent;
+    height: 1px;
+    background: var(--primary-color);
+    width: 60%;
+    margin: 0px;
+    margin-right: auto;
+    padding: 0px;
+}
+
+hr.hr-big-space {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
 @media screen and (max-width: 2000px) {
 }
 
 @media screen and (max-width: 1700px) {
-    .section-grid-container, .description-option-settings, .theme-section-radio-container {
+    .section-grid-container, .description-option-settings, .theme-section-radio-container, hr {
         width: 70%;
     }
 }
 
 @media screen and (max-width: 150px) {
-    .section-grid-container, .description-option-settings, .theme-section-radio-container {
+    .section-grid-container, .description-option-settings, .theme-section-radio-container, hr {
         width: 80%;
     }
 }
 
 @media screen and (max-width: 1300px) {
-    .section-grid-container, .description-option-settings, .theme-section-radio-container {
+    .section-grid-container, .description-option-settings, .theme-section-radio-container, hr {
         width: 90%;
     }
 }
@@ -1241,7 +1256,7 @@ aside > button.sel, aside > button.sel:hover {
         margin-bottom: 0px;
     }
 
-    .section-grid-container, .description-option-settings, .theme-section-radio-container {
+    .section-grid-container, .description-option-settings, .theme-section-radio-container, hr {
         width: 100%;
     }
 }
