@@ -23,16 +23,16 @@ Created by Saverio Morelli - saveriomorelli.com
 </aside>
 <div id="settings-dedication-section">
     <h1 id="title-settings-dedication-section" class="hidden">Settings</h1>
-    <div class="section text-align-right sticky-section hidden" id="actions">
+    <div class="section text-align-right" id="actions">
         <input type="button" value="Support on Telegram" id="support-telegram-button"
-               class="button telegram-button hidden"/>
-        <input type="button" value="Support on GitHub" id="support-github-button" class="button github-button hidden"/>
-        <input type="button" value="Support via email" id="support-email-button" class="button email-button hidden"/>
+               class="button telegram-button"/>
+        <input type="button" value="Support on GitHub" id="support-github-button" class="button github-button"/>
+        <input type="button" value="Support via email" id="support-email-button" class="button email-button"/>
         <input type="button" value="Rate the add-on" id="review-on-firefox-addons-button"
                class="button firefox-button"/>
 
-        <input type="button" value="Translate on Crowdin" id="translate-addon" class="button translate-button hidden"/>
-        <input type="button" value="Save settings" id="save-settings-button" class="button save-button"/>
+        <input type="button" value="Translate on Crowdin" id="translate-addon" class="button translate-button"/>
+        <input type="button" value="Save settings" id="save-settings-button" class="button save-button hidden"/>
     </div>
 
     <div id="disable-sync" class="hidden section section-warning">
@@ -203,6 +203,39 @@ Created by Saverio Morelli - saveriomorelli.com
             </span>
         </div>
 
+        <div class="option-settings">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id="theme-text"></span>
+                <span class="description-option-settings" id="theme-detailed-text"></span>
+            </span>
+            <span class="theme-section-radio-container">
+                <label class="item-radio-theme" id="item-radio-theme-light">
+                    <input checked="checked" name="theme-radio" type="radio" value="light">
+                    <span class="item-radio-theme-preview-container" id="radio-light-theme">
+                        <span class="item-radio-theme-preview-item primary">A</span>
+                        <span class="item-radio-theme-preview-item secondary">B</span>
+                    </span>
+                <span class="item-radio-title" id="theme-select-light">Light</span>
+                </label>
+                <label class="item-radio-theme" id="item-radio-theme-dark">
+                    <input name="theme-radio" type="radio" value="dark">
+                    <span class="item-radio-theme-preview-container" id="radio-dark-theme">
+                        <span class="item-radio-theme-preview-item primary">A</span>
+                        <span class="item-radio-theme-preview-item secondary">B</span>
+                    </span>
+                    <span class="item-radio-title" id="theme-select-dark">Dark</span>
+                </label>
+                <label class="item-radio-theme" id="item-radio-theme-auto">
+                    <input name="theme-radio" type="radio" value="auto">
+                    <span class="item-radio-theme-preview-container" id="radio-auto-theme">
+                        <span class="item-radio-theme-preview-item primary" id="primary-auto">A</span>
+                        <span class="item-radio-theme-preview-item secondary" id="secondary-auto">B</span>
+                    </span>
+                    <span class="item-radio-title" id="theme-select-firefox">Follow the Firefox theme</span>
+                </label>
+            </span>
+        </div>
+
         <!--Font family section-->
         <div class="option-settings">
             <span class="item-settings section-grid-container">
@@ -302,7 +335,8 @@ Created by Saverio Morelli - saveriomorelli.com
                 <input type="checkbox" id="check-with-all-supported-protocols-check"/>
                 <span class="checkmark"></span>
             </label>
-            <span class="description-option-settings yes-no-item" id="check-with-all-supported-protocols-detailed-text"></span>
+            <span class="description-option-settings yes-no-item"
+                  id="check-with-all-supported-protocols-detailed-text"></span>
         </div>
 
         <!--====================-->

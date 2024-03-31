@@ -347,6 +347,16 @@ function loadSettings() {
             //console.log(JSON.stringify(settings_json));
         });
     });
+
+
+    checkTheme(false, "auto", function (params) {
+        document.getElementById("item-radio-theme-auto").style.backgroundColor = params[0];
+        document.getElementById("theme-select-firefox").style.color = params[2];
+        document.getElementById("primary-auto").style.backgroundColor = params[2];
+        document.getElementById("primary-auto").style.color = params[4];
+        document.getElementById("secondary-auto").style.backgroundColor = params[3];
+        document.getElementById("secondary-auto").style.color = params[5];
+    });
 }
 
 function onChangeShortcut(element, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json) {

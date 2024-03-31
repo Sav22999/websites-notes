@@ -67,8 +67,8 @@ function loaded() {
     setLanguageUI();
     checkTheme();
 
-    browser.tabs.onActivated.addListener(checkTheme);
-    browser.tabs.onUpdated.addListener(checkTheme);
+    browser.tabs.onActivated.addListener(tabUpdated);
+    browser.tabs.onUpdated.addListener(tabUpdated);
 
     loadAsideBar();
 
@@ -244,6 +244,17 @@ function loaded() {
         notefox_json["os"] = platformInfo.os
     });
     titleAllNotes.append(versionNumber);
+}
+
+function tabUpdated() {
+    checkTheme();
+    browser.storage.local.get([
+        "websites"
+    ]).then(result => {
+        if (result.websites !== undefined && result.websites !== websites_json) {
+            loadDataFromBrowser(true);
+        }
+    });
 }
 
 function setLanguageUI() {

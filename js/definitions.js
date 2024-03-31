@@ -91,10 +91,10 @@ function sanitize(element, allowedTags, allowedAttributes) {
 /**
  * Load the current theme for the page
  */
-function checkTheme() {
+function checkTheme(set_theme = true, theme = "", function_to_execute =function (params) {}) {
     //before to set theme -> check if "Follow theme system" is enabled, otherwise use the default orange theme
 
-    let force_theme = ""; //TODO!TESTING this is used only for test, after testing set to "" (empty)
+    let force_theme = theme; //TODO!TESTING this is used only for test, after testing set to "" (empty) -- {"light", "dark", "auto"}
 
     sync_local.get("settings").then(result => {
         let background;
@@ -122,7 +122,8 @@ function checkTheme() {
                         textbox_background = theme.colors.toolbar_field;
                         textbox_color = theme.colors.toolbar_field_text;
 
-                        setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
+                        if(set_theme) setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
+                        else function_to_execute([background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color]);
                     } else {
                         default_theme = true;
                     }
@@ -137,7 +138,8 @@ function checkTheme() {
                 on_secondary = "#444444";
                 textbox_background = "#222222";
                 textbox_color = "#ffa56f";
-                setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
+                if (set_theme) setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
+                else function_to_execute();
             } else {
                 //use the default one if: undefined, light or other value (probably wrong)
                 default_theme = true;
@@ -156,7 +158,8 @@ function checkTheme() {
             on_secondary = "#FFFFFF";
             textbox_background = "#ffffff";
             textbox_color = "#FF6200";
-            setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
+            if(set_theme) setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
+            else function_to_execute();
         }
     });
 }
