@@ -23,8 +23,9 @@ Created by Saverio Morelli - saveriomorelli.com
 </aside>
 <div id="settings-dedication-section">
     <h1 id="title-settings-dedication-section" class="hidden">Settings</h1>
-    <div class="section text-align-right sticky-section" id="actions">
-        <input type="button" value="Support on Telegram" id="support-telegram-button" class="button telegram-button hidden"/>
+    <div class="section text-align-right sticky-section hidden" id="actions">
+        <input type="button" value="Support on Telegram" id="support-telegram-button"
+               class="button telegram-button hidden"/>
         <input type="button" value="Support on GitHub" id="support-github-button" class="button github-button hidden"/>
         <input type="button" value="Support via email" id="support-email-button" class="button email-button hidden"/>
         <input type="button" value="Rate the add-on" id="review-on-firefox-addons-button"
@@ -43,51 +44,54 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
 
     <span id="settings-sections">
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column" id="open-by-default-text">Open the popup by default with</span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="open-by-default-select">
-                    <option value="domain" id="open-by-default-domain-text">Domain</option>
-                    <option value="page" id="open-by-default-page-text">Page</option>
-                </select>
+        <!--General section-->
+        <div class="section-title-settings" id="general-title-settings"></div>
+
+        <div class="option-settings">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id="open-by-default-text"></span>
+                <span class="section-grid-item-select">
+                    <select name="open-by-default" class="select-box" id="open-by-default-select">
+                        <option value="domain" id="open-by-default-domain-text">Domain</option>
+                        <option value="page" id="open-by-default-page-text">Page</option>
+                    </select>
+                </span>
             </span>
+            <!--<span class="description-option-settings" id=""></span>-->
         </div>
 
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="consider-parameters-text">Consider parameters as part of the url page</span>
-                <br/>
-                <div class="detailed-option" id="consider-parameters-detailed-text">
-                    When enabled: <span class="url-small">https://example.page/search?query=test</span> is different to <span
-                        class="url-small"> https://example.page/search</span>
-                </div>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="consider-parameters-select">
-                    <option value="yes" id="consider-parameters-button-yes">Yes</option>
-                    <option value="no" id="consider-parameters-button-no">No</option>
-                </select>
-            </span>
+        <!--Keyboard Shortcuts section-->
+        <div class="section-title-settings" id="shortcuts-title-settings"></div>
+
+        <!--Appearance section-->
+        <div class="section-title-settings" id="appearance-title-settings"></div>
+
+        <!--Icon Behaviour section-->
+        <div class="section-title-settings" id="icon-behaviour-title-settings"></div>
+
+        <!--Advanced section-->
+        <div class="section-title-settings" id="advanced-title-settings"></div>
+
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="consider-parameters-text"></span>
+              <input type="checkbox" name="open-by-default" id="consider-parameters-check"/>
+              <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings" id="consider-parameters-detailed-text"></span>
         </div>
 
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column">
-                <span id="consider-sections-text">Consider sections as part of the url page</span>
-                <br/>
-                <div class="detailed-option" id="consider-sections-detailed-text">
-                    When enabled: <span
-                        class="url-small">https://example.page/search#section1</span> is different to <span
-                        class="url-small"> https://example.page/search</span>
-                </div>
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select name="open-by-default" class="select-box" id="consider-sections-select">
-                    <option value="yes" id="consider-sections-button-yes">Yes</option>
-                    <option value="no" id="consider-sections-button-no">No</option>
-                </select>
-            </span>
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="consider-sections-text"></span>
+              <input type="checkbox" name="open-by-default" id="consider-sections-check"/>
+              <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings" id="consider-sections-detailed-text"></span>
         </div>
+    </span>
 
+    <span id="settings-sections">
         <div class="section settings-section-grid">
             <span class="section-left padding-25px-lateral settings-section-grid-column"
                   id="open-popup-default-shortcut-text">

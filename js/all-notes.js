@@ -1508,7 +1508,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
     if (background !== undefined && backgroundSection !== undefined && primary !== undefined && secondary !== undefined && on_primary !== undefined && on_secondary !== undefined) {
         document.body.style.backgroundColor = background;
         document.body.color = primary;
-        document.getElementById("all-notes-dedication-section").style.backgroundColor = backgroundSection;
+        //document.getElementById("all-notes-dedication-section").style.backgroundColor = backgroundSection;
         //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
         document.getElementById("all-notes-dedication-section").style.color = primary;
         document.getElementById("export-sub-sections").style.cssText = 'opacity:1 !important';

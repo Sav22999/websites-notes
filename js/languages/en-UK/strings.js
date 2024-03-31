@@ -156,4 +156,11 @@ strings[lang] = {
     "website-aside": "Website",
     "translate-aside": "Translate",
     "version-aside": "Notefox version {{version}}",
+    "general-title-settings": "General",
+    "advanced-title-settings": "Advanced",
+    "appearance-title-settings": "Appearance",
+    "shortcuts-title-settings": "Keyboard shortcuts",
+    "sync-title-settings": "Sync",
+    "icon-behaviour-title-settings": "Icon behaviour",
+    "data-title-settings": "Data",
 }

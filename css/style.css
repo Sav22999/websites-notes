@@ -37,7 +37,7 @@
     font-family: 'Open Sans', sans-serif;
     font-size: 16px;
     transition: 0s;
-    position: relative;
+    /*position: relative;*/
     z-index: 1;
     scrollbar-color: var(--primary-color) transparent;
     scrollbar-width: thin;
@@ -102,7 +102,8 @@ body {
     border-radius: 5px;
     width: auto;
     font-family: 'Open Sans', sans-serif;
-    background-color: var(--on-primary-color);
+    background-color: var(--primary-color);
+    color: var(--on-primary-color);
     cursor: pointer;
     margin-left: 10px;
     margin-right: 10px;
@@ -116,7 +117,7 @@ body {
     -moz-appearance: none;
     text-indent: 0px;
     text-overflow: '';
-    padding: 5px 30px 5px 5px;
+    padding: 5px 30px 5px 10px;
 }
 
 .select-box:hover {
@@ -387,31 +388,31 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 }
 
 #all-notes-dedication-section, #settings-dedication-section {
-    background-color: #cccccc33;
-    padding: 5px;
-    width: 70%;
+    background-color: inherit;
+    padding: 20px;
+    width: auto;
     height: auto;
-    margin-left: auto;
-    margin-right: auto;
+    margin-left: 10%;
+    margin-right: 0%;
     border-radius: 0px;
-    box-shadow: 0px 0px 5px var(--primary-color);
+    box-sizing: border-box;
 }
 
 @media screen and (max-width: 2000px) {
     #all-notes-dedication-section, #settings-dedication-section {
-        width: 80%;
+        margin-left: 10%;
     }
 }
 
 @media screen and (max-width: 1700px) {
     #all-notes-dedication-section, #settings-dedication-section {
-        width: 90%;
+        margin-left: 5%;
     }
 }
 
 @media screen and (max-width: 1200px) {
     #all-notes-dedication-section, #settings-dedication-section {
-        width: 100%;
+        margin-left: 0%;
     }
 }
 
@@ -1073,7 +1074,129 @@ aside > button.sel, aside > button.sel:hover {
     bottom: 0px;
 }
 
-/*generic*/
+/*settings*/
+
+.section-title-settings {
+    padding: 10px;
+    font-size: 1.7em;
+    font-weight: bold;
+    position: sticky;
+    background-color: inherit;
+    top: 0px;
+    margin: 5px;
+    z-index: 5;
+}
+
+.item-settings {
+    font-size: 1em;
+    display: block;
+    position: relative;
+    padding: 0px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    z-index: 4;
+}
+
+.item-settings input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    height: 0;
+    width: 0;
+    z-index: 4;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 23px;
+    width: 23px;
+    background-color: var(--tertiary-transparent);
+    z-index: 4;
+}
+
+.item-settings:hover input[type="checkbox"] ~ .checkmark {
+    background-color: var(--tertiary-transparent-2);
+    opacity: 0.7;
+}
+
+.item-settings input[type="checkbox"]:checked ~ .checkmark {
+    background-color: var(--primary-color);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.item-settings input[type="checkbox"]:checked ~ .checkmark:after {
+    display: block;
+}
+
+.item-settings .checkmark:after {
+    left: 8px;
+    top: 4px;
+    width: 4px;
+    height: 10px;
+    border: solid var(--on-primary-color);
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+    border-radius: 0px;
+}
+
+.yes-no-item {
+    padding-left: 35px;
+}
+
+.option-settings {
+    padding: 10px;
+    font-size: 1em;
+    z-index: 4;
+}
+
+.description-option-settings {
+    padding-left: 35px;
+    font-size: 0.8em;
+    opacity: 0.7;
+    color: var(--primary-color);
+}
+
+.section-grid-container {
+    display: grid;
+    grid-template-areas: 'text text text select';
+    width: 60%;
+}
+
+@media screen and (max-width: 2000px) {
+}
+
+@media screen and (max-width: 1700px) {
+    .section-grid-container {
+        width: 70%;
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    .section-grid-container {
+        width: 100%;
+    }
+}
+
+.section-grid-item-text {
+    grid-area: text;
+    text-align: left;
+}
+.section-grid-item-select {
+    grid-area: select;
+    text-align: right;
+}
+
+/*global*/
 
 .tag-colour-none {
     border: none !important;
