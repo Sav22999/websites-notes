@@ -117,7 +117,7 @@ body {
     -moz-appearance: none;
     text-indent: 0px;
     text-overflow: '';
-    padding: 5px 30px 5px 10px;
+    padding: 5px 35px 5px 10px;
 }
 
 .select-box:hover {
@@ -1087,6 +1087,12 @@ aside > button.sel, aside > button.sel:hover {
     z-index: 5;
 }
 
+@media screen and (max-width: 1200px) {
+    .section-title-settings {
+        position: relative;
+    }
+}
+
 .item-settings {
     font-size: 1em;
     display: block;
@@ -1157,6 +1163,7 @@ aside > button.sel, aside > button.sel:hover {
     padding: 10px;
     font-size: 1em;
     z-index: 4;
+    margin: 10px 0px;
 }
 
 .description-option-settings {
@@ -1170,6 +1177,7 @@ aside > button.sel, aside > button.sel:hover {
     display: grid;
     grid-template-areas: 'text text text select';
     width: 60%;
+    padding: 5px;
 }
 
 @media screen and (max-width: 2000px) {

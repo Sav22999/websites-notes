@@ -47,6 +47,7 @@ Created by Saverio Morelli - saveriomorelli.com
         <!--General section-->
         <div class="section-title-settings" id="general-title-settings"></div>
 
+        <!--Open by default section-->
         <div class="option-settings">
             <span class="item-settings section-grid-container">
                 <span class="title-option-settings section-grid-item-text" id="open-by-default-text"></span>
@@ -57,11 +58,70 @@ Created by Saverio Morelli - saveriomorelli.com
                     </select>
                 </span>
             </span>
-            <!--<span class="description-option-settings" id=""></span>-->
         </div>
 
         <!--Keyboard Shortcuts section-->
         <div class="section-title-settings" id="shortcuts-title-settings"></div>
+
+        <!--Default shortcut-->
+        <div class="option-settings">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id="open-popup-default-shortcut-text"></span>
+                <span class="section-grid-item-select">
+                    <select class="select-box" id="key-shortcut-ctrl-alt-shift-default-selected">
+                        <option value="disabled" id="select-disable-shortcut-default">Disabled</option>
+                        <option value="Ctrl" id="select-ctrl-shortcut-default">Ctrl</option>
+                        <option value="Alt" id="select-alt-shortcut-default">Alt</option>
+                        <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-default">Ctrl + Alt</option>
+                        <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-default">Ctrl + Shift</option>
+                        <option value="Alt+Shift" id="select-alt-shift-shortcut-default">Alt + Shift</option>
+                    </select>
+                    <span id="label-plus-shortcut-default">+</span>
+                    <select class="select-box" id="key-shortcut-default-selected">
+                    </select>
+                </span>
+            </span>
+        </div>
+
+        <!--Domain shortcut-->
+        <div class="option-settings">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id="open-popup-domain-shortcut-text"></span>
+                <span class="section-grid-item-select">
+                    <select class="select-box" id="key-shortcut-ctrl-alt-shift-domain-selected">
+                        <option value="disabled" id="select-disable-shortcut-domain">Disabled</option>
+                        <option value="Ctrl" id="select-ctrl-shortcut-domain">Ctrl</option>
+                        <option value="Alt" id="select-alt-shortcut-domain">Alt</option>
+                        <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-domain">Ctrl + Alt</option>
+                        <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-domain">Ctrl + Shift</option>
+                        <option value="Alt+Shift" id="select-alt-shift-shortcut-domain">Alt + Shift</option>
+                    </select>
+                    <span id="label-plus-shortcut-domain">+</span>
+                    <select class="select-box" id="key-shortcut-domain-selected">
+                    </select>
+                </span>
+            </span>
+        </div>
+
+        <!--Page shortcut-->
+        <div class="option-settings">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id="open-popup-page-shortcut-text"></span>
+                <span class="section-grid-item-select">
+                    <select class="select-box" id="key-shortcut-ctrl-alt-shift-page-selected">
+                        <option value="disabled" id="select-disable-shortcut-page">Disabled</option>
+                        <option value="Ctrl" id="select-ctrl-shortcut-page">Ctrl</option>
+                        <option value="Alt" id="select-alt-shortcut-page">Alt</option>
+                        <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-page">Ctrl + Alt</option>
+                        <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-page">Ctrl + Shift</option>
+                        <option value="Alt+Shift" id="select-alt-shift-shortcut-page">Alt + Shift</option>
+                    </select>
+                    <span id="label-plus-shortcut-page">+</span>
+                    <select class="select-box" id="key-shortcut-page-selected">
+                    </select>
+                </span>
+            </span>
+        </div>
 
         <!--Appearance section-->
         <div class="section-title-settings" id="appearance-title-settings"></div>
@@ -92,65 +152,6 @@ Created by Saverio Morelli - saveriomorelli.com
     </span>
 
     <span id="settings-sections">
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column"
-                  id="open-popup-default-shortcut-text">
-                Keyboard shortcut to open pop-up using the default tab chosen
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select class="select-box" id="key-shortcut-ctrl-alt-shift-default-selected">
-                    <option value="disabled" id="select-disable-shortcut-default">Disabled</option>
-                    <option value="Ctrl" id="select-ctrl-shortcut-default">Ctrl</option>
-                    <option value="Alt" id="select-alt-shortcut-default">Alt</option>
-                    <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-default">Ctrl + Alt</option>
-                    <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-default">Ctrl + Shift</option>
-                    <option value="Alt+Shift" id="select-alt-shift-shortcut-default">Alt + Shift</option>
-                </select>
-                <span id="label-plus-shortcut-default">+</span>
-                <select class="select-box" id="key-shortcut-default-selected">
-                </select>
-            </span>
-        </div>
-
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column"
-                  id="open-popup-domain-shortcut-text">
-                Keyboard shortcut to open pop-up using the domain tab
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select class="select-box" id="key-shortcut-ctrl-alt-shift-domain-selected">
-                    <option value="disabled" id="select-disable-shortcut-domain">Disabled</option>
-                    <option value="Ctrl" id="select-ctrl-shortcut-domain">Ctrl</option>
-                    <option value="Alt" id="select-alt-shortcut-domain">Alt</option>
-                    <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-domain">Ctrl + Alt</option>
-                    <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-domain">Ctrl + Shift</option>
-                    <option value="Alt+Shift" id="select-alt-shift-shortcut-domain">Alt + Shift</option>
-                </select>
-                <span id="label-plus-shortcut-domain">+</span>
-                <select class="select-box" id="key-shortcut-domain-selected">
-                </select>
-            </span>
-        </div>
-
-        <div class="section settings-section-grid">
-            <span class="section-left padding-25px-lateral settings-section-grid-column"
-                  id="open-popup-page-shortcut-text">
-                Keyboard shortcut to open pop-up using the page tab
-            </span>
-            <span class="section-right settings-section-grid-column">
-                <select class="select-box" id="key-shortcut-ctrl-alt-shift-page-selected">
-                    <option value="disabled" id="select-disable-shortcut-page">Disabled</option>
-                    <option value="Ctrl" id="select-ctrl-shortcut-page">Ctrl</option>
-                    <option value="Alt" id="select-alt-shortcut-page">Alt</option>
-                    <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-page">Ctrl + Alt</option>
-                    <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-page">Ctrl + Shift</option>
-                    <option value="Alt+Shift" id="select-alt-shift-shortcut-page">Alt + Shift</option>
-                </select>
-                <span id="label-plus-shortcut-page">+</span>
-                <select class="select-box" id="key-shortcut-page-selected">
-                </select>
-            </span>
-        </div>
 
         <div class="section settings-section-grid hidden" id="sync-instead-of-local">
             <span class="section-left padding-25px-lateral settings-section-grid-column">

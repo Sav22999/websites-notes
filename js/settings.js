@@ -322,6 +322,8 @@ function onChangeShortcut(element, keyboardShortcutLetterNumber, keyboardShortcu
             document.getElementById("label-plus-shortcut-" + value).classList.add("hidden");
             settings_json["open-popup-" + value] = "disabled";
         }
+
+        saveSettings();
     }
 }
 
