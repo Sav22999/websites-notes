@@ -3,13 +3,13 @@ strings[lang] = {};
 strings[lang] = {
     'all-notes-title': 'جميع الملاحظات',
     'all-notes-title-page': 'Notefox - جميع الملاحظات',
-    'export-all-notes-button': 'تصدير جميع الملاحظات…',
+    'export-all-notes-button': 'Export data…',
     'export-notes-to-file-button': 'التصدير مباشرة إلى ملف',
     'exported-notes-to-file-button': 'تصدير إلى ملف',
-    'import-notes-button': 'استيراد الملاحظات…',
+    'import-notes-button': 'Import data…',
     'import-notes-from-file-button': 'استيراد من الملف…',
     'refresh-data-button': 'تحديث البيانات',
-    'clear-all-notes-button': 'مسح جميع الملاحظات',
+    'clear-all-notes-button': 'Clear all data',
     'import-json-message-dialog-text': 'قم بلصق محتوى ملف JSON (أو النص) الذي قمت بتصديره من قبل، ثم انقر فوق زر <span {{parameters}}>استيراد الآن</span> . سيتم إعادة تحميل الصفحة تلقائياً إذا تم استيراد الملاحظات بنجاح.',
     'cancel-button': 'إلغاء',
     'import-now-button': 'استيراد الآن',
@@ -164,5 +164,11 @@ strings[lang] = {
     'shortcuts-title-settings': 'Keyboard shortcuts',
     'sync-title-settings': 'Sync',
     'icon-behaviour-title-settings': 'Icon behaviour',
-    'data-title-settings': 'Data'
+    'data-title-settings': 'Data',
+    'export-text': 'Export data to a JSON file or text',
+    'import-text': 'Import data from a JSON file or text',
+    'clear-all-notes-text': 'Reset all data',
+    'export-detailed-text': 'Export all data, which includes notes, settings, and other data, to a JSON file or text. <b>Once started, the export process can\'t be stopped.</b>',
+    'import-detailed-text': 'Import all data from a JSON file or text <b>Once started, the import process can\'t be stopped.</b>',
+    'clear-all-notes-detailed-text': 'Clear all data saved by the add-on. <b>Once started, the process can\'t be stopped.</b>'
 };

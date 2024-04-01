@@ -3,13 +3,13 @@ strings[lang] = {};
 strings[lang] = {
     'all-notes-title': 'Tutte le note',
     'all-notes-title-page': 'Notefox - Tutte le note',
-    'export-all-notes-button': 'Esporta tutte le note…',
+    'export-all-notes-button': 'Esporta dati…',
     'export-notes-to-file-button': 'Esporta direttamente su file',
     'exported-notes-to-file-button': 'Esportato su file',
-    'import-notes-button': 'Importa tutte le note…',
+    'import-notes-button': 'Importa dati…',
     'import-notes-from-file-button': 'Importa da file…',
     'refresh-data-button': 'Aggiorna i dati',
-    'clear-all-notes-button': 'Cancella tutte le note',
+    'clear-all-notes-button': 'Cancella tutti i dati',
     'import-json-message-dialog-text': 'Incolla qui il contenuto del file JSON (o testo) che hai esportato in precedenza, quindi fai clic sul pulsante <span {{parameters}}>Importa adesso</span>. La pagina verrà ricaricata automaticamente se le note sono state importate correttamente.',
     'cancel-button': 'Annulla',
     'import-now-button': 'Importa adesso',
@@ -164,5 +164,11 @@ strings[lang] = {
     'shortcuts-title-settings': 'Scorciatoie da tastiera',
     'sync-title-settings': 'Sincronizzazione',
     'icon-behaviour-title-settings': 'Comportamento dell\'icona',
-    'data-title-settings': 'Dati'
+    'data-title-settings': 'Dati',
+    'export-text': 'Esporta dati su testo o in un file JSON',
+    'import-text': 'Importa dati da un file JSON o da un testo',
+    'clear-all-notes-text': 'Resetta tutti i dati',
+    'export-detailed-text': 'Esporta tutti i dati, che includono note, impostazioni e altri dati, su testo o in un file JSON. <b>Una volta avviato, il processo di esportazione non può essere fermato.</b>',
+    'import-detailed-text': 'Importa tutti i dati da testo o da un file JSON <b>Una volta avviato, il processo di importazione non può essere fermato.</b>',
+    'clear-all-notes-detailed-text': 'Cancella tutti i dati salvati dal componente aggiuntivo. <b>Una volta avviato, il processo non può essere fermato.</b>'
 };

@@ -3,13 +3,13 @@ strings[lang] = {};
 strings[lang] = {
     'all-notes-title': '所有筆記',
     'all-notes-title-page': 'Notefox - 所有筆記',
-    'export-all-notes-button': '匯出所有筆記…',
+    'export-all-notes-button': 'Export data…',
     'export-notes-to-file-button': 'Export directly to file',
     'exported-notes-to-file-button': 'Exported to file',
-    'import-notes-button': '匯入筆記…',
+    'import-notes-button': 'Import data…',
     'import-notes-from-file-button': 'Import from file…',
     'refresh-data-button': '重新整理資料',
-    'clear-all-notes-button': '清除所有筆記',
+    'clear-all-notes-button': 'Clear all data',
     'import-json-message-dialog-text': '將您之前匯出的JSON（或文本）文件內容貼在這裡，然後按<span {{parameters}}>立即導入</span>按鈕。如果筆記成功導入，頁面將自動重新整理。',
     'cancel-button': '取消',
     'import-now-button': '立即匯入',
@@ -164,5 +164,11 @@ strings[lang] = {
     'shortcuts-title-settings': 'Keyboard shortcuts',
     'sync-title-settings': 'Sync',
     'icon-behaviour-title-settings': 'Icon behaviour',
-    'data-title-settings': 'Data'
+    'data-title-settings': 'Data',
+    'export-text': 'Export data to a JSON file or text',
+    'import-text': 'Import data from a JSON file or text',
+    'clear-all-notes-text': 'Reset all data',
+    'export-detailed-text': 'Export all data, which includes notes, settings, and other data, to a JSON file or text. <b>Once started, the export process can\'t be stopped.</b>',
+    'import-detailed-text': 'Import all data from a JSON file or text <b>Once started, the import process can\'t be stopped.</b>',
+    'clear-all-notes-detailed-text': 'Clear all data saved by the add-on. <b>Once started, the process can\'t be stopped.</b>'
 };

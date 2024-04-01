@@ -3,13 +3,13 @@ strings[lang] = {};
 strings[lang] = {
     'all-notes-title': 'Toutes les notes',
     'all-notes-title-page': 'Notefox - Toutes les notes',
-    'export-all-notes-button': 'Exporter toutes les notes…',
+    'export-all-notes-button': 'Export data…',
     'export-notes-to-file-button': 'Exporter directement vers un fichier',
     'exported-notes-to-file-button': 'Exporté vers un fichier',
-    'import-notes-button': 'Importer des notes…',
+    'import-notes-button': 'Import data…',
     'import-notes-from-file-button': 'Importer à partir du fichier…',
     'refresh-data-button': 'Rafraîchir les données',
-    'clear-all-notes-button': 'Effacer toutes les notes',
+    'clear-all-notes-button': 'Clear all data',
     'import-json-message-dialog-text': 'Collez ici le contenu du fichier JSON (ou du texte) que vous avez exporté précédemment, puis cliquez sur le bouton <span {{parameters}}>Importer maintenant</span> . La page sera automatiquement rechargée si les notes sont importées avec succès.',
     'cancel-button': 'Annuler',
     'import-now-button': 'Importer maintenant',
@@ -164,5 +164,11 @@ strings[lang] = {
     'shortcuts-title-settings': 'Keyboard shortcuts',
     'sync-title-settings': 'Sync',
     'icon-behaviour-title-settings': 'Icon behaviour',
-    'data-title-settings': 'Data'
+    'data-title-settings': 'Data',
+    'export-text': 'Export data to a JSON file or text',
+    'import-text': 'Import data from a JSON file or text',
+    'clear-all-notes-text': 'Reset all data',
+    'export-detailed-text': 'Export all data, which includes notes, settings, and other data, to a JSON file or text. <b>Once started, the export process can\'t be stopped.</b>',
+    'import-detailed-text': 'Import all data from a JSON file or text <b>Once started, the import process can\'t be stopped.</b>',
+    'clear-all-notes-detailed-text': 'Clear all data saved by the add-on. <b>Once started, the process can\'t be stopped.</b>'
 };

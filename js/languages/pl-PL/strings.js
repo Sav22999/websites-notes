@@ -3,13 +3,13 @@ strings[lang] = {};
 strings[lang] = {
     'all-notes-title': 'Wszystkie notatki',
     'all-notes-title-page': 'Notatnik - Wszystkie notatki',
-    'export-all-notes-button': 'Eksportuj wszystkie notatki…',
+    'export-all-notes-button': 'Export data…',
     'export-notes-to-file-button': 'Eksportuj bezpośrednio do pliku',
     'exported-notes-to-file-button': 'Wyeksportowano do pliku',
-    'import-notes-button': 'Importuj notatki…',
+    'import-notes-button': 'Import data…',
     'import-notes-from-file-button': 'Importuj z pliku…',
     'refresh-data-button': 'Odśwież dane',
-    'clear-all-notes-button': 'Wyczyść wszystkie notatki',
+    'clear-all-notes-button': 'Clear all data',
     'import-json-message-dialog-text': 'Wklej tutaj zawartość pliku JSON (lub tekstu), którą wyeksportowałeś wcześniej, a następnie kliknij przycisk <span {{parameters}}>Importuj teraz</span> . Strona zostanie automatycznie przeładowana jeśli notatki zostaną pomyślnie zaimportowane.',
     'cancel-button': 'Anuluj',
     'import-now-button': 'Importuj teraz',
@@ -164,5 +164,11 @@ strings[lang] = {
     'shortcuts-title-settings': 'Keyboard shortcuts',
     'sync-title-settings': 'Sync',
     'icon-behaviour-title-settings': 'Icon behaviour',
-    'data-title-settings': 'Data'
+    'data-title-settings': 'Data',
+    'export-text': 'Export data to a JSON file or text',
+    'import-text': 'Import data from a JSON file or text',
+    'clear-all-notes-text': 'Reset all data',
+    'export-detailed-text': 'Export all data, which includes notes, settings, and other data, to a JSON file or text. <b>Once started, the export process can\'t be stopped.</b>',
+    'import-detailed-text': 'Import all data from a JSON file or text <b>Once started, the import process can\'t be stopped.</b>',
+    'clear-all-notes-detailed-text': 'Clear all data saved by the add-on. <b>Once started, the process can\'t be stopped.</b>'
 };

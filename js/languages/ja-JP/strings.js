@@ -3,13 +3,13 @@ strings[lang] = {};
 strings[lang] = {
     'all-notes-title': 'すべてのノート',
     'all-notes-title-page': 'Notefox - すべてのノート',
-    'export-all-notes-button': 'すべてのメモをエクスポート…',
+    'export-all-notes-button': 'Export data…',
     'export-notes-to-file-button': '直接ファイルにエクスポート',
     'exported-notes-to-file-button': 'ファイルにエクスポートしました',
-    'import-notes-button': 'メモをインポート…',
+    'import-notes-button': 'Import data…',
     'import-notes-from-file-button': 'Import from file…',
     'refresh-data-button': 'データを更新',
-    'clear-all-notes-button': 'すべてのメモを消去',
+    'clear-all-notes-button': 'Clear all data',
     'import-json-message-dialog-text': '以前にエクスポートしたJSON(またはテキスト)ファイルの内容をここに貼り付け、 <span {{parameters}}>Import now</span> ボタンをクリックします。 ノートのインポートに成功すると、ページは自動的に再読み込みされます。',
     'cancel-button': 'キャンセル',
     'import-now-button': '今すぐインポート',
@@ -164,5 +164,11 @@ strings[lang] = {
     'shortcuts-title-settings': 'Keyboard shortcuts',
     'sync-title-settings': 'Sync',
     'icon-behaviour-title-settings': 'Icon behaviour',
-    'data-title-settings': 'Data'
+    'data-title-settings': 'Data',
+    'export-text': 'Export data to a JSON file or text',
+    'import-text': 'Import data from a JSON file or text',
+    'clear-all-notes-text': 'Reset all data',
+    'export-detailed-text': 'Export all data, which includes notes, settings, and other data, to a JSON file or text. <b>Once started, the export process can\'t be stopped.</b>',
+    'import-detailed-text': 'Import all data from a JSON file or text <b>Once started, the import process can\'t be stopped.</b>',
+    'clear-all-notes-detailed-text': 'Clear all data saved by the add-on. <b>Once started, the process can\'t be stopped.</b>'
 };

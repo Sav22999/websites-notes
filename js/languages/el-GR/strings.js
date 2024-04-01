@@ -3,13 +3,13 @@ strings[lang] = {};
 strings[lang] = {
     'all-notes-title': 'Όλες οι σημειώσεις',
     'all-notes-title-page': 'Notefox - Όλες οι σημειώσεις',
-    'export-all-notes-button': 'Εξαγωγή όλων των σημειώσεων…',
+    'export-all-notes-button': 'Export data…',
     'export-notes-to-file-button': 'Εξαγωγή απευθείας σε αρχείο',
     'exported-notes-to-file-button': 'Εξαγωγή σε αρχείο',
-    'import-notes-button': 'Εισαγωγή σημειώσεων…',
+    'import-notes-button': 'Import data…',
     'import-notes-from-file-button': 'Εισαγωγή από αρχείο…',
     'refresh-data-button': 'Ανανέωση δεδομένων',
-    'clear-all-notes-button': 'Εκκαθάριση όλων των σημειώσεων',
+    'clear-all-notes-button': 'Clear all data',
     'import-json-message-dialog-text': 'Επικολλήστε εδώ το περιεχόμενο του αρχείου JSON (ή κειμένου) που έχετε εξαγάγει προηγουμένως, και στη συνέχεια κάντε κλικ στο κουμπί <span {{parameters}}>Εισαγωγή τώρα</span> . Η σελίδα θα ξαναφορτωθεί αυτόματα εάν οι σημειώσεις εισάγονται με επιτυχία.',
     'cancel-button': 'Ακύρωση',
     'import-now-button': 'Εισαγωγή τώρα',
@@ -164,5 +164,11 @@ strings[lang] = {
     'shortcuts-title-settings': 'Keyboard shortcuts',
     'sync-title-settings': 'Sync',
     'icon-behaviour-title-settings': 'Icon behaviour',
-    'data-title-settings': 'Data'
+    'data-title-settings': 'Data',
+    'export-text': 'Export data to a JSON file or text',
+    'import-text': 'Import data from a JSON file or text',
+    'clear-all-notes-text': 'Reset all data',
+    'export-detailed-text': 'Export all data, which includes notes, settings, and other data, to a JSON file or text. <b>Once started, the export process can\'t be stopped.</b>',
+    'import-detailed-text': 'Import all data from a JSON file or text <b>Once started, the import process can\'t be stopped.</b>',
+    'clear-all-notes-detailed-text': 'Clear all data saved by the add-on. <b>Once started, the process can\'t be stopped.</b>'
 };

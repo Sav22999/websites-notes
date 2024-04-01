@@ -3,13 +3,13 @@ strings[lang] = {};
 strings[lang] = {
     'all-notes-title': 'Всі нотатки',
     'all-notes-title-page': 'Нотефокс - Усі нотатки',
-    'export-all-notes-button': 'Експортувати усі нотатки…',
+    'export-all-notes-button': 'Export data…',
     'export-notes-to-file-button': 'Експортувати безпосередньо у файл',
     'exported-notes-to-file-button': 'Експортовано в файл',
-    'import-notes-button': 'Імпорт нотаток…',
+    'import-notes-button': 'Import data…',
     'import-notes-from-file-button': 'Імпорт з файлу…',
     'refresh-data-button': 'Оновити дані',
-    'clear-all-notes-button': 'Очистити всі нотатки',
+    'clear-all-notes-button': 'Clear all data',
     'import-json-message-dialog-text': 'Вставте сюди вміст файлу JSON (або текст) який ви раніше експортували, потім натисніть <span {{parameters}}>Імпортувати зараз</span> кнопку. Сторінка буде автоматично перезавантажена, якщо нотатки успішно імпортовано.',
     'cancel-button': 'Скасувати',
     'import-now-button': 'Імпортувати зараз',
@@ -164,5 +164,11 @@ strings[lang] = {
     'shortcuts-title-settings': 'Keyboard shortcuts',
     'sync-title-settings': 'Sync',
     'icon-behaviour-title-settings': 'Icon behaviour',
-    'data-title-settings': 'Data'
+    'data-title-settings': 'Data',
+    'export-text': 'Export data to a JSON file or text',
+    'import-text': 'Import data from a JSON file or text',
+    'clear-all-notes-text': 'Reset all data',
+    'export-detailed-text': 'Export all data, which includes notes, settings, and other data, to a JSON file or text. <b>Once started, the export process can\'t be stopped.</b>',
+    'import-detailed-text': 'Import all data from a JSON file or text <b>Once started, the import process can\'t be stopped.</b>',
+    'clear-all-notes-detailed-text': 'Clear all data saved by the add-on. <b>Once started, the process can\'t be stopped.</b>'
 };

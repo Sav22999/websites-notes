@@ -3,13 +3,13 @@ strings[lang] = {};
 strings[lang] = {
     'all-notes-title': 'Kaikki merkinnät',
     'all-notes-title-page': 'Notefox - Kaikki merkinnät',
-    'export-all-notes-button': 'Vie kaikki muistiinpanot…',
+    'export-all-notes-button': 'Export data…',
     'export-notes-to-file-button': 'Vie suoraan tiedostoon',
     'exported-notes-to-file-button': 'Viety tiedostoon',
-    'import-notes-button': 'Tuo muistiinpanoja…',
+    'import-notes-button': 'Import data…',
     'import-notes-from-file-button': 'Tuo tiedostosta…',
     'refresh-data-button': 'Päivitä tiedot',
-    'clear-all-notes-button': 'Tyhjennä kaikki merkinnät',
+    'clear-all-notes-button': 'Clear all data',
     'import-json-message-dialog-text': 'Liitä tähän aiemmin viemäsi JSON (tai teksti) tiedoston sisältö ja napsauta sitten <span {{parameters}}>Tuo nyt</span> -painiketta. Sivu ladataan automaattisesti uudelleen, jos muistiinpanot tuodaan onnistuneesti.',
     'cancel-button': 'Peru',
     'import-now-button': 'Tuo nyt',
@@ -164,5 +164,11 @@ strings[lang] = {
     'shortcuts-title-settings': 'Keyboard shortcuts',
     'sync-title-settings': 'Sync',
     'icon-behaviour-title-settings': 'Icon behaviour',
-    'data-title-settings': 'Data'
+    'data-title-settings': 'Data',
+    'export-text': 'Export data to a JSON file or text',
+    'import-text': 'Import data from a JSON file or text',
+    'clear-all-notes-text': 'Reset all data',
+    'export-detailed-text': 'Export all data, which includes notes, settings, and other data, to a JSON file or text. <b>Once started, the export process can\'t be stopped.</b>',
+    'import-detailed-text': 'Import all data from a JSON file or text <b>Once started, the import process can\'t be stopped.</b>',
+    'clear-all-notes-detailed-text': 'Clear all data saved by the add-on. <b>Once started, the process can\'t be stopped.</b>'
 };
