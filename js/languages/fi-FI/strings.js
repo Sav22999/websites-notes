@@ -148,6 +148,21 @@ strings[lang] = {
     'label-title-undo': 'Kumoa',
     'label-title-redo': 'Toista',
     'label-title-spellcheck': 'Kielen oikeinkirjoitus',
+    'label-title-link': 'Insert / Remove link',
     'label-results-for': 'Tulokset:  {{keywords}}',
-    'tooltip-info-search': 'Voit etsiä usean avainsanan. Jokainen avainsana (tai lause) on erotettava merkillä \';\'. Näytettävät tulokset ovat kaikkien avainsanoja vastaavien tulosten liittymä.\nEsimerkki: \'hello world;goodbye\'. Tulokset ovat kaikki muistiinpanoja \'hello world\' TAI \'goodbye\'.'
+    'all-notes-aside': 'All notes',
+    'help-aside': 'Help',
+    'settings-aside': 'Settings',
+    'review-aside': 'Review',
+    'donate-aside': 'Buy me a coffee',
+    'website-aside': 'Website',
+    'translate-aside': 'Translate',
+    'version-aside': 'Notefox version {{version}}',
+    'general-title-settings': 'General',
+    'advanced-title-settings': 'Advanced',
+    'appearance-title-settings': 'Appearance',
+    'shortcuts-title-settings': 'Keyboard shortcuts',
+    'sync-title-settings': 'Sync',
+    'icon-behaviour-title-settings': 'Icon behaviour',
+    'data-title-settings': 'Data'
 };

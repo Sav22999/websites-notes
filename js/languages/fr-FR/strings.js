@@ -148,6 +148,21 @@ strings[lang] = {
     'label-title-undo': 'Annuler',
     'label-title-redo': 'Refaire',
     'label-title-spellcheck': 'Vérification orthographique de la langue',
+    'label-title-link': 'Insert / Remove link',
     'label-results-for': 'Résultats pour :  {{keywords}}',
-    'tooltip-info-search': 'Vous pouvez rechercher des mots clés multiples. Chaque mot-clé (ou phrase) doit être séparé par le symbole \';\'. Les résultats affichés seront la jointure de tous les résultats correspondant aux mots-clés.\nExemple: \'bonjour le monde;au revoir\'. Les résultats seront tous des notes avec \'bonjour le monde\' OU \'au revoir\'.'
+    'all-notes-aside': 'All notes',
+    'help-aside': 'Help',
+    'settings-aside': 'Settings',
+    'review-aside': 'Review',
+    'donate-aside': 'Buy me a coffee',
+    'website-aside': 'Website',
+    'translate-aside': 'Translate',
+    'version-aside': 'Notefox version {{version}}',
+    'general-title-settings': 'General',
+    'advanced-title-settings': 'Advanced',
+    'appearance-title-settings': 'Appearance',
+    'shortcuts-title-settings': 'Keyboard shortcuts',
+    'sync-title-settings': 'Sync',
+    'icon-behaviour-title-settings': 'Icon behaviour',
+    'data-title-settings': 'Data'
 };

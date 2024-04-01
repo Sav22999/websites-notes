@@ -148,6 +148,21 @@ strings[lang] = {
     'label-title-undo': 'Скасувати',
     'label-title-redo': 'Повторити дію',
     'label-title-spellcheck': 'Перевірка орфографії',
+    'label-title-link': 'Insert / Remove link',
     'label-results-for': 'Results for:  {{keywords}}',
-    'tooltip-info-search': 'Пошук можна виконати за мно-ключовим словом. Кожне ключове слово (або речення) має бути розділене символом «;». Отримані результати будуть приєднуватися до всіх результатів, які відповідають ключовим словам.\nПриклад: \'Привіт світ;goodbye\'. Результати будуть усіма нотатками з \'Привіт світ\' або \'прощання\'.'
+    'all-notes-aside': 'All notes',
+    'help-aside': 'Help',
+    'settings-aside': 'Settings',
+    'review-aside': 'Review',
+    'donate-aside': 'Buy me a coffee',
+    'website-aside': 'Website',
+    'translate-aside': 'Translate',
+    'version-aside': 'Notefox version {{version}}',
+    'general-title-settings': 'General',
+    'advanced-title-settings': 'Advanced',
+    'appearance-title-settings': 'Appearance',
+    'shortcuts-title-settings': 'Keyboard shortcuts',
+    'sync-title-settings': 'Sync',
+    'icon-behaviour-title-settings': 'Icon behaviour',
+    'data-title-settings': 'Data'
 };

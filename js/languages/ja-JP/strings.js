@@ -148,6 +148,21 @@ strings[lang] = {
     'label-title-undo': '元に戻す',
     'label-title-redo': 'Redo',
     'label-title-spellcheck': '言語のスペルチェック',
+    'label-title-link': 'Insert / Remove link',
     'label-results-for': '{{keywords}} の検索結果',
-    'tooltip-info-search': '複数のキーワードを検索することができます。各キーワード(または文)は\';\'記号で区切らなければなりません。 表示される結果は、キーワードに対応するすべての結果の結合になります。\n例: \'hello world;さようなら\' 結果は、\'hello world\' または \'goodbye\' のすべてのメモになります。'
+    'all-notes-aside': 'All notes',
+    'help-aside': 'Help',
+    'settings-aside': 'Settings',
+    'review-aside': 'Review',
+    'donate-aside': 'Buy me a coffee',
+    'website-aside': 'Website',
+    'translate-aside': 'Translate',
+    'version-aside': 'Notefox version {{version}}',
+    'general-title-settings': 'General',
+    'advanced-title-settings': 'Advanced',
+    'appearance-title-settings': 'Appearance',
+    'shortcuts-title-settings': 'Keyboard shortcuts',
+    'sync-title-settings': 'Sync',
+    'icon-behaviour-title-settings': 'Icon behaviour',
+    'data-title-settings': 'Data'
 };

@@ -148,6 +148,21 @@ strings[lang] = {
     'label-title-undo': 'Ångra',
     'label-title-redo': 'Gör om',
     'label-title-spellcheck': 'Språkinställningskontroll',
+    'label-title-link': 'Insert / Remove link',
     'label-results-for': 'Resultat för:  {{keywords}}',
-    'tooltip-info-search': 'Du kan söka i multinyckelord. Varje sökord (eller mening) måste separeras med symbolen \';\'. Resultaten som visas kommer att vara sammanfogningen av alla resultat som motsvarar sökord.\nExempel: \'hej världen;adjö\'. Resultaten kommer att vara alla anteckningar med \'hej världen\' ELLER \'adjö\'.'
+    'all-notes-aside': 'All notes',
+    'help-aside': 'Help',
+    'settings-aside': 'Settings',
+    'review-aside': 'Review',
+    'donate-aside': 'Buy me a coffee',
+    'website-aside': 'Website',
+    'translate-aside': 'Translate',
+    'version-aside': 'Notefox version {{version}}',
+    'general-title-settings': 'General',
+    'advanced-title-settings': 'Advanced',
+    'appearance-title-settings': 'Appearance',
+    'shortcuts-title-settings': 'Keyboard shortcuts',
+    'sync-title-settings': 'Sync',
+    'icon-behaviour-title-settings': 'Icon behaviour',
+    'data-title-settings': 'Data'
 };

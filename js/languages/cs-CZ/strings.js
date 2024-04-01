@@ -148,6 +148,21 @@ strings[lang] = {
     'label-title-undo': 'Zpět',
     'label-title-redo': 'Znovu',
     'label-title-spellcheck': 'Kontrola pravopisu jazyka',
+    'label-title-link': 'Insert / Remove link',
     'label-results-for': 'Výsledky pro:  {{keywords}}',
-    'tooltip-info-search': 'Můžete hledat více klíčových slov. Každé klíčové slovo (nebo věta) musí být odděleno symbolem ";". Zobrazené výsledky budou připojeny ke všem výsledkům, které odpovídají klíčovým slovům.\nPříklad: \'ahoj světa;lubye\'. Výsledky budou všechny poznámky s \'ahoj světa\' NEBO \'sbohem\'.'
+    'all-notes-aside': 'All notes',
+    'help-aside': 'Help',
+    'settings-aside': 'Settings',
+    'review-aside': 'Review',
+    'donate-aside': 'Buy me a coffee',
+    'website-aside': 'Website',
+    'translate-aside': 'Translate',
+    'version-aside': 'Notefox version {{version}}',
+    'general-title-settings': 'General',
+    'advanced-title-settings': 'Advanced',
+    'appearance-title-settings': 'Appearance',
+    'shortcuts-title-settings': 'Keyboard shortcuts',
+    'sync-title-settings': 'Sync',
+    'icon-behaviour-title-settings': 'Icon behaviour',
+    'data-title-settings': 'Data'
 };

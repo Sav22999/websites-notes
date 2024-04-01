@@ -148,6 +148,21 @@ strings[lang] = {
     'label-title-undo': 'Отменить',
     'label-title-redo': 'Повторить',
     'label-title-spellcheck': 'Проверка орфографии языка',
+    'label-title-link': 'Insert / Remove link',
     'label-results-for': 'Результаты для:  {{keywords}}',
-    'tooltip-info-search': 'Вы можете искать в нескольких ключевых словах. Каждое ключевое слово (или предложение) должно быть разделено символом \';\'. Показаны результаты совмещения всех результатов, соответствующих ключевым словам.\nПример: «Привет, мир;хорошо». Результаты будут все заметки с «приветственный мир» или «хорошо».'
+    'all-notes-aside': 'All notes',
+    'help-aside': 'Help',
+    'settings-aside': 'Settings',
+    'review-aside': 'Review',
+    'donate-aside': 'Buy me a coffee',
+    'website-aside': 'Website',
+    'translate-aside': 'Translate',
+    'version-aside': 'Notefox version {{version}}',
+    'general-title-settings': 'General',
+    'advanced-title-settings': 'Advanced',
+    'appearance-title-settings': 'Appearance',
+    'shortcuts-title-settings': 'Keyboard shortcuts',
+    'sync-title-settings': 'Sync',
+    'icon-behaviour-title-settings': 'Icon behaviour',
+    'data-title-settings': 'Data'
 };

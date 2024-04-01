@@ -148,6 +148,21 @@ strings[lang] = {
     'label-title-undo': 'Anulează',
     'label-title-redo': 'Reface',
     'label-title-spellcheck': 'Verificare limbă',
+    'label-title-link': 'Insert / Remove link',
     'label-results-for': 'Rezultate pentru:  {{keywords}}',
-    'tooltip-info-search': 'Puteţi căuta cuvinte multi-cheie. Fiecare cuvânt cheie (sau propoziţie) trebuie să fie separat de simbolul ";". Rezultatele afișate vor fi alăturarea tuturor rezultatelor corespunzătoare cuvintelor-cheie.\nExemplu: \'hello world;goodby\'. Rezultatele vor fi toate notele cu \'hello world\' SAU \'goodby\'.'
+    'all-notes-aside': 'All notes',
+    'help-aside': 'Help',
+    'settings-aside': 'Settings',
+    'review-aside': 'Review',
+    'donate-aside': 'Buy me a coffee',
+    'website-aside': 'Website',
+    'translate-aside': 'Translate',
+    'version-aside': 'Notefox version {{version}}',
+    'general-title-settings': 'General',
+    'advanced-title-settings': 'Advanced',
+    'appearance-title-settings': 'Appearance',
+    'shortcuts-title-settings': 'Keyboard shortcuts',
+    'sync-title-settings': 'Sync',
+    'icon-behaviour-title-settings': 'Icon behaviour',
+    'data-title-settings': 'Data'
 };

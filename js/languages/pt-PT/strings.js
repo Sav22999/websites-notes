@@ -148,6 +148,21 @@ strings[lang] = {
     'label-title-undo': 'Desfazer',
     'label-title-redo': 'Refazer',
     'label-title-spellcheck': 'Verificação ortográfica',
+    'label-title-link': 'Insert / Remove link',
     'label-results-for': 'Resultados para:  {{keywords}}',
-    'tooltip-info-search': 'Você pode procurar várias palavras-chave. Cada palavra-chave (ou frase) deve ser separado pelo símbolo \';\'. Os resultados mostrados serão a junção de todos os resultados correspondentes a palavras-chave\nExemplo: \'olá mundo;adeus\'. Resultados serão todas notas com \'olá mundo\' OU \'adeus\'.'
+    'all-notes-aside': 'All notes',
+    'help-aside': 'Help',
+    'settings-aside': 'Settings',
+    'review-aside': 'Review',
+    'donate-aside': 'Buy me a coffee',
+    'website-aside': 'Website',
+    'translate-aside': 'Translate',
+    'version-aside': 'Notefox version {{version}}',
+    'general-title-settings': 'General',
+    'advanced-title-settings': 'Advanced',
+    'appearance-title-settings': 'Appearance',
+    'shortcuts-title-settings': 'Keyboard shortcuts',
+    'sync-title-settings': 'Sync',
+    'icon-behaviour-title-settings': 'Icon behaviour',
+    'data-title-settings': 'Data'
 };

@@ -148,6 +148,21 @@ strings[lang] = {
     'label-title-undo': '撤消操作',
     'label-title-redo': '重做',
     'label-title-spellcheck': '语言拼写检查',
+    'label-title-link': 'Insert / Remove link',
     'label-results-for': 'Results for:  {{keywords}}',
-    'tooltip-info-search': '您可以搜索多个关键字。每个关键字(或句子)必须用符号分隔。 显示的结果将是与关键字对应的所有结果的合并。\n示例：“hello world;goodbye”。结果将是“hello world”或者“goodbye”。'
+    'all-notes-aside': 'All notes',
+    'help-aside': 'Help',
+    'settings-aside': 'Settings',
+    'review-aside': 'Review',
+    'donate-aside': 'Buy me a coffee',
+    'website-aside': 'Website',
+    'translate-aside': 'Translate',
+    'version-aside': 'Notefox version {{version}}',
+    'general-title-settings': 'General',
+    'advanced-title-settings': 'Advanced',
+    'appearance-title-settings': 'Appearance',
+    'shortcuts-title-settings': 'Keyboard shortcuts',
+    'sync-title-settings': 'Sync',
+    'icon-behaviour-title-settings': 'Icon behaviour',
+    'data-title-settings': 'Data'
 };

@@ -148,6 +148,21 @@ strings[lang] = {
     'label-title-undo': 'Rückgängig',
     'label-title-redo': 'Wiederholen',
     'label-title-spellcheck': 'Rechtschreibprüfung',
+    'label-title-link': 'Insert / Remove link',
     'label-results-for': 'Ergebnisse für:  {{keywords}}',
-    'tooltip-info-search': 'Sie können mehrere Stichwörter durchsuchen. Jedes Stichwort (oder Satz) muss mit dem \';\' Symbol getrennt werden. Die angezeigten Ergebnisse sind die Zusammenfassung aller Ergebnisse, die Keywords entsprechen.\nBeispiel: \'Hallo Welt;Goodbye\'. Ergebnisse werden alle Notizen mit \'Hallo Welt\' ODER \'Goodbye\' sein.'
+    'all-notes-aside': 'All notes',
+    'help-aside': 'Help',
+    'settings-aside': 'Settings',
+    'review-aside': 'Review',
+    'donate-aside': 'Buy me a coffee',
+    'website-aside': 'Website',
+    'translate-aside': 'Translate',
+    'version-aside': 'Notefox version {{version}}',
+    'general-title-settings': 'General',
+    'advanced-title-settings': 'Advanced',
+    'appearance-title-settings': 'Appearance',
+    'shortcuts-title-settings': 'Keyboard shortcuts',
+    'sync-title-settings': 'Sync',
+    'icon-behaviour-title-settings': 'Icon behaviour',
+    'data-title-settings': 'Data'
 };

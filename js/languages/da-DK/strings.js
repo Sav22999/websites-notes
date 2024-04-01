@@ -148,6 +148,21 @@ strings[lang] = {
     'label-title-undo': 'Fortryd',
     'label-title-redo': 'Gendan',
     'label-title-spellcheck': 'Sprog stavekontrol',
+    'label-title-link': 'Insert / Remove link',
     'label-results-for': 'Resultater for:  {{keywords}}',
-    'tooltip-info-search': 'Du kan søge efter flere søgeord. Hvert søgeord (eller sætning) skal adskilles med symbolet \';\'. De viste resultater vil være en sammenføjning af alle resultater svarende til nøgleord.\nEksempel: \'hello world;goodbye\'. Resultater vil være alle noter med \'hello verden\' ELLER \'goodbye\'.'
+    'all-notes-aside': 'All notes',
+    'help-aside': 'Help',
+    'settings-aside': 'Settings',
+    'review-aside': 'Review',
+    'donate-aside': 'Buy me a coffee',
+    'website-aside': 'Website',
+    'translate-aside': 'Translate',
+    'version-aside': 'Notefox version {{version}}',
+    'general-title-settings': 'General',
+    'advanced-title-settings': 'Advanced',
+    'appearance-title-settings': 'Appearance',
+    'shortcuts-title-settings': 'Keyboard shortcuts',
+    'sync-title-settings': 'Sync',
+    'icon-behaviour-title-settings': 'Icon behaviour',
+    'data-title-settings': 'Data'
 };

@@ -148,6 +148,21 @@ strings[lang] = {
     'label-title-undo': 'Angre',
     'label-title-redo': 'Gjenta',
     'label-title-spellcheck': 'Språkstavekontroll',
+    'label-title-link': 'Insert / Remove link',
     'label-results-for': 'Resultater for:  {{keywords}}',
-    'tooltip-info-search': 'Du kan søke flere søkeord. Hvert nøkkelord (eller setning) må separeres med \';\'-symbolet. Resultatene som vises vil være med i alle resultatene som tilsvarer nøkkelord.\nEksempel: \'hallo world;goodbye\'. Resultatene vil være alle notater med \'hallo world\' ELLER \'goodbye\'.'
+    'all-notes-aside': 'All notes',
+    'help-aside': 'Help',
+    'settings-aside': 'Settings',
+    'review-aside': 'Review',
+    'donate-aside': 'Buy me a coffee',
+    'website-aside': 'Website',
+    'translate-aside': 'Translate',
+    'version-aside': 'Notefox version {{version}}',
+    'general-title-settings': 'General',
+    'advanced-title-settings': 'Advanced',
+    'appearance-title-settings': 'Appearance',
+    'shortcuts-title-settings': 'Keyboard shortcuts',
+    'sync-title-settings': 'Sync',
+    'icon-behaviour-title-settings': 'Icon behaviour',
+    'data-title-settings': 'Data'
 };
