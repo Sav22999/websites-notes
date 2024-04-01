@@ -505,45 +505,45 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
             #text--sticky-notes-notefox-addon h1 {
                 font-family: 'Open Sans', sans-serif;
                 font-weight: bolder;
-                font-size: 22px !important;
+                font-size: 2em !important;
             }
             
             #text--sticky-notes-notefox-addon h2 {
                 font-family: 'Open Sans', sans-serif;
                 font-weight: bolder;
-                font-size: 20px !important;
+                font-size: 1.7em !important;
             }
             
             #text--sticky-notes-notefox-addon h3 {
                 font-family: 'Open Sans', sans-serif;
                 font-weight: bolder;
-                font-size: 18px !important;
+                font-size: 1.4em !important;
             }
             
             #text--sticky-notes-notefox-addon h4 {
                 font-family: 'Open Sans', sans-serif;
                 font-weight: bolder;
-                font-size: 16px !important;
+                font-size: 1.1em !important;
             }
             
             #text--sticky-notes-notefox-addon h5 {
                 font-family: 'Open Sans', sans-serif;
                 font-weight: bolder;
-                font-size: 14px !important;
+                font-size: 0.85em !important;
             }
             
             #text--sticky-notes-notefox-addon h6 {
                 font-family: 'Open Sans', sans-serif;
                 font-weight: bolder;
-                font-size: 12px !important;
+                font-size: 0.7em !important;
             }
             
             #text--sticky-notes-notefox-addon big {
-                font-size: 18px !important;
+                font-size: 1.5em !important;
             }
             
             #text--sticky-notes-notefox-addon small, #text--sticky-notes-notefox-addon sup, #text--sticky-notes-notefox-addon sub {
-                font-size: 12px !important;
+                font-size: 0.7em !important;
             }
             
             #text--sticky-notes-notefox-addon img {

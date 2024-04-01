@@ -191,7 +191,19 @@ function loaded() {
             search(document.getElementById("search-all-notes-text").value);
         }
 
+        window.onscroll = function () {
+            if (window.scrollY > 30) {
+                //hide because it's visible
+                document.getElementById("filters").classList.add("hidden");
+                if (document.getElementById("search-filter-sortby").classList.contains("filters-visibile"))
+                    document.getElementById("search-filter-sortby").classList.remove("filters-visibile");
+            }
+        }
+
         document.getElementById("filter-all-notes-button").onclick = function () {
+            window.scrollTo({
+                top: 0,
+            });
             if (document.getElementById("filters").classList.contains("hidden")) {
                 //show because it's hidden
                 document.getElementById("filters").classList.remove("hidden");
@@ -983,7 +995,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                         let h2 = document.createElement("h2");
                         h2.textContent = domain;
                         if (isUrlSupported(domain)) {
-                            h2.classList.add("link", "go-to-external");
+                            h2.classList.add("link", "go-to-external", "domain");
                             h2.onclick = function () {
                                 browser.tabs.create({url: domain});
                             }
@@ -1047,6 +1059,10 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                     if (pages_added > 0) section.append(all_pages);
 
                     document.getElementById("all-website-sections").append(section);
+
+                    let hr = document.createElement("hr");
+                    hr.classList.add("hr-big-space", "hr-domain");
+                    document.getElementById("all-website-sections").append(hr);
                 }
             }
         }
@@ -1068,6 +1084,14 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
     }
 }
 
+function getAbsoluteTop(element) {
+    var absoluteTop = 0;
+    while (element) {
+        absoluteTop += element.offsetTop;
+        element = element.offsetParent;
+    }
+    return absoluteTop;
+}
 
 function getGlobalUrl() {
     return "**global";
@@ -1648,6 +1672,10 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .select-tag-all-notes {
                     background-image: url('data:image/svg+xml;base64,${tag_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
+                }
+                
+                h2.domain {
+                    background-color: ${background};
                 }
             </style>`;
     }

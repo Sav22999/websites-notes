@@ -118,6 +118,12 @@ body {
     padding: 5px 35px 5px 10px;
 }
 
+
+.button {
+    padding: 7px 10px;
+    height: auto !important;
+}
+
 .select-box:hover {
     opacity: 1;
 }
@@ -159,6 +165,7 @@ body {
 }
 
 .clear-button {
+    z-index: 6;
     background-image: url("../img/delete.svg");
 }
 
@@ -231,6 +238,10 @@ body {
     width: auto;
 }
 
+.no-z-index {
+    z-index: 0;
+}
+
 #tabs-section > .tab:first-child {
     border-radius: 5px;
     border-top-right-radius: 0px;
@@ -296,7 +307,7 @@ body {
     font-size: 1em;
     overflow: scroll;
     word-wrap: normal;
-    box-shadow: 0px 0px 0px 1px var(--on-textbox-color);
+    box-shadow: 0px 0px 0px 0px var(--on-textbox-color);
 }
 
 textarea::placeholder, .textbox::placeholder, pre::placeholder {
@@ -308,7 +319,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     width: auto;
     height: auto;
     border: 0px solid var(--on-primary-color);
-    box-shadow: 0px 0px 0px 1px var(--primary-color);
+    box-shadow: 0px 0px 0px 0px var(--primary-color);
 }
 
 #search-all-notes-text {
@@ -442,7 +453,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     -moz-appearance: none;
     text-indent: 0px;
     text-overflow: '';
-    padding: 0px 25px !important;
+    padding: 15px 25px !important;
     font-size: 0px !important; /*This permits to "hide" the textContext from the select but NOT from the options*/
 }
 
@@ -476,6 +487,16 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     margin: 5px;
     border-radius: 5px;
     opacity: 1;
+}
+
+/*Only the first sub-section element has a margin-top of 50px*/
+.sub-section:first-child {
+    margin-top: 50px !important;
+}
+
+/*Only the latest sub-section element has a margin-bottom of 0px*/
+.sub-section:last-child {
+    margin-bottom: 0px !important;
 }
 
 #import-sub-sections, #export-sub-sections {
@@ -515,15 +536,35 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 }
 
 #search-filter-sortby {
-    top: 3.5px;
+    position: fixed;
+    top: 0px;
+    left: 10%;
+    right: 0px;
+    width: auto;
     z-index: 9;
+    margin: 0px;
+    border-radius: 0px;
+}
+
+@media screen and (max-width: 1700px) {
+    #search-filter-sortby {
+        left: 5%;
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    #search-filter-sortby {
+        left: 0px;
+    }
 }
 
 #filters {
     position: sticky;
-    top: 49px;
+    top: 48.5px;
     margin-top: -5px;
-    border-radius: 0px 0px 5px 5px;
+    border-radius: 0px;
+    margin-left: -20px;
+    margin-right: -20px;
 }
 
 .filters-visibile {
@@ -532,16 +573,6 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 
 #actions, #search-filter-sortby, #filters {
     background-color: var(--tertiary-transparent-2);
-}
-
-.sub-section {
-    background-color: #d0d0d022;
-    padding: 10px;
-    box-shadow: inset 0px 0px 0px 1px var(--primary-color);
-}
-
-.sub-section:nth-child(even) {
-    background-color: #d0d0d022;
 }
 
 .background-light-red:nth-child(even) {
@@ -553,13 +584,13 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     color: var(--primary-color);
     border-radius: 5px;
     margin-right: 10px;
-    padding: 5px;
+    padding: 7px 10px;
     font-family: 'Open Sans', sans-serif;
-    font-size: 10px;
+    font-size: 0.7em;
     min-width: 50px;
     display: inline-block;
     text-align: center;
-    height: 25px;
+    height: auto;
 }
 
 .sub-section-notes {
@@ -574,7 +605,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 
 .sub-section-notes:hover, .div-textnotes-container:hover {
     opacity: 1;
-    box-shadow: 0px 0px 0px 3px var(--primary-color);
+    box-shadow: 0px 0px 0px 3px var(--primary-color) inset;
 }
 
 .sub-section-last-update {
@@ -645,13 +676,13 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 }
 
 .very-small-button {
-    font-size: 10px;
+    font-size: 0.7em;
     height: 25px;
 }
 
 h1, h2, h3 {
     color: var(--primary-color);
-    font-size: 30px;
+    font-size: 1.4em;
     font-family: 'Open Sans', sans-serif;
     font-weight: bolder;
     padding: 0px;
@@ -662,15 +693,39 @@ h1, h2, h3 {
 
 h2 {
     color: var(--primary-color);
-    font-size: 18px;
+    font-size: 1.2em;
     padding: 5px;
     padding-left: 10px;
     height: 35px;
 }
 
+h2.domain {
+    position: sticky;
+    top: 52px;
+    display: block;
+    padding: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: -5px;
+    z-index: 5;
+    height: auto;
+    box-sizing: border-box;
+    color: var(--primary-color);
+    background-color: transparent;
+    border-radius: 0px;
+}
+
+@media screen and (max-width: 1200px) {
+    h2.domain {
+        position: static;
+        background-color: transparent;
+        color: var(--primary-color);
+    }
+}
+
 h3 {
     color: var(--primary-color);
-    font-size: 14px;
+    font-size: 1em;
     padding: 3px;
     height: 25px;
 }
@@ -692,15 +747,25 @@ h3 {
 
 .section-domain {
     margin-bottom: 30px;
+    padding: 0px;
+    background-color: transparent;
+}
+
+.section-domain:hover {
+    /*box-shadow: 0px 0px 0px 3px var(--primary-color) inset;*/
 }
 
 .sub-section-domain {
-    margin: 10px 5px !important;
+    margin: 0px !important;
+    margin-top: 5px !important;
     border: 0px solid var(--primary-color) !important;
+    box-shadow: 0px 0px 0px 0px var(--primary-color) inset;
+    background-color: var(--tertiary-transparent) !important;
+    padding: 10px;
 }
 
 .sub-section-domain:hover {
-    box-shadow: 0px 0px 0px 3px var(--primary-color);
+    box-shadow: 0px 0px 0px 3px var(--primary-color) inset;
 }
 
 b {
@@ -831,7 +896,7 @@ b {
 }
 
 #notes big, .textarea-all-notes big {
-    font-size: 1.7em !important;
+    font-size: 1.5em !important;
 }
 
 #notes small, .textarea-all-notes small, #notes sup, #notes sub, .textarea-all-notes sup, .textarea-all-notes sub {
@@ -1233,6 +1298,17 @@ hr {
 hr.hr-big-space {
     margin-top: 30px;
     margin-bottom: 30px;
+}
+
+hr.hr-domain {
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+/*Last hr-domain is hidden*/
+hr.hr-domain:last-child {
+    display: none;
 }
 
 @media screen and (max-width: 2000px) {
