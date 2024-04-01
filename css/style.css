@@ -1380,12 +1380,6 @@ hr.hr-domain:last-child {
 }
 
 @media screen and (max-width: 1200px) {
-    #actions {
-        display: block;
-        margin: -10px;
-        margin-bottom: 0px;
-    }
-
     .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, hr {
         width: 100%;
     }
