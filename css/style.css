@@ -845,7 +845,7 @@ b {
 }
 
 #notes b, #notes strong, .textarea-all-notes b, .textarea-all-notes strong {
-    font-family: 'Open Sans', sans-serif;
+    font-family: inherit;
     font-weight: bolder;
 }
 
@@ -858,42 +858,42 @@ b {
 }
 
 #notes h1, .textarea-all-notes h1 {
-    font-family: 'Open Sans', sans-serif;
+    font-family: inherit;
     font-weight: bolder;
     font-size: 2em !important;
     display: block;
 }
 
 #notes h2, .textarea-all-notes h2 {
-    font-family: 'Open Sans', sans-serif;
+    font-family: inherit;
     font-weight: bolder;
     font-size: 1.7em !important;
     display: block;
 }
 
 #notes h3, .textarea-all-notes h3 {
-    font-family: 'Open Sans', sans-serif;
+    font-family: inherit;
     font-weight: bolder;
     font-size: 1.4em !important;
     display: block;
 }
 
 #notes h4, .textarea-all-notes h4 {
-    font-family: 'Open Sans', sans-serif;
+    font-family: inherit;
     font-weight: bolder;
     font-size: 1.1em !important;
     display: block;
 }
 
 #notes h5, .textarea-all-notes h5 {
-    font-family: 'Open Sans', sans-serif;
+    font-family: inherit;
     font-weight: bolder;
     font-size: 0.85em !important;
     display: block;
 }
 
 #notes h6, .textarea-all-notes h6 {
-    font-family: 'Open Sans', sans-serif;
+    font-family: inherit;
     font-weight: bolder;
     font-size: 0.7em !important;
     display: block;
@@ -1249,6 +1249,10 @@ aside > button.sel, aside > button.sel:hover {
     opacity: 0.7;
     color: var(--primary-color);
     display: block;
+    width: 100%;
+}
+
+.description-option-settings-yes-no {
     width: 60%;
 }
 
@@ -1321,23 +1325,20 @@ hr.hr-domain:last-child {
     display: none;
 }
 
-@media screen and (max-width: 2000px) {
-}
-
 @media screen and (max-width: 1700px) {
-    .section-grid-container, .description-option-settings, .theme-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, hr {
         width: 70%;
     }
 }
 
 @media screen and (max-width: 150px) {
-    .section-grid-container, .description-option-settings, .theme-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, hr {
         width: 80%;
     }
 }
 
 @media screen and (max-width: 1300px) {
-    .section-grid-container, .description-option-settings, .theme-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, hr {
         width: 90%;
     }
 }
@@ -1349,7 +1350,7 @@ hr.hr-domain:last-child {
         margin-bottom: 0px;
     }
 
-    .section-grid-container, .description-option-settings, .theme-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, hr {
         width: 100%;
     }
 }
@@ -1364,7 +1365,7 @@ hr.hr-domain:last-child {
         text-align: left;
     }
 
-    .section-grid-container, .description-option-settings, .theme-section-radio-container {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container {
         width: 100%;
     }
 

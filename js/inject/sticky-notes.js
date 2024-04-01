@@ -379,7 +379,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 border-bottom-right-radius: 0px;
                 cursor: default;
                 box-shadow: 0px 0px 5px rgba(255,98,0,0.27);
-                font-family: 'Open Sans', sans-serif;
+                font-family: inherit;
                 color: #111111;
                 font-size: 17px;
                 background-image: url('data:image/svg+xml;${svg_background_image}');
@@ -476,7 +476,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 overflow: auto;
                 resize: none;
                 transition: 0.2s;
-                font-family: 'Open Sans', sans-serif;
+                font-family: inherit;
                 font-size: 14px !important;
             }
             #text--sticky-notes-notefox-addon * {
@@ -490,7 +490,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 text-decoration-thickness: 2px;
             }
             #text--sticky-notes-notefox-addon b, #text--sticky-notes-notefox-addon strong {
-                font-family: 'Open Sans', sans-serif;
+                font-family: inherit;
                 font-weight: bolder;
             }
             
@@ -503,37 +503,37 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
             }
             
             #text--sticky-notes-notefox-addon h1 {
-                font-family: 'Open Sans', sans-serif;
+                font-family: inherit;
                 font-weight: bolder;
                 font-size: 2em !important;
             }
             
             #text--sticky-notes-notefox-addon h2 {
-                font-family: 'Open Sans', sans-serif;
+                font-family: inherit;
                 font-weight: bolder;
                 font-size: 1.7em !important;
             }
             
             #text--sticky-notes-notefox-addon h3 {
-                font-family: 'Open Sans', sans-serif;
+                font-family: inherit;
                 font-weight: bolder;
                 font-size: 1.4em !important;
             }
             
             #text--sticky-notes-notefox-addon h4 {
-                font-family: 'Open Sans', sans-serif;
+                font-family: inherit;
                 font-weight: bolder;
                 font-size: 1.1em !important;
             }
             
             #text--sticky-notes-notefox-addon h5 {
-                font-family: 'Open Sans', sans-serif;
+                font-family: inherit;
                 font-weight: bolder;
                 font-size: 0.85em !important;
             }
             
             #text--sticky-notes-notefox-addon h6 {
-                font-family: 'Open Sans', sans-serif;
+                font-family: inherit;
                 font-weight: bolder;
                 font-size: 0.7em !important;
             }

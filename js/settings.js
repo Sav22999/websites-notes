@@ -193,6 +193,7 @@ function setLanguageUI() {
     document.getElementById("appearance-title-settings").innerText = all_strings["appearance-title-settings"];
     document.getElementById("shortcuts-title-settings").innerText = all_strings["shortcuts-title-settings"];
     document.getElementById("icon-behaviour-title-settings").innerText = all_strings["icon-behaviour-title-settings"];
+    document.getElementById("data-title-settings").innerText = all_strings["data-title-settings"];
     document.getElementById("open-by-default-text").innerText = all_strings["open-popup-by-default"];
     document.getElementById("open-by-default-domain-text").innerText = all_strings["domain-label"];
     document.getElementById("open-by-default-page-text").innerText = all_strings["page-label"];
@@ -238,6 +239,15 @@ function setLanguageUI() {
     document.getElementById("review-on-firefox-addons-button").value = all_strings["review-on-firefox-addons-button"];
     document.getElementById("save-settings-button").value = all_strings["save-settings-button"];
     document.getElementById("translate-addon").value = all_strings["translate-addon-button"];
+    document.getElementById("export-text").innerText = all_strings["export-text"];
+    document.getElementById("import-text").innerText = all_strings["import-text"];
+    document.getElementById("clear-all-notes-text").innerText = all_strings["clear-all-notes-text"];
+    document.getElementById("export-detailed-text").innerHTML = all_strings["export-detailed-text"];
+    document.getElementById("import-detailed-text").innerHTML = all_strings["import-detailed-text"];
+    document.getElementById("clear-all-notes-detailed-text").innerHTML = all_strings["clear-all-notes-detailed-text"];
+    document.getElementById("clear-all-notes-button").value = all_strings["clear-all-notes-button"];
+    document.getElementById("import-all-notes-button").value = all_strings["import-notes-button"];
+    document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
 
     letters_and_numbers.forEach(letterNumber => {
         document.getElementById("key-shortcut-default-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-default'>" + letterNumber + "</option>";
@@ -631,6 +641,10 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var donate_aside_svg = window.btoa(getIconSvgEncoded("donate", primary));
         var translate_aside_svg = window.btoa(getIconSvgEncoded("translate", primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
+        var import_svg = window.btoa(getIconSvgEncoded("import", on_primary));
+        var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
+        var download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
+        var delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
@@ -682,8 +696,20 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 .telegram-button {
                     background-image: url('data:image/svg+xml;base64,${telegram_svg}');
                 }
+                .import-button {
+                    background-image: url('data:image/svg+xml;base64,${import_svg}');
+                }
+                .export-button {
+                    background-image: url('data:image/svg+xml;base64,${export_svg}');
+                }
+                .download-button {
+                    background-image: url('data:image/svg+xml;base64,${download_svg}');
+                }
+                .clear-button {
+                    background-image: url('data:image/svg+xml;base64,${delete_svg}');
+                }
                 #settings-aside {
-                background-image: url('data:image/svg+xml;base64,${settings_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${settings_aside_svg}');
                 }
                 #all-notes-aside {
                     background-image: url('data:image/svg+xml;base64,${all_notes_aside_svg}');
