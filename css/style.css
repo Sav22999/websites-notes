@@ -168,6 +168,9 @@ body {
     z-index: 6;
     background-image: url("../img/delete.svg");
 }
+.clear-button:active, .clear-button:focus {
+    z-index: 6 !important;
+}
 
 .clear2-button {
     background-image: url("../img/delete2.svg");

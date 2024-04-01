@@ -1,10 +1,15 @@
 let settings_json = {};
 
-
 const all_strings = strings[languageToUse];
 
 let sync_local;
 checkSyncLocal();
+
+var importing = false;
+let show_conversion_message_attention = false;
+var notefox_json = {};
+const webBrowserUsed = "firefox";//TODO:change manually
+var json_to_export = {};
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;
@@ -23,6 +28,17 @@ var letters_and_numbers = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"
 var ctrl_alt_shift = ["default", "domain", "page"];
 
 function loaded() {
+    notefox_json = {
+        "version": browser.runtime.getManifest().version,
+        "author": browser.runtime.getManifest().author,
+        "manifest_version": browser.runtime.getManifest().manifest_version,
+        "os": "?",
+        "browser": webBrowserUsed,
+    };
+    browser.runtime.getPlatformInfo((platformInfo) => {
+        notefox_json["os"] = platformInfo.os
+    });
+
     checkSyncLocal()
     checkOperatingSystem();
     setLanguageUI();
@@ -141,6 +157,38 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("clear-all-notes-button").onclick = function () {
+        clearAllNotes();
+    }
+    document.getElementById("import-all-notes-button").onclick = function () {
+        importAllNotes();
+    }
+    document.getElementById("export-all-notes-button").onclick = function () {
+        exportAllNotes();
+    }
+    document.getElementById("export-to-file-button").onclick = function () {
+        const permissionsToRequest = {
+            permissions: ["downloads"]
+        }
+        try {
+            browser.permissions.request(permissionsToRequest).then(response => {
+                if (response) {
+                    //granted / obtained
+                    exportAllNotes(to_file = true);
+                    //console.log("Granted");
+                } else {
+                    //rejected
+                    //console.log("Rejected!");
+                }
+            });
+        } catch (e) {
+            console.error("P3)) " + e);
+        }
+    }
+    document.getElementById("import-from-file-button").onclick = function () {
+        importAllNotes(from_file = true);
+    }
+
     loadSettings();
 
     let titleAllNotes = document.getElementById("title-settings-dedication-section");
@@ -248,6 +296,13 @@ function setLanguageUI() {
     document.getElementById("clear-all-notes-button").value = all_strings["clear-all-notes-button"];
     document.getElementById("import-all-notes-button").value = all_strings["import-notes-button"];
     document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
+
+    document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
+    document.getElementById("text-export").innerHTML = all_strings["export-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
+    document.getElementById("cancel-import-all-notes-button").value = all_strings["cancel-button"];
+    document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
+    document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
+    document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
 
     letters_and_numbers.forEach(letterNumber => {
         document.getElementById("key-shortcut-default-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-default'>" + letterNumber + "</option>";
@@ -560,27 +615,39 @@ function loadAsideBar() {
 
     all_notes.innerHTML = all_strings["all-notes-aside"];
     all_notes.onclick = function () {
-        window.open(links_aside_bar["all-notes"], "_self");
+        if (!importing) {
+            window.open(links_aside_bar["all-notes"], "_self");
+        }
     }
     settings.innerHTML = all_strings["settings-aside"];
     settings.onclick = function () {
-        window.open(links_aside_bar["settings"], "_self");
+        if (!importing) {
+            window.open(links_aside_bar["settings"], "_self");
+        }
     }
     help.innerHTML = all_strings["help-aside"];
     help.onclick = function () {
-        window.open(links_aside_bar["help"], "_self");
+        if (!importing) {
+            window.open(links_aside_bar["help"], "_self");
+        }
     }
     website.innerHTML = all_strings["website-aside"];
     website.onclick = function () {
-        window.open(links_aside_bar["website"], "_self")
+        if (!importing) {
+            window.open(links_aside_bar["website"], "_self")
+        }
     }
     donate.innerHTML = all_strings["donate-aside"];
     donate.onclick = function () {
-        window.open(links_aside_bar["donate"], "_self");
+        if (!importing) {
+            window.open(links_aside_bar["donate"], "_self");
+        }
     }
     translate.innerHTML = all_strings["translate-aside"];
     translate.onclick = function () {
-        window.open(links_aside_bar["translate"], "_self");
+        if (!importing) {
+            window.open(links_aside_bar["translate"], "_self");
+        }
     }
 
     version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", browser.runtime.getManifest().version);
@@ -618,6 +685,432 @@ function updateShortcut(commandName, shortcut) {
     browser.commands.update({
         name: commandName, shortcut: shortcut
     });
+}
+
+function clearAllNotes() {
+    let confirmationClearAllNotes = confirm(all_strings["clear-all-notes-confirmation"]);
+    if (confirmationClearAllNotes) {
+        sync_local.set({
+            "websites": {},
+            "settings": {},
+            "sticky-notes-coords": {},
+            "sticky-notes-sizes": {},
+            "sticky-notes-opacity": {}
+        }).then(result => {
+            loaded();
+        });
+    }
+}
+
+function importAllNotes(from_file = false) {
+    document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
+
+    browser.storage.local.get([
+        "storage",
+        "settings",
+        "websites",
+        "sticky-notes-coords",
+        "sticky-notes-sizes",
+        "sticky-notes-opacity",
+    ]).then(result => {
+        let jsonImportElement = document.getElementById("json-import");
+        let json_old_version = {};
+
+        document.getElementById("import-from-file-button").value = all_strings["import-notes-from-file-button"];
+
+        //console.log(JSON.stringify(result));
+        if (show_conversion_message_attention) {
+            if (document.getElementById("import-now-all-notes-from-local-button")) {
+                document.getElementById("import-now-all-notes-from-local-button").onclick = function () {
+                    result["notefox"] = {};
+                    result["notefox"]["version"] = "3.2";
+                    result["storage"] = "sync";
+                    result["sticky-notes"] = {};
+                    result["sticky-notes"]["coords"] = result["sticky-notes-coords"];
+                    result["sticky-notes"]["sizes"] = result["sticky-notes-sizes"];
+                    result["sticky-notes"]["opacity"] = result["sticky-notes-opacity"];
+                    delete result["sticky-notes-coords"];
+                    delete result["sticky-notes-sizes"];
+                    delete result["sticky-notes-opacity"];
+                    jsonImportElement.value = JSON.stringify(result);
+                    json_old_version = result;
+                }
+            }
+        } else {
+            if (document.getElementById("import-now-all-notes-from-local-button")) document.getElementById("import-now-all-notes-from-local-button").remove();
+        }
+
+        let n_errors = 0;
+        showBackgroundOpacity();
+        document.getElementById("import-section").style.display = "block";
+        jsonImportElement.value = "";
+        jsonImportElement.focus();
+
+        document.getElementById("cancel-import-all-notes-button").onclick = function () {
+            hideBackgroundOpacity();
+            document.getElementById("import-section").style.display = "none";
+        }
+        document.getElementById("import-now-all-notes-button").onclick = function () {
+            let value = jsonImportElement.value;
+            if (value.replaceAll(" ", "") !== "") {
+                let error = false;
+                let error_description = "";
+                try {
+                    //json_to_export = {"notefox": notefox_json, "websites": websites_json, "settings": settings_json, "sticky-notes": sticky_notes_json};
+                    let json_to_export_temp = JSON.parse(value);
+                    let continue_ok = false;
+                    let cancel = false;
+                    if (json_to_export_temp["notefox"] === undefined || (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["notefox"]["version"] === undefined)) {
+                        //version before 2.0 (export in a different way)
+                        cancel = !confirm(all_strings["notefox-version-too-old-try-to-import-data-anyway"]);
+                        if (!cancel) {
+                            websites_json = json_to_export_temp;
+                            websites_json_to_show = websites_json;
+                        }
+                    }
+                    if (json_to_export_temp["notefox"] !== undefined) {
+                        let check_version = checkTwoVersions(json_to_export_temp["notefox"]["version"], "3.3.1.8");
+                        if (check_version === "<") {
+                            cancel = !confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
+                            continue_ok = !cancel
+                        } else {
+                            continue_ok = true;
+                        }
+                    } else {
+                        cancel = !confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
+                        continue_ok = !cancel;
+                    }
+
+                    let sticky_notes = {};
+
+                    if (continue_ok) {
+                        if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["websites"] !== undefined) {
+                            websites_json = json_to_export_temp["websites"];
+                            websites_json_to_show = websites_json;
+                        }
+                        if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["settings"] !== undefined) settings_json = json_to_export_temp["settings"];
+                        if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["sticky-notes"] !== undefined) {
+                            if (json_to_export_temp["sticky-notes"].coords !== undefined) sticky_notes.coords = json_to_export_temp["sticky-notes"].coords;
+
+                            if (json_to_export_temp["sticky-notes"].sizes !== undefined) sticky_notes.sizes = json_to_export_temp["sticky-notes"].sizes;
+
+                            if (json_to_export_temp["sticky-notes"].opacity !== undefined) sticky_notes.opacity = json_to_export_temp["sticky-notes"].opacity;
+
+                            if (sticky_notes.coords === undefined || sticky_notes.coords === null) sticky_notes.coords = {
+                                x: "20px",
+                                y: "20px"
+                            };
+                            if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) sticky_notes.sizes = {
+                                w: "300px",
+                                h: "300px"
+                            };
+                            if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) sticky_notes.opacity = {value: 0.7};
+                        }
+                    }
+
+                    //console.log(JSON.stringify(json_to_export_temp));
+
+                    browser.storage.local.get([
+                        "storage"
+                    ]).then(resultSyncOrLocalToUse => {
+                            let storageTemp;
+                            if (json_to_export_temp["storage"] !== undefined) storageTemp = json_to_export_temp["storage"];
+
+                            if (storageTemp === undefined && resultSyncOrLocalToUse["storage"] !== undefined) storageTemp = resultSyncOrLocalToUse["storage"];
+                            else if ((storageTemp === "sync" || storageTemp === "local")) storageTemp = storageTemp; //do not do anything
+                            else storageTemp = "local";
+
+                            if (continue_ok) {
+                                importing = true;
+                                document.getElementById("cancel-import-all-notes-button").style.display = "none";
+                                document.getElementById("import-from-file-button").style.display = "none";
+
+                                browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
+                                    checkSyncLocal();
+
+                                    document.getElementById("import-now-all-notes-button").disabled = true;
+                                    document.getElementById("cancel-import-all-notes-button").disabled = true;
+                                    document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
+                                    setTimeout(function () {
+                                        document.getElementById("import-now-all-notes-button").disabled = false;
+                                        document.getElementById("cancel-import-all-notes-button").disabled = false;
+                                        document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
+
+                                        sync_local.set({
+                                            "websites": websites_json,
+                                            "settings": settings_json,
+                                            "sticky-notes-coords": sticky_notes.coords,
+                                            "sticky-notes-sizes": sticky_notes.sizes,
+                                            "sticky-notes-opacity": sticky_notes.opacity
+                                        }).then(function () {
+                                            //Imported all correctly
+                                            sync_local.get([
+                                                "settings",
+                                                "websites",
+                                                "sticky-notes-coords",
+                                                "sticky-notes-sizes",
+                                                "sticky-notes-opacity"
+                                            ]).then(result => {
+                                                //console.log(JSON.stringify(storageTemp));
+                                                if (storageTemp === "sync") {
+                                                    if (JSON.stringify(json_old_version) === jsonImportElement.value) {
+                                                        browser.storage.local.clear().then(result1 => {
+                                                            browser.storage.local.set({"storage": "sync"})
+                                                        });
+                                                    } else browser.storage.local.set({"storage": "sync"})
+                                                } else {
+                                                    if (JSON.stringify(json_old_version) === jsonImportElement.value) {
+                                                        browser.storage.local.clear().then(result1 => {
+                                                            browser.storage.local.set({"storage": "local"})
+                                                        });
+                                                    } else browser.storage.local.set({"storage": "local"})
+                                                }
+                                            });
+
+                                            importing = false;
+                                            document.getElementById("cancel-import-all-notes-button").style.display = "inline-block";
+                                            document.getElementById("import-from-file-button").style.display = "inline-block";
+                                            document.getElementById("import-now-all-notes-button").disabled = false;
+                                            document.getElementById("cancel-import-all-notes-button").disabled = false;
+                                            document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
+
+                                            document.getElementById("import-section").style.display = "none";
+                                            hideBackgroundOpacity()
+
+                                            loaded();
+                                        }).catch(function (error) {
+                                            console.error("E10: " + error);
+                                        });
+                                    }, 2000);
+                                });
+                            }
+                        }
+                    )
+                    ;
+
+
+                    if (!continue_ok && !cancel) {
+                        error = true;
+                        error_description = "One or more parameters are not correct and it's not possible import data.";
+                    }
+                    //console.log(JSON.stringify(json_to_export_temp));
+                } catch
+                    (e) {
+                    //console.log("Error: " + e.toString());
+                    error = true;
+                    error_description = e.toString()
+                }
+
+                if (error) {
+                    let errorSubSection = document.createElement("div");
+                    errorSubSection.classList.add("sub-section", "background-light-red");
+                    errorSubSection.id = "error-message-" + n_errors;
+                    errorSubSection.textContent = "Error: " + error_description;
+                    setTimeout(function () {
+                        errorSubSection.remove();
+                    }, 10000);
+                    n_errors++;
+
+                    let mainSection = document.getElementById("import-sub-sections");
+                    mainSection.insertBefore(errorSubSection, mainSection.childNodes[0]);
+                }
+            }
+        }
+
+        if (from_file) {
+            importFromFile();
+        }
+    });
+}
+
+function importFromFile() {
+    try {
+        let input = document.getElementById("import-from-file-input-hidden");
+        input.value = ""; //Reset to empty
+        input.onchange = function (e) {
+            const file = this.files[0];
+            //console.log(file);
+            if (file === undefined || file.name === '') {
+                return;
+            }
+            if (file.type === undefined || file.type !== undefined && file.type !== "application/json") {
+                return;
+            }
+
+            const filename = file.name;
+
+            const fileReaderOnLoadHandler = function () {
+                let data = undefined;
+                try {
+                    data = JSON.parse(this.result);
+                    //console.log(data);
+
+                    document.getElementById("json-import").value = JSON.stringify(data);
+                    document.getElementById("import-now-all-notes-button").click();
+                } catch (e) {
+                    console.error(`I-E2: ${e}`)
+                }
+            };
+
+            const fr = new FileReader();
+            fr.onload = fileReaderOnLoadHandler;
+            fr.readAsText(file);
+        };
+        input.click();
+    } catch (e) {
+        console.error(`I-E1: ${e}`);
+    }
+}
+
+function exportAllNotes(to_file = false) {
+    showBackgroundOpacity();
+    browser.storage.local.get(["storage"]).then(getStorageTemp => {
+        sync_local.get([
+            "sticky-notes-coords",
+            "sticky-notes-opacity",
+            "sticky-notes-sizes",
+            "websites"
+        ]).then((result) => {
+            // Handle the result
+            let sticky_notes = {};
+            sticky_notes.coords = result["sticky-notes-coords"];
+            sticky_notes.sizes = result["sticky-notes-sizes"];
+            sticky_notes.opacity = result["sticky-notes-opacity"];
+
+            let websites_json = result["websites"];
+
+            if (sticky_notes.coords === undefined && sticky_notes.coords === null) {
+                sticky_notes.coords = {x: "20px", y: "20px"};
+            }
+            if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) {
+                sticky_notes.sizes = {w: "300px", h: "300px"};
+            }
+            if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) {
+                sticky_notes.opacity = {value: 0.7};
+            }
+            sticky_notes.opacity.value = Number.parseFloat(sticky_notes.opacity.value).toFixed(2);
+
+            //console.log(JSON.stringify(result));
+
+            document.getElementById("export-section").style.display = "block";
+            json_to_export = {};
+            json_to_export = {
+                "notefox": notefox_json,
+                "settings": settings_json,
+                "websites": websites_json,
+                "sticky-notes": sticky_notes,
+                "storage": getStorageTemp["storage"]
+            };
+            document.getElementById("json-export").value = JSON.stringify(json_to_export);
+
+            document.getElementById("cancel-export-all-notes-button").onclick = function () {
+                hideBackgroundOpacity();
+                document.getElementById("export-section").style.display = "none";
+
+                document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
+                document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
+            }
+            document.getElementById("copy-now-all-notes-button").onclick = function () {
+                document.getElementById("cancel-export-all-notes-button").value = all_strings["close-button"];
+                document.getElementById("copy-now-all-notes-button").value = all_strings["copied-button"];
+
+                document.getElementById("json-export").value = JSON.stringify(json_to_export);
+                document.getElementById("json-export").select();
+                document.execCommand("copy");
+            }
+
+            document.getElementById("export-to-file-button").value = all_strings["export-notes-to-file-button"];
+            if (to_file) {
+                exportToFile();
+            }
+        }).catch((e) => {
+            console.error(`E-E2: ${e}`);
+        });
+    });
+}
+
+function exportToFile() {
+    const data = JSON.stringify(json_to_export);
+    const blob = new Blob([data], {type: "application/json"});
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-based, so add 1
+    const day = String(today.getDate()).padStart(2, '0');
+
+    const formattedDate = `${year}_${month}_${day}`;
+
+    browser.downloads.download({
+        url: URL.createObjectURL(blob),
+        filename: "notefox_" + notefox_json.version.toString() + "_" + formattedDate + "_" + Date.now() + ".json",
+        saveAs: false, // Show the file save dialog
+    });
+
+    setTimeout(function () {
+        if (document.getElementById("export-section").style.display !== "none") {
+            document.getElementById("cancel-export-all-notes-button").click();
+        }
+    }, 1000);
+
+    document.getElementById("cancel-export-all-notes-button").value = all_strings["close-button"];
+    document.getElementById("export-to-file-button").value = all_strings["exported-notes-to-file-button"];
+}
+
+function showBackgroundOpacity() {
+    document.getElementById("background-opacity").style.display = "block";
+}
+
+function hideBackgroundOpacity() {
+    document.getElementById("background-opacity").style.display = "none";
+}
+
+/**
+ * Compare two versions (they have to be in this form: W.Z.Y.Z, it's ok also sub-parts of it: W, W.Z, W.Z.Y)
+ * @param version1 the first version
+ * @param version2 the second version
+ * @returns {string} ">" the first version is major than the second one, "=" equals, "<" minor, "!" wrong version form
+ */
+function checkTwoVersions(version1, version2) {
+    let valueToReturn = "";
+
+    let v1 = version1.toString().split(".");
+    let v2 = version2.toString().split(".");
+
+    if (v1.length > 0 && v2.length > 0 && v1[0].length > 0 && v2[0].length > 0) {
+        if (parseInt(v1[0]) > parseInt(v2[0])) {
+            valueToReturn = ">"
+        } else if (parseInt(v1[0]) < parseInt(v2[0])) {
+            valueToReturn = "<";
+        } else {
+            let index = 1;
+            while (index < 4 && valueToReturn === "") {
+                if (v1.length > 0 && v2.length > 0) {
+                    if (v1.length === index && v2.length === index) {
+                        valueToReturn = "=";
+                    } else if (v1.length > index && v2.length === index) {
+                        if (v1[index] !== "0") valueToReturn = ">";
+                        else valueToReturn = "=";
+                    } else if (v1.length === index && v2.length > index) {
+                        if (v2[index] !== "0") valueToReturn = "<";
+                        else valueToReturn = "=";
+                    } else {
+                        if (parseInt(v1[index]) > parseInt(v2[index])) valueToReturn = ">";
+                        else if (parseInt(v1[index]) < parseInt(v2[index])) valueToReturn = "<";
+                        else {
+                            if (!(v1.length > index + 1 || v2.length > index + 1)) valueToReturn = "=";
+                        }
+                    }
+                } else {
+                    valueToReturn = "!";
+                }
+                index++;
+            }
+        }
+    } else {
+        valueToReturn = "!";
+    }
+
+    return valueToReturn;
 }
 
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {

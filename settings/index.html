@@ -35,12 +35,57 @@ Created by Saverio Morelli - saveriomorelli.com
         <input type="button" value="Save settings" id="save-settings-button" class="button save-button hidden"/>
     </div>
 
+    <div id="background-opacity"></div>
+    <div id="import-section">
+        <div class="section" id="import-sub-sections">
+            <div class="section">
+                <div id="text-import">
+                    Paste here the JSON (or text) file content you exported previously, then click the <span
+                        class="button-code">Import now</span>
+                    button. The page will be automatically reloaded if notes are successfully imported.
+                </div>
+            </div>
+            <div class="section">
+                <textarea id="json-import" spellcheck="false"></textarea>
+            </div>
+            <div class="section text-align-right">
+                <input type="button" value="Get local data" id="import-now-all-notes-from-local-button"
+                       class="button import-button"/>
+                <input type="button" value="Import from file" id="import-from-file-button"
+                       class="button import-button float-left"/>
+                <input type="file" value="" id="import-from-file-input-hidden"
+                       class="button import-button hidden float-left"/>
+                <input type="button" value="Cancel" id="cancel-import-all-notes-button" class="button"/>
+                <input type="button" value="Import now" id="import-now-all-notes-button" class="button import-button"/>
+            </div>
+        </div>
+    </div>
+    <div id="export-section">
+        <div class="section" id="export-sub-sections">
+            <div class="section">
+                <div id="text-export">
+                    Create a new JSON (or text) file and paste the code below <strong>without modifying
+                    it</strong> (you can click the <span class="button-code">Copy now</span> button to copy the code).
+                </div>
+            </div>
+            <div class="section">
+                <textarea id="json-export" readonly spellcheck="false"></textarea>
+            </div>
+            <div class="section text-align-right">
+                <input type="button" value="Export directly to file" id="export-to-file-button"
+                       class="button download-button float-left"/>
+                <input type="button" value="Cancel" id="cancel-export-all-notes-button" class="button"/>
+                <input type="button" value="Copy now" id="copy-now-all-notes-button" class="button copy-button"/>
+            </div>
+        </div>
+    </div>
+
     <div id="disable-sync" class="hidden section section-warning">
         Due to some space limitation with "sync" I advise you to disable the data synced in this page. Otherwise, the
-        add-on should not work properly anymore!<br>To do that find <span class="button-code"
-                                                                          id="string-save-on-local-instead-of-sync">Save data locally instead of sync with Firefox account</span>
-        and set to <span
-            id="string-save-on-local-instead-of-sync-yes" class="button-code">Yes</span>.
+        add-on should not work properly anymore!
+        <br>
+        To do that, in the add-on Settings find <span class="button-code" id="string-save-on-local-instead-of-sync">Save data locally instead of sync with Firefox account</span>
+        and set to <span id="string-save-on-local-instead-of-sync-yes" class="button-code">Yes</span>.
     </div>
 
     <span id="settings-sections">

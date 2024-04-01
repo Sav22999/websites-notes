@@ -26,10 +26,7 @@ Created by Saverio Morelli - saveriomorelli.com
     <div class="section text-align-right" id="actions">
         <input type="button" value="Buy me a coffee!" id="buy-me-a-coffee-button" class="button donate-button hidden"/>
         <input type="button" value="Settings" id="settings-all-notes-button" class="button settings-button hidden"/>
-        <input type="button" value="Export all notes…" id="export-all-notes-button" class="button export-button"/>
-        <input type="button" value="Import notes…" id="import-all-notes-button" class="button import-button"/>
         <input type="button" value="Refresh data" id="refresh-all-notes-button" class="button refresh-button"/>
-        <input type="button" value="Clear all notes" id="clear-all-notes-button" class="button clear-button"/>
     </div>
     <div class="section text-align-left sticky-section" id="search-filter-sortby">
         <input type="search" value="" placeholder="Search…" id="search-all-notes-text" class="textbox search-box"/><span
@@ -68,50 +65,6 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
 
     <span id="all-website-sections"></span>
-    <div id="background-opacity"></div>
-    <div id="import-section">
-        <div class="section" id="import-sub-sections">
-            <div class="section">
-                <div id="text-import">
-                    Paste here the JSON (or text) file content you exported previously, then click the <span
-                        class="button-code">Import now</span>
-                    button. The page will be automatically reloaded if notes are successfully imported.
-                </div>
-            </div>
-            <div class="section">
-                <textarea id="json-import" spellcheck="false"></textarea>
-            </div>
-            <div class="section text-align-right">
-                <input type="button" value="Get local data" id="import-now-all-notes-from-local-button"
-                       class="button import-button"/>
-                <input type="button" value="Import from file" id="import-from-file-button"
-                       class="button import-button float-left"/>
-                <input type="file" value="" id="import-from-file-input-hidden"
-                       class="button import-button hidden float-left"/>
-                <input type="button" value="Cancel" id="cancel-import-all-notes-button" class="button"/>
-                <input type="button" value="Import now" id="import-now-all-notes-button" class="button import-button"/>
-            </div>
-        </div>
-    </div>
-    <div id="export-section">
-        <div class="section" id="export-sub-sections">
-            <div class="section">
-                <div id="text-export">
-                    Create a new JSON (or text) file and paste the code below <strong>without modifying
-                    it</strong> (you can click the <span class="button-code">Copy now</span> button to copy the code).
-                </div>
-            </div>
-            <div class="section">
-                <textarea id="json-export" readonly spellcheck="false"></textarea>
-            </div>
-            <div class="section text-align-right">
-                <input type="button" value="Export directly to file" id="export-to-file-button"
-                       class="button download-button float-left"/>
-                <input type="button" value="Cancel" id="cancel-export-all-notes-button" class="button"/>
-                <input type="button" value="Copy now" id="copy-now-all-notes-button" class="button copy-button"/>
-            </div>
-        </div>
-    </div>
 </div>
 <script src="../js/definitions.js"></script>
 
