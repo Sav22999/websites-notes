@@ -293,7 +293,7 @@ body {
     resize: none;
     margin: 0px;
     padding: 5px;
-    font-size: 14px;
+    font-size: 1em;
     overflow: scroll;
     word-wrap: normal;
     box-shadow: 0px 0px 0px 1px var(--on-textbox-color);
@@ -791,45 +791,51 @@ b {
 #notes h1, .textarea-all-notes h1 {
     font-family: 'Open Sans', sans-serif;
     font-weight: bolder;
-    font-size: 22px !important;
+    font-size: 2em !important;
+    display: block;
 }
 
 #notes h2, .textarea-all-notes h2 {
     font-family: 'Open Sans', sans-serif;
     font-weight: bolder;
-    font-size: 20px !important;
+    font-size: 1.7em !important;
+    display: block;
 }
 
 #notes h3, .textarea-all-notes h3 {
     font-family: 'Open Sans', sans-serif;
     font-weight: bolder;
-    font-size: 18px !important;
+    font-size: 1.4em !important;
+    display: block;
 }
 
 #notes h4, .textarea-all-notes h4 {
     font-family: 'Open Sans', sans-serif;
     font-weight: bolder;
-    font-size: 16px !important;
+    font-size: 1.1em !important;
+    display: block;
 }
 
 #notes h5, .textarea-all-notes h5 {
     font-family: 'Open Sans', sans-serif;
     font-weight: bolder;
-    font-size: 14px !important;
+    font-size: 0.85em !important;
+    display: block;
 }
 
 #notes h6, .textarea-all-notes h6 {
     font-family: 'Open Sans', sans-serif;
     font-weight: bolder;
-    font-size: 12px !important;
+    font-size: 0.7em !important;
+    display: block;
 }
 
 #notes big, .textarea-all-notes big {
-    font-size: 18px !important;
+    font-size: 1.7em !important;
 }
 
 #notes small, .textarea-all-notes small, #notes sup, #notes sub, .textarea-all-notes sup, .textarea-all-notes sub {
-    font-size: 12px !important;
+    font-size: 0.7em !important;
 }
 
 #notes img, .textarea-all-notes img {
@@ -866,7 +872,7 @@ b {
     margin: 0px !important;
     padding: 0px !important;
     border: none !important;
-    font-size: 14px !important;
+    font-size: 1em !important;
     cursor: text;
     white-space: inherit;
 }
