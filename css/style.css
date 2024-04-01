@@ -195,7 +195,15 @@ body {
 }
 
 .sort-by-button {
-    background-image: url("../img/sort-by.svg");
+    background-image: url("../img/sort-by.svg"), url("../img/arrow-select.svg");
+    background-repeat: no-repeat;
+    background-position: center left 5px, center right 5px;
+    background-size: auto 60%, auto 60%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 0px;
+    text-overflow: '';
+    padding-right: 30px;
 }
 
 .filter-button {
@@ -489,16 +497,6 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     opacity: 1;
 }
 
-/*Only the first sub-section element has a margin-top of 50px*/
-.sub-section:first-child {
-    margin-top: 50px !important;
-}
-
-/*Only the latest sub-section element has a margin-bottom of 0px*/
-.sub-section:last-child {
-    margin-bottom: 0px !important;
-}
-
 #import-sub-sections, #export-sub-sections {
     background-color: var(--tertiary);
 }
@@ -536,13 +534,19 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 }
 
 #search-filter-sortby {
-    position: fixed;
+    position: sticky;
     top: 0px;
     left: 10%;
     right: 0px;
     width: auto;
     z-index: 9;
-    margin: 0px;
+    margin: -20px;
+    margin-bottom: 0px;
+    border-radius: 0px;
+}
+
+#results-searching {
+    margin: 0px -20px;
     border-radius: 0px;
 }
 
@@ -701,7 +705,7 @@ h2 {
 
 h2.domain {
     position: sticky;
-    top: 52px;
+    top: 48.5px;
     display: block;
     padding: 10px;
     font-size: 1.2em;
@@ -1293,6 +1297,12 @@ hr {
     margin: 0px;
     margin-right: auto;
     padding: 0px;
+}
+
+br.br-big-space {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: block;
 }
 
 hr.hr-big-space {

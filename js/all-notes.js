@@ -1665,7 +1665,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     background-image: url('data:image/svg+xml;base64,${refresh_svg}');
                 }
                 .sort-by-button {
-                    background-image: url('data:image/svg+xml;base64,${sort_by_svg}');
+                    background-image: url('data:image/svg+xml;base64,${sort_by_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
                 }
                 #info-tooltip-search {
                     background-image: url('data:image/svg+xml;base64,${info_tooltip_svg}');
