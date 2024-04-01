@@ -150,8 +150,8 @@ function listenerLinks() {
         let links = notes.querySelectorAll('a');
         links.forEach(link => {
             function onMouseOverDown(event, settings_json, link) {
-                if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
-                if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
+                if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
+                if ((settings_json["open-links-only-with-ctrl"] === "yes" || settings_json["open-links-only-with-ctrl"] === true) && (event.ctrlKey || event.metaKey)) {
                     link.style.textDecorationStyle = "solid";
                     link.style.cursor = "pointer";
                 }
@@ -175,7 +175,7 @@ function listenerLinks() {
                 onMouseLeaveUp(link);
             }
             link.onclick = function (event) {
-                if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
+                if ((settings_json["open-links-only-with-ctrl"] === "yes" || settings_json["open-links-only-with-ctrl"] === true) && (event.ctrlKey || event.metaKey)) {
                     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         browser.tabs.create({
                             url: link.href,
@@ -770,7 +770,7 @@ function checkAllSupportedProtocols(url, json) {
     //Supported: http, https, moz-extension
     if (url === getGlobalUrl()) return true;
 
-    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
+    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === true;
     if (checkInAllSupportedProtocols) {
         if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["extension://" + getUrlWithoutProtocol(url)] !== undefined || json["chrome-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["about://" + getUrlWithoutProtocol(url)] !== undefined)
             return true;
@@ -785,7 +785,7 @@ function getUrlWithSupportedProtocol(url, json) {
     //Supported: http, https, moz-extension
     if (url === getGlobalUrl()) return url;
 
-    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
+    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === true;
     if (checkInAllSupportedProtocols) {
         if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
         else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
