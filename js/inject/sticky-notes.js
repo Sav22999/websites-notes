@@ -330,7 +330,7 @@ function alreadyExists() {
 
 function checkDisableWordWrap(text, settings_json) {
     let disable_word_wrap = false;
-    if (settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === "true")) {
+    if (settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true)) {
         disable_word_wrap = true;
     } else {
         disable_word_wrap = false;
