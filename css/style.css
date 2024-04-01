@@ -500,8 +500,24 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     opacity: 1;
 }
 
+.section-empty {
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
 #import-sub-sections, #export-sub-sections {
     background-color: var(--tertiary);
+}
+
+#export-to-file-button, #import-from-file-button {
+    margin-left: 0px;
+}
+#copy-now-all-notes-button, #import-now-all-notes-button {
+    margin-right: 0px;
+}
+
+.padding-10 {
+    padding: 10px;
 }
 
 .section-warning {
@@ -624,7 +640,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 
 #background-opacity {
     background-color: rgba(0, 0, 0, 0.6);
-    position: fixed;
+    position: fixed !important;
     top: 0px;
     bottom: 0px;
     left: 0px;
@@ -638,7 +654,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 #import-section, #export-section {
     display: none;
     background-color: transparent;
-    position: fixed;
+    position: fixed !important;
     top: 0px;
     bottom: 0px;
     left: 0px;
@@ -648,6 +664,27 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     padding-left: 20%;
     padding-right: 20%;
     overflow: auto;
+    padding-top: 10%;
+    padding-bottom: 10%;
+}
+
+@media screen and (max-width: 1500px) {
+    #import-section, #export-section {
+        padding-top: 5%;
+        padding-left: 10%;
+        padding-right: 10%;
+        padding-top: 5%;
+        padding-bottom: 5%;
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    #import-section, #export-section {
+        padding-left: 0%;
+        padding-right: 0%;
+        padding-top: 0%;
+        padding-bottom: 0%;
+    }
 }
 
 .rows {
@@ -1085,10 +1122,6 @@ aside > .aside-button:hover {
 aside > button.sel, aside > button.sel:hover {
     background-color: var(--primary-color);
     color: var(--on-primary-color);
-}
-
-@media screen and (max-width: 2000px) {
-
 }
 
 @media screen and (max-width: 1700px) {
