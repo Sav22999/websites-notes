@@ -392,11 +392,11 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     width: 100%;
     background-color: var(--tertiary);
     color: var(--on-textbox-color);
-    padding: 5px 10px;
+    padding: 8px 10px;
     border-radius: 0px;
     text-align: left;
     border: 0px solid transparent;
-    font-size: 12px;
+    font-size: 0.8em;
     cursor: pointer;
     transition: 0.5s;
 }
@@ -769,6 +769,7 @@ div.h2-container {
     height: auto;
     box-sizing: border-box;
     border-radius: 0px;
+    margin-top: -15px;
 }
 .clear-button-float-right {
     margin-top: 20px !important;
