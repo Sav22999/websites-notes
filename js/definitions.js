@@ -136,7 +136,7 @@ function checkTheme(set_theme = true, theme = "", function_to_execute =function 
                 secondary = "#ffd8be";
                 on_primary = "#222222";
                 on_secondary = "#444444";
-                textbox_background = "#222222";
+                textbox_background = "#000000";
                 textbox_color = "#ffa56f";
                 if (set_theme) setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
                 else function_to_execute();

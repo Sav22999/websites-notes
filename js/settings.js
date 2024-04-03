@@ -789,6 +789,10 @@ function importAllNotes(from_file = false) {
                             websites_json_to_show = websites_json;
                         }
                         if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["settings"] !== undefined) settings_json = json_to_export_temp["settings"];
+                        for (setting in settings_json) {
+                            if (settings_json[setting] === "yes") settings_json[setting] = true;
+                            else if (settings_json[setting] === "no") settings_json[setting] = false;
+                        }
                         if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["sticky-notes"] !== undefined) {
                             if (json_to_export_temp["sticky-notes"].coords !== undefined) sticky_notes.coords = json_to_export_temp["sticky-notes"].coords;
 
@@ -994,6 +998,10 @@ function exportAllNotes(to_file = false) {
 
             document.getElementById("export-section").style.display = "block";
             json_to_export = {};
+            for (setting in settings_json) {
+                if (settings_json[setting] === "yes") settings_json[setting] = true;
+                else if (settings_json[setting] === "no") settings_json[setting] = false;
+            }
             json_to_export = {
                 "notefox": notefox_json,
                 "settings": settings_json,

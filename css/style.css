@@ -314,7 +314,7 @@ body {
     color: var(--on-textbox-color);
     resize: none;
     margin: 0px;
-    padding: 5px;
+    padding: 10px;
     font-size: 1em;
     overflow: scroll;
     word-wrap: normal;
@@ -744,23 +744,38 @@ h2 {
 }
 
 h2.domain {
+    display: inline-block;
+    padding: 10px;
+    font-weight: bold;
+    margin: -5px;
+    height: auto;
+    box-sizing: border-box;
+    border-radius: 0px;
+    background-color: inherit;
+    color: inherit;
+    font-size: inherit;
+}
+
+div.h2-container {
     position: sticky;
     top: 48.5px;
     display: block;
-    padding: 10px;
+    background-color: transparent;
+    color: var(--primary-color);
+    padding: 5px;
+    padding-top: 15px;
     font-size: 1.2em;
-    font-weight: bold;
-    margin: -5px;
     z-index: 5;
     height: auto;
     box-sizing: border-box;
-    color: var(--primary-color);
-    background-color: transparent;
     border-radius: 0px;
+}
+.clear-button-float-right {
+    margin-top: 20px !important;
 }
 
 @media screen and (max-width: 1200px) {
-    h2.domain {
+    div.h2-container {
         position: static;
         background-color: transparent;
         color: var(--primary-color);

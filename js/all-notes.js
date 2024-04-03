@@ -487,12 +487,15 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                         let input_clear_all_notes_domain = document.createElement("input");
                         input_clear_all_notes_domain.type = "button";
                         input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
-                        input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button");
+                        input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button", "clear-button-float-right");
                         input_clear_all_notes_domain.onclick = function () {
                             clearAllNotesDomain(domain);
                         }
                         section.append(input_clear_all_notes_domain);
 
+                        let h2_container = document.createElement("div");
+                        h2_container.classList.add("h2-container");
+                        h2_container.classList.add("h2-container")
                         let h2 = document.createElement("h2");
                         h2.textContent = domain;
                         if (isUrlSupported(domain)) {
@@ -501,7 +504,8 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                                 browser.tabs.create({url: domain});
                             }
                         }
-                        section.append(h2);
+                        h2_container.append(h2);
+                        section.append(h2_container);
                     }
 
                     let all_pages = document.createElement("div");
@@ -1116,7 +1120,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     background-image: url('data:image/svg+xml;base64,${tag_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
                 }
                 
-                h2.domain {
+                h2.domain, div.h2-container {
                     background-color: ${background};
                 }
             </style>`;
