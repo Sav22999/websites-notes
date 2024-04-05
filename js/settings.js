@@ -83,8 +83,8 @@ function loaded() {
         saveSettings();
     };
 
-    document.getElementById("save-on-local-instead-of-sync-select").onchange = function () {
-        settings_json["save-on-local-not-sync"] = document.getElementById("save-on-local-instead-of-sync-select").value;
+    document.getElementById("save-on-local-instead-of-sync-check").onchange = function () {
+        settings_json["save-on-local-not-sync"] = document.getElementById("save-on-local-instead-of-sync-check").checked;
 
         saveSettings();
     };
@@ -250,8 +250,6 @@ function setLanguageUI() {
     document.getElementById("consider-sections-text").innerText = all_strings["consider-sections"];
     document.getElementById("consider-sections-detailed-text").innerHTML = all_strings["consider-sections-detailed"];
     document.getElementById("save-on-local-instead-of-sync-text").innerText = all_strings["save-on-local-instead-of-sync"];
-    document.getElementById("save-on-local-instead-of-sync-button-yes").innerText = all_strings["settings-select-button-yes"];
-    document.getElementById("save-on-local-instead-of-sync-button-no").innerText = all_strings["settings-select-button-no"];
     document.getElementById("save-on-local-instead-of-sync-detailed-text").innerHTML = all_strings["save-on-local-instead-of-sync-detailed"];
     document.getElementById("open-popup-default-shortcut-text").innerText = all_strings["open-popup-default-shortcut-text"];
     document.getElementById("open-popup-domain-shortcut-text").innerText = all_strings["open-popup-domain-shortcut-text"];
@@ -319,10 +317,8 @@ function loadSettings() {
         "storage"
     ]).then(result => {
         let property1 = all_strings["save-on-local-instead-of-sync"];
-        let property2 = all_strings["settings-select-button-yes"];
         let alert_message = all_strings["disable-sync-settings-message"]
         alert_message = alert_message.replace("{{property1}}", `<span class="button-code" id="string-save-on-local-instead-of-sync">${property1}</span>`);
-        alert_message = alert_message.replace("{{property2}}", `<span class="button-code" id="string-save-on-local-instead-of-sync-yes">${property2}</span>`);
         document.getElementById("disable-sync").innerHTML = alert_message;
 
         if (result.storage !== undefined && result.storage === "sync") {
@@ -380,8 +376,8 @@ function loadSettings() {
             document.getElementById("check-with-all-supported-protocols-check").checked = settings_json["check-with-all-supported-protocols"] === true || settings_json["check-with-all-supported-protocols"] === "yes";
             document.getElementById("font-family-select").value = settings_json["font-family"];
 
-            if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-select").value = "no";
-            else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-select").value = "yes";
+            if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-check").checked = false;
+            else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-check").checked = true;
 
             let keyboardShortcutCtrlAltShiftDefault = document.getElementById("key-shortcut-ctrl-alt-shift-default-selected");
             let keyboardShortcutLetterNumberDefault = document.getElementById("key-shortcut-default-selected");
@@ -469,13 +465,12 @@ function saveSettings() {
                     let buttonSave = document.getElementById("save-settings-button");
                     buttonSave.value = all_strings["saved-button"];
 
-                    let sync_or_local_settings = document.getElementById("save-on-local-instead-of-sync-select").value;
-                    if (sync_or_local_settings === undefined) sync_or_local_settings = "yes";
+                    let sync_or_local_settings = document.getElementById("save-on-local-instead-of-sync-check").checked;
+                    if (sync_or_local_settings === undefined) sync_or_local_settings = true;
 
-                    if (sync_or_local_settings === "yes") {
+                    if (sync_or_local_settings === true) {
                         //use local (from sync)
                         sync_local = browser.storage.local;
-                        browser.storage.local.set({"storage": "local"});
                         browser.storage.sync.get([
                             "settings",
                             "websites",
@@ -529,10 +524,9 @@ function saveSettings() {
                         }).catch((error) => {
                             console.error("Error retrieving data from sync:", error);
                         });
-                    } else if (sync_or_local_settings === "no") {
+                    } else if (sync_or_local_settings === false) {
                         //use sync (from local)
                         sync_local = browser.storage.sync;
-                        browser.storage.local.set({"storage": "sync"});
                         browser.storage.local.get([
                             "settings",
                             "websites",

@@ -537,6 +537,10 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     padding: 5px 10px;
 }
 
+.margin-bottom-20-px {
+    margin-bottom: 20px;
+}
+
 .detailed-option {
     font-size: 10px;
     padding: 0px;

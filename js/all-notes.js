@@ -70,10 +70,8 @@ function loaded() {
             "storage"
         ]).then(result => {
             let property1 = all_strings["save-on-local-instead-of-sync"];
-            let property2 = all_strings["settings-select-button-yes"];
             let alert_message = all_strings["disable-sync-message"]
             alert_message = alert_message.replace("{{property1}}", `<span class="button-code" id="string-save-on-local-instead-of-sync">${property1}</span>`);
-            alert_message = alert_message.replace("{{property2}}", `<span class="button-code" id="string-save-on-local-instead-of-sync-yes">${property2}</span>`);
             document.getElementById("disable-sync").innerHTML = alert_message;
 
             if (result.storage !== undefined && result.storage === "sync") {
