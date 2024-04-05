@@ -127,7 +127,7 @@ body {
     opacity: 1;
 }
 
-.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button, .download-button {
+.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button, .download-button, .login-button, .logout-button, .manage-account-button, .sync-button, .sync-error-button {
     padding-left: 35px;
     padding-right: 10px;
     background-size: auto 60%;
@@ -136,6 +136,7 @@ body {
     color: var(--on-primary-color);
     margin: 2px;
     border: 0px solid var(--primary-color);
+    opacity: 0.8;
 }
 
 .button-trigger-sticky {
@@ -246,6 +247,26 @@ body {
     background-image: url("../img/firefox.svg");
 }
 
+.login-button {
+    background-image: url("../img/login.svg");
+}
+
+.logout-button {
+    background-image: url("../img/logout.svg");
+}
+
+.manage-account-button {
+    background-image: url("../img/account.svg");
+}
+
+.sync-button {
+    background-image: url("../img/sync.svg");
+}
+
+.sync-error-button {
+    background-image: url("../img/sync-error.svg");
+}
+
 #tag-colour-section {
     border-radius: 0px;
 }
@@ -292,11 +313,17 @@ body {
     box-shadow: 0px 0px 0px 3px var(--tertiary-transparent) inset;
 }
 
-#tabs-section > .tab-sel, .button {
+#tabs-section > .tab-sel {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
     color: var(--on-primary-color);
     opacity: 1;
+}
+
+.button {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--on-primary-color);
 }
 
 #tabs-section > .tab-sel:hover, .button:hover {
@@ -1329,6 +1356,10 @@ aside > button.sel, aside > button.sel:hover {
 
 .description-option-settings-yes-no {
     width: 60%;
+}
+
+.description-option-settings * {
+    font-size: inherit;
 }
 
 .yes-no-item {

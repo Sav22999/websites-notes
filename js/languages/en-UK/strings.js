@@ -167,6 +167,7 @@ strings[lang] = {
     "notefox-account-button-settings": "Notefox account",
     "notefox-account-button-settings-detailed": "You can create a Notefox account to sync your data with other devices.<br>Once you log in, the add-on will automatically sync your data. You can also sync manually by clicking the <span {{parameters}}>Sync now</span> button.",
     "notefox-account-button-settings-login": "Login",
+    "notefox-account-button-settings-manage": "Manage account",
     "notefox-account-button-settings-logout": "Logout",
     "notefox-account-button-settings-signup": "Sign up",
     "notefox-account-button-settings-sync": "Sync now",

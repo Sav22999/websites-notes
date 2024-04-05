@@ -241,7 +241,7 @@ function setLanguageUI() {
     document.getElementById("appearance-title-settings").innerText = all_strings["appearance-title-settings"];
     document.getElementById("shortcuts-title-settings").innerText = all_strings["shortcuts-title-settings"];
     document.getElementById("icon-behaviour-title-settings").innerText = all_strings["icon-behaviour-title-settings"];
-    document.getElementById("data-title-settings").innerText = all_strings["data-title-settings"];
+    document.getElementById("data-title-settings").innerText = all_strings["data-and-sync-title-settings"];
     document.getElementById("open-by-default-text").innerText = all_strings["open-popup-by-default"];
     document.getElementById("open-by-default-domain-text").innerText = all_strings["domain-label"];
     document.getElementById("open-by-default-page-text").innerText = all_strings["page-label"];
@@ -285,15 +285,18 @@ function setLanguageUI() {
     document.getElementById("review-on-firefox-addons-button").value = all_strings["review-on-firefox-addons-button"];
     document.getElementById("save-settings-button").value = all_strings["save-settings-button"];
     document.getElementById("translate-addon").value = all_strings["translate-addon-button"];
-    document.getElementById("export-text").innerText = all_strings["export-text"];
-    document.getElementById("import-text").innerText = all_strings["import-text"];
     document.getElementById("clear-all-notes-text").innerText = all_strings["clear-all-notes-text"];
-    document.getElementById("export-detailed-text").innerHTML = all_strings["export-detailed-text"];
-    document.getElementById("import-detailed-text").innerHTML = all_strings["import-detailed-text"];
     document.getElementById("clear-all-notes-detailed-text").innerHTML = all_strings["clear-all-notes-detailed-text"];
     document.getElementById("clear-all-notes-button").value = all_strings["clear-all-notes-button"];
+    document.getElementById("import-text").innerText = all_strings["import-text"];
+    document.getElementById("import-detailed-text").innerHTML = all_strings["import-detailed-text"];
     document.getElementById("import-all-notes-button").value = all_strings["import-notes-button"];
+    document.getElementById("export-text").innerText = all_strings["export-text"];
+    document.getElementById("export-detailed-text").innerHTML = all_strings["export-detailed-text"];
     document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
+    document.getElementById("notefox-account-button-settings-text").innerText = all_strings["notefox-account-button-settings"];
+    document.getElementById("notefox-account-button-settings-detailed-text").innerHTML = all_strings["notefox-account-button-settings-detailed"].replaceAll("{{parameters}}", "class='button-code'");
+    document.getElementById("notefox-account-button-settings-button").value = all_strings["notefox-account-button-settings-manage"];
 
     document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
     document.getElementById("text-export").innerHTML = all_strings["export-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
