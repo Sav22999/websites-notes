@@ -82,11 +82,16 @@ body {
     padding: 5px;
     background-color: var(--primary-color);
     color: var(--on-primary-color);
-    opacity: 0.5;
     width: 34%;
     box-sizing: border-box;
     display: inline-block;
     text-align: center;
+    opacity: 0.8;
+}
+
+#tabs-section > .tab {
+    opacity: 0.5;
+    padding: 7px 5px;
 }
 
 #version, #tabs-section > .tab {
@@ -310,7 +315,7 @@ body {
 }
 
 #notes-section > #notes:focus {
-    box-shadow: 0px 0px 0px 3px var(--tertiary-transparent) inset;
+    box-shadow: 0px 0px 0px 3px var(--tertiary-transparent-2) inset;
 }
 
 #tabs-section > .tab-sel {
@@ -1345,6 +1350,7 @@ aside > button.sel, aside > button.sel:hover {
     margin: 10px 0px;
 }
 
+
 .description-option-settings {
     padding: 5px 0px;
     font-size: 0.8em;
@@ -1358,8 +1364,11 @@ aside > button.sel, aside > button.sel:hover {
     width: 60%;
 }
 
-.description-option-settings * {
+.option-settings *, .item-settings *, .description-option-settings *, .section * {
     font-size: inherit;
+}
+.section a {
+    color: inherit;
 }
 
 .yes-no-item {

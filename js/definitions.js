@@ -18,6 +18,8 @@ let links = {
     "translate": "https://crowdin.com/project/notefox",
     "review": "https://addons.mozilla.org/firefox/addon/websites-notes/",
     "help-search": "https://www.notefox.eu/help/search/",
+    "privacy": "https://www.notefox.eu/privacy/",
+    "terms": "https://www.notefox.eu/terms/",
 };
 
 const links_aside_bar = {

@@ -299,11 +299,12 @@ function setLanguageUI() {
     document.getElementById("notefox-account-button-settings-button").value = all_strings["notefox-account-button-settings-manage"];
 
     document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
-    document.getElementById("text-export").innerHTML = all_strings["export-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
-    document.getElementById("cancel-import-all-notes-button").value = all_strings["cancel-button"];
     document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
+    document.getElementById("cancel-import-all-notes-button").value = all_strings["cancel-button"];
+    document.getElementById("text-export").innerHTML = all_strings["export-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
     document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
     document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
+    document.getElementById("text-account").innerHTML = all_strings["signing-up-text"].replaceAll("{{parameters1}}", "href='" + links.terms + "'").replace("{{parameters2}}", "href='" + links.privacy + "'");
 
     letters_and_numbers.forEach(letterNumber => {
         document.getElementById("key-shortcut-default-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-default'>" + letterNumber + "</option>";

@@ -36,14 +36,11 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
 
     <div id="background-opacity"></div>
+    <!--Import panel-->
     <div id="import-section">
         <div class="section" id="import-sub-sections">
             <div class="padding-10">
-                <div id="text-import">
-                    Paste here the JSON (or text) file content you exported previously, then click the <span
-                        class="button-code">Import now</span>
-                    button. The page will be automatically reloaded if notes are successfully imported.
-                </div>
+                <div id="text-import"></div>
             </div>
             <div class="padding-10">
                 <textarea id="json-import" spellcheck="false"></textarea>
@@ -51,31 +48,40 @@ Created by Saverio Morelli - saveriomorelli.com
             <div class="padding-10 text-align-right">
                 <input type="button" value="Get local data" id="import-now-all-notes-from-local-button"
                        class="button import-button"/>
-                <input type="button" value="Import from file" id="import-from-file-button"
-                       class="button import-button float-left"/>
+                <input type="button" value="" id="import-from-file-button" class="button import-button float-left"/>
                 <input type="file" value="" id="import-from-file-input-hidden"
                        class="button import-button hidden float-left"/>
-                <input type="button" value="Cancel" id="cancel-import-all-notes-button" class="button"/>
-                <input type="button" value="Import now" id="import-now-all-notes-button" class="button import-button"/>
+                <input type="button" value="" id="cancel-import-all-notes-button" class="button"/>
+                <input type="button" value="" id="import-now-all-notes-button" class="button import-button"/>
             </div>
         </div>
     </div>
+
+    <!--Export panel-->
     <div id="export-section">
         <div class="section" id="export-sub-sections">
             <div class="padding-10">
-                <div id="text-export">
-                    Create a new JSON (or text) file and paste the code below <strong>without modifying
-                    it</strong> (you can click the <span class="button-code">Copy now</span> button to copy the code).
-                </div>
+                <div id="text-export"></div>
             </div>
             <div class="padding-10">
                 <textarea id="json-export" readonly spellcheck="false"></textarea>
             </div>
             <div class="padding-10 text-align-right">
-                <input type="button" value="Export directly to file" id="export-to-file-button"
-                       class="button download-button float-left"/>
-                <input type="button" value="Cancel" id="cancel-export-all-notes-button" class="button"/>
-                <input type="button" value="Copy now" id="copy-now-all-notes-button" class="button copy-button"/>
+                <input type="button" value="" id="export-to-file-button" class="button download-button float-left"/>
+                <input type="button" value="" id="cancel-export-all-notes-button" class="button"/>
+                <input type="button" value="" id="copy-now-all-notes-button" class="button copy-button"/>
+            </div>
+        </div>
+    </div>
+
+    <!--Manage account panel-->
+    <div id="account-section">
+        <div class="section" id="account-sub-sections">
+            <div class="padding-10">
+                <div id="text-account"></div>
+            </div>
+            <div class="padding-10">
+
             </div>
         </div>
     </div>
@@ -363,7 +369,8 @@ Created by Saverio Morelli - saveriomorelli.com
         <!--Notefox account button (login/logout) section-->
         <div class="option-settings">
             <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="notefox-account-button-settings-text"></span>
+                <span class="title-option-settings section-grid-item-text"
+                      id="notefox-account-button-settings-text"></span>
                 <span class="section-grid-item-select">
                     <input type="button" value="" id="notefox-account-button-settings-button"
                            class="button manage-account-button"/>

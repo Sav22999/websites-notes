@@ -147,13 +147,13 @@ function updateStickyNotes() {
                     onClickClose(false);
                 }
                 text.oninput = function () {
-                    onInputText(text);
+                    onInputText(text, response.settings);
                 }
                 text.onchange = function () {
-                    onInputText(text);
+                    onInputText(text, response.settings);
                 }
                 text.onkeydown = function (e) {
-                    onKeyDownText(text, e);
+                    onKeyDownText(text, response.settings, e);
                 }
                 text.onpaste = function (e) {
                     onPasteText(text, e);
@@ -210,13 +210,13 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         checkLanguageSpellcheck(text, settings_json);
 
         text.oninput = function () {
-            onInputText(text);
+            onInputText(text, settings_json);
         }
         text.onchange = function () {
-            onInputText(text);
+            onInputText(text, settings_json);
         }
         text.onkeydown = function (e) {
-            onKeyDownText(text, e);
+            onKeyDownText(text, settings_json, e);
         }
         text.onpaste = function (e) {
             onPasteText(text, e);
@@ -679,11 +679,12 @@ function onClickClose(minimized = false) {
     document.getElementById("sticky-notes-notefox-addon").remove();
 }
 
-function onInputText(text) {
+function onInputText(text, settings_json) {
     browser.runtime.sendMessage({from: "sticky", data: {new_text: text.innerHTML}});
+    listenerLinks(text, settings_json);
 }
 
-function onKeyDownText(text, e) {
+function onKeyDownText(text, settings_json, e) {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
         bold();
     } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "i") {
@@ -693,7 +694,7 @@ function onKeyDownText(text, e) {
     } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         strikethrough();
     } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
-        insertLink();
+        insertLink(text, settings_json);
     }
 }
 
@@ -863,7 +864,7 @@ function getTheAncestorAnchor(element) {
     return [false, false]; // Reached the top of the DOM tree without finding an anchor element
 }
 
-function insertLink() {
+function insertLink(text, settings_json) {
     //if (isValidURL(value)) {
     let selectedText = "";
     if (window.getSelection) {
@@ -892,8 +893,7 @@ function insertLink() {
             parentAnchor.removeChild(anchorElement);
         }
 
-        let text_input = document.getElementById("text--sticky-notes-notefox-addon");
-        onInputText(text_input);
+        onInputText(text, settings_json);
     } else {
         /*let url = prompt("Enter the URL:");
 
