@@ -78,10 +78,18 @@ Created by Saverio Morelli - saveriomorelli.com
     <div id="account-section">
         <div class="section" id="account-sub-sections">
             <div class="padding-10">
-                <div id="text-account"></div>
+                <div id="text-account" class="small-text"></div>
             </div>
             <div class="padding-10">
-
+                <div class="account-section--signup">
+                    <input class="textbox account-section--signup--username width-100" type="text" placeholder="Username">
+                    <input class="textbox account-section--signup--email width-100" type="email" placeholder="Email">
+                    <input class="textbox account-section--signup--password width-100" type="password" placeholder="Password">
+                    <input class="textbox account-section--signup--confirm-password width-100" type="password" placeholder="Confirm password">
+                </div>
+            </div>
+            <div class="padding-10 text-align-right">
+                <input type="button" value="" id="cancel-account-section-button" class="button"/>
             </div>
         </div>
     </div>
@@ -370,12 +378,12 @@ Created by Saverio Morelli - saveriomorelli.com
         <div class="option-settings">
             <span class="item-settings section-grid-container">
                 <span class="title-option-settings section-grid-item-text"
-                      id="notefox-account-button-settings-text"></span>
+                      id="notefox-account-settings-text"></span>
                 <span class="section-grid-item-select">
-                    <input type="button" value="" id="notefox-account-button-settings-button"
+                    <input type="button" value="" id="notefox-account-settings-button"
                            class="button manage-account-button"/>
                 </span>
-                <span class="description-option-settings" id="notefox-account-button-settings-detailed-text"></span>
+                <span class="description-option-settings" id="notefox-account-settings-detailed-text"></span>
             </span>
         </div>
 

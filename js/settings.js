@@ -294,9 +294,9 @@ function setLanguageUI() {
     document.getElementById("export-text").innerText = all_strings["export-text"];
     document.getElementById("export-detailed-text").innerHTML = all_strings["export-detailed-text"];
     document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
-    document.getElementById("notefox-account-button-settings-text").innerText = all_strings["notefox-account-button-settings"];
-    document.getElementById("notefox-account-button-settings-detailed-text").innerHTML = all_strings["notefox-account-button-settings-detailed"].replaceAll("{{parameters}}", "class='button-code'");
-    document.getElementById("notefox-account-button-settings-button").value = all_strings["notefox-account-button-settings-manage"];
+    document.getElementById("notefox-account-settings-text").innerText = all_strings["notefox-account-settings"];
+    document.getElementById("notefox-account-settings-detailed-text").innerHTML = all_strings["notefox-account-settings-detailed"].replaceAll("{{parameters}}", "class='button-code'");
+    setNotefoxAcocuntLoginSignupManageButton();
 
     document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
     document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
@@ -304,7 +304,7 @@ function setLanguageUI() {
     document.getElementById("text-export").innerHTML = all_strings["export-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
     document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
     document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
-    document.getElementById("text-account").innerHTML = all_strings["signing-up-text"].replaceAll("{{parameters1}}", "href='" + links.terms + "'").replace("{{parameters2}}", "href='" + links.privacy + "'");
+    document.getElementById("text-account").innerHTML = all_strings["notefox-account-signing-up-text"].replaceAll("{{parameters1}}", "href='" + links.terms + "'").replace("{{parameters2}}", "href='" + links.privacy + "'");
 
     letters_and_numbers.forEach(letterNumber => {
         document.getElementById("key-shortcut-default-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-default'>" + letterNumber + "</option>";
@@ -437,6 +437,25 @@ function loadSettings() {
         document.getElementById("primary-auto").style.color = params[4];
         document.getElementById("secondary-auto").style.backgroundColor = params[3];
         document.getElementById("secondary-auto").style.color = params[5];
+    });
+}
+
+//if sync storage contains "notefox-account", and it's saved the variable ["login-id", "password" and "expiry"], then show the string relative to "Manage your Notefox account", otherwise
+//show the string relative to "Login or Sign up to Notefox". In addition, it's changed also the class of the button ("login-button", "manage-button")
+function setNotefoxAcocuntLoginSignupManageButton() {
+    browser.storage.sync.get("notefox-account").then(result => {
+        if (result["notefox-account"] !== undefined && result["notefox-account"] !== {}) {
+            document.getElementById("notefox-account-settings-button").value = all_strings["notefox-account-button-settings-manage"];
+            if (document.getElementById("notefox-account-settings-button").classList.contains("login-button")) document.getElementById("notefox-account-settings-button").classList.remove("login-button");
+            document.getElementById("notefox-account-settings-button").classList.add("manage-button");
+        } else {
+            document.getElementById("notefox-account-settings-button").value = all_strings["notefox-account-button-settings-login-or-signup"];
+            if (document.getElementById("notefox-account-settings-button").classList.contains("manage-button")) document.getElementById("notefox-account-settings-button").classList.remove("manage-button");
+            document.getElementById("notefox-account-settings-button").classList.add("login-button");
+        }
+        document.getElementById("notefox-account-settings-button").onclick = function () {
+            notefoxAccountLoginSignupManage();
+        }
     });
 }
 
@@ -1060,6 +1079,25 @@ function exportToFile() {
 
     document.getElementById("cancel-export-all-notes-button").value = all_strings["close-button"];
     document.getElementById("export-to-file-button").value = all_strings["exported-notes-to-file-button"];
+}
+
+function notefoxAccountLoginSignupManage() {
+    showBackgroundOpacity();
+    document.getElementById("cancel-account-section-button").value = all_strings["cancel-button"];
+    document.getElementById("cancel-account-section-button").onclick = function () {
+        hideBackgroundOpacity();
+        document.getElementById("account-section").style.display = "none";
+    }
+    browser.storage.sync.get(["notefox-account"]).then(savedData => {
+        document.getElementById("account-section").style.display = "block";
+        if (savedData["notefox-account"] !== undefined && savedData["notefox-account"] !== {}) {
+            //Manage account
+            console.log("Manage account");
+        } else {
+            //Login or Sign up
+            console.log("Login or Sign up");
+        }
+    });
 }
 
 function showBackgroundOpacity() {

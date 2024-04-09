@@ -546,7 +546,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     font-weight: 600;
 }
 
-#import-sub-sections, #export-sub-sections {
+#import-sub-sections, #export-sub-sections, #account-sub-sections {
     background-color: var(--tertiary);
 }
 
@@ -697,7 +697,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     border-radius: 0px;
 }
 
-#import-section, #export-section {
+#import-section, #export-section, #account-section {
     display: none;
     background-color: transparent;
     position: fixed !important;
@@ -715,7 +715,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 }
 
 @media screen and (max-width: 1500px) {
-    #import-section, #export-section {
+    #import-section, #export-section, #account-section {
         padding-top: 5%;
         padding-left: 10%;
         padding-right: 10%;
@@ -725,7 +725,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 }
 
 @media screen and (max-width: 1200px) {
-    #import-section, #export-section {
+    #import-section, #export-section, #account-section {
         padding-left: 0%;
         padding-right: 0%;
         padding-top: 0%;
@@ -1367,6 +1367,7 @@ aside > button.sel, aside > button.sel:hover {
 .option-settings *, .item-settings *, .description-option-settings *, .section * {
     font-size: inherit;
 }
+
 .section a {
     color: inherit;
 }
@@ -1575,6 +1576,39 @@ hr.hr-domain:last-child {
     background-color: #ffd8be;
     color: #444444;
 }
+
+.account-section--signup {
+    display: grid;
+    grid-template-areas: 'username email'
+                         'password confirm-password';
+    grid-gap: 5px;
+}
+
+@media screen and (max-width: 800px) {
+    .account-section--signup {
+        grid-template-areas: 'username'
+                             'email'
+                             'password'
+                             'confirm-password';
+    }
+}
+
+.account-section--signup--username {
+    grid-area: username;
+}
+
+.account-section--signup--email {
+    grid-area: email;
+}
+
+.account-section--signup--password {
+    grid-area: password;
+}
+
+.account-section--signup--confirm-password {
+    grid-area: confirm-password;
+}
+
 
 /*global*/
 
@@ -1822,4 +1856,12 @@ hr.hr-domain:last-child {
 
 .padding-top-10 {
     padding-top: 10px !important;
+}
+
+.small-text {
+    font-size: 0.8em;
+}
+
+.width-100 {
+    width: 100%;
 }
