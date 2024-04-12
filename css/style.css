@@ -1609,6 +1609,10 @@ hr.hr-domain:last-child {
     grid-area: confirm-password;
 }
 
+.textbox-error {
+    box-shadow: 0px 0px 0px 2px red inset;
+}
+
 .label-with-image {
     background-repeat: no-repeat;
     background-position: center left 5px;

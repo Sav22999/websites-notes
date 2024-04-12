@@ -74,19 +74,23 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
     </div>
 
-    <!--Manage account panel-->
+    <!--Notefox account panel-->
     <div id="account-section">
         <div class="section" id="account-sub-sections">
             <div class="padding-10">
                 <div id="text-account" class="small-text"></div>
             </div>
+            <!-- sign up -->
             <div id="notefox-account-signup-section">
                 <div class="account-section--signup-grid padding-10">
-                    <input class="textbox account-section--signup--username width-100 label-with-image account-label" id="signup-username" type="text"
+                    <input class="textbox account-section--signup--username width-100 label-with-image account-label"
+                           id="signup-username" type="text"
                            placeholder="Username">
-                    <input class="textbox account-section--signup--email width-100 label-with-image email-label" id="signup-email" type="email"
+                    <input class="textbox account-section--signup--email width-100 label-with-image email-label"
+                           id="signup-email" type="email"
                            placeholder="Email">
-                    <input class="textbox account-section--signup--password width-100 label-with-image password-label" id="signup-password"
+                    <input class="textbox account-section--signup--password width-100 label-with-image password-label"
+                           id="signup-password"
                            type="password"
                            placeholder="Password">
                     <input class="textbox account-section--signup--confirm-password width-100 label-with-image password-label"
@@ -94,18 +98,31 @@ Created by Saverio Morelli - saveriomorelli.com
                            type="password" placeholder="Confirm password">
                 </div>
                 <div class="padding-10 text-align-right">
-                    <input type="button" value="" class="button float-left button-close-notefox-account"/>
+                    <input type="button" value="" id="signup-cancel"
+                           class="button float-left button-close-notefox-account"/>
+                    <input class="button login-button hidden" id="verify-signup" value="" type="button"/>
                     <input class="button login-button" id="signup-submit" value="" type="button"/>
                 </div>
             </div>
 
+            <!-- login -->
             <div id="notefox-account-login-section">
                 <div class="padding-10 text-align-right">
 
                     <input type="button" value="" class="button float-left button-close-notefox-account"/>
                 </div>
             </div>
+
+            <!-- manage -->
             <div id="notefox-account-manage-section">
+                <div class="padding-10 text-align-right">
+
+                    <input type="button" value="" class="button float-left button-close-notefox-account"/>
+                </div>
+            </div>
+
+            <!-- delete -->
+            <div id="notefox-account-delete-section">
                 <div class="padding-10 text-align-right">
 
                     <input type="button" value="" class="button float-left button-close-notefox-account"/>
