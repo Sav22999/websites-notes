@@ -294,8 +294,6 @@ function setLanguageUI() {
     document.getElementById("export-text").innerText = all_strings["export-text"];
     document.getElementById("export-detailed-text").innerHTML = all_strings["export-detailed-text"];
     document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
-    document.getElementById("notefox-account-settings-text").innerText = all_strings["notefox-account-settings"];
-    document.getElementById("notefox-account-settings-detailed-text").innerHTML = all_strings["notefox-account-settings-detailed"].replaceAll("{{parameters}}", "class='button-code'");
     setNotefoxAcocuntLoginSignupManageButton();
 
     document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
@@ -311,6 +309,15 @@ function setLanguageUI() {
         document.getElementById("key-shortcut-domain-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-domain'>" + letterNumber + "</option>";
         document.getElementById("key-shortcut-page-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-page'>" + letterNumber + "</option>";
     });
+
+    //notefox account
+    document.getElementById("notefox-account-settings-text").innerText = all_strings["notefox-account-settings"];
+    document.getElementById("notefox-account-settings-detailed-text").innerHTML = all_strings["notefox-account-settings-detailed"].replaceAll("{{parameters}}", "class='button-code'");
+    document.getElementById("signup-username").placeholder = all_strings["username-textbox"];
+    document.getElementById("signup-email").placeholder = all_strings["email-textbox"];
+    document.getElementById("signup-password").placeholder = all_strings["password-textbox"];
+    document.getElementById("signup-confirm-password").placeholder = all_strings["password-confirm-textbox"];
+    document.getElementById("signup-submit").value = all_strings["notefox-account-button-settings-signup"];
 }
 
 function loadSettings() {
@@ -1083,21 +1090,78 @@ function exportToFile() {
 
 function notefoxAccountLoginSignupManage() {
     showBackgroundOpacity();
-    document.getElementById("cancel-account-section-button").value = all_strings["cancel-button"];
-    document.getElementById("cancel-account-section-button").onclick = function () {
-        hideBackgroundOpacity();
-        document.getElementById("account-section").style.display = "none";
+
+    var elements = document.getElementsByClassName("button-close-notefox-account");
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].value = all_strings["cancel-button"];
+        elements[i].onclick = function () {
+            hideBackgroundOpacity();
+            document.getElementById("account-section").style.display = "none";
+        }
     }
     browser.storage.sync.get(["notefox-account"]).then(savedData => {
         document.getElementById("account-section").style.display = "block";
+
+        document.getElementById("notefox-account-signup-section").classList.add("hidden");
+        document.getElementById("notefox-account-login-section").classList.add("hidden");
+        document.getElementById("notefox-account-manage-section").classList.add("hidden");
+
         if (savedData["notefox-account"] !== undefined && savedData["notefox-account"] !== {}) {
             //Manage account
             console.log("Manage account");
+
+            if (document.getElementById("notefox-account-manage-section").classList.contains("hidden")) document.getElementById("notefox-account-manage-section").classList.remove("hidden");
         } else {
             //Login or Sign up
             console.log("Login or Sign up");
+
+            if (document.getElementById("notefox-account-signup-section").classList.contains("hidden")) document.getElementById("notefox-account-signup-section").classList.remove("hidden");
+            //if (document.getElementById("notefox-account-login-section").classList.contains("hidden")) document.getElementById("notefox-account-login-section").classList.remove("hidden");
+
+            document.getElementById("signup-submit").onclick = function () {
+                let username = document.getElementById("signup-username").value;
+                let password = document.getElementById("signup-password").value;
+                let password2 = document.getElementById("signup-confirm-password").value;
+                let email = document.getElementById("signup-email").value;
+
+                if (username === "" || password === "" || password2 === "" || email === "") {
+                    alert(all_strings["empty-fields-alert"]);
+                } else {
+                    if (password !== password2) {
+                        alert(all_strings["passwords-not-equal-alert"]);
+                    } else {
+                        browser.runtime.sendMessage({
+                            "api": true,
+                            "type": "signup",
+                            "data": {"username": username, "password": password, "email": email}
+                        });
+
+                        document.getElementById("signup-submit").disabled = true;
+                        document.getElementById("signup-email").disabled = true;
+                        document.getElementById("signup-username").disabled = true;
+                        document.getElementById("signup-password").disabled = true;
+                        document.getElementById("signup-confirm-password").disabled = true;
+                    }
+                }
+            }
         }
     });
+
+    browser.runtime.onMessage.addListener((message) => {
+        if (message["api_response"] !== undefined && message["api_response"]) {
+            let data = message["data"];
+            switch (message["type"]) {
+                case "signup":
+                    console.log("Signup response");
+                    console.log(data);
+                    break;
+                default:
+                    console.error("Error: " + message["type"] + " is not a valid type");
+            }
+        }
+    });
+
+    function signUpRespone
 }
 
 function showBackgroundOpacity() {
@@ -1182,6 +1246,18 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
         var download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
         var delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
+
+        var login_svg = window.btoa(getIconSvgEncoded("login", on_primary));
+        var logout_svg = window.btoa(getIconSvgEncoded("logout", on_primary));
+        var signup_svg = window.btoa(getIconSvgEncoded("signup", on_primary));
+        var account_svg = window.btoa(getIconSvgEncoded("account", on_primary));
+        var sync_svg = window.btoa(getIconSvgEncoded("sync", on_primary));
+        var sync_error_svg = window.btoa(getIconSvgEncoded("sync-error", on_primary));
+        var syncing_svg = window.btoa(getIconSvgEncoded("syncing", on_primary));
+
+        var account_label_svg = window.btoa(getIconSvgEncoded("account", textbox_color));
+        var email_label_svg = window.btoa(getIconSvgEncoded("email", textbox_color));
+        var password_label_svg = window.btoa(getIconSvgEncoded("password", textbox_color));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
@@ -1271,6 +1347,37 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .section-title-settings {
                     background-color: ${background};
+                }
+                .login-button {
+                    background-image: url('data:image/svg+xml;base64,${login_svg}');
+                }
+                .logout-button {
+                    background-image: url('data:image/svg+xml;base64,${logout_svg}');
+                }
+                .signup-button {
+                    background-image: url('data:image/svg+xml;base64,${signup_svg}');
+                }
+                .account-button {
+                    background-image: url('data:image/svg+xml;base64,${account_svg}');
+                }
+                .sync-button {
+                    background-image: url('data:image/svg+xml;base64,${sync_svg}');
+                }
+                .sync-error-button {
+                    background-image: url('data:image/svg+xml;base64,${sync_error_svg}');
+                }
+                .syncing-button {
+                    background-image: url('data:image/svg+xml;base64,${syncing_svg}');
+                }
+                
+                .password-label {
+                    background-image: url('data:image/svg+xml;base64,${password_label_svg}');
+                }
+                .email-label {
+                    background-image: url('data:image/svg+xml;base64,${email_label_svg}');
+                }
+                .account-label {
+                    background-image: url('data:image/svg+xml;base64,${account_label_svg}');
                 }
             </style>`;
     }

@@ -1,4 +1,5 @@
-<svg fill="#ffffff" clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 800 800"
+<svg fill="#ffffff" clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"
+     viewBox="0 0 800 800"
      xmlns="http://www.w3.org/2000/svg">
     <path d="m650 500v166.667c0 36.666-30 66.666-66.667 66.666h-400c-36.666 0-66.666-30-66.666-66.666v-533.334c0-36.666 30-66.666 66.666-66.666h400c36.667 0 66.667 30 66.667 66.666v166.667h-200v-157.392l-306.009 257.392 306.009 257.392v-157.392zm-250-50v100l-178.333-150 178.333-150v100h300v100z"/>
 </svg>

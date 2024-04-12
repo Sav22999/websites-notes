@@ -1577,7 +1577,7 @@ hr.hr-domain:last-child {
     color: #444444;
 }
 
-.account-section--signup {
+.account-section--signup-grid {
     display: grid;
     grid-template-areas: 'username email'
                          'password confirm-password';
@@ -1585,7 +1585,7 @@ hr.hr-domain:last-child {
 }
 
 @media screen and (max-width: 800px) {
-    .account-section--signup {
+    .account-section--signup-grid {
         grid-template-areas: 'username'
                              'email'
                              'password'
@@ -1607,6 +1607,13 @@ hr.hr-domain:last-child {
 
 .account-section--signup--confirm-password {
     grid-area: confirm-password;
+}
+
+.label-with-image {
+    background-repeat: no-repeat;
+    background-position: center left 5px;
+    background-size: auto 60%;
+    padding-left: 35px;
 }
 
 

@@ -48,10 +48,10 @@ Created by Saverio Morelli - saveriomorelli.com
             <div class="padding-10 text-align-right">
                 <input type="button" value="Get local data" id="import-now-all-notes-from-local-button"
                        class="button import-button"/>
-                <input type="button" value="" id="import-from-file-button" class="button import-button float-left"/>
                 <input type="file" value="" id="import-from-file-input-hidden"
                        class="button import-button hidden float-left"/>
-                <input type="button" value="" id="cancel-import-all-notes-button" class="button"/>
+                <input type="button" value="" id="cancel-import-all-notes-button" class="button float-left"/>
+                <input type="button" value="" id="import-from-file-button" class="button import-button"/>
                 <input type="button" value="" id="import-now-all-notes-button" class="button import-button"/>
             </div>
         </div>
@@ -67,8 +67,8 @@ Created by Saverio Morelli - saveriomorelli.com
                 <textarea id="json-export" readonly spellcheck="false"></textarea>
             </div>
             <div class="padding-10 text-align-right">
-                <input type="button" value="" id="export-to-file-button" class="button download-button float-left"/>
-                <input type="button" value="" id="cancel-export-all-notes-button" class="button"/>
+                <input type="button" value="" id="cancel-export-all-notes-button" class="button float-left"/>
+                <input type="button" value="" id="export-to-file-button" class="button download-button"/>
                 <input type="button" value="" id="copy-now-all-notes-button" class="button copy-button"/>
             </div>
         </div>
@@ -80,16 +80,36 @@ Created by Saverio Morelli - saveriomorelli.com
             <div class="padding-10">
                 <div id="text-account" class="small-text"></div>
             </div>
-            <div class="padding-10">
-                <div class="account-section--signup">
-                    <input class="textbox account-section--signup--username width-100" type="text" placeholder="Username">
-                    <input class="textbox account-section--signup--email width-100" type="email" placeholder="Email">
-                    <input class="textbox account-section--signup--password width-100" type="password" placeholder="Password">
-                    <input class="textbox account-section--signup--confirm-password width-100" type="password" placeholder="Confirm password">
+            <div id="notefox-account-signup-section">
+                <div class="account-section--signup-grid padding-10">
+                    <input class="textbox account-section--signup--username width-100 label-with-image account-label" id="signup-username" type="text"
+                           placeholder="Username">
+                    <input class="textbox account-section--signup--email width-100 label-with-image email-label" id="signup-email" type="email"
+                           placeholder="Email">
+                    <input class="textbox account-section--signup--password width-100 label-with-image password-label" id="signup-password"
+                           type="password"
+                           placeholder="Password">
+                    <input class="textbox account-section--signup--confirm-password width-100 label-with-image password-label"
+                           id="signup-confirm-password"
+                           type="password" placeholder="Confirm password">
+                </div>
+                <div class="padding-10 text-align-right">
+                    <input type="button" value="" class="button float-left button-close-notefox-account"/>
+                    <input class="button login-button" id="signup-submit" value="" type="button"/>
                 </div>
             </div>
-            <div class="padding-10 text-align-right">
-                <input type="button" value="" id="cancel-account-section-button" class="button"/>
+
+            <div id="notefox-account-login-section">
+                <div class="padding-10 text-align-right">
+
+                    <input type="button" value="" class="button float-left button-close-notefox-account"/>
+                </div>
+            </div>
+            <div id="notefox-account-manage-section">
+                <div class="padding-10 text-align-right">
+
+                    <input type="button" value="" class="button float-left button-close-notefox-account"/>
+                </div>
             </div>
         </div>
     </div>

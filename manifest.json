@@ -78,7 +78,8 @@
   ],
   "background": {
     "scripts": [
-      "./js/background.js"
+      "./js/background.js",
+      "./js/api-service.js"
     ],
     "persistent": true
   },
