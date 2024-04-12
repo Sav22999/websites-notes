@@ -1577,19 +1577,33 @@ hr.hr-domain:last-child {
     color: #444444;
 }
 
-.account-section--signup-grid {
+#account-section--signup-grid, #account-section--verify-signup-grid {
     display: grid;
-    grid-template-areas: 'username email'
-                         'password confirm-password';
     grid-gap: 5px;
 }
 
+#account-section--signup-grid {
+    grid-template-areas: 'username email'
+                         'password confirm-password';
+}
+
+#account-section--verify-signup-grid {
+    grid-template-areas: 'email password'
+                         'code code';
+}
+
 @media screen and (max-width: 800px) {
-    .account-section--signup-grid {
+    #account-section--signup-grid {
         grid-template-areas: 'username'
                              'email'
                              'password'
                              'confirm-password';
+    }
+
+    #account-section--verify-signup-grid {
+        grid-template-areas: 'email'
+                             'password'
+                             'code';
     }
 }
 
@@ -1597,16 +1611,20 @@ hr.hr-domain:last-child {
     grid-area: username;
 }
 
-.account-section--signup--email {
+.account-section--signup--email, .account-section--verify-signup--email {
     grid-area: email;
 }
 
-.account-section--signup--password {
+.account-section--signup--password, .account-section--verify-signup--password {
     grid-area: password;
 }
 
 .account-section--signup--confirm-password {
     grid-area: confirm-password;
+}
+
+.account-section--verify-signup--code {
+    grid-area: code;
 }
 
 .textbox-error {
@@ -1875,4 +1893,12 @@ hr.hr-domain:last-child {
 
 .width-100 {
     width: 100%;
+}
+
+.monospace {
+    font-family: 'Source Code Pro', monospace !important;
+}
+
+.sans-serif {
+    font-family: 'Open Sans', sans-serif !important;
 }

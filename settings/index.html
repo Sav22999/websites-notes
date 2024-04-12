@@ -78,30 +78,37 @@ Created by Saverio Morelli - saveriomorelli.com
     <div id="account-section">
         <div class="section" id="account-sub-sections">
             <div class="padding-10">
-                <div id="text-account" class="small-text"></div>
+                <div id="text-account"></div>
             </div>
             <!-- sign up -->
             <div id="notefox-account-signup-section">
-                <div class="account-section--signup-grid padding-10">
+                <div id="account-section--signup-grid" class="padding-10 hidden">
                     <input class="textbox account-section--signup--username width-100 label-with-image account-label"
-                           id="signup-username" type="text"
-                           placeholder="Username">
+                           id="signup-username" type="text">
                     <input class="textbox account-section--signup--email width-100 label-with-image email-label"
-                           id="signup-email" type="email"
-                           placeholder="Email">
+                           id="signup-email" type="email">
                     <input class="textbox account-section--signup--password width-100 label-with-image password-label"
-                           id="signup-password"
-                           type="password"
-                           placeholder="Password">
+                           id="signup-password" type="password">
                     <input class="textbox account-section--signup--confirm-password width-100 label-with-image password-label"
-                           id="signup-confirm-password"
-                           type="password" placeholder="Confirm password">
+                           id="signup-confirm-password" type="password">
+                </div>
+                <div id="account-section--verify-signup-grid" class="padding-10 hidden">
+                    <input class="textbox account-section--verify-signup--email width-100 label-with-image email-label hidden"
+                           id="verify-signup-email" type="email">
+                    <input class="textbox account-section--verify-signup--password width-100 label-with-image password-label hidden"
+                           id="verify-signup-password" type="password">
+                    <input class="textbox account-section--verify-signup--code label-with-image code-label"
+                           id="verify-signup-code" type="text">
+
                 </div>
                 <div class="padding-10 text-align-right">
                     <input type="button" value="" id="signup-cancel"
                            class="button float-left button-close-notefox-account"/>
                     <input class="button login-button hidden" id="verify-signup" value="" type="button"/>
-                    <input class="button login-button" id="signup-submit" value="" type="button"/>
+                    <input class="button login-button hidden" id="signup-submit" value="" type="button"/>
+
+                    <input class="button hidden" id="verify-signup-new-code" value="" type="button"/>
+                    <input class="button login-button hidden" id="verify-signup-submit" value="" type="button"/>
                 </div>
             </div>
 
