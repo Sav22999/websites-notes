@@ -21,6 +21,12 @@ function api_request(message) {
         case "signup":
             signup(data["username"], data["email"], data["password"]);
             break;
+        case "signup-new-code":
+            signup_new_code(data["email"], data["password"]);
+            break;
+        case "signup-verify":
+            signup_verify(data["email"], data["password"], data["verification-code"]);
+            break;
         case "logout":
             logout();
             break;
@@ -83,5 +89,94 @@ function signup(username_value, email_value, password_value) {
         "username": username_value,
         "email": email_value,
         "password": password_value
+    }));
+}
+
+function signup_new_code(email_value, password_value) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', api_url + '/signup/verify/get-new-code/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        // Check if the request was successful
+        if (xhr.status >= 200 && xhr.status < 300) {
+            // Parse the response JSON if needed
+            var data = JSON.parse(xhr.responseText);
+            // Do something with the data
+            browser.runtime.sendMessage({
+                "api_response": true,
+                "type": "signup-new-code",
+                "data": data
+            });
+        } else {
+            // Handle errors
+            console.error('Request failed with status:', xhr.status);
+            browser.runtime.sendMessage({
+                "api": true,
+                "type": "signup-new-code",
+                "data": {
+                    "error": true,
+                    "status": xhr.status
+                }
+            });
+        }
+    };
+    xhr.onerror = function () {
+        browser.runtime.sendMessage({
+            "api": true,
+            "type": "signup-new-code",
+            "data": {
+                "error": true,
+                "status": xhr.status
+            }
+        });
+    };
+    xhr.send(JSON.stringify({
+        "email": email_value,
+        "password": password_value
+    }));
+}
+
+function signup_verify(email_value, password_value, verification_code_value) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', api_url + '/signup/verify/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        // Check if the request was successful
+        if (xhr.status >= 200 && xhr.status < 300) {
+            // Parse the response JSON if needed
+            var data = JSON.parse(xhr.responseText);
+            // Do something with the data
+            browser.runtime.sendMessage({
+                "api_response": true,
+                "type": "signup-verify",
+                "data": data
+            });
+        } else {
+            // Handle errors
+            console.error('Request failed with status:', xhr.status);
+            browser.runtime.sendMessage({
+                "api": true,
+                "type": "signup-verify",
+                "data": {
+                    "error": true,
+                    "status": xhr.status
+                }
+            });
+        }
+    };
+    xhr.onerror = function () {
+        browser.runtime.sendMessage({
+            "api": true,
+            "type": "signup-verify",
+            "data": {
+                "error": true,
+                "status": xhr.status
+            }
+        });
+    };
+    xhr.send(JSON.stringify({
+        "email": email_value,
+        "password": password_value,
+        "verification-code": verification_code_value
     }));
 }

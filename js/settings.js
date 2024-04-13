@@ -14,8 +14,7 @@ var json_to_export = {};
 function checkSyncLocal() {
     sync_local = browser.storage.local;
     browser.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = browser.storage.sync;
-        else {
+        if (result.storage === "sync") sync_local = browser.storage.sync; else {
             browser.storage.local.set({"storage": "local"});
             sync_local = browser.storage.local;
         }
@@ -224,9 +223,7 @@ function setThemeChooserByElement(element, set_variable = true) {
 
 function tabUpdated() {
     checkTheme();
-    browser.storage.local.get([
-        "settings"
-    ]).then(result => {
+    browser.storage.local.get(["settings"]).then(result => {
         if (result.settings !== undefined && result.settings !== settings_json) {
             loadSettings();
         }
@@ -330,9 +327,7 @@ function loadSettings() {
     let shortcuts = browser.commands.getAll();
     shortcuts.then(getCurrentShortcuts);
 
-    browser.storage.local.get([
-        "storage"
-    ]).then(result => {
+    browser.storage.local.get(["storage"]).then(result => {
         let property1 = all_strings["save-on-local-instead-of-sync"];
         let alert_message = all_strings["disable-sync-settings-message"]
         alert_message = alert_message.replace("{{property1}}", `<span class="button-code" id="string-save-on-local-instead-of-sync">${property1}</span>`);
@@ -385,16 +380,13 @@ function loadSettings() {
             document.getElementById("check-green-icon-page-check").checked = settings_json["check-green-icon-page"] === true || settings_json["check-green-icon-page"] === "yes";
             document.getElementById("check-green-icon-subdomain-check").checked = settings_json["check-green-icon-subdomain"] === true || settings_json["check-green-icon-subdomain"] === "yes";
 
-            if (settings_json["theme"] === "light") setThemeChooserByElement(document.getElementById("item-radio-theme-light"), false);
-            else if (settings_json["theme"] === "dark") setThemeChooserByElement(document.getElementById("item-radio-theme-dark"), false);
-            else if (settings_json["theme"] === "auto") setThemeChooserByElement(document.getElementById("item-radio-theme-auto"), false);
+            if (settings_json["theme"] === "light") setThemeChooserByElement(document.getElementById("item-radio-theme-light"), false); else if (settings_json["theme"] === "dark") setThemeChooserByElement(document.getElementById("item-radio-theme-dark"), false); else if (settings_json["theme"] === "auto") setThemeChooserByElement(document.getElementById("item-radio-theme-auto"), false);
 
             document.getElementById("open-links-only-with-ctrl-check").checked = settings_json["open-links-only-with-ctrl"] === true || settings_json["open-links-only-with-ctrl"] === "yes";
             document.getElementById("check-with-all-supported-protocols-check").checked = settings_json["check-with-all-supported-protocols"] === true || settings_json["check-with-all-supported-protocols"] === "yes";
             document.getElementById("font-family-select").value = settings_json["font-family"];
 
-            if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-check").checked = false;
-            else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-check").checked = true;
+            if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-check").checked = false; else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-check").checked = true;
 
             let keyboardShortcutCtrlAltShiftDefault = document.getElementById("key-shortcut-ctrl-alt-shift-default-selected");
             let keyboardShortcutLetterNumberDefault = document.getElementById("key-shortcut-default-selected");
@@ -423,9 +415,7 @@ function loadSettings() {
                     keyboardShortcutCtrlAltShift.value = ctrlAltShiftShortcut;
 
                     let commandName = "_execute_browser_action";
-                    if (value === "domain") commandName = "opened-by-domain";
-                    else if (value === "page") commandName = "opened-by-page";
-                    else if (value === "global") commandName = "opened-by-global";
+                    if (value === "domain") commandName = "opened-by-domain"; else if (value === "page") commandName = "opened-by-page"; else if (value === "global") commandName = "opened-by-global";
 
                     onChangeShortcut(keyboardShortcutCtrlAltShift, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json);
                     onChangeShortcut(keyboardShortcutLetterNumber, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json);
@@ -498,139 +488,107 @@ function saveSettings() {
     browser.storage.local.get(["storage"]).then(resultSyncLocalValue => {
         sync_local.get("settings").then(rrr1 => {
             sync_local.set({"settings": settings_json}).then(resultF => {
-                    //Saved
-                    let buttonSave = document.getElementById("save-settings-button");
-                    buttonSave.value = all_strings["saved-button"];
+                //Saved
+                let buttonSave = document.getElementById("save-settings-button");
+                buttonSave.value = all_strings["saved-button"];
 
-                    let sync_or_local_settings = document.getElementById("save-on-local-instead-of-sync-check").checked;
-                    if (sync_or_local_settings === undefined) sync_or_local_settings = true;
+                let sync_or_local_settings = document.getElementById("save-on-local-instead-of-sync-check").checked;
+                if (sync_or_local_settings === undefined) sync_or_local_settings = true;
 
-                    if (sync_or_local_settings === true) {
-                        //use local (from sync)
-                        sync_local = browser.storage.local;
-                        browser.storage.sync.get([
-                            "settings",
-                            "websites",
-                            "sticky-notes-coords",
-                            "sticky-notes-sizes",
-                            "sticky-notes-opacity"
-                        ]).then(result => {
-                            browser.storage.local.set(result).then(resultSet => {
-                                browser.storage.sync.get([
-                                    "settings",
-                                    "websites",
-                                    "sticky-notes-coords",
-                                    "sticky-notes-sizes",
-                                    "sticky-notes-opacity"
-                                ]).then(result2 => {
+                if (sync_or_local_settings === true) {
+                    //use local (from sync)
+                    sync_local = browser.storage.local;
+                    browser.storage.sync.get(["settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result => {
+                        browser.storage.local.set(result).then(resultSet => {
+                            browser.storage.sync.get(["settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result2 => {
 
-                                    if (result2["settings"] === {} || result2["settings"] === null) browser.storage.sync.remove("settings");
-                                    if (result2["websites"] === {} || result2["websites"] === null) browser.storage.sync.remove("websites");
-                                    if (result2["sticky-notes-coords"] === {} || result2["sticky-notes-coords"] === null) browser.storage.sync.remove("sticky-notes-coords");
-                                    if (result2["sticky-notes-sizes"] === {} || result2["sticky-notes-sizes"] === null) browser.storage.sync.remove("sticky-notes-sizes");
-                                    if (result2["sticky-notes-opacity"] === {} || result2["sticky-notes-opacity"] === null) browser.storage.sync.remove("sticky-notes-opacity");
+                                if (result2["settings"] === {} || result2["settings"] === null) browser.storage.sync.remove("settings");
+                                if (result2["websites"] === {} || result2["websites"] === null) browser.storage.sync.remove("websites");
+                                if (result2["sticky-notes-coords"] === {} || result2["sticky-notes-coords"] === null) browser.storage.sync.remove("sticky-notes-coords");
+                                if (result2["sticky-notes-sizes"] === {} || result2["sticky-notes-sizes"] === null) browser.storage.sync.remove("sticky-notes-sizes");
+                                if (result2["sticky-notes-opacity"] === {} || result2["sticky-notes-opacity"] === null) browser.storage.sync.remove("sticky-notes-opacity");
 
-                                    ctrl_alt_shift.forEach(value => {
-                                        let commandName = "_execute_browser_action";
-                                        if (value === "domain") commandName = "opened-by-domain";
-                                        else if (value === "page") commandName = "opened-by-page";
-                                        else if (value === "global") commandName = "opened-by-global";
+                                ctrl_alt_shift.forEach(value => {
+                                    let commandName = "_execute_browser_action";
+                                    if (value === "domain") commandName = "opened-by-domain"; else if (value === "page") commandName = "opened-by-page"; else if (value === "global") commandName = "opened-by-global";
 
-                                        //commandName = "open-by-"+value;
-                                        let shortcutToSet = settings_json["open-popup-" + value];
-                                        if (shortcutToSet === "disabled") shortcutToSet = "";
+                                    //commandName = "open-by-"+value;
+                                    let shortcutToSet = settings_json["open-popup-" + value];
+                                    if (shortcutToSet === "disabled") shortcutToSet = "";
 
-                                        updateShortcut(commandName, shortcutToSet);
-                                    });
-
-                                    //console.log("-1->" + JSON.stringify(result));
-                                    //console.log("-2->" + JSON.stringify(result2));
-                                    //console.log(JSON.stringify(result) === JSON.stringify(result2));
-
-                                    if (JSON.stringify(result) === JSON.stringify(result2)) {
-                                        browser.storage.sync.clear().then(
-                                            result3 => {
-                                                browser.storage.local.set({"storage": "local"});
-                                            });
-                                    }
+                                    updateShortcut(commandName, shortcutToSet);
                                 });
-                                browser.storage.local.set({"storage": "local"});
-                            }).catch((error) => {
-                                console.error("Error importing data to local:", error);
-                            });
-                        }).catch((error) => {
-                            console.error("Error retrieving data from sync:", error);
-                        });
-                    } else if (sync_or_local_settings === false) {
-                        //use sync (from local)
-                        sync_local = browser.storage.sync;
-                        browser.storage.local.get([
-                            "settings",
-                            "websites",
-                            "sticky-notes-coords",
-                            "sticky-notes-sizes",
-                            "sticky-notes-opacity"
-                        ]).then(result => {
-                            //console.log(JSON.stringify(result));
-                            browser.storage.sync.set(result).then(resultSet => {
-                                browser.storage.local.get([
-                                    "settings",
-                                    "websites",
-                                    "sticky-notes-coords",
-                                    "sticky-notes-sizes",
-                                    "sticky-notes-opacity"
-                                ]).then(result2 => {
 
-                                    if (result2["settings"] === {} || result2["settings"] === null) browser.storage.local.remove("settings");
-                                    if (result2["websites"] === {} || result2["websites"] === null) browser.storage.local.remove("websites");
-                                    if (result2["sticky-notes-coords"] === {} || result2["sticky-notes-coords"] === null) browser.storage.local.remove("sticky-notes-coords");
-                                    if (result2["sticky-notes-sizes"] === {} || result2["sticky-notes-sizes"] === null) browser.storage.local.remove("sticky-notes-sizes");
-                                    if (result2["sticky-notes-opacity"] === {} || result2["sticky-notes-opacity"] === null) browser.storage.local.remove("sticky-notes-opacity");
-                                    //console.log("-1->" + JSON.stringify(result));
-                                    //console.log("-2->" + JSON.stringify(result2));
-                                    //console.log(JSON.stringify(result) === JSON.stringify(result2));
+                                //console.log("-1->" + JSON.stringify(result));
+                                //console.log("-2->" + JSON.stringify(result2));
+                                //console.log(JSON.stringify(result) === JSON.stringify(result2));
 
-                                    ctrl_alt_shift.forEach(value => {
-                                        //console.log("1>"+settings_json["open-popup-" + value])
-                                        let commandName = "_execute_browser_action";
-                                        if (value === "domain") commandName = "opened-by-domain";
-                                        else if (value === "page") commandName = "opened-by-page";
-                                        else if (value === "global") commandName = "opened-by-global";
-
-                                        //commandName = "open-by-"+value;
-                                        let shortcutToSet = settings_json["open-popup-" + value];
-                                        if (shortcutToSet === "disabled") shortcutToSet = "";
-
-                                        updateShortcut(commandName, shortcutToSet);
+                                if (JSON.stringify(result) === JSON.stringify(result2)) {
+                                    browser.storage.sync.clear().then(result3 => {
+                                        browser.storage.local.set({"storage": "local"});
                                     });
-
-                                    if (JSON.stringify(result) === JSON.stringify(result2)) browser.storage.local.clear().then(
-                                        result3 => {
-                                            browser.storage.local.set({"storage": "sync"});
-                                        });
-                                });
-                                browser.storage.local.set({"storage": "sync"});
-                            }).catch((error) => {
-                                console.error("Error importing data to sync:", error);
+                                }
                             });
+                            browser.storage.local.set({"storage": "local"});
                         }).catch((error) => {
-                            console.error("Error retrieving data from local:", error);
+                            console.error("Error importing data to local:", error);
                         });
-                    }
-                    sendMessageUpdateToBackground();
+                    }).catch((error) => {
+                        console.error("Error retrieving data from sync:", error);
+                    });
+                } else if (sync_or_local_settings === false) {
+                    //use sync (from local)
+                    sync_local = browser.storage.sync;
+                    browser.storage.local.get(["settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result => {
+                        //console.log(JSON.stringify(result));
+                        browser.storage.sync.set(result).then(resultSet => {
+                            browser.storage.local.get(["settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result2 => {
 
-                    setTimeout(function () {
-                        buttonSave.value = all_strings["save-settings-button"];
-                    }, 2000);
-                    //console.log(JSON.stringify(settings_json));
+                                if (result2["settings"] === {} || result2["settings"] === null) browser.storage.local.remove("settings");
+                                if (result2["websites"] === {} || result2["websites"] === null) browser.storage.local.remove("websites");
+                                if (result2["sticky-notes-coords"] === {} || result2["sticky-notes-coords"] === null) browser.storage.local.remove("sticky-notes-coords");
+                                if (result2["sticky-notes-sizes"] === {} || result2["sticky-notes-sizes"] === null) browser.storage.local.remove("sticky-notes-sizes");
+                                if (result2["sticky-notes-opacity"] === {} || result2["sticky-notes-opacity"] === null) browser.storage.local.remove("sticky-notes-opacity");
+                                //console.log("-1->" + JSON.stringify(result));
+                                //console.log("-2->" + JSON.stringify(result2));
+                                //console.log(JSON.stringify(result) === JSON.stringify(result2));
 
-                    if (rrr1 !== undefined && rrr1["settings"] !== undefined && rrr1["settings"]["theme"] !== undefined && rrr1["settings"]["theme"] !== settings_json["theme"] || settings_json["theme"] === undefined) {
-                        checkTheme();
-                    }
-                    loadSettings();
+                                ctrl_alt_shift.forEach(value => {
+                                    //console.log("1>"+settings_json["open-popup-" + value])
+                                    let commandName = "_execute_browser_action";
+                                    if (value === "domain") commandName = "opened-by-domain"; else if (value === "page") commandName = "opened-by-page"; else if (value === "global") commandName = "opened-by-global";
+
+                                    //commandName = "open-by-"+value;
+                                    let shortcutToSet = settings_json["open-popup-" + value];
+                                    if (shortcutToSet === "disabled") shortcutToSet = "";
+
+                                    updateShortcut(commandName, shortcutToSet);
+                                });
+
+                                if (JSON.stringify(result) === JSON.stringify(result2)) browser.storage.local.clear().then(result3 => {
+                                    browser.storage.local.set({"storage": "sync"});
+                                });
+                            });
+                            browser.storage.local.set({"storage": "sync"});
+                        }).catch((error) => {
+                            console.error("Error importing data to sync:", error);
+                        });
+                    }).catch((error) => {
+                        console.error("Error retrieving data from local:", error);
+                    });
                 }
-            )
-            ;
+                sendMessageUpdateToBackground();
+
+                setTimeout(function () {
+                    buttonSave.value = all_strings["save-settings-button"];
+                }, 2000);
+                //console.log(JSON.stringify(settings_json));
+
+                if (rrr1 !== undefined && rrr1["settings"] !== undefined && rrr1["settings"]["theme"] !== undefined && rrr1["settings"]["theme"] !== settings_json["theme"] || settings_json["theme"] === undefined) {
+                    checkTheme();
+                }
+                loadSettings();
+            });
         });
     });
 }
@@ -692,8 +650,7 @@ function checkOperatingSystem() {
 }
 
 function getOperatingSystem(info) {
-    if (info.os === "mac") currentOS = "mac";
-    else currentOS = "default";
+    if (info.os === "mac") currentOS = "mac"; else currentOS = "default";
 
     ctrl_alt_shift.forEach(value => {
         document.getElementById("select-disable-shortcut-" + value).textContent = all_strings["label-disable-shortcut"];
@@ -736,14 +693,7 @@ function clearAllNotes() {
 function importAllNotes(from_file = false) {
     document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
 
-    browser.storage.local.get([
-        "storage",
-        "settings",
-        "websites",
-        "sticky-notes-coords",
-        "sticky-notes-sizes",
-        "sticky-notes-opacity",
-    ]).then(result => {
+    browser.storage.local.get(["storage", "settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity",]).then(result => {
         let jsonImportElement = document.getElementById("json-import");
         let json_old_version = {};
 
@@ -821,8 +771,7 @@ function importAllNotes(from_file = false) {
                         }
                         if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["settings"] !== undefined) settings_json = json_to_export_temp["settings"];
                         for (setting in settings_json) {
-                            if (settings_json[setting] === "yes") settings_json[setting] = true;
-                            else if (settings_json[setting] === "no") settings_json[setting] = false;
+                            if (settings_json[setting] === "yes") settings_json[setting] = true; else if (settings_json[setting] === "no") settings_json[setting] = false;
                         }
                         if (json_to_export_temp["notefox"] !== undefined && json_to_export_temp["sticky-notes"] !== undefined) {
                             if (json_to_export_temp["sticky-notes"].coords !== undefined) sticky_notes.coords = json_to_export_temp["sticky-notes"].coords;
@@ -832,12 +781,10 @@ function importAllNotes(from_file = false) {
                             if (json_to_export_temp["sticky-notes"].opacity !== undefined) sticky_notes.opacity = json_to_export_temp["sticky-notes"].opacity;
 
                             if (sticky_notes.coords === undefined || sticky_notes.coords === null) sticky_notes.coords = {
-                                x: "20px",
-                                y: "20px"
+                                x: "20px", y: "20px"
                             };
                             if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) sticky_notes.sizes = {
-                                w: "300px",
-                                h: "300px"
+                                w: "300px", h: "300px"
                             };
                             if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) sticky_notes.opacity = {value: 0.7};
                         }
@@ -845,83 +792,72 @@ function importAllNotes(from_file = false) {
 
                     //console.log(JSON.stringify(json_to_export_temp));
 
-                    browser.storage.local.get([
-                        "storage"
-                    ]).then(resultSyncOrLocalToUse => {
-                            let storageTemp;
-                            if (json_to_export_temp["storage"] !== undefined) storageTemp = json_to_export_temp["storage"];
+                    browser.storage.local.get(["storage"]).then(resultSyncOrLocalToUse => {
+                        let storageTemp;
+                        if (json_to_export_temp["storage"] !== undefined) storageTemp = json_to_export_temp["storage"];
 
-                            if (storageTemp === undefined && resultSyncOrLocalToUse["storage"] !== undefined) storageTemp = resultSyncOrLocalToUse["storage"];
-                            else if ((storageTemp === "sync" || storageTemp === "local")) storageTemp = storageTemp; //do not do anything
-                            else storageTemp = "local";
+                        if (storageTemp === undefined && resultSyncOrLocalToUse["storage"] !== undefined) storageTemp = resultSyncOrLocalToUse["storage"]; else if ((storageTemp === "sync" || storageTemp === "local")) storageTemp = storageTemp; //do not do anything
+                        else storageTemp = "local";
 
-                            if (continue_ok) {
-                                disableAside = true;
-                                document.getElementById("cancel-import-all-notes-button").style.display = "none";
-                                document.getElementById("import-from-file-button").style.display = "none";
+                        if (continue_ok) {
+                            disableAside = true;
+                            document.getElementById("cancel-import-all-notes-button").style.display = "none";
+                            document.getElementById("import-from-file-button").style.display = "none";
 
-                                browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
-                                    checkSyncLocal();
+                            browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
+                                checkSyncLocal();
 
-                                    document.getElementById("import-now-all-notes-button").disabled = true;
-                                    document.getElementById("cancel-import-all-notes-button").disabled = true;
-                                    document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
-                                    setTimeout(function () {
+                                document.getElementById("import-now-all-notes-button").disabled = true;
+                                document.getElementById("cancel-import-all-notes-button").disabled = true;
+                                document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
+                                setTimeout(function () {
+                                    document.getElementById("import-now-all-notes-button").disabled = false;
+                                    document.getElementById("cancel-import-all-notes-button").disabled = false;
+                                    document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
+
+                                    sync_local.set({
+                                        "websites": websites_json,
+                                        "settings": settings_json,
+                                        "sticky-notes-coords": sticky_notes.coords,
+                                        "sticky-notes-sizes": sticky_notes.sizes,
+                                        "sticky-notes-opacity": sticky_notes.opacity
+                                    }).then(function () {
+                                        //Imported all correctly
+                                        sync_local.get(["settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result => {
+                                            //console.log(JSON.stringify(storageTemp));
+                                            if (storageTemp === "sync") {
+                                                if (JSON.stringify(json_old_version) === jsonImportElement.value) {
+                                                    browser.storage.local.clear().then(result1 => {
+                                                        browser.storage.local.set({"storage": "sync"})
+                                                    });
+                                                } else browser.storage.local.set({"storage": "sync"})
+                                            } else {
+                                                if (JSON.stringify(json_old_version) === jsonImportElement.value) {
+                                                    browser.storage.local.clear().then(result1 => {
+                                                        browser.storage.local.set({"storage": "local"})
+                                                    });
+                                                } else browser.storage.local.set({"storage": "local"})
+                                            }
+                                        });
+
+                                        disableAside = false;
+                                        document.getElementById("cancel-import-all-notes-button").style.display = "inline-block";
+                                        document.getElementById("import-from-file-button").style.display = "inline-block";
                                         document.getElementById("import-now-all-notes-button").disabled = false;
                                         document.getElementById("cancel-import-all-notes-button").disabled = false;
                                         document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
 
-                                        sync_local.set({
-                                            "websites": websites_json,
-                                            "settings": settings_json,
-                                            "sticky-notes-coords": sticky_notes.coords,
-                                            "sticky-notes-sizes": sticky_notes.sizes,
-                                            "sticky-notes-opacity": sticky_notes.opacity
-                                        }).then(function () {
-                                            //Imported all correctly
-                                            sync_local.get([
-                                                "settings",
-                                                "websites",
-                                                "sticky-notes-coords",
-                                                "sticky-notes-sizes",
-                                                "sticky-notes-opacity"
-                                            ]).then(result => {
-                                                //console.log(JSON.stringify(storageTemp));
-                                                if (storageTemp === "sync") {
-                                                    if (JSON.stringify(json_old_version) === jsonImportElement.value) {
-                                                        browser.storage.local.clear().then(result1 => {
-                                                            browser.storage.local.set({"storage": "sync"})
-                                                        });
-                                                    } else browser.storage.local.set({"storage": "sync"})
-                                                } else {
-                                                    if (JSON.stringify(json_old_version) === jsonImportElement.value) {
-                                                        browser.storage.local.clear().then(result1 => {
-                                                            browser.storage.local.set({"storage": "local"})
-                                                        });
-                                                    } else browser.storage.local.set({"storage": "local"})
-                                                }
-                                            });
+                                        document.getElementById("import-section").style.display = "none";
+                                        hideBackgroundOpacity()
 
-                                            disableAside = false;
-                                            document.getElementById("cancel-import-all-notes-button").style.display = "inline-block";
-                                            document.getElementById("import-from-file-button").style.display = "inline-block";
-                                            document.getElementById("import-now-all-notes-button").disabled = false;
-                                            document.getElementById("cancel-import-all-notes-button").disabled = false;
-                                            document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
-
-                                            document.getElementById("import-section").style.display = "none";
-                                            hideBackgroundOpacity()
-
-                                            loaded();
-                                        }).catch(function (error) {
-                                            console.error("E10: " + error);
-                                        });
-                                    }, 2000);
-                                });
-                            }
+                                        loaded();
+                                    }).catch(function (error) {
+                                        console.error("E10: " + error);
+                                    });
+                                }, 2000);
+                            });
                         }
-                    )
-                    ;
+                    });
 
 
                     if (!continue_ok && !cancel) {
@@ -929,8 +865,7 @@ function importAllNotes(from_file = false) {
                         error_description = "One or more parameters are not correct and it's not possible import data.";
                     }
                     //console.log(JSON.stringify(json_to_export_temp));
-                } catch
-                    (e) {
+                } catch (e) {
                     //console.log("Error: " + e.toString());
                     error = true;
                     error_description = e.toString()
@@ -1000,12 +935,7 @@ function importFromFile() {
 function exportAllNotes(to_file = false) {
     showBackgroundOpacity();
     browser.storage.local.get(["storage"]).then(getStorageTemp => {
-        sync_local.get([
-            "sticky-notes-coords",
-            "sticky-notes-opacity",
-            "sticky-notes-sizes",
-            "websites"
-        ]).then((result) => {
+        sync_local.get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites"]).then((result) => {
             // Handle the result
             let sticky_notes = {};
             sticky_notes.coords = result["sticky-notes-coords"];
@@ -1030,8 +960,7 @@ function exportAllNotes(to_file = false) {
             document.getElementById("export-section").style.display = "block";
             json_to_export = {};
             for (setting in settings_json) {
-                if (settings_json[setting] === "yes") settings_json[setting] = true;
-                else if (settings_json[setting] === "no") settings_json[setting] = false;
+                if (settings_json[setting] === "yes") settings_json[setting] = true; else if (settings_json[setting] === "no") settings_json[setting] = false;
             }
             json_to_export = {
                 "notefox": notefox_json,
@@ -1191,6 +1120,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                 if (code_element.classList.contains("hidden")) code_element.classList.remove("hidden");
 
                 submit_element.disabled = false;
+                new_code_element.disabled = false;
                 cancel_element.disabled = false;
                 code_element.disabled = false;
                 email_element.disabled = true;
@@ -1234,12 +1164,55 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     if (code_element.value === "") code_element.classList.add("textbox-error");
                 }
                 code_element.oninput = function () {
-                    if (code_element.value === "" && code_element.classList.contains("monospace")) code_element.classList.remove("monospace");
-                    else code_element.classList.add("monospace");
+                    if (code_element.value === "" && code_element.classList.contains("monospace")) code_element.classList.remove("monospace"); else code_element.classList.add("monospace");
                 }
 
-            }
-            else if (action === "delete") {
+                new_code_element.onclick = function () {
+                    let email = email_element.value;
+                    let password = password_element.value;
+
+                    if (email === "" || password === "") {
+                        if (email === "") email_element.classList.add("textbox-error");
+                        if (password === "") password_element.classList.add("textbox-error");
+                    } else {
+                        browser.runtime.sendMessage({
+                            "api": true, "type": "signup-new-code", "data": {"email": email, "password": password}
+                        });
+
+                        submit_element.disabled = true;
+                        new_code_element.disabled = true;
+                        cancel_element.disabled = true;
+                        code_element.disabled = true;
+                        email_element.disabled = true;
+                        password_element.disabled = true;
+                        disableAside = true;
+                    }
+                }
+
+                submit_element.onclick = function () {
+                    let email = email_element.value;
+                    let password = password_element.value;
+                    let code = code_element.value;
+
+                    if (code === "") {
+                        code_element.classList.add("textbox-error");
+                    } else {
+                        browser.runtime.sendMessage({
+                            "api": true,
+                            "type": "signup-verify",
+                            "data": {"email": email, "password": password, "verification-code": code}
+                        });
+
+                        submit_element.disabled = true;
+                        new_code_element.disabled = true;
+                        cancel_element.disabled = true;
+                        code_element.disabled = true;
+                        email_element.disabled = true;
+                        password_element.disabled = true;
+                        disableAside = true;
+                    }
+                }
+            } else if (action === "delete") {
 
             } else if (action === "verify-delete") {
 
@@ -1349,6 +1322,12 @@ function listenerNotefoxAccount() {
                 case "signup":
                     signUpResponse(data);
                     break;
+                case "signup-new-code":
+                    signUpNewCodeResponse(data);
+                    break;
+                case "signup-verify":
+                    signUpVerifyResponse(data);
+                    break;
                 default:
                     console.error("Error: " + message["type"] + " is not a valid type");
             }
@@ -1360,7 +1339,6 @@ function listenerNotefoxAccount() {
 
 function signUpResponse(data) {
     document.getElementById("signup-cancel").disabled = false;
-    console.log(data);
     //data should be defined as {code: X, status: Y, data: Z}
 
     let submit_element = document.getElementById("signup-submit");
@@ -1384,8 +1362,7 @@ function signUpResponse(data) {
             //Success
             //alert("Sign up: OK");
             notefoxAccountLoginSignupManage("verify-signup", {
-                "email": email_element.value,
-                "password": password_element.value
+                "email": email_element.value, "password": password_element.value
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
@@ -1398,6 +1375,80 @@ function signUpResponse(data) {
             verify_signup_element.onclick = function () {
                 notefoxAccountLoginSignupManage("verify-signup", {"email": email_element.value});
             }
+        } else {
+            //Unknown
+            alert("Sign up: Error (unknown)");
+        }
+    }
+}
+
+function signUpNewCodeResponse(data) {
+    let submit_element = document.getElementById("verify-signup-submit");
+    let new_code_element = document.getElementById("verify-signup-new-code");
+    if (submit_element.classList.contains("hidden")) submit_element.classList.remove("hidden");
+    if (new_code_element.classList.contains("hidden")) new_code_element.classList.remove("hidden");
+
+    let cancel_element = document.getElementById("signup-cancel");
+    let code_element = document.getElementById("verify-signup-code");
+    let email_element = document.getElementById("verify-signup-email");
+    let password_element = document.getElementById("verify-signup-password");
+
+    submit_element.disabled = false;
+    new_code_element.disabled = false;
+    cancel_element.disabled = false;
+    code_element.disabled = false;
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success
+            alert("New code: OK");
+        } else if (data.code === 400 || data.code === 401) {
+            //Error
+            alert(`New code: Error (${data.code})`);
+        } else if (data.code === 412) {
+            alert("Invalid credentials or already verified");
+        } else {
+            //Unknown
+            alert("Sign up: Error (unknown)");
+        }
+    }
+}
+
+function signUpVerifyResponse(data) {
+    let submit_element = document.getElementById("verify-signup-submit");
+    let new_code_element = document.getElementById("verify-signup-new-code");
+    if (submit_element.classList.contains("hidden")) submit_element.classList.remove("hidden");
+    if (new_code_element.classList.contains("hidden")) new_code_element.classList.remove("hidden");
+
+    let cancel_element = document.getElementById("signup-cancel");
+    let code_element = document.getElementById("verify-signup-code");
+    let email_element = document.getElementById("verify-signup-email");
+    let password_element = document.getElementById("verify-signup-password");
+
+    submit_element.disabled = false;
+    new_code_element.disabled = false;
+    cancel_element.disabled = false;
+    code_element.disabled = false;
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success
+            alert("Verify: OK");
+            notefoxAccountLoginSignupManage("login", {
+                "email": email_element.value
+            });
+        } else if (data.code === 400 || data.code === 401) {
+            //Error
+            alert(`Verify: Error (${data.code})`);
+        } else if (data.code === 410) {
+            alert("Invalid credentials");
+            notefoxAccountLoginSignupManage("verify-signup", {
+                "email": email_element.value
+            });
+        } else if (data.code === 413) {
+            alert("Invalid verification code");
+        } else if (data.code === 414) {
+            alert("User already verified");
         } else {
             //Unknown
             alert("Sign up: Error (unknown)");
@@ -1437,15 +1488,11 @@ function checkTwoVersions(version1, version2) {
                     if (v1.length === index && v2.length === index) {
                         valueToReturn = "=";
                     } else if (v1.length > index && v2.length === index) {
-                        if (v1[index] !== "0") valueToReturn = ">";
-                        else valueToReturn = "=";
+                        if (v1[index] !== "0") valueToReturn = ">"; else valueToReturn = "=";
                     } else if (v1.length === index && v2.length > index) {
-                        if (v2[index] !== "0") valueToReturn = "<";
-                        else valueToReturn = "=";
+                        if (v2[index] !== "0") valueToReturn = "<"; else valueToReturn = "=";
                     } else {
-                        if (parseInt(v1[index]) > parseInt(v2[index])) valueToReturn = ">";
-                        else if (parseInt(v1[index]) < parseInt(v2[index])) valueToReturn = "<";
-                        else {
+                        if (parseInt(v1[index]) > parseInt(v2[index])) valueToReturn = ">"; else if (parseInt(v1[index]) < parseInt(v2[index])) valueToReturn = "<"; else {
                             if (!(v1.length > index + 1 || v2.length > index + 1)) valueToReturn = "=";
                         }
                     }
