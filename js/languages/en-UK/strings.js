@@ -185,7 +185,6 @@ strings[lang] = {
     "notefox-account-insert-verification-code-text": "Insert the verification code you received by email from the email address <b>no-reply@notefox.eu</b>. If you don't receive the email, check your spam folder. Otherwise, you can ask for another code.",
     "notefox-account-login-expired-text": "Your login session has expired. Please, log in again.",
     "notefox-account-already-an-account": "Do you already have a verified account?",
-    "notefox-account-"
     "email-textbox": "Email",
     "username-textbox": "Username",
     "password-textbox": "Password",
