@@ -56,6 +56,12 @@ function checkSyncLocal() {
 }
 
 function loaded() {
+    browser.runtime.onMessage.addListener((message) => {
+        if (message["sync_update"] !== undefined && message["sync_update"]) {
+            location.reload();
+        }
+    });
+
     checkSyncLocal();
     setLanguageUI();
     checkTheme();
@@ -202,6 +208,7 @@ function setLanguageUI() {
             }
             containerColours.appendChild(colourFilterButton);
         }
+
         let noneFilterButton = document.createElement("input");
         noneFilterButton.type = "button";
         noneFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["none-colour"]);
@@ -837,7 +844,6 @@ function changeTagColour(url, colour) {
         websites_json_to_show = websites_json;
         sync_local.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
-            hideBackgroundOpacity();
         });
     });
 }

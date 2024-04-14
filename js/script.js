@@ -71,6 +71,12 @@ function loaded() {
     loadSettings();
     checkTheme();
     checkTimesOpened();
+
+    browser.runtime.onMessage.addListener((message) => {
+        if (message["sync_update"] !== undefined && message["sync_update"]) {
+            loaded();
+        }
+    });
 }
 
 function checkTimesOpened() {
@@ -120,7 +126,7 @@ function checkOpenedBy() {
                 loadUI();
             }
         }
-        sync_local.set({"opened-by-shortcut": "default"});
+        sync_local.set({"opened-by-shortcut": "default","last-update": getDate()});
     });
     listenerShortcuts();
 }
@@ -140,7 +146,7 @@ function listenerShortcuts() {
             opened_by = 0;
             loadUI();
         }
-        sync_local.set({"opened-by-shortcut": "default"});
+        sync_local.set({"opened-by-shortcut": "default","last-update": getDate()});
     });
 }
 
@@ -406,7 +412,7 @@ function changeTagColour(url, colour) {
             //console.log(`url ${url}`);
             websites_json[url]["tag-colour"] = colour;
             websites_json_to_show = websites_json;
-            sync_local.set({"websites": websites_json}, function () {
+            sync_local.set({"websites": websites_json,"last-update": getDate()}, function () {
                 loadUI();
             });
         }
@@ -662,7 +668,7 @@ function saveNotes() {
         }
         if (currentUrl[1] !== "" && currentUrl[2] !== "") {
             //selected_tab : {0: global | 1:domain | 2:page}
-            sync_local.set({"websites": websites_json}, function () {
+            sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
                 let never_saved = true;
 
                 let notes = "";
@@ -702,6 +708,37 @@ function saveNotes() {
     });
 }
 
+function correctDatetime(datetime) {
+    let date = new Date(datetime);
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+function getDate() {
+    let todayDate = new Date();
+    let today = "";
+    today = todayDate.getFullYear() + "-";
+    let month = todayDate.getMonth() + 1;
+    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
+    let day = todayDate.getDate();
+    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
+    let hour = todayDate.getHours();
+    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
+    let minute = todayDate.getMinutes();
+    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
+    let second = todayDate.getSeconds();
+    if (second < 10) today = today + "0" + second; else today = today + "" + second
+
+    return today;
+}
+
+
 function checkNeverSaved(never_saved) {
     if (stickyNotesSupported) {
         if (never_saved) {
@@ -710,7 +747,7 @@ function checkNeverSaved(never_saved) {
             document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
             if (document.getElementById("format-buttons").childNodes.length === 0) {
                 document.getElementById("format-buttons").classList.add("hidden");
-                if(document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
+                if (document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
             }
         } else {
             if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
@@ -718,7 +755,7 @@ function checkNeverSaved(never_saved) {
             document.getElementById("all-notes-section").style.gridTemplateAreas = "'tag all-notes all-notes all-notes all-notes'";
             if (document.getElementById("format-buttons").classList.contains("hidden")) {
                 document.getElementById("format-buttons").classList.remove("hidden");
-                if(!document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.add("padding-top-10");
+                if (!document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.add("padding-top-10");
             }
         }
     } else {
@@ -726,7 +763,7 @@ function checkNeverSaved(never_saved) {
         document.getElementById("tag-select-grid").classList.add("hidden");
         document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
         document.getElementById("format-buttons").classList.add("hidden");
-        if(document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
+        if (document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
     }
 }
 
@@ -1017,7 +1054,7 @@ function openStickyNotes() {
                     websites_json[currentUrl[selected_tab]]["sticky"] = true;
                     websites_json[currentUrl[selected_tab]]["minimized"] = false;
 
-                    sync_local.set({"websites": websites_json}).then(result => {
+                    sync_local.set({"websites": websites_json,"last-update": getDate()}).then(result => {
                         //console.log("Opening... <5>")
                         browser.runtime.sendMessage({
                             "open-sticky": {
@@ -1180,7 +1217,7 @@ function spellcheck(force = false, value = false) {
             }
         }
         document.getElementById("notes").focus();
-        sync_local.set({"settings": settings_json}).then(() => {
+        sync_local.set({"settings": settings_json,"last-update": getDate()}).then(() => {
             sendMessageUpdateToBackground();
         });
     });
@@ -1270,8 +1307,8 @@ function loadFormatButtons(navigation = true, format = true) {
         document.getElementById("open-sticky-button").classList.add("button-trigger-sticky-no-format-buttons");
     } else {
         document.getElementById("notes").style.marginBottom = "35px";
-        if(document.getElementById("format-buttons").style.display === "none") document.getElementById("format-buttons").style.removeProperty("display");
-        if(document.getElementById("open-sticky-button").classList.contains("button-trigger-sticky-no-format-buttons")) document.getElementById("open-sticky-button").classList.remove("button-trigger-sticky-no-format-buttons");
+        if (document.getElementById("format-buttons").style.display === "none") document.getElementById("format-buttons").style.removeProperty("display");
+        if (document.getElementById("open-sticky-button").classList.contains("button-trigger-sticky-no-format-buttons")) document.getElementById("open-sticky-button").classList.remove("button-trigger-sticky-no-format-buttons");
     }
 
 

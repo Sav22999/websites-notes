@@ -1,6 +1,9 @@
 const icons = ["../img/icon.svg", "../img/icon-bordered.svg"];
 var settings_json = {};
 var websites_json = {};
+var notefox_json = {};
+
+const webBrowserUsed = "firefox";//TODO:change manually
 
 var tab_id = 0;
 var tab_url = "";
@@ -46,7 +49,196 @@ function checkSyncLocal() {
             //first launch -> open tutorial
             browser.tabs.create({url: linkFirstLaunch});
         }
-    })
+    });
+
+    checkSyncData();
+}
+
+function checkSyncData() {
+    //console.log("Check sync data")
+    browser.storage.sync.get(["notefox-account"]).then(resultSync => {
+        //console.log("Sync data: " + JSON.stringify(resultSync));
+        if (resultSync["notefox-account"] !== undefined) {
+            api_request({
+                "api": true,
+                "type": "get-data",
+                "data": {
+                    "login-id": resultSync["notefox-account"]["login-id"],
+                    "token": resultSync["notefox-account"]["token"]
+                }
+            });
+
+            syncData();
+        } else {
+            syncData(5 * 60 * 1000); //5 minutes if the user is not logged in
+        }
+    });
+}
+
+//set timer each 1 minute
+function syncData(force_time) {
+    let time = 1 * 60 * 1000 //1 minute
+
+    if (force_time !== undefined) time = force_time;
+
+
+    //console.log(`Sync data each ${time} ms`);
+
+    setTimeout(function () {
+        checkSyncData();
+    }, time);
+}
+
+function response(response) {
+    //console.log("Response: " + JSON.stringify(response));
+    if (response["api_response"] !== undefined && response["api_response"] === true) {
+        if (response["type"] !== undefined) {
+            if (response["type"] === "get-data") {
+                if (response["data"] !== undefined) {
+                    let data = response["data"];
+                    if (data !== undefined) {
+                        if (data.code === 200) {
+                            //check if server data is newer than local data
+                            //console.log("Server data: " + JSON.stringify(data["data"]));
+                            sync_local.get(["last-update"]).then(result => {
+                                let latestUpdateServer = data["data"]["updated-locally"];
+                                let latestUpdateLocal = result["last-update"];
+
+                                //console.log("Latest update on server: " + latestUpdateServer);
+                                //console.log("Latest update on local: " + latestUpdateLocal);
+
+                                if (latestUpdateServer !== undefined && latestUpdateLocal !== undefined) {
+                                    let dateServer = new Date(latestUpdateServer);
+                                    let dateLocal = new Date(latestUpdateLocal);
+
+                                    if (dateLocal > dateServer) {
+                                        //console.log("Local data is newer than server one");
+
+                                        //send data to the server
+                                        sendLocalDataToServer();
+                                    } else if (dateLocal < dateServer) {
+                                        //update local data
+                                        //console.log("Server data is newer than local one");
+
+                                        let data_to_server = JSON.parse(data["data"]["data"]);
+
+                                        sync_local.set(data_to_server).then(result => {
+                                            //console.log("Data updated from server");
+
+                                            syncUpdateFromServer();
+                                        });
+                                    } else {
+                                        //console.log("Local data is the same as the server one");
+                                    }
+                                }
+                            });
+                        } else if (data.code === 450) {
+                            //No data on the server ==> never send data
+                            //send data to the server
+
+                            //console.log("Sending data to the server");
+
+                            sendLocalDataToServer();
+                        } else {
+                            console.error(`Error: ${data.code} - ${data.status} - ${data.description}`);
+                        }
+                    }
+                }
+            } else if (response["type"] === "send-data") {
+                //console.log("Send data response: " + JSON.stringify(response));
+            }
+        }
+    }
+
+}
+
+function sendLocalDataToServer() {
+    let data_to_send = {};
+
+    browser.storage.local.get(["storage"]).then(getStorageTemp => {
+        sync_local.get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "last-update"]).then((result) => {
+            // Handle the result
+            let sticky_notes = {};
+            sticky_notes.coords = result["sticky-notes-coords"];
+            sticky_notes.sizes = result["sticky-notes-sizes"];
+            sticky_notes.opacity = result["sticky-notes-opacity"];
+
+            let websites_json = result["websites"];
+
+            if (sticky_notes.coords === undefined && sticky_notes.coords === null) {
+                sticky_notes.coords = {x: "20px", y: "20px"};
+            }
+            if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) {
+                sticky_notes.sizes = {w: "300px", h: "300px"};
+            }
+            if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) {
+                sticky_notes.opacity = {value: 0.7};
+            }
+            sticky_notes.opacity.value = Number.parseFloat(sticky_notes.opacity.value).toFixed(2);
+
+            //console.log(JSON.stringify(result));
+
+            for (setting in settings_json) {
+                if (settings_json[setting] === "yes") settings_json[setting] = true; else if (settings_json[setting] === "no") settings_json[setting] = false;
+            }
+            data_to_send = {
+                "notefox": notefox_json,
+                "settings": settings_json,
+                "websites": websites_json,
+                "sticky-notes": sticky_notes,
+                "storage": getStorageTemp["storage"],
+                "last-update": result["last-update"]
+            }
+
+
+            browser.storage.sync.get(["notefox-account"]).then(resultSync => {
+                if (resultSync["notefox-account"] !== undefined) {
+                    api_request({
+                        "api": true,
+                        "type": "send-data",
+                        "data": {
+                            "login-id": resultSync["notefox-account"]["login-id"],
+                            "token": resultSync["notefox-account"]["token"],
+                            "updated-locally": correctDatetime(result["last-update"]),
+                            "data": JSON.stringify(data_to_send)
+                        }
+                    });
+                } else {
+                }
+            });
+
+            sync_local.set(data_to_send).then(result => {
+                //console.log("Data sent to the server");
+            });
+        }).catch((e) => {
+            console.error(`E-B1: ${e}`);
+        });
+    });
+}
+
+function syncUpdateFromServer() {
+    browser.runtime.sendMessage({"sync_update": true}).then(response => {
+        //console.log("Sync update from server: " + response);
+    }).catch((e) => {
+        setTimeout(function () {
+            syncUpdateFromServer();
+        }, 5000);
+        console.error(`E-B2: ${e}`);
+    });
+
+    loaded();
+}
+
+function correctDatetime(datetime) {
+    let date = new Date(datetime);
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
 function changeIcon(index) {
@@ -54,6 +246,17 @@ function changeIcon(index) {
 }
 
 function loaded() {
+    notefox_json = {
+        "version": browser.runtime.getManifest().version,
+        "author": browser.runtime.getManifest().author,
+        "manifest_version": browser.runtime.getManifest().manifest_version,
+        "os": "?",
+        "browser": webBrowserUsed,
+    };
+    browser.runtime.getPlatformInfo((platformInfo) => {
+        notefox_json["os"] = platformInfo.os
+    });
+
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         // since only one tab should be active and in the current window at once
         // the return variable should only have one entry
@@ -77,13 +280,14 @@ function loaded() {
             }
         });
 
-        listenerShortcuts();
-        listenerStickyNotes();
         checkStatus();
     });
 }
 
 function loadDataFromSync() {
+    listenerShortcuts();
+    listenerStickyNotes();
+
     loaded();
 }
 
@@ -138,7 +342,10 @@ function checkStatus(update = false) {
                         if (websites_json[tab_url] !== undefined && websites_json[tab_url]["title"] === undefined) {
                             //if the title it's not specified yet, so it's set with the title of the tab
                             websites_json[tab_url]["title"] = tab_title;
-                            sync_local.set({"websites": websites_json}).then(resultSet => {
+                            sync_local.set({
+                                "websites": websites_json,
+                                "last-update": getDate()
+                            }).then(resultSet => {
                             });
                         }
 
@@ -345,15 +552,15 @@ function listenerShortcuts() {
         if (command === "opened-by-domain") {
             //domain
             browser.browserAction.openPopup();
-            sync_local.set({"opened-by-shortcut": "domain"});
+            sync_local.set({"opened-by-shortcut": "domain", "last-update": getDate()});
         } else if (command === "opened-by-page") {
             //page
             browser.browserAction.openPopup();
-            sync_local.set({"opened-by-shortcut": "page"});
+            sync_local.set({"opened-by-shortcut": "page", "last-update": getDate()});
         } else if (command === "opened-by-global") {
             //global
             browser.browserAction.openPopup();
-            sync_local.set({"opened-by-shortcut": "global"});
+            sync_local.set({"opened-by-shortcut": "global", "last-update": getDate()});
         }
     });
 }
@@ -405,7 +612,10 @@ function listenerStickyNotes() {
                             coords.x = message.data.coords.x;
                             coords.y = message.data.coords.y;
 
-                            sync_local.set({"websites": websites_json}).then(result => {
+                            sync_local.set({
+                                "websites": websites_json,
+                                "last-update": getDate()
+                            }).then(result => {
                                 //console.log(websites_json[url]);
                             });
                         }
@@ -429,7 +639,10 @@ function listenerStickyNotes() {
                             sizes.w = message.data.sizes.w;
                             sizes.h = message.data.sizes.h;
 
-                            sync_local.set({"websites": websites_json}).then(result => {
+                            sync_local.set({
+                                "websites": websites_json,
+                                "last-update": getDate()
+                            }).then(result => {
                                 //console.log(websites_json[url]);
                             });
                         }
@@ -449,7 +662,10 @@ function listenerStickyNotes() {
 
                             opacity.value = message.data.opacity.value;
 
-                            sync_local.set({"websites": websites_json}).then(result => {
+                            sync_local.set({
+                                "websites": websites_json,
+                                "last-update": getDate()
+                            }).then(result => {
                                 //console.log(websites_json[url]);
                             });
                         }
@@ -753,7 +969,7 @@ function setOpenedSticky(sticky, minimized) {
                 websites_json[url]["sticky"] = sticky;
                 websites_json[url]["minimized"] = minimized;
 
-                sync_local.set({"websites": websites_json}).then(result => {
+                sync_local.set({"websites": websites_json, "last-update": getDate()}).then(result => {
                     //updated websites with new data
                     //console.log("set || " + JSON.stringify(websites_json[tab_url]));
                     //console.log("set || " + JSON.stringify(websites_json));
@@ -793,7 +1009,7 @@ function setNewTextFromSticky(text) {
             }
 
             sync_local.set({
-                "websites": websites_json
+                "websites": websites_json, "last-update": getDate()
             }).then(function () {
                 //updated websites with new data
                 //console.log("set || " + JSON.stringify(websites_json[tab_url]));

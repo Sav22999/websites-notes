@@ -142,6 +142,7 @@ body {
     margin: 2px;
     border: 0px solid var(--primary-color);
     opacity: 0.8;
+    box-sizing: border-box;
 }
 
 .button-trigger-sticky {
@@ -504,9 +505,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     -webkit-appearance: none;
     -moz-appearance: none;
     text-indent: 0px;
-    text-overflow: '';
-    padding: 15px 25px !important;
-    font-size: 0px !important; /*This permits to "hide" the textContext from the select but NOT from the options*/
+    padding-right: 35px;
 }
 
 #tag-select-grid {
