@@ -11,7 +11,7 @@ function loadAPI() {
 }
 
 function api_request(message) {
-    //console.log("API request received");
+    console.log("API request received");
     console.log(message);
     let data = message["data"];
     switch (message["type"]) {

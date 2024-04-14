@@ -336,6 +336,13 @@ function setLanguageUI() {
     document.getElementById("verify-login-code").placeholder = all_strings["verification-code-textbox"];
     document.getElementById("verify-login-submit").value = all_strings["notefox-account-button-verify-email"];
     document.getElementById("verify-login-new-code").value = all_strings["notefox-account-button-resend-email"];
+
+    document.getElementById("manage-logout").value = all_strings["notefox-account-button-settings-logout"];
+    document.getElementById("manage-logout-all-devices").value = all_strings["notefox-account-button-settings-logout-all-devices"];
+    //document.getElementById("manage-delete-submit").value = all_strings["notefox-account-button-delete"];
+    //document.getElementById("manage-verify-delete").value = all_strings["notefox-account-button-verify-email"];
+    //document.getElementById("manage-verify-delete-submit").value = all_strings["notefox-account-button-verify-email"];
+    //document.getElementById("manage-verify-delete-new-code").value = all_strings["notefox-account-button-resend-email"];
 }
 
 function loadSettings() {
@@ -1109,10 +1116,37 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
             }
         }
 
-        console.log(action);
         if (account_logged) {
             //Manage account section
             if (document.getElementById("notefox-account-manage-section").classList.contains("hidden")) document.getElementById("notefox-account-manage-section").classList.remove("hidden");
+
+            document.getElementById("manage-logout").onclick = function () {
+                browser.runtime.sendMessage({
+                    "api": true,
+                    "type": "logout",
+                    "data": {
+                        "login-id": savedData["notefox-account"]["login-id"]
+                    }
+                });
+                browser.storage.sync.remove("notefox-account").then(result => {
+                    notefoxAccountLoginSignupManage();
+                });
+                location.reload();
+            }
+
+            document.getElementById("manage-logout").onclick = function () {
+                browser.runtime.sendMessage({
+                    "api": true,
+                    "type": "logout-all-devices",
+                    "data": {
+                        "login-id": savedData["notefox-account"]["login-id"]
+                    }
+                });
+                browser.storage.sync.remove("notefox-account").then(result => {
+                    notefoxAccountLoginSignupManage();
+                });
+                location.reload();
+            }
 
             //console.log(savedData["notefox-account"]);
         }
