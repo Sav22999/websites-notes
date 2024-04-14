@@ -183,6 +183,9 @@ strings[lang] = {
     "notefox-account-button-resend-email": "Get a new code",
     "notefox-account-signing-up-text": "Signing up you're accepting the <a {{parameters1}}>Terms of Service</a> and the <a {{parameters2}}>Privacy Policy</a>. Once you sign up, you'll receive an email with a verification code to confirm your account. If you don't receive the email, check your spam folder. Otherwise, you can ask for another one.<br><b>Pay attention to the password you choose</b>: don't forget it because it's not possible to recover data because it's encrypted with an end-to-end encryption.",
     "notefox-account-insert-verification-code-text": "Insert the verification code you received by email from the email address <b>no-reply@notefox.eu</b>. If you don't receive the email, check your spam folder. Otherwise, you can ask for another code.",
+    "notefox-account-login-expired-text": "Your login session has expired. Please, log in again.",
+    "notefox-account-already-an-account": "Do you already have a verified account?",
+    "notefox-account-"
     "email-textbox": "Email",
     "username-textbox": "Username",
     "password-textbox": "Password",

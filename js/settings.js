@@ -321,6 +321,15 @@ function setLanguageUI() {
     document.getElementById("verify-signup-email").placeholder = all_strings["email-textbox"];
     document.getElementById("verify-signup-password").placeholder = all_strings["password-textbox"];
     document.getElementById("verify-signup-new-code").value = all_strings["notefox-account-button-resend-email"];
+
+    document.getElementById("login-email").placeholder = all_strings["email-textbox"];
+    document.getElementById("login-password").placeholder = all_strings["password-textbox"];
+    document.getElementById("login-submit").value = all_strings["notefox-account-button-settings-login"];
+
+    document.getElementById("verify-login").value = all_strings["notefox-account-button-verify-email"];
+    document.getElementById("verify-login-code").placeholder = all_strings["verification-code-textbox"];
+    document.getElementById("verify-login-submit").value = all_strings["notefox-account-button-verify-email"];
+    document.getElementById("verify-login-new-code").value = all_strings["notefox-account-button-resend-email"];
 }
 
 function loadSettings() {
@@ -1045,13 +1054,17 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
 
         document.getElementById("account-section--signup-grid").classList.add("hidden");
         document.getElementById("account-section--verify-signup-grid").classList.add("hidden");
-        //document.getElementById("account-section--login-grid").classList.add("hidden");
-        //document.getElementById("account-section--verify-login-grid").classList.add("hidden");
+        document.getElementById("account-section--login-grid").classList.add("hidden");
+        document.getElementById("account-section--verify-login-grid").classList.add("hidden");
+
+        document.getElementById("login-exprired-section").classList.add("hidden");
+
+        document.getElementById("text-account").innerHTML = "";
 
         let account_logged = false;
         if ((action === null || action === "manage") && savedData["notefox-account"] !== undefined && savedData["notefox-account"] !== {}) {
             if (savedData["notefox-account"] !== undefined && savedData["notefox-account"] !== {} && savedData["notefox-account"]["expiry"] !== undefined) {
-                if (savedData["notefox-account"]["expiry"] !== "" && savedData["notefox-account"]["expiry"] !== null) {
+                if (savedData["notefox-account"]["expiry"] === "" || savedData["notefox-account"]["expiry"] === null) {
                     //login, no expiry set
                     account_logged = true;
                 } else {
@@ -1062,6 +1075,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     if (current_datetime > expiry_datetime) {
                         //login expired
                         action = "login-expired";
+                        data = {};
                     } else {
                         account_logged = true;
                     }
@@ -1069,28 +1083,110 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
             }
         }
 
+        console.log(action);
         if (account_logged) {
             //Manage account section
             if (document.getElementById("notefox-account-manage-section").classList.contains("hidden")) document.getElementById("notefox-account-manage-section").classList.remove("hidden");
+
+            console.log(savedData["notefox-account"]);
         }
 
         //TODO: start testing! -- remove the following part
         //account_logged = false;
-        //action = "verify-signup";
+        //action = "login-expired";
+        //action = "login";
         //TODO: end testing! -- remove the previous part
 
         if (!account_logged) {
             //Other sections
-            console.log(action);
-
             if (action === "login-expired") {
                 //show a message and then set action to "login"
+
+                document.getElementById("login-exprired-section").innerHTML = all_strings["notefox-account-login-expired-text"];
+                if (document.getElementById("login-exprired-section").classList.contains("hidden")) document.getElementById("login-exprired-section").classList.remove("hidden");
 
                 action = "login";
             }
 
             if (action === "verify-login") {
+                console.log(data);
+                if (document.getElementById("notefox-account-login-section").classList.contains("hidden")) document.getElementById("notefox-account-login-section").classList.remove("hidden");
+                if (document.getElementById("account-section--verify-login-grid").classList.contains("hidden")) document.getElementById("account-section--verify-login-grid").classList.remove("hidden");
+                document.getElementById("text-account").innerHTML = all_strings["notefox-account-insert-verification-code-text"];
 
+                document.getElementById("login-submit").classList.add("hidden");
+                if (document.getElementById("verify-login-new-code").classList.contains("hidden")) document.getElementById("verify-login-new-code").classList.remove("hidden");
+                if (document.getElementById("verify-login-submit").classList.contains("hidden")) document.getElementById("verify-login-submit").classList.remove("hidden");
+
+                let email = "";
+                let password = "";
+                let login_id = "";
+                if (data !== null) {
+                    if (data.email !== undefined) email = data.email;
+                    if (data.password !== undefined) password = data.password;
+                    if (data["login-id"] !== undefined) login_id = data["login-id"];
+                }
+
+                let verify_login_submit_element = document.getElementById("verify-login-submit");
+                let new_code_element = document.getElementById("verify-login-new-code");
+                let cancel_element = document.getElementById("login-cancel");
+                let code_element = document.getElementById("verify-login-code");
+
+                code_element.value = "";
+
+                if (verify_login_submit_element.classList.contains("hidden")) verify_login_submit_element.classList.remove("hidden");
+                if (new_code_element.classList.contains("hidden")) new_code_element.classList.remove("hidden");
+                if (code_element.classList.contains("hidden")) code_element.classList.remove("hidden");
+
+                verify_login_submit_element.disabled = false;
+                new_code_element.disabled = false;
+                cancel_element.disabled = false;
+                code_element.disabled = false;
+
+                code_element.focus();
+
+                verify_login_submit_element.onclick = function () {
+                    let code = code_element.value;
+                    if (code === "") {
+                        code_element.classList.add("textbox-error");
+                    } else if (email === "" || password === "" || login_id === "") {
+                        notefoxAccountLoginSignupManage("login");
+                    } else {
+                        browser.runtime.sendMessage({
+                            "api": true,
+                            "type": "login-verify",
+                            "data": {
+                                "email": email,
+                                "password": password,
+                                "login-id": login_id,
+                                "verification-code": code
+                            }
+                        });
+                        verify_login_submit_element.disabled = true;
+                        new_code_element.disabled = true;
+                        cancel_element.disabled = true;
+                        code_element.disabled = true;
+                        disableAside = true;
+                    }
+                }
+
+                new_code_element.onclick = function () {
+                    if (email === "" || password === "" || login_id === "") {
+                        notefoxAccountLoginSignupManage("login");
+                    } else {
+                        browser.runtime.sendMessage({
+                            "api": true,
+                            "type": "login-new-code",
+                            "data": {"email": email, "password": password, "login-id": login_id}
+                        });
+
+                        verify_login_submit_element.disabled = true;
+                        new_code_element.disabled = true;
+                        cancel_element.disabled = true;
+                        code_element.disabled = true;
+                        disableAside = true;
+                    }
+                }
             } else if (action === "verify-signup") {
                 if (document.getElementById("notefox-account-signup-section").classList.contains("hidden")) document.getElementById("notefox-account-signup-section").classList.remove("hidden");
                 if (document.getElementById("account-section--verify-signup-grid").classList.contains("hidden")) document.getElementById("account-section--verify-signup-grid").classList.remove("hidden");
@@ -1218,7 +1314,70 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
 
             } else if (action === "login") {
                 if (document.getElementById("notefox-account-login-section").classList.contains("hidden")) document.getElementById("notefox-account-login-section").classList.remove("hidden");
+                if (document.getElementById("account-section--login-grid").classList.contains("hidden")) document.getElementById("account-section--login-grid").classList.remove("hidden");
 
+                let email = "";
+                let password = "";
+                if (data !== null) {
+                    if (data.email !== undefined) email = data.email;
+                    if (data.password !== undefined) password = data.password;
+                }
+
+                document.getElementById("verify-login-submit").classList.add("hidden");
+                document.getElementById("verify-login-new-code").classList.add("hidden");
+
+                let login_submit_element = document.getElementById("login-submit");
+                let cancel_element = document.getElementById("login-cancel");
+                let email_element = document.getElementById("login-email");
+                let password_element = document.getElementById("login-password");
+
+                login_submit_element.disabled = false;
+                cancel_element.disabled = false;
+                email_element.disabled = false;
+                password_element.disabled = false;
+
+                if (login_submit_element.classList.contains("hidden")) login_submit_element.classList.remove("hidden");
+
+                if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
+                if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+
+                email_element.value = email;
+                password_element.value = password;
+
+                email_element.onfocus = function () {
+                    if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
+                }
+                email_element.onblur = function () {
+                    if (email_element.value === "") email_element.classList.add("textbox-error");
+                }
+                password_element.onfocus = function () {
+                    if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+                }
+                password_element.onblur = function () {
+                    if (password_element.value === "") password_element.classList.add("textbox-error");
+                }
+
+                login_submit_element.onclick = function () {
+                    let email = email_element.value;
+                    let password = password_element.value;
+
+                    if (email === "" || password === "") {
+                        if (email === "") email_element.classList.add("textbox-error");
+                        if (password === "") password_element.classList.add("textbox-error");
+                    } else {
+                        browser.runtime.sendMessage({
+                            "api": true,
+                            "type": "login",
+                            "data": {"email": email, "password": password}
+                        });
+
+                        login_submit_element.disabled = true;
+                        cancel_element.disabled = true;
+                        email_element.disabled = true;
+                        password_element.disabled = true;
+                        disableAside = true;
+                    }
+                }
             } else if ((action === "signup" || action === null)) {
                 if (document.getElementById("notefox-account-signup-section").classList.contains("hidden")) document.getElementById("notefox-account-signup-section").classList.remove("hidden");
                 if (document.getElementById("account-section--signup-grid").classList.contains("hidden")) document.getElementById("account-section--signup-grid").classList.remove("hidden");
@@ -1226,6 +1385,12 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
 
                 document.getElementById("verify-signup-submit").classList.add("hidden");
                 document.getElementById("verify-signup-new-code").classList.add("hidden");
+
+                document.getElementById("signup-already-account-text").innerHTML = all_strings["notefox-account-already-an-account"];
+                document.getElementById("signup-already-account-button").innerText = all_strings["notefox-account-button-settings-login"];
+                document.getElementById("signup-already-account-button").onclick = function () {
+                    notefoxAccountLoginSignupManage("login");
+                }
 
                 let signup_submit_element = document.getElementById("signup-submit");
                 if (signup_submit_element.classList.contains("hidden")) signup_submit_element.classList.remove("hidden");
@@ -1273,7 +1438,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     if (confirm_password_element.value === "") confirm_password_element.classList.add("textbox-error");
 
                 }
-                document.getElementById("signup-submit").onclick = function () {
+                signup_submit_element.onclick = function () {
                     let username = document.getElementById("signup-username").value;
                     let password = document.getElementById("signup-password").value;
                     let password2 = document.getElementById("signup-confirm-password").value;
@@ -1309,6 +1474,12 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         }
                     }
                 }
+            } else if (action === "manage") {
+                if (data !== null) {
+                    browser.storage.sync.set({"notefox-account": data}).then(result => {
+                        notefoxAccountLoginSignupManage("manage");
+                    });
+                }
             }
         }
     });
@@ -1327,6 +1498,15 @@ function listenerNotefoxAccount() {
                     break;
                 case "signup-verify":
                     signUpVerifyResponse(data);
+                    break;
+                case "login":
+                    loginResponse(data);
+                    break;
+                case "login-new-code":
+                    loginNewCodeResponse(data);
+                    break;
+                case "login-verify":
+                    loginVerifyResponse(data);
                     break;
                 default:
                     console.error("Error: " + message["type"] + " is not a valid type");
@@ -1356,6 +1536,7 @@ function signUpResponse(data) {
     password_element.disabled = false;
     confirm_password_element.disabled = false;
     verify_signup_element.classList.add("hidden");
+    disableAside = false;
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
@@ -1397,6 +1578,7 @@ function signUpNewCodeResponse(data) {
     new_code_element.disabled = false;
     cancel_element.disabled = false;
     code_element.disabled = false;
+    disableAside = false;
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
@@ -1409,7 +1591,7 @@ function signUpNewCodeResponse(data) {
             alert("Invalid credentials or already verified");
         } else {
             //Unknown
-            alert("Sign up: Error (unknown)");
+            alert("Sign up new code: Error (unknown)");
         }
     }
 }
@@ -1429,6 +1611,7 @@ function signUpVerifyResponse(data) {
     new_code_element.disabled = false;
     cancel_element.disabled = false;
     code_element.disabled = false;
+    disableAside = false;
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
@@ -1451,7 +1634,112 @@ function signUpVerifyResponse(data) {
             alert("User already verified");
         } else {
             //Unknown
-            alert("Sign up: Error (unknown)");
+            alert("Sign up verify: Error (unknown)");
+        }
+    }
+}
+
+function loginResponse(data) {
+    let login_submit_element = document.getElementById("login-submit");
+    let cancel_element = document.getElementById("login-cancel");
+    let email_element = document.getElementById("login-email");
+    let password_element = document.getElementById("login-password");
+
+    login_submit_element.disabled = false;
+    cancel_element.disabled = false;
+    email_element.disabled = false;
+    password_element.disabled = false;
+    disableAside = false;
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200 && data["data"] !== undefined) {
+            //Success
+            alert("Login: OK");
+            notefoxAccountLoginSignupManage("verify-login", {
+                "email": email_element.value,
+                "password": password_element.value,
+                "login-id": data["data"]["login-id"]
+            });
+        } else if (data.code === 400 || data.code === 401) {
+            //Error
+            alert(`Login: Error (${data.code})`);
+        } else if (data.code === 410) {
+            alert("Invalid credentials");
+        } else {
+            //Unknown
+            alert(`Login: Error ${data.code} (unknown)`);
+        }
+    }
+}
+
+function loginNewCodeResponse(data) {
+    let submit_element = document.getElementById("verify-login-submit");
+    let new_code_element = document.getElementById("verify-login-new-code");
+    if (submit_element.classList.contains("hidden")) submit_element.classList.remove("hidden");
+    if (new_code_element.classList.contains("hidden")) new_code_element.classList.remove("hidden");
+
+    let cancel_element = document.getElementById("login-cancel");
+    let code_element = document.getElementById("verify-login-code");
+
+    submit_element.disabled = false;
+    new_code_element.disabled = false;
+    cancel_element.disabled = false;
+    code_element.disabled = false;
+    disableAside = false;
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success
+            alert("New code: OK");
+        } else if (data.code === 400 || data.code === 401) {
+            //Error
+            alert(`New code: Error (${data.code})`);
+        } else if (data.code === 410) {
+            alert("Invalid credentials");
+        } else if (data.code === 415) {
+            alert("Invalid login-id or already verified");
+        } else {
+            //Unknown
+            alert("Login new code: Error (unknown)");
+        }
+    }
+}
+
+function loginVerifyResponse(data) {
+    let submit_element = document.getElementById("verify-login-submit");
+    let new_code_element = document.getElementById("verify-login-new-code");
+    if (submit_element.classList.contains("hidden")) submit_element.classList.remove("hidden");
+    if (new_code_element.classList.contains("hidden")) new_code_element.classList.remove("hidden");
+
+    let cancel_element = document.getElementById("login-cancel");
+    let code_element = document.getElementById("verify-login-code");
+    let email_element = document.getElementById("login-email");
+    let password_element = document.getElementById("login-password");
+
+    submit_element.disabled = false;
+    new_code_element.disabled = false;
+    cancel_element.disabled = false;
+    code_element.disabled = false;
+    disableAside = false;
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success
+            alert("Verify: OK");
+            notefoxAccountLoginSignupManage("manage", data["data"]);
+        } else if (data.code === 400 || data.code === 401) {
+            //Error
+            alert(`Verify: Error (${data.code})`);
+        } else if (data.code === 410 && data["data"] !== undefined && data["data"]["login-id"] !== undefined) {
+            alert("Invalid credentials");
+            notefoxAccountLoginSignupManage("verify-login", {
+                "email": email_element.value, "password": password_element.value, "login-id": data["data"]["login-id"]
+            });
+        } else if (data.code === 413) {
+            alert("Invalid verification code");
+        } else {
+            //Unknown
+            alert("Login verify: Error (unknown)");
         }
     }
 }

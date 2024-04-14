@@ -567,6 +567,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     color: #eeeeee;
     font-weight: bold;
     padding: 5px 10px;
+    margin: 0px 10px;
 }
 
 .margin-bottom-20-px {
@@ -1436,6 +1437,11 @@ hr.hr-domain {
     width: 100%;
 }
 
+hr.hr-center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 /*Last hr-domain is hidden*/
 hr.hr-domain:last-child {
     display: none;
@@ -1577,19 +1583,25 @@ hr.hr-domain:last-child {
     color: #444444;
 }
 
-#account-section--signup-grid, #account-section--verify-signup-grid {
+#account-section--signup-grid, #account-section--verify-signup-grid, #account-section--login-grid, #account-section--verify-login-grid {
     display: grid;
     grid-gap: 5px;
 }
 
 #account-section--signup-grid {
     grid-template-areas: 'username email'
-                         'password confirm-password';
+                         'password confirm-password'
+                         'hr hr'
+                         'signup-already-account signup-already-account';
 }
 
-#account-section--verify-signup-grid {
+#account-section--verify-signup-grid, #account-section--verify-login-grid {
     grid-template-areas: 'email password'
                          'code code';
+}
+
+#account-section--login-grid {
+    grid-template-areas: 'email password';
 }
 
 @media screen and (max-width: 800px) {
@@ -1597,25 +1609,40 @@ hr.hr-domain:last-child {
         grid-template-areas: 'username'
                              'email'
                              'password'
-                             'confirm-password';
+                             'confirm-password'
+                             'signup-already-account';
     }
 
-    #account-section--verify-signup-grid {
+    #account-section--verify-signup-grid, #account-section--verify-login-grid {
         grid-template-areas: 'email'
                              'password'
                              'code';
     }
+
+    #account-section--login-grid {
+        grid-template-areas: 'email'
+                             'password';
+    }
+}
+
+#signup-already-account {
+    grid-area: signup-already-account;
+}
+
+.account-section-hr {
+    grid-area: hr;
+    text-align: center;
 }
 
 .account-section--signup--username {
     grid-area: username;
 }
 
-.account-section--signup--email, .account-section--verify-signup--email {
+.account-section--signup--email, .account-section--verify-signup--email, .account-section--login--email, .account-section--verify-login--email {
     grid-area: email;
 }
 
-.account-section--signup--password, .account-section--verify-signup--password {
+.account-section--signup--password, .account-section--verify-signup--password, .account-section--login--password, .account-section--verify-login--password {
     grid-area: password;
 }
 
@@ -1623,7 +1650,7 @@ hr.hr-domain:last-child {
     grid-area: confirm-password;
 }
 
-.account-section--verify-signup--code {
+.account-section--verify-signup--code, .account-section--verify-login--code {
     grid-area: code;
 }
 

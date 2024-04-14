@@ -91,6 +91,10 @@ Created by Saverio Morelli - saveriomorelli.com
                            id="signup-password" type="password">
                     <input class="textbox account-section--signup--confirm-password width-100 label-with-image password-label"
                            id="signup-confirm-password" type="password">
+                    <hr class="hr-big-space hr-center account-section-hr">
+                    <div class="text-align-center margin-bottom-20-px" id="signup-already-account">
+                        <span id="signup-already-account-text"></span> <span class="link" id="signup-already-account-button"></span>
+                    </div>
                 </div>
                 <div id="account-section--verify-signup-grid" class="padding-10 hidden">
                     <input class="textbox account-section--verify-signup--email width-100 label-with-image email-label hidden"
@@ -114,9 +118,26 @@ Created by Saverio Morelli - saveriomorelli.com
 
             <!-- login -->
             <div id="notefox-account-login-section">
-                <div class="padding-10 text-align-right">
+                <div id="login-exprired-section" class="section-warning hidden"></div>
+                <div id="account-section--login-grid" class="padding-10 hidden">
+                    <input class="textbox account-section--login--email width-100 label-with-image email-label"
+                           id="login-email" type="email">
+                    <input class="textbox account-section--login--password width-100 label-with-image password-label"
+                           id="login-password" type="password">
+                </div>
+                <div id="account-section--verify-login-grid" class="padding-10 hidden">
+                    <input class="textbox account-section--verify-login--code label-with-image code-label"
+                           id="verify-login-code" type="text">
 
-                    <input type="button" value="" class="button float-left button-close-notefox-account"/>
+                </div>
+                <div class="padding-10 text-align-right">
+                    <input type="button" value="" id="login-cancel"
+                           class="button float-left button-close-notefox-account"/>
+                    <input class="button login-button hidden" id="verify-login" value="" type="button"/>
+                    <input class="button login-button hidden" id="login-submit" value="" type="button"/>
+
+                    <input class="button hidden" id="verify-login-new-code" value="" type="button"/>
+                    <input class="button login-button hidden" id="verify-login-submit" value="" type="button"/>
                 </div>
             </div>
 
