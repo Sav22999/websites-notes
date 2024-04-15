@@ -1134,10 +1134,10 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                 location.reload();
             }
 
-            document.getElementById("manage-logout").onclick = function () {
+            document.getElementById("manage-logout-all-devices").onclick = function () {
                 browser.runtime.sendMessage({
                     "api": true,
-                    "type": "logout-all-devices",
+                    "type": "logout-all",
                     "data": {
                         "login-id": savedData["notefox-account"]["login-id"]
                     }
