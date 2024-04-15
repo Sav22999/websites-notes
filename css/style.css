@@ -1400,6 +1400,7 @@ aside > button.sel, aside > button.sel:hover {
 
 .title-option-settings {
     font-weight: 500;
+    max-width: 85%;
 }
 
 .theme-section-radio-container {

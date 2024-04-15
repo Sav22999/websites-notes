@@ -340,7 +340,9 @@ function setLanguageUI() {
     document.getElementById("manage-logout").value = all_strings["notefox-account-button-settings-logout"];
     document.getElementById("manage-logout-all-devices").value = all_strings["notefox-account-button-settings-logout-all-devices"];
     document.getElementById("sync-now-button").value = all_strings["notefox-account-button-settings-sync"];
-    document.getElementById("sync-now-text").innerHTML = all_strings["notefox-account-button-settings-sync-text"].replaceAll("{{parameters}}", "class='button-code'");
+    document.getElementById("sync-now-text").innerHTML = all_strings["notefox-account-settings-sync-text"].replaceAll("{{parameters}}", "class='button-code'");
+    document.getElementById("manage-logout-text").innerHTML = all_strings["notefox-account-settings-logout-text"];
+    document.getElementById("manage-logout-all-devices-text").innerHTML = all_strings["notefox-account-settings-logout-all-devices-text"];
     //document.getElementById("manage-delete-submit").value = all_strings["notefox-account-button-delete"];
     //document.getElementById("manage-verify-delete").value = all_strings["notefox-account-button-verify-email"];
     //document.getElementById("manage-verify-delete-submit").value = all_strings["notefox-account-button-verify-email"];
@@ -713,9 +715,13 @@ function clearAllNotes() {
             "sticky-notes-coords": {},
             "sticky-notes-sizes": {},
             "sticky-notes-opacity": {},
+            "sticky-notes": {},
             "last-update": getDate()
         }).then(result => {
             loaded();
+        });
+
+        sync_local.remove(["sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result => {
         });
     }
 }
@@ -924,6 +930,9 @@ function importAllNotes(from_file = false) {
             }
         }
 
+        sync_local.remove(["sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result => {
+        });
+
         if (from_file) {
             importFromFile();
         }
@@ -1122,11 +1131,10 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
             //Manage account section
             if (document.getElementById("notefox-account-manage-section").classList.contains("hidden")) document.getElementById("notefox-account-manage-section").classList.remove("hidden");
 
-            sync_local.get("last-sync").then(result => {
-                let last_sync = correctDatetime(result["last-sync"]);
-                if (result["last-sync"] === undefined || result["last-sync"] === null) last_sync = all_strings["never-update"];
-                document.getElementById("last-sync").innerHTML = all_strings["notefox-account-label-last-sync-text"].replaceAll("{{last-sync}}", last_sync).replaceAll("{{parameters}}", "class=''")
-            });
+            updateSyncDatetime();
+            setInterval(function () {
+                updateSyncDatetime();
+            }, 10000);
 
             let sync_button = document.getElementById("sync-now-button");
 
@@ -1158,7 +1166,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                             sync_button.value = all_strings["notefox-account-button-settings-sync"];
                         }, 1000);
                     });
-                }, 1000);
+                }, 500);
             }
 
             document.getElementById("manage-logout").onclick = function () {
@@ -1219,6 +1227,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                 if (document.getElementById("verify-login-new-code").classList.contains("hidden")) document.getElementById("verify-login-new-code").classList.remove("hidden");
                 if (document.getElementById("verify-login-submit").classList.contains("hidden")) document.getElementById("verify-login-submit").classList.remove("hidden");
 
+
                 let email = "";
                 let password = "";
                 let login_id = "";
@@ -1268,6 +1277,12 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         cancel_element.disabled = true;
                         code_element.disabled = true;
                         disableAside = true;
+                    }
+                }
+
+                code_element.onkeypress = function (e) {
+                    if (e.key === "Enter") {
+                        verify_login_submit_element.click();
                     }
                 }
 
@@ -1338,9 +1353,6 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     if (email === "") email_element.focus();
                 }
 
-                submit_element.onclick = function () {
-
-                }
                 email_element.onfocus = function () {
                     if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
                 }
@@ -1362,6 +1374,12 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                 }
                 code_element.oninput = function () {
                     if (code_element.value === "" && code_element.classList.contains("monospace")) code_element.classList.remove("monospace"); else code_element.classList.add("monospace");
+                }
+
+                code_element.onkeypress = function (e) {
+                    if (e.key === "Enter") {
+                        submit_element.click();
+                    }
                 }
 
                 new_code_element.onclick = function () {
@@ -1457,6 +1475,11 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                 password_element.onblur = function () {
                     if (password_element.value === "") password_element.classList.add("textbox-error");
                 }
+                password_element.onkeypress = function (e) {
+                    if (e.key === "Enter") {
+                        login_submit_element.click();
+                    }
+                }
 
                 login_submit_element.onclick = function () {
                     let email = email_element.value;
@@ -1537,7 +1560,12 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                 }
                 confirm_password_element.onblur = function () {
                     if (confirm_password_element.value === "") confirm_password_element.classList.add("textbox-error");
-
+                }
+                //if press enter
+                confirm_password_element.onkeypress = function (e) {
+                    if (e.key === "Enter") {
+                        signup_submit_element.click();
+                    }
                 }
                 signup_submit_element.onclick = function () {
                     let username = document.getElementById("signup-username").value;
@@ -1584,6 +1612,14 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                 }
             }
         }
+    });
+}
+
+function updateSyncDatetime() {
+    sync_local.get("last-sync").then(result => {
+        let last_sync = correctDatetime(result["last-sync"]);
+        if (result["last-sync"] === undefined || result["last-sync"] === null) last_sync = all_strings["never-update"];
+        document.getElementById("last-sync").innerHTML = all_strings["notefox-account-label-last-sync-text"].replaceAll("{{last-sync}}", last_sync).replaceAll("{{parameters}}", "class=''")
     });
 }
 
@@ -1846,7 +1882,7 @@ function loginVerifyResponse(data) {
             notefoxAccountLoginSignupManage("manage", data["data"]);
             location.reload();
 
-            syncData(0, true);
+            checkSyncData(true);
         } else if (data.code === 400 || data.code === 401) {
             //Error
             alert(`Verify: Error (${data.code})`);
@@ -1912,15 +1948,21 @@ function hideBackgroundOpacity() {
 }
 
 function correctDatetime(datetime) {
-    let date = new Date(datetime);
-    let year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    let seconds = date.getSeconds();
+    let todayDate = new Date(datetime);
+    let today = "";
+    today = todayDate.getFullYear() + "-";
+    let month = todayDate.getMonth() + 1;
+    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
+    let day = todayDate.getDate();
+    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
+    let hour = todayDate.getHours();
+    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
+    let minute = todayDate.getMinutes();
+    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
+    let second = todayDate.getSeconds();
+    if (second < 10) today = today + "0" + second; else today = today + "" + second
 
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    return today;
 }
 
 function getDate() {

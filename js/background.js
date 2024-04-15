@@ -54,7 +54,7 @@ function checkSyncLocal() {
     checkSyncData();
 }
 
-function checkSyncData() {
+function checkSyncData(just_once = false) {
     //console.log("Check sync data")
     browser.storage.sync.get(["notefox-account"]).then(resultSync => {
         //console.log("Sync data: " + JSON.stringify(resultSync));
@@ -68,9 +68,9 @@ function checkSyncData() {
                 }
             });
 
-            syncData();
+            syncData(1 * 60 * 1000, just_once); //1 minute if the user is logged in
         } else {
-            syncData(5 * 60 * 1000); //5 minutes if the user is not logged in
+            syncData(5 * 60 * 1000, just_once); //5 minutes if the user is not logged in
         }
     });
 }
@@ -124,6 +124,8 @@ function response(response) {
                                         //console.log("Server data is newer than local one");
 
                                         let data_to_server = JSON.parse(data["data"]["data"]);
+
+                                        console.log(JSON.stringify(data_to_server));
 
                                         sync_local.set(data_to_server).then(result => {
                                             //console.log("Data updated from server");
@@ -294,7 +296,7 @@ function loadDataFromSync() {
     browser.runtime.onMessage.addListener((message) => {
         if (message["sync-now"] !== undefined && message["sync-now"]) {
             //console.log("Syncing now");
-            syncData(0, true);
+            checkSyncData(true);
         }
     });
 
