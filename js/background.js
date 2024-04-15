@@ -76,17 +76,14 @@ function checkSyncData() {
 }
 
 //set timer each 1 minute
-function syncData(force_time) {
-    let time = 1 * 60 * 1000 //1 minute
+function syncData(force_time = 1 * 60 * 1000, just_once = false) {
+    console.log(`Sync data each ${time} ms`);
 
-    if (force_time !== undefined) time = force_time;
-
-
-    //console.log(`Sync data each ${time} ms`);
-
-    setTimeout(function () {
-        checkSyncData();
-    }, time);
+    if (!just_once) {
+        setTimeout(function () {
+            checkSyncData();
+        }, time);
+    }
 }
 
 function response(response) {

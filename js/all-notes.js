@@ -61,6 +61,11 @@ function loaded() {
             location.reload();
         }
     });
+    browser.runtime.onMessage.addListener((message) => {
+        if (message["updated"] !== undefined && message["updated"]) {
+            loadDataFromBrowser(true);
+        }
+    });
 
     checkSyncLocal();
     setLanguageUI();

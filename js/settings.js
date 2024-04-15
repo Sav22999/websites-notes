@@ -1804,6 +1804,8 @@ function loginVerifyResponse(data) {
             alert("Verify: OK");
             notefoxAccountLoginSignupManage("manage", data["data"]);
             location.reload();
+
+            syncData(0, true);
         } else if (data.code === 400 || data.code === 401) {
             //Error
             alert(`Verify: Error (${data.code})`);
