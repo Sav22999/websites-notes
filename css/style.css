@@ -132,7 +132,7 @@ body {
     opacity: 1;
 }
 
-.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button, .download-button, .login-button, .logout-button, .manage-account-button, .sync-button, .sync-error-button {
+.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button, .download-button, .login-button, .logout-button, .manage-account-button, .sync-button, .sync-error-button, .syncing-button, .synced-button {
     padding-left: 35px;
     padding-right: 10px;
     background-size: auto 60%;
@@ -1919,6 +1919,9 @@ hr.hr-domain:last-child {
 
 .width-100 {
     width: 100%;
+}
+.width-100-important {
+    width: 100% !important;
 }
 
 .monospace {

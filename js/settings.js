@@ -339,6 +339,8 @@ function setLanguageUI() {
 
     document.getElementById("manage-logout").value = all_strings["notefox-account-button-settings-logout"];
     document.getElementById("manage-logout-all-devices").value = all_strings["notefox-account-button-settings-logout-all-devices"];
+    document.getElementById("sync-now-button").value = all_strings["notefox-account-button-settings-sync"];
+    document.getElementById("sync-now-text").innerHTML = all_strings["notefox-account-button-settings-sync-text"].replaceAll("{{parameters}}", "class='button-code'");
     //document.getElementById("manage-delete-submit").value = all_strings["notefox-account-button-delete"];
     //document.getElementById("manage-verify-delete").value = all_strings["notefox-account-button-verify-email"];
     //document.getElementById("manage-verify-delete-submit").value = all_strings["notefox-account-button-verify-email"];
@@ -1119,6 +1121,45 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
         if (account_logged) {
             //Manage account section
             if (document.getElementById("notefox-account-manage-section").classList.contains("hidden")) document.getElementById("notefox-account-manage-section").classList.remove("hidden");
+
+            sync_local.get("last-sync").then(result => {
+                let last_sync = correctDatetime(result["last-sync"]);
+                if (result["last-sync"] === undefined || result["last-sync"] === null) last_sync = all_strings["never-update"];
+                document.getElementById("last-sync").innerHTML = all_strings["notefox-account-label-last-sync-text"].replaceAll("{{last-sync}}", last_sync).replaceAll("{{parameters}}", "class=''")
+            });
+
+            let sync_button = document.getElementById("sync-now-button");
+
+            sync_button.onclick = function () {
+                //console.log("Sync now pressed");
+
+                browser.runtime.sendMessage({"sync-now": true});
+
+                sync_button.classList.add("syncing-button");
+                if (sync_button.classList.contains("synced-button")) sync_button.classList.remove("synced-button");
+                if (sync_button.classList.contains("sync-button")) sync_button.classList.remove("sync-button");
+                sync_button.disabled = true;
+                sync_button.value = all_strings["notefox-account-button-settings-syncing"];
+
+                setTimeout(function () {
+                    sync_local.get("last-sync").then(result => {
+                        let last_sync = correctDatetime(result["last-sync"]);
+                        if (result["last-sync"] === undefined || result["last-sync"] === null) last_sync = all_strings["never-update"];
+                        document.getElementById("last-sync").innerHTML = all_strings["notefox-account-label-last-sync-text"].replaceAll("{{last-sync}}", last_sync).replaceAll("{{parameters}}", "class=''")
+
+                        if (sync_button.classList.contains("syncing-button")) sync_button.classList.remove("syncing-button");
+                        sync_button.disabled = false;
+                        sync_button.classList.add("synced-button");
+                        sync_button.value = all_strings["notefox-account-button-settings-synced"];
+
+                        setTimeout(function () {
+                            if (sync_button.classList.contains("synced-button")) sync_button.classList.remove("synced-button");
+                            sync_button.classList.add("sync-button");
+                            sync_button.value = all_strings["notefox-account-button-settings-sync"];
+                        }, 1000);
+                    });
+                }, 1000);
+            }
 
             document.getElementById("manage-logout").onclick = function () {
                 browser.runtime.sendMessage({
@@ -1979,6 +2020,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var sync_svg = window.btoa(getIconSvgEncoded("sync", on_primary));
         var sync_error_svg = window.btoa(getIconSvgEncoded("sync-error", on_primary));
         var syncing_svg = window.btoa(getIconSvgEncoded("syncing", on_primary));
+        var synced_svg = window.btoa(getIconSvgEncoded("syncing", on_primary));
         var manage_svg = window.btoa(getIconSvgEncoded("account", on_primary));
 
         var account_label_svg = window.btoa(getIconSvgEncoded("account", textbox_color));
@@ -2095,6 +2137,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .syncing-button {
                     background-image: url('data:image/svg+xml;base64,${syncing_svg}');
+                }
+                .synced-button {
+                    background-image: url('data:image/svg+xml;base64,${synced_svg}');
                 }
                 .manage-account-button {
                     background-image: url('data:image/svg+xml;base64,${manage_svg}');

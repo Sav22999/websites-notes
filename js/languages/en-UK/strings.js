@@ -175,6 +175,8 @@ strings[lang] = {
     "notefox-account-button-settings-syncing": "Syncing…",
     "notefox-account-button-settings-synced": "Synced",
     "notefox-account-button-settings-sync-failed": "Sync failed",
+    "notefox-account-button-settings-sync-text": "It's enabled the automatic sync with the Notefox account. You can also sync manually by clicking the <span {{parameters}}>Sync now</span> button.",
+    "notefox-account-label-last-sync-text": "Last sync: <span {{parameters}}>{{last-sync}}</span>",
     "notefox-account-button-settings-login-or-signup": "Login or Sign up",
     "notefox-account-button-settings-change-password": "Change password",
     "notefox-account-button-settings-last-sync": "Last sync: {{date_time}}",

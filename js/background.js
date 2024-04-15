@@ -75,14 +75,20 @@ function checkSyncData() {
     });
 }
 
-//set timer each 1 minute
+/**
+ * Sync data with the server
+ * @param force_time time in milliseconds (default 1 minute)
+ * @param just_once if true, it will sync data just once (default false)
+ */
 function syncData(force_time = 1 * 60 * 1000, just_once = false) {
-    console.log(`Sync data each ${time} ms`);
+    //console.log(`Sync data each ${force_time} ms`);
+
+    sync_local.set({"last-sync": getDate()});
 
     if (!just_once) {
         setTimeout(function () {
             checkSyncData();
-        }, time);
+        }, force_time);
     }
 }
 
@@ -219,7 +225,7 @@ function syncUpdateFromServer() {
     }).catch((e) => {
         setTimeout(function () {
             syncUpdateFromServer();
-        }, 5000);
+        }, 5 * 60 * 1000); //5 minutes if any issues
         console.error(`E-B2: ${e}`);
     });
 
@@ -284,6 +290,13 @@ function loaded() {
 function loadDataFromSync() {
     listenerShortcuts();
     listenerStickyNotes();
+
+    browser.runtime.onMessage.addListener((message) => {
+        if (message["sync-now"] !== undefined && message["sync-now"]) {
+            //console.log("Syncing now");
+            syncData(0, true);
+        }
+    });
 
     loaded();
 }
