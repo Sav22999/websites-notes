@@ -11,8 +11,8 @@ function loadAPI() {
 }
 
 function api_request(message) {
-    console.log("API request received");
-    console.log(message);
+    //console.log("API request received");
+    //console.log(message);
     let data = message["data"];
     switch (message["type"]) {
         case "login":
@@ -52,6 +52,9 @@ function api_request(message) {
         case "send-data-after-check-id":
             //do not call this function directly, it's called automatically by send-date
             send_data_after_check_id(data["login-id"], data["token"], data["updated-locally"], data["data"]);
+            break;
+        case "check-user":
+            check_user(data["login-id"], data["token"]);
             break;
         default:
             console.error("Unknown API request type (" + message["type"] + ")");
@@ -327,7 +330,7 @@ function login_verify(email_value, password_value, login_id_value, verification_
     }));
 }
 
-function logout(login_id_value, all_devices_value = false) {
+function logout(login_id_value, all_devices_value = false, send_response = true) {
     let get_params = "";
     if (all_devices_value) {
         get_params = "?all-devices=true";
@@ -341,14 +344,30 @@ function logout(login_id_value, all_devices_value = false) {
             // Parse the response JSON if needed
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "logout",
-                "data": data
-            });
+            if (send_response) {
+                browser.runtime.sendMessage({
+                    "api_response": true,
+                    "type": "logout",
+                    "data": data
+                });
+            }
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
+            if (send_response) {
+                browser.runtime.sendMessage({
+                    "api_response": true,
+                    "type": "logout",
+                    "data": {
+                        "error": true,
+                        "status": xhr.status
+                    }
+                });
+            }
+        }
+    };
+    xhr.onerror = function () {
+        if (send_response) {
             browser.runtime.sendMessage({
                 "api_response": true,
                 "type": "logout",
@@ -358,16 +377,6 @@ function logout(login_id_value, all_devices_value = false) {
                 }
             });
         }
-    };
-    xhr.onerror = function () {
-        browser.runtime.sendMessage({
-            "api_response": true,
-            "type": "logout",
-            "data": {
-                "error": true,
-                "status": xhr.status
-            }
-        });
     };
     xhr.send(JSON.stringify({
         "login-id": login_id_value
@@ -460,7 +469,8 @@ function get_data(login_id_value, token_value) {
         });
     };
     xhr.send(JSON.stringify({
-        "login-id": login_id_value
+        "login-id": login_id_value,
+        "token": token_value
     }));
 }
 
@@ -554,6 +564,49 @@ function send_data(login_id_value, token_value, updated_locally_value, data_valu
         });
     };
     xhr.send(JSON.stringify({
-        "login-id": login_id_value
+        "login-id": login_id_value,
+        "token": token_value
+    }));
+}
+
+function check_user(login_id_value, token_valud) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', api_url + '/login/check-id/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        // Check if the request was successful
+        if (xhr.status >= 200 && xhr.status < 300) {
+            // Parse the response JSON if needed
+            var data = JSON.parse(xhr.responseText);
+            // Do something with the data
+
+            //console.log(data);
+            if (data["code"] !== undefined && data["code"] === 200) {
+                //console.log("User is valid");
+            } else {
+                //console.log("User is not valid: " + data.code);
+                browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+                    //logout(login_id_value, false, false);
+                    browser.storage.sync.remove("notefox-account");
+                });
+            }
+        } else {
+            // Handle errors
+            console.error('Request failed with status:', xhr.status);
+            browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+                //logout(login_id_value, false, false);
+                browser.storage.sync.remove("notefox-account");
+            });
+        }
+    };
+    xhr.onerror = function () {
+        browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+            //logout(login_id_value, false, false);
+            browser.storage.sync.remove("notefox-account");
+        });
+    };
+    xhr.send(JSON.stringify({
+        "login-id": login_id_value,
+        "token": token_valud
     }));
 }

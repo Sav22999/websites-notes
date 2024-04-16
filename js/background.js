@@ -125,7 +125,7 @@ function response(response) {
 
                                         let data_to_server = JSON.parse(data["data"]["data"]);
 
-                                        console.log(JSON.stringify(data_to_server));
+                                        //console.log(JSON.stringify(data_to_server));
 
                                         sync_local.set(data_to_server).then(result => {
                                             //console.log("Data updated from server");
@@ -298,9 +298,36 @@ function loadDataFromSync() {
             //console.log("Syncing now");
             checkSyncData(true);
         }
+        if(message["check-user"] !== undefined && message["check-user"]){
+            //console.log("Check user validity");
+            checkUserPeriodically(0, true);
+        }
     });
 
+    checkUserPeriodically();
+
     loaded();
+}
+
+/**
+ * Check user (login-id and token validity) periodically
+ * @param time time in milliseconds (default 5 minutes)
+ * @param just_once if true, it won't check user periodically (default false)
+ */
+function checkUserPeriodically(time = 1 * 60 * 1000, just_once = false) {
+    setTimeout(function () {
+        browser.storage.sync.get(["notefox-account"]).then(resultSync => {
+            if (resultSync["notefox-account"] !== undefined) {
+                //logged in
+                check_user(resultSync["notefox-account"]["login-id"], resultSync["notefox-account"]["token"]);
+
+                if (!just_once) checkUserPeriodically();
+            } else {
+                //not logged in
+                if (!just_once) checkUserPeriodically();
+            }
+        });
+    }, time);
 }
 
 function tabUpdated(update = false) {

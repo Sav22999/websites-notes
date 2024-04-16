@@ -545,7 +545,31 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     font-weight: 600;
 }
 
-#import-sub-sections, #export-sub-sections, #account-sub-sections {
+#login-expired-title {
+    padding: 10px;
+    font-size: 1.7em;
+    font-weight: bold;
+    position: relative;
+    background-color: inherit;
+    top: 0px;
+    margin: 5px;
+    z-index: 5;
+    color: var(--primary-color);
+}
+
+#login-expired-text {
+    padding: 5px 15px;
+    font-size: 1em;
+    opacity: 0.7;
+    color: var(--primary-color);
+    display: block;
+    width: 100%;
+}
+#login-expired-buttons {
+    padding: 10px;
+}
+
+#import-sub-sections, #export-sub-sections, #account-sub-sections, #login-expired-content {
     background-color: var(--tertiary);
 }
 
@@ -562,7 +586,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 }
 
 .section-warning {
-    background-color: #cb0000;
+    background-color: #cb0000 !important;
     color: #eeeeee;
     font-weight: bold;
     padding: 5px 10px;
@@ -697,7 +721,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     border-radius: 0px;
 }
 
-#import-section, #export-section, #account-section {
+#import-section, #export-section, #account-section, #login-expired-section {
     display: none;
     background-color: transparent;
     position: fixed !important;
@@ -715,17 +739,16 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
 }
 
 @media screen and (max-width: 1500px) {
-    #import-section, #export-section, #account-section {
+    #import-section, #export-section, #account-section, #login-expired-section {
         padding-top: 5%;
         padding-left: 10%;
         padding-right: 10%;
-        padding-top: 5%;
         padding-bottom: 5%;
     }
 }
 
 @media screen and (max-width: 1200px) {
-    #import-section, #export-section, #account-section {
+    #import-section, #export-section, #account-section, #login-expired-section {
         padding-left: 0%;
         padding-right: 0%;
         padding-top: 0%;
@@ -1655,7 +1678,7 @@ hr.hr-domain:last-child {
 }
 
 .textbox-error {
-    box-shadow: 0px 0px 0px 2px red inset;
+    box-shadow: 0px 0px 0px 2px #cb0000 inset;
 }
 
 .label-with-image {
@@ -1663,6 +1686,14 @@ hr.hr-domain:last-child {
     background-position: center left 5px;
     background-size: auto 60%;
     padding-left: 35px;
+}
+
+#message-from-api {
+    background-color: var(--primary-color);
+    color: var(--on-primary-color) !important;
+    font-weight: bold;
+    padding: 5px 10px;
+    margin: 0px 10px;
 }
 
 
@@ -1931,4 +1962,12 @@ hr.hr-domain:last-child {
 
 .sans-serif {
     font-family: 'Open Sans', sans-serif !important;
+}
+
+.no-margin {
+    margin: 0px !important;
+}
+
+.margin-top-10-px {
+    margin-top: 10px !important;
 }

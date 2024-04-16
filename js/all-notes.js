@@ -60,12 +60,15 @@ function loaded() {
         if (message["sync_update"] !== undefined && message["sync_update"]) {
             location.reload();
         }
-    });
-    browser.runtime.onMessage.addListener((message) => {
         if (message["updated"] !== undefined && message["updated"]) {
             loadDataFromBrowser(true);
         }
+        if (message["check-user--expired"] !== undefined && message["check-user--expired"]) {
+            //console.log("User expired! Log in again | script");
+            loginExpired();
+        }
     });
+    browser.runtime.sendMessage({"check-user": true});
 
     checkSyncLocal();
     setLanguageUI();
@@ -1001,6 +1004,36 @@ function sortOnKeys(dict, dict2, sort_by) {
         console.error(`E-S2: ${e}`);
 
         return undefined;
+    }
+}
+
+
+/**
+ * Show the login expired section
+ */
+function loginExpired() {
+    let section = document.getElementById("login-expired-section");
+    let background = document.getElementById("background-opacity");
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    let loginExpiredTitle = document.getElementById("login-expired-title");
+    loginExpiredTitle.textContent = all_strings["notefox-account-login-expired-title"];
+    let loginExpiredText = document.getElementById("login-expired-text");
+    loginExpiredText.innerHTML = all_strings["notefox-account-login-expired-text2"];
+    let loginExpiredButton = document.getElementById("login-expired-button");
+    loginExpiredButton.value = all_strings["notefox-account-button-settings-login"];
+    loginExpiredButton.onclick = function () {
+        section.style.display = "none";
+        background.style.display = "none";
+        window.open(links_aside_bar["settings"], "_blank");
+    }
+    let loginExpiredClose = document.getElementById("login-expired-cancel-button");
+    loginExpiredClose.value = all_strings["notefox-account-login-later-button"];
+    loginExpiredClose.onclick = function () {
+        section.style.display = "none";
+        background.style.display = "none";
     }
 }
 

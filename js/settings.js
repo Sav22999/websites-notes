@@ -31,7 +31,12 @@ function loaded() {
         if (message["sync_update"] !== undefined && message["sync_update"]) {
             location.reload();
         }
+        if (message["check-user--expired"] !== undefined && message["check-user--expired"]) {
+            //console.log("User expired! Log in again | script");
+            notefoxAccountLoginSignupManage("login-expired");
+        }
     });
+    browser.runtime.sendMessage({"check-user": true});
 
     notefox_json = {
         "version": browser.runtime.getManifest().version,
@@ -297,6 +302,7 @@ function setLanguageUI() {
     document.getElementById("export-text").innerText = all_strings["export-text"];
     document.getElementById("export-detailed-text").innerHTML = all_strings["export-detailed-text"];
     document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
+    listenerNotefoxAccount();
     setNotefoxAcocuntLoginSignupManageButton();
 
     document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
@@ -484,9 +490,9 @@ function setNotefoxAcocuntLoginSignupManageButton() {
             document.getElementById("notefox-account-settings-button").classList.add("login-button");
         }
         document.getElementById("notefox-account-settings-button").onclick = function () {
+            browser.runtime.sendMessage({"check-user": true});
             notefoxAccountLoginSignupManage();
         }
-        listenerNotefoxAccount();
     });
 }
 
@@ -1102,6 +1108,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
         document.getElementById("login-exprired-section").classList.add("hidden");
 
         document.getElementById("text-account").innerHTML = "";
+        document.getElementById("message-from-api").innerHTML = "";
+        document.getElementById("message-from-api").classList.add("hidden");
 
         //console.log(savedData["notefox-account"]);
 
@@ -1211,6 +1219,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
             if (action === "login-expired") {
                 //show a message and then set action to "login"
 
+                setNotefoxAcocuntLoginSignupManageButton();
+
                 document.getElementById("login-exprired-section").innerHTML = all_strings["notefox-account-login-expired-text"];
                 if (document.getElementById("login-exprired-section").classList.contains("hidden")) document.getElementById("login-exprired-section").classList.remove("hidden");
 
@@ -1258,6 +1268,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                 verify_login_submit_element.onclick = function () {
                     let code = code_element.value;
                     if (code === "") {
+                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
                         code_element.classList.add("textbox-error");
                     } else if (email === "" || password === "" || login_id === "") {
                         notefoxAccountLoginSignupManage("login");
@@ -1387,6 +1398,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     let password = password_element.value;
 
                     if (email === "" || password === "") {
+                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+
                         if (email === "") email_element.classList.add("textbox-error");
                         if (password === "") password_element.classList.add("textbox-error");
                     } else {
@@ -1410,6 +1423,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     let code = code_element.value;
 
                     if (code === "") {
+                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
                         code_element.classList.add("textbox-error");
                     } else {
                         browser.runtime.sendMessage({
@@ -1486,6 +1500,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     let password = password_element.value;
 
                     if (email === "" || password === "") {
+                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+
                         if (email === "") email_element.classList.add("textbox-error");
                         if (password === "") password_element.classList.add("textbox-error");
                     } else {
@@ -1574,7 +1590,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     let email = document.getElementById("signup-email").value;
 
                     if (username === "" || password === "" || password2 === "" || email === "") {
-                        //alert(all_strings["empty-fields-alert"]);
+                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
 
                         if (username === "") username_element.classList.add("textbox-error");
                         if (password === "") password_element.classList.add("textbox-error");
@@ -1582,7 +1598,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         if (email === "") email_element.classList.add("textbox-error");
                     } else {
                         if (password !== password2) {
-                            //alert(all_strings["passwords-not-equal-alert"]);
+                            showMessageNotefoxAccount(all_strings["passwords-not-equal-alert"], true);
 
                             password_element.classList.add("textbox-error");
                             confirm_password_element.classList.add("textbox-error");
@@ -1670,6 +1686,19 @@ function listenerNotefoxAccount() {
     });
 }
 
+function showMessageNotefoxAccount(message, warning = false) {
+    let notefox_section = document.getElementById("account-section");
+    let notefox_visible = notefox_section.style.display !== "none";
+    let notefox_message = document.getElementById("message-from-api");
+    if (notefox_message.classList.contains("hidden")) notefox_message.classList.remove("hidden");
+    if (notefox_message.classList.contains("section-warning")) notefox_message.classList.remove("section-warning");
+    if (notefox_visible) {
+        notefox_message.innerHTML = message;
+
+        if (warning) notefox_message.classList.add("section-warning");
+    }
+}
+
 function signUpResponse(data) {
     document.getElementById("signup-cancel").disabled = false;
     //data should be defined as {code: X, status: Y, data: Z}
@@ -1694,24 +1723,26 @@ function signUpResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            //alert("Sign up: OK");
             notefoxAccountLoginSignupManage("verify-signup", {
                 "email": email_element.value, "password": password_element.value
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            alert(`Sign up: Error (${date.code})`);
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else if (data.code === 416) {
-            alert("Email already used");
+            //email already used
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount("Email already used", true);
         } else if (data.code === 419) {
-            alert("Email already used, need to verify it");
+            //email already used, need to verify it
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
             if (verify_signup_element.classList.contains("hidden")) verify_signup_element.classList.remove("hidden");
             verify_signup_element.onclick = function () {
                 notefoxAccountLoginSignupManage("verify-signup", {"email": email_element.value});
             }
         } else {
             //Unknown
-            alert("Sign up: Error (unknown)");
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         }
     }
 }
@@ -1736,15 +1767,15 @@ function signUpNewCodeResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            alert("New code: OK");
+            showMessageNotefoxAccount(all_strings["notefox-account-message-verification-code-sent"]);
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            alert(`New code: Error (${data.code})`);
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else if (data.code === 412) {
-            alert("Invalid credentials or already verified");
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else {
             //Unknown
-            alert("Sign up new code: Error (unknown)");
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         }
     }
 }
@@ -1769,25 +1800,28 @@ function signUpVerifyResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            alert("Verify: OK");
+            showMessageNotefoxAccount("Verify: OK");
             notefoxAccountLoginSignupManage("login", {
                 "email": email_element.value
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            alert(`Verify: Error (${data.code})`);
+            showMessageNotefoxAccount(`Verify: Error (${data.code})`, true);
         } else if (data.code === 410) {
-            alert("Invalid credentials");
+            //Invalid credentials
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
             notefoxAccountLoginSignupManage("verify-signup", {
                 "email": email_element.value
             });
         } else if (data.code === 413) {
-            alert("Invalid verification code");
+            //invalid verification code
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else if (data.code === 414) {
-            alert("User already verified");
+            //user already used
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else {
             //Unknown
-            alert("Sign up verify: Error (unknown)");
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         }
     }
 }
@@ -1807,7 +1841,6 @@ function loginResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200 && data["data"] !== undefined) {
             //Success
-            alert("Login: OK");
             notefoxAccountLoginSignupManage("verify-login", {
                 "email": email_element.value,
                 "password": password_element.value,
@@ -1815,12 +1848,13 @@ function loginResponse(data) {
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            alert(`Login: Error (${data.code})`);
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else if (data.code === 410) {
-            alert("Invalid credentials");
+            //Invalid credentials
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else {
             //Unknown
-            alert(`Login: Error ${data.code} (unknown)`);
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         }
     }
 }
@@ -1843,17 +1877,19 @@ function loginNewCodeResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            alert("New code: OK");
+            showMessageNotefoxAccount(all_strings["notefox-account-message-verification-code-sent"]);
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            alert(`New code: Error (${data.code})`);
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else if (data.code === 410) {
-            alert("Invalid credentials");
+            //Invalid credentials
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else if (data.code === 415) {
-            alert("Invalid login-id or already verified");
+            //Invalid login-id or already verified
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else {
             //Unknown
-            alert("Login new code: Error (unknown)");
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         }
     }
 }
@@ -1878,24 +1914,25 @@ function loginVerifyResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            alert("Verify: OK");
             notefoxAccountLoginSignupManage("manage", data["data"]);
             location.reload();
 
-            checkSyncData(true);
+            browser.runtime.sendMessage({"sync-now": true});
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            alert(`Verify: Error (${data.code})`);
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else if (data.code === 410 && data["data"] !== undefined && data["data"]["login-id"] !== undefined) {
-            alert("Invalid credentials");
+            //Invalid credentials
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
             notefoxAccountLoginSignupManage("verify-login", {
                 "email": email_element.value, "password": password_element.value, "login-id": data["data"]["login-id"]
             });
         } else if (data.code === 413) {
-            alert("Invalid verification code");
+            //Invalid verification code
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else {
             //Unknown
-            alert("Login verify: Error (unknown)");
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         }
     }
 }
@@ -1904,17 +1941,17 @@ function logoutResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            alert("Logout: OK");
             notefoxAccountLoginSignupManage("login");
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            alert(`Logout: Error (${data.code})`);
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else if (data.code === 451) {
+            //Login-id already disabled or expired
             notefoxAccountLoginSignupManage("login");
-            alert("Login-id already disabled or expired");
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else {
             //Unknown
-            alert("Logout: Error (unknown)");
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         }
     }
 
@@ -1924,17 +1961,17 @@ function logoutAllResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            alert("Logout all: OK");
             notefoxAccountLoginSignupManage("login");
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            alert(`Logout all: Error (${data.code})`);
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else if (data.code === 451) {
+            //Login-id already disabled or expired
             notefoxAccountLoginSignupManage("login");
-            alert("Login-id already disabled or expired");
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else {
             //Unknown
-            alert("Logout all: Error (unknown)");
+            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         }
     }
 }
