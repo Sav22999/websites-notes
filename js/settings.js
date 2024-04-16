@@ -1111,6 +1111,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
         document.getElementById("message-from-api").innerHTML = "";
         document.getElementById("message-from-api").classList.add("hidden");
 
+        let title = document.getElementById("title-account");
+
         //console.log(savedData["notefox-account"]);
 
         let account_logged = false;
@@ -1137,6 +1139,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
 
         if (account_logged) {
             //Manage account section
+            title.innerText = all_strings["notefox-account-button-settings-manage"];
             if (document.getElementById("notefox-account-manage-section").classList.contains("hidden")) document.getElementById("notefox-account-manage-section").classList.remove("hidden");
 
             updateSyncDatetime();
@@ -1228,6 +1231,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
             }
 
             if (action === "verify-login") {
+                title.innerText = all_strings["notefox-account-button-settings-login"];
                 //console.log(data);
                 if (document.getElementById("notefox-account-login-section").classList.contains("hidden")) document.getElementById("notefox-account-login-section").classList.remove("hidden");
                 if (document.getElementById("account-section--verify-login-grid").classList.contains("hidden")) document.getElementById("account-section--verify-login-grid").classList.remove("hidden");
@@ -1315,6 +1319,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     }
                 }
             } else if (action === "verify-signup") {
+                title.innerText = all_strings["notefox-account-button-settings-signup"];
                 if (document.getElementById("notefox-account-signup-section").classList.contains("hidden")) document.getElementById("notefox-account-signup-section").classList.remove("hidden");
                 if (document.getElementById("account-section--verify-signup-grid").classList.contains("hidden")) document.getElementById("account-section--verify-signup-grid").classList.remove("hidden");
                 document.getElementById("text-account").innerHTML = all_strings["notefox-account-insert-verification-code-text"];
@@ -1446,6 +1451,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
             } else if (action === "verify-delete") {
 
             } else if (action === "login") {
+                title.innerText = all_strings["notefox-account-button-settings-login"];
                 if (document.getElementById("notefox-account-login-section").classList.contains("hidden")) document.getElementById("notefox-account-login-section").classList.remove("hidden");
                 if (document.getElementById("account-section--login-grid").classList.contains("hidden")) document.getElementById("account-section--login-grid").classList.remove("hidden");
 
@@ -1519,6 +1525,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     }
                 }
             } else if ((action === "signup" || action === null)) {
+                title.innerText = all_strings["notefox-account-button-settings-signup"];
                 if (document.getElementById("notefox-account-signup-section").classList.contains("hidden")) document.getElementById("notefox-account-signup-section").classList.remove("hidden");
                 if (document.getElementById("account-section--signup-grid").classList.contains("hidden")) document.getElementById("account-section--signup-grid").classList.remove("hidden");
                 document.getElementById("text-account").innerHTML = all_strings["notefox-account-signing-up-text"].replaceAll("{{parameters1}}", "href='" + links.terms + "'").replace("{{parameters2}}", "href='" + links.privacy + "'");

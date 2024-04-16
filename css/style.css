@@ -565,6 +565,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder {
     display: block;
     width: 100%;
 }
+
 #login-expired-buttons {
     padding: 10px;
 }
@@ -1303,6 +1304,17 @@ aside > button.sel, aside > button.sel:hover {
     }
 }
 
+#title-account {
+    font-size: 1.7em;
+    font-weight: bold;
+    position: sticky;
+    background-color: inherit;
+    top: 0px;
+    margin: 0px;
+    z-index: 5;
+    padding: 0px;
+}
+
 .item-settings {
     font-size: 1em;
     display: inline-block;
@@ -1373,6 +1385,9 @@ aside > button.sel, aside > button.sel:hover {
     margin: 10px 0px;
 }
 
+#notefox-account-manage-section .option-settings {
+    padding: 0px;
+}
 
 .description-option-settings {
     padding: 5px 0px;
@@ -1952,6 +1967,7 @@ hr.hr-domain:last-child {
 .width-100 {
     width: 100%;
 }
+
 .width-100-important {
     width: 100% !important;
 }
