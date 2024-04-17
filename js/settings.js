@@ -167,6 +167,12 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("show-title-textbox-check").onchange = function () {
+        settings_json["show-title-textbox"] = document.getElementById("show-title-textbox-check").checked;
+
+        saveSettings();
+    }
+
     document.getElementById("clear-all-notes-button").onclick = function () {
         clearAllNotes();
     }
@@ -287,6 +293,9 @@ function setLanguageUI() {
     document.getElementById("theme-select-dark").innerText = all_strings["theme-choose-dark-select"];
     document.getElementById("theme-select-firefox").innerText = all_strings["theme-choose-firefox-select"];
     document.getElementById("theme-detailed-text").innerHTML = all_strings["theme-detailed-text"].replace("{{property1}}", `<span class="button-code very-small-button">` + all_strings["theme-choose-firefox-select"] + `</span>`);
+    document.getElementById("show-title-textbox-text").innerText = all_strings["show-title-textbox-text"];
+    document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
+
     document.getElementById("support-telegram-button").value = all_strings["support-telegram-button"];
     document.getElementById("support-email-button").value = all_strings["support-email-button"];
     document.getElementById("support-github-button").value = all_strings["support-github-button"];
@@ -303,7 +312,7 @@ function setLanguageUI() {
     document.getElementById("export-detailed-text").innerHTML = all_strings["export-detailed-text"];
     document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
     listenerNotefoxAccount();
-    setNotefoxAcocuntLoginSignupManageButton();
+    setNotefoxAccountLoginSignupManageButton();
 
     document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
     document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
@@ -396,6 +405,7 @@ function loadSettings() {
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
             if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+            if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
 
             let sync_or_local_settings = result["storage"];
             if (sync_or_local_settings === undefined) sync_or_local_settings = "local";
@@ -417,6 +427,8 @@ function loadSettings() {
             document.getElementById("open-links-only-with-ctrl-check").checked = settings_json["open-links-only-with-ctrl"] === true || settings_json["open-links-only-with-ctrl"] === "yes";
             document.getElementById("check-with-all-supported-protocols-check").checked = settings_json["check-with-all-supported-protocols"] === true || settings_json["check-with-all-supported-protocols"] === "yes";
             document.getElementById("font-family-select").value = settings_json["font-family"];
+
+            document.getElementById("show-title-textbox-check").checked = settings_json["show-title-textbox"] === true || settings_json["show-title-textbox"] === "yes";
 
             if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-check").checked = false; else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-check").checked = true;
 
@@ -477,7 +489,7 @@ function loadSettings() {
 
 //if sync storage contains "notefox-account", and it's saved the variable ["login-id", "password" and "expiry"], then show the string relative to "Manage your Notefox account", otherwise
 //show the string relative to "Login or Sign up to Notefox". In addition, it's changed also the class of the button ("login-button", "manage-button")
-function setNotefoxAcocuntLoginSignupManageButton() {
+function setNotefoxAccountLoginSignupManageButton() {
     browser.storage.sync.get("notefox-account").then(result => {
         //console.log(result["notefox-account"]);
         if (result["notefox-account"] !== undefined && result["notefox-account"] !== {}) {
@@ -1222,7 +1234,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
             if (action === "login-expired") {
                 //show a message and then set action to "login"
 
-                setNotefoxAcocuntLoginSignupManageButton();
+                setNotefoxAccountLoginSignupManageButton();
 
                 document.getElementById("login-exprired-section").innerHTML = all_strings["notefox-account-login-expired-text"];
                 if (document.getElementById("login-exprired-section").classList.contains("hidden")) document.getElementById("login-exprired-section").classList.remove("hidden");

@@ -208,13 +208,18 @@ function setLanguageUI() {
     document.getElementById("global-button").value = all_strings["global-label"];
     document.getElementById("all-notes-button-grid").value = all_strings["see-all-notes-button"];
     document.getElementById("last-updated-section").value = all_strings["last-update-text"].replaceAll("{{date_time}}", "----/--/-- --:--:--");
+
+    document.getElementById("title-notes").placeholder = all_strings["title-notes-placeholder"];
+    document.documentElement.style.setProperty('--placeholder-notes-text', `'${all_strings["notes-placeholder"]}'`);
 }
 
 function loadUI() {
     //opened_by = {-1: default, 0: domain, 1: page}
     setLanguageUI();
     let notes = document.getElementById("notes");
+    let title_notes = document.getElementById("title-notes");
     notes.style.fontFamily = `'${settings_json["font-family"]}'`;
+    title_notes.style.fontFamily = `'${settings_json["font-family"]}'`;
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         let activeTab = tabs[0];
         let activeTabId = activeTab.id;
@@ -304,6 +309,17 @@ function loadUI() {
     notes.oninput = function () {
         saveNotes();
     }
+    title_notes.oninput = function () {
+        saveNotes(title = true);
+    }
+    title_notes.onpaste = function (e) {
+        //saveNotes();
+    }
+    title_notes.onkeypress = function (e) {
+        if (e.key === "Enter") {
+            document.getElementById("notes").focus();
+        }
+    }
     notes.onpaste = function (e) {
         if (((e.originalEvent || e).clipboardData).getData("text/html") !== "") {
             e.preventDefault(); // Prevent the default paste action
@@ -359,6 +375,14 @@ function loadUI() {
     document.getElementById("all-notes-button-grid").onclick = function () {
         browser.tabs.create({url: "./all-notes/index.html"});
         window.close();
+    }
+
+    if (settings_json["show-title-textbox"]) {
+        if (title_notes.classList.contains("hidden")) title_notes.classList.remove("hidden");
+        notes.classList.add("no-border-radius-top");
+    } else {
+        title_notes.classList.add("hidden");
+        if (notes.classList.contains("no-border-radius-top")) notes.classList.remove("no-border-radius-top");
     }
 
 
@@ -530,6 +554,7 @@ function loadSettings() {
         if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
         if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
         if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+        if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
 
         if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
         else advanced_managing = false;
@@ -624,7 +649,7 @@ function sanitizeHTML(input) {
     return sanitizedHTML.innerHTML;
 }
 
-function saveNotes() {
+function saveNotes(title_call = false) {
     sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
@@ -637,7 +662,9 @@ function saveNotes() {
 
         if (websites_json[url_to_use] === undefined) websites_json[url_to_use] = {};
         let notes = document.getElementById("notes").innerHTML;
+        let title = document.getElementById("title-notes").value;
         websites_json[url_to_use]["notes"] = notes;
+        websites_json[url_to_use]["title"] = title;
         websites_json[url_to_use]["last-update"] = getDate();
         if (websites_json[url_to_use]["tag-colour"] === undefined) {
             websites_json[url_to_use]["tag-colour"] = "none";
@@ -665,8 +692,10 @@ function saveNotes() {
             loadFormatButtons(true, false);
             //setPosition(document.getElementById("notes"), 1);
             setTimeout(function () {
-                document.getElementById("notes").blur();
-                document.getElementById("notes").focus();
+                let component = "notes";
+                if (title_call) component = "title-notes";
+                document.getElementById(component).blur();
+                document.getElementById(component).focus();
             }, 100);
         } else {
             loadFormatButtons(true, true);
@@ -742,7 +771,6 @@ function getDate() {
 
     return today;
 }
-
 
 function checkNeverSaved(never_saved) {
     if (stickyNotesSupported) {
@@ -1012,13 +1040,24 @@ function setTab(index, url) {
 
     let never_saved = true;
     let notes = "";
+    let title = "";
     if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"] !== undefined) {
         //notes saved (also it's empty)
         notes = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"];
+        title = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["title"];
         listenerLinks();
         never_saved = false;
     }
+    if (title === undefined) {
+        browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            let activeTab = tabs[0];
+            title = activeTab.title;
+            document.getElementById("title-notes").value = title;
+        });
+    }
     document.getElementById("notes").innerHTML = notes;
+    document.getElementById("title-notes").value = title;
+
     listenerLinks();
     if (notes !== "<br>" && notes !== "") {
         loadFormatButtons(true, true);
@@ -1074,7 +1113,6 @@ function openStickyNotes() {
         });
     }
 }
-
 
 function bold() {
     //console.log("Bold B")
@@ -1350,7 +1388,7 @@ function loadFormatButtons(navigation = true, format = true) {
     } else {
         document.getElementById("notes").style.whiteSpace = "pre-wrap";
     }
-    document.getElementById("notes").focus();
+    //document.getElementById("notes").focus();
 }
 
 /**

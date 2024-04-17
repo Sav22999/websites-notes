@@ -11,17 +11,14 @@ Created by Saverio Morelli - saveriomorelli.com
 <body>
 <div id="popup-content">
     <div id="tabs-section">
-        <input type="button" value="Global" id="global-button" class="tab" tabindex="1"/><input type="button"
-                                                                                                value="Domain"
-                                                                                                id="domain-button"
-                                                                                                class="tab"
-                                                                                                tabindex="1"/><input
-            type="button" value="Page" id="page-button" class="tab" tabindex="1"/><input type="button" value="•••"
-                                                                                         id="tab-other-button"
-                                                                                         class="tab" tabindex="1"/>
+        <input type="button" value="" id="global-button" class="tab" tabindex="1"/><input
+            type="button" value="" id="domain-button" class="tab" tabindex="1"/><input
+            type="button" value="" id="page-button" class="tab" tabindex="1"/><input
+            type="button" value="•••" id="tab-other-button" class="tab" tabindex="1"/>
     </div>
     <div id="notes-section">
-        <pre contenteditable="true" id="notes" spellcheck="true" tabindex="2"></pre>
+        <input type="text" id="title-notes" class="textbox width-100-important hidden" tabindex="2" value="">
+        <pre contenteditable="true" id="notes" spellcheck="true" tabindex="2" placeholder=""></pre>
         <div id="panel-other-tabs" class="hidden" tabindex="1">
             <div id="arrow-down"></div>
             <div id="subdomains-list"></div>

@@ -85,13 +85,13 @@ Created by Saverio Morelli - saveriomorelli.com
             <!-- sign up -->
             <div id="notefox-account-signup-section">
                 <div id="account-section--signup-grid" class="padding-10 hidden">
-                    <input class="textbox account-section--signup--username width-100 label-with-image account-label"
+                    <input class="textbox account-section--signup--username width-100 label-with-image account-label account-text"
                            id="signup-username" type="text">
-                    <input class="textbox account-section--signup--email width-100 label-with-image email-label"
+                    <input class="textbox account-section--signup--email width-100 label-with-image email-label account-text"
                            id="signup-email" type="email">
-                    <input class="textbox account-section--signup--password width-100 label-with-image password-label"
+                    <input class="textbox account-section--signup--password width-100 label-with-image password-label account-text"
                            id="signup-password" type="password">
-                    <input class="textbox account-section--signup--confirm-password width-100 label-with-image password-label"
+                    <input class="textbox account-section--signup--confirm-password width-100 label-with-image password-label account-text"
                            id="signup-confirm-password" type="password">
                     <hr class="hr-big-space hr-center account-section-hr">
                     <div class="text-align-center margin-bottom-20-px" id="signup-already-account">
@@ -100,11 +100,11 @@ Created by Saverio Morelli - saveriomorelli.com
                     </div>
                 </div>
                 <div id="account-section--verify-signup-grid" class="padding-10 hidden">
-                    <input class="textbox account-section--verify-signup--email width-100 label-with-image email-label hidden"
+                    <input class="textbox account-section--verify-signup--email width-100 label-with-image email-label account-text hidden"
                            id="verify-signup-email" type="email">
-                    <input class="textbox account-section--verify-signup--password width-100 label-with-image password-label hidden"
+                    <input class="textbox account-section--verify-signup--password width-100 label-with-image password-label account-text hidden"
                            id="verify-signup-password" type="password">
-                    <input class="textbox account-section--verify-signup--code label-with-image code-label"
+                    <input class="textbox account-section--verify-signup--code label-with-image code-label account-text"
                            id="verify-signup-code" type="text">
 
                 </div>
@@ -123,13 +123,13 @@ Created by Saverio Morelli - saveriomorelli.com
             <div id="notefox-account-login-section">
                 <div id="login-exprired-section" class="section-warning hidden"></div>
                 <div id="account-section--login-grid" class="padding-10 hidden">
-                    <input class="textbox account-section--login--email width-100 label-with-image email-label"
+                    <input class="textbox account-section--login--email width-100 label-with-image email-label account-text"
                            id="login-email" type="email">
-                    <input class="textbox account-section--login--password width-100 label-with-image password-label"
+                    <input class="textbox account-section--login--password width-100 label-with-image password-label account-text"
                            id="login-password" type="password">
                 </div>
                 <div id="account-section--verify-login-grid" class="padding-10 hidden">
-                    <input class="textbox account-section--verify-login--code label-with-image code-label"
+                    <input class="textbox account-section--verify-login--code label-with-image code-label account-text"
                            id="verify-login-code" type="text">
 
                 </div>
@@ -206,22 +206,22 @@ Created by Saverio Morelli - saveriomorelli.com
     <span id="settings-sections">
         <!--<div class="option-settings">
             <label class="item-settings">
-                <span class="title-option-settings yes-no-item" id=""></span>
+                <span class="title-option-settings yes-no-item" id="-text"></span>
                 <input type="checkbox" id="-check"/>
                 <span class="checkmark"></span>
             </label>
-            <span class="description-option-settings description-option-settings-yes-no yes-not-item" id=""></span>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item" id="-detailed-text"></span>
         </div>-->
 
         <!--<div class="option-settings">
             <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id=""></span>
+                <span class="title-option-settings section-grid-item-text" id="-text"></span>
                 <span class="section-grid-item-select">
                     <select class="select-box" id="-select">
                         <option value="" id=""></option>
                     </select>
                 </span>
-                <span class="description-option-settings" id=""></span>
+                <span class="description-option-settings" id="-detailed-text"></span>
             </span>
         </div>-->
 
@@ -352,6 +352,16 @@ Created by Saverio Morelli - saveriomorelli.com
             </label>
             <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                   id="html-text-formatting-detailed-text"></span>
+        </div>
+
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="show-title-textbox-text"></span>
+                <input type="checkbox" id="show-title-textbox-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="show-title-textbox-detailed-text"></span>
         </div>
 
         <!--Theme section-->
