@@ -163,6 +163,7 @@ function loaded() {
 
     document.getElementById("font-family-select").onchange = function () {
         settings_json["font-family"] = document.getElementById("font-family-select").value;
+        sendMessageUpdateToBackground();
 
         saveSettings();
     };
