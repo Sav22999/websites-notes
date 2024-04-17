@@ -679,7 +679,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 
 #filters {
     position: sticky;
-    top: 48.5px;
+    top: 52.5px;
     margin-top: -5px;
     border-radius: 0px;
     margin-left: -20px;
