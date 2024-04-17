@@ -371,6 +371,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     color: var(--secondary-color);
     opacity: 0.8;
 }
+
 #title-notes::placeholder, #title-notes::-ms-input-placeholder {
     color: var(--secondary-color);
     opacity: 0.8;
@@ -1462,7 +1463,7 @@ aside > button.sel, aside > button.sel:hover {
 }
 
 .title-option-settings {
-    font-weight: 500;
+    font-weight: 600;
     max-width: 85%;
 }
 
@@ -1669,6 +1670,7 @@ hr.hr-domain:last-child {
 
 @media screen and (max-width: 800px) {
     #account-section--signup-grid {
+        display: block;
         grid-template-areas: 'username'
                              'email'
                              'password'

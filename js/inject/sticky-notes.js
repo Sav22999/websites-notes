@@ -1092,5 +1092,6 @@ function getCSSMinimized() {
                 opacity: 1;
                 height: 80px;
                 width: 30px;
+                box-shadow: 0px 0px 5px #fff;
             }`;
 }
