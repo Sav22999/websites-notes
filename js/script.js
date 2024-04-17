@@ -664,7 +664,7 @@ function saveNotes(title_call = false) {
         let notes = document.getElementById("notes").innerHTML;
         let title = document.getElementById("title-notes").value;
         websites_json[url_to_use]["notes"] = notes;
-        websites_json[url_to_use]["title"] = title;
+        if(settings_json["show-title-textbox"]) websites_json[url_to_use]["title"] = title;
         websites_json[url_to_use]["last-update"] = getDate();
         if (websites_json[url_to_use]["tag-colour"] === undefined) {
             websites_json[url_to_use]["tag-colour"] = "none";
