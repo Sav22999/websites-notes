@@ -3,6 +3,8 @@ var settings_json = {};
 var websites_json = {};
 var notefox_json = {};
 
+var icons_json = {};
+
 const webBrowserUsed = "firefox";//TODO:change manually
 
 var tab_id = 0;
@@ -298,7 +300,7 @@ function loadDataFromSync() {
             //console.log("Syncing now");
             checkSyncData(true);
         }
-        if(message["check-user"] !== undefined && message["check-user"]){
+        if (message["check-user"] !== undefined && message["check-user"]) {
             //console.log("Check user validity");
             checkUserPeriodically(0, true);
         }
@@ -369,6 +371,18 @@ function checkStatus(update = false) {
             //console.log(JSON.stringify(settings_json));
             //console.log("checkStatus");
             //console.log(value);
+
+            if (settings_json["sticky-secondary-color"] === undefined) settings_json["sticky-secondary-color"] = "#ff6200";
+            if (settings_json["sticky-on-secondary-color"] === undefined) settings_json["sticky-on-secondary-color"] = "#ffffff";
+
+            let close_sticky_icon_svg = window.btoa(getIconSvgEncoded("close", settings_json["sticky-on-secondary-color"]));
+            let minimize_sticky_icon_svg = window.btoa(getIconSvgEncoded("minimize", settings_json["sticky-on-secondary-color"]));
+            let restore_sticky_icon_svg = window.btoa(getIconSvgEncoded("restore", settings_json["sticky-on-secondary-color"]));
+            icons_json = {
+                "close": close_sticky_icon_svg,
+                "minimize": minimize_sticky_icon_svg,
+                "restore": restore_sticky_icon_svg
+            };
         })
         .then(() => {
             sync_local.get(["websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"])
@@ -439,6 +453,45 @@ function checkStatus(update = false) {
                 });
             //console.log("checkStatus (continued)");
         });
+}
+
+function getIconSvgEncoded(icon, color) {
+    let svgToReturn = "";
+    switch (icon) {
+        case "close":
+            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 800 800"\n' +
+                '     xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <g fill="' + color + '">\n' +
+                '        <path d="m66.667 600c0-62.853 0-94.28 19.526-113.807 19.526-19.526 50.953-19.526 113.807-19.526s94.281 0 113.807 19.526c19.526 19.527 19.526 50.954 19.526 113.807s0 94.28-19.526 113.807c-19.526 19.526-50.953 19.526-113.807 19.526s-94.281 0-113.807-19.526c-19.526-19.527-19.526-50.954-19.526-113.807z"\n' +
+                '              fill-rule="nonzero"/>\n' +
+                '        <path d="m115.482 115.482c-48.815 48.816-48.815 127.383-48.815 284.518 0 13.187 0 25.82.029 37.927 16.936-11.104 35.598-15.967 53.491-18.374 21.52-2.893 47.976-2.89 76.83-2.886h5.967c28.854-.004 55.31-.007 76.83 2.886 23.699 3.187 48.747 10.684 69.349 31.284 20.6 20.603 28.097 45.65 31.284 69.35 2.893 21.52 2.89 47.976 2.886 76.83v5.966c.004 28.857.007 55.31-2.886 76.83-2.407 17.894-7.267 36.554-18.374 53.49 12.11.03 24.74.03 37.927.03 157.133 0 235.703 0 284.517-48.816 48.816-48.814 48.816-127.384 48.816-284.517 0-157.135 0-235.702-48.816-284.518-48.814-48.815-127.384-48.815-284.517-48.815-157.135 0-235.702 0-284.518 48.815zm326.185 92.851c-13.807 0-25 11.193-25 25s11.193 25 25 25h64.643l-123.987 123.99c-9.763 9.764-9.763 25.59 0 35.354 9.764 9.763 25.59 9.763 35.354 0l123.99-123.988v64.644c0 13.807 11.193 25 25 25 13.806 0 25-11.193 25-25v-125c0-13.807-11.194-25-25-25z"/>\n' +
+                '    </g>\n' +
+                '</svg>'
+            break;
+
+        case "minimize":
+            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 334 334"\n' +
+                '     xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <g fill="' + color + '" transform="scale(.416667)">\n' +
+                '        <path d="m54.167 400c0 13.807 11.193 25 25 25h365.753l-65.357 56.02c-10.483 8.983-11.696 24.767-2.71 35.25 8.984 10.483 24.767 11.697 35.25 2.71l116.667-100c5.54-4.747 8.73-11.683 8.73-18.98s-3.19-14.233-8.73-18.98l-116.667-100.001c-10.483-8.986-26.266-7.772-35.25 2.711-8.986 10.483-7.773 26.266 2.71 35.251l65.357 56.019h-365.753c-13.807 0-25 11.193-25 25z"/>\n' +
+                '        <path d="m312.5 325.001h12.609c-8.618-24.453-4.306-52.709 13.781-73.809 26.957-31.449 74.303-35.092 105.753-8.135l116.667 100c16.623 14.25 26.19 35.05 26.19 56.943 0 21.897-9.567 42.697-26.19 56.947l-116.667 100c-31.45 26.956-78.796 23.313-105.753-8.137-18.087-21.1-22.399-49.357-13.781-73.81h-12.609v58.333c0 94.28 0 141.42 29.29 170.71s76.43 29.29 170.71 29.29h33.333c94.28 0 141.42 0 170.71-29.29s29.29-76.43 29.29-170.71v-266.666c0-94.281 0-141.422-29.29-170.711s-76.43-29.289-170.71-29.289h-33.333c-94.28 0-141.42 0-170.71 29.289s-29.29 76.43-29.29 170.711z"\n' +
+                '              fill-rule="nonzero"/>\n' +
+                '    </g>\n' +
+                '</svg>';
+            break;
+
+        case "restore":
+            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 334 334"\n' +
+                '     xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <g fill="' + color + '" transform="scale(.416667)">\n' +
+                '        <path d="m537.5 400c0-13.807-11.193-25-25-25h-365.752l65.355-56.019c10.483-8.985 11.697-24.768 2.712-35.251-8.986-10.483-24.768-11.697-35.251-2.711l-116.667 100.001c-5.541 4.747-8.73 11.683-8.73 18.98s3.189 14.233 8.73 18.98l116.667 100c10.483 8.987 26.265 7.773 35.251-2.71 8.985-10.483 7.771-26.267-2.712-35.25l-65.355-56.02h365.752c13.807 0 25-11.193 25-25z"/>\n' +
+                '        <path d="m312.5 266.667c0 23.406 0 35.109 5.617 43.516 2.432 3.641 5.558 6.766 9.198 9.199 8.408 5.617 20.112 5.617 43.518 5.617h141.667c41.42 0 75 33.578 75 75.001 0 41.42-33.58 75-75 75h-141.667c-23.406 0-35.113 0-43.52 5.617-3.639 2.433-6.763 5.556-9.195 9.196-5.618 8.407-5.618 20.11-5.618 43.52 0 94.28 0 141.42 29.29 170.71s76.423 29.29 170.703 29.29h33.334c94.28 0 141.42 0 170.71-29.29s29.29-76.43 29.29-170.71v-266.666c0-94.281 0-141.422-29.29-170.711s-76.43-29.289-170.71-29.289h-33.334c-94.28 0-141.413 0-170.703 29.289s-29.29 76.43-29.29 170.711z"\n' +
+                '              fill-rule="nonzero"/>\n' +
+                '    </g>\n' +
+                '</svg>';
+            break;
+    }
+    return svgToReturn;
 }
 
 function checkAllSupportedProtocols(url, json) {
@@ -739,6 +792,7 @@ function listenerStickyNotes() {
                     let page_domain_global_to_use = getTypeToShow(type_to_use);
                     // console.log(url_to_use + " :: " + page_domain_global_to_use);
                     if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["notes"] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) {
+                        console.log(icons_json)
                         sendResponse({
                             notes: {
                                 description: websites_json[url_to_use]["notes"],
@@ -753,7 +807,8 @@ function listenerStickyNotes() {
                                 }
                             },
                             websites: websites_json,
-                            settings: settings_json
+                            settings: settings_json,
+                            icons: icons_json
                         });
                     } else {
                         //console.error(JSON.stringify(websites_json[url_to_use]));
@@ -765,7 +820,9 @@ function listenerStickyNotes() {
                     if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["sticky"] !== undefined && websites_json[url_to_use]["minimized"] !== undefined) {
                         sendResponse({
                             sticky: websites_json[url_to_use]["sticky"],
-                            minimized: websites_json[url_to_use]["minimized"]
+                            minimized: websites_json[url_to_use]["minimized"],
+                            settings_json: settings_json,
+                            icons: icons_json
                         })
                     } else {
                         sendResponse({

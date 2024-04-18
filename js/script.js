@@ -664,7 +664,7 @@ function saveNotes(title_call = false) {
         let notes = document.getElementById("notes").innerHTML;
         let title = document.getElementById("title-notes").value;
         websites_json[url_to_use]["notes"] = notes;
-        if(settings_json["show-title-textbox"]) websites_json[url_to_use]["title"] = title;
+        if (settings_json["show-title-textbox"]) websites_json[url_to_use]["title"] = title;
         websites_json[url_to_use]["last-update"] = getDate();
         if (websites_json[url_to_use]["tag-colour"] === undefined) {
             websites_json[url_to_use]["tag-colour"] = "none";
@@ -1138,9 +1138,59 @@ function strikethrough() {
     addAction();
 }
 
-function hasAncestorAnchor(element) {
+function subscript() {
+    //console.log("Subscript")
+    document.execCommand("subscript", false);
+    addAction();
+}
+
+function superscript() {
+    //console.log("Superscript")
+    document.execCommand("superscript", false);
+    addAction();
+}
+
+var highlighterBackgroundColor = "rgb(255, 255, 0)";
+
+function highlighter() {
+    //console.log("Highlighter")
+
+    let selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    } else if (document.selection && document.selection.type !== 'Control') {
+        // For older versions of Internet Explorer
+        selectedText = document.selection.createRange().text;
+    }
+
+    // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
+    let isHighlighter = hasAncestorHighlighter(window.getSelection().anchorNode);
+
+    if (isHighlighter) {
+        let elements = getTheAncestorHighlighter(window.getSelection().anchorNode);
+        let anchorElement = elements[0];
+        let parentAnchor = elements[1];
+
+        if (anchorElement && parentAnchor) {
+            // Move children of the anchor element to its parent
+            while (anchorElement.firstChild) {
+                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
+            }
+            // Remove the anchor element itself
+            parentAnchor.removeChild(anchorElement);
+        }
+        saveNotes();
+        document.execCommand('backColor', false, 'transparent');
+    } else {
+        document.execCommand('backColor', false, highlighterBackgroundColor);
+    }
+
+    addAction();
+}
+
+function hasAncestorHighlighter(element) {
     while (element) {
-        if (element.tagName && element.tagName.toLowerCase() === 'a') {
+        if (element.tagName && element.tagName.toLowerCase() === "span" && element.style.backgroundColor === highlighterBackgroundColor) {
             return true; // Found an anchor element
         }
         element = element.parentNode; // Move up to the parent node
@@ -1148,14 +1198,50 @@ function hasAncestorAnchor(element) {
     return false; // Reached the top of the DOM tree without finding an anchor element
 }
 
-function getTheAncestorAnchor(element) {
+function getTheAncestorHighlighter(element) {
     while (element) {
-        if (element.tagName && element.tagName.toLowerCase() === 'a') {
+        if (element.tagName && element.tagName.toLowerCase() === "span" && element.style.backgroundColor === highlighterBackgroundColor) {
             return [element, element.parentNode]; // Found an anchor element
         }
         element = element.parentNode; // Move up to the parent node
     }
     return [false, false]; // Reached the top of the DOM tree without finding an anchor element
+}
+
+function insertHeader(size = "h1") {
+    headerFromTagName(size);
+    addAction();
+}
+
+function headerFromTagName(tagName) {
+    let selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    } else if (document.selection && document.selection.type !== 'Control') {
+        // For older versions of Internet Explorer
+        selectedText = document.selection.createRange().text;
+    }
+
+    let isTagName = hasAncestorTagName(window.getSelection().anchorNode, tagName);
+
+    if (isTagName) {
+        let elements = getTheAncestorTagName(window.getSelection().anchorNode, tagName);
+        let anchorElement = elements[0];
+        let parentAnchor = elements[1];
+
+        if (anchorElement && parentAnchor) {
+            // Move children of the anchor element to its parent
+            while (anchorElement.firstChild) {
+                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
+            }
+            // Remove the anchor element itself
+            parentAnchor.removeChild(anchorElement);
+        }
+        saveNotes();
+    } else {
+        let html = '<' + tagName + '>' + selectedText + '</' + tagName + '>';
+        document.execCommand('insertHTML', false, html);
+    }
 }
 
 function insertLink() {
@@ -1169,12 +1255,12 @@ function insertLink() {
     }
 
     // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
-    let isLink = hasAncestorAnchor(window.getSelection().anchorNode);
+    let isLink = hasAncestorTagName(window.getSelection().anchorNode, 'a');
 
     // If it's already a link, remove the link; otherwise, add the link
     if (isLink) {
         // Remove the link
-        let elements = getTheAncestorAnchor(window.getSelection().anchorNode);
+        let elements = getTheAncestorTagName(window.getSelection().anchorNode, 'a');
         let anchorElement = elements[0];
         let parentAnchor = elements[1];
 
@@ -1197,6 +1283,26 @@ function insertLink() {
     }
     addAction();
     //}
+}
+
+function hasAncestorTagName(element, tagName) {
+    while (element) {
+        if (element.tagName && element.tagName.toLowerCase() === tagName) {
+            return true; // Found an anchor element
+        }
+        element = element.parentNode; // Move up to the parent node
+    }
+    return false; // Reached the top of the DOM tree without finding an anchor element
+}
+
+function getTheAncestorTagName(element, tagName) {
+    while (element) {
+        if (element.tagName && element.tagName.toLowerCase() === tagName) {
+            return [element, element.parentNode]; // Found an anchor element
+        }
+        element = element.parentNode; // Move up to the parent node
+    }
+    return [false, false]; // Reached the top of the DOM tree without finding an anchor element
 }
 
 function isValidURL(url) {
