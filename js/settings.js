@@ -1697,6 +1697,12 @@ function listenerNotefoxAccount() {
                 case "delete-verify-new-code":
                     deleteVerifyNewCodeResponse(data);
                     break;
+                case "check-id-get":
+                    //nothing - error during check-id of get-data
+                    break;
+                case "check-id-send":
+                    //nothing - error during check-id of send-data
+                    break;
                 default:
                     console.error("Error: " + message["type"] + " is not a valid type");
             }

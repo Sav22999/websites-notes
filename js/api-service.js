@@ -593,17 +593,17 @@ function check_user(login_id_value, token_valud) {
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+            /*browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
                 //logout(login_id_value, false, false);
                 browser.storage.sync.remove("notefox-account");
-            });
+            });*/
         }
     };
     xhr.onerror = function () {
-        browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+        /*browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
             //logout(login_id_value, false, false);
             browser.storage.sync.remove("notefox-account");
-        });
+        });*/
     };
     xhr.send(JSON.stringify({
         "login-id": login_id_value,
