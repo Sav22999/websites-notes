@@ -596,7 +596,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     padding: 10px;
 }
 
-#import-sub-sections, #export-sub-sections, #account-sub-sections, #login-expired-content {
+#import-sub-sections, #export-sub-sections, #account-sub-sections, #login-expired-content, #link-content-section {
     background-color: var(--tertiary);
 }
 
@@ -748,7 +748,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     border-radius: 0px;
 }
 
-#import-section, #export-section, #account-section, #login-expired-section {
+#import-section, #export-section, #account-section, #login-expired-section, #link-section {
     display: none;
     background-color: transparent;
     position: fixed !important;
@@ -765,8 +765,12 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     padding-bottom: 10%;
 }
 
+#link-section {
+    color: var(--primary-color);
+}
+
 @media screen and (max-width: 1500px) {
-    #import-section, #export-section, #account-section, #login-expired-section {
+    #import-section, #export-section, #account-section, #login-expired-section, #link-section {
         padding-top: 5%;
         padding-left: 10%;
         padding-right: 10%;
@@ -775,7 +779,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 }
 
 @media screen and (max-width: 1200px) {
-    #import-section, #export-section, #account-section, #login-expired-section {
+    #import-section, #export-section, #account-section, #login-expired-section, #link-section {
         padding-left: 0%;
         padding-right: 0%;
         padding-top: 0%;
@@ -1014,6 +1018,7 @@ b {
 #notes code, #notes pre, .textarea-all-notes code, .textarea-all-notes pre {
     font-family: 'Source Code Pro', monospace;
 }
+
 
 #notes h1, .textarea-all-notes h1 {
     font-family: inherit;

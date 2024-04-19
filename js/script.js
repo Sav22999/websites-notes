@@ -1265,7 +1265,6 @@ function insertLink() {
         saveNotes();
     } else {
         /*let url = prompt("Enter the URL:");
-
         if (url) {
             document.execCommand('createLink', false, url);
         }*/
@@ -1274,6 +1273,77 @@ function insertLink() {
     addAction();
     //}
 }
+
+/*function insertLink() {
+    //if (isValidURL(value)) {
+    let selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    } else if (document.selection && document.selection.type !== 'Control') {
+        // For older versions of Internet Explorer
+        selectedText = document.selection.createRange().text;
+    }
+
+    if (selectedText !== "") {
+        // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
+        let isLink = hasAncestorTagName(window.getSelection().anchorNode, 'a');
+
+        // If it's already a link, remove the link; otherwise, add the link
+        if (isLink) {
+            // Remove the link
+            let elements = getTheAncestorTagName(window.getSelection().anchorNode, 'a');
+            let anchorElement = elements[0];
+            let parentAnchor = elements[1];
+
+            if (anchorElement && parentAnchor) {
+                // Move children of the anchor element to its parent
+                while (anchorElement.firstChild) {
+                    parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
+                }
+                // Remove the anchor element itself
+                parentAnchor.removeChild(anchorElement);
+            }
+            saveNotes();
+        } else {
+            //let url = prompt("Enter the URL:");
+            //if (url) {
+            //    document.execCommand('createLink', false, url);
+            //}
+            let section = document.getElementById("link-section");
+            let background = document.getElementById("background-opacity");
+            let linkUrl = "";
+            if (isValidURL(selectedText)) linkUrl = selectedText;
+
+            section.style.display = "block";
+            background.style.display = "block";
+
+            let linkText = document.getElementById("link-text");
+            linkText.innerHTML = all_strings["insert-link-text"];
+            let linkInput = document.getElementById("link-url-text");
+            linkInput.value = linkUrl;
+            linkInput.placeholder = all_strings["insert-link-placeholder"];
+            let linkButton = document.getElementById("link-button");
+            linkButton.value = all_strings["insert-link-button"];
+            linkButton.onclick = function () {
+                section.style.display = "none";
+                background.style.display = "none";
+                document.execCommand('createLink', false, linkInput.value);
+            }
+            let linkButtonClose = document.getElementById("link-cancel-button");
+            linkButtonClose.value = all_strings["cancel-link-button"];
+            linkButtonClose.onclick = function () {
+                section.style.display = "none";
+                background.style.display = "none";
+            }
+
+            setTimeout(() => {
+                linkInput.focus()
+            }, 100);
+        }
+        addAction();
+    }
+    //}
+}*/
 
 function hasAncestorTagName(element, tagName) {
     while (element) {
