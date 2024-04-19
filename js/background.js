@@ -19,6 +19,7 @@ let opening_sticky = false;
 
 let page_domain_global = {"page": "Page", "domain": "Domain", "global": "Global", "subdomain": "•••"};
 let linkFirstLaunch = "https://saveriomorelli.com/projects/notefox/first-run"
+let linkBackupBeforeToUpdateTo4_0 = "https://notefox.eu/help/switch-to-4-0/"
 
 let sync_local = browser.storage.local;
 checkSyncLocal();
@@ -47,6 +48,14 @@ function checkSyncLocal() {
             browser.tabs.create({url: linkFirstLaunch});
         }
     })
+
+    browser.storage.sync.get("alert-before-to-update-to-4-0").then(result => {
+        if (result["alert-before-to-update-to-4-0"] === undefined || result["alert-before-to-update-to-4-0"] !== undefined && !result["alert-before-to-update-to-4-0"]) {
+            browser.storage.sync.set({"alert-before-to-update-to-4-0": true});
+            //launch backup before to upgrade!
+            browser.tabs.create({url: linkBackupBeforeToUpdateTo4_0});
+        }
+    });
 }
 
 function changeIcon(index) {
