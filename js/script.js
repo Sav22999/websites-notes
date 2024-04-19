@@ -85,7 +85,7 @@ function checkTimesOpened() {
             times = result["times-opened"];
             let interval_to_check = [1000, 5000, 20000, 50000, 100000, 1000000, 5000000];
             if (times > 0 && interval_to_check.includes(times + 1)) {
-                browser.tabs.create({url: "https://www.saveriomorelli.com/projects/notefox/opened-times/"});
+                browser.tabs.create({url: "https://www.notefox.eu/help/opened-times/"});
                 //window.close();
             }
         }
@@ -1129,7 +1129,7 @@ function superscript() {
     addAction();
 }
 
-var highlighterBackgroundColor = "rgb(255, 255, 0)";
+/*var highlighterBackgroundColor = "rgb(255, 255, 0, 0.5)";
 
 function highlighter() {
     //console.log("Highlighter")
@@ -1186,13 +1186,24 @@ function getTheAncestorHighlighter(element) {
     }
     return [false, false]; // Reached the top of the DOM tree without finding an anchor element
 }
+*/
 
-function insertHeader(size = "h1") {
-    headerFromTagName(size);
+function insertHeader(header_size = "h1") {
+    insertHTMLFromTagName(header_size);
     addAction();
 }
 
-function headerFromTagName(tagName) {
+function small() {
+    insertHTMLFromTagName("small");
+    addAction();
+}
+
+function big() {
+    insertHTMLFromTagName("big");
+    addAction();
+}
+
+function insertHTMLFromTagName(tagName) {
     let selectedText = "";
     if (window.getSelection) {
         selectedText = window.getSelection().toString();
@@ -1361,16 +1372,53 @@ function loadFormatButtons(navigation = true, format = true) {
         else html_text_formatting = false;
     }
 
+    let is_bold_italic_underline_strikethrough = true;
+    if (settings_json["bold-italic-underline-strikethrough"] !== undefined) {
+        if (settings_json["bold-italic-underline-strikethrough"] === "yes" || settings_json["bold-italic-underline-strikethrough"] === true) is_bold_italic_underline_strikethrough = true;
+        else is_bold_italic_underline_strikethrough = false;
+    }
+    let is_link = true;
+    if (settings_json["link"] !== undefined) {
+        if (settings_json["link"] === "yes" || settings_json["link"] === true) is_link = true;
+        else is_link = false;
+    }
+    let is_spellcheck = true;
+    if (settings_json["spellcheck"] !== undefined) {
+        if (settings_json["spellcheck"] === "yes" || settings_json["spellcheck"] === true) is_spellcheck = true;
+        else is_spellcheck = false;
+    }
+    let is_subscript_superscript = false;
+    if (settings_json["superscript-subscript"] !== undefined) {
+        if (settings_json["superscript-subscript"] === "yes" || settings_json["superscript-subscript"] === true) is_subscript_superscript = true;
+        else is_subscript_superscript = false;
+    }
+    let is_headers = false;
+    if (settings_json["headers"] !== undefined) {
+        if (settings_json["headers"] === "yes" || settings_json["headers"] === true) is_headers = true;
+        else is_headers = false;
+    }
+    let is_small_big = false;
+    if (settings_json["small-big"] !== undefined) {
+        if (settings_json["small-big"] === "yes" || settings_json["small-big"] === true) is_small_big = true;
+        else is_small_big = false;
+    }
+
     let commands = [];
     if (navigation && html_text_formatting) {
         commands.push(
             {
-                action: "undo", icon: `${url}undo.svg`, title: all_strings["label-title-undo"], function: function () {
+                action: "undo",
+                icon: `${url}undo.svg`,
+                title: all_strings["label-title-undo"],
+                function: function () {
                     undo()
                 }
             },
             {
-                action: "redo", icon: `${url}redo.svg`, title: all_strings["label-title-redo"], function: function () {
+                action: "redo",
+                icon: `${url}redo.svg`,
+                title: all_strings["label-title-redo"],
+                function: function () {
                     redo()
                 }
             });
@@ -1379,63 +1427,169 @@ function loadFormatButtons(navigation = true, format = true) {
         currentAction = 0;
     }
     if (format && html_text_formatting) {
-        commands.push(
-            {
-                action: "bold",
-                icon: `${url}bold.svg`,
-                title: all_strings["label-title-bold"],
-                function: function () {
-                    bold();
+        if (is_bold_italic_underline_strikethrough) {
+            commands.push(
+                {
+                    action: "bold",
+                    icon: `${url}bold.svg`,
+                    title: all_strings["label-title-bold"],
+                    function: function () {
+                        bold();
+                    }
+                },
+                {
+                    action: "italic",
+                    icon: `${url}italic.svg`,
+                    title: all_strings["label-title-italic"],
+                    function: function () {
+                        italic();
+                    }
+                },
+                {
+                    action: "underline",
+                    icon: `${url}underline.svg`,
+                    title: all_strings["label-title-underline"],
+                    function: function () {
+                        underline();
+                    }
+                },
+                {
+                    action: "strikethrough",
+                    icon: `${url}strikethrough.svg`,
+                    title: all_strings["label-title-strikethrough"],
+                    function: function () {
+                        strikethrough();
+                    }
                 }
-            },
-            {
-                action: "italic",
-                icon: `${url}italic.svg`,
-                title: all_strings["label-title-italic"],
-                function: function () {
-                    italic();
+            );
+        }
+
+        if (is_link) {
+            commands.push(
+                {
+                    action: "link",
+                    icon: `${url}link.svg`,
+                    title: all_strings["label-title-link"],
+                    function: function () {
+                        insertLink();
+                    }
                 }
-            },
-            {
-                action: "underline",
-                icon: `${url}underline.svg`,
-                title: all_strings["label-title-underline"],
-                function: function () {
-                    underline();
+            );
+        }
+
+        if (is_spellcheck) {
+            commands.push(
+                {
+                    action: "spellcheck",
+                    icon: `${url}spellcheck.svg`,
+                    title: all_strings["label-title-spellcheck"],
+                    function: function () {
+                        spellcheck();
+                    }
                 }
-            },
-            {
-                action: "strikethrough",
-                icon: `${url}strikethrough.svg`,
-                title: all_strings["label-title-strikethrough"],
-                function: function () {
-                    strikethrough();
+            );
+        }
+
+        if (is_subscript_superscript) {
+            commands.push(
+                {
+                    action: "subscript",
+                    icon: `${url}subscript.svg`,
+                    title: all_strings["label-title-subscript"],
+                    function: function () {
+                        subscript();
+                    }
+                },
+                {
+                    action: "superscript",
+                    icon: `${url}superscript.svg`,
+                    title: all_strings["label-title-superscript"],
+                    function: function () {
+                        superscript();
+                    }
                 }
-            },
-            {
-                action: "link",
-                icon: `${url}link.svg`,
-                title: all_strings["label-title-link"],
-                function: function () {
-                    insertLink();
+            );
+        }
+
+        if (is_headers) {
+            commands.push(
+                {
+                    action: "h1",
+                    icon: `${url}h1.svg`,
+                    title: all_strings["label-title-header-h1"],
+                    function: function () {
+                        insertHeader("h1");
+                    }
+                },
+                {
+                    action: "h2",
+                    icon: `${url}h2.svg`,
+                    title: all_strings["label-title-header-h2"],
+                    function: function () {
+                        insertHeader("h2");
+                    }
+                },
+                {
+                    action: "h3",
+                    icon: `${url}h3.svg`,
+                    title: all_strings["label-title-header-h3"],
+                    function: function () {
+                        insertHeader("h3");
+                    }
+                },
+                {
+                    action: "h4",
+                    icon: `${url}h4.svg`,
+                    title: all_strings["label-title-header-h4"],
+                    function: function () {
+                        insertHeader("h4");
+                    }
+                },
+                {
+                    action: "h5",
+                    icon: `${url}h5.svg`,
+                    title: all_strings["label-title-header-h5"],
+                    function: function () {
+                        insertHeader("h5");
+                    }
+                },
+                {
+                    action: "h6",
+                    icon: `${url}h6.svg`,
+                    title: all_strings["label-title-header-h6"],
+                    function: function () {
+                        insertHeader("h6");
+                    }
                 }
-            },
-            {
-                action: "spellcheck",
-                icon: `${url}spellcheck.svg`,
-                title: all_strings["label-title-spellcheck"],
-                function: function () {
-                    spellcheck();
+            );
+        }
+
+        if (is_small_big) {
+            commands.push(
+                {
+                    action: "small",
+                    icon: `${url}small.svg`,
+                    title: all_strings["label-title-small"],
+                    function: function () {
+                        small();
+                    }
+                },
+                {
+                    action: "big",
+                    icon: `${url}big.svg`,
+                    title: all_strings["label-title-big"],
+                    function: function () {
+                        big();
+                    }
                 }
-            });
+            )
+        }
     }
 
     if (!format && !navigation || !html_text_formatting) {
-        document.getElementById("notes").style.marginBottom = "0px";
         document.getElementById("format-buttons").style.display = "none";
         document.getElementById("open-sticky-button").classList.add("button-trigger-sticky-no-format-buttons");
     } else {
-        document.getElementById("notes").style.marginBottom = "35px";
         if (document.getElementById("format-buttons").style.display === "none") document.getElementById("format-buttons").style.removeProperty("display");
         if (document.getElementById("open-sticky-button").classList.contains("button-trigger-sticky-no-format-buttons")) document.getElementById("open-sticky-button").classList.remove("button-trigger-sticky-no-format-buttons");
     }
@@ -1524,6 +1678,17 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let link_svg = window.btoa(getIconSvgEncoded("link", on_primary));
         let undo_svg = window.btoa(getIconSvgEncoded("undo", on_primary));
         let redo_svg = window.btoa(getIconSvgEncoded("redo", on_primary));
+        let superscript_svg = window.btoa(getIconSvgEncoded("superscript", on_primary));
+        let subscript_svg = window.btoa(getIconSvgEncoded("subscript", on_primary));
+        let h1_svg = window.btoa(getIconSvgEncoded("h1", on_primary));
+        let h2_svg = window.btoa(getIconSvgEncoded("h2", on_primary));
+        let h3_svg = window.btoa(getIconSvgEncoded("h3", on_primary));
+        let h4_svg = window.btoa(getIconSvgEncoded("h4", on_primary));
+        let h5_svg = window.btoa(getIconSvgEncoded("h5", on_primary));
+        let h6_svg = window.btoa(getIconSvgEncoded("h6", on_primary));
+        let small_svg = window.btoa(getIconSvgEncoded("small", on_primary));
+        let big_svg = window.btoa(getIconSvgEncoded("big", on_primary));
+
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         let arrow_right_svg = window.btoa(getIconSvgEncoded("arrow-right", on_primary));
@@ -1592,6 +1757,56 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 .text-spellcheck-sel {
                     background-image: url('data:image/svg+xml;base64,${spellcheck_sel_svg}') !important;     
                     background-size: 60% auto;          
+                }
+                
+                #text-superscript {
+                    background-image: url('data:image/svg+xml;base64,${superscript_svg}');
+                    background-size: 80% auto;
+                }
+                
+                #text-subscript {
+                    background-image: url('data:image/svg+xml;base64,${subscript_svg}');
+                    background-size: 80% auto;
+                }
+                
+                #text-h1 {
+                    background-image: url('data:image/svg+xml;base64,${h1_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-h2 {
+                    background-image: url('data:image/svg+xml;base64,${h2_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-h3 {
+                    background-image: url('data:image/svg+xml;base64,${h3_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-h4 {
+                    background-image: url('data:image/svg+xml;base64,${h4_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-h5 {
+                    background-image: url('data:image/svg+xml;base64,${h5_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-h6 {
+                    background-image: url('data:image/svg+xml;base64,${h6_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-small {
+                    background-image: url('data:image/svg+xml;base64,${small_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-big {
+                    background-image: url('data:image/svg+xml;base64,${big_svg}');
+                    background-size: 90% auto;
                 }
                 
                 #text-link {

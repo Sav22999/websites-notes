@@ -637,6 +637,138 @@ function getIconSvgEncoded(icon, color) {
                 '    <path d="m157.8965 143.9487a98.1035 98.1035 0 1 1 196.207 0v70.1983h19.793v-70.1983a117.8965 117.8965 0 0 0 -235.793 0v70.1983h19.793z"/>\n' +
                 '</svg>';
             break;
+        case "superscript":
+            svgToReturn = '<svg fill="' + color + '" height="800" viewBox="0 0 24 24" width="800" xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path d="m0 0h24v24h-24z" fill="none"/>\n' +
+                '    <path d="m11 7v13h-2v-13h-6v-2h12v2zm8.55-.42a.8.8 0 1 0 -1.32-.36l-1.154.33a2.001 2.001 0 0 1 1.924-2.55 2 2 0 0 1 1.373 3.454l-1.629 1.546h2.256v1h-4v-1z"/>\n' +
+                '</svg>';
+            break;
+        case "subscript":
+            svgToReturn = '<svg fill="' + color + '" height="800" viewBox="0 0 24 24" width="800" xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path d="m0 0h24v24h-24z" fill="none"/>\n' +
+                '    <path d="m11 6v13h-2v-13h-6v-2h14v2zm8.55 10.58a.8.8 0 1 0 -1.32-.36l-1.154.33a2.001 2.001 0 0 1 1.924-2.55 2 2 0 0 1 1.373 3.454l-1.629 1.546h2.256v1h-4v-1z"/>\n' +
+                '</svg>';
+            break;
+        case "h1":
+            svgToReturn = '<svg fill="' + color + '" clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 800 800"\n' +
+                '     xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path d="m0 0h800v800h-800z" fill="none"/>\n' +
+                '    <g fill-rule="nonzero">\n' +
+                '        <path d="m254.497 474.154v-357.91h47.363v146.973h186.036v-146.973h47.363v357.91h-47.363v-168.701h-186.036v168.701z"\n' +
+                '              transform="translate(-89.3271 105.684)"/>\n' +
+                '        <path d="m186.279 0h-43.945v-280.029c-10.579 10.091-24.455 20.182-41.626 30.273s-32.593 17.66-46.265 22.705v-42.48c24.577-11.556 46.062-25.554 64.453-41.992 18.392-16.439 31.413-32.39 39.063-47.852h28.32z"\n' +
+                '              transform="translate(448.5508 579.537)"/>\n' +
+                '    </g>\n' +
+                '</svg>';
+            break;
+        case "h2":
+            svgToReturn = '<svg fill="' + color + '" clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 800 800"\n' +
+                '     xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path d="m0 0h800v800h-800z" fill="none"/>\n' +
+                '    <g fill-rule="nonzero">\n' +
+                '        <path d="m254.497 474.154v-357.91h47.363v146.973h186.036v-146.973h47.363v357.91h-47.363v-168.701h-186.036v168.701z"\n' +
+                '              transform="translate(-122.0419 105.684)"/>\n' +
+                '        <path d="m251.709-42.236v42.236h-236.572c-.326-10.579 1.383-20.752 5.127-30.518 6.022-16.113 15.665-31.982 28.93-47.607s32.43-33.691 57.495-54.199c38.9-31.901 65.186-57.17 78.858-75.806s20.508-36.255 20.508-52.856c0-17.416-6.226-32.105-18.677-44.068s-28.687-17.944-48.706-17.944c-21.159 0-38.086 6.348-50.781 19.043-12.696 12.695-19.125 30.273-19.287 52.734l-45.166-4.638c3.092-33.692 14.729-59.367 34.912-77.027 20.182-17.659 47.282-26.489 81.298-26.489 34.343 0 61.524 9.521 81.543 28.564 20.02 19.043 30.03 42.644 30.03 70.801 0 14.323-2.93 28.402-8.789 42.237-5.86 13.834-15.585 28.401-29.175 43.701-13.591 15.299-36.174 36.295-67.749 62.988-26.367 22.135-43.294 37.15-50.781 45.044s-13.672 15.828-18.555 23.804z"\n' +
+                '              transform="translate(415.836 579.537)"/>\n' +
+                '    </g>\n' +
+                '</svg>';
+            break;
+        case "h3":
+            svgToReturn = '<svg fill="' + color + '" width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"\n' +
+                '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">\n' +
+                '    <g>\n' +
+                '        <rect x="0" y="0" width="800" height="800" style="fill:none;"/>\n' +
+                '        <g transform="matrix(1,0,0,1,-24.9951,-2.14033)">\n' +
+                '            <g transform="matrix(1,0,0,1,-98.8779,104.801)">\n' +
+                '                <path d="M254.497,474.154L254.497,116.244L301.86,116.244L301.86,263.217L487.896,263.217L487.896,116.244L535.259,116.244L535.259,474.154L487.896,474.154L487.896,305.453L301.86,305.453L301.86,474.154L254.497,474.154Z"\n' +
+                '                      style="fill-rule:nonzero;"/>\n' +
+                '            </g>\n' +
+                '            <g transform="matrix(1,0,0,1,439,578.654)">\n' +
+                '                <text x="0px" y="0px" style="font-family:\'ArialMT\', \'Arial\', sans-serif;font-size:500px;">3</text>\n' +
+                '            </g>\n' +
+                '        </g>\n' +
+                '    </g>\n' +
+                '</svg>\n';
+            break;
+        case "h4":
+            svgToReturn = '<svg fill="' + color + '" width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">\n' +
+                '    <g>\n' +
+                '        <rect x="0" y="0" width="800" height="800" style="fill:none;"/>\n' +
+                '        <g transform="matrix(1,0,0,1,-24.2627,0.150578)">\n' +
+                '            <g transform="matrix(1,0,0,1,-98.8779,104.801)">\n' +
+                '                <path d="M254.497,474.154L254.497,116.244L301.86,116.244L301.86,263.217L487.896,263.217L487.896,116.244L535.259,116.244L535.259,474.154L487.896,474.154L487.896,305.453L301.86,305.453L301.86,474.154L254.497,474.154Z" style="fill-rule:nonzero;"/>\n' +
+                '            </g>\n' +
+                '            <g transform="matrix(1,0,0,1,439,578.654)">\n' +
+                '                <text x="0px" y="0px" style="font-family:\'ArialMT\', \'Arial\', sans-serif;font-size:500px;">4</text>\n' +
+                '            </g>\n' +
+                '        </g>\n' +
+                '    </g>\n' +
+                '</svg>\n';
+            break;
+        case "h5":
+            svgToReturn = '<svg fill="' + color + '" width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">\n' +
+                '    <g>\n' +
+                '        <rect x="0" y="0" width="800" height="800" style="fill:none;"/>\n' +
+                '        <g transform="matrix(1,0,0,1,-26.3379,-2.90126)">\n' +
+                '            <g transform="matrix(1,0,0,1,-98.8779,104.801)">\n' +
+                '                <path d="M254.497,474.154L254.497,116.244L301.86,116.244L301.86,263.217L487.896,263.217L487.896,116.244L535.259,116.244L535.259,474.154L487.896,474.154L487.896,305.453L301.86,305.453L301.86,474.154L254.497,474.154Z" style="fill-rule:nonzero;"/>\n' +
+                '            </g>\n' +
+                '            <g transform="matrix(1,0,0,1,439,578.654)">\n' +
+                '                <text x="0px" y="0px" style="font-family:\'ArialMT\', \'Arial\', sans-serif;font-size:500px;">5</text>\n' +
+                '            </g>\n' +
+                '        </g>\n' +
+                '    </g>\n' +
+                '</svg>\n';
+            break;
+        case "h6":
+            svgToReturn = '<svg fill="' + color + '" width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">\n' +
+                '    <g>\n' +
+                '        <rect x="0" y="0" width="800" height="800" style="fill:none;"/>\n' +
+                '        <g transform="matrix(1,0,0,1,-24.873,-2.01826)">\n' +
+                '            <g transform="matrix(1,0,0,1,-98.8779,104.801)">\n' +
+                '                <path d="M254.497,474.154L254.497,116.244L301.86,116.244L301.86,263.217L487.896,263.217L487.896,116.244L535.259,116.244L535.259,474.154L487.896,474.154L487.896,305.453L301.86,305.453L301.86,474.154L254.497,474.154Z" style="fill-rule:nonzero;"/>\n' +
+                '            </g>\n' +
+                '            <g transform="matrix(1,0,0,1,439,578.654)">\n' +
+                '                <text x="0px" y="0px" style="font-family:\'ArialMT\', \'Arial\', sans-serif;font-size:500px;">6</text>\n' +
+                '            </g>\n' +
+                '        </g>\n' +
+                '    </g>\n' +
+                '</svg>\n';
+            break;
+        case "small":
+            svgToReturn = '<svg fill="' + color + '" clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 800 800"\n' +
+                '     xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path d="m0 0h800v800h-800z" fill="none"/>\n' +
+                '    <g fill-rule="nonzero">\n' +
+                '        <path d="m433.333 539.067 178.8-178.8 47.134 47.133-259.267 259.267-259.267-259.267 47.134-47.133 178.8 178.8v-405.734h66.666z"\n' +
+                '              transform="matrix(.44073 0 0 .4675 375.4332 47)"/>\n' +
+                '        <path d="m433.333 539.067 178.8-178.8 47.134 47.133-259.267 259.267-259.267-259.267 47.134-47.133 178.8 178.8v-405.734h66.666z"\n' +
+                '              transform="matrix(.44073 0 0 -.4675 375.4332 753)"/>\n' +
+                '        <path d="m154.221 427.656 64.244-206.515h23.848l68.466 206.515h-25.218l-19.513-62.546h-69.949l-18.371 62.546zm48.268-84.803h56.713l-17.459-57.194c-5.325-17.374-9.281-31.648-11.868-42.824-2.13 13.242-5.134 26.389-9.014 39.443z"\n' +
+                '              transform="matrix(1.71163 0 0 1.38647 -129.9608 -49.77)"/>\n' +
+                '    </g>\n' +
+                '</svg>';
+            break;
+        case "big":
+            svgToReturn = '<svg fill="' + color + '" clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 800 800"\n' +
+                '     xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path d="m0 0h800v800h-800z" fill="none"/>\n' +
+                '    <g fill-rule="nonzero">\n' +
+                '        <path d="m433.333 539.067 178.8-178.8 47.134 47.133-259.267 259.267-259.267-259.267 47.134-47.133 178.8 178.8v-405.734h66.666z"\n' +
+                '              transform="matrix(.44073 0 0 -.4675 402.9332 421)"/>\n' +
+                '        <path d="m433.333 539.067 178.8-178.8 47.134 47.133-259.267 259.267-259.267-259.267 47.134-47.133 178.8 178.8v-405.734h66.666z"\n' +
+                '              transform="matrix(.44073 0 0 .4675 402.9332 379)"/>\n' +
+                '        <path d="m154.221 427.656 64.244-206.515h23.848l68.466 206.515h-25.218l-19.513-62.546h-69.949l-18.371 62.546zm48.268-84.803h56.713l-17.459-57.194c-5.325-17.374-9.281-31.648-11.868-42.824-2.13 13.242-5.134 26.389-9.014 39.443z"\n' +
+                '              transform="matrix(2.2356 0 0 1.8109 -238.2678 -187.455)"/>\n' +
+                '    </g>\n' +
+                '</svg>';
+            break;
+        case "highlighter":
+            svgToReturn = '<svg fill="' + color + '" height="800" viewBox="0 0 512 512" width="800" xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path d="m405.333333 381.709781-42.666666 42.666667h-277.3333337l42.6666667-42.666667zm-364.165333-82.337781 62.502 62.502-61.0033333 30.502448-42.6666667 10.666667 10.6666667-42.666667zm19.932-108.068 151.037 151.037-5.165443 5.314494-5.874225-.290446-6.152892-.095807c-10.487039.002521-22.135186.816034-34.94444 2.44054l-8.029896 1.127653-7.846153 1.291683-7.506601 1.38912-9.23035 1.902763-78.4378625-78.437984c1.5580445-6.273428 3.1369387-14.043521 4.3841958-23.273235 2.5311812-18.730762 3.4607735-37.698674 2.788777-56.903734l3.3063773-3.721907zm221.227442-191.304 120.679557 120.679557-18.036051 23.249252-32.555232 41.500321-19.0984 23.964523-17.014329 21.002636-11.393076 13.80824-13.367207 15.819335-8.657733 9.920763-7.485444 8.254702-6.313154 6.588642-14.992178 14.827498-27.059195 27.453531-151.059-151.059 2.5629897-2.620992 37.8540603-37.624506 11.667015-11.195831 12.973484-11.881018 11.319445-9.998149 12.155586-10.4366694 12.991725-10.8751887 13.827866-11.3137085 14.664006-11.7522283 23.563773-18.4505669 16.754357-12.8485277 17.590497-13.2870474z"\n' +
+                '          fill-rule="evenodd" transform="translate(64 44.956885)"/>\n' +
+                '</svg>';
+            break;
         /*
     case "":
         svgToReturn = '';

@@ -149,8 +149,8 @@ body {
 
 .button-trigger-sticky {
     position: absolute;
-    bottom: -4px;
-    right: 4px;
+    bottom: -2px;
+    right: 2px;
     width: 30px !important;
     height: 30px !important;
     background-image: url("../img/sticky-open.svg");
@@ -1091,7 +1091,6 @@ b {
 }
 
 #notes {
-    margin-bottom: 35px;
     cursor: text !important;
 }
 
@@ -1125,13 +1124,12 @@ b {
 }
 
 div#format-buttons {
-    position: absolute;
+    position: relative;
     bottom: -4px;
-    left: 4px;
-    right: 4px;
     z-index: 5;
     background-color: var(--tertiary-transparent);
     padding: 2px;
+    padding-right: 40px;
 }
 
 #open-sticky-button {
@@ -1150,18 +1148,18 @@ button.button-format {
     border-radius: 5px;
 }
 
-#text-bold, #text-undo {
+#text-bold, #text-undo, #text-subscript, #text-h1, #text-small {
     margin-right: 0px;
     border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
 }
 
-#text-italic, #text-underline {
+#text-italic, #text-underline, #text-h2, #text-h3, #text-h4, #text-h5 {
     margin: 2px 0px;
     border-radius: 0px;
 }
 
-#text-strikethrough, #text-redo {
+#text-strikethrough, #text-redo, #text-superscript, #text-h6, #text-big {
     margin-left: 0px;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
@@ -1415,6 +1413,11 @@ aside > button.sel, aside > button.sel:hover {
     margin: 10px 0px;
 }
 
+.option-indent-settings {
+    padding-left: 50px;
+    margin-top: -20px;
+}
+
 #notefox-account-manage-section .option-settings {
     padding: 0px;
 }
@@ -1486,9 +1489,11 @@ aside > button.sel, aside > button.sel:hover {
 #item-radio-sticky-theme-yellow {
     background-color: #ff6200;
 }
+
 #sticky-theme-select-yellow {
     color: #ffffff;
 }
+
 #primary-sticky-theme-yellow {
     background-color: #fffd7d;
     color: #111111;
@@ -1497,9 +1502,11 @@ aside > button.sel, aside > button.sel:hover {
 #item-radio-sticky-theme-cyan {
     background-color: #00b5e2;
 }
+
 #sticky-theme-select-cyan {
     color: #ffffff;
 }
+
 #primary-sticky-theme-cyan {
     background-color: #b3f0ff;
     color: #111111;
@@ -1509,9 +1516,11 @@ aside > button.sel, aside > button.sel:hover {
 #item-radio-sticky-theme-lime {
     background-color: #a6e22e;
 }
+
 #sticky-theme-select-lime {
     color: #111111;
 }
+
 #primary-sticky-theme-lime {
     background-color: #d4f7a6;
     color: #111111;
@@ -1521,9 +1530,11 @@ aside > button.sel, aside > button.sel:hover {
 #item-radio-sticky-theme-pink {
     background-color: #ff00ff;
 }
+
 #sticky-theme-select-pink {
     color: #ffffff;
 }
+
 #primary-sticky-theme-pink {
     background-color: #ffccff;
     color: #111111;
@@ -1533,9 +1544,11 @@ aside > button.sel, aside > button.sel:hover {
 #item-radio-sticky-theme-white {
     background-color: #cccccc;
 }
+
 #sticky-theme-select-white {
     color: #111111;
 }
+
 #primary-sticky-theme-white {
     background-color: #f5f5f5;
     color: #111111;
@@ -1545,9 +1558,11 @@ aside > button.sel, aside > button.sel:hover {
 #item-radio-sticky-theme-black {
     background-color: #000000;
 }
+
 #sticky-theme-select-black {
     color: #ffffff;
 }
+
 #primary-sticky-theme-black {
     background-color: #333333;
     color: #ffffff;

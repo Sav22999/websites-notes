@@ -165,6 +165,42 @@ function loaded() {
         saveSettings();
     }
 
+    document.getElementById("show-bold-italic-underline-strikethrough-check").onchange = function () {
+        settings_json["bold-italic-underline-strikethrough"] = document.getElementById("show-bold-italic-underline-strikethrough-check").checked;
+
+        saveSettings();
+    }
+
+    document.getElementById("show-link-check").onchange = function () {
+        settings_json["link"] = document.getElementById("show-link-check").checked;
+
+        saveSettings();
+    }
+
+    document.getElementById("show-spellcheck-check").onchange = function () {
+        settings_json["spellcheck"] = document.getElementById("show-spellcheck-check").checked;
+
+        saveSettings();
+    }
+
+    document.getElementById("show-superscript-subscript-check").onchange = function () {
+        settings_json["superscript-subscript"] = document.getElementById("show-superscript-subscript-check").checked;
+
+        saveSettings();
+    }
+
+    document.getElementById("show-headers-check").onchange = function () {
+        settings_json["headers"] = document.getElementById("show-headers-check").checked;
+
+        saveSettings();
+    }
+
+    document.getElementById("show-small-big-check").onchange = function () {
+        settings_json["small-big"] = document.getElementById("show-small-big-check").checked;
+
+        saveSettings();
+    }
+
     document.getElementById("clear-all-notes-button").onclick = function () {
         clearAllNotes();
     }
@@ -387,6 +423,12 @@ function setLanguageUI() {
     document.getElementById("sticky-theme-detailed-text").innerHTML = all_strings["sticky-theme-detailed-text"].replace("{{property1}}", `<span class="button-code very-small-button">` + all_strings["sticky-theme-choose-auto-select"] + `</span>`);
     document.getElementById("show-title-textbox-text").innerText = all_strings["show-title-textbox-text"];
     document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
+    document.getElementById("show-bold-italic-underline-strikethrough-text").innerText = all_strings["show-bold-italic-underline-strikethrough-text"];
+    document.getElementById("show-link-text").innerText = all_strings["show-link-text"];
+    document.getElementById("show-spellcheck-text").innerText = all_strings["show-spellcheck-text"];
+    document.getElementById("show-superscript-subscript-text").innerText = all_strings["show-superscript-subscript-text"];
+    document.getElementById("show-headers-text").innerText = all_strings["show-headers-text"];
+    document.getElementById("show-small-big-text").innerText = all_strings["show-small-big-text"];
 
     document.getElementById("support-telegram-button").value = all_strings["support-telegram-button"];
     document.getElementById("support-email-button").value = all_strings["support-email-button"];
@@ -492,6 +534,13 @@ function loadSettings() {
             if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
             if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
 
+            if (settings_json["bold-italic-underline-strikethrough"] === undefined) settings_json["bold-italic-underline-strikethrough"] = true;
+            if (settings_json["link"] === undefined) settings_json["link"] = true;
+            if (settings_json["spellcheck"] === undefined) settings_json["spellcheck"] = true;
+            if (settings_json["superscript-subscript"] === undefined) settings_json["superscript-subscript"] = false;
+            if (settings_json["headers"] === undefined) settings_json["headers"] = false;
+            if (settings_json["small-big"] === undefined) settings_json["small-big"] = false;
+
             let sync_or_local_settings = result["storage"];
             if (sync_or_local_settings === undefined) sync_or_local_settings = "local";
 
@@ -515,6 +564,19 @@ function loadSettings() {
             document.getElementById("font-family-select").value = settings_json["font-family"];
 
             document.getElementById("show-title-textbox-check").checked = settings_json["show-title-textbox"] === true || settings_json["show-title-textbox"] === "yes";
+
+            if (document.getElementById("html-text-formatting-check").checked) {
+                if (document.getElementById("html-text-formatting-buttons").classList.contains("hidden")) document.getElementById("html-text-formatting-buttons").classList.remove("hidden");
+            } else {
+                document.getElementById("html-text-formatting-buttons").classList.add("hidden");
+            }
+
+            document.getElementById("show-bold-italic-underline-strikethrough-check").checked = settings_json["bold-italic-underline-strikethrough"] === true || settings_json["bold-italic-underline-strikethrough"] === "yes";
+            document.getElementById("show-link-check").checked = settings_json["link"] === true || settings_json["link"] === "yes";
+            document.getElementById("show-spellcheck-check").checked = settings_json["spellcheck"] === true || settings_json["spellcheck"] === "yes";
+            document.getElementById("show-superscript-subscript-check").checked = settings_json["superscript-subscript"] === true || settings_json["superscript-subscript"] === "yes";
+            document.getElementById("show-headers-check").checked = settings_json["headers"] === true || settings_json["headers"] === "yes";
+            document.getElementById("show-small-big-check").checked = settings_json["small-big"] === true || settings_json["small-big"] === "yes";
 
             let keyboardShortcutCtrlAltShiftDefault = document.getElementById("key-shortcut-ctrl-alt-shift-default-selected");
             let keyboardShortcutLetterNumberDefault = document.getElementById("key-shortcut-default-selected");
