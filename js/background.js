@@ -659,7 +659,6 @@ function listenerShortcuts() {
 
 function listenerStickyNotes() {
     browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        //console.log("Call: " + JSON.stringify(message));
         if (message["open-sticky"] !== undefined && message["open-sticky"]["open"] !== undefined && message["open-sticky"]["open"]) {
             //from main script (script.js)
             //the type indicated 0: global, 1: domain, 2: page, 3: subdomain

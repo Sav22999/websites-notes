@@ -1134,6 +1134,10 @@ div#format-buttons {
     padding: 2px;
 }
 
+#open-sticky-button {
+    z-index: 6;
+}
+
 button.button-format {
     width: 30px !important;
     height: 30px !important;
