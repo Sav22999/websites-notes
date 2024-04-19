@@ -214,7 +214,7 @@ strings[lang] = {
     "notefox-account-message-error-413": "Invalid verification code.",
     "notefox-account-message-error-414": "User already verified.",
     "notefox-account-message-error-415": "Invalid login-id or already verified.",
-    "notefox-account-message-error-416": "Email alreadt used for another account.",
+    "notefox-account-message-error-416": "Email already used for another account.",
     "notefox-account-message-error-417": "Invalid deleting code.",
     "notefox-account-message-error-418": "Invalid credential, account already verified or deleting request expired.",
     "notefox-account-message-error-419": "Email already used for another account but not verified yet.",

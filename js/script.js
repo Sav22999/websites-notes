@@ -1511,6 +1511,7 @@ function loginExpired() {
         section.style.display = "none";
         background.style.display = "none";
         window.open(links_aside_bar["settings"], "_blank");
+        window.close();
     }
     let loginExpiredClose = document.getElementById("login-expired-cancel-button");
     loginExpiredClose.value = all_strings["notefox-account-login-later-button"];
