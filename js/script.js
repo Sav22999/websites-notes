@@ -125,7 +125,7 @@ function checkOpenedBy() {
                 loadUI();
             }
         }
-        sync_local.set({"opened-by-shortcut": "default", "last-update": getDate()});
+        sync_local.set({"opened-by-shortcut": "default"});
     });
     listenerShortcuts();
 }
@@ -145,7 +145,7 @@ function listenerShortcuts() {
             opened_by = 0;
             loadUI();
         }
-        sync_local.set({"opened-by-shortcut": "default", "last-update": getDate()});
+        sync_local.set({"opened-by-shortcut": "default"});
     });
 }
 
@@ -435,6 +435,7 @@ function changeTagColour(url, colour) {
             //console.log(`url ${url}`);
             websites_json[url]["tag-colour"] = colour;
             websites_json_to_show = websites_json;
+            //console.log("QAZ-8")
             sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
                 loadUI();
             });
@@ -696,6 +697,7 @@ function saveNotes(title_call = false) {
         }
         if (currentUrl[1] !== "" && currentUrl[2] !== "") {
             //selected_tab : {0: global | 1:domain | 2:page}
+            //console.log("QAZ-9")
             sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
                 let never_saved = true;
 
@@ -1003,24 +1005,6 @@ function isUrlSupported(url) {
     return valueToReturn;
 }
 
-function getDate() {
-    let todayDate = new Date();
-    let today = "";
-    today = todayDate.getFullYear() + "-";
-    let month = todayDate.getMonth() + 1;
-    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
-    let day = todayDate.getDate();
-    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
-    let hour = todayDate.getHours();
-    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
-    let minute = todayDate.getMinutes();
-    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
-    let second = todayDate.getSeconds();
-    if (second < 10) today = today + "0" + second; else today = today + "" + second
-
-    return today;
-}
-
 function setTab(index, url) {
     loadFormatButtons(false, false);
     hideTabSubDomains();
@@ -1092,6 +1076,7 @@ function openStickyNotes() {
                     websites_json[currentUrl[selected_tab]]["sticky"] = true;
                     websites_json[currentUrl[selected_tab]]["minimized"] = false;
 
+                    //console.log("QAZ-10")
                     sync_local.set({"websites": websites_json, "last-update": getDate()}).then(result => {
                         //console.log("Opening... <5>")
                         browser.runtime.sendMessage({
@@ -1360,6 +1345,7 @@ function spellcheck(force = false, value = false) {
             }
         }
         document.getElementById("notes").focus();
+        //console.log("QAZ-11")
         sync_local.set({"settings": settings_json, "last-update": getDate()}).then(() => {
             sendMessageUpdateToBackground();
         });

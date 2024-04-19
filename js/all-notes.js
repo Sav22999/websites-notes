@@ -331,6 +331,11 @@ function listenerLinks(element) {
     }
 }
 
+function updateLastUpdate() {
+    //console.log("QAZ-7")
+    sync_local.set({"last-update": getDate()});
+}
+
 function loadDataFromBrowser(generate_section = true) {
     try {
         sync_local.get(["websites", "settings"], function (value) {
@@ -387,6 +392,7 @@ function clearAllNotesDomain(url) {
 
         sync_local.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
+            updateLastUpdate();
         });
     }
 }
@@ -404,6 +410,7 @@ function clearAllNotesPage(url, isDomain = false) {
 
         sync_local.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
+            updateLastUpdate();
         });
     }
 }
@@ -830,6 +837,7 @@ function changeTagColour(url, colour) {
         websites_json_to_show = websites_json;
         sync_local.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
+            updateLastUpdate();
         });
     });
 }

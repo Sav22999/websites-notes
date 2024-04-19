@@ -30,13 +30,6 @@ checkSyncLocal();
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;
-    browser.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = browser.storage.sync;
-        else {
-            browser.storage.local.set({"storage": "local"});
-            sync_local = browser.storage.local;
-        }
-    });
     browser.storage.sync.get("installation").then(result => {
         //console.log("Installation")
         //console.log(result)
@@ -137,6 +130,22 @@ function response(response) {
                                     } else {
                                         //console.log("Local data is the same as the server one");
                                     }
+                                } else if (latestUpdateServer === undefined && latestUpdateLocal !== undefined) {
+                                    //No data on server
+                                    //console.log("No data on server");
+
+                                    //send data to the server
+                                    sendLocalDataToServer();
+                                } else if (latestUpdateServer !== undefined && latestUpdateLocal === undefined) {
+                                    //No data on local
+                                    //console.log("No data on local");
+
+                                    let data_to_server = JSON.parse(data["data"]["data"]);
+
+                                    sync_local.set(data_to_server).then(result => {
+                                        //console.log("Data updated from server");
+                                        syncUpdateFromServer();
+                                    });
                                 }
                             });
                         } else if (data.code === 450) {
@@ -160,6 +169,7 @@ function response(response) {
 }
 
 function sendLocalDataToServer() {
+    //console.log("Sending...")
     let data_to_send = {};
 
     browser.storage.local.get(["storage"]).then(getStorageTemp => {
@@ -224,6 +234,7 @@ function sendLocalDataToServer() {
 }
 
 function syncUpdateFromServer() {
+    //console.log("Receiving...")
     browser.runtime.sendMessage({"sync_update": true}).then(response => {
         //console.log("Sync update from server: " + response);
     }).catch((e) => {
@@ -395,6 +406,7 @@ function checkStatus(update = false) {
                         if (websites_json[tab_url] !== undefined && websites_json[tab_url]["title"] === undefined) {
                             //if the title it's not specified yet, so it's set with the title of the tab
                             websites_json[tab_url]["title"] = tab_title;
+                            //console.log("QAZ-1")
                             sync_local.set({
                                 "websites": websites_json,
                                 "last-update": getDate()
@@ -644,15 +656,15 @@ function listenerShortcuts() {
         if (command === "opened-by-domain") {
             //domain
             browser.browserAction.openPopup();
-            sync_local.set({"opened-by-shortcut": "domain", "last-update": getDate()});
+            sync_local.set({"opened-by-shortcut": "domain"});
         } else if (command === "opened-by-page") {
             //page
             browser.browserAction.openPopup();
-            sync_local.set({"opened-by-shortcut": "page", "last-update": getDate()});
+            sync_local.set({"opened-by-shortcut": "page"});
         } else if (command === "opened-by-global") {
             //global
             browser.browserAction.openPopup();
-            sync_local.set({"opened-by-shortcut": "global", "last-update": getDate()});
+            sync_local.set({"opened-by-shortcut": "global"});
         }
     });
 }
@@ -703,6 +715,7 @@ function listenerStickyNotes() {
                             coords.x = message.data.coords.x;
                             coords.y = message.data.coords.y;
 
+                            //console("QAZ-2")
                             sync_local.set({
                                 "websites": websites_json,
                                 "last-update": getDate()
@@ -730,6 +743,7 @@ function listenerStickyNotes() {
                             sizes.w = message.data.sizes.w;
                             sizes.h = message.data.sizes.h;
 
+                            //console.log("QAZ-3")
                             sync_local.set({
                                 "websites": websites_json,
                                 "last-update": getDate()
@@ -753,6 +767,7 @@ function listenerStickyNotes() {
 
                             opacity.value = message.data.opacity.value;
 
+                            //console.log("QAZ-4")
                             sync_local.set({
                                 "websites": websites_json,
                                 "last-update": getDate()
@@ -1063,7 +1078,7 @@ function setOpenedSticky(sticky, minimized) {
                 websites_json[url]["sticky"] = sticky;
                 websites_json[url]["minimized"] = minimized;
 
-                sync_local.set({"websites": websites_json, "last-update": getDate()}).then(result => {
+                sync_local.set({"websites": websites_json}).then(result => {
                     //updated websites with new data
                     //console.log("set || " + JSON.stringify(websites_json[tab_url]));
                     //console.log("set || " + JSON.stringify(websites_json));
@@ -1102,6 +1117,7 @@ function setNewTextFromSticky(text) {
                 websites_json[url]["last-update"] = getDate();
             }
 
+            //console.log("QAZ-6")
             sync_local.set({
                 "websites": websites_json, "last-update": getDate()
             }).then(function () {

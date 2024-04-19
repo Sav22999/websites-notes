@@ -627,6 +627,7 @@ function saveSettings(update_datetime = true) {
         sync_local.get(["settings", "last-update"]).then(rrr1 => {
             let lastUpdateToUse = rrr1["last-update"];
             if (update_datetime) lastUpdateToUse = getDate();
+            //console.log("QAZ-12")
             sync_local.set({"settings": settings_json, "last-update": lastUpdateToUse}).then(resultF => {
                 //Saved
                 let buttonSave = document.getElementById("save-settings-button");
@@ -733,6 +734,7 @@ function updateShortcut(commandName, shortcut) {
 function clearAllNotes() {
     let confirmationClearAllNotes = confirm(all_strings["clear-all-notes-confirmation"]);
     if (confirmationClearAllNotes) {
+        //console.log("QAZ-13")
         sync_local.set({
             "websites": {},
             "settings": {},
@@ -880,6 +882,7 @@ function importAllNotes(from_file = false) {
 
                                     if (json_to_import_temp["last-update"] !== undefined) result["last-update"] = json_to_import_temp["last-update"];
 
+                                    //console.log("QAZ-14")
                                     sync_local.set({
                                         "websites": websites_json,
                                         "settings": settings_json,
@@ -1035,6 +1038,8 @@ function exportAllNotes(to_file = false) {
             for (setting in settings_json) {
                 if (settings_json[setting] === "yes") settings_json[setting] = true; else if (settings_json[setting] === "no") settings_json[setting] = false;
             }
+
+            //console.log("QAZ-15")
             json_to_export = {
                 "notefox": notefox_json,
                 "settings": settings_json,
@@ -1472,6 +1477,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                 title.innerText = all_strings["notefox-account-button-settings-login"];
                 if (document.getElementById("notefox-account-login-section").classList.contains("hidden")) document.getElementById("notefox-account-login-section").classList.remove("hidden");
                 if (document.getElementById("account-section--login-grid").classList.contains("hidden")) document.getElementById("account-section--login-grid").classList.remove("hidden");
+                document.getElementById("text-account").innerHTML = all_strings["notefox-account-logging-in-text"];
 
                 let email = "";
                 let password = "";
@@ -2013,42 +2019,6 @@ function showBackgroundOpacity() {
 
 function hideBackgroundOpacity() {
     document.getElementById("background-opacity").style.display = "none";
-}
-
-function correctDatetime(datetime) {
-    let todayDate = new Date(datetime);
-    let today = "";
-    today = todayDate.getFullYear() + "-";
-    let month = todayDate.getMonth() + 1;
-    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
-    let day = todayDate.getDate();
-    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
-    let hour = todayDate.getHours();
-    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
-    let minute = todayDate.getMinutes();
-    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
-    let second = todayDate.getSeconds();
-    if (second < 10) today = today + "0" + second; else today = today + "" + second
-
-    return today;
-}
-
-function getDate() {
-    let todayDate = new Date();
-    let today = "";
-    today = todayDate.getFullYear() + "-";
-    let month = todayDate.getMonth() + 1;
-    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
-    let day = todayDate.getDate();
-    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
-    let hour = todayDate.getHours();
-    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
-    let minute = todayDate.getMinutes();
-    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
-    let second = todayDate.getSeconds();
-    if (second < 10) today = today + "0" + second; else today = today + "" + second
-
-    return today;
 }
 
 /**

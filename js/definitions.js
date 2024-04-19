@@ -649,3 +649,39 @@ function getIconSvgEncoded(icon, color) {
 function sortObjectByKeys(o) {
     return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
 }
+
+function getDate() {
+    let todayDate = new Date();
+    let today = "";
+    today = todayDate.getFullYear() + "-";
+    let month = todayDate.getMonth() + 1;
+    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
+    let day = todayDate.getDate();
+    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
+    let hour = todayDate.getHours();
+    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
+    let minute = todayDate.getMinutes();
+    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
+    let second = todayDate.getSeconds();
+    if (second < 10) today = today + "0" + second; else today = today + "" + second
+
+    return today;
+}
+
+function correctDatetime(datetime) {
+    let todayDate = new Date(datetime);
+    let today = "";
+    today = todayDate.getFullYear() + "-";
+    let month = todayDate.getMonth() + 1;
+    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
+    let day = todayDate.getDate();
+    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
+    let hour = todayDate.getHours();
+    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
+    let minute = todayDate.getMinutes();
+    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
+    let second = todayDate.getSeconds();
+    if (second < 10) today = today + "0" + second; else today = today + "" + second
+
+    return today;
+}

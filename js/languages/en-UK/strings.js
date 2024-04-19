@@ -196,6 +196,7 @@ strings[lang] = {
     "notefox-account-button-verify-email": "Verify email",
     "notefox-account-button-resend-email": "Get a new code",
     "notefox-account-signing-up-text": "Signing up you're accepting the <a {{parameters1}}>Terms of Service</a> and the <a {{parameters2}}>Privacy Policy</a>. Once you sign up, you'll receive an email with a verification code to confirm your account. If you don't receive the email, check your spam folder. Otherwise, you can ask for another one.<br><b>Pay attention to the password you choose</b>: don't forget it because it's not possible to recover data because it's encrypted with an end-to-end encryption.",
+    "notefox-account-logging-in-text": "If you have any data saved in local, if you log in, they will be synced with server: if server data is different from local data, this means that older data will be overwritten by the newer data.",
     "notefox-account-insert-verification-code-text": "Insert the verification code you received by email from the email address <b>no-reply@notefox.eu</b>. If you don't receive the email, check your spam folder. Otherwise, you can ask for another code.",
     "notefox-account-login-expired-text": "Your login session has expired. Please, log in again.",
     "notefox-account-login-expired-title": "Session expired",
