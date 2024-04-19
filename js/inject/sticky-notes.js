@@ -142,6 +142,7 @@ function updateStickyNotes() {
                 checkDisableWordWrap(text, response.settings);
                 checkLanguageSpellcheck(text, response.settings);
                 checkFontFamily(text, response.settings);
+                checkThemeSticky(text, response.settings, response.icons);
 
                 //(re)set events
                 close.onclick = function () {
@@ -356,6 +357,51 @@ function checkFontFamily(text, settings_json) {
     text.style.fontFamily = font_family + ", sans-serif";
 }
 
+function checkThemeSticky(text, settings_json, icons_json, opacity = 0.8) {
+    if (settings_json["sticky-primary-color"] === undefined || settings_json["sticky-primary-color"] === "") settings_json["sticky-primary-color"] = "#fffd7d";
+    let primary_color = settings_json["sticky-primary-color"];
+
+    if (settings_json["sticky-on-primary-color"] === undefined || settings_json["sticky-on-primary-color"] === "") settings_json["sticky-on-primary-color"] = "#111111";
+    let on_primary_color = settings_json["sticky-on-primary-color"];
+
+    if (settings_json["sticky-secondary-color"] === undefined || settings_json["sticky-secondary-color"] === "") settings_json["sticky-secondary-color"] = "#ff6200";
+    let secondary_color = settings_json["sticky-secondary-color"];
+
+    if (settings_json["sticky-on-secondary-color"] === undefined || settings_json["sticky-on-secondary-color"] === "") settings_json["sticky-on-secondary-color"] = "#ffffff";
+    let on_secondary_color = settings_json["sticky-on-secondary-color"];
+
+    if (icons_json["close"] === undefined) icons_json["close"] = `PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj48c3ZnIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAxMTIgMTEyIiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zOnNlcmlmPSJodHRwOi8vd3d3LnNlcmlmLmNvbS8iIHN0eWxlPSJmaWxsLXJ1bGU6ZXZlbm9kZDtjbGlwLXJ1bGU6ZXZlbm9kZDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLW1pdGVybGltaXQ6MjsiPjxwYXRoIGQ9Ik05LjI1OSw4My4zMzNjMCwtOC43MjkgMCwtMTMuMDk0IDIuNzEyLC0xNS44MDdjMi43MTIsLTIuNzEyIDcuMDc3LC0yLjcxMiAxNS44MDcsLTIuNzEyYzguNzMsMCAxMy4wOTUsMCAxNS44MDcsMi43MTJjMi43MTIsMi43MTIgMi43MTIsNy4wNzcgMi43MTIsMTUuODA3YzAsOC43MyAwLDEzLjA5NSAtMi43MTIsMTUuODA3Yy0yLjcxMiwyLjcxMiAtNy4wNzcsMi43MTIgLTE1LjgwNywyLjcxMmMtOC43MywwIC0xMy4wOTQsMCAtMTUuODA3LC0yLjcxMmMtMi43MTIsLTIuNzEyIC0yLjcxMiwtNy4wNzcgLTIuNzEyLC0xNS44MDdaIiBzdHlsZT0iZmlsbDojZmZmO2ZpbGwtcnVsZTpub256ZXJvO3N0cm9rZTojZmZmO3N0cm9rZS13aWR0aDowLjE0cHg7Ii8+PHBhdGggZD0iTTE2LjAzOSwxNi4wMzljLTYuNzgsNi43OCAtNi43OCwxNy42OTIgLTYuNzgsMzkuNTE3YzAsMS44MzEgMCwzLjU4NiAwLjAwNCw1LjI2N2MyLjM1MiwtMS41NDIgNC45NDQsLTIuMjE3IDcuNDI5LC0yLjU1MmMyLjk4OSwtMC40MDIgNi42NjQsLTAuNDAxIDEwLjY3MSwtMC40MDFsMC44MjksMGM0LjAwNywtMCA3LjY4MiwtMC4wMDEgMTAuNjcxLDAuNDAxYzMuMjkxLDAuNDQzIDYuNzcsMS40ODQgOS42MzIsNC4zNDVjMi44NjEsMi44NjIgMy45MDIsNi4zNDEgNC4zNDUsOS42MzJjMC40MDEsMi45ODkgMC40MDEsNi42NjQgMC40LDEwLjY3MWwwLDAuODI5YzAuMDAxLDQuMDA4IDAuMDAxLDcuNjgyIC0wLjQsMTAuNjdjLTAuMzM1LDIuNDg2IC0xLjAxLDUuMDc3IC0yLjU1Miw3LjQzYzEuNjgyLDAuMDA0IDMuNDM2LDAuMDA0IDUuMjY3LDAuMDA0YzIxLjgyNCwtMCAzMi43MzYsLTAgMzkuNTE3LC02Ljc4YzYuNzgsLTYuNzggNi43OCwtMTcuNjkyIDYuNzgsLTM5LjUxN2MtMCwtMjEuODI1IC0wLC0zMi43MzYgLTYuNzgsLTM5LjUxN2MtNi43OCwtNi43NzkgLTE3LjY5MiwtNi43NzkgLTM5LjUxNywtNi43NzljLTIxLjgyNSwtMCAtMzIuNzM2LC0wIC0zOS41MTYsNi43NzlsLTAsMC4wMDFabTQ1LjMwMywxMi44OTZjLTEuOTE4LC0wIC0zLjQ3MywxLjU1NCAtMy40NzMsMy40NzJjMCwxLjkxOCAxLjU1NSwzLjQ3MiAzLjQ3MywzLjQ3Mmw4Ljk3OCwwbC0xNy4yMjEsMTcuMjIxYy0xLjM1NiwxLjM1NiAtMS4zNTYsMy41NTQgMCw0LjkxYzEuMzU2LDEuMzU2IDMuNTU0LDEuMzU2IDQuOTEsMGwxNy4yMjEsLTE3LjIybDAsOC45NzhjMCwxLjkxOCAxLjU1NSwzLjQ3MiAzLjQ3MiwzLjQ3MmMxLjkxOCwwIDMuNDczLC0xLjU1NCAzLjQ3MywtMy40NzJsLTAsLTE3LjM2MWMtMCwtMS45MTggLTEuNTU1LC0zLjQ3MiAtMy40NzMsLTMuNDcybC0xNy4zNjEsLTBsMC4wMDEsLTBaIiBzdHlsZT0iZmlsbDojZmZmO3N0cm9rZTojZmZmO3N0cm9rZS13aWR0aDowLjE0cHg7Ii8+PC9zdmc+`;
+    let svg_image_close = icons_json["close"];
+
+    if (icons_json["minimize"] === undefined) icons_json["minimize"] = `PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+Cjxzdmcgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDMzNCAzMzQiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM6c2VyaWY9Imh0dHA6Ly93d3cuc2VyaWYuY29tLyIgc3R5bGU9ImZpbGwtcnVsZTpldmVub2RkO2NsaXAtcnVsZTpldmVub2RkO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDoyOyI+CiAgICA8ZyB0cmFuc2Zvcm09Im1hdHJpeCgwLjQxNjY2NywwLDAsMC40MTY2NjcsMCwwKSI+CiAgICAgICAgPHBhdGggZD0iTTUzNy41LDQwMEM1MzcuNSwzODYuMTkzIDUyNi4zMDcsMzc1IDUxMi41LDM3NUwxNDYuNzQ4LDM3NUwyMTIuMTAzLDMxOC45ODFDMjIyLjU4NiwzMDkuOTk2IDIyMy44LDI5NC4yMTMgMjE0LjgxNSwyODMuNzNDMjA1LjgyOSwyNzMuMjQ3IDE5MC4wNDcsMjcyLjAzMyAxNzkuNTY0LDI4MS4wMTlMNjIuODk3LDM4MS4wMkM1Ny4zNTYsMzg1Ljc2NyA1NC4xNjcsMzkyLjcwMyA1NC4xNjcsNDAwQzU0LjE2Nyw0MDcuMjk3IDU3LjM1Niw0MTQuMjMzIDYyLjg5Nyw0MTguOThMMTc5LjU2NCw1MTguOThDMTkwLjA0Nyw1MjcuOTY3IDIwNS44MjksNTI2Ljc1MyAyMTQuODE1LDUxNi4yN0MyMjMuOCw1MDUuNzg3IDIyMi41ODYsNDkwLjAwMyAyMTIuMTAzLDQ4MS4wMkwxNDYuNzQ4LDQyNUw1MTIuNSw0MjVDNTI2LjMwNyw0MjUgNTM3LjUsNDEzLjgwNyA1MzcuNSw0MDBaIiBzdHlsZT0iZmlsbDp3aGl0ZTsiLz4KICAgICAgICA8cGF0aCBkPSJNMzEyLjUsMjY2LjY2N0MzMTIuNSwyOTAuMDczIDMxMi41LDMwMS43NzYgMzE4LjExNywzMTAuMTgzQzMyMC41NDksMzEzLjgyNCAzMjMuNjc1LDMxNi45NDkgMzI3LjMxNSwzMTkuMzgyQzMzNS43MjMsMzI0Ljk5OSAzNDcuNDI3LDMyNC45OTkgMzcwLjgzMywzMjQuOTk5TDUxMi41LDMyNC45OTlDNTUzLjkyLDMyNC45OTkgNTg3LjUsMzU4LjU3NyA1ODcuNSw0MDBDNTg3LjUsNDQxLjQyIDU1My45Miw0NzUgNTEyLjUsNDc1TDM3MC44MzMsNDc1QzM0Ny40MjcsNDc1IDMzNS43Miw0NzUgMzI3LjMxMyw0ODAuNjE3QzMyMy42NzQsNDgzLjA1IDMyMC41NSw0ODYuMTczIDMxOC4xMTgsNDg5LjgxM0MzMTIuNSw0OTguMjIgMzEyLjUsNTA5LjkyMyAzMTIuNSw1MzMuMzMzQzMxMi41LDYyNy42MTMgMzEyLjUsNjc0Ljc1MyAzNDEuNzksNzA0LjA0M0MzNzEuMDgsNzMzLjMzMyA0MTguMjEzLDczMy4zMzMgNTEyLjQ5Myw3MzMuMzMzTDU0NS44MjcsNzMzLjMzM0M2NDAuMTA3LDczMy4zMzMgNjg3LjI0Nyw3MzMuMzMzIDcxNi41MzcsNzA0LjA0M0M3NDUuODI3LDY3NC43NTMgNzQ1LjgyNyw2MjcuNjEzIDc0NS44MjcsNTMzLjMzM0w3NDUuODI3LDI2Ni42NjdDNzQ1LjgyNywxNzIuMzg2IDc0NS44MjcsMTI1LjI0NSA3MTYuNTM3LDk1Ljk1NkM2ODcuMjQ3LDY2LjY2NyA2NDAuMTA3LDY2LjY2NyA1NDUuODI3LDY2LjY2N0w1MTIuNDkzLDY2LjY2N0M0MTguMjEzLDY2LjY2NyAzNzEuMDgsNjYuNjY3IDM0MS43OSw5NS45NTZDMzEyLjUsMTI1LjI0NSAzMTIuNSwxNzIuMzg2IDMxMi41LDI2Ni42NjdaIiBzdHlsZT0iZmlsbDp3aGl0ZTtmaWxsLXJ1bGU6bm9uemVybzsiLz4KICAgIDwvZz4KPC9zdmc+Cg==`;
+    let svg_image_minimize = icons_json["minimize"];
+
+    if (icons_json["restore"] === undefined || icons_json["restore"] === "") icons_json["restore"] = `PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+Cjxzdmcgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDMzNCAzMzQiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM6c2VyaWY9Imh0dHA6Ly93d3cuc2VyaWYuY29tLyIgc3R5bGU9ImZpbGwtcnVsZTpldmVub2RkO2NsaXAtcnVsZTpldmVub2RkO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDoyOyI+CiAgICA8ZyB0cmFuc2Zvcm09Im1hdHJpeCgwLjQxNjY2NywwLDAsMC40MTY2NjcsMCwwKSI+CiAgICAgICAgPHBhdGggZD0iTTU0LjE2Nyw0MDBDNTQuMTY3LDQxMy44MDcgNjUuMzYsNDI1IDc5LjE2Nyw0MjVMNDQ0LjkyLDQyNUwzNzkuNTYzLDQ4MS4wMkMzNjkuMDgsNDkwLjAwMyAzNjcuODY3LDUwNS43ODcgMzc2Ljg1Myw1MTYuMjdDMzg1LjgzNyw1MjYuNzUzIDQwMS42Miw1MjcuOTY3IDQxMi4xMDMsNTE4Ljk4TDUyOC43Nyw0MTguOThDNTM0LjMxLDQxNC4yMzMgNTM3LjUsNDA3LjI5NyA1MzcuNSw0MDBDNTM3LjUsMzkyLjcwMyA1MzQuMzEsMzg1Ljc2NyA1MjguNzcsMzgxLjAyTDQxMi4xMDMsMjgxLjAxOUM0MDEuNjIsMjcyLjAzMyAzODUuODM3LDI3My4yNDcgMzc2Ljg1MywyODMuNzNDMzY3Ljg2NywyOTQuMjEzIDM2OS4wOCwzMDkuOTk2IDM3OS41NjMsMzE4Ljk4MUw0NDQuOTIsMzc1TDc5LjE2NywzNzVDNjUuMzYsMzc1IDU0LjE2NywzODYuMTkzIDU0LjE2Nyw0MDBaIiBzdHlsZT0iZmlsbDp3aGl0ZTsiLz4KICAgICAgICA8cGF0aCBkPSJNMzEyLjUsMzI1LjAwMUwzMjUuMTA5LDMyNS4wMDFDMzE2LjQ5MSwzMDAuNTQ4IDMyMC44MDMsMjcyLjI5MiAzMzguODksMjUxLjE5MkMzNjUuODQ3LDIxOS43NDMgNDEzLjE5MywyMTYuMSA0NDQuNjQzLDI0My4wNTdMNTYxLjMxLDM0My4wNTdDNTc3LjkzMywzNTcuMzA3IDU4Ny41LDM3OC4xMDcgNTg3LjUsNDAwQzU4Ny41LDQyMS44OTcgNTc3LjkzMyw0NDIuNjk3IDU2MS4zMSw0NTYuOTQ3TDQ0NC42NDMsNTU2Ljk0N0M0MTMuMTkzLDU4My45MDMgMzY1Ljg0Nyw1ODAuMjYgMzM4Ljg5LDU0OC44MUMzMjAuODAzLDUyNy43MSAzMTYuNDkxLDQ5OS40NTMgMzI1LjEwOSw0NzVMMzEyLjUsNDc1TDMxMi41LDUzMy4zMzNDMzEyLjUsNjI3LjYxMyAzMTIuNSw2NzQuNzUzIDM0MS43OSw3MDQuMDQzQzM3MS4wOCw3MzMuMzMzIDQxOC4yMiw3MzMuMzMzIDUxMi41LDczMy4zMzNMNTQ1LjgzMyw3MzMuMzMzQzY0MC4xMTMsNzMzLjMzMyA2ODcuMjUzLDczMy4zMzMgNzE2LjU0Myw3MDQuMDQzQzc0NS44MzMsNjc0Ljc1MyA3NDUuODMzLDYyNy42MTMgNzQ1LjgzMyw1MzMuMzMzTDc0NS44MzMsMjY2LjY2N0M3NDUuODMzLDE3Mi4zODYgNzQ1LjgzMywxMjUuMjQ1IDcxNi41NDMsOTUuOTU2QzY4Ny4yNTMsNjYuNjY3IDY0MC4xMTMsNjYuNjY3IDU0NS44MzMsNjYuNjY3TDUxMi41LDY2LjY2N0M0MTguMjIsNjYuNjY3IDM3MS4wOCw2Ni42NjcgMzQxLjc5LDk1Ljk1NkMzMTIuNSwxMjUuMjQ1IDMxMi41LDE3Mi4zODYgMzEyLjUsMjY2LjY2N0wzMTIuNSwzMjUuMDAxWiIgc3R5bGU9ImZpbGw6d2hpdGU7ZmlsbC1ydWxlOm5vbnplcm87Ii8+CiAgICA8L2c+Cjwvc3ZnPgo=`;
+    let svg_image_restore = icons_json["restore"];
+
+    document.getElementById("sticky-notes-notefox-addon").style.backgroundColor = primary_color + "";
+    document.getElementById("sticky-notes-notefox-addon").style.color = on_primary_color + "";
+    document.getElementById("close--sticky-notes-notefox-addon").style.backgroundImage = `url("data:image/svg+xml;base64,${svg_image_close}")`;
+    document.getElementById("close--sticky-notes-notefox-addon").style.backgroundColor = secondary_color + "";
+    document.getElementById("close--sticky-notes-notefox-addon").style.color = on_secondary_color + "";
+    document.getElementById("minimize--sticky-notes-notefox-addon").style.backgroundImage = `url("data:image/svg+xml;base64,${svg_image_minimize}")`;
+    document.getElementById("minimize--sticky-notes-notefox-addon").style.backgroundColor = secondary_color + "";
+    document.getElementById("minimize--sticky-notes-notefox-addon").style.color = on_secondary_color + "";
+    document.getElementById("slider-container--sticky-notes-notefox-addon").style.borderColor = secondary_color + "";
+    document.getElementById("slider--sticky-notes-notefox-addon").style.background = `linear-gradient(to right, ${secondary_color} 0%, ${secondary_color} ${(opacity * 100)} %, #eeeeee ${(opacity * 100)}%, #eeeeee 100%)`;
+    document.getElementById("move--sticky-notes-notefox-addon").style.backgroundColor = secondary_color + "";
+    document.getElementById("move--sticky-notes-notefox-addon").style.color = on_secondary_color + "";
+    document.getElementById("page-or-domain--sticky-notes-notefox-addon").style.backgroundColor = secondary_color + "";
+    document.getElementById("page-or-domain--sticky-notes-notefox-addon").style.color = on_secondary_color + "";
+    document.getElementById("text-container--sticky-notes-notefox-addon").style.color = on_secondary_color + "";
+    document.getElementById("text--sticky-notes-notefox-addon").style.color = on_primary_color + "";
+    document.getElementById("resize--sticky-notes-notefox-addon").style.borderRightColor = secondary_color;
+
+    /*document.getElementById("restore--sticky-notes-notefox-addon").style.backgroundImage = `url("data:image/svg+xml;base64,${svg_image_restore}")`;
+    document.getElementById("restore--sticky-notes-notefox-addon").style.backgroundColor = secondary_color + " !important";
+    document.getElementById("restore--sticky-notes-notefox-addon").style.color = on_secondary_color + " !important";*/
+}
+
 function isAPage(url) {
     return (url.replace("http://", "").replace("https://", "").split("/").length > 1);
 }
@@ -396,7 +442,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 left:  ${x};
                 width: ${w};
                 height:  ${h};
-                background-color: ${primary_color} !important;
+                background-color: ${primary_color};
                 opacity: ${opacity};
                 z-index: 99999999999;
                 padding: 15px !important;
@@ -407,7 +453,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 cursor: default;
                 box-shadow: 0px 0px 5px rgba(255,98,0,0.27);
                 font-family: inherit;
-                color: ${on_primary_color} !important;
+                color: ${on_primary_color};
                 font-size: 17px;
                 background-image: url('data:image/svg+xml;base64,${svg_background_image}');
                 background-position: left 50% bottom 10px;
@@ -426,7 +472,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 right: 40%;
                 width: auto;
                 height: 20px;
-                background-color: ${secondary_color} !important;
+                background-color: ${secondary_color};
                 opacity: 1;
                 cursor: grab;
                 border-radius: 0px 0px 10px 10px;
@@ -437,7 +483,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 padding: 2px 5px !important;
                 font-size: 10px !important;
                 border: 0px solid transparent;
-                color: ${on_secondary_color} !important;
+                color: ${on_secondary_color};
                 margin: 0px !important;
                 text-align: center;
                 box-sizing: border-box !important;
@@ -466,6 +512,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 margin: 0px !important;
                 padding: 0px !important;
                 box-sizing: border-box !important;
+                border-right-color: ${secondary_color};
             }
             #resize--sticky-notes-notefox-addon:active, #resize--sticky-notes-notefox-addon:focus{
                 cursor: nwse-resize;
@@ -477,7 +524,9 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 top: 0;
                 left: 0;
                 border-top: 10px solid transparent;
-                border-right: 10px solid ${secondary_color};
+                border-right-width: 10px;
+                border-right-style: solid;
+                border-right-color: inherit;
                 width: 0;
             }
             #text--sticky-notes-notefox-addon {
@@ -494,7 +543,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 margin: 0px !important;
                 box-sizing: border-box !important;
                 background-color: transparent;
-                color: ${on_primary_color} !important;
+                color: ${on_primary_color};
                 opacity: 1;
                 cursor: text;
                 z-index: 1;
@@ -600,7 +649,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
             }
             #text--sticky-notes-notefox-addon:focus {
                 outline: none;
-                box-shadow: 0px 0px 0px 3px ${secondary_color} !important;
+                box-shadow: 0px 0px 0px 3px ${secondary_color} inset;
             }
             
             #text--sticky-notes-notefox-addon, #text--sticky-notes-notefox-addon * {
@@ -654,7 +703,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
             #slider--sticky-notes-notefox-addon {
                 width: 100%;
                 height: 5px;
-                background: linear-gradient(to right, ${secondary_color} 0%, ${secondary_color} ${opacity * 100}%, ${on_secondary_color} ${opacity * 100}%, #eeeeee 100%);
+                background: linear-gradient(to right, ${secondary_color} 0%, ${secondary_color} ${opacity * 100}%, #eeeeee ${opacity * 100}%, #eeeeee 100%);
                 border: 1px solid ${secondary_color};
                 outline: none;
                 opacity: 0.7;
@@ -1098,9 +1147,9 @@ function getCSSMinimized(settings_json, icons_json) {
                 opacity: 0.2;
                 background-repeat: no-repeat;
                 background-position: center center;
-                background-color: #ff6200;
+                background-color: ${secondary_color};
                 border: 0px solid transparent;
-                color: #ffffff;
+                color: ${on_secondary_color};
                 cursor: pointer;
                 margin: 0px !important;
                 padding: 0px !important;
@@ -1122,66 +1171,4 @@ function getCSSMinimized(settings_json, icons_json) {
                 width: 30px;
                 box-shadow: 0px 0px 5px #fff;
             }`;
-}
-
-function hexToRgb(hex) {
-    // Remove # if present
-    hex = hex.replace('#', '');
-
-    // Convert to RGB
-    var r = parseInt(hex.substring(0, 2), 16);
-    var g = parseInt(hex.substring(2, 4), 16);
-    var b = parseInt(hex.substring(4, 6), 16);
-
-    return [r, g, b];
-}
-
-function getFilterFromHex(hex) {
-    var [r, g, b] = hexToRgb(hex);
-    var filter = '';
-
-    // Check RGB values and apply appropriate filter
-    if (r + g + b > 382) {
-        filter += 'brightness(0.5) ';
-    } else {
-        filter += 'brightness(1.5) ';
-    }
-
-    if (r < 85 && g < 85 && b < 85) {
-        filter += 'contrast(1.5) ';
-    } else {
-        filter += 'contrast(0.5) ';
-    }
-
-    if (r < 170 && g < 170 && b < 170) {
-        filter += 'sepia(0.5) ';
-    } else {
-        filter += 'sepia(0) ';
-    }
-
-    var max = Math.max(r, g, b);
-    var min = Math.min(r, g, b);
-    var delta = max - min;
-    var h, s;
-
-    if (delta === 0) {
-        h = 0;
-    } else if (max === r) {
-        h = 60 * ((g - b) / delta % 6);
-    } else if (max === g) {
-        h = 60 * ((b - r) / delta + 2);
-    } else {
-        h = 60 * ((r - g) / delta + 4);
-    }
-
-    if (max === 0) {
-        s = 0;
-    } else {
-        s = delta / max;
-    }
-
-    filter += 'hue-rotate(' + h + 'deg) ';
-    filter += 'saturate(' + (s * 100) + '%) ';
-
-    return filter.trim();
 }

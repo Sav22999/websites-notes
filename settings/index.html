@@ -179,7 +179,7 @@ Created by Saverio Morelli - saveriomorelli.com
                         </span>
                     </div>
 
-                    <div class="text-align-left">
+                    <div class="text-align-left margin-top-20-px">
                         <input type="button" value="" class="button button-close-notefox-account"/>
                     </div>
                 </div>
@@ -193,14 +193,6 @@ Created by Saverio Morelli - saveriomorelli.com
                 </div>
             </div>
         </div>
-    </div>
-
-    <div id="disable-sync" class="hidden section section-warning">
-        Due to some space limitation with "sync" I advise you to disable the data synced in this page. Otherwise, the
-        add-on should not work properly anymore!
-        <br>
-        To do that, in the add-on Settings find <span class="button-code" id="string-save-on-local-instead-of-sync">Save data locally instead of sync with Firefox account</span>
-        and set to <span id="string-save-on-local-instead-of-sync-yes" class="button-code">Yes</span>.
     </div>
 
     <span id="settings-sections">
@@ -380,7 +372,6 @@ Created by Saverio Morelli - saveriomorelli.com
             </span>
         </div>
         -->
-
         <div class="option-settings">
             <span class="item-settings section-grid-container">
                 <span class="title-option-settings section-grid-item-text" id="theme-text"></span>
@@ -415,38 +406,71 @@ Created by Saverio Morelli - saveriomorelli.com
             </span>
         </div>
 
-        <!--<div class="option-settings">
+        <!--Sticky theme section-->
+        <div class="option-settings">
             <span class="item-settings section-grid-container">
                 <span class="title-option-settings section-grid-item-text" id="sticky-theme-text"></span>
                 <span class="section-grid-item-select"></span>
                 <span class="description-option-settings display-block" id="sticky-theme-detailed-text"></span>
             </span>
-            <span class="theme-section-radio-container">
+            <span class="sticky-theme-section-radio-container">
                 <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-yellow">
-                    <input name="theme-radio" type="radio" value="yellow">
-                    <span class="item-radio-theme-preview-container" id="radio-sticky-theme-yellow">
-                        <span class="item-radio-theme-preview-item primary">A</span>
+                    <input name="theme-radio-sticky" type="radio" value="yellow">
+                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-yellow">
+                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-yellow">A</span>
                     </span>
                     <span class="item-radio-title" id="sticky-theme-select-yellow"></span>
                 </label>
 
                 <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-cyan">
-                    <input name="theme-radio" type="radio" value="cyan">
-                    <span class="item-radio-theme-preview-container" id="radio-sticky-theme-cyan">
-                        <span class="item-radio-theme-preview-item primary">A</span>
+                    <input name="theme-radio-sticky" type="radio" value="cyan">
+                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-cyan">
+                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-cyan">A</span>
                     </span>
                     <span class="item-radio-title" id="sticky-theme-select-cyan"></span>
                 </label>
 
-                <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-{{COLOR}}">
-                    <input name="theme-radio" type="radio" value="{{COLOR}}">
-                    <span class="item-radio-theme-preview-container" id="radio-sticky-theme-{{COLOR}}">
-                        <span class="item-radio-theme-preview-item primary">A</span>
+                <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-lime">
+                    <input name="theme-radio-sticky" type="radio" value="lime">
+                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-lime">
+                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-lime">A</span>
                     </span>
-                    <span class="item-radio-title" id="sticky-theme-select-{{COLOR}}"></span>
+                    <span class="item-radio-title" id="sticky-theme-select-lime"></span>
+                </label>
+
+                <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-pink">
+                    <input name="theme-radio-sticky" type="radio" value="pink">
+                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-pink">
+                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-pink">A</span>
+                    </span>
+                    <span class="item-radio-title" id="sticky-theme-select-pink"></span>
+                </label>
+
+                <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-white">
+                    <input name="theme-radio-sticky" type="radio" value="white">
+                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-white">
+                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-white">A</span>
+                    </span>
+                    <span class="item-radio-title" id="sticky-theme-select-white"></span>
+                </label>
+
+                <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-black">
+                    <input name="theme-radio-sticky" type="radio" value="black">
+                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-black">
+                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-black">A</span>
+                    </span>
+                    <span class="item-radio-title" id="sticky-theme-select-black"></span>
+                </label>
+
+                <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-auto">
+                    <input name="theme-radio-sticky" type="radio" value="auto">
+                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-auto">
+                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-auto">A</span>
+                    </span>
+                    <span class="item-radio-title" id="sticky-theme-select-auto"></span>
                 </label>
             </span>
-        </div>-->
+        </div>
 
         <!--Font family section-->
         <div class="option-settings">
@@ -560,7 +584,7 @@ Created by Saverio Morelli - saveriomorelli.com
             <span class="item-settings section-grid-container">
                 <span class="title-option-settings section-grid-item-text" id="clear-all-notes-text"></span>
                 <span class="section-grid-item-select">
-                    <input type="button" value="Clear all notes" id="clear-all-notes-button"
+                    <input type="button" value="" id="clear-all-notes-button"
                            class="button clear-button"/>
                 </span>
                 <span class="description-option-settings" id="clear-all-notes-detailed-text"></span>
@@ -615,17 +639,6 @@ Created by Saverio Morelli - saveriomorelli.com
             </label>
             <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                   id="check-with-all-supported-protocols-detailed-text"></span>
-        </div>
-
-        <!--Save on local instead of sync section-->
-        <div class="option-settings" id="sync-instead-of-local">
-            <label class="item-settings">
-                <span class="title-option-settings yes-no-item" id="save-on-local-instead-of-sync-text"></span>
-                <input type="checkbox" id="save-on-local-instead-of-sync-check"/>
-                <span class="checkmark"></span>
-            </label>
-            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                  id="save-on-local-instead-of-sync-detailed-text"></span>
         </div>
     </span>
 </div>

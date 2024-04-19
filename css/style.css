@@ -1467,12 +1467,90 @@ aside > button.sel, aside > button.sel:hover {
     max-width: 85%;
 }
 
-.theme-section-radio-container {
+.theme-section-radio-container, .sticky-theme-section-radio-container {
     display: grid;
     text-align: center;
     grid-template-areas: 'auto auto auto';
     gap: 10px 10px;
 }
+
+.sticky-theme-section-radio-container {
+    grid-template-areas: 'auto auto auto auto auto auto auto';
+}
+
+/*start - sticky-notes theme*/
+#item-radio-sticky-theme-yellow {
+    background-color: #ff6200;
+}
+#sticky-theme-select-yellow {
+    color: #ffffff;
+}
+#primary-sticky-theme-yellow {
+    background-color: #fffd7d;
+    color: #111111;
+}
+
+#item-radio-sticky-theme-cyan {
+    background-color: #00b5e2;
+}
+#sticky-theme-select-cyan {
+    color: #ffffff;
+}
+#primary-sticky-theme-cyan {
+    background-color: #b3f0ff;
+    color: #111111;
+}
+
+
+#item-radio-sticky-theme-lime {
+    background-color: #a6e22e;
+}
+#sticky-theme-select-lime {
+    color: #111111;
+}
+#primary-sticky-theme-lime {
+    background-color: #d4f7a6;
+    color: #111111;
+}
+
+
+#item-radio-sticky-theme-pink {
+    background-color: #ff00ff;
+}
+#sticky-theme-select-pink {
+    color: #ffffff;
+}
+#primary-sticky-theme-pink {
+    background-color: #ffccff;
+    color: #111111;
+}
+
+
+#item-radio-sticky-theme-white {
+    background-color: #cccccc;
+}
+#sticky-theme-select-white {
+    color: #111111;
+}
+#primary-sticky-theme-white {
+    background-color: #f5f5f5;
+    color: #111111;
+}
+
+
+#item-radio-sticky-theme-black {
+    background-color: #000000;
+}
+#sticky-theme-select-black {
+    color: #ffffff;
+}
+#primary-sticky-theme-black {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+
+/*end - sticky-notes-theme*/
 
 hr {
     border: 0px solid transparent;
@@ -1512,25 +1590,25 @@ hr.hr-domain:last-child {
 }
 
 @media screen and (max-width: 1700px) {
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, hr {
         width: 70%;
     }
 }
 
 @media screen and (max-width: 150px) {
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, hr {
         width: 80%;
     }
 }
 
 @media screen and (max-width: 1300px) {
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, hr {
         width: 90%;
     }
 }
 
 @media screen and (max-width: 1200px) {
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, hr {
         width: 100%;
     }
 }
@@ -1545,17 +1623,17 @@ hr.hr-domain:last-child {
         text-align: left;
     }
 
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container {
         width: 100%;
     }
 
-    .theme-section-radio-container {
+    .theme-section-radio-container, .sticky-theme-section-radio-container {
         grid-template-areas: 'auto';
     }
 }
 
 
-.item-radio-theme {
+.item-radio-theme, .item-radio-sticky-theme {
     display: inline-block;
     position: relative;
     padding: 0px;
@@ -1569,7 +1647,7 @@ hr.hr-domain:last-child {
     overflow: hidden;
 }
 
-.item-radio-theme input[type="radio"] {
+.item-radio-theme input[type="radio"], .item-radio-sticky-theme input[type="radio"] {
     position: absolute;
     opacity: 0;
     cursor: pointer;
@@ -1583,7 +1661,7 @@ hr.hr-domain:last-child {
     background-color: inherit;
 }
 
-.item-radio-theme-preview-container {
+.item-radio-theme-preview-container, .item-radio-sticky-theme-preview-container {
     height: auto;
     width: 100%;
     background-color: transparent;
@@ -1591,6 +1669,10 @@ hr.hr-domain:last-child {
     row-gap: 0px;
     column-gap: 0px;
     grid-template-areas: 'primary secondary';
+}
+
+.item-radio-sticky-theme-preview-container {
+    grid-template-areas: 'primary';
 }
 
 .item-radio-theme-preview-item {
@@ -2018,4 +2100,8 @@ hr.hr-domain:last-child {
 
 .margin-top-10-px {
     margin-top: 10px !important;
+}
+
+.margin-top-20-px {
+    margin-top: 20px !important;
 }

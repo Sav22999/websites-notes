@@ -13,18 +13,14 @@ var json_to_export = {};
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;
-    browser.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = browser.storage.sync; else {
-            browser.storage.local.set({"storage": "local"});
-            sync_local = browser.storage.local;
-        }
-        checkTheme();
-    });
+    checkTheme();
 }
 
 var currentOS = "default"; //default: win, linux, ecc. | mac
 var letters_and_numbers = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 var ctrl_alt_shift = ["default", "domain", "page"];
+
+var colours_auto = {"primary": "", "on-primary": "", "secondary": "", "on-secondary": ""};
 
 function loaded() {
     browser.runtime.onMessage.addListener((message) => {
@@ -93,12 +89,6 @@ function loaded() {
         saveSettings();
     };
 
-    document.getElementById("save-on-local-instead-of-sync-check").onchange = function () {
-        settings_json["save-on-local-not-sync"] = document.getElementById("save-on-local-instead-of-sync-check").checked;
-
-        saveSettings();
-    };
-
     document.getElementById("advanced-managing-check").onchange = function () {
         settings_json["advanced-managing"] = document.getElementById("advanced-managing-check").checked;
 
@@ -124,6 +114,7 @@ function loaded() {
     };
 
     setThemeChooser();
+    setStickyThemeChooser();
 
     document.getElementById("check-green-icon-global-check").onchange = function () {
         settings_json["check-green-icon-global"] = document.getElementById("check-green-icon-global-check").checked;
@@ -239,6 +230,99 @@ function setThemeChooserByElement(element, set_variable = true) {
     checkTheme();
 }
 
+function setStickyThemeChooser() {
+    document.querySelectorAll('.item-radio-sticky-theme input[name="theme-radio-sticky"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            setStickyThemeChooserByElement(input);
+        });
+    });
+}
+
+function resetStickyThemeChooser() {
+    document.querySelectorAll('.item-radio-sticky-theme input[name="theme-radio-sticky"]').forEach(function (input) {
+        input.closest('.item-radio-sticky-theme').style.boxShadow = 'none';
+    });
+
+}
+
+function setStickyThemeChooserByElement(element, set_variable = true) {
+    resetStickyThemeChooser();
+    element.closest('.item-radio-sticky-theme').style.boxShadow = '0px 0px 0px 5px var(--tertiary-transparent-2)';
+    if (set_variable) {
+        settings_json["sticky-theme"] = element.value;
+
+        let colours = getStickyNotesColoursByElement(element.value);
+
+        settings_json["sticky-primary-color"] = colours[0];
+        settings_json["sticky-on-primary-color"] = colours[1];
+        settings_json["sticky-secondary-color"] = colours[2];
+        settings_json["sticky-on-secondary-color"] = colours[3];
+
+        saveSettings();
+    }
+    sendMessageUpdateToBackground();
+}
+
+function getStickyNotesColoursByElement(colour) {
+    let primary = "#fffd7d";
+    let on_primary = "#111111";
+    let secondary = "#ff6200";
+    let on_secondary = "#ffffff";
+
+    switch (colour) {
+        case "yellow":
+            primary = "#fffd7d";
+            on_primary = "#111111";
+            secondary = "#ff6200";
+            on_secondary = "#ffffff";
+            break;
+
+        case "lime":
+            primary = "#d4f7a6";
+            on_primary = "#111111";
+            secondary = "#a6e22e";
+            on_secondary = "#111111";
+            break;
+
+        case "cyan":
+            primary = "#b3f0ff";
+            on_primary = "#111111";
+            secondary = "#00b5e2";
+            on_secondary = "#ffffff";
+            break;
+
+        case "pink":
+            primary = "#ffccff";
+            on_primary = "#111111";
+            secondary = "#ff00ff";
+            on_secondary = "#ffffff";
+            break;
+
+        case "white":
+            primary = "#f5f5f5";
+            on_primary = "#111111";
+            secondary = "#cccccc";
+            on_secondary = "#111111";
+            break;
+
+        case "black":
+            primary = "#333333";
+            on_primary = "#ffffff";
+            secondary = "#000000";
+            on_secondary = "#ffffff";
+            break;
+
+        case "auto":
+            primary = colours_auto["primary"];
+            on_primary = colours_auto["on-primary"];
+            secondary = colours_auto["secondary"];
+            on_secondary = colours_auto["on-secondary"];
+            break;
+    }
+
+    return [primary, on_primary, secondary, on_secondary];
+}
+
 function tabUpdated() {
     checkTheme();
     browser.storage.local.get(["settings"]).then(result => {
@@ -264,8 +348,6 @@ function setLanguageUI() {
     document.getElementById("consider-parameters-detailed-text").innerHTML = all_strings["consider-parameters-detailed"];
     document.getElementById("consider-sections-text").innerText = all_strings["consider-sections"];
     document.getElementById("consider-sections-detailed-text").innerHTML = all_strings["consider-sections-detailed"];
-    document.getElementById("save-on-local-instead-of-sync-text").innerText = all_strings["save-on-local-instead-of-sync"];
-    document.getElementById("save-on-local-instead-of-sync-detailed-text").innerHTML = all_strings["save-on-local-instead-of-sync-detailed"];
     document.getElementById("open-popup-default-shortcut-text").innerText = all_strings["open-popup-default-shortcut-text"];
     document.getElementById("open-popup-domain-shortcut-text").innerText = all_strings["open-popup-domain-shortcut-text"];
     document.getElementById("open-popup-page-shortcut-text").innerText = all_strings["open-popup-page-shortcut-text"];
@@ -294,6 +376,15 @@ function setLanguageUI() {
     document.getElementById("theme-select-dark").innerText = all_strings["theme-choose-dark-select"];
     document.getElementById("theme-select-firefox").innerText = all_strings["theme-choose-firefox-select"];
     document.getElementById("theme-detailed-text").innerHTML = all_strings["theme-detailed-text"].replace("{{property1}}", `<span class="button-code very-small-button">` + all_strings["theme-choose-firefox-select"] + `</span>`);
+    document.getElementById("sticky-theme-text").innerText = all_strings["sticky-theme-text"];
+    document.getElementById("sticky-theme-select-yellow").innerText = all_strings["sticky-theme-choose-yellow-select"];
+    document.getElementById("sticky-theme-select-lime").innerText = all_strings["sticky-theme-choose-lime-select"];
+    document.getElementById("sticky-theme-select-cyan").innerText = all_strings["sticky-theme-choose-cyan-select"];
+    document.getElementById("sticky-theme-select-pink").innerText = all_strings["sticky-theme-choose-pink-select"];
+    document.getElementById("sticky-theme-select-white").innerText = all_strings["sticky-theme-choose-white-select"];
+    document.getElementById("sticky-theme-select-black").innerText = all_strings["sticky-theme-choose-black-select"];
+    document.getElementById("sticky-theme-select-auto").innerText = all_strings["sticky-theme-choose-auto-select"];
+    document.getElementById("sticky-theme-detailed-text").innerHTML = all_strings["sticky-theme-detailed-text"].replace("{{property1}}", `<span class="button-code very-small-button">` + all_strings["sticky-theme-choose-auto-select"] + `</span>`);
     document.getElementById("show-title-textbox-text").innerText = all_strings["show-title-textbox-text"];
     document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
 
@@ -370,21 +461,6 @@ function loadSettings() {
     shortcuts.then(getCurrentShortcuts);
 
     browser.storage.local.get(["storage"]).then(result => {
-        let property1 = all_strings["save-on-local-instead-of-sync"];
-        let alert_message = all_strings["disable-sync-settings-message"]
-        alert_message = alert_message.replace("{{property1}}", `<span class="button-code" id="string-save-on-local-instead-of-sync">${property1}</span>`);
-        document.getElementById("disable-sync").innerHTML = alert_message;
-
-        if (result.storage !== undefined && result.storage === "sync") {
-            if (document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.remove("hidden");
-            if (document.getElementById("sync-instead-of-local").classList.contains("hidden")) document.getElementById("sync-instead-of-local").classList.remove("hidden");
-        } else {
-            if (!document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.add("hidden");
-            if (!document.getElementById("sync-instead-of-local").classList.contains("hidden")) document.getElementById("sync-instead-of-local").classList.add("hidden");
-        }
-    });
-
-    browser.storage.local.get(["storage"]).then(result => {
         sync_local.get("settings", function (value) {
             settings_json = {};
             if (value["settings"] !== undefined) settings_json = value["settings"];
@@ -399,6 +475,14 @@ function loadSettings() {
             if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
             if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = true;
             if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
+            if (settings_json["sticky-theme"] === undefined) settings_json["sticky-theme"] = "yellow";
+            if (settings_json["sticky-primary-color"] === undefined || settings_json["sticky-on-primary-color"] === undefined || settings_json["sticky-secondary-color"] === undefined || settings_json["sticky-on-secondary-color"] === undefined) {
+                let colours = getStickyNotesColoursByElement(settings_json["sticky-theme"]);
+                settings_json["sticky-primary-color"] = colours[0];
+                settings_json["sticky-on-primary-color"] = colours[1];
+                settings_json["sticky-secondary-color"] = colours[2];
+                settings_json["sticky-on-secondary-color"] = colours[3];
+            }
             if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
             if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = true;
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
@@ -424,14 +508,13 @@ function loadSettings() {
             document.getElementById("check-green-icon-subdomain-check").checked = settings_json["check-green-icon-subdomain"] === true || settings_json["check-green-icon-subdomain"] === "yes";
 
             if (settings_json["theme"] === "light") setThemeChooserByElement(document.getElementById("item-radio-theme-light"), false); else if (settings_json["theme"] === "dark") setThemeChooserByElement(document.getElementById("item-radio-theme-dark"), false); else if (settings_json["theme"] === "auto") setThemeChooserByElement(document.getElementById("item-radio-theme-auto"), false);
+            if (settings_json["sticky-theme"] === "yellow" || settings_json["sticky-theme"] === "lime" || settings_json["sticky-theme"] === "cyan" || settings_json["sticky-theme"] === "pink" || settings_json["sticky-theme"] === "white" || settings_json["sticky-theme"] === "black" || settings_json["sticky-theme"] === "auto") setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-" + settings_json["sticky-theme"]), false);
 
             document.getElementById("open-links-only-with-ctrl-check").checked = settings_json["open-links-only-with-ctrl"] === true || settings_json["open-links-only-with-ctrl"] === "yes";
             document.getElementById("check-with-all-supported-protocols-check").checked = settings_json["check-with-all-supported-protocols"] === true || settings_json["check-with-all-supported-protocols"] === "yes";
             document.getElementById("font-family-select").value = settings_json["font-family"];
 
             document.getElementById("show-title-textbox-check").checked = settings_json["show-title-textbox"] === true || settings_json["show-title-textbox"] === "yes";
-
-            if (sync_or_local_settings === "sync") document.getElementById("save-on-local-instead-of-sync-check").checked = false; else if (sync_or_local_settings === "local") document.getElementById("save-on-local-instead-of-sync-check").checked = true;
 
             let keyboardShortcutCtrlAltShiftDefault = document.getElementById("key-shortcut-ctrl-alt-shift-default-selected");
             let keyboardShortcutLetterNumberDefault = document.getElementById("key-shortcut-default-selected");
@@ -485,6 +568,16 @@ function loadSettings() {
         document.getElementById("primary-auto").style.color = params[4];
         document.getElementById("secondary-auto").style.backgroundColor = params[3];
         document.getElementById("secondary-auto").style.color = params[5];
+
+        document.getElementById("primary-sticky-theme-auto").style.backgroundColor = params[3]; //primary
+        document.getElementById("primary-sticky-theme-auto").style.color = params[5]; //on-primary
+        document.getElementById("item-radio-sticky-theme-auto").style.backgroundColor = params[2]; //secondary
+        document.getElementById("sticky-theme-select-auto").style.color = params[4]; //on-secondary
+
+        colours_auto["primary"] = params[3];
+        colours_auto["on-primary"] = params[5];
+        colours_auto["secondary"] = params[2];
+        colours_auto["on-secondary"] = params[4];
     });
 }
 
@@ -530,9 +623,6 @@ function sendMessageUpdateToBackground() {
 }
 
 function saveSettings(update_datetime = true) {
-    //console.log(JSON.stringify(settings_json));
-    //console.log("Saving settings...");
-
     browser.storage.local.get(["storage"]).then(resultSyncLocalValue => {
         sync_local.get(["settings", "last-update"]).then(rrr1 => {
             let lastUpdateToUse = rrr1["last-update"];
@@ -542,91 +632,6 @@ function saveSettings(update_datetime = true) {
                 let buttonSave = document.getElementById("save-settings-button");
                 buttonSave.value = all_strings["saved-button"];
 
-                let sync_or_local_settings = document.getElementById("save-on-local-instead-of-sync-check").checked;
-                if (sync_or_local_settings === undefined) sync_or_local_settings = true;
-
-                if (sync_or_local_settings === true) {
-                    //use local (from sync)
-                    sync_local = browser.storage.local;
-                    browser.storage.sync.get(["settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result => {
-                        browser.storage.local.set(result).then(resultSet => {
-                            browser.storage.sync.get(["settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result2 => {
-
-                                if (result2["settings"] === {} || result2["settings"] === null) browser.storage.sync.remove("settings");
-                                if (result2["websites"] === {} || result2["websites"] === null) browser.storage.sync.remove("websites");
-                                if (result2["sticky-notes-coords"] === {} || result2["sticky-notes-coords"] === null) browser.storage.sync.remove("sticky-notes-coords");
-                                if (result2["sticky-notes-sizes"] === {} || result2["sticky-notes-sizes"] === null) browser.storage.sync.remove("sticky-notes-sizes");
-                                if (result2["sticky-notes-opacity"] === {} || result2["sticky-notes-opacity"] === null) browser.storage.sync.remove("sticky-notes-opacity");
-
-                                ctrl_alt_shift.forEach(value => {
-                                    let commandName = "_execute_browser_action";
-                                    if (value === "domain") commandName = "opened-by-domain"; else if (value === "page") commandName = "opened-by-page"; else if (value === "global") commandName = "opened-by-global";
-
-                                    //commandName = "open-by-"+value;
-                                    let shortcutToSet = settings_json["open-popup-" + value];
-                                    if (shortcutToSet === "disabled") shortcutToSet = "";
-
-                                    updateShortcut(commandName, shortcutToSet);
-                                });
-
-                                //console.log("-1->" + JSON.stringify(result));
-                                //console.log("-2->" + JSON.stringify(result2));
-                                //console.log(JSON.stringify(result) === JSON.stringify(result2));
-
-                                if (JSON.stringify(result) === JSON.stringify(result2)) {
-                                    //browser.storage.sync.clear().then(result3 => {
-                                    browser.storage.local.set({"storage": "local"});
-                                    //});
-                                }
-                            });
-                            browser.storage.local.set({"storage": "local"});
-                        }).catch((error) => {
-                            console.error("Error importing data to local:", error);
-                        });
-                    }).catch((error) => {
-                        console.error("Error retrieving data from sync:", error);
-                    });
-                } else if (sync_or_local_settings === false) {
-                    //use sync (from local)
-                    sync_local = browser.storage.sync;
-                    browser.storage.local.get(["settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result => {
-                        //console.log(JSON.stringify(result));
-                        browser.storage.sync.set(result).then(resultSet => {
-                            browser.storage.local.get(["settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result2 => {
-
-                                if (result2["settings"] === {} || result2["settings"] === null) browser.storage.local.remove("settings");
-                                if (result2["websites"] === {} || result2["websites"] === null) browser.storage.local.remove("websites");
-                                if (result2["sticky-notes-coords"] === {} || result2["sticky-notes-coords"] === null) browser.storage.local.remove("sticky-notes-coords");
-                                if (result2["sticky-notes-sizes"] === {} || result2["sticky-notes-sizes"] === null) browser.storage.local.remove("sticky-notes-sizes");
-                                if (result2["sticky-notes-opacity"] === {} || result2["sticky-notes-opacity"] === null) browser.storage.local.remove("sticky-notes-opacity");
-                                //console.log("-1->" + JSON.stringify(result));
-                                //console.log("-2->" + JSON.stringify(result2));
-                                //console.log(JSON.stringify(result) === JSON.stringify(result2));
-
-                                ctrl_alt_shift.forEach(value => {
-                                    //console.log("1>"+settings_json["open-popup-" + value])
-                                    let commandName = "_execute_browser_action";
-                                    if (value === "domain") commandName = "opened-by-domain"; else if (value === "page") commandName = "opened-by-page"; else if (value === "global") commandName = "opened-by-global";
-
-                                    //commandName = "open-by-"+value;
-                                    let shortcutToSet = settings_json["open-popup-" + value];
-                                    if (shortcutToSet === "disabled") shortcutToSet = "";
-
-                                    updateShortcut(commandName, shortcutToSet);
-                                });
-
-                                if (JSON.stringify(result) === JSON.stringify(result2)) browser.storage.local.clear().then(result3 => {
-                                    browser.storage.local.set({"storage": "sync"});
-                                });
-                            });
-                            browser.storage.local.set({"storage": "sync"});
-                        }).catch((error) => {
-                            console.error("Error importing data to sync:", error);
-                        });
-                    }).catch((error) => {
-                        console.error("Error retrieving data from local:", error);
-                    });
-                }
                 sendMessageUpdateToBackground();
 
                 setTimeout(function () {

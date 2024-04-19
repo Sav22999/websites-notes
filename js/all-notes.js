@@ -45,14 +45,7 @@ let filtersTypes = [];
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;
-    browser.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = browser.storage.sync;
-        else {
-            browser.storage.local.set({"storage": "local"});
-            sync_local = browser.storage.local;
-        }
-        checkTheme();
-    });
+    checkTheme();
 }
 
 function loaded() {
@@ -80,21 +73,6 @@ function loaded() {
     loadAsideBar();
 
     try {
-        browser.storage.local.get([
-            "storage"
-        ]).then(result => {
-            let property1 = all_strings["save-on-local-instead-of-sync"];
-            let alert_message = all_strings["disable-sync-message"]
-            alert_message = alert_message.replace("{{property1}}", `<span class="button-code" id="string-save-on-local-instead-of-sync">${property1}</span>`);
-            document.getElementById("disable-sync").innerHTML = alert_message;
-
-            if (result.storage !== undefined && result.storage === "sync") {
-                if (document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.remove("hidden");
-            } else {
-                if (!document.getElementById("disable-sync").classList.contains("hidden")) document.getElementById("disable-sync").classList.add("hidden");
-            }
-        });
-
         document.getElementById("refresh-all-notes-button").onclick = function () {
             //location.reload();
             loadDataFromBrowser(true);

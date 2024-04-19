@@ -469,7 +469,7 @@ function getIconSvgEncoded(icon, color) {
                 '</svg>'
             break;
 
-        case "minimize":
+        case "restore":
             svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 334 334"\n' +
                 '     xmlns="http://www.w3.org/2000/svg">\n' +
                 '    <g fill="' + color + '" transform="scale(.416667)">\n' +
@@ -480,7 +480,7 @@ function getIconSvgEncoded(icon, color) {
                 '</svg>';
             break;
 
-        case "restore":
+        case "minimize":
             svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 334 334"\n' +
                 '     xmlns="http://www.w3.org/2000/svg">\n' +
                 '    <g fill="' + color + '" transform="scale(.416667)">\n' +
@@ -792,7 +792,6 @@ function listenerStickyNotes() {
                     let page_domain_global_to_use = getTypeToShow(type_to_use);
                     // console.log(url_to_use + " :: " + page_domain_global_to_use);
                     if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["notes"] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) {
-                        console.log(icons_json)
                         sendResponse({
                             notes: {
                                 description: websites_json[url_to_use]["notes"],
