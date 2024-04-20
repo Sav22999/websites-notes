@@ -598,6 +598,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 
 #import-sub-sections, #export-sub-sections, #account-sub-sections, #login-expired-content, #link-content-section {
     background-color: var(--tertiary);
+    padding: 10px 20px;
 }
 
 #export-to-file-button, #import-from-file-button {
