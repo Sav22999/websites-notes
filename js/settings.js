@@ -17,7 +17,50 @@ function checkSyncLocal() {
 }
 
 var currentOS = "default"; //default: win, linux, ecc. | mac
-var letters_and_numbers = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+var letters_and_numbers = {
+    "A": "A",
+    "B": "B",
+    "C": "C",
+    "D": "D",
+    "E": "E",
+    "F": "F",
+    "G": "G",
+    "H": "H",
+    "I": "I",
+    "J": "J",
+    "K": "K",
+    "L": "L",
+    "M": "M",
+    "N": "N",
+    "O": "O",
+    "P": "P",
+    "Q": "Q",
+    "R": "R",
+    "S": "S",
+    "T": "T",
+    "U": "U",
+    "V": "V",
+    "W": "W",
+    "X": "X",
+    "Y": "Y",
+    "Z": "Z",
+    "0": "0",
+    "1": "1",
+    "2": "2",
+    "3": "3",
+    "4": "4",
+    "5": "5",
+    "6": "6",
+    "7": "7",
+    "8": "8",
+    "9": "9",
+    "Comma": ",",
+    "Period": ".",
+    "Up": "↑",
+    "Down": "↓",
+    "Left": "←",
+    "Right": "→"
+};
 var ctrl_alt_shift = ["default", "domain", "page"];
 
 var colours_auto = {"primary": "", "on-primary": "", "secondary": "", "on-secondary": ""};
@@ -455,11 +498,11 @@ function setLanguageUI() {
     document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
     document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
 
-    letters_and_numbers.forEach(letterNumber => {
-        document.getElementById("key-shortcut-default-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-default'>" + letterNumber + "</option>";
-        document.getElementById("key-shortcut-domain-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-domain'>" + letterNumber + "</option>";
-        document.getElementById("key-shortcut-page-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-page'>" + letterNumber + "</option>";
-    });
+    for (let letterNumber in letters_and_numbers) {
+        document.getElementById("key-shortcut-default-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-default'>" + letters_and_numbers[letterNumber] + "</option>";
+        document.getElementById("key-shortcut-domain-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-domain'>" + letters_and_numbers[letterNumber] + "</option>";
+        document.getElementById("key-shortcut-page-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-page'>" + letters_and_numbers[letterNumber] + "</option>";
+    }
 
     //notefox account
     document.getElementById("notefox-account-settings-text").innerText = all_strings["notefox-account-settings"];
@@ -600,7 +643,15 @@ function loadSettings() {
                     if (document.getElementById("label-plus-shortcut-" + value).classList.contains("hidden")) document.getElementById("label-plus-shortcut-" + value).classList.remove("hidden");
                     let splitKeyboardShortcut = settings_json["open-popup-" + value].split("+");
                     let letterNumberShortcut = splitKeyboardShortcut[splitKeyboardShortcut.length - 1];
-                    let ctrlAltShiftShortcut = settings_json["open-popup-" + value].substring(0, settings_json["open-popup-" + value].length - 2);
+                    let ctrlAltShiftShortcut = "";
+                    if (splitKeyboardShortcut.length >= 2) {
+                        for (let i = 0; i < splitKeyboardShortcut.length - 2; i++) {
+                            ctrlAltShiftShortcut += splitKeyboardShortcut[i] + "+";
+                        }
+                        ctrlAltShiftShortcut += splitKeyboardShortcut[splitKeyboardShortcut.length - 2];
+                    } else {
+                        ctrlAltShiftShortcut = splitKeyboardShortcut[0];
+                    }
                     keyboardShortcutLetterNumber.value = letterNumberShortcut;
                     keyboardShortcutCtrlAltShift.value = ctrlAltShiftShortcut;
 
@@ -694,6 +745,11 @@ function saveSettings(update_datetime = true) {
                 //Saved
                 let buttonSave = document.getElementById("save-settings-button");
                 buttonSave.value = all_strings["saved-button"];
+
+                updateShortcut("_execute_browser_action", settings_json["open-popup-default"]);
+                //updateShortcut("opened-by-global", settings_json["open-popup-global"]);
+                updateShortcut("opened-by-domain", settings_json["open-popup-domain"]);
+                updateShortcut("opened-by-page", settings_json["open-popup-page"]);
 
                 sendMessageUpdateToBackground();
 
