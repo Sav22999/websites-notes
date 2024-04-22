@@ -332,7 +332,6 @@ function listenerLinks(element) {
 }
 
 function updateLastUpdate() {
-    //console.log("QAZ-7")
     sync_local.set({"last-update": getDate()});
 }
 
@@ -681,6 +680,22 @@ function getType(website, url) {
     return valueToReturn;
 }
 
+/**
+ * Used for edit notes inline
+ * @param url this is the "ID" in the websites_json
+ * @param data the new data to save: {notes, title}
+ * @param pageLastUpdate the element to update the last update
+ */
+function onInputText(url, data, pageLastUpdate) {
+    browser.runtime.sendMessage({from: "all-notes", type: "inline-edit", url: url, data: data});
+    pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", data["lastUpdate"]);
+    sendMessageUpdateToBackground();
+}
+
+function sendMessageUpdateToBackground() {
+    browser.runtime.sendMessage({"updated": true});
+}
+
 function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_to_use, domain_again) {
     try {
         let row1 = document.createElement("div");
@@ -702,6 +717,35 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             }
             clearAllNotesPage(fullUrl, isDomain);
         }
+        let inputInlineEdit = document.createElement("input");
+        let pageTitleH3 = document.createElement("h3");
+        let textNotes = document.createElement("div");
+
+        inputInlineEdit.type = "button";
+        inputInlineEdit.value = all_strings["edit-notes-button"];
+        inputInlineEdit.classList.add("button", "float-right", "very-small-button", "edit-button", "margin-right-5-px");
+        inputInlineEdit.onclick = function () {
+            if (textNotes.contentEditable === "true") {
+                textNotes.contentEditable = "false";
+                if (inputInlineEdit.classList.contains("finish-edit-button")) inputInlineEdit.classList.remove("finish-edit-button");
+                if (pageTitleH3.classList.contains("inline-edit-title")) pageTitleH3.classList.remove("inline-edit-title");
+                if (textNotes.classList.contains("inline-edit-notes")) textNotes.classList.remove("inline-edit-notes");
+                inputInlineEdit.value = all_strings["edit-notes-button"];
+                pageTitleH3.contentEditable = "false";
+                textNotes.readOnly = true;
+                textNotes.style.cursor = "default";
+            } else {
+                textNotes.contentEditable = "true";
+                inputInlineEdit.classList.add("finish-edit-button");
+                inputInlineEdit.value = all_strings["finish-edit-notes-button"];
+                pageTitleH3.contentEditable = "true";
+                textNotes.readOnly = false;
+                textNotes.style.cursor = "text";
+                pageTitleH3.classList.add("inline-edit-title");
+                textNotes.classList.add("inline-edit-notes");
+            }
+        }
+
         let inputCopyNotes = document.createElement("input");
 
         inputCopyNotes.type = "button";
@@ -742,6 +786,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
 
         row1.append(input_clear_all_notes_page);
         row1.append(inputCopyNotes);
+        row1.append(inputInlineEdit);
         row1.append(tagsColour);
 
         if (type_to_use.toLowerCase() !== "domain" && type_to_use.toLowerCase() !== "global") {
@@ -765,6 +810,8 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
 
         page.append(row1);
 
+        let pageLastUpdate = document.createElement("div");
+
         if (title !== undefined && title !== "") {
             let row2 = document.createElement("div");
             row2.classList.add("rows");
@@ -773,9 +820,15 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             pageTitle.classList.add("sub-section-title");
             pageTitle.textContent = all_strings["title-label"];
 
-            let pageTitleH3 = document.createElement("h3");
             pageTitleH3.classList.add("title");
             pageTitleH3.textContent = title;
+            pageTitleH3.oninput = function () {
+                let data = {
+                    title: pageTitleH3.textContent,
+                    lastUpdate: getDate()
+                }
+                onInputText(fullUrl, data, pageLastUpdate);
+            }
             row2.append(pageTitle)
             row2.append(pageTitleH3);
             page.append(row2);
@@ -786,11 +839,18 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
 
         let textNotesContainer = document.createElement("div");
         textNotesContainer.classList.add("div-textnotes-container");
-        let textNotes = document.createElement("div");
+
         textNotes.readOnly = true;
         textNotes.innerHTML = notes;
         textNotes.contentEditable = false;
         textNotes.classList.add("textarea-all-notes");
+        textNotes.oninput = function () {
+            let data = {
+                notes: textNotes.innerHTML,
+                lastUpdate: getDate()
+            }
+            onInputText(fullUrl, data, pageLastUpdate);
+        }
         listenerLinks(textNotes);
         let disable_word_wrap = false;
         if (settings_json["disable-word-wrap"] !== undefined) {
@@ -813,7 +873,6 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
 
         page.append(pageNotes);
 
-        let pageLastUpdate = document.createElement("div");
         pageLastUpdate.classList.add("sub-section-last-update");
         pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", lastUpdate);
         page.append(pageLastUpdate);
@@ -834,6 +893,7 @@ function changeTagColour(url, colour) {
         }
         //console.log(`url ${url}`);
         websites_json[url]["tag-colour"] = colour;
+        websites_json[url]["last-update"] = getDate();
         websites_json_to_show = websites_json;
         sync_local.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
@@ -1044,6 +1104,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
         var delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
         var copy_svg = window.btoa(getIconSvgEncoded("copy", on_primary));
+        var edit_svg = window.btoa(getIconSvgEncoded("edit", on_primary));
+        var finish_edit_svg = window.btoa(getIconSvgEncoded("finish-edit", on_primary));
         var filter = window.btoa(getIconSvgEncoded("filter", on_primary));
         var sort_by = window.btoa(getIconSvgEncoded("sort-by", on_primary));
         var tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
@@ -1125,6 +1187,12 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .copy-button {
                     background-image: url('data:image/svg+xml;base64,${copy_svg}');
+                }
+                .edit-button {
+                    background-image: url('data:image/svg+xml;base64,${edit_svg}');
+                }
+                .finish-edit-button {
+                    background-image: url('data:image/svg+xml;base64,${finish_edit_svg}');
                 }
                 .filter-button {
                     background-image: url('data:image/svg+xml;base64,${filter}');

@@ -769,6 +769,18 @@ function getIconSvgEncoded(icon, color) {
                 '          fill-rule="evenodd" transform="translate(64 44.956885)"/>\n' +
                 '</svg>';
             break;
+        case "edit":
+            svgToReturn = '<svg fill="' + color + '" height="800" viewBox="0 -.5 21 21" width="800" xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path d="m3 260h21v-1.989258h-21zm10.3341-5.967774h-4.0341v-4.081957l10.33095-9.950269 4.36905 4.115775z"\n' +
+                '          fill-rule="evenodd" transform="translate(-3 -240)"/>\n' +
+                '</svg>';
+            break;
+        case "finish-edit":
+            svgToReturn = '<svg fill="' + color + '" height="800" viewBox="0 0 32 32" width="800" xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path d="m28 2h-24c-1.1 0-2 .9-2 2v24c0 1.1.9 2 2 2h24c1.1 0 2-.9 2-2v-24c0-1.1-.9-2-2-2zm-3.586 12.414-9 9c-.39.391-.902.586-1.414.586s-1.024-.195-1.414-.586l-5-5c-.781-.781-.781-2.047 0-2.828.78-.781 2.048-.781 2.828 0l3.586 3.585 7.586-7.585c.78-.781 2.048-.781 2.828 0 .781.781.781 2.047 0 2.828z"\n' +
+                '          />\n' +
+                '</svg>';
+            break;
         /*
     case "":
         svgToReturn = '';

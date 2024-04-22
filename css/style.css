@@ -134,12 +134,12 @@ body {
     opacity: 1;
 }
 
-.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button, .download-button, .login-button, .logout-button, .manage-account-button, .sync-button, .sync-error-button, .syncing-button, .synced-button {
-    padding-left: 35px;
+.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .edit-button, .finish-edit-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button, .download-button, .login-button, .logout-button, .manage-account-button, .sync-button, .sync-error-button, .syncing-button, .synced-button {
+    padding-left: 40px;
     padding-right: 10px;
-    background-size: auto 60%;
+    background-size: auto 50%;
     background-repeat: no-repeat;
-    background-position: 10px center;
+    background-position: left 10px center;
     color: var(--on-primary-color);
     margin: 2px;
     border: 0px solid var(--primary-color);
@@ -205,6 +205,14 @@ body {
 .copy-button {
     background-image: url("../img/copy.svg");
     cursor: copy;
+}
+
+.edit-button {
+    background-image: url("../img/edit.svg");
+}
+
+.finish-edit-button {
+    background-image: url("../img/finish-edit.svg");
 }
 
 .tag-button {
@@ -526,12 +534,12 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 .select-tag-all-notes {
     background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
     background-repeat: no-repeat;
-    background-position: center left 5px, center right 5px;
-    background-size: auto 60%, auto 60%;
+    background-position: center left 10px, center right 10px;
+    background-size: auto 50%, auto 50%;
     -webkit-appearance: none;
     -moz-appearance: none;
     text-indent: 0px;
-    padding-right: 35px;
+    padding-right: 40px;
 }
 
 #tag-select-grid {
@@ -712,6 +720,20 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     display: inline-block;
     text-align: center;
     height: auto;
+}
+
+.inline-edit-title, .inline-edit-notes {
+    border-radius: 0px;
+    border-bottom: 2px solid var(--primary-color);
+    transition: 0.5s;
+    padding-bottom: 25px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.inline-edit-title:focus, .inline-edit-notes:focus {
+    box-shadow: 0px 0px 0px 2px var(--primary-color);
+    border-radius: 5px;
 }
 
 .sub-section-notes {
@@ -1001,6 +1023,7 @@ b {
     background-color: transparent;
     width: auto;
     height: auto;
+    min-height: 100%;
     resize: none;
     border: 0px solid transparent;
     padding: 0px !important;

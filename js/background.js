@@ -305,6 +305,7 @@ function loaded() {
 function loadDataFromSync() {
     listenerShortcuts();
     listenerStickyNotes();
+    listenerAllNotes();
 
     browser.runtime.onMessage.addListener((message) => {
         if (message["sync-now"] !== undefined && message["sync-now"]) {
@@ -843,6 +844,30 @@ function listenerStickyNotes() {
                             minimized: false
                         })
                     }
+                }
+            }
+        }
+    });
+}
+
+function listenerAllNotes() {
+    browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        if (message.from !== undefined && message.from === "all-notes") {
+            if (message.type !== undefined && message.type === "inline-edit") {
+                if (message.url !== undefined && message.url !== "") {
+                    sync_local.get("websites").then(result => {
+                        websites_json = result["websites"];
+                        if (websites_json !== undefined && websites_json[message.url] !== undefined) {
+                            if (message.data.title !== undefined) websites_json[message.url]["title"] = message.data.title;
+                            if (message.data.notes !== undefined) websites_json[message.url]["notes"] = message.data.notes;
+                            if (message.data.lastUpdate !== undefined) websites_json[message.url]["last-update"] = message.data.lastUpdate;
+
+                            sync_local.set({
+                                "websites": websites_json,
+                                "last-update": getDate()
+                            });
+                        }
+                    });
                 }
             }
         }
