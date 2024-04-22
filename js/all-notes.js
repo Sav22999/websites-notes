@@ -733,14 +733,12 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
                 inputInlineEdit.value = all_strings["edit-notes-button"];
                 pageTitleH3.contentEditable = "false";
                 textNotes.readOnly = true;
-                textNotes.style.cursor = "default";
             } else {
                 textNotes.contentEditable = "true";
                 inputInlineEdit.classList.add("finish-edit-button");
                 inputInlineEdit.value = all_strings["finish-edit-notes-button"];
                 pageTitleH3.contentEditable = "true";
                 textNotes.readOnly = false;
-                textNotes.style.cursor = "text";
                 pageTitleH3.classList.add("inline-edit-title");
                 textNotes.classList.add("inline-edit-notes");
             }
