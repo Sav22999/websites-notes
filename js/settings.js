@@ -1675,6 +1675,11 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                 document.getElementById("verify-signup-submit").classList.add("hidden");
                 document.getElementById("verify-signup-new-code").classList.add("hidden");
 
+                document.getElementById("signup-username").value = "";
+                document.getElementById("signup-email").value = "";
+                document.getElementById("signup-password").value = "";
+                document.getElementById("signup-confirm-password").value = "";
+
                 document.getElementById("signup-already-account-text").innerHTML = all_strings["notefox-account-already-an-account"];
                 document.getElementById("signup-already-account-button").innerText = all_strings["notefox-account-button-settings-login"];
                 document.getElementById("signup-already-account-button").onclick = function () {

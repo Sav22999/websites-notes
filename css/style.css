@@ -363,7 +363,7 @@ body {
 }
 
 textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::placeholder {
-    color: var(--on-textbox-color);
+    color: inherit;
 }
 
 #notes-section #notes[placeholder]:empty:before {
