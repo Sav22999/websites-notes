@@ -1342,6 +1342,12 @@ aside > button.sel, aside > button.sel:hover {
     position: absolute;
     top: auto;
     bottom: 0px;
+
+    padding-top: 60px;
+    background-image: url("../img/icon.svg");
+    background-size: auto 40%;
+    background-repeat: no-repeat;
+    background-position: top 5px center;
 }
 
 /*settings*/
