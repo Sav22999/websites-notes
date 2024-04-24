@@ -14,17 +14,20 @@
     "_execute_browser_action": {
       "suggested_key": {
         "default": "Ctrl+Alt+O"
-      }
+      },
+      "description": "Open Notefox popup with the default tab"
     },
     "opened-by-domain": {
       "suggested_key": {
         "default": "Ctrl+Alt+D"
-      }
+      },
+      "description": "Open Notefox popup with the current domain tab"
     },
     "opened-by-page": {
       "suggested_key": {
         "default": "Ctrl+Alt+P"
-      }
+      },
+      "description": "Open Notefox popup with the current page tab"
     }
   },
   "browser_specific_settings": {

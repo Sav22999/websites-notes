@@ -265,5 +265,9 @@ strings[lang] = {
     "label-title-header-h5": "Header 5",
     "label-title-header-h6": "Header 6",
     "label-title-small": "Small text",
-    "label-title-big": "Big text"
+    "label-title-big": "Big text",
+    "default-tag-colour-domain-text": "Default label for new domain notes",
+    "default-tag-colour-domain-detailed-text": "When you'll create a new note for a domain, it will have applied this label. You can change it at any time.",
+    "default-tag-colour-page-text": "Default label for new page notes",
+    "default-tag-colour-page-detailed-text": "When you'll create a new note for a page, it will have applied this label. You can change it at any time."
 }

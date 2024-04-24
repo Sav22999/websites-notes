@@ -306,9 +306,6 @@ function loadUI() {
     title_notes.oninput = function () {
         saveNotes(title = true);
     }
-    title_notes.onpaste = function (e) {
-        //saveNotes();
-    }
     title_notes.onkeypress = function (e) {
         if (e.key === "Enter") {
             document.getElementById("notes").focus();
@@ -645,11 +642,17 @@ function sanitizeHTML(input) {
 }
 
 function saveNotes(title_call = false) {
-    sync_local.get("websites", function (value) {
+    sync_local.get(["websites", "settings"], function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
         } else {
             websites_json = {};
+        }
+
+        if (value["settings"] !== undefined) {
+            settings_json = value["settings"];
+        } else {
+            loadSettings();
         }
 
         let url_to_use = getUrlWithSupportedProtocol(currentUrl[selected_tab], websites_json);
@@ -661,8 +664,11 @@ function saveNotes(title_call = false) {
         websites_json[url_to_use]["notes"] = notes;
         if (settings_json["show-title-textbox"]) websites_json[url_to_use]["title"] = title;
         websites_json[url_to_use]["last-update"] = getDate();
+
         if (websites_json[url_to_use]["tag-colour"] === undefined) {
+            let tabSelected = getCurrentTabNameTag(selected_tab);
             websites_json[url_to_use]["tag-colour"] = "none";
+            if (settings_json["default-tag-colour-" + tabSelected] !== undefined) websites_json[url_to_use]["tag-colour"] = settings_json["default-tag-colour-" + tabSelected];
         }
         if (websites_json[url_to_use]["sticky"] === undefined) {
             websites_json[url_to_use]["sticky"] = false;
@@ -710,6 +716,8 @@ function saveNotes(title_call = false) {
                 //setPosition(document.getElementById("notes"), currentPosition);
                 listenerLinks();
 
+                console.log(selected_tab);
+
                 let last_update = all_strings["never-update"];
                 if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["last-update"] !== undefined) last_update = websites_json[url_to_use]["last-update"];
                 document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
@@ -718,6 +726,10 @@ function saveNotes(title_call = false) {
                 document.getElementById("tag-colour-section").removeAttribute("class");
                 if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) colour = websites_json[url_to_use]["tag-colour"];
                 document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
+
+                let title = "";
+                if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["title"] !== undefined) title = websites_json[url_to_use]["title"];
+                document.getElementById("title-notes").value = title;
 
                 /*
                 let sticky = false;
@@ -748,6 +760,13 @@ function correctDatetime(datetime) {
     let seconds = date.getSeconds();
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+function getCurrentTabNameTag(tab) {
+    if (tab === 0) return "global";
+    else if (tab === 1) return "domain";
+    else if (tab === 2) return "page";
+    else if (tab === 3) return "subdomain";
 }
 
 function getDate() {

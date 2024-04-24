@@ -11,6 +11,37 @@ var notefox_json = {};
 const webBrowserUsed = "firefox";//TODO:change manually
 var json_to_export = {};
 
+//Do not add "None" because it's treated in a different way!
+let colourListDefault = sortObjectByKeys({
+    "red": all_strings["red-colour"],
+    "yellow": all_strings["yellow-colour"],
+    "black": all_strings["black-colour"],
+    "orange": all_strings["orange-colour"],
+    "pink": all_strings["pink-colour"],
+    "purple": all_strings["purple-colour"],
+    "gray": all_strings["grey-colour"],
+    "green": all_strings["green-colour"],
+    "blue": all_strings["blue-colour"],
+    "white": all_strings["white-colour"],
+    "aquamarine": all_strings["aquamarine-colour"],
+    "turquoise": all_strings["turquoise-colour"],
+    "brown": all_strings["brown-colour"],
+    "coral": all_strings["coral-colour"],
+    "cyan": all_strings["cyan-colour"],
+    "darkgreen": all_strings["darkgreen-colour"],
+    "violet": all_strings["violet-colour"],
+    "lime": all_strings["lime-colour"],
+    "fuchsia": all_strings["fuchsia-colour"],
+    "indigo": all_strings["indigo-colour"],
+    "lavender": all_strings["lavender-colour"],
+    "teal": all_strings["teal-colour"],
+    "navy": all_strings["navy-colour"],
+    "olive": all_strings["olive-colour"],
+    "plum": all_strings["plum-colour"],
+    "salmon": all_strings["salmon-colour"],
+    "snow": all_strings["snow-colour"]
+});
+
 function checkSyncLocal() {
     sync_local = browser.storage.local;
     checkTheme();
@@ -87,6 +118,21 @@ function loaded() {
     browser.runtime.getPlatformInfo((platformInfo) => {
         notefox_json["os"] = platformInfo.os
     });
+
+    document.onkeyup = function (e) {
+        if (e.key === "Escape") {
+            if (document.getElementById("export-section").style.display === "block") {
+                document.getElementById("cancel-export-all-notes-button").click();
+            }
+            if (document.getElementById("import-section").style.display === "block") {
+                document.getElementById("cancel-import-all-notes-button").click();
+            }
+            if (document.getElementById("account-section").style.display === "block") {
+                hideBackgroundOpacity();
+                document.getElementById("account-section").style.display = "none";
+            }
+        }
+    }
 
     checkSyncLocal()
     checkOperatingSystem();
@@ -274,6 +320,18 @@ function loaded() {
     }
     document.getElementById("import-from-file-button").onclick = function () {
         importAllNotes(from_file = true);
+    }
+
+    document.getElementById("default-tag-colour-domain-select").onchange = function () {
+        settings_json["default-tag-colour-domain"] = document.getElementById("default-tag-colour-domain-select").value;
+
+        saveSettings();
+    }
+
+    document.getElementById("default-tag-colour-page-select").onchange = function () {
+        settings_json["default-tag-colour-page"] = document.getElementById("default-tag-colour-page-select").value;
+
+        saveSettings();
     }
 
     loadSettings();
@@ -473,6 +531,11 @@ function setLanguageUI() {
     document.getElementById("show-headers-text").innerText = all_strings["show-headers-text"];
     document.getElementById("show-small-big-text").innerText = all_strings["show-small-big-text"];
 
+    document.getElementById("default-tag-colour-domain-text").innerText = all_strings["default-tag-colour-domain-text"];
+    document.getElementById("default-tag-colour-domain-detailed-text").innerHTML = all_strings["default-tag-colour-domain-detailed-text"];
+    document.getElementById("default-tag-colour-page-text").innerText = all_strings["default-tag-colour-page-text"];
+    document.getElementById("default-tag-colour-page-detailed-text").innerHTML = all_strings["default-tag-colour-page-detailed-text"];
+
     document.getElementById("support-telegram-button").value = all_strings["support-telegram-button"];
     document.getElementById("support-email-button").value = all_strings["support-email-button"];
     document.getElementById("support-github-button").value = all_strings["support-github-button"];
@@ -584,6 +647,9 @@ function loadSettings() {
             if (settings_json["headers"] === undefined) settings_json["headers"] = false;
             if (settings_json["small-big"] === undefined) settings_json["small-big"] = false;
 
+            if (settings_json["default-tag-colour-domain"] === undefined) settings_json["default-tag-colour-domain"] = "none";
+            if (settings_json["default-tag-colour-page"] === undefined) settings_json["default-tag-colour-page"] = "none";
+
             let sync_or_local_settings = result["storage"];
             if (sync_or_local_settings === undefined) sync_or_local_settings = "local";
 
@@ -620,6 +686,24 @@ function loadSettings() {
             document.getElementById("show-superscript-subscript-check").checked = settings_json["superscript-subscript"] === true || settings_json["superscript-subscript"] === "yes";
             document.getElementById("show-headers-check").checked = settings_json["headers"] === true || settings_json["headers"] === "yes";
             document.getElementById("show-small-big-check").checked = settings_json["small-big"] === true || settings_json["small-big"] === "yes";
+
+            let colourList = colourListDefault;
+            colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
+            document.getElementById("default-tag-colour-domain-select").innerHTML = "";
+            document.getElementById("default-tag-colour-page-select").innerHTML = "";
+            for (let colour in colourList) {
+                let tagColourDomain = document.createElement("option");
+                tagColourDomain.value = colour;
+                tagColourDomain.textContent = colourList[colour];
+                let tagColourPage = tagColourDomain.cloneNode(true);
+                document.getElementById("default-tag-colour-domain-select").append(tagColourDomain);
+                document.getElementById("default-tag-colour-page-select").append(tagColourPage);
+            }
+
+            document.getElementById("default-tag-colour-domain-select").value = settings_json["default-tag-colour-domain"];
+            document.getElementById("default-tag-colour-domain-select").classList = ["select-box tag-colour-" + settings_json["default-tag-colour-domain"]];
+            document.getElementById("default-tag-colour-page-select").value = settings_json["default-tag-colour-page"];
+            document.getElementById("default-tag-colour-page-select").classList = ["select-box tag-colour-" + settings_json["default-tag-colour-page"]];
 
             let keyboardShortcutCtrlAltShiftDefault = document.getElementById("key-shortcut-ctrl-alt-shift-default-selected");
             let keyboardShortcutLetterNumberDefault = document.getElementById("key-shortcut-default-selected");

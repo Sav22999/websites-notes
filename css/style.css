@@ -1526,6 +1526,10 @@ aside > button.sel, aside > button.sel:hover {
     grid-template-areas: 'auto auto auto auto auto auto auto';
 }
 
+#default-tag-colour-domain-select, #default-tag-colour-page-select {
+    border-left-width: 10px !important;
+}
+
 /*start - sticky-notes theme*/
 #item-radio-sticky-theme-yellow {
     background-color: #ff6200;
