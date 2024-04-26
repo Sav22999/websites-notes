@@ -127,6 +127,12 @@ Created by Saverio Morelli - saveriomorelli.com
                            id="login-email" type="email">
                     <input class="textbox account-section--login--password width-100 label-with-image password-label account-text"
                            id="login-password" type="password">
+
+                    <hr class="hr-big-space hr-center account-section-hr">
+                    <div class="text-align-center margin-bottom-20-px" id="login-not-yet-account">
+                        <span id="login-not-yet-account-text"></span> <span class="link"
+                                                                            id="login-not-yet-account-button"></span>
+                    </div>
                 </div>
                 <div id="account-section--verify-login-grid" class="padding-10 hidden">
                     <input class="textbox account-section--verify-login--code label-with-image code-label account-text"
@@ -179,17 +185,77 @@ Created by Saverio Morelli - saveriomorelli.com
                         </span>
                     </div>
 
+                    <div class="option-settings">
+                        <span class="item-settings section-grid-container width-100-important">
+                            <span class="title-option-settings section-grid-item-text"
+                                  id="manage-change-password-text"></span>
+                            <span class="section-grid-item-select">
+                                <input type="button" value="" id="manage-change-password-button"
+                                       class="button edit-button width-100"/>
+                            </span>
+                        </span>
+                    </div>
+
+                    <div class="option-settings">
+                        <span class="item-settings section-grid-container width-100-important">
+                            <span class="title-option-settings section-grid-item-text"
+                                  id="manage-delete-account-text"></span>
+                            <span class="section-grid-item-select">
+                                <input type="button" value="" id="manage-delete-account-button"
+                                       class="button button-red width-100"/>
+                            </span>
+                        </span>
+                    </div>
+
                     <div class="text-align-left margin-top-20-px">
                         <input type="button" value="" class="button button-close-notefox-account"/>
                     </div>
                 </div>
             </div>
 
+            <!-- change password -->
+            <div id="notefox-account-change-password-section">
+                <div class="padding-10" id="account-section--change-password-grid">
+                    <input class="textbox account-section--change-password--old-password width-100 label-with-image password-label account-text"
+                           id="change-password-old-password" type="password">
+                    <input class="textbox account-section--change-password--new-password width-100 label-with-image password-label account-text"
+                           id="change-password-new-password" type="password">
+                    <input class="textbox account-section--change-password--confirm-new-password width-100 label-with-image password-label account-text"
+                           id="change-password-new-password-confirm" type="password">
+                </div>
+                <div class="padding-10 text-align-right">
+                    <input type="button" value="" id="change-password-cancel"
+                           class="button float-left button-close-notefox-account"/>
+                    <input type="button" value="" id="change-password-submit"
+                           class="button edit-button"/>
+                </div>
+            </div>
+
             <!-- delete -->
             <div id="notefox-account-delete-section">
-                <div class="padding-10 text-align-right">
+                <div id="account-section--delete-grid" class="padding-10 hidden">
+                    <input class="textbox account-section--delete--email width-100 label-with-image email-label account-text"
+                           id="delete-email" type="email">
+                    <input class="textbox account-section--delete--password width-100 label-with-image password-label account-text"
+                           id="delete-password" type="password">
+                </div>
+                <div id="account-section--verify-delete-grid" class="padding-10 hidden">
+                    <input class="textbox account-section--verify-delete--email width-100 label-with-image email-label account-text hidden"
+                           id="verify-delete-email" type="email">
+                    <input class="textbox account-section--verify-delete--password width-100 label-with-image password-label account-text hidden"
+                           id="verify-delete-password" type="password">
+                    <input class="textbox account-section--verify-delete--code label-with-image code-label account-text"
+                           id="verify-delete-code" type="text">
 
-                    <input type="button" value="" class="button float-left button-close-notefox-account"/>
+                </div>
+                <div class="padding-10 text-align-right">
+                    <input type="button" value="" id="delete-cancel"
+                           class="button float-left button-close-notefox-account"/>
+                    <input class="button hidden" id="verify-delete" value="" type="button"/>
+                    <input class="button hidden" id="delete-submit" value="" type="button"/>
+
+                    <input class="button hidden" id="verify-delete-new-code" value="" type="button"/>
+                    <input class="button hidden" id="verify-delete-submit" value="" type="button"/>
                 </div>
             </div>
         </div>
@@ -351,11 +417,13 @@ Created by Saverio Morelli - saveriomorelli.com
             <!--Show HTML text formatting section :: Bold, Italic, Underline, Strikethrough-->
             <div class="option-settings option-indent-settings">
                 <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="show-bold-italic-underline-strikethrough-text"></span>
+                    <span class="title-option-settings yes-no-item"
+                          id="show-bold-italic-underline-strikethrough-text"></span>
                     <input type="checkbox" id="show-bold-italic-underline-strikethrough-check"/>
                     <span class="checkmark"></span>
                 </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item" id="show-bold-italic-underline-strikethrough-detailed-text"></span>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-bold-italic-underline-strikethrough-detailed-text"></span>
             </div>
 
             <!--Show HTML text formatting section :: Link-->
@@ -365,7 +433,8 @@ Created by Saverio Morelli - saveriomorelli.com
                     <input type="checkbox" id="show-link-check"/>
                     <span class="checkmark"></span>
                 </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item" id="show-link-detailed-text"></span>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-link-detailed-text"></span>
             </div>
 
             <!--Show HTML text formatting section :: Spellcheck-->
@@ -375,7 +444,8 @@ Created by Saverio Morelli - saveriomorelli.com
                     <input type="checkbox" id="show-spellcheck-check"/>
                     <span class="checkmark"></span>
                 </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item" id=show-spellcheck-detailed-text"></span>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id=show-spellcheck-detailed-text"></span>
             </div>
 
             <!--Show HTML text formatting section :: Superscript, Subscript-->
@@ -385,7 +455,8 @@ Created by Saverio Morelli - saveriomorelli.com
                     <input type="checkbox" id="show-superscript-subscript-check"/>
                     <span class="checkmark"></span>
                 </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item" id="show-superscript-subscript-detailed-text"></span>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-superscript-subscript-detailed-text"></span>
             </div>
 
             <!--Show HTML text formatting section :: Headers (h1, ..., h6)-->
@@ -395,7 +466,8 @@ Created by Saverio Morelli - saveriomorelli.com
                     <input type="checkbox" id="show-headers-check"/>
                     <span class="checkmark"></span>
                 </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item" id="show-headers-detailed-text"></span>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-headers-detailed-text"></span>
             </div>
 
             <!--Show HTML text formatting section :: Small, Big-->
@@ -405,7 +477,8 @@ Created by Saverio Morelli - saveriomorelli.com
                     <input type="checkbox" id="show-small-big-check"/>
                     <span class="checkmark"></span>
                 </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item" id="show-small-big-detailed-text"></span>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-small-big-detailed-text"></span>
             </div>
 
         </div>
@@ -725,7 +798,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <span class="description-option-settings" id="default-tag-colour-page-detailed-text"></span>
             </span>
         </div>
-    </div>
+</div>
 </div>
 <script src="../js/definitions.js"></script>
 

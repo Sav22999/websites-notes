@@ -102,7 +102,7 @@ body {
 
 .select-box {
     box-sizing: border-box;
-    font-size: 14px;
+    font-size: 1em;
     border: 0px solid var(--primary-color);
     border-radius: 5px;
     width: auto;
@@ -114,14 +114,14 @@ body {
 
     opacity: 0.8;
     background-repeat: no-repeat;
-    background-position: center right 5px;
+    background-position: center right 7px;
     background-size: auto 60%;
     background-image: url("../img/arrow-select.svg");
     -webkit-appearance: none;
     -moz-appearance: none;
     text-indent: 0px;
     text-overflow: '';
-    padding: 5px 35px 5px 10px;
+    padding: 7px 35px 7px 10px;
 }
 
 
@@ -1451,7 +1451,7 @@ aside > button.sel, aside > button.sel:hover {
     padding: 10px;
     font-size: 1em;
     z-index: 4;
-    margin: 10px 0px;
+    margin: 30px 0px;
 }
 
 .option-indent-settings {
@@ -1465,15 +1465,18 @@ aside > button.sel, aside > button.sel:hover {
 
 .description-option-settings {
     padding: 5px 0px;
-    font-size: 0.8em;
     opacity: 0.7;
     color: var(--primary-color);
     display: block;
     width: 100%;
+    padding-top: 0px;
+
+    font-weight: 300;
 }
 
 .description-option-settings-yes-no {
     width: 60%;
+    padding-top: 5px;
 }
 
 .option-settings *, .item-settings *, .description-option-settings *, .section * {
@@ -1511,7 +1514,7 @@ aside > button.sel, aside > button.sel:hover {
 }
 
 .title-option-settings {
-    font-weight: 600;
+    font-weight: 650;
     max-width: 85%;
 }
 
@@ -1793,7 +1796,7 @@ hr.hr-domain:last-child {
     color: #444444;
 }
 
-#account-section--signup-grid, #account-section--verify-signup-grid, #account-section--login-grid, #account-section--verify-login-grid {
+#account-section--signup-grid, #account-section--verify-signup-grid, #account-section--login-grid, #account-section--verify-login-grid, #account-section--delete-grid, #account-section--verify-delete-grid, #account-section--change-password-grid {
     display: grid;
     grid-gap: 5px;
 }
@@ -1805,13 +1808,25 @@ hr.hr-domain:last-child {
                          'signup-already-account signup-already-account';
 }
 
-#account-section--verify-signup-grid, #account-section--verify-login-grid {
+#account-section--verify-signup-grid, #account-section--verify-login-grid, #account-section--verify-delete-grid {
     grid-template-areas: 'email password'
                          'code code';
 }
 
 #account-section--login-grid {
+    grid-template-areas: 'email password'
+                         'hr hr'
+                         'login-not-yet-account login-not-yet-account';
+}
+
+#account-section--delete-grid {
     grid-template-areas: 'email password';
+}
+
+#account-section--change-password-grid {
+    display: grid;
+    grid-template-areas: 'old-password old-password'
+                         'password confirm-password';
 }
 
 @media screen and (max-width: 800px) {
@@ -1821,10 +1836,11 @@ hr.hr-domain:last-child {
                              'email'
                              'password'
                              'confirm-password'
+                             'hr'
                              'signup-already-account';
     }
 
-    #account-section--verify-signup-grid, #account-section--verify-login-grid {
+    #account-section--verify-signup-grid, #account-section--verify-login-grid, #account-section--verify-delete-grid {
         grid-template-areas: 'email'
                              'password'
                              'code';
@@ -1832,12 +1848,29 @@ hr.hr-domain:last-child {
 
     #account-section--login-grid {
         grid-template-areas: 'email'
+                             'password'
+                             'hr'
+                             'login-not-yet-account';
+    }
+
+    #account-section--delete-grid {
+        grid-template-areas: 'email'
                              'password';
+    }
+
+    #account-section--change-password-grid {
+        grid-template-areas: 'old-password'
+                             'password'
+                             'confirm-password';
     }
 }
 
 #signup-already-account {
     grid-area: signup-already-account;
+}
+
+#login-not-yet-account {
+    grid-area: login-not-yet-account;
 }
 
 .account-section-hr {
@@ -1849,19 +1882,23 @@ hr.hr-domain:last-child {
     grid-area: username;
 }
 
-.account-section--signup--email, .account-section--verify-signup--email, .account-section--login--email, .account-section--verify-login--email {
+.account-section--signup--email, .account-section--verify-signup--email, .account-section--login--email, .account-section--verify-login--email, .account-section--delete--email, .account-section--verify-delete--email {
     grid-area: email;
 }
 
-.account-section--signup--password, .account-section--verify-signup--password, .account-section--login--password, .account-section--verify-login--password {
+.account-section--signup--password, .account-section--verify-signup--password, .account-section--login--password, .account-section--verify-login--password, .account-section--change-password--new-password, .account-section--delete--password, .account-section--verify-delete--password {
     grid-area: password;
 }
 
-.account-section--signup--confirm-password {
+.account-section--signup--confirm-password, .account-section--change-password--confirm-new-password {
     grid-area: confirm-password;
 }
 
-.account-section--verify-signup--code, .account-section--verify-login--code {
+.account-section--change-password--old-password {
+    grid-area: old-password;
+}
+
+.account-section--verify-signup--code, .account-section--verify-login--code, .account-section--verify-delete--code {
     grid-area: code;
 }
 
@@ -1899,6 +1936,11 @@ hr.hr-domain:last-child {
 
 .background-light-red {
     background-color: #ff8e8e99 !important;
+}
+
+.button-red {
+    background-color: #ff0000;
+    color: #ffffff;
 }
 
 .tag-colour-none-bg {

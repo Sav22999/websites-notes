@@ -56,6 +56,18 @@ function api_request(message) {
         case "check-user":
             check_user(data["login-id"], data["token"]);
             break;
+        case "change-password":
+            change_password(data["login-id"], data["token"], data["old-password"], data["new-password"]);
+            break;
+        case "delete-account":
+            delete_account(data["login-id"], data["token"], data["email"], data["password"]);
+            break;
+        case "delete-account-verify":
+            delete_account_verify(data["login-id"], data["token"], data["email"], data["password"], data["deleting-code"]);
+            break;
+        case "delete-account-new-code":
+            delete_account_verify_new_code(data["email"], data["password"]);
+            break;
         default:
             console.error("Unknown API request type (" + message["type"] + ")");
     }
@@ -608,5 +620,188 @@ function check_user(login_id_value, token_valud) {
     xhr.send(JSON.stringify({
         "login-id": login_id_value,
         "token": token_valud
+    }));
+}
+
+function change_password(login_id_value, token_value, old_password_value, new_password_value) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', api_url + '/password/edit/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        // Check if the request was successful
+        if (xhr.status >= 200 && xhr.status < 300) {
+            // Parse the response JSON if needed
+            var data = JSON.parse(xhr.responseText);
+            // Do something with the data
+            browser.runtime.sendMessage({
+                "api_response": true,
+                "type": "change-password",
+                "data": data
+            });
+        } else {
+            // Handle errors
+            console.error('Request failed with status:', xhr.status);
+            browser.runtime.sendMessage({
+                "api_response": true,
+                "type": "change-password",
+                "data": {
+                    "error": true,
+                    "status": xhr.status
+                }
+            });
+        }
+    };
+    xhr.onerror = function () {
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "change-password",
+            "data": {
+                "error": true,
+                "status": xhr.status
+            }
+        });
+    };
+    xhr.send(JSON.stringify({
+        "login-id": login_id_value,
+        "token": token_value,
+        "password": old_password_value,
+        "new-password": new_password_value
+    }));
+}
+
+function delete_account(login_id_value, token_value, email_value, password_value) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', api_url + '/delete/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        // Check if the request was successful
+        if (xhr.status >= 200 && xhr.status < 300) {
+            // Parse the response JSON if needed
+            var data = JSON.parse(xhr.responseText);
+            // Do something with the data
+            browser.runtime.sendMessage({
+                "api_response": true,
+                "type": "delete-account",
+                "data": data
+            });
+        } else {
+            // Handle errors
+            console.error('Request failed with status:', xhr.status);
+            browser.runtime.sendMessage({
+                "api_response": true,
+                "type": "delete-account",
+                "data": {
+                    "error": true,
+                    "status": xhr.status
+                }
+            });
+        }
+    };
+    xhr.onerror = function () {
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "delete-account",
+            "data": {
+                "error": true,
+                "status": xhr.status
+            }
+        });
+    };
+    xhr.send(JSON.stringify({
+        "login-id": login_id_value,
+        "token": token_value,
+        "email": email_value,
+        "password": password_value
+    }));
+}
+
+function delete_account_verify(login_id_value, token_value, email_value, password_value, deleting_code_value) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', api_url + '/delete/verify/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        // Check if the request was successful
+        if (xhr.status >= 200 && xhr.status < 300) {
+            // Parse the response JSON if needed
+            var data = JSON.parse(xhr.responseText);
+            // Do something with the data
+            browser.runtime.sendMessage({
+                "api_response": true,
+                "type": "delete-verify",
+                "data": data
+            });
+        } else {
+            // Handle errors
+            console.error('Request failed with status:', xhr.status);
+            browser.runtime.sendMessage({
+                "api_response": true,
+                "type": "delete-verify",
+                "data": {
+                    "error": true,
+                    "status": xhr.status
+                }
+            });
+        }
+    };
+    xhr.onerror = function () {
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "delete-verify",
+            "data": {
+                "error": true,
+                "status": xhr.status
+            }
+        });
+    };
+    xhr.send(JSON.stringify({
+        "login-id": login_id_value,
+        "token": token_value,
+        "email": email_value,
+        "password": password_value,
+        "deleting-code": deleting_code_value
+    }));
+}
+
+function delete_account_verify_new_code(email_value, password_value) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', api_url + '/delete/verify/get-new-code/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        // Check if the request was successful
+        if (xhr.status >= 200 && xhr.status < 300) {
+            // Parse the response JSON if needed
+            var data = JSON.parse(xhr.responseText);
+            // Do something with the data
+            browser.runtime.sendMessage({
+                "api_response": true,
+                "type": "delete-account-new-code",
+                "data": data
+            });
+        } else {
+            // Handle errors
+            console.error('Request failed with status:', xhr.status);
+            browser.runtime.sendMessage({
+                "api_response": true,
+                "type": "delete-account-new-code",
+                "data": {
+                    "error": true,
+                    "status": xhr.status
+                }
+            });
+        }
+    };
+    xhr.onerror = function () {
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "delete-account-new-code",
+            "data": {
+                "error": true,
+                "status": xhr.status
+            }
+        });
+    };
+    xhr.send(JSON.stringify({
+        "email": email_value,
+        "password": password_value
     }));
 }
