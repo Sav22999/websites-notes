@@ -1929,6 +1929,20 @@ hr.hr-domain:last-child {
 
 /*global*/
 
+[contenteditable="true"].single-line {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+[contenteditable="true"].single-line br {
+    display: none !important;
+}
+
+[contenteditable="true"].single-line * {
+    display: inline;
+    white-space: nowrap;
+}
+
 .tag-colour-none {
     border: none !important;
 }

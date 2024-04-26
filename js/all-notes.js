@@ -818,7 +818,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             pageTitle.classList.add("sub-section-title");
             pageTitle.textContent = all_strings["title-label"];
 
-            pageTitleH3.classList.add("title");
+            pageTitleH3.classList.add("title", "single-line");
             pageTitleH3.textContent = title;
             pageTitleH3.oninput = function () {
                 let data = {
