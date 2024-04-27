@@ -720,6 +720,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         let inputInlineEdit = document.createElement("input");
         let pageTitleH3 = document.createElement("h3");
         let textNotes = document.createElement("div");
+        let row2 = document.createElement("div");
 
         inputInlineEdit.type = "button";
         inputInlineEdit.value = all_strings["edit-notes-button"];
@@ -733,6 +734,12 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
                 inputInlineEdit.value = all_strings["edit-notes-button"];
                 pageTitleH3.contentEditable = "false";
                 textNotes.readOnly = true;
+
+                if (title !== undefined && title !== "" || pageTitleH3.textContent.replaceAll("<br>", "") !== "") {
+                    if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
+                } else {
+                    row2.classList.add("hidden");
+                }
             } else {
                 textNotes.contentEditable = "true";
                 inputInlineEdit.classList.add("finish-edit-button");
@@ -741,6 +748,8 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
                 textNotes.readOnly = false;
                 pageTitleH3.classList.add("inline-edit-title");
                 textNotes.classList.add("inline-edit-notes");
+
+                if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
             }
         }
 
@@ -810,28 +819,28 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
 
         let pageLastUpdate = document.createElement("div");
 
-        if (title !== undefined && title !== "") {
-            let row2 = document.createElement("div");
-            row2.classList.add("rows");
+        row2.classList.add("rows");
 
-            let pageTitle = document.createElement("div");
-            pageTitle.classList.add("sub-section-title");
-            pageTitle.textContent = all_strings["title-label"];
+        let pageTitle = document.createElement("div");
+        pageTitle.classList.add("sub-section-title");
+        pageTitle.textContent = all_strings["title-label"];
 
-            pageTitleH3.classList.add("title", "single-line");
-            pageTitleH3.textContent = title;
-            pageTitleH3.oninput = function () {
-                let data = {
-                    title: pageTitleH3.textContent,
-                    lastUpdate: getDate()
-                }
-                onInputText(fullUrl, data, pageLastUpdate);
+        pageTitleH3.classList.add("title", "single-line");
+        pageTitleH3.textContent = title;
+        pageTitleH3.oninput = function () {
+            let data = {
+                title: pageTitleH3.textContent,
+                lastUpdate: getDate()
             }
-            row2.append(pageTitle)
-            row2.append(pageTitleH3);
-            page.append(row2);
+            onInputText(fullUrl, data, pageLastUpdate);
         }
-
+        row2.classList.add("hidden");
+        row2.append(pageTitle)
+        if (title !== undefined && title !== "") {
+            if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
+        }
+        row2.append(pageTitleH3);
+        page.append(row2);
         let pageNotes = document.createElement("pre");
         pageNotes.classList.add("sub-section-notes");
 

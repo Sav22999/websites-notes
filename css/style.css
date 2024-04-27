@@ -727,9 +727,12 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     border-bottom: 2px solid var(--primary-color);
     transition: 0.5s;
     padding-bottom: 25px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-top: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-bottom: -10px;
     cursor: text !important;
+    box-sizing: border-box;
 }
 
 .inline-edit-notes * {
