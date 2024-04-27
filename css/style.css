@@ -677,6 +677,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 #results-searching {
     margin: 0px -20px;
     border-radius: 0px;
+    padding: 10px;
 }
 
 @media screen and (max-width: 1700px) {
