@@ -370,6 +370,10 @@ body {
     box-shadow: 0px 0px 0px 0px var(--on-textbox-color);
 }
 
+.div-textnotes-container {
+    padding: 3px;
+}
+
 textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::placeholder {
     color: inherit;
 }
@@ -741,7 +745,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 
 .inline-edit-title:focus, .inline-edit-notes:focus {
     box-shadow: 0px 0px 0px 3px var(--primary-color);
-    border-radius: 5px;
+    border-radius: 3px;
     border-bottom-width: 0px;
 }
 
@@ -1159,6 +1163,10 @@ b {
 
 .textarea-all-notes, .textarea-all-notes * {
     cursor: default;
+}
+
+.textarea-all-notes {
+    padding: 10px !important;
 }
 
 div#format-buttons {
