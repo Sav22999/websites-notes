@@ -94,8 +94,6 @@ var letters_and_numbers = {
 };
 var ctrl_alt_shift = ["default", "domain", "page"];
 
-var colours_auto = {"primary": "", "on-primary": "", "secondary": "", "on-secondary": ""};
-
 function loaded() {
     browser.runtime.onMessage.addListener((message) => {
         if (message["sync_update"] !== undefined && message["sync_update"]) {
@@ -388,76 +386,9 @@ function setStickyThemeChooserByElement(element, set_variable = true) {
     if (set_variable) {
         settings_json["sticky-theme"] = element.value;
 
-        let colours = getStickyNotesColoursByElement(element.value);
-
-        settings_json["sticky-primary-color"] = colours[0];
-        settings_json["sticky-on-primary-color"] = colours[1];
-        settings_json["sticky-secondary-color"] = colours[2];
-        settings_json["sticky-on-secondary-color"] = colours[3];
-
         saveSettings();
     }
     sendMessageUpdateToBackground();
-}
-
-function getStickyNotesColoursByElement(colour) {
-    let primary = "#fffd7d";
-    let on_primary = "#111111";
-    let secondary = "#ff6200";
-    let on_secondary = "#ffffff";
-
-    switch (colour) {
-        case "yellow":
-            primary = "#fffd7d";
-            on_primary = "#111111";
-            secondary = "#ff6200";
-            on_secondary = "#ffffff";
-            break;
-
-        case "lime":
-            primary = "#d4f7a6";
-            on_primary = "#111111";
-            secondary = "#a6e22e";
-            on_secondary = "#111111";
-            break;
-
-        case "cyan":
-            primary = "#b3f0ff";
-            on_primary = "#111111";
-            secondary = "#00b5e2";
-            on_secondary = "#ffffff";
-            break;
-
-        case "pink":
-            primary = "#ffccff";
-            on_primary = "#111111";
-            secondary = "#ff00ff";
-            on_secondary = "#ffffff";
-            break;
-
-        case "white":
-            primary = "#f5f5f5";
-            on_primary = "#111111";
-            secondary = "#cccccc";
-            on_secondary = "#111111";
-            break;
-
-        case "black":
-            primary = "#333333";
-            on_primary = "#ffffff";
-            secondary = "#000000";
-            on_secondary = "#ffffff";
-            break;
-
-        case "auto":
-            primary = colours_auto["primary"];
-            on_primary = colours_auto["on-primary"];
-            secondary = colours_auto["secondary"];
-            on_secondary = colours_auto["on-secondary"];
-            break;
-    }
-
-    return [primary, on_primary, secondary, on_secondary];
 }
 
 function tabUpdated() {
@@ -640,13 +571,6 @@ function loadSettings() {
             if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = true;
             if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
             if (settings_json["sticky-theme"] === undefined) settings_json["sticky-theme"] = "yellow";
-            if (settings_json["sticky-primary-color"] === undefined || settings_json["sticky-on-primary-color"] === undefined || settings_json["sticky-secondary-color"] === undefined || settings_json["sticky-on-secondary-color"] === undefined) {
-                let colours = getStickyNotesColoursByElement(settings_json["sticky-theme"]);
-                settings_json["sticky-primary-color"] = colours[0];
-                settings_json["sticky-on-primary-color"] = colours[1];
-                settings_json["sticky-secondary-color"] = colours[2];
-                settings_json["sticky-on-secondary-color"] = colours[3];
-            }
             if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
             if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = true;
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
@@ -787,10 +711,11 @@ function loadSettings() {
         document.getElementById("item-radio-sticky-theme-auto").style.backgroundColor = params[2]; //secondary
         document.getElementById("sticky-theme-select-auto").style.color = params[4]; //on-secondary
 
+        /*
         colours_auto["primary"] = params[3];
         colours_auto["on-primary"] = params[5];
         colours_auto["secondary"] = params[2];
-        colours_auto["on-secondary"] = params[4];
+        colours_auto["on-secondary"] = params[4];*/
     });
 }
 

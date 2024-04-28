@@ -125,8 +125,12 @@ function checkTheme(set_theme = true, theme = "", function_to_execute = function
                         textbox_background = theme.colors.toolbar_field;
                         textbox_color = theme.colors.toolbar_field_text;
 
-                        if (set_theme) setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
-                        else function_to_execute([background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color]);
+                        if (background === undefined || backgroundSection === undefined || primary === undefined || secondary === undefined || on_primary === undefined || on_secondary === undefined || textbox_background === undefined || textbox_color === undefined) {
+                            default_theme = true;
+                        } else {
+                            if (set_theme) setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
+                            else function_to_execute([background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color]);
+                        }
                     } else {
                         default_theme = true;
                     }

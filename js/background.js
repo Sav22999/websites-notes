@@ -4,6 +4,7 @@ var websites_json = {};
 var notefox_json = {};
 
 var icons_json = {};
+var theme_colours_json = {};
 
 const webBrowserUsed = "firefox";//TODO:change manually
 
@@ -395,6 +396,69 @@ function checkStatus(update = false) {
                 "minimize": minimize_sticky_icon_svg,
                 "restore": restore_sticky_icon_svg
             };
+
+            theme_colours_json = {
+                "primary": getStickyNotesColoursByElement("yellow")[0],
+                "on-primary": getStickyNotesColoursByElement("yellow")[1],
+                "secondary": getStickyNotesColoursByElement("yellow")[2],
+                "on-secondary": getStickyNotesColoursByElement("yellow")[3]
+            };
+            sync_local.get("settings").then(result => {
+                let primary;
+                let secondary;
+                let on_primary;
+                let on_secondary;
+                let default_theme = false;
+
+                if (result !== undefined && result["settings"] !== undefined && result["settings"]["sticky-theme"] !== undefined) {
+                    let theme = result["settings"]["sticky-theme"];
+                    if (theme === "auto") {
+                        browser.theme.getCurrent().then(theme => {
+                            if (theme !== undefined && theme["colors"] !== undefined && theme["colors"] !== null) {
+                                //console.log(JSON.stringify(theme.colors));
+                                primary = theme.colors.toolbar_text;
+                                secondary = theme.colors.toolbar_field;
+                                on_primary = theme.colors.toolbar;
+                                on_secondary = theme.colors.toolbar_field_text;
+
+                                theme_colours_json = {
+                                    "primary": primary,
+                                    "on-primary": on_primary,
+                                    "secondary": secondary,
+                                    "on-secondary": on_secondary
+                                };
+
+                                if (primary === undefined || secondary === undefined || on_primary === undefined || on_secondary === undefined) {
+                                    default_theme = true;
+                                }
+                            } else {
+                                default_theme = true;
+                            }
+                        });
+                    } else {
+                        let colours = getStickyNotesColoursByElement(theme);
+                        theme_colours_json = {
+                            "primary": colours[0],
+                            "on-primary": colours[1],
+                            "secondary": colours[2],
+                            "on-secondary": colours[3]
+                        };
+                    }
+                } else {
+                    default_theme = true;
+                }
+
+                if (default_theme) {
+                    //use the default one
+                    let colours = getStickyNotesColoursByElement("yellow");
+                    theme_colours_json = {
+                        "primary": colours[0],
+                        "on-primary": colours[1],
+                        "secondary": colours[2],
+                        "on-secondary": colours[3]
+                    };
+                }
+            });
         })
         .then(() => {
             sync_local.get(["websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"])
@@ -466,6 +530,64 @@ function checkStatus(update = false) {
                 });
             //console.log("checkStatus (continued)");
         });
+}
+
+/**
+ * Get the sticky notes theme colour
+ * @param colour it's the name of the theme ("yellow", "lime", "cyan", "pink", "white", "black") -- not "auto"!
+ * @returns {(string)[]} it returns an array with the [primary, on-primary, secondary, on-secondary] colours
+ */
+function getStickyNotesColoursByElement(colour) {
+    let primary = "#fffd7d";
+    let on_primary = "#111111";
+    let secondary = "#ff6200";
+    let on_secondary = "#ffffff";
+
+    switch (colour) {
+        case "yellow":
+            primary = "#fffd7d";
+            on_primary = "#111111";
+            secondary = "#ff6200";
+            on_secondary = "#ffffff";
+            break;
+
+        case "lime":
+            primary = "#d4f7a6";
+            on_primary = "#111111";
+            secondary = "#a6e22e";
+            on_secondary = "#111111";
+            break;
+
+        case "cyan":
+            primary = "#b3f0ff";
+            on_primary = "#111111";
+            secondary = "#00b5e2";
+            on_secondary = "#ffffff";
+            break;
+
+        case "pink":
+            primary = "#ffccff";
+            on_primary = "#111111";
+            secondary = "#ff00ff";
+            on_secondary = "#ffffff";
+            break;
+
+        case "white":
+            primary = "#f5f5f5";
+            on_primary = "#111111";
+            secondary = "#cccccc";
+            on_secondary = "#111111";
+            break;
+
+        case "black":
+            primary = "#333333";
+            on_primary = "#ffffff";
+            secondary = "#000000";
+            on_secondary = "#ffffff";
+            break;
+    }
+
+    return [primary, on_primary, secondary, on_secondary];
 }
 
 function getIconSvgEncoded(icon, color) {
@@ -822,7 +944,8 @@ function listenerStickyNotes() {
                             },
                             websites: websites_json,
                             settings: settings_json,
-                            icons: icons_json
+                            icons: icons_json,
+                            theme_colours: theme_colours_json
                         });
                     } else {
                         //console.error(JSON.stringify(websites_json[url_to_use]));
@@ -836,7 +959,8 @@ function listenerStickyNotes() {
                             sticky: websites_json[url_to_use]["sticky"],
                             minimized: websites_json[url_to_use]["minimized"],
                             settings_json: settings_json,
-                            icons: icons_json
+                            icons: icons_json,
+                            theme_colours: theme_colours_json
                         })
                     } else {
                         sendResponse({
