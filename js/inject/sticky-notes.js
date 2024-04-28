@@ -142,7 +142,7 @@ function updateStickyNotes() {
                 checkDisableWordWrap(text, response.settings);
                 checkLanguageSpellcheck(text, response.settings);
                 checkFontFamily(text, response.settings);
-                checkThemeSticky(text, response.settings, response.icons, response.theme_colours);
+                checkThemeSticky(text, response.settings, response.icons, response.theme_colours, response.notes.sticky_params.opacity.value);
 
                 //(re)set events
                 close.onclick = function () {
@@ -387,7 +387,7 @@ function checkThemeSticky(text, settings_json, icons_json, theme_colours_json, o
     document.getElementById("minimize--sticky-notes-notefox-addon").style.backgroundColor = secondary_color + "";
     document.getElementById("minimize--sticky-notes-notefox-addon").style.color = on_secondary_color + "";
     document.getElementById("slider-container--sticky-notes-notefox-addon").style.borderColor = secondary_color + "";
-    document.getElementById("slider--sticky-notes-notefox-addon").style.background = `linear-gradient(to right, ${secondary_color} 0%, ${secondary_color} ${(opacity * 100)} %, #eeeeee ${(opacity * 100)}%, #eeeeee 100%)`;
+    document.getElementById("slider--sticky-notes-notefox-addon").style.background = `linear-gradient(to right, ${secondary_color} 0%, ${secondary_color} ${opacity * 100}%, #eeeeee ${opacity * 100}%, #eeeeee 100%)`;
     document.getElementById("move--sticky-notes-notefox-addon").style.backgroundColor = secondary_color + "";
     document.getElementById("move--sticky-notes-notefox-addon").style.color = on_secondary_color + "";
     document.getElementById("page-or-domain--sticky-notes-notefox-addon").style.backgroundColor = secondary_color + "";
@@ -689,15 +689,16 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 right: 10px !important;
                 bottom: 10px !important;
                 margin: 0px !important;
-                padding: 0px 10px !important;
+                padding: 0px !important;
                 box-sizing: border-box !important;
+                background-color: #eeeeee;
             }
             
             #slider--sticky-notes-notefox-addon {
                 width: 100%;
                 height: 5px;
                 background: linear-gradient(to right, ${secondary_color} 0%, ${secondary_color} ${opacity * 100}%, #eeeeee ${opacity * 100}%, #eeeeee 100%);
-                border: 1px solid ${secondary_color};
+                border: 0px solid ${secondary_color};
                 outline: none;
                 opacity: 0.7;
                 transition: opacity .2s;
@@ -708,6 +709,11 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 box-sizing: border-box !important;
             }
             
+            #slider--sticky-notes-notefox-addon:active {
+                background: inherit;
+                cursor: grabbing;
+            }
+            
             #slider--sticky-notes-notefox-addon:hover {
                 opacity: 1;
             }
@@ -715,15 +721,15 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
             #slider--sticky-notes-notefox-addon::-moz-range-thumb {
                 width: 15px;
                 height: 15px;
-                background: ${secondary_color};
+                background-color: ${secondary_color};
                 cursor: grab;
-                border: 1px solid #eeeeee;
+                border: 0px solid #eeeeee;
                 border-radius: 100%;
                 margin: 0px;
             }
             #slider--sticky-notes-notefox-addon::-moz-range-thumb:active {
                 cursor: grabbing;
-                box-shadow: 0px 0px 0px 5px ${secondary_color};
+                box-shadow: 0px 0px 0px 4px ${secondary_color};
                 transition: 0.5s;
             }
             #tag--sticky-notes-notefox-addon {
