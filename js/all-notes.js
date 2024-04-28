@@ -735,12 +735,9 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
                 pageTitleH3.contentEditable = "false";
                 textNotes.readOnly = true;
 
-                console.log("'" + pageTitleH3.textContent + "'");
                 if (pageTitleH3.textContent.replaceAll("<br>", "") !== "") {
-                    console.log("--1--");
                     if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
                 } else {
-                    console.log("--2--");
                     row2.classList.add("hidden");
                 }
             } else {

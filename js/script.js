@@ -692,14 +692,20 @@ function saveNotes(title_call = false) {
             delete websites_json[currentUrl[selected_tab]];
             loadFormatButtons(true, false);
             //setPosition(document.getElementById("notes"), 1);
+            document.getElementById("title-notes").disabled = true;
+            let component = "notes";
+            if (title_call) component = "title-notes";
             setTimeout(function () {
-                let component = "notes";
-                if (title_call) component = "title-notes";
                 document.getElementById(component).blur();
-                document.getElementById(component).focus();
+                document.getElementById("notes").focus();
             }, 100);
         } else {
             loadFormatButtons(true, true);
+            document.getElementById("title-notes").disabled = false;
+            let component = "notes";
+            if (title_call) component = "title-notes";
+            document.getElementById(component).blur();
+            document.getElementById(component).focus();
         }
         if (currentUrl[1] !== "" && currentUrl[2] !== "") {
             //selected_tab : {0: global | 1:domain | 2:page}
@@ -715,8 +721,6 @@ function saveNotes(title_call = false) {
                 }
                 //setPosition(document.getElementById("notes"), currentPosition);
                 listenerLinks();
-
-                console.log(selected_tab);
 
                 let last_update = all_strings["never-update"];
                 if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["last-update"] !== undefined) last_update = websites_json[url_to_use]["last-update"];
@@ -1054,6 +1058,12 @@ function setTab(index, url) {
     }
     document.getElementById("notes").innerHTML = notes;
     document.getElementById("title-notes").value = title;
+
+    if (notes === "<br>" || notes === "") {
+        document.getElementById("title-notes").disabled = true;
+    } else {
+        document.getElementById("title-notes").disabled = false;
+    }
 
     listenerLinks();
     if (notes !== "<br>" && notes !== "") {

@@ -862,10 +862,18 @@ function listenerAllNotes() {
                             if (message.data.notes !== undefined) websites_json[message.url]["notes"] = message.data.notes;
                             if (message.data.lastUpdate !== undefined) websites_json[message.url]["last-update"] = message.data.lastUpdate;
 
+                            let deleted = false;
+                            if (websites_json[message.url]["notes"] === "" || websites_json[message.url]["notes"] === undefined || websites_json[message.url]["notes"] === "<br>") {
+                                delete websites_json[message.url];
+                                deleted = true;
+                            }
+
                             sync_local.set({
                                 "websites": websites_json,
                                 "last-update": getDate()
                             });
+
+                            if (deleted) browser.runtime.sendMessage({"updated": true});
                         }
                     });
                 }
