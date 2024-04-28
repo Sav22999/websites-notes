@@ -730,12 +730,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 .inline-edit-title, .inline-edit-notes {
     border-radius: 0px;
     border-bottom: 2px solid var(--primary-color);
-    transition: 0.5s;
-    padding-bottom: 25px;
-    padding-top: 5px;
-    padding-left: 15px;
-    padding-right: 15px;
-    margin-bottom: -10px;
+    margin-bottom: -10px !important;
     cursor: text !important;
     box-sizing: border-box;
 }
@@ -748,6 +743,8 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     box-shadow: 0px 0px 0px 3px var(--primary-color);
     border-radius: 3px;
     border-bottom-width: 0px;
+    margin-bottom: -8px !important;
+    transition: 0.5s;
 }
 
 .sub-section-notes {
@@ -1486,6 +1483,10 @@ aside > button.sel, aside > button.sel:hover {
     font-weight: 300;
 }
 
+.description-option-settings b {
+    font-weight: 500;
+}
+
 .description-option-settings-yes-no {
     width: 60%;
     padding-top: 5px;
@@ -1941,16 +1942,19 @@ hr.hr-domain:last-child {
 
 /*global*/
 
-[contenteditable="true"].single-line {
+.single-line {
+    padding: 5px;
+    margin-bottom: -8px;
     white-space: nowrap;
     overflow: hidden;
+    height: auto;
 }
 
-[contenteditable="true"].single-line br {
+.single-line br {
     display: none !important;
 }
 
-[contenteditable="true"].single-line * {
+.single-line * {
     display: inline;
     white-space: nowrap;
 }

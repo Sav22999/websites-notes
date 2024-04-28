@@ -705,12 +705,12 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         pageType.classList.add("sub-section-type");
         pageType.textContent = type;
 
-        let input_clear_all_notes_page = document.createElement("input");
+        let inputClearAllNotesPage = document.createElement("input");
 
-        input_clear_all_notes_page.type = "button";
-        input_clear_all_notes_page.value = all_strings["clear-notes-of-this-page-button"];
-        input_clear_all_notes_page.classList.add("button", "float-right", "very-small-button", "clear2-button");
-        input_clear_all_notes_page.onclick = function () {
+        inputClearAllNotesPage.type = "button";
+        inputClearAllNotesPage.value = all_strings["clear-notes-of-this-page-button"];
+        inputClearAllNotesPage.classList.add("button", "float-right", "very-small-button", "clear2-button");
+        inputClearAllNotesPage.onclick = function () {
             let isDomain = false;
             if (fullUrl === url) {
                 isDomain = true;
@@ -735,9 +735,12 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
                 pageTitleH3.contentEditable = "false";
                 textNotes.readOnly = true;
 
-                if (title !== undefined && title !== "" || pageTitleH3.textContent.replaceAll("<br>", "") !== "") {
+                console.log("'" + pageTitleH3.textContent + "'");
+                if (pageTitleH3.textContent.replaceAll("<br>", "") !== "") {
+                    console.log("--1--");
                     if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
                 } else {
+                    console.log("--2--");
                     row2.classList.add("hidden");
                 }
             } else {
@@ -750,6 +753,12 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
                 textNotes.classList.add("inline-edit-notes");
 
                 if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
+            }
+        }
+        pageTitleH3.onkeypress = function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                inputInlineEdit.click();
             }
         }
 
@@ -791,7 +800,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
 
         row1.append(pageType)
 
-        row1.append(input_clear_all_notes_page);
+        row1.append(inputClearAllNotesPage);
         row1.append(inputCopyNotes);
         row1.append(inputInlineEdit);
         row1.append(tagsColour);
