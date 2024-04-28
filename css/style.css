@@ -803,8 +803,15 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     color: var(--primary-color);
 }
 
+@media screen and (max-width: 1700px) {
+    #account-section {
+        padding-top: 5%;
+        padding-bottom: 5%;
+    }
+}
+
 @media screen and (max-width: 1500px) {
-    #import-section, #export-section, #account-section, #login-expired-section, #link-section {
+    #import-section, #account-section, #export-section, #login-expired-section, #link-section {
         padding-top: 5%;
         padding-left: 10%;
         padding-right: 10%;
@@ -2240,4 +2247,8 @@ hr.hr-domain:last-child {
 
 .margin-top-20-px {
     margin-top: 20px !important;
+}
+
+.no-bold {
+    font-weight: normal !important;
 }
