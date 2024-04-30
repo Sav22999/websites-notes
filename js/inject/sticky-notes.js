@@ -633,7 +633,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 opacity: 1;
             }
             
-            #slider--sticky-notes-notefox-addon::-moz-range-thumb {
+            #slider--sticky-notes-notefox-addon::-webkit-slider-thumb {
                 width: 15px;
                 height: 15px;
                 background: #ff6200;
@@ -642,7 +642,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 border-radius: 100%;
                 margin: 0px;
             }
-            #slider--sticky-notes-notefox-addon::-moz-range-thumb:active {
+            #slider--sticky-notes-notefox-addon::-webkit-slider-thumb:active {
                 cursor: grabbing;
                 box-shadow: 0px 0px 0px 1px #ffb788, 0px 0px 0px 4px #ff6200;
                 transition: 0.5s;

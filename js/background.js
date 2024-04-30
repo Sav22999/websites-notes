@@ -102,9 +102,11 @@ function tabUpdated(update = false) {
         }
         chrome.tabs.query({active: true, currentWindow: true}).then(tabs => {
             if (tabs !== undefined && tabs.length > 0) {
-                tab_id = tabs[0].id;
-                tab_url = tabs[0].url;
-                tab_title = tabs[0].title;
+                if (tabs[0].id !== undefined && tabs[0].url !== undefined && tabs[0].title !== undefined) {
+                    tab_id = tabs[0].id;
+                    tab_url = tabs[0].url;
+                    tab_title = tabs[0].title;
+                }
             }
         }).then((tabs) => {
             checkStatus(update);
