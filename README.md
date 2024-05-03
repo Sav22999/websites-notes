@@ -21,6 +21,8 @@ To support me, you can buy me a coffee making a donation ❤️ with **LiberaPay
 
 Take notes on every website in a smart and simple way!
 
+https://www.notefox.eu/about/
+
 ## Features
 
 - Take notes on websites, you can take notes for the whole domain called "Domain" (es. `https://saveriomorelli.com`) or notes for a specific web page of a domain called "Page" (es. `https://saveriomorelli.com/projects/`)
@@ -29,6 +31,9 @@ Take notes on every website in a smart and simple way!
 - Auto-saving
 - Notes as Sticky-notes (“Memo”/“Post-it")
 - Keyboard shortcuts (also customisable!)
+- Sync with Notefox Account
+
+Learn more about Notefox on the official website <a href="https://notefox.eu">https://notefox.eu</a>
 
 ## How to contribute
 
