@@ -39,5 +39,5 @@ You can contribute also translating the add-on on Crowdin.
 
 See folder <code>screenshots</code> to see screenshots also of the older versions.
 
-<img src="screenshots/3.7/1.png" width="400px"></img><img src="screenshots/3.7/2.png" width="400px"></img><img src="screenshots/3.7/3.png" width="400px"></img><img src="screenshots/3.4/4.png" width="400px"></img>
-<img src="screenshots/3.7/tutorial1.png" width="400px"></img><img src="screenshots/3.7/tutorial2.png" width="400px"></img>
+<img src="screenshots/4.0/1.png" width="400px"></img><img src="screenshots/4.0/2.png" width="400px"></img><img src="screenshots/4.0/3.png" width="400px"></img><img src="screenshots/4.0/4.png" width="400px"></img>
+<img src="screenshots/4.0/tutorial1.png" width="400px"></img><img src="screenshots/4.0/tutorial2.png" width="400px"></img>
