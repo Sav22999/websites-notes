@@ -11,22 +11,54 @@ Created by Saverio Morelli - saveriomorelli.com
 <body>
 <div id="popup-content">
     <div id="tabs-section">
-        <input type="button" value="Global" id="global-button" class="tab" tabindex="1"/><input type="button" value="Domain" id="domain-button" class="tab"  tabindex="1"/><input type="button" value="Page" id="page-button" class="tab"  tabindex="1"/><input type="button" value="•••" id="tab-other-button" class="tab"  tabindex="1"/>
+        <input type="button" value="" id="global-button" class="tab" tabindex="1"/><input
+            type="button" value="" id="domain-button" class="tab" tabindex="1"/><input
+            type="button" value="" id="page-button" class="tab" tabindex="1"/><input
+            type="button" value="•••" id="tab-other-button" class="tab" tabindex="1"/>
     </div>
     <div id="notes-section">
-        <pre contenteditable="true" id="notes" spellcheck="true"  tabindex="2"></pre>
-        <div id="panel-other-tabs" class="hidden" tabindex="1"><div id="arrow-down"></div><div id="subdomains-list"></div></div>
-        <div id="format-buttons"  tabindex="2"></div>
-        <input type="button" value="" id="open-sticky-button" class="button button-trigger-sticky"  tabindex="2"/>
+        <input type="text" id="title-notes" class="textbox width-100-important hidden" tabindex="2" value="">
+        <pre contenteditable="true" id="notes" spellcheck="true" tabindex="2" placeholder=""></pre>
+        <div id="panel-other-tabs" class="hidden" tabindex="1">
+            <div id="arrow-down"></div>
+            <div id="subdomains-list"></div>
+        </div>
+        <div id="format-buttons" tabindex="2"></div>
+        <input type="button" value="" id="open-sticky-button" class="button button-trigger-sticky" tabindex="2"/>
     </div>
-    <div id="last-updated-section">
+    <div id="last-updated-section" class="padding-top-10">
         Last update: ----/--/-- --:--:--
     </div>
     <div id="all-notes-section">
-        <select id="tag-select-grid" class="button"  tabindex="2"></select>
-        <input type="button" value="See all notes" id="all-notes-button-grid" class="button"  tabindex="2"/>
+        <select id="tag-select-grid" class="button" tabindex="2"></select>
+        <input type="button" value="See all notes" id="all-notes-button-grid" class="button" tabindex="2"/>
     </div>
     <div id="tag-colour-section"></div>
+</div>
+
+<!--login expired popup-->
+<div id="background-opacity"></div>
+<div id="login-expired-section">
+    <div id="login-expired-content" class="section">
+        <div id="login-expired-title" class="padding-10"></div>
+        <div id="login-expired-text" class="padding-10"></div>
+        <div id="login-expired-buttons" class="padding-10 text-align-right">
+            <input type="button" value="" id="login-expired-button" class="button login-button" tabindex="1"/>
+            <input type="button" value="" id="login-expired-cancel-button" class="button" tabindex="2"/>
+        </div>
+    </div>
+</div>
+<div id="link-section">
+    <div id="link-content-section" class="section">
+        <div id="link-text" class="padding-10"></div>
+        <div id="link-url" class="padding-10">
+            <input type="text" id="link-url-text" class="textbox width-100-important" tabindex="1" value="">
+        </div>
+        <div id="link-buttons" class="padding-10 text-align-right">
+            <input type="button" value="" id="link-button" class="button" tabindex="1"/>
+            <input type="button" value="" id="link-cancel-button" class="button" tabindex="2"/>
+        </div>
+    </div>
 </div>
 <script src="./js/definitions.js"></script>
 

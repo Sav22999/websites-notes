@@ -57,13 +57,7 @@ checkSyncLocal();
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;
-    browser.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = browser.storage.sync; else if (result.storage === "sync") sync_local = browser.storage.sync; else {
-            browser.storage.local.set({"storage": "local"});
-            sync_local = browser.storage.local;
-        }
-        checkTheme();
-    });
+    checkTheme();
 }
 
 function loaded() {
@@ -71,6 +65,17 @@ function loaded() {
     loadSettings();
     checkTheme();
     checkTimesOpened();
+
+    browser.runtime.onMessage.addListener((message) => {
+        if (message["sync_update"] !== undefined && message["sync_update"]) {
+            loaded();
+        }
+        if (message["check-user--expired"] !== undefined && message["check-user--expired"]) {
+            //console.log("User expired! Log in again | script");
+            loginExpired();
+        }
+    });
+    browser.runtime.sendMessage({"check-user": true});
 }
 
 function checkTimesOpened() {
@@ -80,7 +85,7 @@ function checkTimesOpened() {
             times = result["times-opened"];
             let interval_to_check = [1000, 5000, 20000, 50000, 100000, 1000000, 5000000];
             if (times > 0 && interval_to_check.includes(times + 1)) {
-                browser.tabs.create({url: "https://www.saveriomorelli.com/projects/notefox/opened-times/"});
+                browser.tabs.create({url: "https://www.notefox.eu/help/opened-times/"});
                 //window.close();
             }
         }
@@ -150,8 +155,8 @@ function listenerLinks() {
         let links = notes.querySelectorAll('a');
         links.forEach(link => {
             function onMouseOverDown(event, settings_json, link) {
-                if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
-                if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
+                if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
+                if ((settings_json["open-links-only-with-ctrl"] === "yes" || settings_json["open-links-only-with-ctrl"] === true) && (event.ctrlKey || event.metaKey)) {
                     link.style.textDecorationStyle = "solid";
                     link.style.cursor = "pointer";
                 }
@@ -175,7 +180,7 @@ function listenerLinks() {
                 onMouseLeaveUp(link);
             }
             link.onclick = function (event) {
-                if (settings_json["open-links-only-with-ctrl"] === "yes" && (event.ctrlKey || event.metaKey)) {
+                if ((settings_json["open-links-only-with-ctrl"] === "yes" || settings_json["open-links-only-with-ctrl"] === true) && (event.ctrlKey || event.metaKey)) {
                     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         browser.tabs.create({
                             url: link.href,
@@ -197,13 +202,18 @@ function setLanguageUI() {
     document.getElementById("global-button").value = all_strings["global-label"];
     document.getElementById("all-notes-button-grid").value = all_strings["see-all-notes-button"];
     document.getElementById("last-updated-section").value = all_strings["last-update-text"].replaceAll("{{date_time}}", "----/--/-- --:--:--");
+
+    document.getElementById("title-notes").placeholder = all_strings["title-notes-placeholder"];
+    document.documentElement.style.setProperty('--placeholder-notes-text', `'${all_strings["notes-placeholder"]}'`);
 }
 
 function loadUI() {
     //opened_by = {-1: default, 0: domain, 1: page}
     setLanguageUI();
     let notes = document.getElementById("notes");
+    let title_notes = document.getElementById("title-notes");
     notes.style.fontFamily = `'${settings_json["font-family"]}'`;
+    title_notes.style.fontFamily = `'${settings_json["font-family"]}'`;
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         let activeTab = tabs[0];
         let activeTabId = activeTab.id;
@@ -293,6 +303,14 @@ function loadUI() {
     notes.oninput = function () {
         saveNotes();
     }
+    title_notes.oninput = function () {
+        saveNotes(title = true);
+    }
+    title_notes.onkeypress = function (e) {
+        if (e.key === "Enter") {
+            document.getElementById("notes").focus();
+        }
+    }
     notes.onpaste = function (e) {
         if (((e.originalEvent || e).clipboardData).getData("text/html") !== "") {
             e.preventDefault(); // Prevent the default paste action
@@ -348,6 +366,14 @@ function loadUI() {
     document.getElementById("all-notes-button-grid").onclick = function () {
         browser.tabs.create({url: "./all-notes/index.html"});
         window.close();
+    }
+
+    if (settings_json["show-title-textbox"]) {
+        if (title_notes.classList.contains("hidden")) title_notes.classList.remove("hidden");
+        notes.classList.add("no-border-radius-top");
+    } else {
+        title_notes.classList.add("hidden");
+        if (notes.classList.contains("no-border-radius-top")) notes.classList.remove("no-border-radius-top");
     }
 
 
@@ -406,7 +432,8 @@ function changeTagColour(url, colour) {
             //console.log(`url ${url}`);
             websites_json[url]["tag-colour"] = colour;
             websites_json_to_show = websites_json;
-            sync_local.set({"websites": websites_json}, function () {
+            //console.log("QAZ-8")
+            sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
                 loadUI();
             });
         }
@@ -502,25 +529,26 @@ function loadSettings() {
     sync_local.get("settings", function (value) {
         if (value["settings"] !== undefined) settings_json = value["settings"];
         if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
-        if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "no";
-        if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "no";
+        if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
+        if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
         if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
         if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
         if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
-        if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
-        if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
-        if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
-        if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = "yes";
+        if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
+        if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
+        if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
+        if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = true;
         if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
-        if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = "yes";
-        if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = "yes";
-        if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = "yes";
-        if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = "yes";
-        if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = "yes";
-        if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = "no";
+        if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
+        if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = true;
+        if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
+        if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
+        if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
+        if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
         if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+        if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
 
-        if (settings_json["advanced-managing"] === "yes") advanced_managing = true;
+        if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
         else advanced_managing = false;
 
         continueLoaded();
@@ -613,12 +641,18 @@ function sanitizeHTML(input) {
     return sanitizedHTML.innerHTML;
 }
 
-function saveNotes() {
-    sync_local.get("websites", function (value) {
+function saveNotes(title_call = false) {
+    sync_local.get(["websites", "settings"], function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
         } else {
             websites_json = {};
+        }
+
+        if (value["settings"] !== undefined) {
+            settings_json = value["settings"];
+        } else {
+            loadSettings();
         }
 
         let url_to_use = getUrlWithSupportedProtocol(currentUrl[selected_tab], websites_json);
@@ -626,10 +660,15 @@ function saveNotes() {
 
         if (websites_json[url_to_use] === undefined) websites_json[url_to_use] = {};
         let notes = document.getElementById("notes").innerHTML;
+        let title = document.getElementById("title-notes").value;
         websites_json[url_to_use]["notes"] = notes;
+        if (settings_json["show-title-textbox"]) websites_json[url_to_use]["title"] = title;
         websites_json[url_to_use]["last-update"] = getDate();
+
         if (websites_json[url_to_use]["tag-colour"] === undefined) {
+            let tabSelected = getCurrentTabNameTag(selected_tab);
             websites_json[url_to_use]["tag-colour"] = "none";
+            if (settings_json["default-tag-colour-" + tabSelected] !== undefined) websites_json[url_to_use]["tag-colour"] = settings_json["default-tag-colour-" + tabSelected];
         }
         if (websites_json[url_to_use]["sticky"] === undefined) {
             websites_json[url_to_use]["sticky"] = false;
@@ -653,16 +692,25 @@ function saveNotes() {
             delete websites_json[currentUrl[selected_tab]];
             loadFormatButtons(true, false);
             //setPosition(document.getElementById("notes"), 1);
+            document.getElementById("title-notes").disabled = true;
+            let component = "notes";
+            if (title_call) component = "title-notes";
             setTimeout(function () {
-                document.getElementById("notes").blur();
+                document.getElementById(component).blur();
                 document.getElementById("notes").focus();
             }, 100);
         } else {
             loadFormatButtons(true, true);
+            document.getElementById("title-notes").disabled = false;
+            let component = "notes";
+            if (title_call) component = "title-notes";
+            document.getElementById(component).blur();
+            document.getElementById(component).focus();
         }
         if (currentUrl[1] !== "" && currentUrl[2] !== "") {
             //selected_tab : {0: global | 1:domain | 2:page}
-            sync_local.set({"websites": websites_json}, function () {
+            //console.log("QAZ-9")
+            sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
                 let never_saved = true;
 
                 let notes = "";
@@ -683,6 +731,10 @@ function saveNotes() {
                 if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) colour = websites_json[url_to_use]["tag-colour"];
                 document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
 
+                let title = "";
+                if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["title"] !== undefined) title = websites_json[url_to_use]["title"];
+                document.getElementById("title-notes").value = title;
+
                 /*
                 let sticky = false;
                 if (websites_json[currentUrl[selected_tab]] !== undefined && websites_json[currentUrl[selected_tab]]["sticky"] !== undefined) {
@@ -702,21 +754,68 @@ function saveNotes() {
     });
 }
 
+function correctDatetime(datetime) {
+    let date = new Date(datetime);
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+function getCurrentTabNameTag(tab) {
+    if (tab === 0) return "global";
+    else if (tab === 1) return "domain";
+    else if (tab === 2) return "page";
+    else if (tab === 3) return "subdomain";
+}
+
+function getDate() {
+    let todayDate = new Date();
+    let today = "";
+    today = todayDate.getFullYear() + "-";
+    let month = todayDate.getMonth() + 1;
+    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
+    let day = todayDate.getDate();
+    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
+    let hour = todayDate.getHours();
+    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
+    let minute = todayDate.getMinutes();
+    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
+    let second = todayDate.getSeconds();
+    if (second < 10) today = today + "0" + second; else today = today + "" + second
+
+    return today;
+}
+
 function checkNeverSaved(never_saved) {
     if (stickyNotesSupported) {
         if (never_saved) {
             document.getElementById("open-sticky-button").classList.add("hidden");
             document.getElementById("tag-select-grid").classList.add("hidden");
             document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
+            if (document.getElementById("format-buttons").childNodes.length === 0) {
+                document.getElementById("format-buttons").classList.add("hidden");
+                if (document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
+            }
         } else {
             if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
             if (document.getElementById("tag-select-grid").classList.contains("hidden")) document.getElementById("tag-select-grid").classList.remove("hidden");
             document.getElementById("all-notes-section").style.gridTemplateAreas = "'tag all-notes all-notes all-notes all-notes'";
+            if (document.getElementById("format-buttons").classList.contains("hidden")) {
+                document.getElementById("format-buttons").classList.remove("hidden");
+                if (!document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.add("padding-top-10");
+            }
         }
     } else {
         document.getElementById("open-sticky-button").classList.add("hidden");
         document.getElementById("tag-select-grid").classList.add("hidden");
         document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
+        document.getElementById("format-buttons").classList.add("hidden");
+        if (document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
     }
 }
 
@@ -725,18 +824,7 @@ function sendMessageUpdateToBackground() {
 }
 
 function tabUpdated() {
-    browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
-        let tab_id = tabs[0].id;
-        let tab_url = tabs[0].url;
-
-        setUrl(tab_url);
-        actions = [];
-        currentAction = 0;
-        undoAction = false;
-    }).then((tabs) => {
-        window.close();
-        //loadUI();
-    });
+    loaded();
 }
 
 function setUrl(url) {
@@ -753,6 +841,8 @@ function setUrl(url) {
     if (advanced_managing && otherPossibleUrls.length > 0) {
         document.getElementById("domain-button").style.width = "30%";
         document.getElementById("tab-other-button").style.width = "10%";
+        document.getElementById("page-button").style.borderRadius = "0px";
+        document.getElementById("tab-other-button").style.display = "inline-block";
     } else {
         document.getElementById("domain-button").style.width = "40%";
         document.getElementById("tab-other-button").style.display = "none";
@@ -779,7 +869,7 @@ function checkAllSupportedProtocols(url, json) {
     //Supported: http, https, moz-extension
     if (url === getGlobalUrl()) return true;
 
-    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
+    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === true;
     if (checkInAllSupportedProtocols) {
         if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["extension://" + getUrlWithoutProtocol(url)] !== undefined || json["chrome-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["about://" + getUrlWithoutProtocol(url)] !== undefined)
             return true;
@@ -794,7 +884,7 @@ function getUrlWithSupportedProtocol(url, json) {
     //Supported: http, https, moz-extension
     if (url === getGlobalUrl()) return url;
 
-    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
+    let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === true;
     if (checkInAllSupportedProtocols) {
         if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
         else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
@@ -938,24 +1028,6 @@ function isUrlSupported(url) {
     return valueToReturn;
 }
 
-function getDate() {
-    let todayDate = new Date();
-    let today = "";
-    today = todayDate.getFullYear() + "-";
-    let month = todayDate.getMonth() + 1;
-    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
-    let day = todayDate.getDate();
-    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
-    let hour = todayDate.getHours();
-    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
-    let minute = todayDate.getMinutes();
-    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
-    let second = todayDate.getSeconds();
-    if (second < 10) today = today + "0" + second; else today = today + "" + second
-
-    return today;
-}
-
 function setTab(index, url) {
     loadFormatButtons(false, false);
     hideTabSubDomains();
@@ -969,13 +1041,30 @@ function setTab(index, url) {
 
     let never_saved = true;
     let notes = "";
+    let title = "";
     if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"] !== undefined) {
         //notes saved (also it's empty)
         notes = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"];
+        title = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["title"];
         listenerLinks();
         never_saved = false;
     }
+    if (title === undefined) {
+        browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            let activeTab = tabs[0];
+            title = activeTab.title;
+            document.getElementById("title-notes").value = title;
+        });
+    }
     document.getElementById("notes").innerHTML = notes;
+    document.getElementById("title-notes").value = title;
+
+    if (notes === "<br>" || notes === "") {
+        document.getElementById("title-notes").disabled = true;
+    } else {
+        document.getElementById("title-notes").disabled = false;
+    }
+
     listenerLinks();
     if (notes !== "<br>" && notes !== "") {
         loadFormatButtons(true, true);
@@ -1016,7 +1105,8 @@ function openStickyNotes() {
                     websites_json[currentUrl[selected_tab]]["sticky"] = true;
                     websites_json[currentUrl[selected_tab]]["minimized"] = false;
 
-                    sync_local.set({"websites": websites_json}).then(result => {
+                    //console.log("QAZ-10")
+                    sync_local.set({"websites": websites_json, "last-update": getDate()}).then(result => {
                         //console.log("Opening... <5>")
                         browser.runtime.sendMessage({
                             "open-sticky": {
@@ -1031,7 +1121,6 @@ function openStickyNotes() {
         });
     }
 }
-
 
 function bold() {
     //console.log("Bold B")
@@ -1057,9 +1146,59 @@ function strikethrough() {
     addAction();
 }
 
-function hasAncestorAnchor(element) {
+function subscript() {
+    //console.log("Subscript")
+    document.execCommand("subscript", false);
+    addAction();
+}
+
+function superscript() {
+    //console.log("Superscript")
+    document.execCommand("superscript", false);
+    addAction();
+}
+
+/*var highlighterBackgroundColor = "rgb(255, 255, 0, 0.5)";
+
+function highlighter() {
+    //console.log("Highlighter")
+
+    let selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    } else if (document.selection && document.selection.type !== 'Control') {
+        // For older versions of Internet Explorer
+        selectedText = document.selection.createRange().text;
+    }
+
+    // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
+    let isHighlighter = hasAncestorHighlighter(window.getSelection().anchorNode);
+
+    if (isHighlighter) {
+        let elements = getTheAncestorHighlighter(window.getSelection().anchorNode);
+        let anchorElement = elements[0];
+        let parentAnchor = elements[1];
+
+        if (anchorElement && parentAnchor) {
+            // Move children of the anchor element to its parent
+            while (anchorElement.firstChild) {
+                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
+            }
+            // Remove the anchor element itself
+            parentAnchor.removeChild(anchorElement);
+        }
+        saveNotes();
+        document.execCommand('backColor', false, 'transparent');
+    } else {
+        document.execCommand('backColor', false, highlighterBackgroundColor);
+    }
+
+    addAction();
+}
+
+function hasAncestorHighlighter(element) {
     while (element) {
-        if (element.tagName && element.tagName.toLowerCase() === 'a') {
+        if (element.tagName && element.tagName.toLowerCase() === "span" && element.style.backgroundColor === highlighterBackgroundColor) {
             return true; // Found an anchor element
         }
         element = element.parentNode; // Move up to the parent node
@@ -1067,14 +1206,61 @@ function hasAncestorAnchor(element) {
     return false; // Reached the top of the DOM tree without finding an anchor element
 }
 
-function getTheAncestorAnchor(element) {
+function getTheAncestorHighlighter(element) {
     while (element) {
-        if (element.tagName && element.tagName.toLowerCase() === 'a') {
+        if (element.tagName && element.tagName.toLowerCase() === "span" && element.style.backgroundColor === highlighterBackgroundColor) {
             return [element, element.parentNode]; // Found an anchor element
         }
         element = element.parentNode; // Move up to the parent node
     }
     return [false, false]; // Reached the top of the DOM tree without finding an anchor element
+}
+*/
+
+function insertHeader(header_size = "h1") {
+    insertHTMLFromTagName(header_size);
+    addAction();
+}
+
+function small() {
+    insertHTMLFromTagName("small");
+    addAction();
+}
+
+function big() {
+    insertHTMLFromTagName("big");
+    addAction();
+}
+
+function insertHTMLFromTagName(tagName) {
+    let selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    } else if (document.selection && document.selection.type !== 'Control') {
+        // For older versions of Internet Explorer
+        selectedText = document.selection.createRange().text;
+    }
+
+    let isTagName = hasAncestorTagName(window.getSelection().anchorNode, tagName);
+
+    if (isTagName) {
+        let elements = getTheAncestorTagName(window.getSelection().anchorNode, tagName);
+        let anchorElement = elements[0];
+        let parentAnchor = elements[1];
+
+        if (anchorElement && parentAnchor) {
+            // Move children of the anchor element to its parent
+            while (anchorElement.firstChild) {
+                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
+            }
+            // Remove the anchor element itself
+            parentAnchor.removeChild(anchorElement);
+        }
+        saveNotes();
+    } else {
+        let html = '<' + tagName + '>' + selectedText + '</' + tagName + '>';
+        document.execCommand('insertHTML', false, html);
+    }
 }
 
 function insertLink() {
@@ -1088,12 +1274,12 @@ function insertLink() {
     }
 
     // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
-    let isLink = hasAncestorAnchor(window.getSelection().anchorNode);
+    let isLink = hasAncestorTagName(window.getSelection().anchorNode, 'a');
 
     // If it's already a link, remove the link; otherwise, add the link
     if (isLink) {
         // Remove the link
-        let elements = getTheAncestorAnchor(window.getSelection().anchorNode);
+        let elements = getTheAncestorTagName(window.getSelection().anchorNode, 'a');
         let anchorElement = elements[0];
         let parentAnchor = elements[1];
 
@@ -1108,7 +1294,6 @@ function insertLink() {
         saveNotes();
     } else {
         /*let url = prompt("Enter the URL:");
-
         if (url) {
             document.execCommand('createLink', false, url);
         }*/
@@ -1116,6 +1301,97 @@ function insertLink() {
     }
     addAction();
     //}
+}
+
+/*function insertLink() {
+    //if (isValidURL(value)) {
+    let selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    } else if (document.selection && document.selection.type !== 'Control') {
+        // For older versions of Internet Explorer
+        selectedText = document.selection.createRange().text;
+    }
+
+    if (selectedText !== "") {
+        // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
+        let isLink = hasAncestorTagName(window.getSelection().anchorNode, 'a');
+
+        // If it's already a link, remove the link; otherwise, add the link
+        if (isLink) {
+            // Remove the link
+            let elements = getTheAncestorTagName(window.getSelection().anchorNode, 'a');
+            let anchorElement = elements[0];
+            let parentAnchor = elements[1];
+
+            if (anchorElement && parentAnchor) {
+                // Move children of the anchor element to its parent
+                while (anchorElement.firstChild) {
+                    parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
+                }
+                // Remove the anchor element itself
+                parentAnchor.removeChild(anchorElement);
+            }
+            saveNotes();
+        } else {
+            //let url = prompt("Enter the URL:");
+            //if (url) {
+            //    document.execCommand('createLink', false, url);
+            //}
+            let section = document.getElementById("link-section");
+            let background = document.getElementById("background-opacity");
+            let linkUrl = "";
+            if (isValidURL(selectedText)) linkUrl = selectedText;
+
+            section.style.display = "block";
+            background.style.display = "block";
+
+            let linkText = document.getElementById("link-text");
+            linkText.innerHTML = all_strings["insert-link-text"];
+            let linkInput = document.getElementById("link-url-text");
+            linkInput.value = linkUrl;
+            linkInput.placeholder = all_strings["insert-link-placeholder"];
+            let linkButton = document.getElementById("link-button");
+            linkButton.value = all_strings["insert-link-button"];
+            linkButton.onclick = function () {
+                section.style.display = "none";
+                background.style.display = "none";
+                document.execCommand('createLink', false, linkInput.value);
+            }
+            let linkButtonClose = document.getElementById("link-cancel-button");
+            linkButtonClose.value = all_strings["cancel-link-button"];
+            linkButtonClose.onclick = function () {
+                section.style.display = "none";
+                background.style.display = "none";
+            }
+
+            setTimeout(() => {
+                linkInput.focus()
+            }, 100);
+        }
+        addAction();
+    }
+    //}
+}*/
+
+function hasAncestorTagName(element, tagName) {
+    while (element) {
+        if (element.tagName && element.tagName.toLowerCase() === tagName) {
+            return true; // Found an anchor element
+        }
+        element = element.parentNode; // Move up to the parent node
+    }
+    return false; // Reached the top of the DOM tree without finding an anchor element
+}
+
+function getTheAncestorTagName(element, tagName) {
+    while (element) {
+        if (element.tagName && element.tagName.toLowerCase() === tagName) {
+            return [element, element.parentNode]; // Found an anchor element
+        }
+        element = element.parentNode; // Move up to the parent node
+    }
+    return [false, false]; // Reached the top of the DOM tree without finding an anchor element
 }
 
 function isValidURL(url) {
@@ -1151,35 +1427,36 @@ function spellcheck(force = false, value = false) {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
-            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = "yes";
-            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = "yes";
+            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = true;
+            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = true;
 
-            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = "yes";
-            if (settings_json["advanced-managing"] === "yes") advanced_managing = true;
+            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
+            if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
             else advanced_managing = false;
 
-            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = "yes";
-            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = "no";
-            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = "yes";
+            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
+            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
+            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = true;
         }
 
         if (!document.getElementById("notes").spellcheck || (force && value)) {
             //enable spellCheck
             document.getElementById("notes").spellcheck = true;
-            settings_json["spellcheck-detection"] = "yes";
+            settings_json["spellcheck-detection"] = true;
             if (document.getElementById("text-spellcheck")) {
                 document.getElementById("text-spellcheck").classList.add("text-spellcheck-sel");
             }
         } else {
             //disable spellCheck
             document.getElementById("notes").spellcheck = false;
-            settings_json["spellcheck-detection"] = "no";
+            settings_json["spellcheck-detection"] = false;
             if (document.getElementById("text-spellcheck") && document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) {
                 document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
             }
         }
         document.getElementById("notes").focus();
-        sync_local.set({"settings": settings_json}).then(() => {
+        //console.log("QAZ-11")
+        sync_local.set({"settings": settings_json, "last-update": getDate()}).then(() => {
             sendMessageUpdateToBackground();
         });
     });
@@ -1190,20 +1467,57 @@ function loadFormatButtons(navigation = true, format = true) {
 
     let html_text_formatting = true;
     if (settings_json["html-text-formatting"] !== undefined) {
-        if (settings_json["html-text-formatting"] === "yes") html_text_formatting = true;
+        if (settings_json["html-text-formatting"] === "yes" || settings_json["html-text-formatting"] === true) html_text_formatting = true;
         else html_text_formatting = false;
+    }
+
+    let is_bold_italic_underline_strikethrough = true;
+    if (settings_json["bold-italic-underline-strikethrough"] !== undefined) {
+        if (settings_json["bold-italic-underline-strikethrough"] === "yes" || settings_json["bold-italic-underline-strikethrough"] === true) is_bold_italic_underline_strikethrough = true;
+        else is_bold_italic_underline_strikethrough = false;
+    }
+    let is_link = true;
+    if (settings_json["link"] !== undefined) {
+        if (settings_json["link"] === "yes" || settings_json["link"] === true) is_link = true;
+        else is_link = false;
+    }
+    let is_spellcheck = true;
+    if (settings_json["spellcheck"] !== undefined) {
+        if (settings_json["spellcheck"] === "yes" || settings_json["spellcheck"] === true) is_spellcheck = true;
+        else is_spellcheck = false;
+    }
+    let is_subscript_superscript = false;
+    if (settings_json["superscript-subscript"] !== undefined) {
+        if (settings_json["superscript-subscript"] === "yes" || settings_json["superscript-subscript"] === true) is_subscript_superscript = true;
+        else is_subscript_superscript = false;
+    }
+    let is_headers = false;
+    if (settings_json["headers"] !== undefined) {
+        if (settings_json["headers"] === "yes" || settings_json["headers"] === true) is_headers = true;
+        else is_headers = false;
+    }
+    let is_small_big = false;
+    if (settings_json["small-big"] !== undefined) {
+        if (settings_json["small-big"] === "yes" || settings_json["small-big"] === true) is_small_big = true;
+        else is_small_big = false;
     }
 
     let commands = [];
     if (navigation && html_text_formatting) {
         commands.push(
             {
-                action: "undo", icon: `${url}undo.svg`, title: all_strings["label-title-undo"], function: function () {
+                action: "undo",
+                icon: `${url}undo.svg`,
+                title: all_strings["label-title-undo"],
+                function: function () {
                     undo()
                 }
             },
             {
-                action: "redo", icon: `${url}redo.svg`, title: all_strings["label-title-redo"], function: function () {
+                action: "redo",
+                icon: `${url}redo.svg`,
+                title: all_strings["label-title-redo"],
+                function: function () {
                     redo()
                 }
             });
@@ -1212,61 +1526,171 @@ function loadFormatButtons(navigation = true, format = true) {
         currentAction = 0;
     }
     if (format && html_text_formatting) {
-        commands.push(
-            {
-                action: "bold",
-                icon: `${url}bold.svg`,
-                title: all_strings["label-title-bold"],
-                function: function () {
-                    bold();
+        if (is_bold_italic_underline_strikethrough) {
+            commands.push(
+                {
+                    action: "bold",
+                    icon: `${url}bold.svg`,
+                    title: all_strings["label-title-bold"],
+                    function: function () {
+                        bold();
+                    }
+                },
+                {
+                    action: "italic",
+                    icon: `${url}italic.svg`,
+                    title: all_strings["label-title-italic"],
+                    function: function () {
+                        italic();
+                    }
+                },
+                {
+                    action: "underline",
+                    icon: `${url}underline.svg`,
+                    title: all_strings["label-title-underline"],
+                    function: function () {
+                        underline();
+                    }
+                },
+                {
+                    action: "strikethrough",
+                    icon: `${url}strikethrough.svg`,
+                    title: all_strings["label-title-strikethrough"],
+                    function: function () {
+                        strikethrough();
+                    }
                 }
-            },
-            {
-                action: "italic",
-                icon: `${url}italic.svg`,
-                title: all_strings["label-title-italic"],
-                function: function () {
-                    italic();
+            );
+        }
+
+        if (is_link) {
+            commands.push(
+                {
+                    action: "link",
+                    icon: `${url}link.svg`,
+                    title: all_strings["label-title-link"],
+                    function: function () {
+                        insertLink();
+                    }
                 }
-            },
-            {
-                action: "underline",
-                icon: `${url}underline.svg`,
-                title: all_strings["label-title-underline"],
-                function: function () {
-                    underline();
+            );
+        }
+
+        if (is_spellcheck) {
+            commands.push(
+                {
+                    action: "spellcheck",
+                    icon: `${url}spellcheck.svg`,
+                    title: all_strings["label-title-spellcheck"],
+                    function: function () {
+                        spellcheck();
+                    }
                 }
-            },
-            {
-                action: "strikethrough",
-                icon: `${url}strikethrough.svg`,
-                title: all_strings["label-title-strikethrough"],
-                function: function () {
-                    strikethrough();
+            );
+        }
+
+        if (is_subscript_superscript) {
+            commands.push(
+                {
+                    action: "subscript",
+                    icon: `${url}subscript.svg`,
+                    title: all_strings["label-title-subscript"],
+                    function: function () {
+                        subscript();
+                    }
+                },
+                {
+                    action: "superscript",
+                    icon: `${url}superscript.svg`,
+                    title: all_strings["label-title-superscript"],
+                    function: function () {
+                        superscript();
+                    }
                 }
-            },
-            {
-                action: "link",
-                icon: `${url}link.svg`,
-                title: all_strings["label-title-link"],
-                function: function () {
-                    insertLink();
+            );
+        }
+
+        if (is_headers) {
+            commands.push(
+                {
+                    action: "h1",
+                    icon: `${url}h1.svg`,
+                    title: all_strings["label-title-header-h1"],
+                    function: function () {
+                        insertHeader("h1");
+                    }
+                },
+                {
+                    action: "h2",
+                    icon: `${url}h2.svg`,
+                    title: all_strings["label-title-header-h2"],
+                    function: function () {
+                        insertHeader("h2");
+                    }
+                },
+                {
+                    action: "h3",
+                    icon: `${url}h3.svg`,
+                    title: all_strings["label-title-header-h3"],
+                    function: function () {
+                        insertHeader("h3");
+                    }
+                },
+                {
+                    action: "h4",
+                    icon: `${url}h4.svg`,
+                    title: all_strings["label-title-header-h4"],
+                    function: function () {
+                        insertHeader("h4");
+                    }
+                },
+                {
+                    action: "h5",
+                    icon: `${url}h5.svg`,
+                    title: all_strings["label-title-header-h5"],
+                    function: function () {
+                        insertHeader("h5");
+                    }
+                },
+                {
+                    action: "h6",
+                    icon: `${url}h6.svg`,
+                    title: all_strings["label-title-header-h6"],
+                    function: function () {
+                        insertHeader("h6");
+                    }
                 }
-            },
-            {
-                action: "spellcheck",
-                icon: `${url}spellcheck.svg`,
-                title: all_strings["label-title-spellcheck"],
-                function: function () {
-                    spellcheck();
+            );
+        }
+
+        if (is_small_big) {
+            commands.push(
+                {
+                    action: "small",
+                    icon: `${url}small.svg`,
+                    title: all_strings["label-title-small"],
+                    function: function () {
+                        small();
+                    }
+                },
+                {
+                    action: "big",
+                    icon: `${url}big.svg`,
+                    title: all_strings["label-title-big"],
+                    function: function () {
+                        big();
+                    }
                 }
-            });
+            )
+        }
     }
 
     if (!format && !navigation || !html_text_formatting) {
-        document.getElementById("notes").style.marginBottom = "0px";
+        document.getElementById("format-buttons").style.display = "none";
+        document.getElementById("open-sticky-button").classList.add("button-trigger-sticky-no-format-buttons");
     } else {
-        document.getElementById("notes").style.marginBottom = "35px";
+        if (document.getElementById("format-buttons").style.display === "none") document.getElementById("format-buttons").style.removeProperty("display");
+        if (document.getElementById("open-sticky-button").classList.contains("button-trigger-sticky-no-format-buttons")) document.getElementById("open-sticky-button").classList.remove("button-trigger-sticky-no-format-buttons");
     }
 
 
@@ -1285,7 +1709,7 @@ function loadFormatButtons(navigation = true, format = true) {
     })
 
     if (format) {
-        if (settings_json !== undefined && settings_json["spellcheck-detection"] !== undefined && settings_json["spellcheck-detection"] === "no") {
+        if (settings_json !== undefined && settings_json["spellcheck-detection"] !== undefined && (settings_json["spellcheck-detection"] === "no" || settings_json["spellcheck-detection"] === false)) {
             document.getElementById("notes").spellcheck = false;
             if (document.getElementById("text-spellcheck") && document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) {
                 document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
@@ -1298,12 +1722,42 @@ function loadFormatButtons(navigation = true, format = true) {
         }
     }
 
-    if (settings_json !== undefined && settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && settings_json["disable-word-wrap"] === "yes") {
+    if (settings_json !== undefined && settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true)) {
         document.getElementById("notes").style.whiteSpace = "none";
     } else {
         document.getElementById("notes").style.whiteSpace = "pre-wrap";
     }
-    document.getElementById("notes").focus();
+    //document.getElementById("notes").focus();
+}
+
+/**
+ * Show the login expired section
+ */
+function loginExpired() {
+    let section = document.getElementById("login-expired-section");
+    let background = document.getElementById("background-opacity");
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    let loginExpiredTitle = document.getElementById("login-expired-title");
+    loginExpiredTitle.textContent = all_strings["notefox-account-login-expired-title"];
+    let loginExpiredText = document.getElementById("login-expired-text");
+    loginExpiredText.innerHTML = all_strings["notefox-account-login-expired-text2"];
+    let loginExpiredButton = document.getElementById("login-expired-button");
+    loginExpiredButton.value = all_strings["notefox-account-button-settings-login"];
+    loginExpiredButton.onclick = function () {
+        section.style.display = "none";
+        background.style.display = "none";
+        window.open(links_aside_bar["settings"], "_blank");
+        window.close();
+    }
+    let loginExpiredClose = document.getElementById("login-expired-cancel-button");
+    loginExpiredClose.value = all_strings["notefox-account-login-later-button"];
+    loginExpiredClose.onclick = function () {
+        section.style.display = "none";
+        background.style.display = "none";
+    }
 }
 
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
@@ -1323,12 +1777,24 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let link_svg = window.btoa(getIconSvgEncoded("link", on_primary));
         let undo_svg = window.btoa(getIconSvgEncoded("undo", on_primary));
         let redo_svg = window.btoa(getIconSvgEncoded("redo", on_primary));
+        let superscript_svg = window.btoa(getIconSvgEncoded("superscript", on_primary));
+        let subscript_svg = window.btoa(getIconSvgEncoded("subscript", on_primary));
+        let h1_svg = window.btoa(getIconSvgEncoded("h1", on_primary));
+        let h2_svg = window.btoa(getIconSvgEncoded("h2", on_primary));
+        let h3_svg = window.btoa(getIconSvgEncoded("h3", on_primary));
+        let h4_svg = window.btoa(getIconSvgEncoded("h4", on_primary));
+        let h5_svg = window.btoa(getIconSvgEncoded("h5", on_primary));
+        let h6_svg = window.btoa(getIconSvgEncoded("h6", on_primary));
+        let small_svg = window.btoa(getIconSvgEncoded("small", on_primary));
+        let big_svg = window.btoa(getIconSvgEncoded("big", on_primary));
+
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         let arrow_right_svg = window.btoa(getIconSvgEncoded("arrow-right", on_primary));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
+        let tertiaryTransparent2 = primary;
         if (tertiaryTransparent.includes("rgb(")) {
             let rgb_temp = tertiaryTransparent.replace("rgb(", "");
             let rgb_temp_arr = rgb_temp.split(",");
@@ -1337,9 +1803,11 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 let green = rgb_temp_arr[1].replace(" ", "");
                 let blue = rgb_temp_arr[2].replace(")", "").replace(" ", "");
                 tertiaryTransparent = `rgba(${red}, ${green}, ${blue}, 0.2)`;
+                tertiaryTransparent2 = `rgba(${red}, ${green}, ${blue}, 0.8)`;
             }
         } else if (tertiaryTransparent.includes("#")) {
             tertiaryTransparent += "22";
+            tertiaryTransparent2 += "88";
         }
         //console.log(tertiaryTransparent);
 
@@ -1354,6 +1822,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     --on-textbox-color: ${textbox_color};
                     --tertiary: ${tertiary};
                     --tertiary-transparent: ${tertiaryTransparent};
+                    --tertiary-transparent-2: ${tertiaryTransparent2};
                 }
                 #open-sticky-button {
                     background-image: url('data:image/svg+xml;base64,${sticky_svg}');
@@ -1387,6 +1856,56 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 .text-spellcheck-sel {
                     background-image: url('data:image/svg+xml;base64,${spellcheck_sel_svg}') !important;     
                     background-size: 60% auto;          
+                }
+                
+                #text-superscript {
+                    background-image: url('data:image/svg+xml;base64,${superscript_svg}');
+                    background-size: 80% auto;
+                }
+                
+                #text-subscript {
+                    background-image: url('data:image/svg+xml;base64,${subscript_svg}');
+                    background-size: 80% auto;
+                }
+                
+                #text-h1 {
+                    background-image: url('data:image/svg+xml;base64,${h1_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-h2 {
+                    background-image: url('data:image/svg+xml;base64,${h2_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-h3 {
+                    background-image: url('data:image/svg+xml;base64,${h3_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-h4 {
+                    background-image: url('data:image/svg+xml;base64,${h4_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-h5 {
+                    background-image: url('data:image/svg+xml;base64,${h5_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-h6 {
+                    background-image: url('data:image/svg+xml;base64,${h6_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-small {
+                    background-image: url('data:image/svg+xml;base64,${small_svg}');
+                    background-size: 90% auto;
+                }
+                
+                #text-big {
+                    background-image: url('data:image/svg+xml;base64,${big_svg}');
+                    background-size: 90% auto;
                 }
                 
                 #text-link {
