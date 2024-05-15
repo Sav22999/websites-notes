@@ -143,6 +143,7 @@ function updateStickyNotes() {
                 checkLanguageSpellcheck(text, response.settings);
                 checkFontFamily(text, response.settings);
                 checkThemeSticky(text, response.settings, response.icons, response.theme_colours, response.notes.sticky_params.opacity.value);
+                checkImmersiveMode(text, response.settings);
 
                 //(re)set events
                 close.onclick = function () {
@@ -193,6 +194,9 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
 
         if (document.getElementById("restore--sticky-notes-notefox-addon")) document.getElementById("restore--sticky-notes-notefox-addon").remove();
 
+        let commandsContainer = document.createElement("div");
+        commandsContainer.id = "commands-container--sticky-notes-notefox-addon";
+
         let move = document.createElement("div");
         move.id = "move--sticky-notes-notefox-addon";
 
@@ -236,7 +240,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
             onClickClose(false);
         }
         //close.value = "⋏";
-        stickyNote.appendChild(close);
+        commandsContainer.appendChild(close);
 
         let minimize = document.createElement("input");
         minimize.type = "button";
@@ -246,7 +250,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
             openMinimized(settings_json, icons_json, theme_colours_json);
         }
         //minimize.value = "≺";
-        stickyNote.appendChild(minimize);
+        commandsContainer.appendChild(minimize);
 
         //notes.tag_colour
         let tag = document.createElement("div");
@@ -266,7 +270,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         opacityRange.step = 1;
 
         opacityRangeContainer.appendChild(opacityRange);
-        stickyNote.appendChild(opacityRangeContainer);
+        commandsContainer.appendChild(opacityRangeContainer);
 
         let pageOrDomain = document.createElement("div");
         pageOrDomain.id = "page-or-domain--sticky-notes-notefox-addon";
@@ -284,7 +288,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         let pageDomainGlobalToUse = notes.page_domain_global;
         if (pageDomainGlobalToUse === undefined) pageDomainGlobalToUse = "";
         pageOrDomain.innerText = pageDomainGlobalToUse;
-        stickyNote.appendChild(pageOrDomain);
+        commandsContainer.appendChild(pageOrDomain);
 
         let isDragging = false;
 
@@ -299,10 +303,11 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
             var value = (this.value - this.min) / (this.max - this.min) * 100;
             setSlider(opacityRange, stickyNote, value, true);
         };
-        stickyNote.appendChild(move);
+        commandsContainer.appendChild(move);
 
-        stickyNote.appendChild(resize);
-        stickyNote.appendChild(textContainer);
+        commandsContainer.appendChild(resize);
+        commandsContainer.appendChild(textContainer);
+        stickyNote.appendChild(commandsContainer)
 
         document.body.appendChild(stickyNote);
 
@@ -349,6 +354,16 @@ function checkLanguageSpellcheck(text, settings_json) {
     if (settings_json !== undefined && (settings_json["spellcheck-detection"] === "no" || settings_json["spellcheck-detection"] === false)) spellcheck = false;
     else spellcheck = true;
     text.spellcheck = spellcheck;
+}
+
+function checkImmersiveMode(text, settings_json) {
+    let immersive_mode = true;
+    if (settings_json !== undefined && (settings_json["immersive-sticky-notes"] === "no" || settings_json["immersive-sticky-notes"] === false)) immersive_mode = false;
+    else immersive_mode = true;
+
+    let visibility_immersive = immersive_mode ? "visible" : "hidden";
+    const commands_container = document.getElementById('commands-container--sticky-notes-notefox-addon');
+    commands_container.style.visibility = visibility_immersive;
 }
 
 function checkFontFamily(text, settings_json) {
@@ -415,6 +430,12 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
     if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
     let font_family = settings_json["font-family"];
 
+    if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
+    let immersive_sticky_notes = settings_json["immersive-sticky-notes"];
+
+    let visibility_immersive = "hidden";
+    if(!immersive_sticky_notes) visibility_immersive = "visible";
+
     let primary_color = "#fffd7d";
     let secondary_color = "#ff6200";
     let on_primary_color = "#111111";
@@ -470,7 +491,6 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 cursor: grab;
                 border-radius: 0px 0px 10px 10px;
                 z-index: 4;
-                transition: 0.5s;
                 font-weight: bold !important;
                 font-family: 'Open Sans', sans-serif;
                 padding: 2px 5px !important;
@@ -506,6 +526,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 padding: 0px !important;
                 box-sizing: border-box !important;
                 border-right-color: ${secondary_color};
+                border-width: 0px !important;
             }
             #resize--sticky-notes-notefox-addon:active, #resize--sticky-notes-notefox-addon:focus{
                 cursor: nwse-resize;
@@ -634,7 +655,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 left: 0px;
                 right: 0px;
                 top: 20px;
-                bottom: 35px;
+                bottom: 20px;
                 width: auto;
                 height: auto;
                 padding: 0px !important;
@@ -685,13 +706,13 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 position: absolute;
                 z-index: 2;
                 width: auto !important;
-                left: 10px !important;
-                right: 10px !important;
-                bottom: 10px !important;
+                left: 8px !important;
+                right: 8px !important;
+                bottom: 4px !important;
                 margin: 0px !important;
                 padding: 0px !important;
                 box-sizing: border-box !important;
-                background-color: #eeeeee;
+                background-color: transparent;
             }
             
             #slider--sticky-notes-notefox-addon {
@@ -743,7 +764,28 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 cursor: default;
                 border-radius: 15px;
                 z-index: 2;
-            }`;
+            }
+            
+            #commands-container--sticky-notes-notefox-addon {
+                visibility: ${visibility_immersive};
+                width: auto !important;
+                height: auto !important;
+                box-sizing: border-box;
+                position: absolute;
+                top: 0px;
+                bottom: 0px;
+                left: 0px;
+                right: 0px;
+            }
+            
+            #commands-container--sticky-notes-notefox-addon:hover * {
+                visibility: visible !important;
+            }
+            
+            #text--sticky-notes-notefox-addon {
+                visibility: visible !important;
+            }
+            `;
 }
 
 /**

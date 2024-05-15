@@ -252,6 +252,12 @@ function loaded() {
         saveSettings();
     }
 
+    document.getElementById("immersive-sticky-notes-check").onchange = function () {
+        settings_json["immersive-sticky-notes"] = document.getElementById("immersive-sticky-notes-check").checked;
+
+        saveSettings();
+    }
+
     document.getElementById("show-bold-italic-underline-strikethrough-check").onchange = function () {
         settings_json["bold-italic-underline-strikethrough"] = document.getElementById("show-bold-italic-underline-strikethrough-check").checked;
 
@@ -455,6 +461,8 @@ function setLanguageUI() {
     document.getElementById("sticky-theme-detailed-text").innerHTML = all_strings["sticky-theme-detailed-text"].replace("{{property1}}", `<span class="button-code very-small-button">` + all_strings["sticky-theme-choose-auto-select"] + `</span>`);
     document.getElementById("show-title-textbox-text").innerText = all_strings["show-title-textbox-text"];
     document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
+    document.getElementById("immersive-sticky-notes-text").innerText = all_strings["immersive-sticky-notes-text"];
+    document.getElementById("immersive-sticky-notes-detailed-text").innerHTML = all_strings["immersive-sticky-notes-detailed-text"];
     document.getElementById("show-bold-italic-underline-strikethrough-text").innerText = all_strings["show-bold-italic-underline-strikethrough-text"];
     document.getElementById("show-link-text").innerText = all_strings["show-link-text"];
     document.getElementById("show-spellcheck-text").innerText = all_strings["show-spellcheck-text"];
@@ -568,7 +576,7 @@ function loadSettings() {
             if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
             if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
             if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
-            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = true;
+            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = false;
             if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
             if (settings_json["sticky-theme"] === undefined) settings_json["sticky-theme"] = "yellow";
             if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
@@ -579,6 +587,7 @@ function loadSettings() {
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
             if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
             if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
+            if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
 
             if (settings_json["bold-italic-underline-strikethrough"] === undefined) settings_json["bold-italic-underline-strikethrough"] = true;
             if (settings_json["link"] === undefined) settings_json["link"] = true;
@@ -613,6 +622,7 @@ function loadSettings() {
             document.getElementById("font-family-select").value = settings_json["font-family"];
 
             document.getElementById("show-title-textbox-check").checked = settings_json["show-title-textbox"] === true || settings_json["show-title-textbox"] === "yes";
+            document.getElementById("immersive-sticky-notes-check").checked = settings_json["immersive-sticky-notes"] === true || settings_json["immersive-sticky-notes"] === "yes";
 
             if (document.getElementById("html-text-formatting-check").checked) {
                 if (document.getElementById("html-text-formatting-buttons").classList.contains("hidden")) document.getElementById("html-text-formatting-buttons").classList.remove("hidden");

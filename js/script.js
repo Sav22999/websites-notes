@@ -537,7 +537,7 @@ function loadSettings() {
         if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
         if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
         if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
-        if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = true;
+        if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = false;
         if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
         if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
         if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = true;
@@ -547,6 +547,7 @@ function loadSettings() {
         if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
         if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
         if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
+        if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
 
         if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
         else advanced_managing = false;
@@ -1436,7 +1437,7 @@ function spellcheck(force = false, value = false) {
 
             if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
             if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
-            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = true;
+            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = false;
         }
 
         if (!document.getElementById("notes").spellcheck || (force && value)) {
