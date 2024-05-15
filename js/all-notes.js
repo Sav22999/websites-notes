@@ -356,7 +356,7 @@ function loadDataFromBrowser(generate_section = true) {
             if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
             if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
             if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
-            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = true;
+            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = false;
             if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
             if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
             if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = true;
