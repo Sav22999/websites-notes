@@ -161,6 +161,8 @@ strings[lang] = {
     'label-title-spellcheck': 'Taal spellingscontrole',
     'label-title-link': 'Koppeling toevoegen / verwijderen',
     'label-results-for': 'Resultaten voor:  {{keywords}}',
+    'immersive-sticky-notes-text': 'Immersive sticky notes',
+    'immersive-sticky-notes-detailed-text': 'When enabled, the sticky notes will show controls only when you hover them with the mouse.',
     'insert-link-text': 'Voer voor de geselecteerde tekst de koppeling in',
     'insert-link-placeholder': 'Plaats hier de koppeling…',
     'insert-link-button': 'Koppeling invoeren',

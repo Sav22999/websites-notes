@@ -161,6 +161,8 @@ strings[lang] = {
     'label-title-spellcheck': 'التدقيق الإملائي للغة',
     'label-title-link': 'Insert / Remove link',
     'label-results-for': 'النتائج لـ:  {{keywords}}',
+    'immersive-sticky-notes-text': 'Immersive sticky notes',
+    'immersive-sticky-notes-detailed-text': 'When enabled, the sticky notes will show controls only when you hover them with the mouse.',
     'insert-link-text': 'Insert the destination link for the selected text',
     'insert-link-placeholder': 'Digit the link here…',
     'insert-link-button': 'Insert link',
