@@ -75,7 +75,7 @@ function loaded() {
             loginExpired();
         }
     });
-    browser.runtime.sendMessage({"check-user": true});
+    chrome.runtime.sendMessage({"check-user": true});
 }
 
 function checkTimesOpened() {
@@ -527,7 +527,7 @@ function addAction() {
     //console.log(actions)
 }
 
-function loadSettings() {
+function loadSettings(load_only = false) {
     sync_local.get("settings", function (value) {
         if (value["settings"] !== undefined) settings_json = value["settings"];
         if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
@@ -554,7 +554,7 @@ function loadSettings() {
         if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
         else advanced_managing = false;
 
-        continueLoaded();
+        if(!load_only) continueLoaded();
         //console.log(JSON.stringify(settings_json));
     });
 }
@@ -655,7 +655,7 @@ function saveNotes(title_call = false) {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
         } else {
-            loadSettings();
+            loadSettings(load_only = true);
         }
 
         let url_to_use = getUrlWithSupportedProtocol(currentUrl[selected_tab], websites_json);
@@ -1053,7 +1053,7 @@ function setTab(index, url) {
         never_saved = false;
     }
     if (title === undefined) {
-        browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let activeTab = tabs[0];
             title = activeTab.title;
             document.getElementById("title-notes").value = title;

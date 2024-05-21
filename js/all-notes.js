@@ -61,7 +61,7 @@ function loaded() {
             loginExpired();
         }
     });
-    browser.runtime.sendMessage({"check-user": true});
+    chrome.runtime.sendMessage({"check-user": true});
 
     checkSyncLocal();
     setLanguageUI();
@@ -147,7 +147,7 @@ function loaded() {
 
 function tabUpdated() {
     checkTheme();
-    browser.storage.local.get([
+    chrome.storage.local.get([
         "websites"
     ]).then(result => {
         if (result.websites !== undefined && result.websites !== websites_json) {
@@ -254,7 +254,7 @@ function loadAsideBar() {
         window.open(links_aside_bar["translate"], "_self");
     }
 
-    version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", browser.runtime.getManifest().version);
+    version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", chrome.runtime.getManifest().version);
 }
 
 function filterByColor(color, tagButton) {

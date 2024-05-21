@@ -95,8 +95,7 @@ var letters_and_numbers = {
 var ctrl_alt_shift = ["default", "domain", "page"];
 
 function loaded() {
-    //TODO: check chrome
-    browser.runtime.onMessage.addListener((message) => {
+    chrome.runtime.onMessage.addListener((message) => {
         if (message["sync_update"] !== undefined && message["sync_update"]) {
             location.reload();
         }
@@ -105,16 +104,16 @@ function loaded() {
             notefoxAccountLoginSignupManage("login-expired");
         }
     });
-    browser.runtime.sendMessage({"check-user": true});
+    chrome.runtime.sendMessage({"check-user": true});
 
     notefox_json = {
-        "version": browser.runtime.getManifest().version,
-        "author": browser.runtime.getManifest().author,
-        "manifest_version": browser.runtime.getManifest().manifest_version,
+        "version": chrome.runtime.getManifest().version,
+        "author": chrome.runtime.getManifest().author,
+        "manifest_version": chrome.runtime.getManifest().manifest_version,
         "os": "?",
         "browser": webBrowserUsed,
     };
-    browser.runtime.getPlatformInfo((platformInfo) => {
+    chrome.runtime.getPlatformInfo((platformInfo) => {
         notefox_json["os"] = platformInfo.os
     });
 
@@ -139,8 +138,8 @@ function loaded() {
     checkTheme();
 
     //TODO: chrome
-    browser.tabs.onActivated.addListener(tabUpdated);
-    browser.tabs.onUpdated.addListener(tabUpdated);
+    chrome.tabs.onActivated.addListener(tabUpdated);
+    chrome.tabs.onUpdated.addListener(tabUpdated);
 
     document.getElementById("save-settings-button").onclick = function () {
         saveSettings();
@@ -157,7 +156,7 @@ function loaded() {
     document.getElementById("support-github-button").onclick = function () {
         chrome.tabs.create({url: links.support_github});
     }
-    document.getElementById("review-on-chrome-addons-button").onclick = function () {
+    document.getElementById("review-on-firefox-addons-button").onclick = function () {
         chrome.tabs.create({url: links.review});
     }
 
@@ -310,7 +309,8 @@ function loaded() {
             permissions: ["downloads"]
         }
         try {
-            browser.permissions.request(permissionsToRequest).then(response => {
+            //TODO in chrome
+            chrome.permissions.request(permissionsToRequest).then(response => {
                 if (response) {
                     //granted / obtained
                     exportAllNotes(to_file = true);
@@ -401,7 +401,7 @@ function setStickyThemeChooserByElement(element, set_variable = true) {
 
 function tabUpdated() {
     checkTheme();
-    browser.storage.local.get(["settings"]).then(result => {
+    chrome.storage.local.get(["settings"]).then(result => {
         if (result.settings !== undefined && result.settings !== settings_json) {
             loadSettings();
         }
@@ -712,6 +712,7 @@ function loadSettings() {
     });
 
 
+    /*
     checkTheme(false, "auto", function (params) {
         document.getElementById("item-radio-theme-auto").style.backgroundColor = params[1];
         document.getElementById("theme-select-firefox").style.color = params[2];
@@ -725,18 +726,17 @@ function loadSettings() {
         document.getElementById("item-radio-sticky-theme-auto").style.backgroundColor = params[2]; //secondary
         document.getElementById("sticky-theme-select-auto").style.color = params[4]; //on-secondary
 
-        /*
-        colours_auto["primary"] = params[3];
-        colours_auto["on-primary"] = params[5];
-        colours_auto["secondary"] = params[2];
-        colours_auto["on-secondary"] = params[4];*/
-    });
+        //colours_auto["primary"] = params[3];
+        //colours_auto["on-primary"] = params[5];
+        //colours_auto["secondary"] = params[2];
+        //colours_auto["on-secondary"] = params[4];
+    });*/
 }
 
 //if sync storage contains "notefox-account", and it's saved the variable ["login-id", "password" and "expiry"], then show the string relative to "Manage your Notefox account", otherwise
 //show the string relative to "Login or Sign up to Notefox". In addition, it's changed also the class of the button ("login-button", "manage-button")
 function setNotefoxAccountLoginSignupManageButton() {
-    browser.storage.sync.get("notefox-account").then(result => {
+    chrome.storage.sync.get("notefox-account").then(result => {
         //console.log(result["notefox-account"]);
         if (result["notefox-account"] !== undefined && result["notefox-account"] !== {}) {
             //"Manage"
@@ -750,7 +750,7 @@ function setNotefoxAccountLoginSignupManageButton() {
             document.getElementById("notefox-account-settings-button").classList.add("login-button");
         }
         document.getElementById("notefox-account-settings-button").onclick = function () {
-            browser.runtime.sendMessage({"check-user": true});
+            chrome.runtime.sendMessage({"check-user": true});
             notefoxAccountLoginSignupManage();
         }
     });
@@ -855,7 +855,7 @@ function loadAsideBar() {
         }
     }
 
-    version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", browser.runtime.getManifest().version);
+    version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", chrome.runtime.getManifest().version);
 }
 
 function checkOperatingSystem() {
@@ -1018,7 +1018,7 @@ function importAllNotes(from_file = false) {
 
                     //console.log(JSON.stringify(json_to_export_temp));
 
-                    browser.storage.local.get(["storage"]).then(resultSyncOrLocalToUse => {
+                    chrome.storage.local.get(["storage"]).then(resultSyncOrLocalToUse => {
                         let storageTemp;
                         if (json_to_import_temp["storage"] !== undefined) storageTemp = json_to_import_temp["storage"];
 
@@ -1030,7 +1030,7 @@ function importAllNotes(from_file = false) {
                             document.getElementById("cancel-import-all-notes-button").style.display = "none";
                             document.getElementById("import-from-file-button").style.display = "none";
 
-                            browser.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
+                            chrome.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
                                 checkSyncLocal();
 
                                 document.getElementById("import-now-all-notes-button").disabled = true;
@@ -1058,16 +1058,16 @@ function importAllNotes(from_file = false) {
                                             //console.log(JSON.stringify(storageTemp));
                                             if (storageTemp === "sync") {
                                                 if (JSON.stringify(json_old_version) === jsonImportElement.value) {
-                                                    browser.storage.local.clear().then(result1 => {
-                                                        browser.storage.local.set({"storage": "sync"})
+                                                    chrome.storage.local.clear().then(result1 => {
+                                                        chrome.storage.local.set({"storage": "sync"})
                                                     });
-                                                } else browser.storage.local.set({"storage": "sync"})
+                                                } else chrome.storage.local.set({"storage": "sync"})
                                             } else {
                                                 if (JSON.stringify(json_old_version) === jsonImportElement.value) {
-                                                    browser.storage.local.clear().then(result1 => {
-                                                        browser.storage.local.set({"storage": "local"})
+                                                    chrome.storage.local.clear().then(result1 => {
+                                                        chrome.storage.local.set({"storage": "local"})
                                                     });
-                                                } else browser.storage.local.set({"storage": "local"})
+                                                } else chrome.storage.local.set({"storage": "local"})
                                             }
                                         });
 
@@ -1168,7 +1168,7 @@ function importFromFile() {
 
 function exportAllNotes(to_file = false) {
     showBackgroundOpacity();
-    browser.storage.local.get(["storage"]).then(getStorageTemp => {
+    chrome.storage.local.get(["storage"]).then(getStorageTemp => {
         sync_local.get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "last-update"]).then((result) => {
             // Handle the result
             let sticky_notes = {};
@@ -1249,7 +1249,7 @@ function exportToFile() {
 
     const formattedDate = `${year}_${month}_${day}`;
 
-    browser.downloads.download({
+    chrome.downloads.download({
         url: URL.createObjectURL(blob),
         filename: "notefox_" + notefox_json.version.toString() + "_" + formattedDate + "_" + Date.now() + ".json",
         saveAs: false, // Show the file save dialog
@@ -1276,7 +1276,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
             document.getElementById("account-section").style.display = "none";
         }
     }
-    browser.storage.sync.get(["notefox-account"]).then(savedData => {
+    chrome.storage.sync.get(["notefox-account"]).then(savedData => {
         document.getElementById("account-section").style.display = "block";
 
         document.getElementById("notefox-account-signup-section").classList.add("hidden");
@@ -1339,7 +1339,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
             sync_button.onclick = function () {
                 //console.log("Sync now pressed");
 
-                browser.runtime.sendMessage({"sync-now": true});
+                chrome.runtime.sendMessage({"sync-now": true});
 
                 sync_button.classList.add("syncing-button");
                 if (sync_button.classList.contains("synced-button")) sync_button.classList.remove("synced-button");
@@ -1368,28 +1368,28 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
             }
 
             document.getElementById("manage-logout").onclick = function () {
-                browser.runtime.sendMessage({
+                chrome.runtime.sendMessage({
                     "api": true,
                     "type": "logout",
                     "data": {
                         "login-id": savedData["notefox-account"]["login-id"]
                     }
                 });
-                browser.storage.sync.remove("notefox-account").then(result => {
+                chrome.storage.sync.remove("notefox-account").then(result => {
                     notefoxAccountLoginSignupManage();
                 });
                 location.reload();
             }
 
             document.getElementById("manage-logout-all-devices").onclick = function () {
-                browser.runtime.sendMessage({
+                chrome.runtime.sendMessage({
                     "api": true,
                     "type": "logout-all",
                     "data": {
                         "login-id": savedData["notefox-account"]["login-id"]
                     }
                 });
-                browser.storage.sync.remove("notefox-account").then(result => {
+                chrome.storage.sync.remove("notefox-account").then(result => {
                     notefoxAccountLoginSignupManage();
                 });
                 location.reload();
@@ -1472,7 +1472,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     } else if (email === "" || password === "" || login_id === "") {
                         notefoxAccountLoginSignupManage("login");
                     } else {
-                        browser.runtime.sendMessage({
+                        chrome.runtime.sendMessage({
                             "api": true,
                             "type": "login-verify",
                             "data": {
@@ -1500,7 +1500,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     if (email === "" || password === "" || login_id === "") {
                         notefoxAccountLoginSignupManage("login");
                     } else {
-                        browser.runtime.sendMessage({
+                        chrome.runtime.sendMessage({
                             "api": true,
                             "type": "login-new-code",
                             "data": {"email": email, "password": password, "login-id": login_id}
@@ -1606,7 +1606,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         if (email === "") email_element.classList.add("textbox-error");
                         if (password === "") password_element.classList.add("textbox-error");
                     } else {
-                        browser.runtime.sendMessage({
+                        chrome.runtime.sendMessage({
                             "api": true, "type": "signup-new-code", "data": {"email": email, "password": password}
                         });
 
@@ -1629,7 +1629,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
                         code_element.classList.add("textbox-error");
                     } else {
-                        browser.runtime.sendMessage({
+                        chrome.runtime.sendMessage({
                             "api": true,
                             "type": "signup-verify",
                             "data": {"email": email, "password": password, "verification-code": code}
@@ -1697,7 +1697,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         if (email === "") email_element.classList.add("textbox-error");
                         if (password === "") password_element.classList.add("textbox-error");
                     } else {
-                        browser.runtime.sendMessage({
+                        chrome.runtime.sendMessage({
                             "api": true,
                             "type": "delete-account",
                             "data": {
@@ -1770,7 +1770,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     } else {
                         showMessageNotefoxAccount(all_strings["notefox-account-deleting-account-text"], false);
 
-                        browser.runtime.sendMessage({
+                        chrome.runtime.sendMessage({
                             "api": true,
                             "type": "delete-account-verify",
                             "data": {
@@ -1799,7 +1799,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                     if (email === "" || password === "" || login_id === "" || token === "") {
                         notefoxAccountLoginSignupManage("delete");
                     } else {
-                        browser.runtime.sendMessage({
+                        chrome.runtime.sendMessage({
                             "api": true,
                             "type": "delete-account-new-code",
                             "data": {"email": email, "password": password, "login-id": login_id, "token": token}
@@ -1885,7 +1885,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         new_password_element.classList.add("textbox-error");
                         new_password_confirm_element.classList.add("textbox-error");
                     } else {
-                        browser.runtime.sendMessage({
+                        chrome.runtime.sendMessage({
                             "api": true,
                             "type": "change-password",
                             "data": {
@@ -1973,7 +1973,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         if (email === "") email_element.classList.add("textbox-error");
                         if (password === "") password_element.classList.add("textbox-error");
                     } else {
-                        browser.runtime.sendMessage({
+                        chrome.runtime.sendMessage({
                             "api": true,
                             "type": "login",
                             "data": {"email": email, "password": password}
@@ -2082,7 +2082,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         password_element.classList.add("textbox-error");
                         confirm_password_element.classList.add("textbox-error");
                     } else {
-                        browser.runtime.sendMessage({
+                        chrome.runtime.sendMessage({
                             "api": true,
                             "type": "signup",
                             "data": {"username": username, "password": password, "email": email}
@@ -2100,7 +2100,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
             } else if (action === "manage") {
                 //console.log(`Data: ${JSON.stringify(data)}`);
                 if (data !== null) {
-                    browser.storage.sync.set({"notefox-account": data}).then(result => {
+                    chrome.storage.sync.set({"notefox-account": data}).then(result => {
                         notefoxAccountLoginSignupManage("manage");
                     });
                 }
@@ -2118,7 +2118,7 @@ function updateSyncDatetime() {
 }
 
 function listenerNotefoxAccount() {
-    browser.runtime.onMessage.addListener((message) => {
+    chrome.runtime.onMessage.addListener((message) => {
         if (message["api_response"] !== undefined && message["api_response"]) {
             let data = message["data"];
             switch (message["type"]) {
@@ -2404,7 +2404,7 @@ function loginVerifyResponse(data) {
             notefoxAccountLoginSignupManage("manage", data["data"]);
             location.reload();
 
-            browser.runtime.sendMessage({"sync-now": true});
+            chrome.runtime.sendMessage({"sync-now": true});
         } else if (data.code === 400 || data.code === 401) {
             //Error
             showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
@@ -2557,7 +2557,7 @@ function deleteVerifyResponse(data) {
         if (data.code === 200) {
             //Success
 
-            browser.storage.sync.remove("notefox-account").then(result => {
+            chrome.storage.sync.remove("notefox-account").then(result => {
             });
 
             document.getElementById("notefox-account-settings-button").value = all_strings["notefox-account-button-settings-login-or-signup"];

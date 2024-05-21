@@ -176,7 +176,7 @@ function sendLocalDataToServer() {
     //console.log("Sending...")
     let data_to_send = {};
 
-    browser.storage.local.get(["storage"]).then(getStorageTemp => {
+    chrome.storage.local.get(["storage"]).then(getStorageTemp => {
         sync_local.get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "last-update"]).then((result) => {
             // Handle the result
             let sticky_notes = {};
@@ -212,7 +212,7 @@ function sendLocalDataToServer() {
             }
 
 
-            browser.storage.sync.get(["notefox-account"]).then(resultSync => {
+            chrome.storage.sync.get(["notefox-account"]).then(resultSync => {
                 if (resultSync["notefox-account"] !== undefined) {
                     api_request({
                         "api": true,
@@ -239,7 +239,7 @@ function sendLocalDataToServer() {
 
 function syncUpdateFromServer() {
     //console.log("Receiving...")
-    browser.runtime.sendMessage({"sync_update": true}).then(response => {
+    chrome.runtime.sendMessage({"sync_update": true}).then(response => {
         //console.log("Sync update from server: " + response);
     }).catch((e) => {
         setTimeout(function () {
@@ -269,9 +269,9 @@ function changeIcon(index) {
 
 function loaded() {
     notefox_json = {
-        "version": browser.runtime.getManifest().version,
-        "author": browser.runtime.getManifest().author,
-        "manifest_version": browser.runtime.getManifest().manifest_version,
+        "version": chrome.runtime.getManifest().version,
+        "author": chrome.runtime.getManifest().author,
+        "manifest_version": chrome.runtime.getManifest().manifest_version,
         "os": "?",
         "browser": webBrowserUsed,
     };
@@ -373,6 +373,27 @@ function tabUpdated(update = false) {
     });
 }
 
+function toBase64(input) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    let str = String(input);
+    let output = '';
+
+    for (let block = 0, charCode, i = 0, map = chars;
+         str.charAt(i | 0) || (map = '=', i % 1);
+         output += map.charAt(63 & block >> 8 - i % 1 * 8)) {
+
+        charCode = str.charCodeAt(i += 3/4);
+
+        if (charCode > 0xFF) {
+            throw new Error("'toBase64' failed: The string to be encoded contains characters outside of the Latin1 range.");
+        }
+
+        block = block << 8 | charCode;
+    }
+
+    return output;
+}
+
 function checkStatus(update = false) {
     current_urls = [getGlobalUrl(), getDomainUrl(tab_url), getPageUrl(tab_url)];
     sync_local.get("settings")
@@ -394,9 +415,9 @@ function checkStatus(update = false) {
             if (settings_json["sticky-secondary-color"] === undefined) settings_json["sticky-secondary-color"] = "#ff6200";
             if (settings_json["sticky-on-secondary-color"] === undefined) settings_json["sticky-on-secondary-color"] = "#ffffff";
 
-            let close_sticky_icon_svg = window.btoa(getIconSvgEncoded("close", settings_json["sticky-on-secondary-color"]));
-            let minimize_sticky_icon_svg = window.btoa(getIconSvgEncoded("minimize", settings_json["sticky-on-secondary-color"]));
-            let restore_sticky_icon_svg = window.btoa(getIconSvgEncoded("restore", settings_json["sticky-on-secondary-color"]));
+            let close_sticky_icon_svg = toBase64(getIconSvgEncoded("close", settings_json["sticky-on-secondary-color"]));
+            let minimize_sticky_icon_svg = toBase64(getIconSvgEncoded("minimize", settings_json["sticky-on-secondary-color"]));
+            let restore_sticky_icon_svg = toBase64(getIconSvgEncoded("restore", settings_json["sticky-on-secondary-color"]));
             icons_json = {
                 "close": close_sticky_icon_svg,
                 "minimize": minimize_sticky_icon_svg,
@@ -419,7 +440,7 @@ function checkStatus(update = false) {
                 if (result !== undefined && result["settings"] !== undefined && result["settings"]["sticky-theme"] !== undefined) {
                     let theme = result["settings"]["sticky-theme"];
                     if (theme === "auto") {
-                        browser.theme.getCurrent().then(theme => {
+                        chrome.theme.getCurrent().then(theme => {
                             if (theme !== undefined && theme["colors"] !== undefined && theme["colors"] !== null) {
                                 //console.log(JSON.stringify(theme.colors));
                                 primary = theme.colors.toolbar_text;
@@ -1006,7 +1027,7 @@ function listenerAllNotes() {
                                 "last-update": getDate()
                             });
 
-                            if (deleted) browser.runtime.sendMessage({"updated": true});
+                            if (deleted) chrome.runtime.sendMessage({"updated": true});
                         }
                     });
                 }
@@ -1142,15 +1163,15 @@ function openAsStickyNotes() {
     if (!opening_sticky) {
         opening_sticky = true;
 
-        browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             const activeTab = tabs[0];
-            browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
+            /*chrome.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
                 //console.log("Sticky notes ('open')");
                 opening_sticky = false;
             }).catch(function (error) {
                 console.error("E2: " + error);
                 opening_sticky = false;
-            });
+            });*/
         });
     }
 }
@@ -1160,17 +1181,17 @@ function openAsStickyNotes() {
  */
 function closeStickyNotes(update = true) {
     checkIcon();
-    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         const activeTab = tabs[0];
         if (tabs !== undefined && tabs.length > 0) {
-            browser.tabs.executeScript({
+            /*chrome.tabs.executeScript({
                 code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
             }).then(function () {
                 //console.log("Sticky notes ('close')");
                 if (update) tabUpdated(false);
             }).catch(function (error) {
                 console.error("E1: " + error + "\nin " + activeTab.url);
-            });
+            });*/
         }
     });
     opening_sticky = false;

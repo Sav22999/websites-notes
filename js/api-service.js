@@ -3,7 +3,7 @@ var api_url = "https://www.notefox.eu/api/v1"
 loadAPI();
 
 function loadAPI() {
-    browser.runtime.onMessage.addListener((message) => {
+    chrome.runtime.onMessage.addListener((message) => {
         if (message["api"] !== undefined && message["api"]) {
             api_request(message);
         }
@@ -83,7 +83,7 @@ function signup(username_value, email_value, password_value) {
             // Parse the response JSON if needed
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "signup",
                 "data": data
@@ -91,7 +91,7 @@ function signup(username_value, email_value, password_value) {
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "signup",
                 "data": {
@@ -102,7 +102,7 @@ function signup(username_value, email_value, password_value) {
         }
     };
     xhr.onerror = function () {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "signup",
             "data": {
@@ -128,7 +128,7 @@ function signup_new_code(email_value, password_value) {
             // Parse the response JSON if needed
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "signup-new-code",
                 "data": data
@@ -136,7 +136,7 @@ function signup_new_code(email_value, password_value) {
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "signup-new-code",
                 "data": {
@@ -147,7 +147,7 @@ function signup_new_code(email_value, password_value) {
         }
     };
     xhr.onerror = function () {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "signup-new-code",
             "data": {
@@ -172,7 +172,7 @@ function signup_verify(email_value, password_value, verification_code_value) {
             // Parse the response JSON if needed
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "signup-verify",
                 "data": data
@@ -180,7 +180,7 @@ function signup_verify(email_value, password_value, verification_code_value) {
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "signup-verify",
                 "data": {
@@ -191,7 +191,7 @@ function signup_verify(email_value, password_value, verification_code_value) {
         }
     };
     xhr.onerror = function () {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "signup-verify",
             "data": {
@@ -217,7 +217,7 @@ function login(email_value, password_value) {
             // Parse the response JSON if needed
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "login",
                 "data": data
@@ -225,7 +225,7 @@ function login(email_value, password_value) {
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "login",
                 "data": {
@@ -236,7 +236,7 @@ function login(email_value, password_value) {
         }
     };
     xhr.onerror = function () {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "login",
             "data": {
@@ -261,7 +261,7 @@ function login_new_code(email_value, password_value, login_id_value) {
             // Parse the response JSON if needed
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "login-new-code",
                 "data": data
@@ -269,7 +269,7 @@ function login_new_code(email_value, password_value, login_id_value) {
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "login-new-code",
                 "data": {
@@ -280,7 +280,7 @@ function login_new_code(email_value, password_value, login_id_value) {
         }
     };
     xhr.onerror = function () {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "login-new-code",
             "data": {
@@ -306,7 +306,7 @@ function login_verify(email_value, password_value, login_id_value, verification_
             // Parse the response JSON if needed
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "login-verify",
                 "data": data
@@ -314,7 +314,7 @@ function login_verify(email_value, password_value, login_id_value, verification_
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "login-verify",
                 "data": {
@@ -325,7 +325,7 @@ function login_verify(email_value, password_value, login_id_value, verification_
         }
     };
     xhr.onerror = function () {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "login-verify",
             "data": {
@@ -357,7 +357,7 @@ function logout(login_id_value, all_devices_value = false, send_response = true)
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
             if (send_response) {
-                browser.runtime.sendMessage({
+                chrome.runtime.sendMessage({
                     "api_response": true,
                     "type": "logout",
                     "data": data
@@ -367,7 +367,7 @@ function logout(login_id_value, all_devices_value = false, send_response = true)
             // Handle errors
             console.error('Request failed with status:', xhr.status);
             if (send_response) {
-                browser.runtime.sendMessage({
+                chrome.runtime.sendMessage({
                     "api_response": true,
                     "type": "logout",
                     "data": {
@@ -380,7 +380,7 @@ function logout(login_id_value, all_devices_value = false, send_response = true)
     };
     xhr.onerror = function () {
         if (send_response) {
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "logout",
                 "data": {
@@ -460,7 +460,7 @@ function get_data(login_id_value, token_value) {
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "check-id-get",
                 "data": {
@@ -471,7 +471,7 @@ function get_data(login_id_value, token_value) {
         }
     };
     xhr.onerror = function () {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "check-id-get",
             "data": {
@@ -555,7 +555,7 @@ function send_data(login_id_value, token_value, updated_locally_value, data_valu
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api": true,
                 "type": "check-id-send",
                 "data": {
@@ -566,7 +566,7 @@ function send_data(login_id_value, token_value, updated_locally_value, data_valu
         }
     };
     xhr.onerror = function () {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api": true,
             "type": "check-id-send",
             "data": {
@@ -597,24 +597,24 @@ function check_user(login_id_value, token_valud) {
                 //console.log("User is valid");
             } else {
                 //console.log("User is not valid: " + data.code);
-                browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+                chrome.runtime.sendMessage({"check-user--expired": true}).then(response => {
                     //logout(login_id_value, false, false);
-                    browser.storage.sync.remove("notefox-account");
+                    chrome.storage.sync.remove("notefox-account");
                 });
             }
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            /*browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+            /*chrome.runtime.sendMessage({"check-user--expired": true}).then(response => {
                 //logout(login_id_value, false, false);
-                browser.storage.sync.remove("notefox-account");
+                chrome.storage.sync.remove("notefox-account");
             });*/
         }
     };
     xhr.onerror = function () {
-        /*browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+        /*chrome.runtime.sendMessage({"check-user--expired": true}).then(response => {
             //logout(login_id_value, false, false);
-            browser.storage.sync.remove("notefox-account");
+            chrome.storage.sync.remove("notefox-account");
         });*/
     };
     xhr.send(JSON.stringify({
@@ -633,7 +633,7 @@ function change_password(login_id_value, token_value, old_password_value, new_pa
             // Parse the response JSON if needed
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "change-password",
                 "data": data
@@ -641,7 +641,7 @@ function change_password(login_id_value, token_value, old_password_value, new_pa
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "change-password",
                 "data": {
@@ -652,7 +652,7 @@ function change_password(login_id_value, token_value, old_password_value, new_pa
         }
     };
     xhr.onerror = function () {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "change-password",
             "data": {
@@ -679,7 +679,7 @@ function delete_account(login_id_value, token_value, email_value, password_value
             // Parse the response JSON if needed
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "delete-account",
                 "data": data
@@ -687,7 +687,7 @@ function delete_account(login_id_value, token_value, email_value, password_value
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "delete-account",
                 "data": {
@@ -698,7 +698,7 @@ function delete_account(login_id_value, token_value, email_value, password_value
         }
     };
     xhr.onerror = function () {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "delete-account",
             "data": {
@@ -725,7 +725,7 @@ function delete_account_verify(login_id_value, token_value, email_value, passwor
             // Parse the response JSON if needed
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "delete-verify",
                 "data": data
@@ -733,7 +733,7 @@ function delete_account_verify(login_id_value, token_value, email_value, passwor
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "delete-verify",
                 "data": {
@@ -744,7 +744,7 @@ function delete_account_verify(login_id_value, token_value, email_value, passwor
         }
     };
     xhr.onerror = function () {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "delete-verify",
             "data": {
@@ -772,7 +772,7 @@ function delete_account_verify_new_code(email_value, password_value) {
             // Parse the response JSON if needed
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "delete-account-new-code",
                 "data": data
@@ -780,7 +780,7 @@ function delete_account_verify_new_code(email_value, password_value) {
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "delete-account-new-code",
                 "data": {
@@ -791,7 +791,7 @@ function delete_account_verify_new_code(email_value, password_value) {
         }
     };
     xhr.onerror = function () {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "delete-account-new-code",
             "data": {
