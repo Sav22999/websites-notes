@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"
-     xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"
-     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
-    <path d="M650,500L650,666.667C650,703.333 620,733.333 583.333,733.333L183.333,733.333C146.667,733.333 116.667,703.333 116.667,666.667L116.667,133.333C116.667,96.667 146.667,66.667 183.333,66.667L583.333,66.667C620,66.667 650,96.667 650,133.333L650,300L450,300L450,142.608L143.991,400L450,657.392L450,500L650,500ZM400,450L400,550L221.667,400L400,250L400,350L700,350L700,450L400,450Z"/>
+<svg fill="#ffffff" clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"
+     viewBox="0 0 800 800"
+     xmlns="http://www.w3.org/2000/svg">
+    <path d="m650 500v166.667c0 36.666-30 66.666-66.667 66.666h-400c-36.666 0-66.666-30-66.666-66.666v-533.334c0-36.666 30-66.666 66.666-66.666h400c36.667 0 66.667 30 66.667 66.666v166.667h-200v-157.392l-306.009 257.392 306.009 257.392v-157.392zm-250-50v100l-178.333-150 178.333-150v100h300v100z"/>
 </svg>

@@ -8,20 +8,28 @@ Created by Saverio Morelli - saveriomorelli.com
     <link rel="stylesheet" href="../css/style.css"/>
     <title>Notefox - All notes</title>
     <link rel="icon" href="../img/icon.svg"/>
+    <meta name="viewport" content="width=device-width, initial-scale=0.8" />
 </head>
 
 <body>
+<aside>
+    <button id="all-notes-aside" class="aside-button sel"></button>
+    <button id="settings-aside" class="aside-button"></button>
+    <button id="help-aside" class="aside-button"></button>
+    <button id="donate-aside" class="aside-button"></button>
+    <button id="translate-aside" class="aside-button"></button>
+    <button id="website-aside" class="aside-button"></button>
+
+    <div id="version-aside"></div>
+</aside>
 <div id="all-notes-dedication-section">
-    <h1 id="title-all-notes-dedication-section">All notes</h1>
-    <div class="section text-align-right sticky-section" id="actions">
-        <input type="button" value="Buy me a coffee!" id="buy-me-a-coffee-button" class="button donate-button"/>
-        <input type="button" value="Settings" id="settings-all-notes-button" class="button settings-button"/>
-        <input type="button" value="Export all notes…" id="export-all-notes-button" class="button export-button"/>
-        <input type="button" value="Import notes…" id="import-all-notes-button" class="button import-button"/>
+    <h1 id="title-all-notes-dedication-section" class="hidden">All notes</h1>
+    <div class="section text-align-right" id="actions">
+        <input type="button" value="Buy me a coffee!" id="buy-me-a-coffee-button" class="button donate-button hidden"/>
+        <input type="button" value="Settings" id="settings-all-notes-button" class="button settings-button hidden"/>
         <input type="button" value="Refresh data" id="refresh-all-notes-button" class="button refresh-button"/>
-        <input type="button" value="Clear all notes" id="clear-all-notes-button" class="button clear-button"/>
     </div>
-    <div class="section text-align-left" id="search-filter-sortby">
+    <div class="section text-align-left sticky-section" id="search-filter-sortby">
         <input type="search" value="" placeholder="Search…" id="search-all-notes-text" class="textbox search-box"/><span
             id="info-tooltip-search"></span>
         <!--<input type="button" value="Sort by…" id="sort-by-all-notes-button" class="button sort-by-button float-right"/>-->
@@ -35,7 +43,7 @@ Created by Saverio Morelli - saveriomorelli.com
             </select>
         </span>
     </div>
-    <div class="section text-align-left hidden" id="filters">
+    <div class="section text-align-left hidden sticky-section" id="filters">
         <span id="filter-colours-container"></span>
         <br>
         <input type="button" value="Type: Global" id="filter-type-global-button"
@@ -47,7 +55,9 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
     <div class="section text-align-left hidden" id="results-searching"></div>
 
-    <div id="disable-sync" class="hidden section section-warning">
+    <br class="br-big-space"/>
+
+    <div id="disable-sync" class="hidden section section-warning margin-bottom-20-px">
         Due to some space limitation with "sync" I advise you to disable the data synced in this page. Otherwise, the
         add-on should not work properly anymore!
         <br>
@@ -56,47 +66,17 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
 
     <span id="all-website-sections"></span>
-    <div id="background-opacity"></div>
-    <div id="import-section">
-        <div class="section" id="import-sub-sections">
-            <div class="section">
-                <div id="text-import">
-                    Paste here the JSON (or text) file content you exported previously, then click the <span
-                        class="button-code">Import now</span>
-                    button. The page will be automatically reloaded if notes are successfully imported.
-                </div>
-            </div>
-            <div class="section">
-                <textarea id="json-import" spellcheck="false"></textarea>
-            </div>
-            <div class="section text-align-right">
-                <input type="button" value="Get local data" id="import-now-all-notes-from-local-button"
-                       class="button import-button"/>
-                <input type="button" value="Import from file" id="import-from-file-button"
-                       class="button import-button float-left"/>
-                <input type="file" value="" id="import-from-file-input-hidden" class="button import-button hidden float-left"/>
-                <input type="button" value="Cancel" id="cancel-import-all-notes-button" class="button"/>
-                <input type="button" value="Import now" id="import-now-all-notes-button" class="button import-button"/>
-            </div>
-        </div>
-    </div>
-    <div id="export-section">
-        <div class="section" id="export-sub-sections">
-            <div class="section">
-                <div id="text-export">
-                    Create a new JSON (or text) file and paste the code below <strong>without modifying
-                    it</strong> (you can click the <span class="button-code">Copy now</span> button to copy the code).
-                </div>
-            </div>
-            <div class="section">
-                <textarea id="json-export" readonly spellcheck="false"></textarea>
-            </div>
-            <div class="section text-align-right">
-                <input type="button" value="Export directly to file" id="export-to-file-button"
-                       class="button download-button float-left"/>
-                <input type="button" value="Cancel" id="cancel-export-all-notes-button" class="button"/>
-                <input type="button" value="Copy now" id="copy-now-all-notes-button" class="button copy-button"/>
-            </div>
+</div>
+
+<!--login expired popup-->
+<div id="background-opacity"></div>
+<div id="login-expired-section">
+    <div id="login-expired-content" class="section">
+        <div id="login-expired-title" class="padding-10"></div>
+        <div id="login-expired-text" class="padding-10"></div>
+        <div id="login-expired-buttons" class="padding-10 text-align-right">
+            <input type="button" value="" id="login-expired-button" class="button login-button" tabindex="1"/>
+            <input type="button" value="" id="login-expired-cancel-button" class="button" tabindex="2"/>
         </div>
     </div>
 </div>
@@ -147,6 +127,8 @@ Created by Saverio Morelli - saveriomorelli.com
 <script src="../js/languages/sv-SE/strings.js"></script>
 <!--uk Ukrainian-->
 <script src="../js/languages/uk-UA/strings.js"></script>
+<!--ia Interlingua-->
+<script src="../js/languages/ia/strings.js"></script>
 <!--END|include all translation files-->
 
 <script src="../js/all-notes.js"></script>

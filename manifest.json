@@ -1,8 +1,8 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "Notefox: Websites notes",
   "author": "Saverio Morelli (Sav22999)",
-  "version": "3.10.1",
+  "version": "4.0.1",
   "description": "Take notes on every website in a smart and simple way!",
   "icons": {
     "16": "./img/icons/icon-16.png",
@@ -32,8 +32,7 @@
     "scripting"
   ],
   "background": {
-    "service_worker": "./js/background.js",
-    "type": "module"
+    "service_worker": "./js/import-service-workers.js",
   },
   "options_ui": {
     "page": "./settings/index.html"
