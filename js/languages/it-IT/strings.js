@@ -162,7 +162,7 @@ strings[lang] = {
     'label-title-link': 'Inserisci / Rimuovi link',
     'label-results-for': 'Risultati per:  {{keywords}}',
     'immersive-sticky-notes-text': 'Sticky notes immersive',
-    'immersive-sticky-notes-detailed-text': 'When enabled, the sticky notes will show controls only when you hover them with the mouse.',
+    'immersive-sticky-notes-detailed-text': 'Se attivato, i controlli delle sticky notes saranno visualizzati solamente quando andrai con il mouse sopra le stesse.',
     'insert-link-text': 'Inserisci il link di destinazione per il testo selezionato',
     'insert-link-placeholder': 'Digita il link qui…',
     'insert-link-button': 'Inserisci link',

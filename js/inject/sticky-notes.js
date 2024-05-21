@@ -361,7 +361,7 @@ function checkImmersiveMode(text, settings_json) {
     if (settings_json !== undefined && (settings_json["immersive-sticky-notes"] === "no" || settings_json["immersive-sticky-notes"] === false)) immersive_mode = false;
     else immersive_mode = true;
 
-    let visibility_immersive = immersive_mode ? "visible" : "hidden";
+    let visibility_immersive = immersive_mode ? "hidden" : "visible";
     const commands_container = document.getElementById('commands-container--sticky-notes-notefox-addon');
     commands_container.style.visibility = visibility_immersive;
 }
@@ -463,7 +463,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 margin: 0px !important;
                 box-sizing: border-box !important;
                 border-radius: 10px;
-                border-bottom-right-radius: 0px;
+                /*border-bottom-right-radius: 0px;*/
                 cursor: default;
                 box-shadow: 0px 0px 5px rgba(255,98,0,0.27);
                 font-family: inherit;
@@ -708,7 +708,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 width: auto !important;
                 left: 8px !important;
                 right: 8px !important;
-                bottom: 4px !important;
+                bottom: 7px !important;
                 margin: 0px !important;
                 padding: 0px !important;
                 box-sizing: border-box !important;
@@ -778,7 +778,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 right: 0px;
             }
             
-            #commands-container--sticky-notes-notefox-addon:hover * {
+            #commands-container--sticky-notes-notefox-addon:hover, #commands-container--sticky-notes-notefox-addon:hover * {
                 visibility: visible !important;
             }
             

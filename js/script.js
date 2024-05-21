@@ -525,7 +525,7 @@ function addAction() {
     //console.log(actions)
 }
 
-function loadSettings() {
+function loadSettings(load_only = false) {
     sync_local.get("settings", function (value) {
         if (value["settings"] !== undefined) settings_json = value["settings"];
         if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
@@ -552,7 +552,7 @@ function loadSettings() {
         if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
         else advanced_managing = false;
 
-        continueLoaded();
+        if (!load_only) continueLoaded();
         //console.log(JSON.stringify(settings_json));
     });
 }
@@ -653,7 +653,7 @@ function saveNotes(title_call = false) {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
         } else {
-            loadSettings();
+            loadSettings(true);
         }
 
         let url_to_use = getUrlWithSupportedProtocol(currentUrl[selected_tab], websites_json);
