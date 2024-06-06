@@ -1259,7 +1259,7 @@ function exportToFile() {
     document.getElementById("export-to-file-button").value = all_strings["exported-notes-to-file-button"];
 }
 
-function notefoxAccountLoginSignupManage(action = null, data = null) {
+function notefoxAccountLoginSignupManage(action = null, data = null, firstTime = false) {
     showBackgroundOpacity();
 
     var elements = document.getElementsByClassName("button-close-notefox-account");
@@ -1295,6 +1295,10 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
         let title = document.getElementById("title-account");
 
         //console.log(savedData["notefox-account"]);
+
+        if (firstTime) {
+            browser.runtime.sendMessage({"sync-now": true});
+        }
 
         let managing_account = false;
         if ((action === null || action === "manage") && savedData["notefox-account"] !== undefined && savedData["notefox-account"] !== {}) {
@@ -1369,10 +1373,6 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         "login-id": savedData["notefox-account"]["login-id"]
                     }
                 });
-                browser.storage.sync.remove("notefox-account").then(result => {
-                    notefoxAccountLoginSignupManage();
-                });
-                location.reload();
             }
 
             document.getElementById("manage-logout-all-devices").onclick = function () {
@@ -1383,10 +1383,6 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         "login-id": savedData["notefox-account"]["login-id"]
                     }
                 });
-                browser.storage.sync.remove("notefox-account").then(result => {
-                    notefoxAccountLoginSignupManage();
-                });
-                location.reload();
             }
 
             document.getElementById("manage-delete-account-button").onclick = function () {
@@ -1707,6 +1703,12 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         delete_submit_element.disabled = true;
                         cancel_element.disabled = true;
                         disableAside = true;
+
+                        browser.storage.sync.remove("notefox-account").then(result => {
+                            browser.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
+                                notefoxAccountLoginSignupManage();
+                            });
+                        });
                     }
                 }
             } else if (action === "delete-verify") {
@@ -2395,10 +2397,9 @@ function loginVerifyResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            notefoxAccountLoginSignupManage("manage", data["data"]);
-            location.reload();
+            notefoxAccountLoginSignupManage("manage", data["data"], firstTime = true);
 
-            browser.runtime.sendMessage({"sync-now": true});
+            //location.reload();
         } else if (data.code === 400 || data.code === 401) {
             //Error
             showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
@@ -2422,7 +2423,11 @@ function logoutResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            notefoxAccountLoginSignupManage("login");
+            browser.storage.sync.remove("notefox-account").then(result => {
+                browser.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
+                    notefoxAccountLoginSignupManage("login");
+                });
+            });
         } else if (data.code === 400 || data.code === 401) {
             //Error
             showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
@@ -2442,7 +2447,11 @@ function logoutAllResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            notefoxAccountLoginSignupManage("login");
+            browser.storage.sync.remove("notefox-account").then(result => {
+                browser.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
+                    notefoxAccountLoginSignupManage("login");
+                });
+            });
         } else if (data.code === 400 || data.code === 401) {
             //Error
             showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
@@ -2552,6 +2561,8 @@ function deleteVerifyResponse(data) {
             //Success
 
             browser.storage.sync.remove("notefox-account").then(result => {
+                browser.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
+                });
             });
 
             document.getElementById("notefox-account-settings-button").value = all_strings["notefox-account-button-settings-login-or-signup"];
