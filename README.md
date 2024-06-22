@@ -11,7 +11,7 @@ Official repo of https://addons.mozilla.org/it/firefox/addon/websites-notes/.
 
 [<img src="img/firefoxAddons.png" height="50px">](https://addons.mozilla.org/it/firefox/addon/websites-notes/)
 [<img src="img/chromeAddons.png" height="50px">](https://chromewebstore.google.com/detail/agcdffobijddcccbfnhfjmaohnljefpm)
-[<img src="img/microsoftAddons.png" height="50px">](https://microsoftedge.microsoft.com/addons/detail/jdgcfpdoiojfebhafmihkihficfnpahk)
+[<img src="img/microsoftAddons.png" height="50px">](https://microsoftedge.microsoft.com/addons/detail/lkahmkadpaibphpoiofpdinacjffddda)
 
 To support me, you can buy me a coffee making a donation ❤️ with **LiberaPay** or **PayPal**:
 
