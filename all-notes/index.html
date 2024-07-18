@@ -8,7 +8,7 @@ Created by Saverio Morelli - saveriomorelli.com
     <link rel="stylesheet" href="../css/style.css"/>
     <title>Notefox - All notes</title>
     <link rel="icon" href="../img/icon.svg"/>
-    <meta name="viewport" content="width=device-width, initial-scale=0.8" />
+    <meta name="viewport" content="width=device-width, initial-scale=0.8"/>
 </head>
 
 <body>
@@ -30,18 +30,20 @@ Created by Saverio Morelli - saveriomorelli.com
         <input type="button" value="Refresh data" id="refresh-all-notes-button" class="button refresh-button"/>
     </div>
     <div class="section text-align-left sticky-section" id="search-filter-sortby">
-        <input type="search" value="" placeholder="Search…" id="search-all-notes-text" class="textbox search-box"/><span
+        <input type="search" value="" placeholder="Search…" id="search-all-notes-text"
+               class="textbox search-box search-all-notes-text"/><span
             id="info-tooltip-search"></span>
         <!--<input type="button" value="Sort by…" id="sort-by-all-notes-button" class="button sort-by-button float-right"/>-->
-        <input type="button" value="Filter…" id="filter-all-notes-button" class="button filter-button float-right"/>
-        <span class="float-right">
-            <select name="theme" id="sort-by-all-notes-button" class="select-box sort-by-button button">
+        <div class="buttons-grid">
+            <select name="theme" id="sort-by-all-notes-button" class="button select-grid-no-text sort-by-button">
                 <option value="name-az" id="sort-by-name-az-select">Name: A-Z</option>
                 <option value="name-za" id="sort-by-name-za-select">Name: Z-A</option>
                 <option value="date-90" id="sort-by-date-90-select">Last update: Oldest-Newest</option>
                 <option value="date-09" id="sort-by-date-09-select">Last update: Newest-Oldest</option>
             </select>
-        </span>
+            <input type="button" value="Filter…" id="filter-all-notes-button"
+                   class="button filter-button button-no-text-on-mobile"/>
+        </div>
     </div>
     <div class="section text-align-left hidden sticky-section" id="filters">
         <span id="filter-colours-container"></span>

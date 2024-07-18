@@ -154,6 +154,22 @@ body {
     box-sizing: border-box;
 }
 
+@media screen and (max-width: 1200px) {
+    .button-no-text-on-mobile {
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: auto 20px;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        text-indent: 0px;
+        text-overflow: '';
+        padding: 0px 10px;
+        font-size: 0px !important; /*This permits to "hide" the textContext from the select but NOT from the options*/
+        min-width: 40px;
+        max-width: 40px;
+    }
+}
+
 .button-trigger-sticky {
     position: absolute;
     bottom: -2px;
@@ -417,12 +433,18 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 }
 
 #search-all-notes-text {
-    width: 30%;
+    width: 80%;
     min-width: 200px;
     margin: 3px;
     background-color: var(--textbox-color);
     color: var(--on-textbox-color);
     opacity: 0.8;
+}
+
+@media screen and (max-width: 1200px) {
+    #search-all-notes-text {
+        width: 100%;
+    }
 }
 
 #search-all-notes-text:focus {
@@ -2248,9 +2270,15 @@ hr.hr-domain:last-child {
     display: grid;
     grid-column-gap: 5px; /*This is the space between the columns*/
     padding: 2px;
-    background-color: transparent;
 
     /*grid-template-areas: 'XX YY YY'; Specify this in the dedicated container class/id*/
+}
+
+#search-filter-sortby {
+    display: grid;
+    grid-template-areas: 'search search search search buttons';
+    grid-column-gap: 5px;
+    padding: 5px;
 }
 
 .select-grid-no-text {
@@ -2264,6 +2292,7 @@ hr.hr-domain:last-child {
     padding: 0px 10px;
     font-size: 0px; /*This permits to "hide" the textContext from the select but NOT from the options*/
     min-width: 60px;
+    max-width: 60px;
 
     /*grid-area: XX; Specify this in the dedicated container class/id*/
 }
@@ -2273,8 +2302,34 @@ hr.hr-domain:last-child {
     grid-area: tag; /*# This is the name of the area*/
 }
 
-#sort-by-select-grid {
-    background-image: url("../img/sort-by.svg"), url("../img/arrow-select.svg");
-    grid-area: sort-by; /*# This is the name of the area*/
+#tag-select-grid {
+    max-width: none;
 }
 
+.buttons-grid {
+    grid-area: buttons; /*# This is the name of the area*/
+    text-align: right;
+
+    display: grid;
+    grid-template-areas: 'filter sortby';
+    grid-column-gap: 5px;
+    padding: 2px;
+}
+
+#filter-all-notes-button {
+    grid-area: filter; /*# This is the name of the area*/
+    margin-left: auto;
+}
+
+#sort-by-all-notes-button {
+    grid-area: sortby; /*# This is the name of the area*/
+    max-width: none;
+}
+
+#search-all-notes-text {
+    background-size: auto 20px;
+    background-position: 8px;
+    padding-left: 35px;
+    background-repeat: no-repeat;
+    grid-area: search; /*# This is the name of the area*/
+}
