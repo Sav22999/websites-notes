@@ -23,7 +23,7 @@ strings[lang] = {
     "page-label": "Page",
     "domain-label": "Domain",
     "global-label": "Global",
-    "see-all-notes-button": "See all notes",
+    "see-all-notes-button": "See all notes and settings",
     "clear-all-notes-confirmation": "Are you sure you want to clear all data?\nYou can't cancel this process once started.",
     "clear-all-notes-domain-confirmation": "Are you sure you want to clear all notes of this domain (its pages notes as well)?\nYou can't cancel this process once started.",
     "clear-all-notes-page-without-url-confirmation": "Are you sure you want to clear the selected notes?\nYou can't cancel this process once started.",

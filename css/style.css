@@ -59,7 +59,8 @@ body {
 }
 
 #popup-content {
-    width: 336px;
+    min-width: 336px;
+    max-width: 336px;
     height: auto;
     margin: 0px;
     padding: 0px;
@@ -67,6 +68,12 @@ body {
     position: relative;
     background-color: #cccccc33;
     color: inherit;
+}
+
+@media screen and (max-width: 1500px) {
+    #popup-content {
+        max-width: none;
+    }
 }
 
 #tabs-section {
@@ -349,11 +356,6 @@ body {
     background-color: transparent;
 }
 
-#all-notes-section {
-    padding: 2px;
-    background-color: transparent;
-}
-
 #notes-section > #notes, textarea, .textbox, .div-textnotes-container {
     width: 100%;
     height: 300px;
@@ -533,31 +535,19 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     display: grid;
     grid-template-areas: 'tag all-notes all-notes all-notes all-notes';
     grid-column-gap: 5px;
+    padding: 2px;
+    background-color: transparent;
 }
 
 .select-tag-all-notes {
     background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
     background-repeat: no-repeat;
     background-position: center left 10px, center right 10px;
-    background-size: auto 50%, auto 50%;
+    background-size: auto 20px, auto 20px;
     -webkit-appearance: none;
     -moz-appearance: none;
     text-indent: 0px;
     padding-right: 40px;
-}
-
-#tag-select-grid {
-    grid-area: tag;
-    background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
-    background-repeat: no-repeat;
-    background-position: center left 5px, center right 5px;
-    background-size: auto 60%, auto 60%;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    text-indent: 0px;
-    text-overflow: '';
-    padding: 0px 10px;
-    font-size: 0px; /*This permits to "hide" the textContext from the select but NOT from the options*/
 }
 
 #all-notes-button-grid {
@@ -566,8 +556,9 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     background-image: url("../img/page-in-all-notes.svg");
     background-repeat: no-repeat;
     background-position: center right 10px;
-    background-size: auto 80%;
-    padding-right: 30px;
+    background-size: auto 25px;
+    padding-right: 40px;
+    white-space: normal;
 }
 
 .section, .sub-section, .section-empty {
@@ -1190,7 +1181,7 @@ div#format-buttons {
 button.button-format {
     width: 30px !important;
     height: 30px !important;
-    background-size: auto 70%;
+    background-size: auto 20px;
     background-repeat: no-repeat;
     background-position: center center;
     border: 0px solid transparent;
@@ -1223,7 +1214,7 @@ button.button-format:active, button.button-format:focus {
 #info-tooltip-search {
     background-color: transparent;
     background-image: url("../img/info.svg");
-    background-size: 80% auto;
+    background-size: auto 20px;
     background-repeat: no-repeat;
     background-position: top left;
     height: 20px;
@@ -1361,7 +1352,7 @@ aside > button.sel, aside > button.sel:hover {
 
     padding-top: 60px;
     background-image: url("../img/icon.svg");
-    background-size: auto 40%;
+    background-size: auto 40px;
     background-repeat: no-repeat;
     background-position: top 5px center;
 }
@@ -2252,3 +2243,38 @@ hr.hr-domain:last-child {
 .no-bold {
     font-weight: normal !important;
 }
+
+.section-grid-container {
+    display: grid;
+    grid-column-gap: 5px; /*This is the space between the columns*/
+    padding: 2px;
+    background-color: transparent;
+
+    /*grid-template-areas: 'XX YY YY'; Specify this in the dedicated container class/id*/
+}
+
+.select-grid-no-text {
+    background-repeat: no-repeat;
+    background-position: center left 8px, center right 8px;
+    background-size: auto 20px, auto 20px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 0px;
+    text-overflow: '';
+    padding: 0px 10px;
+    font-size: 0px; /*This permits to "hide" the textContext from the select but NOT from the options*/
+    min-width: 60px;
+
+    /*grid-area: XX; Specify this in the dedicated container class/id*/
+}
+
+#tag-select-grid, .tag-select-grid {
+    background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
+    grid-area: tag; /*# This is the name of the area*/
+}
+
+#sort-by-select-grid {
+    background-image: url("../img/sort-by.svg"), url("../img/arrow-select.svg");
+    grid-area: sort-by; /*# This is the name of the area*/
+}
+
