@@ -705,11 +705,17 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         pageType.classList.add("sub-section-type");
         pageType.textContent = type;
 
+        let subrowUrl = document.createElement("div");
+        subrowUrl.classList.add("subrow-url");
+
+        let subrowButtons = document.createElement("div");
+        subrowButtons.classList.add("subrow-buttons");
+
         let inputClearAllNotesPage = document.createElement("input");
 
         inputClearAllNotesPage.type = "button";
         inputClearAllNotesPage.value = all_strings["clear-notes-of-this-page-button"];
-        inputClearAllNotesPage.classList.add("button", "float-right", "very-small-button", "clear2-button");
+        inputClearAllNotesPage.classList.add("button", "very-small-button", "clear2-button", "button-no-text-on-mobile");
         inputClearAllNotesPage.onclick = function () {
             let isDomain = false;
             if (fullUrl === url) {
@@ -724,7 +730,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
 
         inputInlineEdit.type = "button";
         inputInlineEdit.value = all_strings["edit-notes-button"];
-        inputInlineEdit.classList.add("button", "float-right", "very-small-button", "edit-button", "margin-right-5-px");
+        inputInlineEdit.classList.add("button", "very-small-button", "edit-button", "button-no-text-on-mobile");
         inputInlineEdit.onclick = function () {
             if (textNotes.contentEditable === "true") {
                 textNotes.contentEditable = "false";
@@ -763,7 +769,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
 
         inputCopyNotes.type = "button";
         inputCopyNotes.value = all_strings["copy-notes-button"];
-        inputCopyNotes.classList.add("button", "float-right", "very-small-button", "margin-right-5-px", "copy-button");
+        inputCopyNotes.classList.add("button", "very-small-button", "copy-button", "button-no-text-on-mobile");
         inputCopyNotes.onclick = function () {
             copyNotes(textNotes, notes);
             inputCopyNotes.value = all_strings["copied-button"];
@@ -787,7 +793,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             }
             tagColour.textContent = colourList[colour];
             //tagColour.classList.add(colour + "-background-tag");
-            tagsColour.classList.add("select-tag-all-notes", "button", "float-right", "very-small-button", "margin-right-5-px", "tag-button");
+            tagsColour.classList.add("select-tag-all-notes", "button", "very-small-button", "tag-button", "select-grid-no-text");
             tagsColour.append(tagColour);
         }
         tagsColour.onchange = function () {
@@ -795,12 +801,18 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         }
         page.id = fullUrl;
 
-        row1.append(pageType)
+        //row1.append(pageType)
+        subrowUrl.append(pageType);
 
-        row1.append(inputClearAllNotesPage);
+        /*row1.append(inputClearAllNotesPage);
         row1.append(inputCopyNotes);
         row1.append(inputInlineEdit);
-        row1.append(tagsColour);
+        row1.append(tagsColour);*/
+
+        subrowButtons.append(inputClearAllNotesPage);
+        subrowButtons.append(inputCopyNotes);
+        subrowButtons.append(inputInlineEdit);
+        subrowButtons.append(tagsColour);
 
         if (type_to_use.toLowerCase() !== "domain" && type_to_use.toLowerCase() !== "global") {
             //it's a page
@@ -818,8 +830,12 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
                 }
             }
 
-            row1.append(pageUrl);
+            //row1.append(pageUrl);
+            subrowUrl.append(pageUrl);
         }
+
+        row1.append(subrowUrl);
+        row1.append(subrowButtons)
 
         page.append(row1);
 

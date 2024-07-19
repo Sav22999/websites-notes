@@ -154,19 +154,21 @@ body {
     box-sizing: border-box;
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 800px) {
     .button-no-text-on-mobile {
         background-repeat: no-repeat;
         background-position: center center;
-        background-size: auto 20px;
         -webkit-appearance: none;
         -moz-appearance: none;
         text-indent: 0px;
         text-overflow: '';
-        padding: 0px 10px;
+        padding: 5px 10px;
         font-size: 0px !important; /*This permits to "hide" the textContext from the select but NOT from the options*/
-        min-width: 40px;
-        max-width: 40px;
+        min-width: 50px;
+        max-width: 50px;
+
+        min-height: 40px;
+        background-size: auto 60%;
     }
 }
 
@@ -441,9 +443,15 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     opacity: 0.8;
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 800px) {
     #search-all-notes-text {
-        width: 100%;
+        min-height: 50px;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    #search-all-notes-text {
+        width: 90%;
     }
 }
 
@@ -537,7 +545,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     }
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
     #all-notes-dedication-section, #settings-dedication-section {
         margin-left: 0%;
     }
@@ -699,7 +707,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     }
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
     #search-filter-sortby {
         left: 0px;
     }
@@ -707,7 +715,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 
 #filters {
     position: sticky;
-    top: 52.5px;
+    top: 54.5px;
     margin-top: -5px;
     border-radius: 0px;
     margin-left: -20px;
@@ -832,7 +840,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     }
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
     #import-section, #export-section, #account-section, #login-expired-section, #link-section {
         padding-left: 0%;
         padding-right: 0%;
@@ -849,6 +857,9 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     border-radius: 0px;
     margin-bottom: 2px;
     overflow: visible;
+
+    display: flex;
+    flex-wrap: wrap;
 }
 
 #text-import {
@@ -935,7 +946,7 @@ div.h2-container:hover {
     margin-top: 20px !important;
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
     div.h2-container {
         position: static;
         background-color: transparent;
@@ -953,6 +964,8 @@ h3 {
 .go-to-external {
     transition: 0.5s;
     cursor: alias !important;
+    text-wrap: auto;
+    max-inline-size: 400px;
 }
 
 .go-to-external:hover::after {
@@ -1236,12 +1249,18 @@ button.button-format:active, button.button-format:focus {
 #info-tooltip-search {
     background-color: transparent;
     background-image: url("../img/info.svg");
-    background-size: auto 20px;
+    background-size: auto 100%;
     background-repeat: no-repeat;
     background-position: top left;
     height: 20px;
     width: 20px;
     display: inline-block;
+}
+
+@media screen and (max-width: 450px) {
+    #info-tooltip-search {
+        display: none;
+    }
 }
 
 .result-button {
@@ -1321,12 +1340,12 @@ aside > button.sel, aside > button.sel:hover {
         padding: 10px;
         padding-top: 50px;
         background-position: center top 10px;
-        background-size: 40% auto !important;
+        background-size: 30px auto !important;
         font-size: 0.6em;
     }
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
     aside {
         display: none;
     }
@@ -1396,7 +1415,7 @@ aside > button.sel, aside > button.sel:hover {
     z-index: 5;
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
     .section-title-settings {
         position: relative;
     }
@@ -1707,7 +1726,7 @@ hr.hr-domain:last-child {
     }
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
     .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, hr {
         width: 100%;
     }
@@ -2310,10 +2329,74 @@ hr.hr-domain:last-child {
     grid-area: buttons; /*# This is the name of the area*/
     text-align: right;
 
-    display: grid;
+    display: flex;
     grid-template-areas: 'filter sortby';
-    grid-column-gap: 5px;
+    grid-column-gap: 0px;
     padding: 2px;
+
+    justify-items: right;
+}
+
+.buttons-grid > * {
+    flex: auto;
+    max-width: none;
+}
+
+.buttons-grid > select {
+    background-position: center left 20%, center right 20%;
+}
+
+@media screen and (max-width: 1000px) {
+    .buttons-grid > select {
+        background-position: center left 20%, center right 20%;
+        min-width: 80px;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .buttons-grid > select {
+        background-size: auto 60%, auto 60%;
+    }
+}
+
+.subrow-url {
+    flex: 50%;
+}
+
+.subrow-buttons {
+    display: flex;
+    /*grid-template-areas: 'tag edit copy delete';*/
+
+    text-align: right;
+    justify-content: right;
+
+    flex: 50%;
+}
+
+.subrow-buttons > * {
+    flex: auto;
+    max-width: none;
+}
+
+@media screen and (max-width: 1000px) {
+    .subrow-buttons > select {
+        background-position: center left 20%, center right 20%;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .subrow-buttons {
+        flex: 100%;
+        min-height: 50px;
+    }
+
+    .subrow-buttons > select {
+        background-size: auto 60%, auto 60%;
+    }
+
+    .subrow-url {
+        flex: 100%;
+    }
 }
 
 #filter-all-notes-button {
@@ -2331,5 +2414,15 @@ hr.hr-domain:last-child {
     background-position: 8px;
     padding-left: 35px;
     background-repeat: no-repeat;
+}
+
+.search-grid-area {
     grid-area: search; /*# This is the name of the area*/
+}
+
+@media screen and (max-width: 800px) {
+    .filter-button-tag {
+        min-height: 50px;
+        border-left-width: 20px;
+    }
 }
