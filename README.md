@@ -23,6 +23,8 @@ Take notes on every website in a smart and simple way!
 
 https://www.notefox.eu/about/
 
+**Notefox doesn't collect any personal data if you don't use a *Notefox Account***. Read [Privacy Policy](https://www.notefox.eu/privacy/) and [Terms of Service](https://www.notefox.eu/terms/) to know more. 
+
 ## Documentation
 
 You can find the API documentation at this link:

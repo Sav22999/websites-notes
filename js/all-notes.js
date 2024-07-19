@@ -478,17 +478,15 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                     let section = document.createElement("div");
                     section.classList.add("section", "section-domain");
 
-                    //console.log(domain);
+                    let input_clear_all_notes_domain = document.createElement("input");
 
                     if (domain !== "**global") {
-                        let input_clear_all_notes_domain = document.createElement("input");
                         input_clear_all_notes_domain.type = "button";
                         input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
                         input_clear_all_notes_domain.classList.add("button", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button", "clear-button-float-right");
                         input_clear_all_notes_domain.onclick = function () {
                             clearAllNotesDomain(domain);
                         }
-                        section.append(input_clear_all_notes_domain);
 
                         let h2_container = document.createElement("div");
                         h2_container.classList.add("h2-container");
@@ -502,6 +500,8 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                             }
                         }
                         h2_container.append(h2);
+
+                        section.append(input_clear_all_notes_domain);
                         section.append(h2_container);
                     }
 
@@ -824,7 +824,6 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
                 }
             }
 
-            //row1.append(pageUrl);
             subrowUrl.append(pageUrl);
         }
 
