@@ -2707,6 +2707,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var syncing_svg = window.btoa(getIconSvgEncoded("syncing", on_primary));
         var synced_svg = window.btoa(getIconSvgEncoded("syncing", on_primary));
         var manage_svg = window.btoa(getIconSvgEncoded("account", on_primary));
+        var edit_svg = window.btoa(getIconSvgEncoded("edit", on_primary));
 
         var account_label_svg = window.btoa(getIconSvgEncoded("account", textbox_color));
         var email_label_svg = window.btoa(getIconSvgEncoded("email", textbox_color));
@@ -2844,6 +2845,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .code-label {
                     background-image: url('data:image/svg+xml;base64,${code_label_svg}');
+                }
+                .edit-button {
+                    background-image: url('data:image/svg+xml;base64,${edit_svg}');
                 }
             </style>`;
     }

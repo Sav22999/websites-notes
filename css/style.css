@@ -441,11 +441,21 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     background-color: var(--textbox-color);
     color: var(--on-textbox-color);
     opacity: 0.8;
+
+    background-size: auto 20px;
+    background-position: 8px;
+    padding-left: 35px;
+    background-repeat: no-repeat;
 }
 
 @media screen and (max-width: 800px) {
     #search-all-notes-text {
         min-height: 50px;
+
+        padding-left: 45px;
+        background-size: auto 30px;
+
+        font-size: 1.2em;
     }
 }
 
@@ -751,7 +761,6 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 .inline-edit-title, .inline-edit-notes {
     border-radius: 0px;
     border-bottom: 2px solid var(--primary-color);
-    margin-bottom: -10px !important;
     cursor: text !important;
     box-sizing: border-box;
 }
@@ -845,7 +854,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
         padding-left: 0%;
         padding-right: 0%;
         padding-top: 0%;
-        padding-bottom: 0%;
+        padding-bottom: 100px;
     }
 }
 
@@ -969,8 +978,13 @@ h3 {
 }
 
 .go-to-external:hover::after {
-    content: url('../img/open-external.svg');
     margin-left: 5px;
+}
+
+@media screen and (max-width: 1000px) {
+    .go-to-external {
+        font-size: 1.3em !important;
+    }
 }
 
 .section-selected {
@@ -1167,6 +1181,9 @@ b {
     cursor: text !important;
 }
 
+#notes, .textarea-all-notes {
+    font-size: 1em !important;
+}
 #notes *, .textarea-all-notes * {
     margin: 0px !important;
     padding: 0px !important;
@@ -1198,6 +1215,12 @@ b {
 
 .textarea-all-notes {
     padding: 10px !important;
+}
+
+@media screen and (max-width: 800px) {
+    .textarea-all-notes, .textarea-all-notes * {
+        font-size: 1.2em !important;
+    }
 }
 
 div#format-buttons {
@@ -1270,6 +1293,14 @@ button.button-format:active, button.button-format:focus {
 .tag-colour-left {
     border: 0px solid transparent !important;
     border-left-width: 15px !important;
+}
+
+@media screen and (max-width: 800px) {
+    .tag-colour-left {
+        border-left-width: 30px !important;
+    }
+
+
 }
 
 .tag-colour-top {
@@ -1346,7 +1377,41 @@ aside > button.sel, aside > button.sel:hover {
 }
 
 @media screen and (max-width: 1000px) {
+    /*Mobile*/
     aside {
+        position: fixed;
+        top: auto;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        height: 100px;
+        width: 100%;
+        border-radius: 0px;
+        background-color: var(--tertiary);
+        z-index: 2;
+        overflow: hidden;
+        padding: 0px;
+        color: var(--primary-color);
+
+        display: flex;
+    }
+
+    aside > .aside-button {
+        flex: 1;
+
+        text-align: center;
+        padding: 10px;
+        padding-top: 50px;
+        background-position: center top 10px;
+        background-size: 40px auto !important;
+        font-size: 1em;
+
+        box-sizing: border-box;
+        width: auto;
+        height: 100%;
+    }
+
+    #donate-aside {
         display: none;
     }
 }
@@ -1398,6 +1463,12 @@ aside > button.sel, aside > button.sel:hover {
     background-position: top 5px center;
 }
 
+@media screen and (max-width: 1000px) {
+    #version-aside {
+        display: none;
+    }
+}
+
 /*settings*/
 
 #settings-dedication-section > * {
@@ -1442,6 +1513,8 @@ aside > button.sel, aside > button.sel:hover {
     -ms-user-select: none;
     user-select: none;
     z-index: 4;
+
+    display: flex;
 }
 
 .item-settings input[type="checkbox"] {
@@ -1460,6 +1533,8 @@ aside > button.sel, aside > button.sel:hover {
     width: 23px;
     background-color: var(--tertiary-transparent);
     z-index: 4;
+
+    flex: 1;
 }
 
 .item-settings:hover input[type="checkbox"] ~ .checkmark {
@@ -1476,6 +1551,8 @@ aside > button.sel, aside > button.sel:hover {
     position: absolute;
     display: none;
 }
+
+
 
 .item-settings input[type="checkbox"]:checked ~ .checkmark:after {
     display: block;
@@ -1494,12 +1571,33 @@ aside > button.sel, aside > button.sel:hover {
     border-radius: 0px;
 }
 
+@media screen and (max-width: 800px) {
+    .item-settings {
+        font-size: 1.2em !important;
+    }
+}
+
 .option-settings {
     position: static;
     padding: 10px;
     font-size: 1em;
     z-index: 4;
     margin: 30px 0px;
+}
+
+@media screen and (max-width: 800px) {
+    .checkmark {
+        height: 30px;
+        width: 30px;
+    }
+    .item-settings .checkmark:after {
+        left: 9px;
+        top: 4px;
+        width: 8px;
+        height: 14px;
+        border: solid var(--on-primary-color);
+        border-width: 0 4px 4px 0;
+    }
 }
 
 .option-indent-settings {
@@ -1568,6 +1666,7 @@ aside > button.sel, aside > button.sel:hover {
 .title-option-settings {
     font-weight: 650;
     max-width: 85%;
+    flex: 1;
 }
 
 .theme-section-radio-container, .sticky-theme-section-radio-container {
@@ -1583,6 +1682,12 @@ aside > button.sel, aside > button.sel:hover {
 
 #default-tag-colour-domain-select, #default-tag-colour-page-select {
     border-left-width: 10px !important;
+}
+
+@media screen and (max-width: 1000px) {
+    #default-tag-colour-domain-select, #default-tag-colour-page-select {
+        border-left-width: 20px !important;
+    }
 }
 
 /*start - sticky-notes theme*/
@@ -1983,7 +2088,6 @@ hr.hr-domain:last-child {
 
 .single-line {
     padding: 5px;
-    margin-bottom: -8px;
     white-space: nowrap;
     overflow: hidden;
     height: auto;
@@ -1996,6 +2100,16 @@ hr.hr-domain:last-child {
 .single-line * {
     display: inline;
     white-space: nowrap;
+}
+
+@media screen and (max-width: 1000px) {
+    .single-line {
+        padding: 15px 20px !important;
+        margin-bottom: 0px !important;
+        padding-bottom: 0px !important;
+
+        font-size: 1.2em;
+    }
 }
 
 .tag-colour-none {
@@ -2351,11 +2465,23 @@ hr.hr-domain:last-child {
         background-position: center left 20%, center right 20%;
         min-width: 80px;
     }
+
+    .clear-button {
+        width: 100%;
+    }
 }
 
 @media screen and (max-width: 800px) {
     .buttons-grid > select {
         background-size: auto 60%, auto 60%;
+    }
+
+    .clear-button, .import-button, .export-button, .manage-account-button {
+        width: 100%;
+        min-height: 50px;
+        background-size: auto 60%, auto 60%;
+
+        margin-bottom: 10px;
     }
 }
 
@@ -2397,6 +2523,14 @@ hr.hr-domain:last-child {
     .subrow-url {
         flex: 100%;
     }
+
+    .sub-section-type, .sub-section-title {
+        padding: 15px 20px;
+        max-width: none;
+        margin: 2px;
+
+        font-size: 1.2em;
+    }
 }
 
 #filter-all-notes-button {
@@ -2409,13 +2543,6 @@ hr.hr-domain:last-child {
     max-width: none;
 }
 
-#search-all-notes-text {
-    background-size: auto 20px;
-    background-position: 8px;
-    padding-left: 35px;
-    background-repeat: no-repeat;
-}
-
 .search-grid-area {
     grid-area: search; /*# This is the name of the area*/
 }
@@ -2424,5 +2551,42 @@ hr.hr-domain:last-child {
     .filter-button-tag {
         min-height: 50px;
         border-left-width: 20px;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    #settings-dedication-section, #all-notes-dedication-section {
+        margin-bottom: 100px;
+    }
+}
+
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.flex-item {
+    flex: 1;
+    text-align: center;
+}
+
+@media screen and (max-width: 800px) {
+    .flex-item {
+        flex: 100%;
+    }
+
+    .font-size-2em {
+        font-size: 2em;
+    }
+
+    .section-grid-item-select {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    .section-grid-item-select select {
+        width: 100%;
+        padding: 15px 20px;
+        background-position: right 20px center;
+        margin: 0px;
     }
 }
