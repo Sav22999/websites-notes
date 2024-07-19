@@ -1482,7 +1482,7 @@ aside > button.sel, aside > button.sel:hover {
     position: sticky;
     background-color: inherit;
     top: 0px;
-    margin: 5px;
+    margin: 0px;
     z-index: 5;
 }
 
