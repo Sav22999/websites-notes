@@ -23,6 +23,12 @@ Take notes on every website in a smart and simple way!
 
 https://www.notefox.eu/about/
 
+## Documentation
+
+You can find the API documentation at this link:
+
+https://www.notefox.eu/docs/
+
 ## Features
 
 - Take notes on websites, you can take notes for the whole domain called "Domain" (es. `https://saveriomorelli.com`) or notes for a specific web page of a domain called "Page" (es. `https://saveriomorelli.com/projects/`)
@@ -39,6 +45,13 @@ Learn more about Notefox on the official website <a href="https://notefox.eu">ht
 
 You can open an issue and there you must describe the feedback, the bug or the new feature you want.
 You can contribute also translating the add-on on Crowdin.
+
+# Terms of Service and Privacy Policy
+
+You can find the Terms of Service and the Privacy Policy at this link:
+
+https://www.notefox.eu/privacy/
+https://www.notefox.eu/terms/
 
 ## Screenshots
 
