@@ -478,11 +478,6 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                     let section = document.createElement("div");
                     section.classList.add("section", "section-domain");
 
-                    //console.log(domain);
-
-                    let row = document.createElement("div");
-                    row.classList.add("rows", "text-align-right");
-
                     let input_clear_all_notes_domain = document.createElement("input");
 
                     if (domain !== "**global") {
@@ -492,7 +487,6 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                         input_clear_all_notes_domain.onclick = function () {
                             clearAllNotesDomain(domain);
                         }
-                        row.append(input_clear_all_notes_domain);
 
                         let h2_container = document.createElement("div");
                         h2_container.classList.add("h2-container");
@@ -506,7 +500,8 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                             }
                         }
                         h2_container.append(h2);
-                        section.append(row);
+
+                        section.append(input_clear_all_notes_domain);
                         section.append(h2_container);
                     }
 

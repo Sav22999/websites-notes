@@ -951,8 +951,9 @@ div.h2-container:hover {
 }
 
 .clear-button-float-right {
-    margin-bottom: 20px !important;
     margin-left: auto;
+    float: right;
+    bottom: -15px;
 }
 
 @media screen and (max-width: 1000px) {
@@ -960,6 +961,11 @@ div.h2-container:hover {
         position: static;
         background-color: transparent;
         color: var(--primary-color);
+    }
+
+    .clear-button-float-right {
+        float: none;
+        bottom: 0px;
     }
 }
 
