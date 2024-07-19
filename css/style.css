@@ -2615,6 +2615,11 @@ option {
     text-align: center;
 }
 
+.font-size-2em {
+    padding: 5px;
+    font-size: 1.4em;
+}
+
 @media screen and (max-width: 800px) {
     .flex-item {
         flex: 100%;
