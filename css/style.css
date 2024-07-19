@@ -773,7 +773,6 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     box-shadow: 0px 0px 0px 3px var(--primary-color);
     border-radius: 3px;
     border-bottom-width: 0px;
-    margin-bottom: -8px !important;
     transition: 0.5s;
 }
 
