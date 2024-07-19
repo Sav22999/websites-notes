@@ -147,6 +147,30 @@ function checkTheme(set_theme = true, theme = "", function_to_execute = function
                 textbox_color = "#ffa56f";
                 if (set_theme) setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
                 else function_to_execute();
+            } else if (force_theme === "lighter" || result["settings"] !== undefined && result["settings"]["theme"] !== undefined && result["settings"]["theme"] === "lighter") {
+                //use the lighter theme
+                background = "#FFFFFF";
+                backgroundSection = "#EEEEEE";
+                primary = "#333333";
+                secondary = "#666666";
+                on_primary = "#FFFFFF";
+                on_secondary = "#FFFFFF";
+                textbox_background = "#ffffff";
+                textbox_color = "#333333";
+                if (set_theme) setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
+                else function_to_execute();
+            } else if (force_theme === "darker" || result["settings"] !== undefined && result["settings"]["theme"] !== undefined && result["settings"]["theme"] === "darker") {
+                //use the darker theme
+                background = "#000000";
+                backgroundSection = "#222222";
+                primary = "#ffffff";
+                secondary = "#dddddd";
+                on_primary = "#222222";
+                on_secondary = "#444444";
+                textbox_background = "#000000";
+                textbox_color = "#ffffff";
+                if (set_theme) setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
+                else function_to_execute();
             } else {
                 //use the default one if: undefined, light or other value (probably wrong)
                 default_theme = true;

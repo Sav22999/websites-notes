@@ -1183,6 +1183,7 @@ b {
 #notes, .textarea-all-notes {
     font-size: 1em !important;
 }
+
 #notes *, .textarea-all-notes * {
     margin: 0px !important;
     padding: 0px !important;
@@ -1296,7 +1297,7 @@ button.button-format:active, button.button-format:focus {
 
 @media screen and (max-width: 800px) {
     .tag-colour-left {
-        border-left-width: 30px !important;
+        border-left-width: 20px !important;
     }
 
 
@@ -1552,7 +1553,6 @@ aside > button.sel, aside > button.sel:hover {
 }
 
 
-
 .item-settings input[type="checkbox"]:checked ~ .checkmark:after {
     display: block;
 }
@@ -1589,6 +1589,7 @@ aside > button.sel, aside > button.sel:hover {
         height: 30px;
         width: 30px;
     }
+
     .item-settings .checkmark:after {
         left: 9px;
         top: 4px;
@@ -1671,7 +1672,7 @@ aside > button.sel, aside > button.sel:hover {
 .theme-section-radio-container, .sticky-theme-section-radio-container {
     display: grid;
     text-align: center;
-    grid-template-areas: 'auto auto auto';
+    grid-template-areas: 'auto auto auto auto auto';
     gap: 10px 10px;
 }
 
@@ -1915,7 +1916,6 @@ hr.hr-domain:last-child {
     border-radius: 0px;
 }
 
-
 #item-radio-theme-light {
     background-color: #eeeeee;
 }
@@ -1934,6 +1934,24 @@ hr.hr-domain:last-child {
     color: #ffffff;
 }
 
+#item-radio-theme-lighter {
+    background-color: #eeeeee;
+}
+
+#theme-select-lighter {
+    color: #333333;
+}
+
+#radio-lighter-theme .primary {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+#radio-lighter-theme .secondary {
+    background-color: #666666;
+    color: #ffffff;
+}
+
 #item-radio-theme-dark {
     background-color: #222222;
 }
@@ -1949,6 +1967,24 @@ hr.hr-domain:last-child {
 
 #radio-dark-theme .secondary {
     background-color: #ffd8be;
+    color: #444444;
+}
+
+#item-radio-theme-darker {
+    background-color: #222222;
+}
+
+#theme-select-darker {
+    color: #ffffff;
+}
+
+#radio-darker-theme .primary {
+    background-color: #ffffff;
+    color: #222222;
+}
+
+#radio-darker-theme .secondary {
+    background-color: #dddddd;
     color: #444444;
 }
 
@@ -2429,6 +2465,10 @@ hr.hr-domain:last-child {
     /*grid-area: XX; Specify this in the dedicated container class/id*/
 }
 
+option {
+    font-size: 16px !important;
+}
+
 #tag-select-grid, .tag-select-grid {
     background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
     grid-area: tag; /*# This is the name of the area*/
@@ -2551,6 +2591,11 @@ hr.hr-domain:last-child {
         min-height: 50px;
         border-left-width: 20px;
     }
+
+    .filter-button-type {
+        min-height: 50px;
+        border-left-width: 20px;
+    }
 }
 
 @media screen and (max-width: 800px) {
@@ -2564,6 +2609,7 @@ hr.hr-domain:last-child {
     flex-wrap: wrap;
     justify-content: center;
 }
+
 .flex-item {
     flex: 1;
     text-align: center;
@@ -2582,6 +2628,7 @@ hr.hr-domain:last-child {
         margin-top: 10px;
         margin-bottom: 10px;
     }
+
     .section-grid-item-select select {
         width: 100%;
         padding: 15px 20px;

@@ -484,7 +484,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                         let input_clear_all_notes_domain = document.createElement("input");
                         input_clear_all_notes_domain.type = "button";
                         input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
-                        input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button", "clear-button-float-right");
+                        input_clear_all_notes_domain.classList.add("button", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button", "clear-button-float-right");
                         input_clear_all_notes_domain.onclick = function () {
                             clearAllNotesDomain(domain);
                         }
@@ -801,18 +801,12 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         }
         page.id = fullUrl;
 
-        //row1.append(pageType)
         subrowUrl.append(pageType);
 
-        /*row1.append(inputClearAllNotesPage);
-        row1.append(inputCopyNotes);
-        row1.append(inputInlineEdit);
-        row1.append(tagsColour);*/
-
-        subrowButtons.append(inputClearAllNotesPage);
-        subrowButtons.append(inputCopyNotes);
-        subrowButtons.append(inputInlineEdit);
         subrowButtons.append(tagsColour);
+        subrowButtons.append(inputInlineEdit);
+        subrowButtons.append(inputCopyNotes);
+        subrowButtons.append(inputClearAllNotesPage);
 
         if (type_to_use.toLowerCase() !== "domain" && type_to_use.toLowerCase() !== "global") {
             //it's a page
