@@ -484,7 +484,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                         let input_clear_all_notes_domain = document.createElement("input");
                         input_clear_all_notes_domain.type = "button";
                         input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
-                        input_clear_all_notes_domain.classList.add("button", "float-right", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button", "clear-button-float-right");
+                        input_clear_all_notes_domain.classList.add("button", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button", "clear-button-float-right");
                         input_clear_all_notes_domain.onclick = function () {
                             clearAllNotesDomain(domain);
                         }
@@ -705,11 +705,17 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         pageType.classList.add("sub-section-type");
         pageType.textContent = type;
 
+        let subrowUrl = document.createElement("div");
+        subrowUrl.classList.add("subrow-url");
+
+        let subrowButtons = document.createElement("div");
+        subrowButtons.classList.add("subrow-buttons");
+
         let inputClearAllNotesPage = document.createElement("input");
 
         inputClearAllNotesPage.type = "button";
         inputClearAllNotesPage.value = all_strings["clear-notes-of-this-page-button"];
-        inputClearAllNotesPage.classList.add("button", "float-right", "very-small-button", "clear2-button");
+        inputClearAllNotesPage.classList.add("button", "very-small-button", "clear2-button", "button-no-text-on-mobile");
         inputClearAllNotesPage.onclick = function () {
             let isDomain = false;
             if (fullUrl === url) {
@@ -724,7 +730,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
 
         inputInlineEdit.type = "button";
         inputInlineEdit.value = all_strings["edit-notes-button"];
-        inputInlineEdit.classList.add("button", "float-right", "very-small-button", "edit-button", "margin-right-5-px");
+        inputInlineEdit.classList.add("button", "very-small-button", "edit-button", "button-no-text-on-mobile");
         inputInlineEdit.onclick = function () {
             if (textNotes.contentEditable === "true") {
                 textNotes.contentEditable = "false";
@@ -763,7 +769,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
 
         inputCopyNotes.type = "button";
         inputCopyNotes.value = all_strings["copy-notes-button"];
-        inputCopyNotes.classList.add("button", "float-right", "very-small-button", "margin-right-5-px", "copy-button");
+        inputCopyNotes.classList.add("button", "very-small-button", "copy-button", "button-no-text-on-mobile");
         inputCopyNotes.onclick = function () {
             copyNotes(textNotes, notes);
             inputCopyNotes.value = all_strings["copied-button"];
@@ -787,7 +793,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             }
             tagColour.textContent = colourList[colour];
             //tagColour.classList.add(colour + "-background-tag");
-            tagsColour.classList.add("select-tag-all-notes", "button", "float-right", "very-small-button", "margin-right-5-px", "tag-button");
+            tagsColour.classList.add("select-tag-all-notes", "button", "very-small-button", "tag-button", "select-grid-no-text");
             tagsColour.append(tagColour);
         }
         tagsColour.onchange = function () {
@@ -795,12 +801,12 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         }
         page.id = fullUrl;
 
-        row1.append(pageType)
+        subrowUrl.append(pageType);
 
-        row1.append(inputClearAllNotesPage);
-        row1.append(inputCopyNotes);
-        row1.append(inputInlineEdit);
-        row1.append(tagsColour);
+        subrowButtons.append(tagsColour);
+        subrowButtons.append(inputInlineEdit);
+        subrowButtons.append(inputCopyNotes);
+        subrowButtons.append(inputClearAllNotesPage);
 
         if (type_to_use.toLowerCase() !== "domain" && type_to_use.toLowerCase() !== "global") {
             //it's a page
@@ -818,8 +824,12 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
                 }
             }
 
-            row1.append(pageUrl);
+            //row1.append(pageUrl);
+            subrowUrl.append(pageUrl);
         }
+
+        row1.append(subrowUrl);
+        row1.append(subrowButtons)
 
         page.append(row1);
 
@@ -1229,6 +1239,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var sort_by_svg = window.btoa(getIconSvgEncoded("sort-by", on_primary));
         var info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", on_primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
+        let search_svg = window.btoa(getIconSvgEncoded("search", primary));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
@@ -1313,9 +1324,6 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 .filter-button {
                     background-image: url('data:image/svg+xml;base64,${filter}');
                 }
-                .sort-by-button {
-                    background-image: url('data:image/svg+xml;base64,${sort_by}');
-                }
                 .tag-button {
                     background-image: url('data:image/svg+xml;base64,${tag_svg}');
                 }
@@ -1330,6 +1338,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .select-tag-all-notes {
                     background-image: url('data:image/svg+xml;base64,${tag_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
+                }
+                .search-all-notes-text {
+                    background-image: url('data:image/svg+xml;base64,${search_svg}');
                 }
                 
                 h2.domain, div.h2-container {

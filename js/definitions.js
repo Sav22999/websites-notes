@@ -147,6 +147,30 @@ function checkTheme(set_theme = true, theme = "", function_to_execute = function
                 textbox_color = "#ffa56f";
                 if (set_theme) setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
                 else function_to_execute();
+            } else if (force_theme === "lighter" || result["settings"] !== undefined && result["settings"]["theme"] !== undefined && result["settings"]["theme"] === "lighter") {
+                //use the lighter theme
+                background = "#FFFFFF";
+                backgroundSection = "#EEEEEE";
+                primary = "#333333";
+                secondary = "#666666";
+                on_primary = "#FFFFFF";
+                on_secondary = "#FFFFFF";
+                textbox_background = "#ffffff";
+                textbox_color = "#333333";
+                if (set_theme) setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
+                else function_to_execute();
+            } else if (force_theme === "darker" || result["settings"] !== undefined && result["settings"]["theme"] !== undefined && result["settings"]["theme"] === "darker") {
+                //use the darker theme
+                background = "#000000";
+                backgroundSection = "#222222";
+                primary = "#ffffff";
+                secondary = "#dddddd";
+                on_primary = "#222222";
+                on_secondary = "#444444";
+                textbox_background = "#000000";
+                textbox_color = "#ffffff";
+                if (set_theme) setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color);
+                else function_to_execute();
             } else {
                 //use the default one if: undefined, light or other value (probably wrong)
                 default_theme = true;
@@ -785,6 +809,11 @@ function getIconSvgEncoded(icon, color) {
                 '          />\n' +
                 '</svg>';
             break;
+        case "search":
+            svgToReturn = '<svg fill="none" height="800" viewBox="0 0 24 24" width="800" xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path d="m11 6c2.7614 0 5 2.23858 5 5m.6588 5.6549 4.3412 4.3451m-2-10c0 4.4183-3.5817 8-8 8-4.41828 0-8-3.5817-8-8 0-4.41828 3.58172-8 8-8 4.4183 0 8 3.58172 8 8z"\n' +
+                '          stroke="' + color + '" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>\n' +
+                '</svg>'
         /*
     case "":
         svgToReturn = '';

@@ -59,7 +59,8 @@ body {
 }
 
 #popup-content {
-    width: 336px;
+    min-width: 336px;
+    max-width: 336px;
     height: auto;
     margin: 0px;
     padding: 0px;
@@ -67,6 +68,12 @@ body {
     position: relative;
     background-color: #cccccc33;
     color: inherit;
+}
+
+@media screen and (max-width: 1500px) {
+    #popup-content {
+        max-width: none;
+    }
 }
 
 #tabs-section {
@@ -145,6 +152,24 @@ body {
     border: 0px solid var(--primary-color);
     opacity: 0.8;
     box-sizing: border-box;
+}
+
+@media screen and (max-width: 800px) {
+    .button-no-text-on-mobile {
+        background-repeat: no-repeat;
+        background-position: center center;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        text-indent: 0px;
+        text-overflow: '';
+        padding: 5px 10px;
+        font-size: 0px !important; /*This permits to "hide" the textContext from the select but NOT from the options*/
+        min-width: 50px;
+        max-width: 50px;
+
+        min-height: 40px;
+        background-size: auto 60%;
+    }
 }
 
 .button-trigger-sticky {
@@ -349,11 +374,6 @@ body {
     background-color: transparent;
 }
 
-#all-notes-section {
-    padding: 2px;
-    background-color: transparent;
-}
-
 #notes-section > #notes, textarea, .textbox, .div-textnotes-container {
     width: 100%;
     height: 300px;
@@ -415,12 +435,34 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 }
 
 #search-all-notes-text {
-    width: 30%;
+    width: 80%;
     min-width: 200px;
     margin: 3px;
     background-color: var(--textbox-color);
     color: var(--on-textbox-color);
     opacity: 0.8;
+
+    background-size: auto 20px;
+    background-position: 8px;
+    padding-left: 35px;
+    background-repeat: no-repeat;
+}
+
+@media screen and (max-width: 800px) {
+    #search-all-notes-text {
+        min-height: 50px;
+
+        padding-left: 45px;
+        background-size: auto 30px;
+
+        font-size: 1.2em;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    #search-all-notes-text {
+        width: 90%;
+    }
 }
 
 #search-all-notes-text:focus {
@@ -513,7 +555,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     }
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
     #all-notes-dedication-section, #settings-dedication-section {
         margin-left: 0%;
     }
@@ -533,31 +575,19 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     display: grid;
     grid-template-areas: 'tag all-notes all-notes all-notes all-notes';
     grid-column-gap: 5px;
+    padding: 2px;
+    background-color: transparent;
 }
 
 .select-tag-all-notes {
     background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
     background-repeat: no-repeat;
     background-position: center left 10px, center right 10px;
-    background-size: auto 50%, auto 50%;
+    background-size: auto 20px, auto 20px;
     -webkit-appearance: none;
     -moz-appearance: none;
     text-indent: 0px;
     padding-right: 40px;
-}
-
-#tag-select-grid {
-    grid-area: tag;
-    background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
-    background-repeat: no-repeat;
-    background-position: center left 5px, center right 5px;
-    background-size: auto 60%, auto 60%;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    text-indent: 0px;
-    text-overflow: '';
-    padding: 0px 10px;
-    font-size: 0px; /*This permits to "hide" the textContext from the select but NOT from the options*/
 }
 
 #all-notes-button-grid {
@@ -566,8 +596,9 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     background-image: url("../img/page-in-all-notes.svg");
     background-repeat: no-repeat;
     background-position: center right 10px;
-    background-size: auto 80%;
-    padding-right: 30px;
+    background-size: auto 25px;
+    padding-right: 40px;
+    white-space: normal;
 }
 
 .section, .sub-section, .section-empty {
@@ -686,7 +717,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     }
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
     #search-filter-sortby {
         left: 0px;
     }
@@ -694,7 +725,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 
 #filters {
     position: sticky;
-    top: 52.5px;
+    top: 54.5px;
     margin-top: -5px;
     border-radius: 0px;
     margin-left: -20px;
@@ -730,7 +761,6 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 .inline-edit-title, .inline-edit-notes {
     border-radius: 0px;
     border-bottom: 2px solid var(--primary-color);
-    margin-bottom: -10px !important;
     cursor: text !important;
     box-sizing: border-box;
 }
@@ -743,7 +773,6 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     box-shadow: 0px 0px 0px 3px var(--primary-color);
     border-radius: 3px;
     border-bottom-width: 0px;
-    margin-bottom: -8px !important;
     transition: 0.5s;
 }
 
@@ -819,12 +848,12 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     }
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
     #import-section, #export-section, #account-section, #login-expired-section, #link-section {
         padding-left: 0%;
         padding-right: 0%;
         padding-top: 0%;
-        padding-bottom: 0%;
+        padding-bottom: 100px;
     }
 }
 
@@ -836,6 +865,9 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     border-radius: 0px;
     margin-bottom: 2px;
     overflow: visible;
+
+    display: flex;
+    flex-wrap: wrap;
 }
 
 #text-import {
@@ -922,7 +954,7 @@ div.h2-container:hover {
     margin-top: 20px !important;
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
     div.h2-container {
         position: static;
         background-color: transparent;
@@ -940,11 +972,18 @@ h3 {
 .go-to-external {
     transition: 0.5s;
     cursor: alias !important;
+    text-wrap: auto;
+    max-inline-size: 400px;
 }
 
 .go-to-external:hover::after {
-    content: url('../img/open-external.svg');
     margin-left: 5px;
+}
+
+@media screen and (max-width: 1000px) {
+    .go-to-external {
+        font-size: 1.3em !important;
+    }
 }
 
 .section-selected {
@@ -1141,6 +1180,10 @@ b {
     cursor: text !important;
 }
 
+#notes, .textarea-all-notes {
+    font-size: 1em !important;
+}
+
 #notes *, .textarea-all-notes * {
     margin: 0px !important;
     padding: 0px !important;
@@ -1174,6 +1217,12 @@ b {
     padding: 10px !important;
 }
 
+@media screen and (max-width: 800px) {
+    .textarea-all-notes, .textarea-all-notes * {
+        font-size: 1.2em !important;
+    }
+}
+
 div#format-buttons {
     position: relative;
     bottom: -4px;
@@ -1190,7 +1239,7 @@ div#format-buttons {
 button.button-format {
     width: 30px !important;
     height: 30px !important;
-    background-size: auto 70%;
+    background-size: auto 20px;
     background-repeat: no-repeat;
     background-position: center center;
     border: 0px solid transparent;
@@ -1223,12 +1272,18 @@ button.button-format:active, button.button-format:focus {
 #info-tooltip-search {
     background-color: transparent;
     background-image: url("../img/info.svg");
-    background-size: 80% auto;
+    background-size: auto 100%;
     background-repeat: no-repeat;
     background-position: top left;
     height: 20px;
     width: 20px;
     display: inline-block;
+}
+
+@media screen and (max-width: 450px) {
+    #info-tooltip-search {
+        display: none;
+    }
 }
 
 .result-button {
@@ -1238,6 +1293,14 @@ button.button-format:active, button.button-format:focus {
 .tag-colour-left {
     border: 0px solid transparent !important;
     border-left-width: 15px !important;
+}
+
+@media screen and (max-width: 800px) {
+    .tag-colour-left {
+        border-left-width: 20px !important;
+    }
+
+
 }
 
 .tag-colour-top {
@@ -1308,13 +1371,47 @@ aside > button.sel, aside > button.sel:hover {
         padding: 10px;
         padding-top: 50px;
         background-position: center top 10px;
-        background-size: 40% auto !important;
+        background-size: 30px auto !important;
         font-size: 0.6em;
     }
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
+    /*Mobile*/
     aside {
+        position: fixed;
+        top: auto;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        height: 100px;
+        width: 100%;
+        border-radius: 0px;
+        background-color: var(--tertiary);
+        z-index: 2;
+        overflow: hidden;
+        padding: 0px;
+        color: var(--primary-color);
+
+        display: flex;
+    }
+
+    aside > .aside-button {
+        flex: 1;
+
+        text-align: center;
+        padding: 10px;
+        padding-top: 50px;
+        background-position: center top 10px;
+        background-size: 40px auto !important;
+        font-size: 1em;
+
+        box-sizing: border-box;
+        width: auto;
+        height: 100%;
+    }
+
+    #donate-aside {
         display: none;
     }
 }
@@ -1361,9 +1458,15 @@ aside > button.sel, aside > button.sel:hover {
 
     padding-top: 60px;
     background-image: url("../img/icon.svg");
-    background-size: auto 40%;
+    background-size: auto 40px;
     background-repeat: no-repeat;
     background-position: top 5px center;
+}
+
+@media screen and (max-width: 1000px) {
+    #version-aside {
+        display: none;
+    }
 }
 
 /*settings*/
@@ -1379,11 +1482,11 @@ aside > button.sel, aside > button.sel:hover {
     position: sticky;
     background-color: inherit;
     top: 0px;
-    margin: 5px;
+    margin: 0px;
     z-index: 5;
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
     .section-title-settings {
         position: relative;
     }
@@ -1410,6 +1513,8 @@ aside > button.sel, aside > button.sel:hover {
     -ms-user-select: none;
     user-select: none;
     z-index: 4;
+
+    display: flex;
 }
 
 .item-settings input[type="checkbox"] {
@@ -1428,6 +1533,8 @@ aside > button.sel, aside > button.sel:hover {
     width: 23px;
     background-color: var(--tertiary-transparent);
     z-index: 4;
+
+    flex: 1;
 }
 
 .item-settings:hover input[type="checkbox"] ~ .checkmark {
@@ -1444,6 +1551,7 @@ aside > button.sel, aside > button.sel:hover {
     position: absolute;
     display: none;
 }
+
 
 .item-settings input[type="checkbox"]:checked ~ .checkmark:after {
     display: block;
@@ -1462,12 +1570,34 @@ aside > button.sel, aside > button.sel:hover {
     border-radius: 0px;
 }
 
+@media screen and (max-width: 800px) {
+    .item-settings {
+        font-size: 1.2em !important;
+    }
+}
+
 .option-settings {
     position: static;
     padding: 10px;
     font-size: 1em;
     z-index: 4;
     margin: 30px 0px;
+}
+
+@media screen and (max-width: 800px) {
+    .checkmark {
+        height: 30px;
+        width: 30px;
+    }
+
+    .item-settings .checkmark:after {
+        left: 9px;
+        top: 4px;
+        width: 8px;
+        height: 14px;
+        border: solid var(--on-primary-color);
+        border-width: 0 4px 4px 0;
+    }
 }
 
 .option-indent-settings {
@@ -1536,12 +1666,13 @@ aside > button.sel, aside > button.sel:hover {
 .title-option-settings {
     font-weight: 650;
     max-width: 85%;
+    flex: 1;
 }
 
 .theme-section-radio-container, .sticky-theme-section-radio-container {
     display: grid;
     text-align: center;
-    grid-template-areas: 'auto auto auto';
+    grid-template-areas: 'auto auto auto auto auto';
     gap: 10px 10px;
 }
 
@@ -1551,6 +1682,12 @@ aside > button.sel, aside > button.sel:hover {
 
 #default-tag-colour-domain-select, #default-tag-colour-page-select {
     border-left-width: 10px !important;
+}
+
+@media screen and (max-width: 1000px) {
+    #default-tag-colour-domain-select, #default-tag-colour-page-select {
+        border-left-width: 20px !important;
+    }
 }
 
 /*start - sticky-notes theme*/
@@ -1694,7 +1831,7 @@ hr.hr-domain:last-child {
     }
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1000px) {
     .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, hr {
         width: 100%;
     }
@@ -1779,7 +1916,6 @@ hr.hr-domain:last-child {
     border-radius: 0px;
 }
 
-
 #item-radio-theme-light {
     background-color: #eeeeee;
 }
@@ -1798,6 +1934,24 @@ hr.hr-domain:last-child {
     color: #ffffff;
 }
 
+#item-radio-theme-lighter {
+    background-color: #eeeeee;
+}
+
+#theme-select-lighter {
+    color: #333333;
+}
+
+#radio-lighter-theme .primary {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+#radio-lighter-theme .secondary {
+    background-color: #666666;
+    color: #ffffff;
+}
+
 #item-radio-theme-dark {
     background-color: #222222;
 }
@@ -1813,6 +1967,24 @@ hr.hr-domain:last-child {
 
 #radio-dark-theme .secondary {
     background-color: #ffd8be;
+    color: #444444;
+}
+
+#item-radio-theme-darker {
+    background-color: #222222;
+}
+
+#theme-select-darker {
+    color: #ffffff;
+}
+
+#radio-darker-theme .primary {
+    background-color: #ffffff;
+    color: #222222;
+}
+
+#radio-darker-theme .secondary {
+    background-color: #dddddd;
     color: #444444;
 }
 
@@ -1951,7 +2123,6 @@ hr.hr-domain:last-child {
 
 .single-line {
     padding: 5px;
-    margin-bottom: -8px;
     white-space: nowrap;
     overflow: hidden;
     height: auto;
@@ -1964,6 +2135,16 @@ hr.hr-domain:last-child {
 .single-line * {
     display: inline;
     white-space: nowrap;
+}
+
+@media screen and (max-width: 1000px) {
+    .single-line {
+        padding: 15px 20px !important;
+        margin-bottom: 0px !important;
+        padding-bottom: 0px !important;
+
+        font-size: 1.2em;
+    }
 }
 
 .tag-colour-none {
@@ -2251,4 +2432,212 @@ hr.hr-domain:last-child {
 
 .no-bold {
     font-weight: normal !important;
+}
+
+.section-grid-container {
+    display: grid;
+    grid-column-gap: 5px; /*This is the space between the columns*/
+    padding: 2px;
+
+    /*grid-template-areas: 'XX YY YY'; Specify this in the dedicated container class/id*/
+}
+
+#search-filter-sortby {
+    display: grid;
+    grid-template-areas: 'search search search search buttons';
+    grid-column-gap: 5px;
+    padding: 5px;
+}
+
+.select-grid-no-text {
+    background-repeat: no-repeat;
+    background-position: center left 8px, center right 8px;
+    background-size: auto 20px, auto 20px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 0px;
+    text-overflow: '';
+    padding: 0px 10px;
+    font-size: 0px; /*This permits to "hide" the textContext from the select but NOT from the options*/
+    min-width: 60px;
+    max-width: 60px;
+
+    /*grid-area: XX; Specify this in the dedicated container class/id*/
+}
+
+option {
+    font-size: 16px !important;
+}
+
+#tag-select-grid, .tag-select-grid {
+    background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
+    grid-area: tag; /*# This is the name of the area*/
+}
+
+#tag-select-grid {
+    max-width: none;
+}
+
+.buttons-grid {
+    grid-area: buttons; /*# This is the name of the area*/
+    text-align: right;
+
+    display: flex;
+    grid-template-areas: 'filter sortby';
+    grid-column-gap: 0px;
+    padding: 2px;
+
+    justify-items: right;
+}
+
+.buttons-grid > * {
+    flex: auto;
+    max-width: none;
+}
+
+.buttons-grid > select {
+    background-position: center left 20%, center right 20%;
+}
+
+@media screen and (max-width: 1000px) {
+    .buttons-grid > select {
+        background-position: center left 20%, center right 20%;
+        min-width: 80px;
+    }
+
+    .clear-button {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .buttons-grid > select {
+        background-size: auto 60%, auto 60%;
+    }
+
+    .clear-button, .import-button, .export-button, .manage-account-button {
+        width: 100%;
+        min-height: 50px;
+        background-size: auto 60%, auto 60%;
+
+        margin-bottom: 10px;
+    }
+}
+
+.subrow-url {
+    flex: 50%;
+}
+
+.subrow-buttons {
+    display: flex;
+    /*grid-template-areas: 'tag edit copy delete';*/
+
+    text-align: right;
+    justify-content: right;
+
+    flex: 50%;
+}
+
+.subrow-buttons > * {
+    flex: auto;
+    max-width: none;
+}
+
+@media screen and (max-width: 1000px) {
+    .subrow-buttons > select {
+        background-position: center left 20%, center right 20%;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .subrow-buttons {
+        flex: 100%;
+        min-height: 50px;
+    }
+
+    .subrow-buttons > select {
+        background-size: auto 60%, auto 60%;
+    }
+
+    .subrow-url {
+        flex: 100%;
+    }
+
+    .sub-section-type, .sub-section-title {
+        padding: 15px 20px;
+        max-width: none;
+        margin: 2px;
+
+        font-size: 1.2em;
+    }
+}
+
+#filter-all-notes-button {
+    grid-area: filter; /*# This is the name of the area*/
+    margin-left: auto;
+}
+
+#sort-by-all-notes-button {
+    grid-area: sortby; /*# This is the name of the area*/
+    max-width: none;
+}
+
+.search-grid-area {
+    grid-area: search; /*# This is the name of the area*/
+}
+
+@media screen and (max-width: 800px) {
+    .filter-button-tag {
+        min-height: 50px;
+        border-left-width: 20px;
+    }
+
+    .filter-button-type {
+        min-height: 50px;
+        border-left-width: 20px;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    #settings-dedication-section, #all-notes-dedication-section {
+        margin-bottom: 100px;
+    }
+}
+
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.flex-item {
+    flex: 1;
+    text-align: center;
+}
+
+.font-size-2em {
+    padding: 5px;
+    font-size: 1.4em;
+}
+
+@media screen and (max-width: 800px) {
+    .flex-item {
+        flex: 100%;
+    }
+
+    .font-size-2em {
+        font-size: 2em;
+    }
+
+    .section-grid-item-select {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .section-grid-item-select select {
+        width: 100%;
+        padding: 15px 20px;
+        background-position: right 20px center;
+        margin: 0px;
+    }
 }
