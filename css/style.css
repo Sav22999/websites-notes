@@ -60,6 +60,7 @@ body {
 
 #popup-content {
     min-width: 336px;
+    width: auto;
     max-width: 336px;
     height: auto;
     margin: 0px;
@@ -70,7 +71,7 @@ body {
     color: inherit;
 }
 
-@media screen and (max-width: 1500px) {
+@media screen and (orientation: portrait) {
     #popup-content {
         max-width: none;
     }
