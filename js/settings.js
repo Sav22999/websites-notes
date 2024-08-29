@@ -562,8 +562,12 @@ function setLanguageUI() {
 }
 
 function loadSettings() {
-    let shortcuts = browser.commands.getAll();
-    shortcuts.then(getCurrentShortcuts);
+    try {
+        let shortcuts = browser.commands.getAll();
+        shortcuts.then(getCurrentShortcuts);
+    } catch (e) {
+        console.error("C-01)) " + e);
+    }
 
     browser.storage.local.get(["storage"]).then(result => {
         sync_local.get("settings", function (value) {
@@ -876,16 +880,24 @@ function getOperatingSystem(info) {
 }
 
 function getCurrentShortcuts(commands) {
-    commands.forEach((command) => {
-        settings_json[command] = command.shortcut;
-    });
+    try {
+        commands.forEach((command) => {
+            settings_json[command] = command.shortcut;
+        });
+    } catch (e) {
+        console.error("C-02)) " + e);
+    }
 }
 
 function updateShortcut(commandName, shortcut) {
     //to disable the shortcut -> the "shortcut" value have to be an empty string
-    browser.commands.update({
-        name: commandName, shortcut: shortcut
-    });
+    try {
+        browser.commands.update({
+            name: commandName, shortcut: shortcut
+        });
+    } catch (e) {
+        console.error("C-03)) " + e);
+    }
 }
 
 function clearAllNotes() {
