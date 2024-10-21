@@ -420,6 +420,15 @@ function loadUI() {
         document.getElementById("notes").blur();
         document.getElementById("notes").focus();
     }, 200);
+
+    let details = navigator.userAgent;
+    let regexp = /android|iphone|kindle|ipad/i;
+    let isMobileDevice = regexp.test(details);
+    if (isMobileDevice) {
+        if (document.getElementById("popup-content") && !document.getElementById("popup-content").classList.contains("mobile")) {
+            document.getElementById("popup-content").classList.add("mobile");
+        }
+    }
 }
 
 function changeTagColour(url, colour) {

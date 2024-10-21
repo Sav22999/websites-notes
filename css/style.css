@@ -71,10 +71,9 @@ body {
     color: inherit;
 }
 
-@media screen and (orientation: portrait) {
-    #popup-content {
-        max-width: none;
-    }
+#popup-content.mobile {
+    min-width: 100%;
+    max-width: 100%;
 }
 
 #tabs-section {
