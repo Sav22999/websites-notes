@@ -72,6 +72,7 @@
   "permissions": [
     "storage",
     "tabs",
+    "<all_urls>",
     "unlimitedStorage",
     "activeTab"
   ],

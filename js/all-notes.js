@@ -525,7 +525,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                             type_to_show = all_strings["global-label"];
                             type_to_use = "global";
                         }
-                        page = generateNotes(page, urlPageDomain, notes, title, lastUpdate, type_to_show, urlPageDomain, type_to_use, true);
+                        page = generateNotes(page, urlPageDomain, notes, title, "", lastUpdate, type_to_show, urlPageDomain, type_to_use, true);
 
                         if (page !== -1) {
                             all_pages.append(page);
@@ -545,10 +545,11 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                                 // console.log(websites_json_by_domain);
                                 // console.log(websites_json_to_show);
                                 let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
-                                let notes = websites_json_to_show[urlPageDomain]["notes"];
                                 let title = websites_json_to_show[urlPageDomain]["title"];
+                                let notes = websites_json_to_show[urlPageDomain]["notes"];
+                                let content = websites_json_to_show[urlPageDomain]["content"] || "";
 
-                                page = generateNotes(page, urlPage, notes, title, lastUpdate, all_strings["page-label"], urlPageDomain, "page", false);
+                                page = generateNotes(page, urlPage, notes, title, content, lastUpdate, all_strings["page-label"], urlPageDomain, "page", false);
 
                                 if (page !== -1) {
                                     all_pages.append(page);
@@ -657,7 +658,8 @@ function search(value = "") {
             if (current_website_json["title"] !== undefined) title_to_use = current_website_json["title"].toLowerCase();
             valueToUse.forEach(key => {
                 if (valid_results > 0 && key.replaceAll(" ", "") !== "" || valid_results === 0) {
-                    if ((current_website_json["notes"].toLowerCase().includes(key) || current_website_json["domain"].toLowerCase().includes(key) || current_website_json["last-update"].toLowerCase().includes(key) || title_to_use.includes(key) || website.includes(key)) && condition_tag_color && condition_type) {
+                    let contentMatch = settings_json["search-page-content"] && current_website_json["content"] && current_website_json["content"].toLowerCase().includes(key);
+                    if ((current_website_json["notes"].toLowerCase().includes(key) || contentMatch || current_website_json["domain"].toLowerCase().includes(key) || current_website_json["last-update"].toLowerCase().includes(key) || title_to_use.includes(key) || website.includes(key)) && condition_tag_color && condition_type) {
                         websites_json_to_show[website] = websites_json[website];
                     }
                 }
@@ -696,7 +698,7 @@ function sendMessageUpdateToBackground() {
     browser.runtime.sendMessage({"updated": true});
 }
 
-function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_to_use, domain_again) {
+function generateNotes(page, url, notes, title, content, lastUpdate, type, fullUrl, type_to_use, domain_again) {
     try {
         let row1 = document.createElement("div");
         row1.classList.add("rows");
@@ -855,7 +857,32 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
         }
         row2.append(pageTitleH3);
+
         page.append(row2);
+
+        let row3 = document.createElement("div");
+        let pageContent = document.createElement("div");
+        pageContent.classList.add("sub-section-title");
+        pageContent.style.display = "block";
+
+        let inputShowContent = document.createElement("input");
+        inputShowContent.type = "button";
+        inputShowContent.value = all_strings["show-content-button"];
+        inputShowContent.classList.add("button", "very-small-button", "sub-section-title", "single-line");
+        inputShowContent.onclick = function () {
+            alert(content); // Display the content in an alert for now, until a better UI is implemented.
+        }
+
+        row3.classList.add("hidden");
+        if (content !== undefined && content !== "") {
+            if (row3.classList.contains("hidden")) row3.classList.remove("hidden");
+        }
+
+        pageContent.appendChild(inputShowContent);
+        row3.append(pageContent);
+
+        page.append(row3);
+
         let pageNotes = document.createElement("pre");
         pageNotes.classList.add("sub-section-notes");
 

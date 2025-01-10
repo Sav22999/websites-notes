@@ -671,6 +671,25 @@ function saveNotes(title_call = false) {
         if (websites_json[url_to_use] === undefined) websites_json[url_to_use] = {};
         let notes = document.getElementById("notes").innerHTML;
         let title = document.getElementById("title-notes").value;
+
+        if (settings_json["save-page-content"]) {
+            browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                let activeTab = tabs[0];
+                browser.tabs.executeScript(activeTab.id, {
+                    code: "document.body.innerText"
+                }).then(result => {
+                    if (result && result[0]) {
+                        websites_json[url_to_use]["content"] = result[0];
+                        // Save here because text extraction is asynchronous, and this function gets called AFTER the
+                        // "sync_local" call which is further below in the code.
+                        sync_local.set({"websites": websites_json, "last-update": getDate()});
+                    }
+                }).catch(error => {
+                    console.error("Error extracting visible text: " + error);
+                });
+            });
+        }
+
         websites_json[url_to_use]["notes"] = notes;
         if (settings_json["show-title-textbox"]) websites_json[url_to_use]["title"] = title;
         websites_json[url_to_use]["last-update"] = getDate();
