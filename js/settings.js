@@ -457,8 +457,10 @@ function setLanguageUI() {
     document.getElementById("font-family-text").innerHTML = all_strings["font-family"];
     document.getElementById("font-family-detailed-text").innerHTML = all_strings["font-family-detailed"];
     document.getElementById("theme-text").innerText = all_strings["theme-text"];
+    document.getElementById("theme-select-lighter").innerText = all_strings["theme-choose-lighter-select"];
     document.getElementById("theme-select-light").innerText = all_strings["theme-choose-light-select"];
     document.getElementById("theme-select-dark").innerText = all_strings["theme-choose-dark-select"];
+    document.getElementById("theme-select-darker").innerText = all_strings["theme-choose-darker-select"];
     document.getElementById("theme-select-firefox").innerText = all_strings["theme-choose-firefox-select"];
     document.getElementById("theme-detailed-text").innerHTML = all_strings["theme-detailed-text"].replace("{{property1}}", `<span class="button-code very-small-button">` + all_strings["theme-choose-firefox-select"] + `</span>`);
     document.getElementById("sticky-theme-text").innerText = all_strings["sticky-theme-text"];
@@ -625,7 +627,7 @@ function loadSettings() {
             document.getElementById("check-green-icon-page-check").checked = settings_json["check-green-icon-page"] === true || settings_json["check-green-icon-page"] === "yes";
             document.getElementById("check-green-icon-subdomain-check").checked = settings_json["check-green-icon-subdomain"] === true || settings_json["check-green-icon-subdomain"] === "yes";
 
-            if (settings_json["theme"] === "light") setThemeChooserByElement(document.getElementById("item-radio-theme-light"), false); else if (settings_json["theme"] === "dark") setThemeChooserByElement(document.getElementById("item-radio-theme-dark"), false); else if (settings_json["theme"] === "auto") setThemeChooserByElement(document.getElementById("item-radio-theme-auto"), false);
+            if (settings_json["theme"] === "light") setThemeChooserByElement(document.getElementById("item-radio-theme-light"), false); else if (settings_json["theme"] === "dark") setThemeChooserByElement(document.getElementById("item-radio-theme-dark"), false); else if (settings_json["theme"] === "lighter") setThemeChooserByElement(document.getElementById("item-radio-theme-lighter"), false); else if (settings_json["theme"] === "darker") setThemeChooserByElement(document.getElementById("item-radio-theme-darker"), false); else if (settings_json["theme"] === "auto") setThemeChooserByElement(document.getElementById("item-radio-theme-auto"), false);
             if (settings_json["sticky-theme"] === "yellow" || settings_json["sticky-theme"] === "lime" || settings_json["sticky-theme"] === "cyan" || settings_json["sticky-theme"] === "pink" || settings_json["sticky-theme"] === "white" || settings_json["sticky-theme"] === "black" || settings_json["sticky-theme"] === "auto") setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-" + settings_json["sticky-theme"]), false);
 
             document.getElementById("open-links-only-with-ctrl-check").checked = settings_json["open-links-only-with-ctrl"] === true || settings_json["open-links-only-with-ctrl"] === "yes";
@@ -889,16 +891,24 @@ function getOperatingSystem(info) {
 }
 
 function getCurrentShortcuts(commands) {
-    commands.forEach((command) => {
-        settings_json[command] = command.shortcut;
-    });
+    try {
+        commands.forEach((command) => {
+            settings_json[command] = command.shortcut;
+        });
+    } catch (e) {
+        console.error("C-02)) " + e);
+    }
 }
 
 function updateShortcut(commandName, shortcut) {
     //to disable the shortcut -> the "shortcut" value have to be an empty string
-    chrome.commands.update({
-        name: commandName, shortcut: shortcut
-    });
+    try {
+        chrome.commands.update({
+            name: commandName, shortcut: shortcut
+        });
+    } catch (e) {
+        console.error("C-03)) " + e);
+    }
 }
 
 function clearAllNotes() {
@@ -1274,7 +1284,7 @@ function exportToFile() {
     document.getElementById("export-to-file-button").value = all_strings["exported-notes-to-file-button"];
 }
 
-function notefoxAccountLoginSignupManage(action = null, data = null) {
+function notefoxAccountLoginSignupManage(action = null, data = null, firstTime = false) {
     showBackgroundOpacity();
 
     var elements = document.getElementsByClassName("button-close-notefox-account");
@@ -1310,6 +1320,10 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
         let title = document.getElementById("title-account");
 
         //console.log(savedData["notefox-account"]);
+
+        if (firstTime) {
+            chrome.runtime.sendMessage({"sync-now": true});
+        }
 
         let managing_account = false;
         if ((action === null || action === "manage") && savedData["notefox-account"] !== undefined && savedData["notefox-account"] !== {}) {
@@ -1384,10 +1398,6 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         "login-id": savedData["notefox-account"]["login-id"]
                     }
                 });
-                chrome.storage.sync.remove("notefox-account").then(result => {
-                    notefoxAccountLoginSignupManage();
-                });
-                location.reload();
             }
 
             document.getElementById("manage-logout-all-devices").onclick = function () {
@@ -1398,10 +1408,6 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         "login-id": savedData["notefox-account"]["login-id"]
                     }
                 });
-                chrome.storage.sync.remove("notefox-account").then(result => {
-                    notefoxAccountLoginSignupManage();
-                });
-                location.reload();
             }
 
             document.getElementById("manage-delete-account-button").onclick = function () {
@@ -1722,6 +1728,13 @@ function notefoxAccountLoginSignupManage(action = null, data = null) {
                         delete_submit_element.disabled = true;
                         cancel_element.disabled = true;
                         disableAside = true;
+
+                        //TODO: check for chrome
+                        chrome.storage.sync.remove("notefox-account").then(result => {
+                            browser.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
+                                notefoxAccountLoginSignupManage();
+                            });
+                        });
                     }
                 }
             } else if (action === "delete-verify") {
@@ -2410,10 +2423,9 @@ function loginVerifyResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            notefoxAccountLoginSignupManage("manage", data["data"]);
-            location.reload();
+            notefoxAccountLoginSignupManage("manage", data["data"], firstTime = true);
 
-            chrome.runtime.sendMessage({"sync-now": true});
+            //location.reload();
         } else if (data.code === 400 || data.code === 401) {
             //Error
             showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
@@ -2437,7 +2449,11 @@ function logoutResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            notefoxAccountLoginSignupManage("login");
+            chrome.storage.sync.remove("notefox-account").then(result => {
+                chrome.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
+                    notefoxAccountLoginSignupManage("login");
+                });
+            });
         } else if (data.code === 400 || data.code === 401) {
             //Error
             showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
@@ -2457,7 +2473,11 @@ function logoutAllResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            notefoxAccountLoginSignupManage("login");
+            chrome.storage.sync.remove("notefox-account").then(result => {
+                chrome.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
+                    notefoxAccountLoginSignupManage("login");
+                });
+            });
         } else if (data.code === 400 || data.code === 401) {
             //Error
             showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
@@ -2567,6 +2587,8 @@ function deleteVerifyResponse(data) {
             //Success
 
             chrome.storage.sync.remove("notefox-account").then(result => {
+                chrome.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
+                });
             });
 
             document.getElementById("notefox-account-settings-button").value = all_strings["notefox-account-button-settings-login-or-signup"];
@@ -2711,6 +2733,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var syncing_svg = window.btoa(getIconSvgEncoded("syncing", on_primary));
         var synced_svg = window.btoa(getIconSvgEncoded("syncing", on_primary));
         var manage_svg = window.btoa(getIconSvgEncoded("account", on_primary));
+        var edit_svg = window.btoa(getIconSvgEncoded("edit", on_primary));
 
         var account_label_svg = window.btoa(getIconSvgEncoded("account", textbox_color));
         var email_label_svg = window.btoa(getIconSvgEncoded("email", textbox_color));
@@ -2848,6 +2871,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .code-label {
                     background-image: url('data:image/svg+xml;base64,${code_label_svg}');
+                }
+                .edit-button {
+                    background-image: url('data:image/svg+xml;base64,${edit_svg}');
                 }
             </style>`;
     }

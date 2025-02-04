@@ -11,7 +11,7 @@ Official repo of https://addons.mozilla.org/it/firefox/addon/websites-notes/.
 
 [<img src="img/firefoxAddons.png" height="50px">](https://addons.mozilla.org/it/firefox/addon/websites-notes/)
 [<img src="img/chromeAddons.png" height="50px">](https://chromewebstore.google.com/detail/agcdffobijddcccbfnhfjmaohnljefpm)
-[<img src="img/microsoftAddons.png" height="50px">](https://microsoftedge.microsoft.com/addons/detail/jdgcfpdoiojfebhafmihkihficfnpahk)
+[<img src="img/microsoftAddons.png" height="50px">](https://microsoftedge.microsoft.com/addons/detail/lkahmkadpaibphpoiofpdinacjffddda)
 
 To support me, you can buy me a coffee making a donation ❤️ with **LiberaPay** or **PayPal**:
 
@@ -22,6 +22,14 @@ To support me, you can buy me a coffee making a donation ❤️ with **LiberaPay
 Take notes on every website in a smart and simple way!
 
 https://www.notefox.eu/about/
+
+**Notefox doesn't collect any personal data if you don't use a *Notefox Account***. Read [Privacy Policy](https://www.notefox.eu/privacy/) and [Terms of Service](https://www.notefox.eu/terms/) to know more. 
+
+## Documentation
+
+You can find the API documentation at this link:
+
+https://www.notefox.eu/docs/
 
 ## Features
 
@@ -39,6 +47,13 @@ Learn more about Notefox on the official website <a href="https://notefox.eu">ht
 
 You can open an issue and there you must describe the feedback, the bug or the new feature you want.
 You can contribute also translating the add-on on Crowdin.
+
+# Terms of Service and Privacy Policy
+
+You can find the Terms of Service and the Privacy Policy at this link:
+
+https://www.notefox.eu/privacy/
+https://www.notefox.eu/terms/
 
 ## Screenshots
 

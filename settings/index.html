@@ -9,7 +9,7 @@ Created by Saverio Morelli - saveriomorelli.com
     <link rel="stylesheet" href="../css/style.css"/>
     <title>Notefox - Settings</title>
     <link rel="icon" href="../img/icon.svg"/>
-    <meta name="viewport" content="width=device-width, initial-scale=0.8" />
+    <meta name="viewport" content="width=device-width, initial-scale=0.8"/>
 </head>
 
 <body>
@@ -157,7 +157,8 @@ Created by Saverio Morelli - saveriomorelli.com
                 <div class="padding-10 text-align-right">
                     <div class="option-settings">
                         <span class="item-settings section-grid-container width-100-important">
-                            <span class="title-option-settings section-grid-item-text no-bold" id="sync-now-text"></span>
+                            <span class="title-option-settings section-grid-item-text no-bold"
+                                  id="sync-now-text"></span>
                             <span class="section-grid-item-select text-align-center">
                                 <input type="button" value="" id="sync-now-button"
                                        class="button sync-button width-100"/>
@@ -168,7 +169,8 @@ Created by Saverio Morelli - saveriomorelli.com
 
                     <div class="option-settings">
                         <span class="item-settings section-grid-container width-100-important">
-                            <span class="title-option-settings section-grid-item-text no-bold" id="manage-logout-text"></span>
+                            <span class="title-option-settings section-grid-item-text no-bold"
+                                  id="manage-logout-text"></span>
                             <span class="section-grid-item-select">
                                 <input type="button" value="" id="manage-logout"
                                        class="button logout-button width-100"/>
@@ -342,17 +344,19 @@ Created by Saverio Morelli - saveriomorelli.com
             <span class="item-settings section-grid-container">
                 <span class="title-option-settings section-grid-item-text" id="open-popup-default-shortcut-text"></span>
                 <span class="section-grid-item-select">
-                    <select class="select-box" id="key-shortcut-ctrl-alt-shift-default-selected">
-                        <option value="disabled" id="select-disable-shortcut-default">Disabled</option>
-                        <option value="Ctrl" id="select-ctrl-shortcut-default">Ctrl</option>
-                        <option value="Alt" id="select-alt-shortcut-default">Alt</option>
-                        <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-default">Ctrl + Alt</option>
-                        <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-default">Ctrl + Shift</option>
-                        <option value="Alt+Shift" id="select-alt-shift-shortcut-default">Alt + Shift</option>
-                    </select>
-                    <span id="label-plus-shortcut-default">+</span>
-                    <select class="select-box" id="key-shortcut-default-selected">
-                    </select>
+                    <div class="flex-container">
+                        <select class="select-box flex-item" id="key-shortcut-ctrl-alt-shift-default-selected">
+                            <option value="disabled" id="select-disable-shortcut-default">Disabled</option>
+                            <option value="Ctrl" id="select-ctrl-shortcut-default">Ctrl</option>
+                            <option value="Alt" id="select-alt-shortcut-default">Alt</option>
+                            <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-default">Ctrl + Alt</option>
+                            <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-default">Ctrl + Shift</option>
+                            <option value="Alt+Shift" id="select-alt-shift-shortcut-default">Alt + Shift</option>
+                        </select>
+                        <span id="label-plus-shortcut-default" class="flex-item font-size-2em">+</span>
+                        <select class="select-box flex-item" id="key-shortcut-default-selected">
+                        </select>
+                    </div>
                 </span>
             </span>
         </div>
@@ -362,17 +366,19 @@ Created by Saverio Morelli - saveriomorelli.com
             <span class="item-settings section-grid-container">
                 <span class="title-option-settings section-grid-item-text" id="open-popup-domain-shortcut-text"></span>
                 <span class="section-grid-item-select">
-                    <select class="select-box" id="key-shortcut-ctrl-alt-shift-domain-selected">
-                        <option value="disabled" id="select-disable-shortcut-domain">Disabled</option>
-                        <option value="Ctrl" id="select-ctrl-shortcut-domain">Ctrl</option>
-                        <option value="Alt" id="select-alt-shortcut-domain">Alt</option>
-                        <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-domain">Ctrl + Alt</option>
-                        <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-domain">Ctrl + Shift</option>
-                        <option value="Alt+Shift" id="select-alt-shift-shortcut-domain">Alt + Shift</option>
-                    </select>
-                    <span id="label-plus-shortcut-domain">+</span>
-                    <select class="select-box" id="key-shortcut-domain-selected">
-                    </select>
+                    <div class="flex-container">
+                        <select class="select-box flex-item" id="key-shortcut-ctrl-alt-shift-domain-selected">
+                            <option value="disabled" id="select-disable-shortcut-domain">Disabled</option>
+                            <option value="Ctrl" id="select-ctrl-shortcut-domain">Ctrl</option>
+                            <option value="Alt" id="select-alt-shortcut-domain">Alt</option>
+                            <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-domain">Ctrl + Alt</option>
+                            <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-domain">Ctrl + Shift</option>
+                            <option value="Alt+Shift" id="select-alt-shift-shortcut-domain">Alt + Shift</option>
+                        </select>
+                        <span id="label-plus-shortcut-domain" class="flex-item font-size-2em">+</span>
+                        <select class="select-box flex-item" id="key-shortcut-domain-selected">
+                        </select>
+                    </div>
                 </span>
             </span>
         </div>
@@ -382,17 +388,19 @@ Created by Saverio Morelli - saveriomorelli.com
             <span class="item-settings section-grid-container">
                 <span class="title-option-settings section-grid-item-text" id="open-popup-page-shortcut-text"></span>
                 <span class="section-grid-item-select">
-                    <select class="select-box" id="key-shortcut-ctrl-alt-shift-page-selected">
-                        <option value="disabled" id="select-disable-shortcut-page">Disabled</option>
-                        <option value="Ctrl" id="select-ctrl-shortcut-page">Ctrl</option>
-                        <option value="Alt" id="select-alt-shortcut-page">Alt</option>
-                        <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-page">Ctrl + Alt</option>
-                        <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-page">Ctrl + Shift</option>
-                        <option value="Alt+Shift" id="select-alt-shift-shortcut-page">Alt + Shift</option>
-                    </select>
-                    <span id="label-plus-shortcut-page">+</span>
-                    <select class="select-box" id="key-shortcut-page-selected">
-                    </select>
+                    <div class="flex-container">
+                        <select class="select-box flex-item" id="key-shortcut-ctrl-alt-shift-page-selected">
+                            <option value="disabled" id="select-disable-shortcut-page">Disabled</option>
+                            <option value="Ctrl" id="select-ctrl-shortcut-page">Ctrl</option>
+                            <option value="Alt" id="select-alt-shortcut-page">Alt</option>
+                            <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-page">Ctrl + Alt</option>
+                            <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-page">Ctrl + Shift</option>
+                            <option value="Alt+Shift" id="select-alt-shift-shortcut-page">Alt + Shift</option>
+                        </select>
+                        <span id="label-plus-shortcut-page" class="flex-item font-size-2em">+</span>
+                        <select class="select-box flex-item" id="key-shortcut-page-selected">
+                        </select>
+                    </div>
                 </span>
             </span>
         </div>
@@ -503,6 +511,14 @@ Created by Saverio Morelli - saveriomorelli.com
                 <span class="description-option-settings display-block" id="theme-detailed-text"></span>
             </span>
             <span class="theme-section-radio-container">
+                <label class="item-radio-theme" id="item-radio-theme-lighter">
+                    <input name="theme-radio" type="radio" value="lighter">
+                    <span class="item-radio-theme-preview-container" id="radio-lighter-theme">
+                        <span class="item-radio-theme-preview-item primary">A</span>
+                        <span class="item-radio-theme-preview-item secondary">B</span>
+                    </span>
+                    <span class="item-radio-title" id="theme-select-lighter"></span>
+                </label>
                 <label class="item-radio-theme" id="item-radio-theme-light">
                     <input name="theme-radio" type="radio" value="light">
                     <span class="item-radio-theme-preview-container" id="radio-light-theme">
@@ -518,6 +534,14 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-theme-preview-item secondary">B</span>
                     </span>
                     <span class="item-radio-title" id="theme-select-dark"></span>
+                </label>
+                <label class="item-radio-theme" id="item-radio-theme-darker">
+                    <input name="theme-radio" type="radio" value="darker">
+                    <span class="item-radio-theme-preview-container" id="radio-darker-theme">
+                        <span class="item-radio-theme-preview-item primary">A</span>
+                        <span class="item-radio-theme-preview-item secondary">B</span>
+                    </span>
+                    <span class="item-radio-title" id="theme-select-darker"></span>
                 </label>
                 <label class="item-radio-theme hidden" id="item-radio-theme-auto">
                     <input name="theme-radio" type="radio" value="auto">
@@ -617,7 +641,8 @@ Created by Saverio Morelli - saveriomorelli.com
                 <input type="checkbox" id="immersive-sticky-notes-check"/>
                 <span class="checkmark"></span>
             </label>
-            <span class="description-option-settings description-option-settings-yes-no yes-no-item" id="immersive-sticky-notes-detailed-text"></span>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="immersive-sticky-notes-detailed-text"></span>
         </div>
 
         <hr class="hr-big-space">
