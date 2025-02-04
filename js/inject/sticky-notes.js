@@ -5,7 +5,7 @@ function load() {
         //already exists || update elements
         alreadyExists();
     } else if (document.getElementById("sticky-notes-notefox-addon") && document.getElementById("restore--sticky-notes-notefox-addon")) {
-        //it's exists as minimized
+        //it exists as minimized
         openMinimized();
     } else {
         //no sticky-noes no minimized are present, so it's necessary understand what function to call
@@ -84,7 +84,7 @@ function createNewDescription(x, y, w, h, opacity) {
  */
 function updateStickyNotes() {
     if (document.getElementById("text--sticky-notes-notefox-addon")) {
-        //double check already exists
+        //double check: already exists
 
         if (document.getElementById("restore--sticky-notes-notefox-addon")) document.getElementById("restore--sticky-notes-notefox-addon").remove();
 
@@ -135,15 +135,17 @@ function updateStickyNotes() {
                 }*/
                 let pageDomainGlobalToUse = response.notes.page_domain_global;
                 if (pageDomainGlobalToUse === undefined) pageDomainGlobalToUse = "";
-                pageOrDomain.innerText = pageDomainGlobalToUse;
+                if (pageOrDomain !== null && pageOrDomain.innerText) pageOrDomain.innerText = pageDomainGlobalToUse;
 
                 //console.log(pageDomainGlobalToUse);
 
-                checkDisableWordWrap(text, response.settings);
-                checkLanguageSpellcheck(text, response.settings);
-                checkFontFamily(text, response.settings);
-                checkThemeSticky(text, response.settings, response.icons, response.theme_colours, response.notes.sticky_params.opacity.value);
-                checkImmersiveMode(text, response.settings);
+                if (pageOrDomain !== null) {
+                    checkDisableWordWrap(text, response.settings);
+                    checkLanguageSpellcheck(text, response.settings);
+                    checkFontFamily(text, response.settings);
+                    checkThemeSticky(text, response.settings, response.icons, response.theme_colours, response.notes.sticky_params.opacity.value);
+                    checkImmersiveMode(text, response.settings);
+                }
 
                 //(re)set events
                 close.onclick = function () {
@@ -307,10 +309,14 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
 
         commandsContainer.appendChild(resize);
         commandsContainer.appendChild(textContainer);
-        stickyNote.appendChild(commandsContainer)
+        stickyNote.appendChild(commandsContainer);
 
-        document.body.appendChild(stickyNote);
-
+        if (!(document.getElementById("sticky-notes-notefox-addon") && !document.getElementById("restore--sticky-notes-notefox-addon"))) {
+            {
+                //double check: the sticky does not exist
+                document.body.appendChild(stickyNote);
+            }
+        }
         chrome.runtime.sendMessage({from: "sticky", data: {sticky: true, minimized: false}});
     } else {
         alreadyExists();
@@ -434,7 +440,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
     let immersive_sticky_notes = settings_json["immersive-sticky-notes"];
 
     let visibility_immersive = "hidden";
-    if(!immersive_sticky_notes) visibility_immersive = "visible";
+    if (!immersive_sticky_notes) visibility_immersive = "visible";
 
     let primary_color = "#fffd7d";
     let secondary_color = "#ff6200";

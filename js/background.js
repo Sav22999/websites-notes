@@ -382,7 +382,7 @@ function toBase64(input) {
          str.charAt(i | 0) || (map = '=', i % 1);
          output += map.charAt(63 & block >> 8 - i % 1 * 8)) {
 
-        charCode = str.charCodeAt(i += 3/4);
+        charCode = str.charCodeAt(i += 3 / 4);
 
         if (charCode > 0xFF) {
             throw new Error("'toBase64' failed: The string to be encoded contains characters outside of the Latin1 range.");
@@ -546,7 +546,9 @@ function checkStatus(update = false) {
 
                         //console.log(url);
                         if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"]) {
-                            openAsStickyNotes();
+                            setTimeout(function () {
+                                openAsStickyNotes();
+                            }, 200);
                         } else {
                             closeStickyNotes(update);
                         }
@@ -1164,14 +1166,19 @@ function openAsStickyNotes() {
         opening_sticky = true;
 
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            const activeTab = tabs[0];
-            /*chrome.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
-                //console.log("Sticky notes ('open')");
-                opening_sticky = false;
-            }).catch(function (error) {
-                console.error("E2: " + error);
-                opening_sticky = false;
-            });*/
+            if (tabs !== undefined && tabs.length > 0) {
+                const activeTab = tabs[0];
+                chrome.scripting.executeScript({
+                    target: {tabId: activeTab.id},
+                    files: ['./js/inject/sticky-notes.js']
+                }).then(() => {
+                    // Script executed successfully
+                    opening_sticky = false;
+                }).catch((error) => {
+                    console.error("E2: " + error);
+                    opening_sticky = false;
+                });
+            }
         });
     }
 }
@@ -1183,15 +1190,25 @@ function closeStickyNotes(update = true) {
     checkIcon();
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         const activeTab = tabs[0];
-        if (tabs !== undefined && tabs.length > 0) {
-            /*chrome.tabs.executeScript({
-                code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
-            }).then(function () {
-                //console.log("Sticky notes ('close')");
-                if (update) tabUpdated(false);
-            }).catch(function (error) {
-                console.error("E1: " + error + "\nin " + activeTab.url);
-            });*/
+        if (tabs !== undefined && tabs.length > 0 && activeTab !== undefined && activeTab.id !== undefined) {
+            chrome.scripting.executeScript({
+                target: {tabId: activeTab.id},
+                func: () => {
+                    if (document.getElementById("sticky-notes-notefox-addon")) {
+                        document.getElementById("sticky-notes-notefox-addon").remove();
+                    }
+                    if (document.getElementById("restore--sticky-notes-notefox-addon")) {
+                        document.getElementById("restore--sticky-notes-notefox-addon").remove();
+                    }
+                }
+            }).then(() => {
+                // Script executed successfully
+                //if (update) tabUpdated(false);
+            }).catch((error) => {
+                if (!(activeTab.url.includes("chrome://") || activeTab.url.includes("edge://"))) {
+                    console.error("E1: " + error + "\nin " + activeTab.url);
+                }
+            });
         }
     });
     opening_sticky = false;
