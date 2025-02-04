@@ -105,7 +105,7 @@ function continueLoaded() {
     });
 
     chrome.tabs.onActivated.addListener(tabUpdated);
-    chrome.tabs.onUpdated.addListener(tabUpdated);
+    //chrome.tabs.onUpdated.addListener(tabUpdated);
 
     checkOpenedBy();
     document.getElementById("notes").focus();

@@ -138,8 +138,8 @@ function loaded() {
     checkTheme();
 
     //TODO: chrome
-    chrome.tabs.onActivated.addListener(tabUpdated);
-    chrome.tabs.onUpdated.addListener(tabUpdated);
+    chrome.tabs.onActivated.addListener(tabActivated);
+    //chrome.tabs.onUpdated.addListener(tabUpdated);
 
     document.getElementById("save-settings-button").onclick = function () {
         saveSettings();
@@ -399,8 +399,17 @@ function setStickyThemeChooserByElement(element, set_variable = true) {
     sendMessageUpdateToBackground();
 }
 
-function tabUpdated() {
+function tabActivated() {
     checkTheme();
+    chrome.storage.local.get(["settings"]).then(result => {
+        if (result.settings !== undefined && result.settings !== settings_json) {
+            loadSettings();
+        }
+    });
+}
+
+function tabUpdated() {
+    //checkTheme();
     chrome.storage.local.get(["settings"]).then(result => {
         if (result.settings !== undefined && result.settings !== settings_json) {
             loadSettings();

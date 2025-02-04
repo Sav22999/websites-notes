@@ -67,7 +67,7 @@ function loaded() {
     setLanguageUI();
     checkTheme();
 
-    chrome.tabs.onActivated.addListener(tabUpdated);
+    chrome.tabs.onActivated.addListener(tabActivated);
     chrome.tabs.onUpdated.addListener(tabUpdated);
 
     loadAsideBar();
@@ -145,13 +145,24 @@ function loaded() {
     titleAllNotes.append(versionNumber);
 }
 
-function tabUpdated() {
+function tabActivated() {
     checkTheme();
     chrome.storage.local.get([
         "websites"
     ]).then(result => {
         if (result.websites !== undefined && result.websites !== websites_json) {
             loadDataFromBrowser(true);
+        }
+    });
+}
+
+function tabUpdated() {
+    //checkTheme();
+    chrome.storage.local.get([
+        "websites"
+    ]).then(result => {
+        if (result.websites !== undefined && result.websites !== websites_json) {
+            loadDataFromBrowser(false);
         }
     });
 }
