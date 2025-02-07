@@ -244,7 +244,7 @@ strings[lang] = {
     'notefox-account-message-error-417': 'Codice di eliminazione non valido.',
     'notefox-account-message-error-418': 'Credenziali non valide, account già verificato o richiesta di cancellazione scaduta.',
     'notefox-account-message-error-419': 'Email già utilizzata per un altro account, ma non ancora verificato.',
-    'notefox-account-message-error-450': 'Dati non trovati.',
+    'notefox-account-message-error-201': 'Dati non trovati.',
     'notefox-account-message-error-451': 'ID di accesso già disabilitato o scaduto.',
     'notefox-account-message-error-452': 'Hai già richiesto un codice di eliminazione. Per favore, attendi l\'email o riprova più tardi.',
     'notefox-account-message-unknown': 'Errore sconosciuto.',

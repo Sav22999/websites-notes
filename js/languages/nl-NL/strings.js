@@ -244,7 +244,7 @@ strings[lang] = {
     'notefox-account-message-error-417': 'Ongeldige verwijdercode.',
     'notefox-account-message-error-418': 'Ongeldige aanmelding, account al geverifieerd of verwijderverzoek is verlopen.',
     'notefox-account-message-error-419': 'E-mailadres al gebruikt voor een ander account, maar nog niet geverifieerd.',
-    'notefox-account-message-error-450': 'Gegevens niet gevonden.',
+    'notefox-account-message-error-201': 'Gegevens niet gevonden.',
     'notefox-account-message-error-451': 'Aanmeld-id al uitgeschakeld of verlopen.',
     'notefox-account-message-error-452': 'You already requested a deleting code. Please, wait for the email or try again later.',
     'notefox-account-message-unknown': 'Onbekende fout.',

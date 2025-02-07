@@ -244,7 +244,7 @@ strings[lang] = {
     'notefox-account-message-error-417': 'Invalid deleting code.',
     'notefox-account-message-error-418': 'Invalid credential, account already verified or deleting request expired.',
     'notefox-account-message-error-419': 'Email already used for another account but not verified yet.',
-    'notefox-account-message-error-450': 'Data not found.',
+    'notefox-account-message-error-201': 'Data not found.',
     'notefox-account-message-error-451': 'Login-id already disabled or expired.',
     'notefox-account-message-error-452': 'You already requested a deleting code. Please, wait for the email or try again later.',
     'notefox-account-message-unknown': 'Tuntematon virhe.',

@@ -244,7 +244,7 @@ strings[lang] = {
     'notefox-account-message-error-417': 'Codice de deletion non valide.',
     'notefox-account-message-error-418': 'Credentiales non valide, conto jam verificate o requesta de deletion expirate.',
     'notefox-account-message-error-419': 'Email jam usate pro un altere conto ma non ancora verificate.',
-    'notefox-account-message-error-450': 'Datos non trovate.',
+    'notefox-account-message-error-201': 'Datos non trovate.',
     'notefox-account-message-error-451': 'ID de connexion jam disactivate o expirate.',
     'notefox-account-message-error-452': 'Tu jam requireva un deletion del codice. Attende pro le email o retenta plus tarde.',
     'notefox-account-message-unknown': 'Error incognite.',
