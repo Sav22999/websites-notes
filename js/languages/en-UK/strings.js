@@ -109,7 +109,7 @@ strings[lang] = {
     "check-with-all-supported-protocols": "Check notes existence with all supported protocols",
     "check-with-all-supported-protocols-detailed": "When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.",
     "font-family": "Font family: choose the font family to use for the notes text",
-    "font-family-detailed": "<b>Shantell Sans</b> is the default font family, and it's a handwriting font (marker-style). <b>Open Sans</b> is a sans serif font",
+    "font-family-detailed": "<b>Shantell Sans</b> is the default font family. You can choose another one from the list below, where you can see a preview of the font as well.",
     "search-textbox": "Search…",
     "sort-by-button": "Sort by…",
     "sort-by-az-button": "Name: A-Z", //from website "a" to "z"

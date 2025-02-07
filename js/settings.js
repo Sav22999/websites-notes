@@ -214,6 +214,7 @@ function loaded() {
 
     setThemeChooser();
     setStickyThemeChooser();
+    setFontFamilyChooser();
 
     document.getElementById("check-green-icon-global-check").onchange = function () {
         settings_json["check-green-icon-global"] = document.getElementById("check-green-icon-global-check").checked;
@@ -251,12 +252,12 @@ function loaded() {
         saveSettings();
     };
 
-    document.getElementById("font-family-select").onchange = function () {
+    /*document.getElementById("font-family-select").onchange = function () {
         settings_json["font-family"] = document.getElementById("font-family-select").value;
         sendMessageUpdateToBackground();
 
         saveSettings();
-    };
+    };*/
 
     document.getElementById("show-title-textbox-check").onchange = function () {
         settings_json["show-title-textbox"] = document.getElementById("show-title-textbox-check").checked;
@@ -403,6 +404,32 @@ function setStickyThemeChooserByElement(element, set_variable = true) {
     element.closest('.item-radio-sticky-theme').style.boxShadow = '0px 0px 0px 5px var(--tertiary-transparent-2)';
     if (set_variable) {
         settings_json["sticky-theme"] = element.value;
+
+        saveSettings();
+    }
+    sendMessageUpdateToBackground();
+}
+
+function setFontFamilyChooser() {
+    document.querySelectorAll('.item-radio-font-family input[name="font-family-radio"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            setFontFamilyChooserByElement(input);
+        });
+    });
+}
+
+function resetFontFamilyChooser() {
+    document.querySelectorAll('.item-radio-font-family input[name="font-family-radio"]').forEach(function (input) {
+        input.closest('.item-radio-font-family').style.boxShadow = 'none';
+    });
+
+}
+
+function setFontFamilyChooserByElement(element, set_variable = true) {
+    resetFontFamilyChooser();
+    element.closest('.item-radio-font-family').style.boxShadow = '0px 0px 0px 5px var(--tertiary-transparent-2)';
+    if (set_variable) {
+        settings_json["font-family"] = element.value;
 
         saveSettings();
     }
@@ -609,7 +636,7 @@ function loadSettings() {
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
-            if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+            if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
             if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
             if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
 
@@ -646,12 +673,20 @@ function loadSettings() {
                 document.getElementById("save-content-subsection").classList.add("hidden");
             }
 
+            //light, dark, lighter, darker, auto
             if (settings_json["theme"] === "light") setThemeChooserByElement(document.getElementById("item-radio-theme-light"), false); else if (settings_json["theme"] === "dark") setThemeChooserByElement(document.getElementById("item-radio-theme-dark"), false); else if (settings_json["theme"] === "lighter") setThemeChooserByElement(document.getElementById("item-radio-theme-lighter"), false); else if (settings_json["theme"] === "darker") setThemeChooserByElement(document.getElementById("item-radio-theme-darker"), false); else if (settings_json["theme"] === "auto") setThemeChooserByElement(document.getElementById("item-radio-theme-auto"), false);
+            //yellow, lime, cyan, pink, white, black, auto
             if (settings_json["sticky-theme"] === "yellow" || settings_json["sticky-theme"] === "lime" || settings_json["sticky-theme"] === "cyan" || settings_json["sticky-theme"] === "pink" || settings_json["sticky-theme"] === "white" || settings_json["sticky-theme"] === "black" || settings_json["sticky-theme"] === "auto") setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-" + settings_json["sticky-theme"]), false);
+            else setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-yellow"), false); //default
+
+            //font family (already checked the supported font family)
+            if (settings_json["font-family"] !== undefined) {
+                let fontFamily = settings_json["font-family"].replaceAll(" ", "").toLowerCase();
+                setFontFamilyChooserByElement(document.getElementById("item-radio-font-family-" + fontFamily), false);
+            }
 
             document.getElementById("open-links-only-with-ctrl-check").checked = settings_json["open-links-only-with-ctrl"] === true || settings_json["open-links-only-with-ctrl"] === "yes";
             document.getElementById("check-with-all-supported-protocols-check").checked = settings_json["check-with-all-supported-protocols"] === true || settings_json["check-with-all-supported-protocols"] === "yes";
-            document.getElementById("font-family-select").value = settings_json["font-family"];
 
             document.getElementById("show-title-textbox-check").checked = settings_json["show-title-textbox"] === true || settings_json["show-title-textbox"] === "yes";
             document.getElementById("immersive-sticky-notes-check").checked = settings_json["immersive-sticky-notes"] === true || settings_json["immersive-sticky-notes"] === "yes";

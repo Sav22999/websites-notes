@@ -924,6 +924,10 @@ function listenerStickyNotes() {
                         opacity: {value: opacity.value}
                     });
                 }
+
+                //TODO!manually: update this list (using the same list of definitions.js)
+                const supportedFontFamily = ["Open Sans", "Shantell Sans", "Inter", "Lora", "Noto Sans", "Noto Serif", "Roboto", "Merienda", "Playfair Display", "Victor Mono", "Source Code Pro"];
+
                 if (message.ask === "notes") {
                     let url_to_use = getTheCorrectUrl();
                     let page_domain_global_to_use = getTypeToShow(type_to_use);
@@ -945,7 +949,8 @@ function listenerStickyNotes() {
                             websites: websites_json,
                             settings: settings_json,
                             icons: icons_json,
-                            theme_colours: theme_colours_json
+                            theme_colours: theme_colours_json,
+                            supported_font_family: supportedFontFamily
                         });
                     } else {
                         //console.error(JSON.stringify(websites_json[url_to_use]));
@@ -960,7 +965,8 @@ function listenerStickyNotes() {
                             minimized: websites_json[url_to_use]["minimized"],
                             settings_json: settings_json,
                             icons: icons_json,
-                            theme_colours: theme_colours_json
+                            theme_colours: theme_colours_json,
+                            supported_font_family: supportedFontFamily
                         })
                     } else {
                         sendResponse({

@@ -10,14 +10,48 @@
 
 @font-face {
     font-family: 'Source Code Pro';
-    src: url('../font/source-code-pro.ttf');
+    src: url('../font/sourcecodepro.ttf');
 }
 
 @font-face {
     font-family: 'Victor Mono';
-    src: url('../font/victor-mono.ttf');
+    src: url('../font/victormono.ttf');
 }
 
+@font-face {
+    font-family: 'Inter';
+    src: url('../font/inter.ttf');
+}
+
+@font-face {
+    font-family: 'Lora';
+    src: url('../font/lora.ttf');
+}
+
+@font-face {
+    font-family: 'Merienda';
+    src: url('../font/merienda.ttf');
+}
+
+@font-face {
+    font-family: 'Noto Sans';
+    src: url('../font/notosans.ttf');
+}
+
+@font-face {
+    font-family: 'Noto Serif';
+    src: url('../font/notoserif.ttf');
+}
+
+@font-face {
+    font-family: 'Playfair Display';
+    src: url('../font/playfairdisplay.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('../font/roboto.ttf');
+}
 
 :root {
     --primary-color: #ff6200;
@@ -1732,7 +1766,7 @@ aside > button.sel, aside > button.sel:hover {
     flex: 1;
 }
 
-.theme-section-radio-container, .sticky-theme-section-radio-container {
+.theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container {
     display: grid;
     text-align: center;
     grid-template-areas: 'auto auto auto auto auto';
@@ -1741,6 +1775,10 @@ aside > button.sel, aside > button.sel:hover {
 
 .sticky-theme-section-radio-container {
     grid-template-areas: 'auto auto auto auto auto auto auto';
+}
+
+.font-family-section-radio-container {
+    grid-template-areas: 'auto auto auto auto auto';
 }
 
 #default-tag-colour-domain-select, #default-tag-colour-page-select {
@@ -1836,8 +1874,65 @@ aside > button.sel, aside > button.sel:hover {
     color: #ffffff;
 }
 
-
 /*end - sticky-notes-theme*/
+
+/*start - font-family*/
+.item-radio-font-family {
+    background-color: var(--primary-color);
+}
+
+.item-radio-title-font-family {
+    color: var(--on-primary-color);
+}
+
+.item-radio-font-family-preview-item {
+    background-color: var(--secondary-color);
+    color: var(--on-secondary-color);
+}
+
+#preview-font-family-opensans {
+    font-family: 'Open Sans', sans-serif;
+}
+
+#preview-font-family-shantellsans {
+    font-family: 'Shantell Sans', sans-serif;
+}
+
+#preview-font-family-inter {
+    font-family: 'Inter', sans-serif;
+}
+
+#preview-font-family-lora {
+    font-family: 'Lora', serif;
+}
+
+#preview-font-family-merienda {
+    font-family: 'Merienda', cursive;
+}
+
+#preview-font-family-notosans {
+    font-family: 'Noto Sans', sans-serif;
+}
+
+#preview-font-family-notoserif {
+    font-family: 'Noto Serif', serif;
+}
+
+#preview-font-family-playfairdisplay {
+    font-family: 'Playfair Display', serif;
+}
+
+#preview-font-family-victormono {
+    font-family: 'Victor Mono', monospace;
+}
+
+#preview-font-family-sourcecodepro {
+    font-family: 'Source Code Pro', monospace;
+}
+
+#preview-font-family-roboto {
+    font-family: 'Roboto', sans-serif;
+}
 
 hr {
     border: 0px solid transparent;
@@ -1876,26 +1971,31 @@ hr.hr-domain:last-child {
     display: none;
 }
 
+/*Default 'width' value for the elements*/
+.section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container {
+    width: 60%;
+}
+
 @media screen and (max-width: 1700px) {
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, hr {
         width: 70%;
     }
 }
 
 @media screen and (max-width: 150px) {
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, hr {
         width: 80%;
     }
 }
 
 @media screen and (max-width: 1300px) {
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, hr {
         width: 90%;
     }
 }
 
 @media screen and (max-width: 1000px) {
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, hr {
         width: 100%;
     }
 }
@@ -1910,17 +2010,17 @@ hr.hr-domain:last-child {
         text-align: left;
     }
 
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container {
         width: 100%;
     }
 
-    .theme-section-radio-container, .sticky-theme-section-radio-container {
+    .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container {
         grid-template-areas: 'auto';
     }
 }
 
 
-.item-radio-theme, .item-radio-sticky-theme {
+.item-radio-theme, .item-radio-sticky-theme, .item-radio-font-family {
     display: inline-block;
     position: relative;
     padding: 0px;
@@ -1934,7 +2034,7 @@ hr.hr-domain:last-child {
     overflow: hidden;
 }
 
-.item-radio-theme input[type="radio"], .item-radio-sticky-theme input[type="radio"] {
+.item-radio-theme input[type="radio"], .item-radio-sticky-theme input[type="radio"], .item-radio-font-family input[type="radio"] {
     position: absolute;
     opacity: 0;
     cursor: pointer;
@@ -1948,7 +2048,7 @@ hr.hr-domain:last-child {
     background-color: inherit;
 }
 
-.item-radio-theme-preview-container, .item-radio-sticky-theme-preview-container {
+.item-radio-theme-preview-container, .item-radio-sticky-theme-preview-container, .item-radio-font-family-preview-container {
     height: auto;
     width: 100%;
     background-color: transparent;
@@ -1962,7 +2062,11 @@ hr.hr-domain:last-child {
     grid-template-areas: 'primary';
 }
 
-.item-radio-theme-preview-item {
+.item-radio-font-family-preview-container {
+    grid-template-areas: 'primary';
+}
+
+.item-radio-theme-preview-item, .item-radio-sticky-theme-item, .item-radio-font-family-preview-item {
     padding: 15px;
     font-size: 2em;
     font-family: inherit;
