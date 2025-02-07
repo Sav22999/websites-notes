@@ -373,14 +373,25 @@ async function get_data_after_check_id(login_id_value, token_value) {
     } catch (error) {
         console.error("Get data request failed:", error);
 
-        chrome.runtime.sendMessage({
+        const response_to_send = {
             "api_response": true,
             "type": "get-data",
             "data": {
                 "error": true,
                 "message": error.message
             }
-        });
+        }
+
+        actionResponse(response_to_send);
+
+        /*chrome.runtime.sendMessage({
+            "api_response": true,
+            "type": "get-data",
+            "data": {
+                "error": true,
+                "message": error.message
+            }
+        });*/
     }
 }
 
@@ -463,14 +474,25 @@ async function send_data_after_check_id(login_id_value, token_value, updated_loc
     } catch (error) {
         console.error("Send data request failed:", error);
 
-        chrome.runtime.sendMessage({
+        const response_to_send = {
             "api_response": true,
             "type": "send-data",
             "data": {
                 "error": true,
                 "message": error.message
             }
-        });
+        }
+
+        actionResponse(response_to_send);
+
+       /*chrome.runtime.sendMessage({
+            "api_response": true,
+            "type": "send-data",
+            "data": {
+                "error": true,
+                "message": error.message
+            }
+        });*/
     }
 }
 
