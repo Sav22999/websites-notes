@@ -470,6 +470,7 @@ function showTabSubDomains() {
         document.getElementById("notes").contentEditable = true;
         document.getElementById("notes").focus();
     }
+    document.getElementById("tab-other-button").classList.add("not-sel");
 
     if (selected_tab === 3) {
         document.getElementById("subdomains-list").childNodes.forEach(node => {
@@ -487,12 +488,17 @@ function showTabSubDomains() {
             node.setAttribute("class", class_text);
         });
     }
+    //get focus on the first element of the list
+    document.querySelector("#subdomains-list > *")?.focus();
 }
 
 function hideTabSubDomains() {
     document.getElementById("notes").contentEditable = true;
     document.getElementById("notes").focus();
     document.getElementById("panel-other-tabs").classList.add("hidden");
+    if (document.getElementById("tab-other-button").classList.contains("not-sel")) {
+        document.getElementById("tab-other-button").classList.remove("not-sel");
+    }
     document.getElementById("subdomains-list").childNodes.forEach(node => {
         let class_text = "subdomain";
         node.setAttribute("class", class_text);
@@ -870,13 +876,13 @@ function setUrl(url) {
     if (advanced_managing && otherPossibleUrls.length > 0) {
         document.getElementById("domain-button").style.width = "30%";
         document.getElementById("tab-other-button").style.width = "10%";
-        document.getElementById("page-button").style.borderRadius = "0px";
+        //document.getElementById("page-button").style.borderRadius = "0px";
         document.getElementById("tab-other-button").style.display = "inline-block";
     } else {
         document.getElementById("domain-button").style.width = "40%";
         document.getElementById("tab-other-button").style.display = "none";
-        document.getElementById("page-button").style.borderBottomRightRadius = "5px";
-        document.getElementById("page-button").style.borderTopRightRadius = "5px";
+        //document.getElementById("page-button").style.borderBottomRightRadius = "5px";
+        //document.getElementById("page-button").style.borderTopRightRadius = "5px";
     }
     if (document.getElementById("page-button").classList.contains("hidden")) document.getElementById("page-button").classList.remove("hidden");
     if (stickyNotesSupported && document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
@@ -1824,6 +1830,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
+        let tertiaryTransparent3 = primary;
         if (tertiaryTransparent.includes("rgb(")) {
             let rgb_temp = tertiaryTransparent.replace("rgb(", "");
             let rgb_temp_arr = rgb_temp.split(",");
@@ -1837,6 +1844,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         } else if (tertiaryTransparent.includes("#")) {
             tertiaryTransparent += "22";
             tertiaryTransparent2 += "88";
+            tertiaryTransparent3 += "BB";
         }
         //console.log(tertiaryTransparent);
 
@@ -1852,6 +1860,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     --tertiary: ${tertiary};
                     --tertiary-transparent: ${tertiaryTransparent};
                     --tertiary-transparent-2: ${tertiaryTransparent2};
+                    --tertiary-transparent-3: ${tertiaryTransparent3};
+                    --background-color: ${background};
+                    --background-section-color: ${backgroundSection};
                 }
                 #open-sticky-button {
                     background-image: url('data:image/svg+xml;base64,${sticky_svg}');

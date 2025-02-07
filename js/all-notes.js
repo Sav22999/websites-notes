@@ -757,6 +757,9 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 textNotes.readOnly = false;
                 pageTitleH3.classList.add("inline-edit-title");
                 textNotes.classList.add("inline-edit-notes");
+                setTimeout(() => {
+                    pageTitleH3.focus();
+                }, 100);
 
                 if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
             }
@@ -1254,13 +1257,14 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         let refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
         let sort_by_svg = window.btoa(getIconSvgEncoded("sort-by", on_primary));
-        let info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", on_primary));
+        let info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         let search_svg = window.btoa(getIconSvgEncoded("search", primary));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
+        let tertiaryTransparent3 = primary;
         if (tertiaryTransparent.includes("rgb(")) {
             let rgb_temp = tertiaryTransparent.replace("rgb(", "");
             let rgb_temp_arr = rgb_temp.split(",");
@@ -1274,6 +1278,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         } else if (tertiaryTransparent.includes("#")) {
             tertiaryTransparent += "22";
             tertiaryTransparent2 += "88";
+            tertiaryTransparent3 += "BB";
         }
         //console.log(tertiaryTransparent);
 
@@ -1289,6 +1294,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     --tertiary: ${tertiary};
                     --tertiary-transparent: ${tertiaryTransparent};
                     --tertiary-transparent-2: ${tertiaryTransparent2};
+                    --tertiary-transparent-3: ${tertiaryTransparent3};
+                    --background-color: ${background};
+                    --background-section-color: ${backgroundSection};
                 }
                 .go-to-external:hover::after {
                     content: url('data:image/svg+xml;base64,${open_external_svg}');
