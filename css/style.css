@@ -1766,7 +1766,7 @@ aside > button.sel, aside > button.sel:hover {
     flex: 1;
 }
 
-.theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container {
+.theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, .datetime-format-section-radio-container {
     display: grid;
     text-align: center;
     grid-template-areas: 'auto auto auto auto auto';
@@ -1779,6 +1779,10 @@ aside > button.sel, aside > button.sel:hover {
 
 .font-family-section-radio-container {
     grid-template-areas: 'auto auto auto auto auto';
+}
+
+.datetime-format-section-radio-container {
+    grid-template-areas: 'auto auto auto auto';
 }
 
 #default-tag-colour-domain-select, #default-tag-colour-page-select {
@@ -1933,6 +1937,24 @@ aside > button.sel, aside > button.sel:hover {
 #preview-font-family-roboto {
     font-family: 'Roboto', sans-serif;
 }
+/*end - font-family*/
+
+/*start - datetime-format*/
+
+.item-radio-datetime-format {
+    background-color: var(--primary-color);
+}
+
+.item-radio-title-datetime-format {
+    color: var(--on-primary-color);
+}
+
+.item-radio-datetime-format-preview-item {
+    background-color: var(--secondary-color);
+    color: var(--on-secondary-color);
+}
+
+/*end - datetime-format*/
 
 hr {
     border: 0px solid transparent;
@@ -1972,30 +1994,30 @@ hr.hr-domain:last-child {
 }
 
 /*Default 'width' value for the elements*/
-.section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container {
+.section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, .datetime-format-section-radio-container {
     width: 60%;
 }
 
 @media screen and (max-width: 1700px) {
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, .datetime-format-section-radio-container, hr {
         width: 70%;
     }
 }
 
 @media screen and (max-width: 150px) {
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, .datetime-format-section-radio-container, hr {
         width: 80%;
     }
 }
 
 @media screen and (max-width: 1300px) {
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, .datetime-format-section-radio-container, hr {
         width: 90%;
     }
 }
 
 @media screen and (max-width: 1000px) {
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, hr {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, .datetime-format-section-radio-container, hr {
         width: 100%;
     }
 }
@@ -2010,17 +2032,17 @@ hr.hr-domain:last-child {
         text-align: left;
     }
 
-    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container {
+    .section-grid-container, .description-option-settings-yes-no, .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, .datetime-format-section-radio-container {
         width: 100%;
     }
 
-    .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container {
+    .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, .datetime-format-section-radio-container {
         grid-template-areas: 'auto';
     }
 }
 
 
-.item-radio-theme, .item-radio-sticky-theme, .item-radio-font-family {
+.item-radio-theme, .item-radio-sticky-theme, .item-radio-font-family, .item-radio-datetime-format {
     display: inline-block;
     position: relative;
     padding: 0px;
@@ -2034,7 +2056,7 @@ hr.hr-domain:last-child {
     overflow: hidden;
 }
 
-.item-radio-theme input[type="radio"], .item-radio-sticky-theme input[type="radio"], .item-radio-font-family input[type="radio"] {
+.item-radio-theme input[type="radio"], .item-radio-sticky-theme input[type="radio"], .item-radio-font-family input[type="radio"], .item-radio-datetime-format input[type="radio"] {
     position: absolute;
     opacity: 0;
     cursor: pointer;
@@ -2048,7 +2070,7 @@ hr.hr-domain:last-child {
     background-color: inherit;
 }
 
-.item-radio-theme-preview-container, .item-radio-sticky-theme-preview-container, .item-radio-font-family-preview-container {
+.item-radio-theme-preview-container, .item-radio-sticky-theme-preview-container, .item-radio-font-family-preview-container, .item-radio-datetime-format-preview-container {
     height: auto;
     width: 100%;
     background-color: transparent;
@@ -2058,15 +2080,11 @@ hr.hr-domain:last-child {
     grid-template-areas: 'primary secondary';
 }
 
-.item-radio-sticky-theme-preview-container {
+.item-radio-sticky-theme-preview-container, .item-radio-font-family-preview-container, .item-radio-datetime-format-preview-container {
     grid-template-areas: 'primary';
 }
 
-.item-radio-font-family-preview-container {
-    grid-template-areas: 'primary';
-}
-
-.item-radio-theme-preview-item, .item-radio-sticky-theme-item, .item-radio-font-family-preview-item {
+.item-radio-theme-preview-item, .item-radio-sticky-theme-item, .item-radio-font-family-preview-item, .item-radio-datetime-format-preview-item {
     padding: 15px;
     font-size: 2em;
     font-family: inherit;

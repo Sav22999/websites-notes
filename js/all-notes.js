@@ -364,6 +364,7 @@ function loadDataFromBrowser(generate_section = true) {
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
             if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
+            if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
 
             //console.log(JSON.stringify(settings_json));
             if (generate_section) {
@@ -690,7 +691,7 @@ function getType(website, url) {
  */
 function onInputText(url, data, pageLastUpdate) {
     browser.runtime.sendMessage({from: "all-notes", type: "inline-edit", url: url, data: data});
-    pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", data["lastUpdate"]);
+    pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(data["lastUpdate"]));
     sendMessageUpdateToBackground();
 }
 
@@ -940,7 +941,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         page.append(pageNotes);
 
         pageLastUpdate.classList.add("sub-section-last-update");
-        pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", lastUpdate);
+        pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(lastUpdate));
         page.append(pageLastUpdate);
 
         return page;

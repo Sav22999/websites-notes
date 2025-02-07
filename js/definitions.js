@@ -6,7 +6,10 @@ var strings = []; //strings[language_code] = {};
 const supportedLanguages = ["en", "it", "ar", "zh-cn", "zh-tw", "cs", "da", "nl", "fi", "fr", "de", "el", "ja", "pl", "pt-pt", "pt-br", "ro", "ru", "es", "sv-SE", "uk", "ia"];
 
 //TODO!manually: add new fonts here
-const supportedFontFamily=["Open Sans", "Shantell Sans", "Inter", "Lora", "Noto Sans", "Noto Serif", "Roboto", "Merienda", "Playfair Display", "Victor Mono", "Source Code Pro"];
+const supportedFontFamily = ["Open Sans", "Shantell Sans", "Inter", "Lora", "Noto Sans", "Noto Serif", "Roboto", "Merienda", "Playfair Display", "Victor Mono", "Source Code Pro"];
+
+//TODO!manually: add new datetime formats here
+const supportedDatetimeFormat = ["yyyymmdd1", "yyyyddmm1", "ddmmyyyy1", "ddmmyyyy2", "ddmmyyyy1-12h", "mmddyyyy1"];
 
 let languageToUse = browser.i18n.getUILanguage().toString();
 if (!supportedLanguages.includes(languageToUse)) languageToUse = "en";
@@ -874,4 +877,76 @@ function correctDatetime(datetime) {
     if (second < 10) today = today + "0" + second; else today = today + "" + second
 
     return today;
+}
+
+/**
+ * This function is used to convert a datetime string to a displayable format
+ * @param datetime The datetime string to convert
+ * @param format The format to use (to force): if undefined, the format will be taken from the settings["datetime-format"]
+ * @param also_time If true (default), the time will be included in the displayable format
+ * @returns {string} The datetime string in the displayable format
+ */
+function datetimeToDisplay(datetime, format = undefined, also_time = true) {
+    let date = new Date(datetime);
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    if (month < 10) month = "0" + month; else month = "" + month;
+    let day = date.getDate();
+    if (day < 10) day = "0" + day; else day = "" + day;
+    let hour = date.getHours();
+    if (hour < 10) hour = "0" + hour; else hour = "" + hour;
+    let minute = date.getMinutes();
+    if (minute < 10) minute = "0" + minute; else minute = "" + minute;
+    let second = date.getSeconds();
+    if (second < 10) second = "0" + second; else second = "" + second;
+
+    let formatToUse = format;
+    if (format === undefined) {
+        formatToUse = settings_json["datetime-format"];
+    }
+    if (!supportedDatetimeFormat.includes(formatToUse)) {
+        formatToUse = "yyyymmdd1";
+    }
+
+    let time_12h = false; //if "-12h" is in the format, the time will be displayed in 12h format (am/pm too)
+    if (formatToUse !== undefined && formatToUse.toString().includes("-12h")) {
+        time_12h = true;
+    }
+
+    let datetimeToReturn = "";
+
+    if (formatToUse === "yyyymmdd1") {
+        //YYYY-MM-DD HH:MM:SS
+        datetimeToReturn = `${year}-${month}-${day}`;
+    } else if (formatToUse === "yyyyddmm1") {
+        //YYYY-DD-MM HH:MM:SS
+        datetimeToReturn = `${year}-${day}-${month}`;
+    } else if (formatToUse === "ddmmyyyy1") {
+        //DD/MM/YYYY HH:MM:SS
+        datetimeToReturn = `${day}/${month}/${year}`;
+    } else if (formatToUse === "ddmmyyyy2") {
+        //DD.MM.YYYY HH:MM:SS
+        datetimeToReturn = `${day}.${month}.${year}`;
+    } else if (formatToUse === "mmddyyyy1") {
+        //MM/DD/YYYY HH:MM:SS
+        datetimeToReturn = `${month}/${day}/${year}`;
+    } else if (formatToUse === "ddmmyyyy1-12h") {
+        //DD/MM/YYYY HH:MM:SS a.m./p.m.
+        datetimeToReturn = `${month}.${day}.${year}`;
+    }
+
+    if (also_time) {
+        if (time_12h) {
+            let am_pm = "a.m.";
+            if (hour >= 12) {
+                am_pm = "p.m.";
+                if (hour > 12) hour -= 12;
+            }
+            datetimeToReturn += ` ${hour}:${minute}:${second} ${am_pm}`;
+        } else {
+            datetimeToReturn += ` ${hour}:${minute}:${second}`;
+        }
+    }
+
+    return datetimeToReturn;
 }

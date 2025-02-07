@@ -215,6 +215,7 @@ function loaded() {
     setThemeChooser();
     setStickyThemeChooser();
     setFontFamilyChooser();
+    setDatetimeFormatChooser();
 
     document.getElementById("check-green-icon-global-check").onchange = function () {
         settings_json["check-green-icon-global"] = document.getElementById("check-green-icon-global-check").checked;
@@ -251,13 +252,6 @@ function loaded() {
 
         saveSettings();
     };
-
-    /*document.getElementById("font-family-select").onchange = function () {
-        settings_json["font-family"] = document.getElementById("font-family-select").value;
-        sendMessageUpdateToBackground();
-
-        saveSettings();
-    };*/
 
     document.getElementById("show-title-textbox-check").onchange = function () {
         settings_json["show-title-textbox"] = document.getElementById("show-title-textbox-check").checked;
@@ -442,6 +436,32 @@ function setFontFamilyChooserByElement(element, set_variable = true) {
     sendMessageUpdateToBackground();
 }
 
+function setDatetimeFormatChooser() {
+    document.querySelectorAll('.item-radio-datetime-format input[name="datetime-format-radio"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            setDatetimeFormatChooserByElement(input);
+        });
+    });
+}
+
+function resetDatetimeFormatChooser() {
+    document.querySelectorAll('.item-radio-datetime-format input[name="datetime-format-radio"]').forEach(function (input) {
+        input.closest('.item-radio-datetime-format').style.boxShadow = 'none';
+    });
+
+}
+
+function setDatetimeFormatChooserByElement(element, set_variable = true) {
+    resetDatetimeFormatChooser();
+    element.closest('.item-radio-datetime-format').style.boxShadow = '0px 0px 0px 5px var(--tertiary-transparent-2)';
+    if (set_variable) {
+        settings_json["datetime-format"] = element.value;
+
+        saveSettings();
+    }
+    sendMessageUpdateToBackground();
+}
+
 function tabUpdated() {
     checkTheme();
     browser.storage.local.get(["settings"]).then(result => {
@@ -494,6 +514,14 @@ function setLanguageUI() {
     document.getElementById("check-with-all-supported-protocols-detailed-text").innerHTML = all_strings["check-with-all-supported-protocols-detailed"];
     document.getElementById("font-family-text").innerHTML = all_strings["font-family"];
     document.getElementById("font-family-detailed-text").innerHTML = all_strings["font-family-detailed"];
+    document.getElementById("datetime-format-text").innerHTML = all_strings["datetime-format"];
+    document.getElementById("datetime-format-detailed-text").innerHTML = all_strings["datetime-format-detailed"];
+    document.getElementById("preview-datetime-format-yyyymmdd1").innerText = datetimeToDisplay(new Date(), "yyyymmdd1", true);
+    document.getElementById("preview-datetime-format-yyyyddmm1").innerText = datetimeToDisplay(new Date(), "yyyyddmm1", true);
+    document.getElementById("preview-datetime-format-ddmmyyyy1").innerText = datetimeToDisplay(new Date(), "ddmmyyyy1", true);
+    document.getElementById("preview-datetime-format-ddmmyyyy2").innerText = datetimeToDisplay(new Date(), "ddmmyyyy2", true);
+    document.getElementById("preview-datetime-format-ddmmyyyy1-12h").innerText = datetimeToDisplay(new Date(), "ddmmyyyy1-12h", true);
+    document.getElementById("preview-datetime-format-mmddyyyy1").innerText = datetimeToDisplay(new Date(), "mmddyyyy1", true);
     document.getElementById("theme-text").innerText = all_strings["theme-text"];
     document.getElementById("theme-select-lighter").innerText = all_strings["theme-choose-lighter-select"];
     document.getElementById("theme-select-light").innerText = all_strings["theme-choose-light-select"];
@@ -646,6 +674,7 @@ function loadSettings() {
             if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
             if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
             if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
+            if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
 
             if (settings_json["undo-redo"] === undefined) settings_json["undo-redo"] = true;
             if (settings_json["bold-italic-underline-strikethrough"] === undefined) settings_json["bold-italic-underline-strikethrough"] = true;
@@ -691,6 +720,10 @@ function loadSettings() {
             if (settings_json["font-family"] !== undefined) {
                 let fontFamily = settings_json["font-family"].replaceAll(" ", "").toLowerCase();
                 setFontFamilyChooserByElement(document.getElementById("item-radio-font-family-" + fontFamily), false);
+            }
+
+            if (settings_json["datetime-format"] !== undefined) {
+                setDatetimeFormatChooserByElement(document.getElementById("item-radio-datetime-format-" + settings_json["datetime-format"]), false);
             }
 
             document.getElementById("open-links-only-with-ctrl-check").checked = settings_json["open-links-only-with-ctrl"] === true || settings_json["open-links-only-with-ctrl"] === "yes";
