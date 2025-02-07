@@ -1420,7 +1420,7 @@ aside {
     bottom: 0px;
     height: 100%;
     border-radius: 0px;
-    background-color: var(--tertiary-transparent);
+    background: linear-gradient(to right, var(--tertiary-transparent), var(--tertiary-transparent)), linear-gradient(to right, var(--background-color), var(--background-color));;
     z-index: 2;
     overflow: hidden;
     width: 10%;
