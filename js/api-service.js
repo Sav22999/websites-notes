@@ -405,33 +405,41 @@ function get_data_after_check_id(login_id_value, token_value) {
             // Parse the response JSON if needed
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
-            response({
+
+            const response_to_send = {
                 "api_response": true,
                 "type": "get-data",
                 "data": data
-            });
+            }
+
+            actionResponse(response_to_send);
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            response({
+
+            const response_to_send = {
                 "api_response": true,
                 "type": "get-data",
                 "data": {
                     "error": true,
                     "status": xhr.status
                 }
-            });
+            }
+
+            actionResponse(response_to_send);
         }
     };
     xhr.onerror = function () {
-        response({
+        const response_to_send = {
             "api_response": true,
             "type": "get-data",
             "data": {
                 "error": true,
                 "status": xhr.status
             }
-        });
+        }
+
+        actionResponse(response_to_send);
     };
     xhr.send(JSON.stringify({
         "login-id": login_id_value,
@@ -496,33 +504,41 @@ function send_data_after_check_id(login_id_value, token_value, updated_locally_v
             // Parse the response JSON if needed
             var data = JSON.parse(xhr.responseText);
             // Do something with the data
-            response({
+
+            const response_to_send = {
                 "api_response": true,
                 "type": "send-data",
                 "data": data
-            });
+            }
+
+            actionResponse(response_to_send);
         } else {
             // Handle errors
             console.error('Request failed with status:', xhr.status);
-            response({
+
+            const response_to_send = {
                 "api_response": true,
                 "type": "send-data",
                 "data": {
                     "error": true,
                     "status": xhr.status
                 }
-            });
+            }
+
+            actionResponse(response_to_send);
         }
     };
     xhr.onerror = function () {
-        response({
+        const response_to_send = {
             "api_response": true,
             "type": "send-data",
             "data": {
                 "error": true,
                 "status": xhr.status
             }
-        });
+        }
+
+        actionResponse(response_to_send);
     };
     xhr.send(JSON.stringify({
         "login-id": login_id_value,
