@@ -73,735 +73,658 @@ function api_request(message) {
     }
 }
 
-function signup(username_value, email_value, password_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/signup/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "signup",
-                "data": data
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "signup",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
+//TODO optimise api calls, follow the optimisation below
+/*
+//in the switch-case call in this way:
+await login(data["email"], data["password"]);
+
+async function api_call(endpoint, body) {
+    try {
+        const response = await fetch(api_url + endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
-    };
-    xhr.onerror = function () {
+        return await response.json();
+    } catch (error) {
+        console.error("API request failed:", error);
+        return { error: true, message: error.message };
+    }
+}
+
+async function login(email, password) {
+    const data = await api_call("/login/", { email, password });
+    handleResponse("login", data, runtime, sendResponse, runtime=true); //runtime=true means that the response is sent to the runtime (sendMessage), false means that the response is sent to the background-service/api-service (actionResponse)
+}
+
+async function handleResponse(type, data, runtime, sendResponse, runtime=true) {
+    if(runtime) {
+        browser.runtime.sendMessage({
+            api_response: true,
+            type: type,
+            data: data
+        });
+    } else {
+        actionResponse({
+            api_response: true,
+            type: type,
+            data: data
+        });
+    }
+}
+
+//to use the same function in Firefox (browser) and Chromium based (chrome) browsers:
+//use (typeof browser !== 'undefined' ? browser : chrome) instead of browser
+//example: browser.runtime.sendMessage() becomes (typeof browser !== 'undefined' ? browser : chrome).runtime.sendMessage()
+ */
+
+async function signup(username_value, email_value, password_value) {
+    try {
+        const response = await fetch(api_url + '/signup/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "username": username_value,
+                "email": email_value,
+                "password": password_value
+            })
+        });
+
+        const data = await response.json();
+
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "signup",
+            "data": data
+        });
+
+    } catch (error) {
+        console.error('Signup request failed:', error);
+
         browser.runtime.sendMessage({
             "api_response": true,
             "type": "signup",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
         });
-    };
-    xhr.send(JSON.stringify({
-        "username": username_value,
-        "email": email_value,
-        "password": password_value
-    }));
+    }
 }
 
-function signup_new_code(email_value, password_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/signup/verify/get-new-code/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "signup-new-code",
-                "data": data
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "signup-new-code",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
-        }
-    };
-    xhr.onerror = function () {
+async function signup_new_code(email_value, password_value) {
+    try {
+        const response = await fetch(api_url + '/signup/verify/get-new-code/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "email": email_value,
+                "password": password_value
+            })
+        });
+
+        const data = await response.json();
+
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "signup-new-code",
+            "data": data
+        });
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
         browser.runtime.sendMessage({
             "api_response": true,
             "type": "signup-new-code",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
         });
-    };
-    xhr.send(JSON.stringify({
-        "email": email_value,
-        "password": password_value
-    }));
+    }
 }
 
-function signup_verify(email_value, password_value, verification_code_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/signup/verify/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "signup-verify",
-                "data": data
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "signup-verify",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
-        }
-    };
-    xhr.onerror = function () {
+async function signup_verify(email_value, password_value, verification_code_value) {
+    try {
+        const response = await fetch(api_url + '/signup/verify/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "email": email_value,
+                "password": password_value,
+                "verification-code": verification_code_value
+            })
+        });
+
+        const data = await response.json();
+
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "signup-verify",
+            "data": data
+        });
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
         browser.runtime.sendMessage({
             "api_response": true,
             "type": "signup-verify",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
         });
-    };
-    xhr.send(JSON.stringify({
-        "email": email_value,
-        "password": password_value,
-        "verification-code": verification_code_value
-    }));
+    }
 }
 
-function login(email_value, password_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/login/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "login",
-                "data": data
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "login",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
-        }
-    };
-    xhr.onerror = function () {
+async function login(email_value, password_value) {
+    try {
+        const response = await fetch(api_url + '/login/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "email": email_value,
+                "password": password_value
+            })
+        });
+
+        const data = await response.json();
+
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "login",
+            "data": data
+        });
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
         browser.runtime.sendMessage({
             "api_response": true,
             "type": "login",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
         });
-    };
-    xhr.send(JSON.stringify({
-        "email": email_value,
-        "password": password_value
-    }));
+    }
 }
 
-function login_new_code(email_value, password_value, login_id_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/login/verify/get-new-code/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "login-new-code",
-                "data": data
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "login-new-code",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
-        }
-    };
-    xhr.onerror = function () {
+async function login_new_code(email_value, password_value, login_id_value) {
+    try {
+        const response = await fetch(api_url + '/login/verify/get-new-code/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "email": email_value,
+                "password": password_value,
+                "login-id": login_id_value
+            })
+        });
+
+        const data = await response.json();
+
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "login-new-code",
+            "data": data
+        });
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
         browser.runtime.sendMessage({
             "api_response": true,
             "type": "login-new-code",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
         });
-    };
-    xhr.send(JSON.stringify({
-        "email": email_value,
-        "password": password_value,
-        "login-id": login_id_value
-    }));
+    }
 }
 
-function login_verify(email_value, password_value, login_id_value, verification_code_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/login/verify/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "login-verify",
-                "data": data
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "login-verify",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
-        }
-    };
-    xhr.onerror = function () {
+async function login_verify(email_value, password_value, login_id_value, verification_code_value) {
+    try {
+        const response = await fetch(api_url + '/login/verify/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "email": email_value,
+                "password": password_value,
+                "login-id": login_id_value,
+                "verification-code": verification_code_value
+            })
+        });
+
+        const data = await response.json();
+
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "login-verify",
+            "data": data
+        });
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
         browser.runtime.sendMessage({
             "api_response": true,
             "type": "login-verify",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
         });
-    };
-    xhr.send(JSON.stringify({
-        "email": email_value,
-        "password": password_value,
-        "login-id": login_id_value,
-        "verification-code": verification_code_value
-    }));
+    }
 }
 
-function logout(login_id_value, all_devices_value = false, send_response = true) {
-    let get_params = "";
-    if (all_devices_value) {
-        get_params = "?all-devices=true";
-    }
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/logout/' + get_params, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            if (send_response) {
-                browser.runtime.sendMessage({
-                    "api_response": true,
-                    "type": "logout",
-                    "data": data
-                });
-            }
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            if (send_response) {
-                browser.runtime.sendMessage({
-                    "api_response": true,
-                    "type": "logout",
-                    "data": {
-                        "error": true,
-                        "status": xhr.status
-                    }
-                });
-            }
+async function logout(login_id_value, all_devices_value = false, send_response = true) {
+    let get_params = all_devices_value ? "?all-devices=true" : "";
+
+    try {
+        const response = await fetch(api_url + '/logout/' + get_params, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "login-id": login_id_value
+            })
+        });
+
+        const data = await response.json();
+
+        if (send_response) {
+            browser.runtime.sendMessage({
+                "api_response": true,
+                "type": "logout",
+                "data": data
+            });
         }
-    };
-    xhr.onerror = function () {
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
         if (send_response) {
             browser.runtime.sendMessage({
                 "api_response": true,
                 "type": "logout",
                 "data": {
                     "error": true,
-                    "status": xhr.status
+                    "message": error.message
                 }
             });
         }
-    };
-    xhr.send(JSON.stringify({
-        "login-id": login_id_value
-    }));
+    }
 }
 
-function get_data_after_check_id(login_id_value, token_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/data/get/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            response({
-                "api_response": true,
-                "type": "get-data",
-                "data": data
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            response({
-                "api_response": true,
-                "type": "get-data",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
-        }
-    };
-    xhr.onerror = function () {
-        response({
+async function get_data_after_check_id(login_id_value, token_value) {
+    try {
+        const response = await fetch(api_url + '/data/get/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "login-id": login_id_value,
+                "token": token_value
+            })
+        });
+
+        const data = await response.json();
+
+        const response_to_send = {
+            "api_response": true,
+            "type": "get-data",
+            "data": data
+        };
+
+        actionResponse(response_to_send);
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
+        const response_to_send = {
             "api_response": true,
             "type": "get-data",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
-        });
-    };
-    xhr.send(JSON.stringify({
-        "login-id": login_id_value,
-        "token": token_value
-    }));
+        };
+
+        actionResponse(response_to_send);
+    }
 }
 
-function get_data(login_id_value, token_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/login/check-id/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            api_request({
-                "api": true,
-                "type": "get-data-after-check-id",
-                "data": {
-                    "login-id": login_id_value,
-                    "token": token_value
-                }
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "check-id-get",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
+async function get_data(login_id_value, token_value) {
+    try {
+        const response = await fetch(api_url + '/login/check-id/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "login-id": login_id_value,
+                "token": token_value
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Request failed with status: ${response.status}`);
         }
-    };
-    xhr.onerror = function () {
+
+        const data = await response.json();
+
+        // Call get_data_after_check_id if the request was successful
+        api_request({
+            "api": true,
+            "type": "get-data-after-check-id",
+            "data": {
+                "login-id": login_id_value,
+                "token": token_value
+            }
+        });
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
         browser.runtime.sendMessage({
             "api_response": true,
             "type": "check-id-get",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
         });
-    };
-    xhr.send(JSON.stringify({
-        "login-id": login_id_value,
-        "token": token_value
-    }));
+    }
 }
 
-function send_data_after_check_id(login_id_value, token_value, updated_locally_value, data_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/data/insert/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            response({
-                "api_response": true,
-                "type": "send-data",
-                "data": data
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            response({
-                "api_response": true,
-                "type": "send-data",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
-        }
-    };
-    xhr.onerror = function () {
-        response({
+async function send_data_after_check_id(login_id_value, token_value, updated_locally_value, data_value) {
+    try {
+        const response = await fetch(api_url + '/data/insert/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "login-id": login_id_value,
+                "token": token_value,
+                "updated-locally": updated_locally_value,
+                "data": data_value
+            })
+        });
+
+        const data = await response.json();
+
+        const response_to_send = {
+            "api_response": true,
+            "type": "send-data",
+            "data": data
+        };
+
+        actionResponse(response_to_send);
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
+        const response_to_send = {
             "api_response": true,
             "type": "send-data",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
-        });
-    };
-    xhr.send(JSON.stringify({
-        "login-id": login_id_value,
-        "token": token_value,
-        "updated-locally": updated_locally_value,
-        "data": data_value
-    }));
+        };
+
+        actionResponse(response_to_send);
+    }
 }
 
-function send_data(login_id_value, token_value, updated_locally_value, data_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/login/check-id/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            api_request({
-                "api": true,
-                "type": "send-data-after-check-id",
-                "data": {
-                    "login-id": login_id_value,
-                    "token": token_value,
-                    "updated-locally": updated_locally_value,
-                    "data": data_value
-                }
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
-                "api": true,
-                "type": "check-id-send",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
+async function send_data(login_id_value, token_value, updated_locally_value, data_value) {
+    try {
+        const response = await fetch(api_url + '/login/check-id/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "login-id": login_id_value,
+                "token": token_value
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Request failed with status: ${response.status}`);
         }
-    };
-    xhr.onerror = function () {
+
+        const data = await response.json();
+
+        // Call send_data_after_check_id if the request was successful
+        api_request({
+            "api": true,
+            "type": "send-data-after-check-id",
+            "data": {
+                "login-id": login_id_value,
+                "token": token_value,
+                "updated-locally": updated_locally_value,
+                "data": data_value
+            }
+        });
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
         browser.runtime.sendMessage({
             "api": true,
             "type": "check-id-send",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
         });
-    };
-    xhr.send(JSON.stringify({
-        "login-id": login_id_value,
-        "token": token_value
-    }));
+    }
 }
 
-function check_user(login_id_value, token_valud) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/login/check-id/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
+async function check_user(login_id_value, token_value) {
+    try {
+        const response = await fetch(api_url + '/login/check-id/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "login-id": login_id_value,
+                "token": token_value
+            })
+        });
 
-            //console.log(data);
-            if (data["code"] !== undefined && data["code"] === 200) {
-                //console.log("User is valid");
-            } else {
-                //console.log("User is not valid: " + data.code);
-                browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
-                    //logout(login_id_value, false, false);
-                    browser.storage.sync.remove("notefox-account");
-                });
-            }
+        if (!response.ok) {
+            throw new Error(`Request failed with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data["code"] !== undefined && data["code"] === 200) {
+            //console.log("User is valid");
         } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            /*browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+            //console.log("User is not valid: " + data.code);
+            browser.runtime.sendMessage({ "check-user--expired": true }).then(response => {
                 //logout(login_id_value, false, false);
                 browser.storage.sync.remove("notefox-account");
-            });*/
+            });
         }
-    };
-    xhr.onerror = function () {
+
+    } catch (error) {
+        console.error('Request failed:', error);
         /*browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
             //logout(login_id_value, false, false);
             browser.storage.sync.remove("notefox-account");
         });*/
-    };
-    xhr.send(JSON.stringify({
-        "login-id": login_id_value,
-        "token": token_valud
-    }));
+    }
 }
 
-function change_password(login_id_value, token_value, old_password_value, new_password_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/password/edit/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "change-password",
-                "data": data
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "change-password",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
-        }
-    };
-    xhr.onerror = function () {
+async function change_password(login_id_value, token_value, old_password_value, new_password_value) {
+    try {
+        const response = await fetch(api_url + '/password/edit/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "login-id": login_id_value,
+                "token": token_value,
+                "password": old_password_value,
+                "new-password": new_password_value
+            })
+        });
+
+        const data = await response.json();
+
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "change-password",
+            "data": data
+        });
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
         browser.runtime.sendMessage({
             "api_response": true,
             "type": "change-password",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
         });
-    };
-    xhr.send(JSON.stringify({
-        "login-id": login_id_value,
-        "token": token_value,
-        "password": old_password_value,
-        "new-password": new_password_value
-    }));
+    }
 }
 
-function delete_account(login_id_value, token_value, email_value, password_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/delete/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "delete-account",
-                "data": data
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "delete-account",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
-        }
-    };
-    xhr.onerror = function () {
+async function delete_account(login_id_value, token_value, email_value, password_value) {
+    try {
+        const response = await fetch(api_url + '/delete/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "login-id": login_id_value,
+                "token": token_value,
+                "email": email_value,
+                "password": password_value
+            })
+        });
+
+        const data = await response.json();
+
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "delete-account",
+            "data": data
+        });
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
         browser.runtime.sendMessage({
             "api_response": true,
             "type": "delete-account",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
         });
-    };
-    xhr.send(JSON.stringify({
-        "login-id": login_id_value,
-        "token": token_value,
-        "email": email_value,
-        "password": password_value
-    }));
+    }
 }
 
-function delete_account_verify(login_id_value, token_value, email_value, password_value, deleting_code_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/delete/verify/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "delete-verify",
-                "data": data
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "delete-verify",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
-        }
-    };
-    xhr.onerror = function () {
+async function delete_account_verify(login_id_value, token_value, email_value, password_value, deleting_code_value) {
+    try {
+        const response = await fetch(api_url + '/delete/verify/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "login-id": login_id_value,
+                "token": token_value,
+                "email": email_value,
+                "password": password_value,
+                "deleting-code": deleting_code_value
+            })
+        });
+
+        const data = await response.json();
+
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "delete-verify",
+            "data": data
+        });
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
         browser.runtime.sendMessage({
             "api_response": true,
             "type": "delete-verify",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
         });
-    };
-    xhr.send(JSON.stringify({
-        "login-id": login_id_value,
-        "token": token_value,
-        "email": email_value,
-        "password": password_value,
-        "deleting-code": deleting_code_value
-    }));
+    }
 }
 
-function delete_account_verify_new_code(email_value, password_value) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', api_url + '/delete/verify/get-new-code/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function () {
-        // Check if the request was successful
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Parse the response JSON if needed
-            var data = JSON.parse(xhr.responseText);
-            // Do something with the data
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "delete-account-new-code",
-                "data": data
-            });
-        } else {
-            // Handle errors
-            console.error('Request failed with status:', xhr.status);
-            browser.runtime.sendMessage({
-                "api_response": true,
-                "type": "delete-account-new-code",
-                "data": {
-                    "error": true,
-                    "status": xhr.status
-                }
-            });
-        }
-    };
-    xhr.onerror = function () {
+async function delete_account_verify_new_code(email_value, password_value) {
+    try {
+        const response = await fetch(api_url + '/delete/verify/get-new-code/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "email": email_value,
+                "password": password_value
+            })
+        });
+
+        const data = await response.json();
+
+        browser.runtime.sendMessage({
+            "api_response": true,
+            "type": "delete-account-new-code",
+            "data": data
+        });
+
+    } catch (error) {
+        console.error('Request failed:', error);
+
         browser.runtime.sendMessage({
             "api_response": true,
             "type": "delete-account-new-code",
             "data": {
                 "error": true,
-                "status": xhr.status
+                "message": error.message
             }
         });
-    };
-    xhr.send(JSON.stringify({
-        "email": email_value,
-        "password": password_value
-    }));
+    }
 }

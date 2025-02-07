@@ -88,7 +88,7 @@ function syncData(force_time = 1 * 60 * 1000, just_once = false) {
     }
 }
 
-function response(response) {
+function actionResponse(response) {
     //console.log("Response: " + JSON.stringify(response));
     if (response["api_response"] !== undefined && response["api_response"] === true) {
         if (response["type"] !== undefined) {
