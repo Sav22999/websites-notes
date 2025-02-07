@@ -713,8 +713,8 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         let subrowButtons = document.createElement("div");
         subrowButtons.classList.add("subrow-buttons");
 
+        //Button "Clear notes"
         let inputClearAllNotesPage = document.createElement("input");
-
         inputClearAllNotesPage.type = "button";
         inputClearAllNotesPage.value = all_strings["clear-notes-of-this-page-button"];
         inputClearAllNotesPage.classList.add("button", "very-small-button", "clear2-button", "button-no-text-on-mobile");
@@ -725,11 +725,12 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             }
             clearAllNotesPage(fullUrl, isDomain);
         }
-        let inputInlineEdit = document.createElement("input");
         let pageTitleH3 = document.createElement("h3");
         let textNotes = document.createElement("div");
         let row2 = document.createElement("div");
 
+        //Button "Edit notes"
+        let inputInlineEdit = document.createElement("input");
         inputInlineEdit.type = "button";
         inputInlineEdit.value = all_strings["edit-notes-button"];
         inputInlineEdit.classList.add("button", "very-small-button", "edit-button", "button-no-text-on-mobile");
@@ -767,8 +768,8 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             }
         }
 
+        //Button "Copy notes"
         let inputCopyNotes = document.createElement("input");
-
         inputCopyNotes.type = "button";
         inputCopyNotes.value = all_strings["copy-notes-button"];
         inputCopyNotes.classList.add("button", "very-small-button", "copy-button", "button-no-text-on-mobile");
@@ -782,8 +783,8 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             }, 3000);
         }
 
+        //Select "Tag colour"
         let tagsColour = document.createElement("select");
-
         let colourList = colourListDefault;
         colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
         for (let colour in colourList) {
@@ -805,6 +806,18 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
 
         subrowUrl.append(pageType);
 
+        if (content !== undefined && content !== "") {
+            //Button "Show content"
+            let inputShowContent = document.createElement("input");
+            inputShowContent.type = "button";
+            inputShowContent.value = all_strings["show-content-button"];
+            inputShowContent.classList.add("button", "very-small-button", "show-content-button", "button-no-text-on-mobile");
+            inputShowContent.onclick = function () {
+                alert(content); // Display the content in an alert for now, until a better UI is implemented.
+            }
+
+            subrowButtons.append(inputShowContent);
+        }
         subrowButtons.append(tagsColour);
         subrowButtons.append(inputInlineEdit);
         subrowButtons.append(inputCopyNotes);
@@ -859,29 +872,6 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         row2.append(pageTitleH3);
 
         page.append(row2);
-
-        let row3 = document.createElement("div");
-        let pageContent = document.createElement("div");
-        pageContent.classList.add("sub-section-title");
-        pageContent.style.display = "block";
-
-        let inputShowContent = document.createElement("input");
-        inputShowContent.type = "button";
-        inputShowContent.value = all_strings["show-content-button"];
-        inputShowContent.classList.add("button", "very-small-button", "sub-section-title", "single-line");
-        inputShowContent.onclick = function () {
-            alert(content); // Display the content in an alert for now, until a better UI is implemented.
-        }
-
-        row3.classList.add("hidden");
-        if (content !== undefined && content !== "") {
-            if (row3.classList.contains("hidden")) row3.classList.remove("hidden");
-        }
-
-        pageContent.appendChild(inputShowContent);
-        row3.append(pageContent);
-
-        page.append(row3);
 
         let pageNotes = document.createElement("pre");
         pageNotes.classList.add("sub-section-notes");
@@ -1242,28 +1232,29 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         //document.getElementById("all-notes-dedication-section").style.backgroundColor = backgroundSection;
         //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
         document.getElementById("all-notes-dedication-section").style.color = primary;
-        var open_external_svg = window.btoa(getIconSvgEncoded("open-external", primary));
-        var donate_svg = window.btoa(getIconSvgEncoded("donate", on_primary));
-        var settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
-        var all_notes_aside_svg = window.btoa(getIconSvgEncoded("all-notes", on_primary));
-        var settings_aside_svg = window.btoa(getIconSvgEncoded("settings", primary));
-        var help_aside_svg = window.btoa(getIconSvgEncoded("help", primary));
-        var review_aside_svg = window.btoa(getIconSvgEncoded("review", primary));
-        var website_aside_svg = window.btoa(getIconSvgEncoded("website", primary));
-        var donate_aside_svg = window.btoa(getIconSvgEncoded("donate", primary));
-        var translate_aside_svg = window.btoa(getIconSvgEncoded("translate", primary));
-        var download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
-        var delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
-        var delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
-        var copy_svg = window.btoa(getIconSvgEncoded("copy", on_primary));
-        var edit_svg = window.btoa(getIconSvgEncoded("edit", on_primary));
-        var finish_edit_svg = window.btoa(getIconSvgEncoded("finish-edit", on_primary));
-        var filter = window.btoa(getIconSvgEncoded("filter", on_primary));
-        var sort_by = window.btoa(getIconSvgEncoded("sort-by", on_primary));
-        var tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
-        var refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
-        var sort_by_svg = window.btoa(getIconSvgEncoded("sort-by", on_primary));
-        var info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", on_primary));
+        let open_external_svg = window.btoa(getIconSvgEncoded("open-external", primary));
+        let donate_svg = window.btoa(getIconSvgEncoded("donate", on_primary));
+        let settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
+        let all_notes_aside_svg = window.btoa(getIconSvgEncoded("all-notes", on_primary));
+        let settings_aside_svg = window.btoa(getIconSvgEncoded("settings", primary));
+        let help_aside_svg = window.btoa(getIconSvgEncoded("help", primary));
+        let review_aside_svg = window.btoa(getIconSvgEncoded("review", primary));
+        let website_aside_svg = window.btoa(getIconSvgEncoded("website", primary));
+        let donate_aside_svg = window.btoa(getIconSvgEncoded("donate", primary));
+        let translate_aside_svg = window.btoa(getIconSvgEncoded("translate", primary));
+        let download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
+        let delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
+        let delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
+        let copy_svg = window.btoa(getIconSvgEncoded("copy", on_primary));
+        let show_content_svg = window.btoa(getIconSvgEncoded("show-content", on_primary));
+        let edit_svg = window.btoa(getIconSvgEncoded("edit", on_primary));
+        let finish_edit_svg = window.btoa(getIconSvgEncoded("finish-edit", on_primary));
+        let filter = window.btoa(getIconSvgEncoded("filter", on_primary));
+        let sort_by = window.btoa(getIconSvgEncoded("sort-by", on_primary));
+        let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
+        let refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
+        let sort_by_svg = window.btoa(getIconSvgEncoded("sort-by", on_primary));
+        let info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", on_primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         let search_svg = window.btoa(getIconSvgEncoded("search", primary));
 
@@ -1340,6 +1331,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .copy-button {
                     background-image: url('data:image/svg+xml;base64,${copy_svg}');
+                }
+                .show-content-button {
+                    background-image: url('data:image/svg+xml;base64,${show_content_svg}');
                 }
                 .edit-button {
                     background-image: url('data:image/svg+xml;base64,${edit_svg}');

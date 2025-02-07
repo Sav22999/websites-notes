@@ -141,7 +141,7 @@ body {
     opacity: 1;
 }
 
-.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .edit-button, .finish-edit-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button, .download-button, .login-button, .logout-button, .manage-account-button, .sync-button, .sync-error-button, .syncing-button, .synced-button {
+.clear-button, .clear2-button, .refresh-button, .import-button, .copy-button, .edit-button, .finish-edit-button, .export-button, .tag-button, .save-button, .sort-by-button, .filter-button, .translate-button, .settings-button, .donate-button, .github-button, .telegram-button, .email-button, .firefox-button, .sort-by-button, .download-button, .login-button, .logout-button, .manage-account-button, .sync-button, .sync-error-button, .syncing-button, .synced-button, .show-content-button {
     padding-left: 40px;
     padding-right: 10px;
     background-size: auto 50%;
@@ -230,6 +230,10 @@ body {
 .copy-button {
     background-image: url("../img/copy.svg");
     cursor: copy;
+}
+
+.show-content-button {
+    background-image: url("../img/show-content.svg");
 }
 
 .edit-button {
@@ -361,6 +365,7 @@ body {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
     color: var(--on-primary-color);
+    max-height: 50px !important;
 }
 
 #tabs-section > .tab-sel:hover, .button:hover {
@@ -753,9 +758,11 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     font-family: 'Open Sans', sans-serif;
     font-size: 0.7em;
     min-width: 70px;
+    max-width: 120px;
     display: inline-block;
     text-align: center;
     height: auto;
+    max-height: 50px;
 }
 
 .inline-edit-title, .inline-edit-notes {
@@ -980,7 +987,11 @@ h3 {
     transition: 0.5s;
     cursor: alias !important;
     text-wrap: auto;
-    max-inline-size: 400px;
+    /*max-inline-size: 400px;*/
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+
+    height: auto;
 }
 
 .go-to-external:hover::after {
