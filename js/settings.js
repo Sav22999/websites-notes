@@ -2141,6 +2141,7 @@ function updateSyncDatetime() {
 
 function listenerNotefoxAccount() {
     chrome.runtime.onMessage.addListener((message) => {
+        console.log("**** [settings.js] Message received", message);
         if (message["api_response"] !== undefined && message["api_response"]) {
             let data = message["data"];
             switch (message["type"]) {

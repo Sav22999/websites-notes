@@ -31,6 +31,7 @@ let linkFirstLaunch = "https://notefox.eu/help/first-run"
 
 let sync_local = chrome.storage.local;
 checkSyncLocal();
+generalListener();
 
 function checkSyncLocal() {
     sync_local = chrome.storage.local;
@@ -53,10 +54,20 @@ function checkSyncLocal() {
     checkSyncData();
 }
 
+function generalListener() {
+    //console.log("**** [background.js] General listener");
+
+    chrome.runtime.onMessage.addListener((message) => {
+        //console.log("**** [background.js] Message received", message);
+    });
+}
+
 function checkSyncData(just_once = false) {
     //console.log("Check sync data")
     chrome.storage.sync.get(["notefox-account"]).then(resultSync => {
-        //console.log("Sync data: " + JSON.stringify(resultSync));
+
+        //console.log("**** Sync data: ", resultSync);
+
         if (resultSync["notefox-account"] !== undefined) {
             api_request({
                 "api": true,
@@ -91,8 +102,9 @@ function syncData(force_time = 1 * 60 * 1000, just_once = false) {
     }
 }
 
-function response(response) {
-    //console.log("Response: " + JSON.stringify(response));
+function actionResponse(response) {
+    //console.log("**** [background.js::actionResponse]", response);
+
     if (response["api_response"] !== undefined && response["api_response"] === true) {
         if (response["type"] !== undefined) {
             if (response["type"] === "get-data") {
@@ -240,7 +252,7 @@ function sendLocalDataToServer() {
 function syncUpdateFromServer() {
     //console.log("Receiving...")
     chrome.runtime.sendMessage({"sync_update": true}).then(response => {
-        //console.log("Sync update from server: " + response);
+        //console.log("Sync update from server: ", response);
     }).catch((e) => {
         setTimeout(function () {
             syncUpdateFromServer();
@@ -1205,8 +1217,8 @@ function closeStickyNotes(update = true) {
                 // Script executed successfully
                 //if (update) tabUpdated(false);
             }).catch((error) => {
-                if (!(activeTab.url.includes("chrome://") || activeTab.url.includes("edge://"))) {
-                    console.error("E1: " + error + "\nin " + activeTab.url);
+                if (!activeTab.url.includes("chrome://") && !activeTab.url.includes("edge://") && !activeTab.url.includes("chrome-extension://")) {
+                    console.error("E1: " + error + "\nin " + activeTab.url, activeTab);
                 }
             });
         }
