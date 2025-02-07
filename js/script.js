@@ -1506,6 +1506,11 @@ function loadFormatButtons(navigation = true, format = true) {
         else html_text_formatting = false;
     }
 
+    let is_undo_redo = true;
+    if (settings_json["undo-redo"] !== undefined) {
+        if (settings_json["undo-redo"] === "yes" || settings_json["undo-redo"] === true) is_undo_redo = true;
+        else is_undo_redo = false;
+    }
     let is_bold_italic_underline_strikethrough = true;
     if (settings_json["bold-italic-underline-strikethrough"] !== undefined) {
         if (settings_json["bold-italic-underline-strikethrough"] === "yes" || settings_json["bold-italic-underline-strikethrough"] === true) is_bold_italic_underline_strikethrough = true;
@@ -1539,23 +1544,25 @@ function loadFormatButtons(navigation = true, format = true) {
 
     let commands = [];
     if (navigation && html_text_formatting) {
-        commands.push(
-            {
-                action: "undo",
-                icon: `${url}undo.svg`,
-                title: all_strings["label-title-undo"],
-                function: function () {
-                    undo()
-                }
-            },
-            {
-                action: "redo",
-                icon: `${url}redo.svg`,
-                title: all_strings["label-title-redo"],
-                function: function () {
-                    redo()
-                }
-            });
+        if (is_undo_redo) {
+            commands.push(
+                {
+                    action: "undo",
+                    icon: `${url}undo.svg`,
+                    title: all_strings["label-title-undo"],
+                    function: function () {
+                        undo()
+                    }
+                },
+                {
+                    action: "redo",
+                    icon: `${url}redo.svg`,
+                    title: all_strings["label-title-redo"],
+                    function: function () {
+                        redo()
+                    }
+                });
+        }
     } else {
         actions = [];
         currentAction = 0;

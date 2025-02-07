@@ -271,6 +271,12 @@ function loaded() {
         saveSettings();
     }
 
+    document.getElementById("show-undo-redo-check").onchange = function () {
+        settings_json["undo-redo"] = document.getElementById("show-undo-redo-check").checked;
+
+        saveSettings();
+    }
+
     document.getElementById("show-bold-italic-underline-strikethrough-check").onchange = function () {
         settings_json["bold-italic-underline-strikethrough"] = document.getElementById("show-bold-italic-underline-strikethrough-check").checked;
 
@@ -508,6 +514,7 @@ function setLanguageUI() {
     document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
     document.getElementById("immersive-sticky-notes-text").innerText = all_strings["immersive-sticky-notes-text"];
     document.getElementById("immersive-sticky-notes-detailed-text").innerHTML = all_strings["immersive-sticky-notes-detailed-text"];
+    document.getElementById("show-undo-redo-text").innerText = all_strings["show-undo-redo-text"];
     document.getElementById("show-bold-italic-underline-strikethrough-text").innerText = all_strings["show-bold-italic-underline-strikethrough-text"];
     document.getElementById("show-link-text").innerText = all_strings["show-link-text"];
     document.getElementById("show-spellcheck-text").innerText = all_strings["show-spellcheck-text"];
@@ -640,6 +647,7 @@ function loadSettings() {
             if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
             if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
 
+            if (settings_json["undo-redo"] === undefined) settings_json["undo-redo"] = true;
             if (settings_json["bold-italic-underline-strikethrough"] === undefined) settings_json["bold-italic-underline-strikethrough"] = true;
             if (settings_json["link"] === undefined) settings_json["link"] = true;
             if (settings_json["spellcheck"] === undefined) settings_json["spellcheck"] = true;
@@ -697,6 +705,7 @@ function loadSettings() {
                 document.getElementById("html-text-formatting-buttons").classList.add("hidden");
             }
 
+            document.getElementById("show-undo-redo-check").checked = settings_json["undo-redo"] === true || settings_json["undo-redo"] === "yes";
             document.getElementById("show-bold-italic-underline-strikethrough-check").checked = settings_json["bold-italic-underline-strikethrough"] === true || settings_json["bold-italic-underline-strikethrough"] === "yes";
             document.getElementById("show-link-check").checked = settings_json["link"] === true || settings_json["link"] === "yes";
             document.getElementById("show-spellcheck-check").checked = settings_json["spellcheck"] === true || settings_json["spellcheck"] === "yes";
