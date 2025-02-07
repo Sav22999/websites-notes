@@ -214,6 +214,8 @@ function loaded() {
 
     setThemeChooser();
     setStickyThemeChooser();
+    setFontFamilyChooser();
+    setDatetimeFormatChooser();
 
     document.getElementById("check-green-icon-global-check").onchange = function () {
         settings_json["check-green-icon-global"] = document.getElementById("check-green-icon-global-check").checked;
@@ -251,13 +253,6 @@ function loaded() {
         saveSettings();
     };
 
-    document.getElementById("font-family-select").onchange = function () {
-        settings_json["font-family"] = document.getElementById("font-family-select").value;
-        sendMessageUpdateToBackground();
-
-        saveSettings();
-    };
-
     document.getElementById("show-title-textbox-check").onchange = function () {
         settings_json["show-title-textbox"] = document.getElementById("show-title-textbox-check").checked;
 
@@ -266,6 +261,12 @@ function loaded() {
 
     document.getElementById("immersive-sticky-notes-check").onchange = function () {
         settings_json["immersive-sticky-notes"] = document.getElementById("immersive-sticky-notes-check").checked;
+
+        saveSettings();
+    }
+
+    document.getElementById("show-undo-redo-check").onchange = function () {
+        settings_json["undo-redo"] = document.getElementById("show-undo-redo-check").checked;
 
         saveSettings();
     }
@@ -409,6 +410,58 @@ function setStickyThemeChooserByElement(element, set_variable = true) {
     sendMessageUpdateToBackground();
 }
 
+function setFontFamilyChooser() {
+    document.querySelectorAll('.item-radio-font-family input[name="font-family-radio"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            setFontFamilyChooserByElement(input);
+        });
+    });
+}
+
+function resetFontFamilyChooser() {
+    document.querySelectorAll('.item-radio-font-family input[name="font-family-radio"]').forEach(function (input) {
+        input.closest('.item-radio-font-family').style.boxShadow = 'none';
+    });
+
+}
+
+function setFontFamilyChooserByElement(element, set_variable = true) {
+    resetFontFamilyChooser();
+    element.closest('.item-radio-font-family').style.boxShadow = '0px 0px 0px 5px var(--tertiary-transparent-2)';
+    if (set_variable) {
+        settings_json["font-family"] = element.value;
+
+        saveSettings();
+    }
+    sendMessageUpdateToBackground();
+}
+
+function setDatetimeFormatChooser() {
+    document.querySelectorAll('.item-radio-datetime-format input[name="datetime-format-radio"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            setDatetimeFormatChooserByElement(input);
+        });
+    });
+}
+
+function resetDatetimeFormatChooser() {
+    document.querySelectorAll('.item-radio-datetime-format input[name="datetime-format-radio"]').forEach(function (input) {
+        input.closest('.item-radio-datetime-format').style.boxShadow = 'none';
+    });
+
+}
+
+function setDatetimeFormatChooserByElement(element, set_variable = true) {
+    resetDatetimeFormatChooser();
+    element.closest('.item-radio-datetime-format').style.boxShadow = '0px 0px 0px 5px var(--tertiary-transparent-2)';
+    if (set_variable) {
+        settings_json["datetime-format"] = element.value;
+
+        saveSettings();
+    }
+    sendMessageUpdateToBackground();
+}
+
 function tabUpdated() {
     checkTheme();
     browser.storage.local.get(["settings"]).then(result => {
@@ -461,6 +514,14 @@ function setLanguageUI() {
     document.getElementById("check-with-all-supported-protocols-detailed-text").innerHTML = all_strings["check-with-all-supported-protocols-detailed"];
     document.getElementById("font-family-text").innerHTML = all_strings["font-family"];
     document.getElementById("font-family-detailed-text").innerHTML = all_strings["font-family-detailed"];
+    document.getElementById("datetime-format-text").innerHTML = all_strings["datetime-format"];
+    document.getElementById("datetime-format-detailed-text").innerHTML = all_strings["datetime-format-detailed"];
+    document.getElementById("preview-datetime-format-yyyymmdd1").innerText = datetimeToDisplay(new Date(), "yyyymmdd1", true);
+    document.getElementById("preview-datetime-format-yyyyddmm1").innerText = datetimeToDisplay(new Date(), "yyyyddmm1", true);
+    document.getElementById("preview-datetime-format-ddmmyyyy1").innerText = datetimeToDisplay(new Date(), "ddmmyyyy1", true);
+    document.getElementById("preview-datetime-format-ddmmyyyy2").innerText = datetimeToDisplay(new Date(), "ddmmyyyy2", true);
+    document.getElementById("preview-datetime-format-ddmmyyyy1-12h").innerText = datetimeToDisplay(new Date(), "ddmmyyyy1-12h", true);
+    document.getElementById("preview-datetime-format-mmddyyyy1").innerText = datetimeToDisplay(new Date(), "mmddyyyy1", true);
     document.getElementById("theme-text").innerText = all_strings["theme-text"];
     document.getElementById("theme-select-lighter").innerText = all_strings["theme-choose-lighter-select"];
     document.getElementById("theme-select-light").innerText = all_strings["theme-choose-light-select"];
@@ -481,6 +542,7 @@ function setLanguageUI() {
     document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
     document.getElementById("immersive-sticky-notes-text").innerText = all_strings["immersive-sticky-notes-text"];
     document.getElementById("immersive-sticky-notes-detailed-text").innerHTML = all_strings["immersive-sticky-notes-detailed-text"];
+    document.getElementById("show-undo-redo-text").innerText = all_strings["show-undo-redo-text"];
     document.getElementById("show-bold-italic-underline-strikethrough-text").innerText = all_strings["show-bold-italic-underline-strikethrough-text"];
     document.getElementById("show-link-text").innerText = all_strings["show-link-text"];
     document.getElementById("show-spellcheck-text").innerText = all_strings["show-spellcheck-text"];
@@ -609,10 +671,12 @@ function loadSettings() {
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
-            if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+            if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
             if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
             if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
+            if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
 
+            if (settings_json["undo-redo"] === undefined) settings_json["undo-redo"] = true;
             if (settings_json["bold-italic-underline-strikethrough"] === undefined) settings_json["bold-italic-underline-strikethrough"] = true;
             if (settings_json["link"] === undefined) settings_json["link"] = true;
             if (settings_json["spellcheck"] === undefined) settings_json["spellcheck"] = true;
@@ -646,12 +710,24 @@ function loadSettings() {
                 document.getElementById("save-content-subsection").classList.add("hidden");
             }
 
+            //light, dark, lighter, darker, auto
             if (settings_json["theme"] === "light") setThemeChooserByElement(document.getElementById("item-radio-theme-light"), false); else if (settings_json["theme"] === "dark") setThemeChooserByElement(document.getElementById("item-radio-theme-dark"), false); else if (settings_json["theme"] === "lighter") setThemeChooserByElement(document.getElementById("item-radio-theme-lighter"), false); else if (settings_json["theme"] === "darker") setThemeChooserByElement(document.getElementById("item-radio-theme-darker"), false); else if (settings_json["theme"] === "auto") setThemeChooserByElement(document.getElementById("item-radio-theme-auto"), false);
+            //yellow, lime, cyan, pink, white, black, auto
             if (settings_json["sticky-theme"] === "yellow" || settings_json["sticky-theme"] === "lime" || settings_json["sticky-theme"] === "cyan" || settings_json["sticky-theme"] === "pink" || settings_json["sticky-theme"] === "white" || settings_json["sticky-theme"] === "black" || settings_json["sticky-theme"] === "auto") setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-" + settings_json["sticky-theme"]), false);
+            else setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-yellow"), false); //default
+
+            //font family (already checked the supported font family)
+            if (settings_json["font-family"] !== undefined) {
+                let fontFamily = settings_json["font-family"].replaceAll(" ", "").toLowerCase();
+                setFontFamilyChooserByElement(document.getElementById("item-radio-font-family-" + fontFamily), false);
+            }
+
+            if (settings_json["datetime-format"] !== undefined) {
+                setDatetimeFormatChooserByElement(document.getElementById("item-radio-datetime-format-" + settings_json["datetime-format"]), false);
+            }
 
             document.getElementById("open-links-only-with-ctrl-check").checked = settings_json["open-links-only-with-ctrl"] === true || settings_json["open-links-only-with-ctrl"] === "yes";
             document.getElementById("check-with-all-supported-protocols-check").checked = settings_json["check-with-all-supported-protocols"] === true || settings_json["check-with-all-supported-protocols"] === "yes";
-            document.getElementById("font-family-select").value = settings_json["font-family"];
 
             document.getElementById("show-title-textbox-check").checked = settings_json["show-title-textbox"] === true || settings_json["show-title-textbox"] === "yes";
             document.getElementById("immersive-sticky-notes-check").checked = settings_json["immersive-sticky-notes"] === true || settings_json["immersive-sticky-notes"] === "yes";
@@ -662,6 +738,7 @@ function loadSettings() {
                 document.getElementById("html-text-formatting-buttons").classList.add("hidden");
             }
 
+            document.getElementById("show-undo-redo-check").checked = settings_json["undo-redo"] === true || settings_json["undo-redo"] === "yes";
             document.getElementById("show-bold-italic-underline-strikethrough-check").checked = settings_json["bold-italic-underline-strikethrough"] === true || settings_json["bold-italic-underline-strikethrough"] === "yes";
             document.getElementById("show-link-check").checked = settings_json["link"] === true || settings_json["link"] === "yes";
             document.getElementById("show-spellcheck-check").checked = settings_json["spellcheck"] === true || settings_json["spellcheck"] === "yes";
@@ -2757,6 +2834,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
+        let tertiaryTransparent3 = primary;
         if (tertiaryTransparent.includes("rgb(")) {
             let rgb_temp = tertiaryTransparent.replace("rgb(", "");
             let rgb_temp_arr = rgb_temp.split(",");
@@ -2770,6 +2848,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         } else if (tertiaryTransparent.includes("#")) {
             tertiaryTransparent += "22";
             tertiaryTransparent2 += "88";
+            tertiaryTransparent3 += "BB";
         }
         //console.log(tertiaryTransparent);
 
@@ -2785,6 +2864,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     --tertiary: ${tertiary};
                     --tertiary-transparent: ${tertiaryTransparent};
                     --tertiary-transparent-2: ${tertiaryTransparent2};
+                    --tertiary-transparent-3: ${tertiaryTransparent3};
+                    --background-color: ${background};
+                    --background-section-color: ${backgroundSection};
                 }
                 .save-button {
                     background-image: url('data:image/svg+xml;base64,${save_svg}');

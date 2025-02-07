@@ -2,87 +2,98 @@ var api_url = "https://www.notefox.eu/api/v1"
 
 loadAPI();
 
+/**
+ * Load the API service
+ */
 function loadAPI() {
-    browser.runtime.onMessage.addListener((message) => {
+
+    // Listen for messages
+    (typeof browser !== 'undefined' ? browser : chrome).runtime.onMessage.addListener((message) => {
         if (message["api"] !== undefined && message["api"]) {
             api_request(message);
         }
     });
 }
 
-function api_request(message) {
+/**
+ * Handle the API response
+ * @param message - the response message (JSON object)
+ * @returns {Promise<void>}
+ */
+async function api_request(message) {
     //console.log("API request received");
     //console.log(message);
     let data = message["data"];
     switch (message["type"]) {
         case "login":
-            login(data["email"], data["password"]);
+            await login(data["email"], data["password"]);
             break;
         case "login-new-code":
-            login_new_code(data["email"], data["password"], data["login-id"]);
+            await login_new_code(data["email"], data["password"], data["login-id"]);
             break;
         case "login-verify":
-            login_verify(data["email"], data["password"], data["login-id"], data["verification-code"]);
+            await login_verify(data["email"], data["password"], data["login-id"], data["verification-code"]);
             break;
         case "signup":
-            signup(data["username"], data["email"], data["password"]);
+            await signup(data["username"], data["email"], data["password"]);
             break;
         case "signup-new-code":
-            signup_new_code(data["email"], data["password"]);
+            await signup_new_code(data["email"], data["password"]);
             break;
         case "signup-verify":
-            signup_verify(data["email"], data["password"], data["verification-code"]);
+            await signup_verify(data["email"], data["password"], data["verification-code"]);
             break;
         case "logout":
-            logout(data["login-id"], false);
+            await logout(data["login-id"], false);
             break;
         case "logout-all":
-            logout(data["login-id"], true);
+            await logout(data["login-id"], true);
             break;
         case "get-data":
-            get_data(data["login-id"], data["token"]);
+            await get_data(data["login-id"], data["token"]);
             break;
         case "get-data-after-check-id":
             //do not call this function directly, it's called automatically by get-date
-            get_data_after_check_id(data["login-id"], data["token"]);
+            await get_data_after_check_id(data["login-id"], data["token"]);
             break;
         case "send-data":
-            send_data(data["login-id"], data["token"], data["updated-locally"], data["data"]);
+            await send_data(data["login-id"], data["token"], data["updated-locally"], data["data"]);
             break;
         case "send-data-after-check-id":
             //do not call this function directly, it's called automatically by send-date
-            send_data_after_check_id(data["login-id"], data["token"], data["updated-locally"], data["data"]);
+            await send_data_after_check_id(data["login-id"], data["token"], data["updated-locally"], data["data"]);
             break;
         case "check-user":
-            check_user(data["login-id"], data["token"]);
+            await check_user(data["login-id"], data["token"]);
             break;
         case "change-password":
-            change_password(data["login-id"], data["token"], data["old-password"], data["new-password"]);
+            await change_password(data["login-id"], data["token"], data["old-password"], data["new-password"]);
             break;
         case "delete-account":
-            delete_account(data["login-id"], data["token"], data["email"], data["password"]);
+            await delete_account(data["login-id"], data["token"], data["email"], data["password"]);
             break;
         case "delete-account-verify":
-            delete_account_verify(data["login-id"], data["token"], data["email"], data["password"], data["deleting-code"]);
+            await delete_account_verify(data["login-id"], data["token"], data["email"], data["password"], data["deleting-code"]);
             break;
         case "delete-account-new-code":
-            delete_account_verify_new_code(data["email"], data["password"]);
+            await delete_account_verify_new_code(data["email"], data["password"]);
             break;
         default:
             console.error("Unknown API request type (" + message["type"] + ")");
     }
 }
 
-//TODO optimise api calls, follow the optimisation below
-/*
-//in the switch-case call in this way:
-await login(data["email"], data["password"]);
-
+/**
+ * Make an API call
+ * @param endpoint - the API endpoint (e.g. /login/)
+ * @param body - the request body (JSON object)
+ * @returns {Promise<{error: boolean, message}|any>} - returns the response data or an error object
+ */
 async function api_call(endpoint, body) {
     try {
         const response = await fetch(api_url + endpoint, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(body)
         });
         if (!response.ok) {
@@ -90,38 +101,44 @@ async function api_call(endpoint, body) {
         }
         return await response.json();
     } catch (error) {
-        console.error("API request failed:", error);
-        return { error: true, message: error.message };
+        console.error(`[api-service.js::api_call::${endpoint}] API request failed:`, error);
+        return {error: true, message: error.message};
     }
 }
 
-async function login(email, password) {
-    const data = await api_call("/login/", { email, password });
-    handleResponse("login", data, runtime, sendResponse, runtime=true); //runtime=true means that the response is sent to the runtime (sendMessage), false means that the response is sent to the background-service/api-service (actionResponse)
+/**
+ * Send a response to the background-service
+ * @param message - the response message (JSON object)
+ * @returns {Promise<void>} - returns nothing (void)
+ */
+async function sendMessage(message) {
+    console.log("[sendMessage] message", message);
+    // Used '(typeof browser !== 'undefined' ? browser : chrome)' instead 'browser' so it's compatible both with Firefox and Chrome
+    (typeof browser !== 'undefined' ? browser : chrome).runtime.sendMessage(message);
 }
 
-async function handleResponse(type, data, runtime, sendResponse, runtime=true) {
-    if(runtime) {
-        browser.runtime.sendMessage({
+async function signup(username, email, password) {
+    const data = await api_call("/signup/", {"username": username, "email": email, "password": password});
+    //console.log("[api-service.js::signup] data", data);
+    if (data.error) {
+        sendMessage({
             api_response: true,
-            type: type,
-            data: data
+            type: "signup",
+            data: {
+                error: true,
+                message: data.message
+            }
         });
     } else {
-        actionResponse({
+        sendMessage({
             api_response: true,
-            type: type,
+            type: "signup",
             data: data
         });
     }
 }
 
-//to use the same function in Firefox (browser) and Chromium based (chrome) browsers:
-//use (typeof browser !== 'undefined' ? browser : chrome) instead of browser
-//example: browser.runtime.sendMessage() becomes (typeof browser !== 'undefined' ? browser : chrome).runtime.sendMessage()
- */
-
-async function signup(username_value, email_value, password_value) {
+/*async function signup(username_value, email_value, password_value) {
     try {
         const response = await fetch(api_url + '/signup/', {
             method: 'POST',
@@ -155,9 +172,30 @@ async function signup(username_value, email_value, password_value) {
             }
         });
     }
+}*/
+
+async function signup_new_code(email, password) {
+    const data = await api_call("/signup/verify/get-new-code/", {"email": email, "password": password});
+    //console.log("[api-service.js::signup_new_code] data", data);
+    if (data.error) {
+        sendMessage({
+            api_response: true,
+            type: "signup-new-code",
+            data: {
+                error: true,
+                message: data.message
+            }
+        });
+    } else {
+        sendMessage({
+            api_response: true,
+            type: "signup-new-code",
+            data: data
+        });
+    }
 }
 
-async function signup_new_code(email_value, password_value) {
+/*async function signup_new_code(email_value, password_value) {
     try {
         const response = await fetch(api_url + '/signup/verify/get-new-code/', {
             method: 'POST',
@@ -190,9 +228,34 @@ async function signup_new_code(email_value, password_value) {
             }
         });
     }
+}*/
+
+async function signup_verify(email, password, verification_code) {
+    const data = await api_call("/signup/verify/", {
+        "email": email,
+        "password": password,
+        "verification-code": verification_code
+    });
+    //console.log("[api-service.js::signup_verify] data", data);
+    if (data.error) {
+        sendMessage({
+            api_response: true,
+            type: "signup-verify",
+            data: {
+                error: true,
+                message: data.message
+            }
+        });
+    } else {
+        sendMessage({
+            api_response: true,
+            type: "signup-verify",
+            data: data
+        });
+    }
 }
 
-async function signup_verify(email_value, password_value, verification_code_value) {
+/*async function signup_verify(email_value, password_value, verification_code_value) {
     try {
         const response = await fetch(api_url + '/signup/verify/', {
             method: 'POST',
@@ -226,8 +289,30 @@ async function signup_verify(email_value, password_value, verification_code_valu
             }
         });
     }
+}*/
+
+async function login(email, password) {
+    const data = await api_call("/login/", {"email": email, "password": password});
+    console.log("[api-service.js::login] data", data);
+    if (data.error) {
+        sendMessage({
+            api_response: true,
+            type: "get-data",
+            data: {
+                error: true,
+                message: data.message
+            }
+        });
+    } else {
+        sendMessage({
+            api_response: true,
+            type: "login",
+            data: data
+        });
+    }
 }
 
+/*
 async function login(email_value, password_value) {
     try {
         const response = await fetch(api_url + '/login/', {
@@ -261,9 +346,34 @@ async function login(email_value, password_value) {
             }
         });
     }
+}*/
+
+async function login_new_code(email, password, login_id) {
+    const data = await api_call("/login/verify/get-new-code/", {
+        "email": email,
+        "password": password,
+        "login-id": login_id
+    });
+    //console.log("[api-service.js::login_new_code] data", data);
+    if (data.error) {
+        sendMessage({
+            api_response: true,
+            type: "login-new-code",
+            data: {
+                error: true,
+                message: data.message
+            }
+        });
+    } else {
+        sendMessage({
+            api_response: true,
+            type: "login-new-code",
+            data: data
+        });
+    }
 }
 
-async function login_new_code(email_value, password_value, login_id_value) {
+/*async function login_new_code(email_value, password_value, login_id_value) {
     try {
         const response = await fetch(api_url + '/login/verify/get-new-code/', {
             method: 'POST',
@@ -297,9 +407,35 @@ async function login_new_code(email_value, password_value, login_id_value) {
             }
         });
     }
+}*/
+
+async function login_verify(email, password, login_id, verification_code) {
+    const data = await api_call("/login/verify/", {
+        "email": email,
+        "password": password,
+        "login-id": login_id,
+        "verification-code": verification_code
+    });
+    //console.log("[api-service.js::login_verify] data", data);
+    if (data.error) {
+        sendMessage({
+            api_response: true,
+            type: "login-verify",
+            data: {
+                error: true,
+                message: data.message
+            }
+        });
+    } else {
+        sendMessage({
+            api_response: true,
+            type: "login-verify",
+            data: data
+        });
+    }
 }
 
-async function login_verify(email_value, password_value, login_id_value, verification_code_value) {
+/*async function login_verify(email_value, password_value, login_id_value, verification_code_value) {
     try {
         const response = await fetch(api_url + '/login/verify/', {
             method: 'POST',
@@ -334,9 +470,33 @@ async function login_verify(email_value, password_value, login_id_value, verific
             }
         });
     }
+}*/
+
+async function logout(login_id, all_devices, send_response) {
+    let get_params = all_devices ? "?all-devices=true" : "";
+    const data = await api_call("/logout/" + get_params, {"login-id": login_id});
+    //console.log("[api-service.js::logout] data", data);
+    if (send_response) {
+        if (data.error) {
+            sendMessage({
+                api_response: true,
+                type: "logout",
+                data: {
+                    error: true,
+                    message: data.message
+                }
+            });
+        } else {
+            sendMessage({
+                api_response: true,
+                type: "logout",
+                data: data
+            });
+        }
+    }
 }
 
-async function logout(login_id_value, all_devices_value = false, send_response = true) {
+/*async function logout(login_id_value, all_devices_value = false, send_response = true) {
     let get_params = all_devices_value ? "?all-devices=true" : "";
 
     try {
@@ -374,8 +534,36 @@ async function logout(login_id_value, all_devices_value = false, send_response =
             });
         }
     }
+}*/
+
+/**
+ * Get data from the API (need to check the login-id and token first: get_data function)
+ * @param login_id - the login-id
+ * @param token - the token
+ * @returns {Promise<void>}
+ */
+async function get_data_after_check_id(login_id, token) {
+    const data = await api_call("/data/get/", {"login-id": login_id, "token": token});
+    //console.log("[api-service.js::get_data_after_check_id] data", data);
+    if (data.error) {
+        actionResponse({
+            api_response: true,
+            type: "get-data",
+            data: {
+                error: true,
+                message: data.message
+            }
+        });
+    } else {
+        actionResponse({
+            api_response: true,
+            type: "get-data",
+            data: data
+        })
+    }
 }
 
+/*
 async function get_data_after_check_id(login_id_value, token_value) {
     try {
         const response = await fetch(api_url + '/data/get/', {
@@ -414,7 +602,28 @@ async function get_data_after_check_id(login_id_value, token_value) {
         actionResponse(response_to_send);
     }
 }
+*/
 
+/**
+ * Get data from the API (check only the login-id and token, after that call get_data_after_check_id function)
+ * @param login_id - the login-id
+ * @param token - the token
+ * @returns {Promise<void>}
+ */
+async function get_data(login_id, token) {
+    const data = await api_call("/data/get/", {"login-id": login_id, "token": token});
+    //console.log("[api-service.js::get_data] data", data);
+    api_request({
+        "api": true,
+        "type": "get-data-after-check-id",
+        "data": {
+            "login-id": login_id,
+            "token": token
+        }
+    });
+}
+
+/*
 async function get_data(login_id_value, token_value) {
     try {
         const response = await fetch(api_url + '/login/check-id/', {
@@ -457,8 +666,35 @@ async function get_data(login_id_value, token_value) {
         });
     }
 }
+*/
 
-async function send_data_after_check_id(login_id_value, token_value, updated_locally_value, data_value) {
+async function send_data_after_check_id(login_id, token, updated_locally, data_value) {
+    const data = await api_call("/data/insert/", {
+        "login-id": login_id,
+        "token": token,
+        "updated-locally": updated_locally,
+        "data": data_value
+    });
+    //console.log("[api-service.js::send_data_after_check_id] data", data);
+    if (data.error) {
+        actionResponse({
+            api_response: true,
+            type: "send-data",
+            data: {
+                error: true,
+                message: data.message
+            }
+        });
+    } else {
+        actionResponse({
+            api_response: true,
+            type: "send-data",
+            data: data
+        });
+    }
+}
+
+/*async function send_data_after_check_id(login_id_value, token_value, updated_locally_value, data_value) {
     try {
         const response = await fetch(api_url + '/data/insert/', {
             method: 'POST',
@@ -497,9 +733,29 @@ async function send_data_after_check_id(login_id_value, token_value, updated_loc
 
         actionResponse(response_to_send);
     }
+}*/
+
+async function send_data(login_id, token, updated_locally, data_value) {
+    const data = await api_call("/data/insert/", {
+        "login-id": login_id,
+        "token": token,
+        "updated-locally": updated_locally,
+        "data": data_value
+    });
+    //console.log("[api-service.js::send_data] data", data);
+    api_request({
+        "api": true,
+        "type": "send-data-after-check-id",
+        "data": {
+            "login-id": login_id,
+            "token": token,
+            "updated-locally": updated_locally,
+            "data": data_value
+        }
+    })
 }
 
-async function send_data(login_id_value, token_value, updated_locally_value, data_value) {
+/*async function send_data(login_id_value, token_value, updated_locally_value, data_value) {
     try {
         const response = await fetch(api_url + '/login/check-id/', {
             method: 'POST',
@@ -542,9 +798,25 @@ async function send_data(login_id_value, token_value, updated_locally_value, dat
             }
         });
     }
+}*/
+
+async function check_user(login_id, token) {
+    const data = await api_call("/login/check-id/", {"login-id": login_id, "token": token});
+    //console.log("[api-service.js::check_user] data", data);
+
+    if (data.code !== undefined && data.code === 200) {
+        //console.log("User is valid");
+    } else {
+        //console.log("User is not valid: " + data.code);
+        console.error("[api-service.js::check_user] User is not valid: " + data.code);
+        browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+            //logout(login_id, false, false);
+            browser.storage.sync.remove("notefox-account");
+        });
+    }
 }
 
-async function check_user(login_id_value, token_value) {
+/*async function check_user(login_id_value, token_value) {
     try {
         const response = await fetch(api_url + '/login/check-id/', {
             method: 'POST',
@@ -567,7 +839,7 @@ async function check_user(login_id_value, token_value) {
             //console.log("User is valid");
         } else {
             //console.log("User is not valid: " + data.code);
-            browser.runtime.sendMessage({ "check-user--expired": true }).then(response => {
+            browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
                 //logout(login_id_value, false, false);
                 browser.storage.sync.remove("notefox-account");
             });
@@ -575,12 +847,12 @@ async function check_user(login_id_value, token_value) {
 
     } catch (error) {
         console.error('Request failed:', error);
-        /*browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
-            //logout(login_id_value, false, false);
-            browser.storage.sync.remove("notefox-account");
-        });*/
+        //browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+        //    //logout(login_id_value, false, false);
+        //    browser.storage.sync.remove("notefox-account");
+        //});
     }
-}
+}*/
 
 async function change_password(login_id_value, token_value, old_password_value, new_password_value) {
     try {

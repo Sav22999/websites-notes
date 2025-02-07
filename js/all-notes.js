@@ -363,7 +363,8 @@ function loadDataFromBrowser(generate_section = true) {
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
-            if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+            if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
+            if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
 
             //console.log(JSON.stringify(settings_json));
             if (generate_section) {
@@ -690,7 +691,7 @@ function getType(website, url) {
  */
 function onInputText(url, data, pageLastUpdate) {
     browser.runtime.sendMessage({from: "all-notes", type: "inline-edit", url: url, data: data});
-    pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", data["lastUpdate"]);
+    pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(data["lastUpdate"]));
     sendMessageUpdateToBackground();
 }
 
@@ -757,6 +758,9 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 textNotes.readOnly = false;
                 pageTitleH3.classList.add("inline-edit-title");
                 textNotes.classList.add("inline-edit-notes");
+                setTimeout(() => {
+                    pageTitleH3.focus();
+                }, 100);
 
                 if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
             }
@@ -926,7 +930,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             textNotes.style.whiteSpace = "pre-wrap";
         }
 
-        if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+        if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
 
         textNotes.style.fontFamily = `'${settings_json["font-family"]}'`;
 
@@ -937,7 +941,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         page.append(pageNotes);
 
         pageLastUpdate.classList.add("sub-section-last-update");
-        pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", lastUpdate);
+        pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(lastUpdate));
         page.append(pageLastUpdate);
 
         return page;
@@ -1254,13 +1258,14 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         let refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
         let sort_by_svg = window.btoa(getIconSvgEncoded("sort-by", on_primary));
-        let info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", on_primary));
+        let info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         let search_svg = window.btoa(getIconSvgEncoded("search", primary));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
+        let tertiaryTransparent3 = primary;
         if (tertiaryTransparent.includes("rgb(")) {
             let rgb_temp = tertiaryTransparent.replace("rgb(", "");
             let rgb_temp_arr = rgb_temp.split(",");
@@ -1274,6 +1279,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         } else if (tertiaryTransparent.includes("#")) {
             tertiaryTransparent += "22";
             tertiaryTransparent2 += "88";
+            tertiaryTransparent3 += "BB";
         }
         //console.log(tertiaryTransparent);
 
@@ -1289,6 +1295,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     --tertiary: ${tertiary};
                     --tertiary-transparent: ${tertiaryTransparent};
                     --tertiary-transparent-2: ${tertiaryTransparent2};
+                    --tertiary-transparent-3: ${tertiaryTransparent3};
+                    --background-color: ${background};
+                    --background-section-color: ${backgroundSection};
                 }
                 .go-to-external:hover::after {
                     content: url('data:image/svg+xml;base64,${open_external_svg}');

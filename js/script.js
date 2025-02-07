@@ -470,6 +470,7 @@ function showTabSubDomains() {
         document.getElementById("notes").contentEditable = true;
         document.getElementById("notes").focus();
     }
+    document.getElementById("tab-other-button").classList.add("not-sel");
 
     if (selected_tab === 3) {
         document.getElementById("subdomains-list").childNodes.forEach(node => {
@@ -487,12 +488,17 @@ function showTabSubDomains() {
             node.setAttribute("class", class_text);
         });
     }
+    //get focus on the first element of the list
+    document.querySelector("#subdomains-list > *")?.focus();
 }
 
 function hideTabSubDomains() {
     document.getElementById("notes").contentEditable = true;
     document.getElementById("notes").focus();
     document.getElementById("panel-other-tabs").classList.add("hidden");
+    if (document.getElementById("tab-other-button").classList.contains("not-sel")) {
+        document.getElementById("tab-other-button").classList.remove("not-sel");
+    }
     document.getElementById("subdomains-list").childNodes.forEach(node => {
         let class_text = "subdomain";
         node.setAttribute("class", class_text);
@@ -554,7 +560,8 @@ function loadSettings(load_only = false) {
         if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
         if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
         if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
-        if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+        if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
+        if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
         if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
         if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
 
@@ -753,7 +760,7 @@ function saveNotes(title_call = false) {
 
                 let last_update = all_strings["never-update"];
                 if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["last-update"] !== undefined) last_update = websites_json[url_to_use]["last-update"];
-                document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
+                document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(last_update));
 
                 let colour = "none";
                 document.getElementById("tag-colour-section").removeAttribute("class");
@@ -783,41 +790,11 @@ function saveNotes(title_call = false) {
     });
 }
 
-function correctDatetime(datetime) {
-    let date = new Date(datetime);
-    let year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    let seconds = date.getSeconds();
-
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-}
-
 function getCurrentTabNameTag(tab) {
     if (tab === 0) return "global";
     else if (tab === 1) return "domain";
     else if (tab === 2) return "page";
     else if (tab === 3) return "subdomain";
-}
-
-function getDate() {
-    let todayDate = new Date();
-    let today = "";
-    today = todayDate.getFullYear() + "-";
-    let month = todayDate.getMonth() + 1;
-    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
-    let day = todayDate.getDate();
-    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
-    let hour = todayDate.getHours();
-    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
-    let minute = todayDate.getMinutes();
-    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
-    let second = todayDate.getSeconds();
-    if (second < 10) today = today + "0" + second; else today = today + "" + second
-
-    return today;
 }
 
 function checkNeverSaved(never_saved) {
@@ -870,13 +847,13 @@ function setUrl(url) {
     if (advanced_managing && otherPossibleUrls.length > 0) {
         document.getElementById("domain-button").style.width = "30%";
         document.getElementById("tab-other-button").style.width = "10%";
-        document.getElementById("page-button").style.borderRadius = "0px";
+        //document.getElementById("page-button").style.borderRadius = "0px";
         document.getElementById("tab-other-button").style.display = "inline-block";
     } else {
         document.getElementById("domain-button").style.width = "40%";
         document.getElementById("tab-other-button").style.display = "none";
-        document.getElementById("page-button").style.borderBottomRightRadius = "5px";
-        document.getElementById("page-button").style.borderTopRightRadius = "5px";
+        //document.getElementById("page-button").style.borderBottomRightRadius = "5px";
+        //document.getElementById("page-button").style.borderTopRightRadius = "5px";
     }
     if (document.getElementById("page-button").classList.contains("hidden")) document.getElementById("page-button").classList.remove("hidden");
     if (stickyNotesSupported && document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
@@ -1101,7 +1078,7 @@ function setTab(index, url) {
 
     let last_update = all_strings["never-update"];
     if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"] !== undefined) last_update = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"];
-    document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
+    document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(last_update));
 
     let colour = "none";
     document.getElementById("tag-colour-section").removeAttribute("class");
@@ -1500,6 +1477,11 @@ function loadFormatButtons(navigation = true, format = true) {
         else html_text_formatting = false;
     }
 
+    let is_undo_redo = true;
+    if (settings_json["undo-redo"] !== undefined) {
+        if (settings_json["undo-redo"] === "yes" || settings_json["undo-redo"] === true) is_undo_redo = true;
+        else is_undo_redo = false;
+    }
     let is_bold_italic_underline_strikethrough = true;
     if (settings_json["bold-italic-underline-strikethrough"] !== undefined) {
         if (settings_json["bold-italic-underline-strikethrough"] === "yes" || settings_json["bold-italic-underline-strikethrough"] === true) is_bold_italic_underline_strikethrough = true;
@@ -1533,23 +1515,25 @@ function loadFormatButtons(navigation = true, format = true) {
 
     let commands = [];
     if (navigation && html_text_formatting) {
-        commands.push(
-            {
-                action: "undo",
-                icon: `${url}undo.svg`,
-                title: all_strings["label-title-undo"],
-                function: function () {
-                    undo()
-                }
-            },
-            {
-                action: "redo",
-                icon: `${url}redo.svg`,
-                title: all_strings["label-title-redo"],
-                function: function () {
-                    redo()
-                }
-            });
+        if (is_undo_redo) {
+            commands.push(
+                {
+                    action: "undo",
+                    icon: `${url}undo.svg`,
+                    title: all_strings["label-title-undo"],
+                    function: function () {
+                        undo()
+                    }
+                },
+                {
+                    action: "redo",
+                    icon: `${url}redo.svg`,
+                    title: all_strings["label-title-redo"],
+                    function: function () {
+                        redo()
+                    }
+                });
+        }
     } else {
         actions = [];
         currentAction = 0;
@@ -1824,6 +1808,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
+        let tertiaryTransparent3 = primary;
         if (tertiaryTransparent.includes("rgb(")) {
             let rgb_temp = tertiaryTransparent.replace("rgb(", "");
             let rgb_temp_arr = rgb_temp.split(",");
@@ -1837,6 +1822,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         } else if (tertiaryTransparent.includes("#")) {
             tertiaryTransparent += "22";
             tertiaryTransparent2 += "88";
+            tertiaryTransparent3 += "BB";
         }
         //console.log(tertiaryTransparent);
 
@@ -1852,6 +1838,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     --tertiary: ${tertiary};
                     --tertiary-transparent: ${tertiaryTransparent};
                     --tertiary-transparent-2: ${tertiaryTransparent2};
+                    --tertiary-transparent-3: ${tertiaryTransparent3};
+                    --background-color: ${background};
+                    --background-section-color: ${backgroundSection};
                 }
                 #open-sticky-button {
                     background-image: url('data:image/svg+xml;base64,${sticky_svg}');

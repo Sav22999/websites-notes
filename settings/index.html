@@ -422,6 +422,18 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
 
         <div id="html-text-formatting-buttons">
+            <!--Show HTML text formatting section :: Undo, Redo-->
+            <div class="option-settings option-indent-settings">
+                <label class="item-settings">
+                    <span class="title-option-settings yes-no-item"
+                          id="show-undo-redo-text"></span>
+                    <input type="checkbox" id="show-undo-redo-check"/>
+                    <span class="checkmark"></span>
+                </label>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-undo-redo-detailed-text"></span>
+            </div>
+
             <!--Show HTML text formatting section :: Bold, Italic, Underline, Strikethrough-->
             <div class="option-settings option-indent-settings">
                 <label class="item-settings">
@@ -563,7 +575,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-yellow">
                     <input name="theme-radio-sticky" type="radio" value="yellow">
                     <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-yellow">
-                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-yellow">A</span>
+                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-yellow">A</span>
                     </span>
                     <span class="item-radio-title" id="sticky-theme-select-yellow"></span>
                 </label>
@@ -571,7 +583,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-cyan">
                     <input name="theme-radio-sticky" type="radio" value="cyan">
                     <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-cyan">
-                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-cyan">A</span>
+                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-cyan">A</span>
                     </span>
                     <span class="item-radio-title" id="sticky-theme-select-cyan"></span>
                 </label>
@@ -579,7 +591,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-lime">
                     <input name="theme-radio-sticky" type="radio" value="lime">
                     <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-lime">
-                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-lime">A</span>
+                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-lime">A</span>
                     </span>
                     <span class="item-radio-title" id="sticky-theme-select-lime"></span>
                 </label>
@@ -587,7 +599,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-pink">
                     <input name="theme-radio-sticky" type="radio" value="pink">
                     <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-pink">
-                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-pink">A</span>
+                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-pink">A</span>
                     </span>
                     <span class="item-radio-title" id="sticky-theme-select-pink"></span>
                 </label>
@@ -595,7 +607,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-white">
                     <input name="theme-radio-sticky" type="radio" value="white">
                     <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-white">
-                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-white">A</span>
+                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-white">A</span>
                     </span>
                     <span class="item-radio-title" id="sticky-theme-select-white"></span>
                 </label>
@@ -603,7 +615,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-black">
                     <input name="theme-radio-sticky" type="radio" value="black">
                     <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-black">
-                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-black">A</span>
+                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-black">A</span>
                     </span>
                     <span class="item-radio-title" id="sticky-theme-select-black"></span>
                 </label>
@@ -611,7 +623,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-auto">
                     <input name="theme-radio-sticky" type="radio" value="auto">
                     <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-auto">
-                        <span class="item-radio-theme-preview-item primary" id="primary-sticky-theme-auto">A</span>
+                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-auto">A</span>
                     </span>
                     <span class="item-radio-title" id="sticky-theme-select-auto"></span>
                 </label>
@@ -622,13 +634,104 @@ Created by Saverio Morelli - saveriomorelli.com
         <div class="option-settings margin-top-20-px">
             <span class="item-settings section-grid-container">
                 <span class="title-option-settings section-grid-item-text" id="font-family-text"></span>
-                <span class="section-grid-item-select">
-                    <select class="select-box" id="font-family-select">
-                        <option value="Open Sans" id="font-family-button-opensans">Open Sans</option>
-                        <option value="Shantell Sans" id="font-family-button-shantellsans">Shantell Sans</option>
-                    </select>
-                </span>
+                <span class="section-grid-item-select"></span>
                 <span class="description-option-settings" id="font-family-detailed-text"></span>
+            </span>
+            <span class="font-family-section-radio-container">
+                <label class="item-radio-font-family" id="item-radio-font-family-opensans">
+                    <input name="font-family-radio" type="radio" value="Open Sans">
+                    <span class="item-radio-font-family-preview-container" id="radio-font-family-opensans">
+                        <span class="item-radio-font-family-preview-item primary" id="preview-font-family-opensans">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-opensans">Open Sans</span>
+                </label>
+
+                <label class="item-radio-font-family" id="item-radio-font-family-shantellsans">
+                    <input name="font-family-radio" type="radio" value="Shantell Sans">
+                    <span class="item-radio-font-family-preview-container" id="radio-font-family-shantellsans">
+                        <span class="item-radio-font-family-preview-item primary" id="preview-font-family-shantellsans">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-shantellsans">Shantell Sans</span>
+                </label>
+
+                <label class="item-radio-font-family" id="item-radio-font-family-inter">
+                    <input name="font-family-radio" type="radio" value="Inter">
+                    <span class="item-radio-font-family-preview-container" id="radio-font-family-inter">
+                        <span class="item-radio-font-family-preview-item primary"
+                              id="preview-font-family-inter">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-font-family"
+                          id="font-family-select-inter">Inter</span>
+                </label>
+
+                <label class="item-radio-font-family" id="item-radio-font-family-lora">
+                    <input name="font-family-radio" type="radio" value="Lora">
+                    <span class="item-radio-font-family-preview-container" id="radio-font-family-lora">
+                        <span class="item-radio-font-family-preview-item primary"
+                              id="preview-font-family-lora">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-lora">Lora</span>
+                </label>
+
+                <label class="item-radio-font-family" id="item-radio-font-family-merienda">
+                    <input name="font-family-radio" type="radio" value="Merienda">
+                    <span class="item-radio-font-family-preview-container" id="radio-font-family-merienda">
+                        <span class="item-radio-font-family-preview-item primary" id="preview-font-family-merienda">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-merienda">Merienda</span>
+                </label>
+
+                <label class="item-radio-font-family" id="item-radio-font-family-notosans">
+                    <input name="font-family-radio" type="radio" value="Noto Sans">
+                    <span class="item-radio-font-family-preview-container" id="radio-font-family-notosans">
+                        <span class="item-radio-font-family-preview-item primary" id="preview-font-family-notosans">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-notosans">Noto Sans</span>
+                </label>
+
+                <label class="item-radio-font-family" id="item-radio-font-family-notoserif">
+                    <input name="font-family-radio" type="radio" value="Noto Serif">
+                    <span class="item-radio-font-family-preview-container" id="radio-font-family-notoserif">
+                        <span class="item-radio-font-family-preview-item primary" id="preview-font-family-notoserif">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-notoserif">Noto Serif</span>
+                </label>
+
+                <label class="item-radio-font-family" id="item-radio-font-family-playfairdisplay">
+                    <input name="font-family-radio" type="radio" value="Playfair Display">
+                    <span class="item-radio-font-family-preview-container" id="radio-font-family-playfairdisplay">
+                        <span class="item-radio-font-family-preview-item primary"
+                              id="preview-font-family-playfairdisplay">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-playfairdisplay">Notefox</span>
+                </label>
+
+                <label class="item-radio-font-family" id="item-radio-font-family-roboto">
+                    <input name="font-family-radio" type="radio" value="Roboto">
+                    <span class="item-radio-font-family-preview-container" id="radio-font-family-roboto">
+                        <span class="item-radio-font-family-preview-item primary"
+                              id="preview-font-family-roboto">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-font-family"
+                          id="font-family-select-roboto">Roboto</span>
+                </label>
+
+                <label class="item-radio-font-family" id="item-radio-font-family-sourcecodepro">
+                    <input name="font-family-radio" type="radio" value="Source Code Pro">
+                    <span class="item-radio-font-family-preview-container" id="radio-font-family-sourcecodepro">
+                        <span class="item-radio-font-family-preview-item primary"
+                              id="preview-font-family-sourcecodepro">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-sourcecodepro">Source Code Pro</span>
+                </label>
+
+                <label class="item-radio-font-family" id="item-radio-font-family-victormono">
+                    <input name="font-family-radio" type="radio" value="Victor Mono">
+                    <span class="item-radio-font-family-preview-container" id="radio-font-family-victormono">
+                        <span class="item-radio-font-family-preview-item primary" id="preview-font-family-victormono">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-victormono">Victor Mono</span>
+                </label>
             </span>
         </div>
 
@@ -641,6 +744,64 @@ Created by Saverio Morelli - saveriomorelli.com
             </label>
             <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                   id="immersive-sticky-notes-detailed-text"></span>
+        </div>
+
+        <!--Datetime format section-->
+        <div class="option-settings margin-top-20-px">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id="datetime-format-text"></span>
+                <span class="section-grid-item-select"></span>
+                <span class="description-option-settings" id="datetime-format-detailed-text"></span>
+            </span>
+            <span class="datetime-format-section-radio-container">
+                <label class="item-radio-datetime-format" id="item-radio-datetime-format-yyyymmdd1">
+                    <input name="datetime-format-radio" type="radio" value="yyyymmdd1">
+                    <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-yyyymmdd1">
+                        <span class="item-radio-datetime-format-preview-item primary" id="preview-datetime-format-yyyymmdd1"></span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-datetime-format" id="datetime-format-select-yyyymmdd1">YYYY-MM-DD HH:MM:SS</span>
+                </label>
+
+                <label class="item-radio-datetime-format" id="item-radio-datetime-format-yyyyddmm1">
+                    <input name="datetime-format-radio" type="radio" value="yyyyddmm1">
+                    <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-yyyyddmm1">
+                        <span class="item-radio-datetime-format-preview-item primary" id="preview-datetime-format-yyyyddmm1"></span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-datetime-format" id="datetime-format-select-yyyyddmm1">YYYY-DD-MM HH:MM:SS</span>
+                </label>
+
+                <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy1">
+                    <input name="datetime-format-radio" type="radio" value="ddmmyyyy1">
+                    <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-ddmmyyyy1">
+                        <span class="item-radio-datetime-format-preview-item primary" id="preview-datetime-format-ddmmyyyy1"></span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-datetime-format" id="datetime-format-select-ddmmyyyy1">DD/MM/YYYY HH:MM:SS</span>
+                </label>
+
+                <label class="item-radio-datetime-format" id="item-radio-datetime-format-mmddyyyy1">
+                    <input name="datetime-format-radio" type="radio" value="mmddyyyy1">
+                    <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-mmddyyyy1">
+                        <span class="item-radio-datetime-format-preview-item primary" id="preview-datetime-format-mmddyyyy1"></span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-datetime-format" id="datetime-format-select-mmddyyyy1">MM/DD/YYYY HH:MM:SS</span>
+                </label>
+
+                <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy2">
+                    <input name="datetime-format-radio" type="radio" value="ddmmyyyy2">
+                    <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-ddmmyyyy2">
+                        <span class="item-radio-datetime-format-preview-item primary" id="preview-datetime-format-ddmmyyyy2"></span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-datetime-format" id="datetime-format-select-ddmmyyyy2">DD.MM.YYYY HH:MM:SS</span>
+                </label>
+
+                <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy1-12h">
+                    <input name="datetime-format-radio" type="radio" value="ddmmyyyy1-12h">
+                    <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-ddmmyyyy1-12h">
+                        <span class="item-radio-datetime-format-preview-item primary" id="preview-datetime-format-ddmmyyyy1-12h"></span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-datetime-format" id="datetime-format-select-ddmmyyyy1-12h">DD/MM/YYYY 12H:MM:SS</span>
+                </label>
+            </span>
         </div>
 
         <hr class="hr-big-space">
