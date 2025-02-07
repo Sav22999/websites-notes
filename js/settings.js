@@ -188,6 +188,18 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("save-page-content-check").onchange = function () {
+        settings_json["save-page-content"] = document.getElementById("save-page-content-check").checked;
+
+        saveSettings();
+    };
+
+    document.getElementById("search-page-content-check").onchange = function () {
+        settings_json["search-page-content"] = document.getElementById("search-page-content-check").checked;
+
+        saveSettings();
+    };
+
     document.getElementById("disable-word-wrap-check").onchange = function () {
         settings_json["disable-word-wrap"] = document.getElementById("disable-word-wrap-check").checked;
 
@@ -429,6 +441,10 @@ function setLanguageUI() {
     document.getElementById("advanced-managing-detailed-text").innerHTML = all_strings["advanced-managing-detailed"];
     document.getElementById("html-text-formatting-text").innerText = all_strings["html-text-formatting"];
     document.getElementById("html-text-formatting-detailed-text").innerHTML = all_strings["html-text-formatting-detailed"];
+    document.getElementById("save-page-content").innerText = all_strings["save-page-content"];
+    document.getElementById("save-page-content-detailed-text").innerHTML = all_strings["save-page-content-detailed"];
+    document.getElementById("search-page-content").innerText = all_strings["search-page-content"];
+    document.getElementById("search-page-content-detailed-text").innerHTML = all_strings["search-page-content-detailed"];
     document.getElementById("disable-word-wrap-text").innerText = all_strings["disable-word-wrap"];
     document.getElementById("spellcheck-detection-text").innerText = all_strings["spellcheck-detection"];
     document.getElementById("check-green-icon-global-text").innerText = all_strings["check-green-icon-global"];
@@ -581,6 +597,8 @@ function loadSettings() {
             if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
             if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
             if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
+            if (settings_json["save-page-content"] === undefined) settings_json["save-page-content"] = false;
+            if (settings_json["search-page-content"] === undefined) settings_json["search-page-content"] = false;
             if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
             if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = false;
             if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
@@ -613,12 +631,20 @@ function loadSettings() {
             document.getElementById("consider-sections-check").checked = settings_json["consider-sections"] === true || settings_json["consider-sections"] === "yes";
             document.getElementById("advanced-managing-check").checked = settings_json["advanced-managing"] === true || settings_json["advanced-managing"] === "yes";
             document.getElementById("html-text-formatting-check").checked = settings_json["html-text-formatting"] === true || settings_json["html-text-formatting"] === "yes";
+            document.getElementById("save-page-content-check").checked = settings_json["save-page-content"] === true || settings_json["save-page-content"] === "yes";
+            document.getElementById("search-page-content-check").checked = settings_json["search-page-content"] === true || settings_json["search-page-content"] === "yes";
             document.getElementById("disable-word-wrap-check").checked = settings_json["disable-word-wrap"] === true || settings_json["disable-word-wrap"] === "yes";
             document.getElementById("spellcheck-detection-check").checked = settings_json["spellcheck-detection"] === true || settings_json["spellcheck-detection"] === "yes";
             document.getElementById("check-green-icon-global-check").checked = settings_json["check-green-icon-global"] === true || settings_json["check-green-icon-global"] === "yes";
             document.getElementById("check-green-icon-domain-check").checked = settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-domain"] === "yes";
             document.getElementById("check-green-icon-page-check").checked = settings_json["check-green-icon-page"] === true || settings_json["check-green-icon-page"] === "yes";
             document.getElementById("check-green-icon-subdomain-check").checked = settings_json["check-green-icon-subdomain"] === true || settings_json["check-green-icon-subdomain"] === "yes";
+
+            if (document.getElementById("save-page-content-check").checked) {
+                if (document.getElementById("save-content-subsection").classList.contains("hidden")) document.getElementById("save-content-subsection").classList.remove("hidden");
+            } else {
+                document.getElementById("save-content-subsection").classList.add("hidden");
+            }
 
             if (settings_json["theme"] === "light") setThemeChooserByElement(document.getElementById("item-radio-theme-light"), false); else if (settings_json["theme"] === "dark") setThemeChooserByElement(document.getElementById("item-radio-theme-dark"), false); else if (settings_json["theme"] === "lighter") setThemeChooserByElement(document.getElementById("item-radio-theme-lighter"), false); else if (settings_json["theme"] === "darker") setThemeChooserByElement(document.getElementById("item-radio-theme-darker"), false); else if (settings_json["theme"] === "auto") setThemeChooserByElement(document.getElementById("item-radio-theme-auto"), false);
             if (settings_json["sticky-theme"] === "yellow" || settings_json["sticky-theme"] === "lime" || settings_json["sticky-theme"] === "cyan" || settings_json["sticky-theme"] === "pink" || settings_json["sticky-theme"] === "white" || settings_json["sticky-theme"] === "black" || settings_json["sticky-theme"] === "auto") setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-" + settings_json["sticky-theme"]), false);
