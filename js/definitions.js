@@ -887,6 +887,11 @@ function correctDatetime(datetime) {
  * @returns {string} The datetime string in the displayable format
  */
 function datetimeToDisplay(datetime, format = undefined, also_time = true) {
+    //if datetime is not a valid Date, it probably it's "Never", return it as it is
+    if (isNaN((new Date(datetime)).getTime())) {
+        return datetime;
+    }
+
     let date = new Date(datetime);
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
