@@ -1487,7 +1487,7 @@ aside > button.sel, aside > button.sel:hover {
         background-color: var(--tertiary);
         z-index: 2;
         overflow: hidden;
-        padding: 0px;
+        /*padding: 0px;*/
         color: var(--primary-color);
 
         display: flex;
