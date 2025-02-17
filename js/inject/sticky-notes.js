@@ -111,13 +111,27 @@ function updateStickyNotes() {
                 if (new_tag === "none") new_tag = "transparent";
                 tag.style.backgroundColor = new_tag;
 
+                let displayWidth = window.innerWidth;
+                let displayHeight = window.innerHeight;
+                let x = checkCorrectNumber(response.notes.sticky_params.coords.x, "20px");
+                let y = checkCorrectNumber(response.notes.sticky_params.coords.y, "20px");
+                let h = checkCorrectNumber(response.notes.sticky_params.sizes.h, "300px");
+                let w = checkCorrectNumber(response.notes.sticky_params.sizes.w, "300px");
+                let yAsInt = parseInt(y.replace("px", ""));
+                let hAsInt = parseInt(h.replace("px", ""));
+                let xAsInt = parseInt(x.replace("px", ""));
+                let wAsInt = parseInt(w.replace("px", ""));
+
                 if (response.notes !== undefined && response.notes.sticky_params.coords !== undefined) {
-                    stickyNotes.style.left = checkCorrectNumber(response.notes.sticky_params.coords.x, "20px");
-                    stickyNotes.style.top = checkCorrectNumber(response.notes.sticky_params.coords.y, "20px");
+                    let safeTop = (((yAsInt + hAsInt) > displayHeight ? displayHeight - hAsInt : yAsInt)) + "px";
+                    let safeLeft = (((xAsInt + wAsInt) > displayWidth ? displayWidth - wAsInt : xAsInt)) + "px";
+
+                    stickyNotes.style.left = safeLeft;
+                    stickyNotes.style.top = safeTop;
                 }
                 if (response.notes !== undefined && response.notes.sticky_params.sizes !== undefined) {
-                    stickyNotes.style.width = checkCorrectNumber(response.notes.sticky_params.sizes.w, "300px");
-                    stickyNotes.style.height = checkCorrectNumber(response.notes.sticky_params.sizes.h, "300px");
+                    stickyNotes.style.width = w;
+                    stickyNotes.style.height = h;
                 }
                 if (response.notes !== undefined && response.notes.sticky_params.opacity !== undefined) {
                     //stickyNotes.style.opacity = response.notes.sticky_params.opacity.value;
@@ -449,14 +463,23 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
         if (theme_colours_json["on-primary"] !== undefined) on_primary_color = theme_colours_json["on-primary"];
         if (theme_colours_json["on-secondary"] !== undefined) on_secondary_color = theme_colours_json["on-secondary"];
     }
+    let displayWidth = window.innerWidth;
+    let displayHeight = window.innerHeight;
+    let yAsInt = parseInt(y.replace("px", ""));
+    let hAsInt = parseInt(h.replace("px", ""));
+    let xAsInt = parseInt(x.replace("px", ""));
+    let wAsInt = parseInt(w.replace("px", ""));
+
+    let safeTop = (((yAsInt + hAsInt) > displayHeight ? displayHeight - hAsInt : yAsInt)) + "px";
+    let safeLeft = (((xAsInt + wAsInt) > displayWidth ? displayWidth - wAsInt : xAsInt)) + "px";
 
     return `
             @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Merienda:wght@300..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Victor+Mono:ital,wght@0,100..700;1,100..700&display=swap');
             
             #sticky-notes-notefox-addon {
                 position: fixed;
-                top: ${y};
-                left:  ${x};
+                top: ${safeTop};
+                left:  ${safeLeft};
                 width: ${w};
                 height:  ${h};
                 background-color: ${primary_color};
@@ -786,6 +809,62 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
             
             #text--sticky-notes-notefox-addon {
                 visibility: visible !important;
+            }
+            
+            @media screen and (max-width: ${wAsInt > 800 ? w : "800px"}) {
+                /*Mobile*/
+                #sticky-notes-notefox-addon {
+                    top: 0px !important;
+                    left: 0px !important;
+                    right: 0px !important;
+                    bottom: 0px !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                }
+                
+                #text--sticky-notes-notefox-addon, #text-container--sticky-notes-notefox-addon {
+                    font-size: 1.2em !important;
+                }
+                
+                #commands-container--sticky-notes-notefox-addon {
+                    visibility: visible !important;
+                }
+                
+                #move--sticky-notes-notefox-addon, #page-or-domain--sticky-notes-notefox-addon {
+                    height: auto !important;
+                    font-size: 1em !important;
+                    padding: 10px !important;
+                }
+                
+                #close--sticky-notes-notefox-addon, #minimize--sticky-notes-notefox-addon {
+                    width: 50px !important;
+                    height: 50px !important;
+                    margin: 2px !important;
+                }
+                
+                #text-container--sticky-notes-notefox-addon {
+                    top: 50px !important;
+                    bottom: 50px !important;
+                }
+                
+                #slider-container--sticky-notes-notefox-addon {
+                    left: 15px !important;
+                    right: 15px !important;
+                    bottom: 10px !important;
+                }
+                
+                #resize--sticky-notes-notefox-addon {
+                    display: none !important;
+                }
+                
+                #slider--sticky-notes-notefox-addon {
+                    height: 10px !important;
+                }
+                
+                #slider--sticky-notes-notefox-addon::-moz-range-thumb {
+                    width: 25px;
+                    height: 25px;
+                }
             }
             `;
 }
@@ -1230,8 +1309,23 @@ function getCSSMinimized(settings_json, icons_json, theme_colours_json) {
             }
             #restore--sticky-notes-notefox-addon:hover {
                 opacity: 1;
-                height: 80px;
+                /*height: 80px;*/
                 width: 30px;
                 box-shadow: 0px 0px 5px #fff;
-            }`;
+            }
+            @media screen and (max-width: 800px) {
+                /*Mobile*/
+                #restore--sticky-notes-notefox-addon {
+                    top: 10%;
+                    height: 150px;
+                    width: 40px !important;
+                    opacity: 0.7 !important;
+                }
+                
+                #restore--sticky-notes-notefox-addon:hover {
+                    opacity: 1;
+                    width: 50px;
+                }
+            }
+            `;
 }
