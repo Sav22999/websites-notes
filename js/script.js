@@ -1013,6 +1013,7 @@ function getAllOtherPossibleUrls(url) {
             if (urlPartsTemp[urlFor] !== "") {
                 urlConcat += urlPartsTemp[urlFor];
                 if (urlConcat !== getDomainUrl(url)) {
+                    console.log(urlConcat);
                     urlsToReturn.push(urlConcat + "/*");
                 }
                 urlConcat += "/";
@@ -1022,27 +1023,33 @@ function getAllOtherPossibleUrls(url) {
 
     //get also the all possible combinations of parameters
     //example: https://example.com/search?param1=1&param2=2&param3=3
-    //it should add urls like: https://example.com/search?param1=*, https://example.com/search?param2=*, https://example.com/search?param3=*, https://example.com/search?param1=*&param2=*, https://example.com/search?param1=*&param3=*, https://example.com/search?param2=*&param3=*, https://example.com/search?param1=*&param2=*&param3=*
+    //it should add urls like: https://example.com/search?param1=1, https://example.com/search?param2=2, https://example.com/search?param3=3, https://example.com/search?param1=1&param2=2, https://example.com/search?param1=1&param3=3, https://example.com/search?param2=2&param3=3, https://example.com/search?param1=1&param2=2&param3=3
 
-    if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
-        let urlToReturnTemp = urlToReturn;
-        if (urlToReturn.includes("?")) {
-            let urlPartsTemp = urlToReturn.split("?");
-            urlToReturnTemp = urlPartsTemp[0];
-            let parameters = urlPartsTemp[1].split("&");
-            let parametersToReturn = [];
-            for (let i = 0; i < parameters.length; i++) {
-                let parameterParts = parameters[i].split("=");
-                if (parameterParts[1] !== "") {
-                    parametersToReturn.push(parameterParts[0] + "=*");
-                }
+    if (urlToReturn.includes("/")) {
+        if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
+            let urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1];
+            if (urlToReturn.includes("#")) {
+                urlToReturnTemp = urlToReturn.split("#")[0].split("/");
             }
-            for (let i = 1; i <= parametersToReturn.length; i++) {
-                let combinations = getCombinations(parametersToReturn, i);
-                for (let j = 0; j < combinations.length; j++) {
-                    let urlToPush = urlToReturnTemp + "?" + combinations[j].join("&");
-                    if (urlToPush !== getDomainUrl(url)) {
-                        urlsToReturn.push(urlToPush);
+
+            if (urlToReturn.includes("?")) {
+                let urlPartsTemp = urlToReturnTemp.split("?");
+                urlToReturnTemp = urlPartsTemp[0];
+                let parameters = urlPartsTemp[1].split("&");
+                let parametersToReturn = [];
+                for (let i = 0; i < parameters.length; i++) {
+                    let parameterParts = parameters[i].split("=");
+                    if (parameterParts[1] !== "") {
+                        parametersToReturn.push(parameterParts[0] + "=" + parameterParts[1]);
+                    }
+                }
+                for (let i = 1; i <= parametersToReturn.length; i++) {
+                    let combinations = getCombinations(parametersToReturn, i);
+                    for (let j = 0; j < combinations.length; j++) {
+                        let urlToPush = urlToReturnTemp + "?" + combinations[j].join("&");
+                        if (urlToPush !== getDomainUrl(url)) {
+                            urlsToReturn.push(urlToPush);
+                        }
                     }
                 }
             }
@@ -1117,8 +1124,8 @@ function setTab(index, url) {
 
     document.getElementsByClassName("tab")[index].classList.add("tab-sel");
 
-    //console.log("url", url)
-    //console.log("getPage(url)", getPageUrl(url));
+    console.log("url", url)
+    console.log("getPage(url)", getPageUrl(url));
 
     let never_saved = true;
     let notes = "";
