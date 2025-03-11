@@ -1039,7 +1039,7 @@ function getAllOtherPossibleUrls(url) {
                 let parametersToReturn = [];
                 for (let i = 0; i < parameters.length; i++) {
                     let parameterParts = parameters[i].split("=");
-                    if (parameterParts[1] !== "") {
+                    if (parameterParts[1] !== "" && parameterParts[1] !== undefined) {
                         parametersToReturn.push(parameterParts[0] + "=" + parameterParts[1]);
                     }
                 }
