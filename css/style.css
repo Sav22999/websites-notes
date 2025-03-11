@@ -546,7 +546,8 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     /* box-shadow: 0px 0px 0px 1px var(--on-textbox-color); */
     z-index: 100;
     max-height: 300px;
-    overflow: visible;
+    overflow-x: hidden;
+    overflow-y: auto;
     /* box-sizing: content-box; */
     /* border: 0px; */
 }
