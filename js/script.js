@@ -247,18 +247,19 @@ function loadUI() {
                         }
                         //console.log(url + " : " + tmp_check);
                     });
+
                     if (opened_by === 1 || (opened_by === -1 && check_for_domain && (default_index === 1 || default_index === 2 && !check_for_page || default_index === 0 && !check_for_global))) {
                         //by domain
                         setTab(1, currentUrl[1]);
                     } else if (opened_by === 2 || (opened_by === -1 && check_for_page && (default_index === 2 || default_index === 1 && !check_for_domain || default_index === 0 && !check_for_global))) {
                         //by page
                         setTab(2, currentUrl[2]);
-                    } else if (opened_by === 0 || (opened_by === -1 && check_for_global && (default_index === 0 || default_index === 1 && !check_for_domain || default_index === 2 && !check_for_page))) {
-                        //by global
-                        setTab(0, currentUrl[0]);
                     } else if (opened_by === -1 && check_for_subdomains) {
                         //by subdomain
                         setTab(3, currentUrl[3]);
+                    } else if (opened_by === 0 || (opened_by === -1 && check_for_global && (default_index === 0 || default_index === 1 && !check_for_domain || default_index === 2 && !check_for_page))) {
+                        //by global
+                        setTab(0, currentUrl[0]);
                     } else {
                         //using default
                         if (opened_by !== -1) {
@@ -955,13 +956,22 @@ function getPageUrl(url, with_protocol = true) {
     }
 
     //https://page.example/search#section1
-    if (settings_json["consider-sections"] === "no") {
+    if (settings_json["consider-sections"] === "no" || settings_json["consider-parameters"] === "no") {
         if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
     }
 
     //https://page.example/search?parameters
-    if (settings_json["consider-parameters"] === "no") {
-        if (url.includes("?")) urlToReturn = urlToReturn.split("?")[0];
+    if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
+        if (url.includes("?")) {
+            urlToReturn = urlToReturn.split("?")[0];
+            if (urlToReturn.includes("#")) {
+                //if it includes sections, then check if consider-sections is "no"
+                //if it's "no", then remove the section
+                if (settings_json["consider-sections"] === "no" || settings_json["consider-sections"] === false) {
+                    urlToReturn = urlToReturn.replace(urlToReturn.split("#")[0], "");
+                }
+            }
+        }
     }
 
     //console.log(urlToReturn);
@@ -986,12 +996,24 @@ function getAllOtherPossibleUrls(url) {
     let urlsToReturn = [];
 
     if (urlToReturn.includes("/")) {
-        let urlPartsTemp = urlToReturn.split("/");
+        //remove before the "?" and "#" if it exists
+
+        let urlPartsTemp = [];
+
+        urlPartsTemp = urlToReturn.split("/");
+        if (urlToReturn.includes("?")) {
+            urlPartsTemp = urlToReturn.split("?")[0].split("/");
+        }
+        if (urlToReturn.includes("#")) {
+            urlPartsTemp = urlToReturn.split("#")[0].split("/");
+        }
+
         let urlConcat = "/";
         for (let urlFor = 3; urlFor < urlPartsTemp.length; urlFor++) {
             if (urlPartsTemp[urlFor] !== "") {
                 urlConcat += urlPartsTemp[urlFor];
                 if (urlConcat !== getDomainUrl(url)) {
+                    console.log(urlConcat);
                     urlsToReturn.push(urlConcat + "/*");
                 }
                 urlConcat += "/";
@@ -999,7 +1021,64 @@ function getAllOtherPossibleUrls(url) {
         }
     }
 
+    //get also the all possible combinations of parameters
+    //example: https://example.com/search?param1=1&param2=2&param3=3
+    //it should add urls like: https://example.com/search?param1=1, https://example.com/search?param2=2, https://example.com/search?param3=3, https://example.com/search?param1=1&param2=2, https://example.com/search?param1=1&param3=3, https://example.com/search?param2=2&param3=3, https://example.com/search?param1=1&param2=2&param3=3
+
+    if (urlToReturn.includes("/")) {
+        if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
+            let urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1];
+            if (urlToReturn.includes("#")) {
+                urlToReturnTemp = urlToReturn.split("#")[0].split("/");
+            }
+
+            if (urlToReturn.includes("?")) {
+                let urlPartsTemp = urlToReturnTemp.split("?");
+                urlToReturnTemp = urlPartsTemp[0];
+                let parameters = urlPartsTemp[1].split("&");
+                let parametersToReturn = [];
+                for (let i = 0; i < parameters.length; i++) {
+                    let parameterParts = parameters[i].split("=");
+                    if (parameterParts[1] !== "") {
+                        parametersToReturn.push(parameterParts[0] + "=" + parameterParts[1]);
+                    }
+                }
+                for (let i = 1; i <= parametersToReturn.length; i++) {
+                    let combinations = getCombinations(parametersToReturn, i);
+                    for (let j = 0; j < combinations.length; j++) {
+                        let urlToPush = urlToReturnTemp + "?" + combinations[j].join("&");
+                        if (urlToPush !== getDomainUrl(url)) {
+                            urlsToReturn.push(urlToPush);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     return urlsToReturn;
+}
+
+/**
+ * Generates all combinations of the elements in the array, taken n at a time.
+ * @param {Array} array - The array of elements.
+ * @param {number} n - The number of elements in each combination.
+ * @returns {Array} - An array of combinations, each combination is an array.
+ */
+function getCombinations(array, n) {
+    let result = [];
+    let f = function (prefix, array) {
+        for (let i = 0; i < array.length; i++) {
+            let newPrefix = prefix.concat(array[i]);
+            if (newPrefix.length === n) {
+                result.push(newPrefix);
+            } else {
+                f(newPrefix, array.slice(i + 1));
+            }
+        }
+    };
+    f([], array);
+    return result;
 }
 
 function getTheProtocol(url) {
@@ -1045,13 +1124,16 @@ function setTab(index, url) {
 
     document.getElementsByClassName("tab")[index].classList.add("tab-sel");
 
+    console.log("url", url)
+    console.log("getPage(url)", getPageUrl(url));
+
     let never_saved = true;
     let notes = "";
     let title = "";
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"] !== undefined) {
+    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["notes"] !== undefined) {
         //notes saved (also it's empty)
-        notes = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"];
-        title = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["title"];
+        notes = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["notes"];
+        title = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["title"];
         listenerLinks();
         never_saved = false;
     }
@@ -1077,19 +1159,19 @@ function setTab(index, url) {
     }
 
     let last_update = all_strings["never-update"];
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"] !== undefined) last_update = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"];
+    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["last-update"] !== undefined) last_update = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["last-update"];
     document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(last_update));
 
     let colour = "none";
     document.getElementById("tag-colour-section").removeAttribute("class");
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"] !== undefined) colour = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"];
+    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"] !== undefined) colour = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"];
     document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
     if (websites_json[currentUrl[selected_tab]] !== undefined) document.getElementById("tag-select-grid").value = websites_json[currentUrl[selected_tab]]["tag-colour"];
 
     let sticky = false;
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"] !== undefined) sticky = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"];
+    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["sticky"] !== undefined) sticky = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["sticky"];
     let minimized = false;
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"] !== undefined) minimized = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"];
+    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["minimized"] !== undefined) minimized = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["minimized"];
 
     document.getElementById("notes").focus();
 

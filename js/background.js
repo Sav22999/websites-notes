@@ -755,13 +755,22 @@ function getPageUrl(url, with_protocol = true) {
     }
 
     //https://page.example/search#section1
-    if (settings_json["consider-sections"] === "no") {
+    if (settings_json["consider-sections"] === "no" || settings_json["consider-parameters"] === false) {
         if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
     }
 
     //https://page.example/search?parameters
-    if (settings_json["consider-parameters"] === "no") {
-        if (url.includes("?")) urlToReturn = urlToReturn.split("?")[0];
+    if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
+        if (url.includes("?")) {
+            urlToReturn = urlToReturn.split("?")[0];
+            if (urlToReturn.includes("#")) {
+                //if it includes sections, then check if consider-sections is "no"
+                //if it's "no", then remove the section
+                if (settings_json["consider-sections"] === "no" || settings_json["consider-sections"] === false) {
+                    urlToReturn = urlToReturn.replace(urlToReturn.split("#")[0], "");
+                }
+            }
+        }
     }
 
     //console.log(urlToReturn);
@@ -1212,7 +1221,18 @@ function getAllOtherPossibleUrls(url) {
     let urlsToReturn = [];
 
     if (urlToReturn.includes("/")) {
-        let urlPartsTemp = urlToReturn.split("/");
+        //remove before the "?" and "#" if it exists
+
+        let urlPartsTemp = [];
+
+        urlPartsTemp = urlToReturn.split("/");
+        if (urlToReturn.includes("?")) {
+            urlPartsTemp = urlToReturn.split("?")[0].split("/");
+        }
+        if (urlToReturn.includes("#")) {
+            urlPartsTemp = urlToReturn.split("#")[0].split("/");
+        }
+
         let urlConcat = "/";
         for (let urlFor = 3; urlFor < urlPartsTemp.length; urlFor++) {
             if (urlPartsTemp[urlFor] !== "") {
@@ -1225,7 +1245,65 @@ function getAllOtherPossibleUrls(url) {
         }
     }
 
+    //get also the all possible combinations of parameters
+    //example: https://example.com/search?param1=1&param2=2&param3=3
+    //it should add urls like: https://example.com/search?param1=1, https://example.com/search?param2=2, https://example.com/search?param3=3, https://example.com/search?param1=1&param2=2, https://example.com/search?param1=1&param3=3, https://example.com/search?param2=2&param3=3, https://example.com/search?param1=1&param2=2&param3=3
+
+    if (urlToReturn.includes("/")) {
+        if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
+            let urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1];
+            if (urlToReturn.includes("#")) {
+                urlToReturnTemp = urlToReturn.split("#")[0].split("/");
+            }
+
+            if (urlToReturn.includes("?")) {
+                let urlPartsTemp = urlToReturnTemp.split("?");
+                urlToReturnTemp = urlPartsTemp[0];
+                let parameters = urlPartsTemp[1].split("&");
+                let parametersToReturn = [];
+                for (let i = 0; i < parameters.length; i++) {
+                    let parameterParts = parameters[i].split("=");
+                    if (parameterParts[1] !== "") {
+                        parametersToReturn.push(parameterParts[0] + "=" + parameterParts[1]);
+                    }
+                }
+                for (let i = 1; i <= parametersToReturn.length; i++) {
+                    let combinations = getCombinations(parametersToReturn, i);
+                    for (let j = 0; j < combinations.length; j++) {
+                        let urlToPush = urlToReturnTemp + "?" + combinations[j].join("&");
+                        if (urlToPush !== getDomainUrl(url)) {
+                            urlsToReturn.push(urlToPush);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     return urlsToReturn;
+}
+
+
+/**
+ * Generates all combinations of the elements in the array, taken n at a time.
+ * @param {Array} array - The array of elements.
+ * @param {number} n - The number of elements in each combination.
+ * @returns {Array} - An array of combinations, each combination is an array.
+ */
+function getCombinations(array, n) {
+    let result = [];
+    let f = function (prefix, array) {
+        for (let i = 0; i < array.length; i++) {
+            let newPrefix = prefix.concat(array[i]);
+            if (newPrefix.length === n) {
+                result.push(newPrefix);
+            } else {
+                f(newPrefix, array.slice(i + 1));
+            }
+        }
+    };
+    f([], array);
+    return result;
 }
 
 function setOpenedSticky(sticky, minimized) {
