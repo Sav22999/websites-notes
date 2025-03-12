@@ -1286,6 +1286,7 @@ b {
     font-size: 1em !important;
     cursor: text;
     white-space: inherit;
+    height: auto;
 }
 
 #notes u, .textarea-all-notes u {
@@ -1938,6 +1939,7 @@ aside > button.sel, aside > button.sel:hover {
 #preview-font-family-roboto {
     font-family: 'Roboto', sans-serif;
 }
+
 /*end - font-family*/
 
 /*start - datetime-format*/
