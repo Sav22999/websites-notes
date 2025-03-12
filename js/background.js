@@ -1253,8 +1253,11 @@ function getAllOtherPossibleUrls(url) {
         if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
             let urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1];
             if (urlToReturn.includes("#")) {
-                urlToReturnTemp = urlToReturn.split("#")[0].split("/");
+                urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1].split("#")[0];
             }
+
+            //console.log("urlToReturn", urlToReturn)
+            //console.log("urlToReturnTemp", urlToReturnTemp)
 
             if (urlToReturn.includes("?")) {
                 let urlPartsTemp = urlToReturnTemp.split("?");
