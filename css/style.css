@@ -543,11 +543,11 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     top: 3px;
     right: 2px;
     left: 2px;
+    bottom: 0px;
     /* box-shadow: 0px 0px 0px 1px var(--on-textbox-color); */
     z-index: 100;
     max-height: 300px;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: visible;
     /* box-sizing: content-box; */
     /* border: 0px; */
 }
@@ -565,16 +565,23 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 }
 
 #panel-other-tabs > #subdomains-list {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    left: 0px;
+    bottom: 0px;
+    overflow-x: hidden;
+    overflow-y: auto;
     height: auto;
-    overflow: visible;
     border-radius: 0px;
     width: 100%;
-    /* margin: 0px; */
-    /* position: relative; */
-    /* left: 0px; */
-    /* right: 0px; */
     display: flex;
     flex-direction: column;
+    padding: 4px;
+}
+
+#panel-other-tabs > #subdomains-list * {
+    word-break: break-all;
 }
 
 .subdomain {
