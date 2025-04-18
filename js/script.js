@@ -13,6 +13,7 @@ var urls_unsupported_by_sticky_notes = ["addons.mozilla.org"];//TODO!MANUAL chan
 var stickyNotesSupported = true;
 
 const all_strings = strings[languageToUse];
+const linkAcceptPrivacy = "/privacy/index.html";
 
 //Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
@@ -61,6 +62,14 @@ function checkSyncLocal() {
 }
 
 function loaded() {
+    browser.storage.local.get("privacy").then(result => {
+        if (result.privacy === undefined) {
+            //not accepted privacy policy -> open 'privacy' page
+            browser.tabs.create({url: linkAcceptPrivacy});
+            window.close()
+        }
+    });
+
     checkSyncLocal();
     loadSettings();
     checkTheme();

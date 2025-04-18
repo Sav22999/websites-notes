@@ -23,27 +23,48 @@ var opacity = {value: 0.8};
 
 let opening_sticky = false;
 
-let page_domain_global = {"page": "Page", "domain": "Domain", "global": "Global", "subdomain": "•••"};
-let linkFirstLaunch = "https://notefox.eu/help/first-run"
+const page_domain_global = {"page": "Page", "domain": "Domain", "global": "Global", "subdomain": "•••"};
+const linkFirstLaunch = "https://notefox.eu/help/first-run"
+const linkAcceptPrivacy = "/privacy/index.html";
 
 let sync_local = browser.storage.local;
 checkSyncLocal();
 
+/*browser.runtime.onInstalled.addListener(async ({reason, temporary}) => {
+    //if (temporary) return; // skip during development
+
+    console.log(reason);
+
+    switch (reason) {
+        case "install": {
+            // or: await browser.windows.create({ url, type: "popup", height: 600, width: 600, });
+        }
+            break;
+        // see below
+    }
+});*/
+
 function checkSyncLocal() {
     sync_local = browser.storage.local;
-    browser.storage.sync.get("installation").then(result => {
-        //console.log("Installation")
-        //console.log(result)
-        if (result.installation === undefined) {
-            browser.storage.sync.set({
-                "installation": {
-                    "date": getDate(),
-                    "version": browser.runtime.getManifest().version
+    browser.storage.local.get("privacy").then(result => {
+        if (result.privacy === undefined) {
+            //not accepted privacy policy -> open 'privacy' page
+            browser.tabs.create({url: linkAcceptPrivacy});
+        } else {
+            browser.storage.sync.get("installation").then(result => {
+                //console.log(">> Installation", result)
+                if (result.installation === undefined) {
+                    browser.storage.sync.set({
+                        "installation": {
+                            "date": getDate(),
+                            "version": browser.runtime.getManifest().version
+                        }
+                    });
+
+                    //first launch -> open 'first launch' page
+                    browser.tabs.create({url: linkFirstLaunch});
                 }
             });
-
-            //first launch -> open tutorial
-            browser.tabs.create({url: linkFirstLaunch});
         }
     });
 
