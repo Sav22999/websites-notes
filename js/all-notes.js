@@ -4,6 +4,7 @@ let websites_json_to_show = {};
 let settings_json = {};
 
 const all_strings = strings[languageToUse];
+const linkAcceptPrivacy = "/privacy/index.html";
 
 //Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
@@ -49,6 +50,14 @@ function checkSyncLocal() {
 }
 
 function loaded() {
+    browser.storage.local.get("privacy").then(result => {
+        if (result.privacy === undefined) {
+            //not accepted privacy policy -> open 'privacy' page
+            browser.tabs.create({url: linkAcceptPrivacy});
+            window.close()
+        }
+    });
+
     browser.runtime.onMessage.addListener((message) => {
         if (message["sync_update"] !== undefined && message["sync_update"]) {
             location.reload();

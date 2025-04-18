@@ -94,7 +94,17 @@ var letters_and_numbers = {
 };
 var ctrl_alt_shift = ["default", "domain", "page"];
 
+const linkAcceptPrivacy = "/privacy/index.html";
+
 function loaded() {
+    browser.storage.local.get("privacy").then(result => {
+        if (result.privacy === undefined) {
+            //not accepted privacy policy -> open 'privacy' page
+            browser.tabs.create({url: linkAcceptPrivacy});
+            window.close()
+        }
+    });
+
     browser.runtime.onMessage.addListener((message) => {
         if (message["sync_update"] !== undefined && message["sync_update"]) {
             location.reload();
@@ -139,6 +149,8 @@ function loaded() {
 
     browser.tabs.onActivated.addListener(tabUpdated);
     browser.tabs.onUpdated.addListener(tabUpdated);
+
+    //catch
 
     document.getElementById("save-settings-button").onclick = function () {
         saveSettings();
@@ -357,6 +369,7 @@ function loaded() {
     titleAllNotes.textContent = all_strings["settings-title"];
 
     loadAsideBar();
+    loadDeveloperOptions();
 }
 
 function setThemeChooser() {
@@ -960,6 +973,108 @@ function loadAsideBar() {
     }
 
     version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", browser.runtime.getManifest().version);
+}
+
+function loadDeveloperOptions() {
+    if (document.getElementById("version-aside")) {
+        document.getElementById("version-aside").onclick = function () {
+            developerDetails(["general"], document.getElementById("version-aside"), 5, 5); // 5 clicks in 5 seconds
+        }
+    }
+
+
+    if (document.getElementById("notefox-account-settings-text")) {
+        developerDetails(["notefox-account"], document.getElementById("notefox-account-settings-text"), 5, 5); // 5 clicks in 5 seconds
+    }
+
+    if (document.getElementById("title-account")) {
+        developerDetails(["notefox-account-token"], document.getElementById("title-account"), 8, 5); // 5 clicks in 5 seconds
+    }
+}
+
+function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
+    let clickCount = 0;
+    let clickTimeout = null;
+
+    element.onclick = function () {
+        //console.log(`click ${clickCount + 1}/${times} for ${type}`)
+        clickCount++;
+        if (clickTimeout) {
+            clearTimeout(clickTimeout);
+        }
+        clickTimeout = setTimeout(() => {
+            clickCount = 0;
+        }, maxSeconds * 1000);
+
+        if (clickCount === times) {
+            if (type.includes("general")) {
+                //GENERAL case
+                browser.storage.local.get(["privacy", "settings"]).then(localData => {
+                    browser.storage.sync.get("installation").then(installation => {
+                        const details = {
+                            "notefox-version": browser.runtime.getManifest().version,
+                            "web-browser": webBrowserUsed,
+                            "installation": installation,
+                            "privacy-acceptance": localData["privacy"],
+                            "settings": localData["settings"],
+                        }
+                        console.log(startMessageDeveloperDetails("=GENERAL="), details, endMessageDeveloperDetails());
+                    });
+                });
+            }
+            if (type.includes("notefox-account")) {
+                //NOTEFOX-ACCOUNT case
+                browser.storage.local.get(["last-update", "last-sync"]).then(localData => {
+                    console.log(JSON.stringify(localData));
+                    browser.storage.sync.get("notefox-account").then(notefoxAccount => {
+                        let notefoxAccountToUse = notefoxAccount["notefox-account"];
+                        if (notefoxAccountToUse !== undefined && notefoxAccountToUse["token"]) {
+                            //if it's present the token, remove it!
+                            notefoxAccountToUse["token"] = "===REMOVED-TO-PRESERVE-PRIVACY===";
+                        }
+                        const details = {
+                            "notefox-account": notefoxAccountToUse,
+                            "last-update": localData["last-update"],
+                            "last-sync": localData["last-sync"],
+                        }
+                        console.log(startMessageDeveloperDetails("=NOTEFOX-ACCOUNT="), details, endMessageDeveloperDetails());
+                    });
+                });
+            }
+            if (type.includes("notefox-account-token")) {
+                //NOTEFOX-ACCOUNT-TOKEN case
+                browser.storage.sync.get("notefox-account").then(notefoxAccount => {
+                    let token = "===NOT-FOUND==="
+                    if (notefoxAccount["notefox-account"] !== undefined && notefoxAccount["notefox-account"]["token"]) {
+                        //if it's present the token, remove it!
+                        token = notefoxAccount["notefox-account"]["token"];
+                    }
+                    const details = {
+                        "notefox-account-token": token
+                    }
+                    console.log(startMessageDeveloperDetails("=NOTEFOX-ACCOUNT-TOKEN="), details, endMessageDeveloperDetails());
+                });
+            }
+            if (type.length === 0) {
+                console.error("DeveloperConsoleError: type is empty!")
+            }
+            clickCount = 0;
+        }
+    };
+
+    function startMessageDeveloperDetails(additionalString = '') {
+        return `
+//∨∨∨∨∨∨∨∨∨∨∨∨${additionalString}∨∨∨∨∨∨∨∨∨∨∨∨//
+THIS IS AN ADVANCED FEATURE: DO NOT SHARE IT WITH ANYONE IF YOU DON'T KNOW WHAT YOU ARE DOING
+//∨∨∨∨∨∨∨∨∨∨∨∨${additionalString}∨∨∨∨∨∨∨∨∨∨∨∨//`;
+    }
+
+    function endMessageDeveloperDetails(additionalString = '') {
+        return `
+//∧∧∧∧∧∧∧∧∧∧∧∧${additionalString}∧∧∧∧∧∧∧∧∧∧∧∧//
+THIS IS AN ADVANCED FEATURE: DO NOT SHARE IT WITH ANYONE IF YOU DON'T KNOW WHAT YOU ARE DOING",
+//∧∧∧∧∧∧∧∧∧∧∧∧${additionalString}∧∧∧∧∧∧∧∧∧∧∧∧//`;
+    }
 }
 
 function checkOperatingSystem() {

@@ -79,7 +79,7 @@ Created by Saverio Morelli - saveriomorelli.com
     <div id="account-section">
         <div class="section" id="account-sub-sections">
             <div class="padding-10">
-                <div id="title-account"></div>
+                <div id="title-account" class="user-select-none"></div>
                 <div id="text-account"></div>
                 <div id="message-from-api" class="hidden no-margin margin-top-10-px"></div>
             </div>
@@ -757,49 +757,61 @@ Created by Saverio Morelli - saveriomorelli.com
                 <label class="item-radio-datetime-format" id="item-radio-datetime-format-yyyymmdd1">
                     <input name="datetime-format-radio" type="radio" value="yyyymmdd1">
                     <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-yyyymmdd1">
-                        <span class="item-radio-datetime-format-preview-item primary" id="preview-datetime-format-yyyymmdd1"></span>
+                        <span class="item-radio-datetime-format-preview-item primary"
+                              id="preview-datetime-format-yyyymmdd1"></span>
                     </span>
-                    <span class="item-radio-title item-radio-title-datetime-format" id="datetime-format-select-yyyymmdd1">YYYY-MM-DD HH:MM:SS</span>
+                    <span class="item-radio-title item-radio-title-datetime-format"
+                          id="datetime-format-select-yyyymmdd1">YYYY-MM-DD HH:MM:SS</span>
                 </label>
 
                 <label class="item-radio-datetime-format" id="item-radio-datetime-format-yyyyddmm1">
                     <input name="datetime-format-radio" type="radio" value="yyyyddmm1">
                     <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-yyyyddmm1">
-                        <span class="item-radio-datetime-format-preview-item primary" id="preview-datetime-format-yyyyddmm1"></span>
+                        <span class="item-radio-datetime-format-preview-item primary"
+                              id="preview-datetime-format-yyyyddmm1"></span>
                     </span>
-                    <span class="item-radio-title item-radio-title-datetime-format" id="datetime-format-select-yyyyddmm1">YYYY-DD-MM HH:MM:SS</span>
+                    <span class="item-radio-title item-radio-title-datetime-format"
+                          id="datetime-format-select-yyyyddmm1">YYYY-DD-MM HH:MM:SS</span>
                 </label>
 
                 <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy1">
                     <input name="datetime-format-radio" type="radio" value="ddmmyyyy1">
                     <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-ddmmyyyy1">
-                        <span class="item-radio-datetime-format-preview-item primary" id="preview-datetime-format-ddmmyyyy1"></span>
+                        <span class="item-radio-datetime-format-preview-item primary"
+                              id="preview-datetime-format-ddmmyyyy1"></span>
                     </span>
-                    <span class="item-radio-title item-radio-title-datetime-format" id="datetime-format-select-ddmmyyyy1">DD/MM/YYYY HH:MM:SS</span>
+                    <span class="item-radio-title item-radio-title-datetime-format"
+                          id="datetime-format-select-ddmmyyyy1">DD/MM/YYYY HH:MM:SS</span>
                 </label>
 
                 <label class="item-radio-datetime-format" id="item-radio-datetime-format-mmddyyyy1">
                     <input name="datetime-format-radio" type="radio" value="mmddyyyy1">
                     <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-mmddyyyy1">
-                        <span class="item-radio-datetime-format-preview-item primary" id="preview-datetime-format-mmddyyyy1"></span>
+                        <span class="item-radio-datetime-format-preview-item primary"
+                              id="preview-datetime-format-mmddyyyy1"></span>
                     </span>
-                    <span class="item-radio-title item-radio-title-datetime-format" id="datetime-format-select-mmddyyyy1">MM/DD/YYYY HH:MM:SS</span>
+                    <span class="item-radio-title item-radio-title-datetime-format"
+                          id="datetime-format-select-mmddyyyy1">MM/DD/YYYY HH:MM:SS</span>
                 </label>
 
                 <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy2">
                     <input name="datetime-format-radio" type="radio" value="ddmmyyyy2">
                     <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-ddmmyyyy2">
-                        <span class="item-radio-datetime-format-preview-item primary" id="preview-datetime-format-ddmmyyyy2"></span>
+                        <span class="item-radio-datetime-format-preview-item primary"
+                              id="preview-datetime-format-ddmmyyyy2"></span>
                     </span>
-                    <span class="item-radio-title item-radio-title-datetime-format" id="datetime-format-select-ddmmyyyy2">DD.MM.YYYY HH:MM:SS</span>
+                    <span class="item-radio-title item-radio-title-datetime-format"
+                          id="datetime-format-select-ddmmyyyy2">DD.MM.YYYY HH:MM:SS</span>
                 </label>
 
                 <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy1-12h">
                     <input name="datetime-format-radio" type="radio" value="ddmmyyyy1-12h">
                     <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-ddmmyyyy1-12h">
-                        <span class="item-radio-datetime-format-preview-item primary" id="preview-datetime-format-ddmmyyyy1-12h"></span>
+                        <span class="item-radio-datetime-format-preview-item primary"
+                              id="preview-datetime-format-ddmmyyyy1-12h"></span>
                     </span>
-                    <span class="item-radio-title item-radio-title-datetime-format" id="datetime-format-select-ddmmyyyy1-12h">DD/MM/YYYY 12H:MM:SS</span>
+                    <span class="item-radio-title item-radio-title-datetime-format"
+                          id="datetime-format-select-ddmmyyyy1-12h">DD/MM/YYYY 12H:MM:SS</span>
                 </label>
             </span>
         </div>
@@ -865,7 +877,7 @@ Created by Saverio Morelli - saveriomorelli.com
             <span class="item-settings section-grid-container">
                 <span class="title-option-settings section-grid-item-text"
                       id="notefox-account-settings-text"></span>
-                <span class="section-grid-item-select">
+                <span class="section-grid-item-select text-align-center">
                     <input type="button" value="" id="notefox-account-settings-button"
                            class="button manage-account-button"/>
                 </span>

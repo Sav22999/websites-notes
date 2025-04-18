@@ -1562,6 +1562,8 @@ aside > button.sel, aside > button.sel:hover {
     top: auto;
     bottom: 0px;
 
+    user-select: none;
+
     padding-top: 60px;
     background-image: url("../img/icon.svg");
     background-size: auto 40px;
@@ -2811,9 +2813,21 @@ option {
     text-align: center;
 }
 
+.flex-as-row {
+    flex-direction: column;
+}
+
+.flex-as-column {
+    flex-direction: row;
+}
+
 .font-size-2em {
     padding: 5px;
     font-size: 1.4em;
+}
+
+.user-select-none  {
+    user-select: none;
 }
 
 @media screen and (max-width: 800px) {
