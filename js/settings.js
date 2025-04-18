@@ -1012,20 +1012,19 @@ function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
                 browser.storage.local.get(["privacy", "settings"]).then(localData => {
                     browser.storage.sync.get("installation").then(installation => {
                         const details = {
-                            "notefox-version": browser.runtime.getManifest().version,
-                            "web-browser": webBrowserUsed,
-                            "installation": installation,
-                            "privacy-acceptance": localData["privacy"],
-                            "settings": localData["settings"],
+                            "notefox-version": browser.runtime.getManifest().version ?? '??undefined??',
+                            "web-browser": webBrowserUsed ?? '??undefined??',
+                            "installation": installation ?? '??undefined??',
+                            "privacy-acceptance": localData["privacy"] ?? '??undefined??',
+                            "settings": localData["settings"] ?? '??undefined??',
                         }
-                        console.log(startMessageDeveloperDetails("=GENERAL="), details, endMessageDeveloperDetails());
+                        console.log(startMessageDeveloperDetails("=GENERAL="), '\n', JSON.stringify(details), '\n', endMessageDeveloperDetails());
                     });
                 });
             }
             if (type.includes("notefox-account")) {
                 //NOTEFOX-ACCOUNT case
                 browser.storage.local.get(["last-update", "last-sync"]).then(localData => {
-                    console.log(JSON.stringify(localData));
                     browser.storage.sync.get("notefox-account").then(notefoxAccount => {
                         let notefoxAccountToUse = notefoxAccount["notefox-account"];
                         if (notefoxAccountToUse !== undefined && notefoxAccountToUse["token"]) {
@@ -1033,11 +1032,11 @@ function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
                             notefoxAccountToUse["token"] = "===REMOVED-TO-PRESERVE-PRIVACY===";
                         }
                         const details = {
-                            "notefox-account": notefoxAccountToUse,
-                            "last-update": localData["last-update"],
-                            "last-sync": localData["last-sync"],
+                            "notefox-account": notefoxAccountToUse ?? '??undefined??',
+                            "last-update": localData["last-update"] ?? '??undefined??',
+                            "last-sync": localData["last-sync"] ?? '??undefined??',
                         }
-                        console.log(startMessageDeveloperDetails("=NOTEFOX-ACCOUNT="), details, endMessageDeveloperDetails());
+                        console.log(startMessageDeveloperDetails("=NOTEFOX-ACCOUNT="), JSON.stringify(details), endMessageDeveloperDetails());
                     });
                 });
             }
@@ -1050,9 +1049,9 @@ function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
                         token = notefoxAccount["notefox-account"]["token"];
                     }
                     const details = {
-                        "notefox-account-token": token
+                        "notefox-account-token": token ?? '??undefined??'
                     }
-                    console.log(startMessageDeveloperDetails("=NOTEFOX-ACCOUNT-TOKEN="), details, endMessageDeveloperDetails());
+                    console.log(startMessageDeveloperDetails("=NOTEFOX-ACCOUNT-TOKEN="), JSON.stringify(details), endMessageDeveloperDetails());
                 });
             }
             if (type.length === 0) {
