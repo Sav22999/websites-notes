@@ -62,10 +62,10 @@ function checkSyncLocal() {
 }
 
 function loaded() {
-    browser.storage.local.get("privacy").then(result => {
+    chrome.storage.local.get("privacy").then(result => {
         if (result.privacy === undefined) {
             //not accepted privacy policy -> open 'privacy' page
-            browser.tabs.create({url: linkAcceptPrivacy});
+            chrome.tabs.create({url: linkAcceptPrivacy});
             window.close()
         }
     });
@@ -683,10 +683,13 @@ function saveNotes(title_call = false) {
         let title = document.getElementById("title-notes").value;
 
         if (settings_json["save-page-content"]) {
-            browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                 let activeTab = tabs[0];
-                browser.tabs.executeScript(activeTab.id, {
-                    code: "document.body.innerText"
+                chrome.scripting.executeScript({
+                    target: {tabId: activeTab.id},
+                    function: function () {
+                        return "document.body.innerText";
+                    }
                 }).then(result => {
                     if (result && result[0]) {
                         websites_json[url_to_use]["content"] = result[0];

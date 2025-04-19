@@ -5,7 +5,7 @@ window.onload = function () {
 }
 
 function loaded() {
-    browser.storage.local.get("privacy").then(result => {
+    chrome.storage.local.get("privacy").then(result => {
         //console.log(">> Installation", result)
         if (result.privacy !== undefined) {
             //Already accepted privacy policy
@@ -29,34 +29,34 @@ function loaded() {
 
 function uninstall() {
     if (confirm("Notefox will be uninstalled, are you sure?")) {
-        browser.management.uninstallSelf();
+        chrome.management.uninstallSelf();
     } else {
         // Do nothing
     }
 }
 
 function continueNotefox() {
-    browser.storage.local.get("privacy").then(result => {
+    chrome.storage.local.get("privacy").then(result => {
         //console.log(">> Installation", result)
         if (result.privacy === undefined) {
-            browser.storage.local.set({
+            chrome.storage.local.set({
                 "privacy": {
                     "date": getDate(),
-                    "version": browser.runtime.getManifest().version
+                    "version": chrome.runtime.getManifest().version
                 }
             }).then(
                 () => {
-                    browser.storage.sync.get("installation").then(result => {
+                    chrome.storage.sync.get("installation").then(result => {
                         if (result.installation === undefined) {
-                            browser.storage.sync.set({
+                            chrome.storage.sync.set({
                                 "installation": {
                                     "date": getDate(),
-                                    "version": browser.runtime.getManifest().version
+                                    "version": chrome.runtime.getManifest().version
                                 }
                             });
 
                             //first launch -> open 'first launch' page
-                            browser.tabs.create({url: linkFirstLaunch});
+                            chrome.tabs.create({url: linkFirstLaunch});
                         }
 
                         window.close();

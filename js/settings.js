@@ -98,12 +98,13 @@ const linkAcceptPrivacy = "/privacy/index.html";
 
 function loaded() {
     chrome.runtime.onMessage.addListener((message) => {
-    chrome.storage.local.get("privacy").then(result => {
-        if (result.privacy === undefined) {
-            //not accepted privacy policy -> open 'privacy' page
-            chrome.tabs.create({url: linkAcceptPrivacy});
-            window.close()
-        }
+        chrome.storage.local.get("privacy").then(result => {
+            if (result.privacy === undefined) {
+                //not accepted privacy policy -> open 'privacy' page
+                chrome.tabs.create({url: linkAcceptPrivacy});
+                window.close()
+            }
+        });
     });
 
     chrome.runtime.onMessage.addListener((message) => {
@@ -734,8 +735,7 @@ function loadSettings() {
             //light, dark, lighter, darker, auto
             if (settings_json["theme"] === "light") setThemeChooserByElement(document.getElementById("item-radio-theme-light"), false); else if (settings_json["theme"] === "dark") setThemeChooserByElement(document.getElementById("item-radio-theme-dark"), false); else if (settings_json["theme"] === "lighter") setThemeChooserByElement(document.getElementById("item-radio-theme-lighter"), false); else if (settings_json["theme"] === "darker") setThemeChooserByElement(document.getElementById("item-radio-theme-darker"), false); else if (settings_json["theme"] === "auto") setThemeChooserByElement(document.getElementById("item-radio-theme-auto"), false);
             //yellow, lime, cyan, pink, white, black, auto
-            if (settings_json["sticky-theme"] === "yellow" || settings_json["sticky-theme"] === "lime" || settings_json["sticky-theme"] === "cyan" || settings_json["sticky-theme"] === "pink" || settings_json["sticky-theme"] === "white" || settings_json["sticky-theme"] === "black" || settings_json["sticky-theme"] === "auto") setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-" + settings_json["sticky-theme"]), false);
-            else setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-yellow"), false); //default
+            if (settings_json["sticky-theme"] === "yellow" || settings_json["sticky-theme"] === "lime" || settings_json["sticky-theme"] === "cyan" || settings_json["sticky-theme"] === "pink" || settings_json["sticky-theme"] === "white" || settings_json["sticky-theme"] === "black" || settings_json["sticky-theme"] === "auto") setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-" + settings_json["sticky-theme"]), false); else setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-yellow"), false); //default
 
             //font family (already checked the supported font family)
             if (settings_json["font-family"] !== undefined) {
@@ -1023,7 +1023,7 @@ function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
                 chrome.storage.local.get(["privacy", "settings"]).then(localData => {
                     chrome.storage.sync.get("installation").then(installation => {
                         const details = {
-                            "notefox-version": browser.runtime.getManifest().version ?? '??undefined??',
+                            "notefox-version": chrome.runtime.getManifest().version ?? '??undefined??',
                             "web-browser": webBrowserUsed ?? '??undefined??',
                             "installation": installation ?? '??undefined??',
                             "privacy-acceptance": localData["privacy"] ?? '??undefined??',
@@ -1181,8 +1181,7 @@ function importAllNotes(from_file = false) {
             if (document.getElementById("import-now-all-notes-from-local-button")) document.getElementById("import-now-all-notes-from-local-button").remove();
         }
 
-        if (result["last-update"] === undefined || result["last-update"] === null) result["last-update"] = getDate();
-        else result["last-update"] = correctDatetime(result["last-update"]);
+        if (result["last-update"] === undefined || result["last-update"] === null) result["last-update"] = getDate(); else result["last-update"] = correctDatetime(result["last-update"]);
 
         let n_errors = 0;
         showBackgroundOpacity();
@@ -1286,8 +1285,7 @@ function importAllNotes(from_file = false) {
                                         "settings": settings_json,
                                         "sticky-notes-coords": sticky_notes.coords,
                                         "sticky-notes-sizes": sticky_notes.sizes,
-                                        "sticky-notes-opacity": sticky_notes.opacity,
-                                        //"last-update": result["last-update"]
+                                        "sticky-notes-opacity": sticky_notes.opacity, //"last-update": result["last-update"]
                                         "last-update": getDate() //set the current datetime, because of you're importing manually
                                     }).then(function () {
                                         //Imported all correctly
@@ -1429,8 +1427,7 @@ function exportAllNotes(to_file = false) {
             //console.log(JSON.stringify(result));
 
             let lastUpdateToExport = result["last-update"];
-            if (lastUpdateToExport === undefined || lastUpdateToExport === null) lastUpdateToExport = getDate();
-            else lastUpdateToExport = correctDatetime(lastUpdateToExport);
+            if (lastUpdateToExport === undefined || lastUpdateToExport === null) lastUpdateToExport = getDate(); else lastUpdateToExport = correctDatetime(lastUpdateToExport);
 
             json_to_export = {};
             for (setting in settings_json) {
@@ -1610,9 +1607,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
 
             document.getElementById("manage-logout").onclick = function () {
                 chrome.runtime.sendMessage({
-                    "api": true,
-                    "type": "logout",
-                    "data": {
+                    "api": true, "type": "logout", "data": {
                         "login-id": savedData["notefox-account"]["login-id"]
                     }
                 });
@@ -1620,9 +1615,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
 
             document.getElementById("manage-logout-all-devices").onclick = function () {
                 chrome.runtime.sendMessage({
-                    "api": true,
-                    "type": "logout-all",
-                    "data": {
+                    "api": true, "type": "logout-all", "data": {
                         "login-id": savedData["notefox-account"]["login-id"]
                     }
                 });
@@ -1706,13 +1699,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         notefoxAccountLoginSignupManage("login");
                     } else {
                         chrome.runtime.sendMessage({
-                            "api": true,
-                            "type": "login-verify",
-                            "data": {
-                                "email": email,
-                                "password": password,
-                                "login-id": login_id,
-                                "verification-code": code
+                            "api": true, "type": "login-verify", "data": {
+                                "email": email, "password": password, "login-id": login_id, "verification-code": code
                             }
                         });
                         verify_login_submit_element.disabled = true;
@@ -1746,8 +1734,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         disableAside = true;
                     }
                 }
-            } else if
-            (action === "verify-signup") {
+            } else if (action === "verify-signup") {
                 title.innerText = all_strings["notefox-account-button-settings-signup"];
                 if (document.getElementById("notefox-account-signup-section").classList.contains("hidden")) document.getElementById("notefox-account-signup-section").classList.remove("hidden");
                 if (document.getElementById("account-section--verify-signup-grid").classList.contains("hidden")) document.getElementById("account-section--verify-signup-grid").classList.remove("hidden");
@@ -1931,9 +1918,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         if (password === "") password_element.classList.add("textbox-error");
                     } else {
                         chrome.runtime.sendMessage({
-                            "api": true,
-                            "type": "delete-account",
-                            "data": {
+                            "api": true, "type": "delete-account", "data": {
                                 "email": email,
                                 "password": password,
                                 "login-id": savedData["notefox-account"]["login-id"],
@@ -1949,7 +1934,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
 
                         //TODO: check for chrome
                         chrome.storage.sync.remove("notefox-account").then(result => {
-                            browser.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
+                            chrome.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
                                 notefoxAccountLoginSignupManage();
                             });
                         });
@@ -2011,9 +1996,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         showMessageNotefoxAccount(all_strings["notefox-account-deleting-account-text"], false);
 
                         chrome.runtime.sendMessage({
-                            "api": true,
-                            "type": "delete-account-verify",
-                            "data": {
+                            "api": true, "type": "delete-account-verify", "data": {
                                 "email": email,
                                 "password": password,
                                 "login-id": login_id,
@@ -2126,9 +2109,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         new_password_confirm_element.classList.add("textbox-error");
                     } else {
                         chrome.runtime.sendMessage({
-                            "api": true,
-                            "type": "change-password",
-                            "data": {
+                            "api": true, "type": "change-password", "data": {
                                 "login-id": savedData["notefox-account"]["login-id"],
                                 "token": savedData["notefox-account"]["token"],
                                 "old-password": password,
@@ -2214,9 +2195,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         if (password === "") password_element.classList.add("textbox-error");
                     } else {
                         chrome.runtime.sendMessage({
-                            "api": true,
-                            "type": "login",
-                            "data": {"email": email, "password": password}
+                            "api": true, "type": "login", "data": {"email": email, "password": password}
                         });
 
                         login_submit_element.disabled = true;
@@ -2226,8 +2205,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         disableAside = true;
                     }
                 }
-            } else if
-            ((action === "signup" || action === null)) {
+            } else if ((action === "signup" || action === null)) {
                 title.innerText = all_strings["notefox-account-button-settings-signup"];
                 if (document.getElementById("notefox-account-signup-section").classList.contains("hidden")) document.getElementById("notefox-account-signup-section").classList.remove("hidden");
                 if (document.getElementById("account-section--signup-grid").classList.contains("hidden")) document.getElementById("account-section--signup-grid").classList.remove("hidden");
@@ -2570,9 +2548,7 @@ function loginResponse(data) {
         if (data.code === 200 && data["data"] !== undefined) {
             //Success
             notefoxAccountLoginSignupManage("verify-login", {
-                "email": email_element.value,
-                "password": password_element.value,
-                "login-id": data["data"]["login-id"]
+                "email": email_element.value, "password": password_element.value, "login-id": data["data"]["login-id"]
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
@@ -2771,16 +2747,14 @@ function deleteResponse(data) {
         if (data.code === 200) {
             //Success
             notefoxAccountLoginSignupManage("delete-verify", {
-                "email": email_element.value,
-                "password": password_element.value
+                "email": email_element.value, "password": password_element.value
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
             showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
         } else if (data.code === 452) {
             notefoxAccountLoginSignupManage("delete-verify", {
-                "email": email_element.value,
-                "password": password_element.value
+                "email": email_element.value, "password": password_element.value
             });
         } else {
             //Unknown

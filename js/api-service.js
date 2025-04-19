@@ -156,7 +156,7 @@ async function signup(username, email, password) {
 
         const data = await response.json();
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "signup",
             "data": data
@@ -165,7 +165,7 @@ async function signup(username, email, password) {
     } catch (error) {
         console.error('Signup request failed:', error);
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "signup",
             "data": {
@@ -212,7 +212,7 @@ async function signup_new_code(email, password) {
 
         const data = await response.json();
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "signup-new-code",
             "data": data
@@ -221,7 +221,7 @@ async function signup_new_code(email, password) {
     } catch (error) {
         console.error('Request failed:', error);
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "signup-new-code",
             "data": {
@@ -273,7 +273,7 @@ async function signup_verify(email, password, verification_code) {
 
         const data = await response.json();
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "signup-verify",
             "data": data
@@ -282,7 +282,7 @@ async function signup_verify(email, password, verification_code) {
     } catch (error) {
         console.error('Request failed:', error);
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "signup-verify",
             "data": {
@@ -330,7 +330,7 @@ async function login(email_value, password_value) {
 
         const data = await response.json();
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "login",
             "data": data
@@ -339,7 +339,7 @@ async function login(email_value, password_value) {
     } catch (error) {
         console.error('Request failed:', error);
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "login",
             "data": {
@@ -391,7 +391,7 @@ async function login_new_code(email, password, login_id) {
 
         const data = await response.json();
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "login-new-code",
             "data": data
@@ -400,7 +400,7 @@ async function login_new_code(email, password, login_id) {
     } catch (error) {
         console.error('Request failed:', error);
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "login-new-code",
             "data": {
@@ -454,7 +454,7 @@ async function login_verify(email, password, login_id, verification_code) {
 
         const data = await response.json();
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "login-verify",
             "data": data
@@ -463,7 +463,7 @@ async function login_verify(email, password, login_id, verification_code) {
     } catch (error) {
         console.error('Request failed:', error);
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "login-verify",
             "data": {
@@ -515,7 +515,7 @@ async function logout(login_id, all_devices, send_response) {
         const data = await response.json();
 
         if (send_response) {
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "logout",
                 "data": data
@@ -526,7 +526,7 @@ async function logout(login_id, all_devices, send_response) {
         console.error('Request failed:', error);
 
         if (send_response) {
-            browser.runtime.sendMessage({
+            chrome.runtime.sendMessage({
                 "api_response": true,
                 "type": "logout",
                 "data": {
@@ -658,7 +658,7 @@ async function get_data(login_id_value, token_value) {
     } catch (error) {
         console.error('Request failed:', error);
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "check-id-get",
             "data": {
@@ -791,7 +791,7 @@ async function send_data(login_id, token, updated_locally, data_value) {
     } catch (error) {
         console.error('Request failed:', error);
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api": true,
             "type": "check-id-send",
             "data": {
@@ -811,9 +811,9 @@ async function check_user(login_id, token) {
     } else {
         //console.log("User is not valid: " + data.code);
         console.error("[api-service.js::check_user] User is not valid: " + data.code);
-        browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+        chrome.runtime.sendMessage({"check-user--expired": true}).then(response => {
             //logout(login_id, false, false);
-            browser.storage.sync.remove("notefox-account");
+            chrome.storage.sync.remove("notefox-account");
         });
     }
 }
@@ -841,17 +841,17 @@ async function check_user(login_id, token) {
             //console.log("User is valid");
         } else {
             //console.log("User is not valid: " + data.code);
-            browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+            chrome.runtime.sendMessage({"check-user--expired": true}).then(response => {
                 //logout(login_id_value, false, false);
-                browser.storage.sync.remove("notefox-account");
+                chrome.storage.sync.remove("notefox-account");
             });
         }
 
     } catch (error) {
         console.error('Request failed:', error);
-        //browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
+        //chrome.runtime.sendMessage({"check-user--expired": true}).then(response => {
         //    //logout(login_id_value, false, false);
-        //    browser.storage.sync.remove("notefox-account");
+        //    chrome.storage.sync.remove("notefox-account");
         //});
     }
 }*/
@@ -873,7 +873,7 @@ async function change_password(login_id_value, token_value, old_password_value, 
 
         const data = await response.json();
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "change-password",
             "data": data
@@ -882,7 +882,7 @@ async function change_password(login_id_value, token_value, old_password_value, 
     } catch (error) {
         console.error('Request failed:', error);
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "change-password",
             "data": {
@@ -910,7 +910,7 @@ async function delete_account(login_id_value, token_value, email_value, password
 
         const data = await response.json();
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "delete-account",
             "data": data
@@ -919,7 +919,7 @@ async function delete_account(login_id_value, token_value, email_value, password
     } catch (error) {
         console.error('Request failed:', error);
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "delete-account",
             "data": {
@@ -948,7 +948,7 @@ async function delete_account_verify(login_id_value, token_value, email_value, p
 
         const data = await response.json();
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "delete-verify",
             "data": data
@@ -957,7 +957,7 @@ async function delete_account_verify(login_id_value, token_value, email_value, p
     } catch (error) {
         console.error('Request failed:', error);
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "delete-verify",
             "data": {
@@ -983,7 +983,7 @@ async function delete_account_verify_new_code(email_value, password_value) {
 
         const data = await response.json();
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "delete-account-new-code",
             "data": data
@@ -992,7 +992,7 @@ async function delete_account_verify_new_code(email_value, password_value) {
     } catch (error) {
         console.error('Request failed:', error);
 
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             "api_response": true,
             "type": "delete-account-new-code",
             "data": {

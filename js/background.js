@@ -34,14 +34,14 @@ let sync_local = chrome.storage.local;
 checkSyncLocal();
 generalListener();
 
-/*browser.runtime.onInstalled.addListener(async ({reason, temporary}) => {
+/*chrome.runtime.onInstalled.addListener(async ({reason, temporary}) => {
     //if (temporary) return; // skip during development
 
     console.log(reason);
 
     switch (reason) {
         case "install": {
-            // or: await browser.windows.create({ url, type: "popup", height: 600, width: 600, });
+            // or: await chrome.windows.create({ url, type: "popup", height: 600, width: 600, });
         }
             break;
         // see below
