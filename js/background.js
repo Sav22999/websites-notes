@@ -26,28 +26,49 @@ var opacity = {value: 0.8};
 
 let opening_sticky = false;
 
-let page_domain_global = {"page": "Page", "domain": "Domain", "global": "Global", "subdomain": "•••"};
-let linkFirstLaunch = "https://notefox.eu/help/first-run"
+const page_domain_global = {"page": "Page", "domain": "Domain", "global": "Global", "subdomain": "•••"};
+const linkFirstLaunch = "https://notefox.eu/help/first-run"
+const linkAcceptPrivacy = "/privacy/index.html";
 
 let sync_local = chrome.storage.local;
 checkSyncLocal();
 generalListener();
 
+/*browser.runtime.onInstalled.addListener(async ({reason, temporary}) => {
+    //if (temporary) return; // skip during development
+
+    console.log(reason);
+
+    switch (reason) {
+        case "install": {
+            // or: await browser.windows.create({ url, type: "popup", height: 600, width: 600, });
+        }
+            break;
+        // see below
+    }
+});*/
+
 function checkSyncLocal() {
     sync_local = chrome.storage.local;
-    chrome.storage.sync.get("installation").then(result => {
-        //console.log("Installation")
-        //console.log(result)
-        if (result.installation === undefined) {
-            chrome.storage.sync.set({
-                "installation": {
-                    "date": getDate(),
-                    "version": chrome.runtime.getManifest().version
+    chrome.storage.local.get("privacy").then(result => {
+        if (result.privacy === undefined) {
+            //not accepted privacy policy -> open 'privacy' page
+            chrome.tabs.create({url: linkAcceptPrivacy});
+        } else {
+            chrome.storage.sync.get("installation").then(result => {
+                //console.log(">> Installation", result)
+                if (result.installation === undefined) {
+                    chrome.storage.sync.set({
+                        "installation": {
+                            "date": getDate(),
+                            "version": chrome.runtime.getManifest().version
+                        }
+                    });
+
+                    //first launch -> open 'first launch' page
+                    chrome.tabs.create({url: linkFirstLaunch});
                 }
             });
-
-            //first launch -> open tutorial
-            chrome.tabs.create({url: linkFirstLaunch});
         }
     });
 
@@ -103,8 +124,7 @@ function syncData(force_time = 1 * 60 * 1000, just_once = false) {
 }
 
 function actionResponse(response) {
-    //console.log("**** [background.js::actionResponse]", response);
-
+    //console.log("[background.js::actionResponse] Response: ", response);
     if (response["api_response"] !== undefined && response["api_response"] === true) {
         if (response["type"] !== undefined) {
             if (response["type"] === "get-data") {
@@ -164,7 +184,7 @@ function actionResponse(response) {
                                     });
                                 }
                             });
-                        } else if (data.code === 450) {
+                        } else if (data.code === 201) {
                             //No data on the server ==> never send data
                             //send data to the server
 
@@ -172,7 +192,7 @@ function actionResponse(response) {
 
                             sendLocalDataToServer();
                         } else {
-                            console.error(`Error: ${data.code} - ${data.status} - ${data.description}`);
+                            console.error("[background.js::actionResponse] Error: ", data);
                         }
                     }
                 }
@@ -796,13 +816,22 @@ function getPageUrl(url, with_protocol = true) {
     }
 
     //https://page.example/search#section1
-    if (settings_json["consider-sections"] === "no") {
+    if (settings_json["consider-sections"] === "no" || settings_json["consider-parameters"] === false) {
         if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
     }
 
     //https://page.example/search?parameters
-    if (settings_json["consider-parameters"] === "no") {
-        if (url.includes("?")) urlToReturn = urlToReturn.split("?")[0];
+    if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
+        if (url.includes("?")) {
+            urlToReturn = urlToReturn.split("?")[0];
+            if (urlToReturn.includes("#")) {
+                //if it includes sections, then check if consider-sections is "no"
+                //if it's "no", then remove the section
+                if (settings_json["consider-sections"] === "no" || settings_json["consider-sections"] === false) {
+                    urlToReturn = urlToReturn.replace(urlToReturn.split("#")[0], "");
+                }
+            }
+        }
     }
 
     //console.log(urlToReturn);
@@ -968,6 +997,10 @@ function listenerStickyNotes() {
                         opacity: {value: opacity.value}
                     });
                 }
+
+                //TODO!manually: update this list (using the same list of definitions.js)
+                const supportedFontFamily = ["Open Sans", "Shantell Sans", "Inter", "Lora", "Noto Sans", "Noto Serif", "Roboto", "Merienda", "Playfair Display", "Victor Mono", "Source Code Pro"];
+
                 if (message.ask === "notes") {
                     let url_to_use = getTheCorrectUrl();
                     let page_domain_global_to_use = getTypeToShow(type_to_use);
@@ -989,7 +1022,8 @@ function listenerStickyNotes() {
                             websites: websites_json,
                             settings: settings_json,
                             icons: icons_json,
-                            theme_colours: theme_colours_json
+                            theme_colours: theme_colours_json,
+                            supported_font_family: supportedFontFamily
                         });
                     } else {
                         //console.error(JSON.stringify(websites_json[url_to_use]));
@@ -1004,7 +1038,8 @@ function listenerStickyNotes() {
                             minimized: websites_json[url_to_use]["minimized"],
                             settings_json: settings_json,
                             icons: icons_json,
-                            theme_colours: theme_colours_json
+                            theme_colours: theme_colours_json,
+                            supported_font_family: supportedFontFamily
                         })
                     } else {
                         sendResponse({
@@ -1265,7 +1300,18 @@ function getAllOtherPossibleUrls(url) {
     let urlsToReturn = [];
 
     if (urlToReturn.includes("/")) {
-        let urlPartsTemp = urlToReturn.split("/");
+        //remove before the "?" and "#" if it exists
+
+        let urlPartsTemp = [];
+
+        urlPartsTemp = urlToReturn.split("/");
+        if (urlToReturn.includes("?")) {
+            urlPartsTemp = urlToReturn.split("?")[0].split("/");
+        }
+        if (urlToReturn.includes("#")) {
+            urlPartsTemp = urlToReturn.split("#")[0].split("/");
+        }
+
         let urlConcat = "/";
         for (let urlFor = 3; urlFor < urlPartsTemp.length; urlFor++) {
             if (urlPartsTemp[urlFor] !== "") {
@@ -1278,7 +1324,68 @@ function getAllOtherPossibleUrls(url) {
         }
     }
 
+    //get also the all possible combinations of parameters
+    //example: https://example.com/search?param1=1&param2=2&param3=3
+    //it should add urls like: https://example.com/search?param1=1, https://example.com/search?param2=2, https://example.com/search?param3=3, https://example.com/search?param1=1&param2=2, https://example.com/search?param1=1&param3=3, https://example.com/search?param2=2&param3=3, https://example.com/search?param1=1&param2=2&param3=3
+
+    if (urlToReturn.includes("/")) {
+        if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
+            let urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1];
+            if (urlToReturn.includes("#")) {
+                urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1].split("#")[0];
+            }
+
+            //console.log("urlToReturn", urlToReturn)
+            //console.log("urlToReturnTemp", urlToReturnTemp)
+
+            if (urlToReturn.includes("?")) {
+                let urlPartsTemp = urlToReturnTemp.split("?");
+                urlToReturnTemp = urlPartsTemp[0];
+                let parameters = urlPartsTemp[1].split("&");
+                let parametersToReturn = [];
+                for (let i = 0; i < parameters.length; i++) {
+                    let parameterParts = parameters[i].split("=");
+                    if (parameterParts[1] !== "" && parameterParts[1] !== undefined) {
+                        parametersToReturn.push(parameterParts[0] + "=" + parameterParts[1]);
+                    }
+                }
+                for (let i = 1; i <= parametersToReturn.length; i++) {
+                    let combinations = getCombinations(parametersToReturn, i);
+                    for (let j = 0; j < combinations.length; j++) {
+                        let urlToPush = urlToReturnTemp + "?" + combinations[j].join("&");
+                        if (urlToPush !== getDomainUrl(url)) {
+                            urlsToReturn.push(urlToPush);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     return urlsToReturn;
+}
+
+
+/**
+ * Generates all combinations of the elements in the array, taken n at a time.
+ * @param {Array} array - The array of elements.
+ * @param {number} n - The number of elements in each combination.
+ * @returns {Array} - An array of combinations, each combination is an array.
+ */
+function getCombinations(array, n) {
+    let result = [];
+    let f = function (prefix, array) {
+        for (let i = 0; i < array.length; i++) {
+            let newPrefix = prefix.concat(array[i]);
+            if (newPrefix.length === n) {
+                result.push(newPrefix);
+            } else {
+                f(newPrefix, array.slice(i + 1));
+            }
+        }
+    };
+    f([], array);
+    return result;
 }
 
 function setOpenedSticky(sticky, minimized) {

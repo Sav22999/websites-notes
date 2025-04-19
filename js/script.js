@@ -13,6 +13,7 @@ var urls_unsupported_by_sticky_notes = [];//TODO!MANUAL change this manually in 
 var stickyNotesSupported = true;
 
 const all_strings = strings[languageToUse];
+const linkAcceptPrivacy = "/privacy/index.html";
 
 //Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
@@ -61,6 +62,14 @@ function checkSyncLocal() {
 }
 
 function loaded() {
+    browser.storage.local.get("privacy").then(result => {
+        if (result.privacy === undefined) {
+            //not accepted privacy policy -> open 'privacy' page
+            browser.tabs.create({url: linkAcceptPrivacy});
+            window.close()
+        }
+    });
+
     checkSyncLocal();
     loadSettings();
     checkTheme();
@@ -249,18 +258,19 @@ function loadUI() {
                         }
                         //console.log(url + " : " + tmp_check);
                     });
+
                     if (opened_by === 1 || (opened_by === -1 && check_for_domain && (default_index === 1 || default_index === 2 && !check_for_page || default_index === 0 && !check_for_global))) {
                         //by domain
                         setTab(1, currentUrl[1]);
                     } else if (opened_by === 2 || (opened_by === -1 && check_for_page && (default_index === 2 || default_index === 1 && !check_for_domain || default_index === 0 && !check_for_global))) {
                         //by page
                         setTab(2, currentUrl[2]);
-                    } else if (opened_by === 0 || (opened_by === -1 && check_for_global && (default_index === 0 || default_index === 1 && !check_for_domain || default_index === 2 && !check_for_page))) {
-                        //by global
-                        setTab(0, currentUrl[0]);
                     } else if (opened_by === -1 && check_for_subdomains) {
                         //by subdomain
                         setTab(3, currentUrl[3]);
+                    } else if (opened_by === 0 || (opened_by === -1 && check_for_global && (default_index === 0 || default_index === 1 && !check_for_domain || default_index === 2 && !check_for_page))) {
+                        //by global
+                        setTab(0, currentUrl[0]);
                     } else {
                         //using default
                         if (opened_by !== -1) {
@@ -463,6 +473,7 @@ function showTabSubDomains() {
         document.getElementById("notes").contentEditable = true;
         document.getElementById("notes").focus();
     }
+    document.getElementById("tab-other-button").classList.add("not-sel");
 
     if (selected_tab === 3) {
         document.getElementById("subdomains-list").childNodes.forEach(node => {
@@ -480,12 +491,17 @@ function showTabSubDomains() {
             node.setAttribute("class", class_text);
         });
     }
+    //get focus on the first element of the list
+    document.querySelector("#subdomains-list > *")?.focus();
 }
 
 function hideTabSubDomains() {
     document.getElementById("notes").contentEditable = true;
     document.getElementById("notes").focus();
     document.getElementById("panel-other-tabs").classList.add("hidden");
+    if (document.getElementById("tab-other-button").classList.contains("not-sel")) {
+        document.getElementById("tab-other-button").classList.remove("not-sel");
+    }
     document.getElementById("subdomains-list").childNodes.forEach(node => {
         let class_text = "subdomain";
         node.setAttribute("class", class_text);
@@ -547,7 +563,8 @@ function loadSettings(load_only = false) {
         if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
         if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
         if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
-        if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+        if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
+        if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
         if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
         if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
 
@@ -664,6 +681,25 @@ function saveNotes(title_call = false) {
         if (websites_json[url_to_use] === undefined) websites_json[url_to_use] = {};
         let notes = document.getElementById("notes").innerHTML;
         let title = document.getElementById("title-notes").value;
+
+        if (settings_json["save-page-content"]) {
+            browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                let activeTab = tabs[0];
+                browser.tabs.executeScript(activeTab.id, {
+                    code: "document.body.innerText"
+                }).then(result => {
+                    if (result && result[0]) {
+                        websites_json[url_to_use]["content"] = result[0];
+                        // Save here because text extraction is asynchronous, and this function gets called AFTER the
+                        // "sync_local" call which is further below in the code.
+                        sync_local.set({"websites": websites_json, "last-update": getDate()});
+                    }
+                }).catch(error => {
+                    console.error("Error extracting visible text: " + error);
+                });
+            });
+        }
+
         websites_json[url_to_use]["notes"] = notes;
         if (settings_json["show-title-textbox"]) websites_json[url_to_use]["title"] = title;
         websites_json[url_to_use]["last-update"] = getDate();
@@ -727,7 +763,7 @@ function saveNotes(title_call = false) {
 
                 let last_update = all_strings["never-update"];
                 if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["last-update"] !== undefined) last_update = websites_json[url_to_use]["last-update"];
-                document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
+                document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(last_update));
 
                 let colour = "none";
                 document.getElementById("tag-colour-section").removeAttribute("class");
@@ -757,41 +793,11 @@ function saveNotes(title_call = false) {
     });
 }
 
-function correctDatetime(datetime) {
-    let date = new Date(datetime);
-    let year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    let seconds = date.getSeconds();
-
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-}
-
 function getCurrentTabNameTag(tab) {
     if (tab === 0) return "global";
     else if (tab === 1) return "domain";
     else if (tab === 2) return "page";
     else if (tab === 3) return "subdomain";
-}
-
-function getDate() {
-    let todayDate = new Date();
-    let today = "";
-    today = todayDate.getFullYear() + "-";
-    let month = todayDate.getMonth() + 1;
-    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
-    let day = todayDate.getDate();
-    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
-    let hour = todayDate.getHours();
-    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
-    let minute = todayDate.getMinutes();
-    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
-    let second = todayDate.getSeconds();
-    if (second < 10) today = today + "0" + second; else today = today + "" + second
-
-    return today;
 }
 
 function checkNeverSaved(never_saved) {
@@ -844,13 +850,13 @@ function setUrl(url) {
     if (advanced_managing && otherPossibleUrls.length > 0) {
         document.getElementById("domain-button").style.width = "30%";
         document.getElementById("tab-other-button").style.width = "10%";
-        document.getElementById("page-button").style.borderRadius = "0px";
+        //document.getElementById("page-button").style.borderRadius = "0px";
         document.getElementById("tab-other-button").style.display = "inline-block";
     } else {
         document.getElementById("domain-button").style.width = "40%";
         document.getElementById("tab-other-button").style.display = "none";
-        document.getElementById("page-button").style.borderBottomRightRadius = "5px";
-        document.getElementById("page-button").style.borderTopRightRadius = "5px";
+        //document.getElementById("page-button").style.borderBottomRightRadius = "5px";
+        //document.getElementById("page-button").style.borderTopRightRadius = "5px";
     }
     if (document.getElementById("page-button").classList.contains("hidden")) document.getElementById("page-button").classList.remove("hidden");
     if (stickyNotesSupported && document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
@@ -952,13 +958,22 @@ function getPageUrl(url, with_protocol = true) {
     }
 
     //https://page.example/search#section1
-    if (settings_json["consider-sections"] === "no") {
+    if (settings_json["consider-sections"] === "no" || settings_json["consider-parameters"] === "no") {
         if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
     }
 
     //https://page.example/search?parameters
-    if (settings_json["consider-parameters"] === "no") {
-        if (url.includes("?")) urlToReturn = urlToReturn.split("?")[0];
+    if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
+        if (url.includes("?")) {
+            urlToReturn = urlToReturn.split("?")[0];
+            if (urlToReturn.includes("#")) {
+                //if it includes sections, then check if consider-sections is "no"
+                //if it's "no", then remove the section
+                if (settings_json["consider-sections"] === "no" || settings_json["consider-sections"] === false) {
+                    urlToReturn = urlToReturn.replace(urlToReturn.split("#")[0], "");
+                }
+            }
+        }
     }
 
     //console.log(urlToReturn);
@@ -983,12 +998,24 @@ function getAllOtherPossibleUrls(url) {
     let urlsToReturn = [];
 
     if (urlToReturn.includes("/")) {
-        let urlPartsTemp = urlToReturn.split("/");
+        //remove before the "?" and "#" if it exists
+
+        let urlPartsTemp = [];
+
+        urlPartsTemp = urlToReturn.split("/");
+        if (urlToReturn.includes("?")) {
+            urlPartsTemp = urlToReturn.split("?")[0].split("/");
+        }
+        if (urlToReturn.includes("#")) {
+            urlPartsTemp = urlToReturn.split("#")[0].split("/");
+        }
+
         let urlConcat = "/";
         for (let urlFor = 3; urlFor < urlPartsTemp.length; urlFor++) {
             if (urlPartsTemp[urlFor] !== "") {
                 urlConcat += urlPartsTemp[urlFor];
                 if (urlConcat !== getDomainUrl(url)) {
+                    //console.log(urlConcat);
                     urlsToReturn.push(urlConcat + "/*");
                 }
                 urlConcat += "/";
@@ -996,7 +1023,67 @@ function getAllOtherPossibleUrls(url) {
         }
     }
 
+    //get also the all possible combinations of parameters
+    //example: https://example.com/search?param1=1&param2=2&param3=3
+    //it should add urls like: https://example.com/search?param1=1, https://example.com/search?param2=2, https://example.com/search?param3=3, https://example.com/search?param1=1&param2=2, https://example.com/search?param1=1&param3=3, https://example.com/search?param2=2&param3=3, https://example.com/search?param1=1&param2=2&param3=3
+
+    if (urlToReturn.includes("/")) {
+        if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
+            let urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1];
+            if (urlToReturn.includes("#")) {
+                urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1].split("#")[0];
+            }
+
+            //console.log("urlToReturn", urlToReturn)
+            //console.log("urlToReturnTemp", urlToReturnTemp)
+
+            if (urlToReturn.includes("?")) {
+                let urlPartsTemp = urlToReturnTemp.split("?");
+                urlToReturnTemp = urlPartsTemp[0];
+                let parameters = urlPartsTemp[1].split("&");
+                let parametersToReturn = [];
+                for (let i = 0; i < parameters.length; i++) {
+                    let parameterParts = parameters[i].split("=");
+                    if (parameterParts[1] !== "" && parameterParts[1] !== undefined) {
+                        parametersToReturn.push(parameterParts[0] + "=" + parameterParts[1]);
+                    }
+                }
+                for (let i = 1; i <= parametersToReturn.length; i++) {
+                    let combinations = getCombinations(parametersToReturn, i);
+                    for (let j = 0; j < combinations.length; j++) {
+                        let urlToPush = urlToReturnTemp + "?" + combinations[j].join("&");
+                        if (urlToPush !== getDomainUrl(url)) {
+                            urlsToReturn.push(urlToPush);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     return urlsToReturn;
+}
+
+/**
+ * Generates all combinations of the elements in the array, taken n at a time.
+ * @param {Array} array - The array of elements.
+ * @param {number} n - The number of elements in each combination.
+ * @returns {Array} - An array of combinations, each combination is an array.
+ */
+function getCombinations(array, n) {
+    let result = [];
+    let f = function (prefix, array) {
+        for (let i = 0; i < array.length; i++) {
+            let newPrefix = prefix.concat(array[i]);
+            if (newPrefix.length === n) {
+                result.push(newPrefix);
+            } else {
+                f(newPrefix, array.slice(i + 1));
+            }
+        }
+    };
+    f([], array);
+    return result;
 }
 
 function getTheProtocol(url) {
@@ -1042,13 +1129,16 @@ function setTab(index, url) {
 
     document.getElementsByClassName("tab")[index].classList.add("tab-sel");
 
+    //console.log("url", url)
+    //console.log("getPage(url)", getPageUrl(url));
+
     let never_saved = true;
     let notes = "";
     let title = "";
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"] !== undefined) {
+    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["notes"] !== undefined) {
         //notes saved (also it's empty)
-        notes = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["notes"];
-        title = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["title"];
+        notes = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["notes"];
+        title = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["title"];
         listenerLinks();
         never_saved = false;
     }
@@ -1074,19 +1164,19 @@ function setTab(index, url) {
     }
 
     let last_update = all_strings["never-update"];
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"] !== undefined) last_update = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["last-update"];
-    document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", last_update);
+    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["last-update"] !== undefined) last_update = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["last-update"];
+    document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(last_update));
 
     let colour = "none";
     document.getElementById("tag-colour-section").removeAttribute("class");
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"] !== undefined) colour = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["tag-colour"];
+    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"] !== undefined) colour = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"];
     document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
     if (websites_json[currentUrl[selected_tab]] !== undefined) document.getElementById("tag-select-grid").value = websites_json[currentUrl[selected_tab]]["tag-colour"];
 
     let sticky = false;
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"] !== undefined) sticky = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["sticky"];
+    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["sticky"] !== undefined) sticky = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["sticky"];
     let minimized = false;
-    if (checkAllSupportedProtocols(getPageUrl(url), websites_json) && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"] !== undefined) minimized = websites_json[getUrlWithSupportedProtocol(getPageUrl(url), websites_json)]["minimized"];
+    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["minimized"] !== undefined) minimized = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["minimized"];
 
     document.getElementById("notes").focus();
 
@@ -1474,6 +1564,11 @@ function loadFormatButtons(navigation = true, format = true) {
         else html_text_formatting = false;
     }
 
+    let is_undo_redo = true;
+    if (settings_json["undo-redo"] !== undefined) {
+        if (settings_json["undo-redo"] === "yes" || settings_json["undo-redo"] === true) is_undo_redo = true;
+        else is_undo_redo = false;
+    }
     let is_bold_italic_underline_strikethrough = true;
     if (settings_json["bold-italic-underline-strikethrough"] !== undefined) {
         if (settings_json["bold-italic-underline-strikethrough"] === "yes" || settings_json["bold-italic-underline-strikethrough"] === true) is_bold_italic_underline_strikethrough = true;
@@ -1507,23 +1602,25 @@ function loadFormatButtons(navigation = true, format = true) {
 
     let commands = [];
     if (navigation && html_text_formatting) {
-        commands.push(
-            {
-                action: "undo",
-                icon: `${url}undo.svg`,
-                title: all_strings["label-title-undo"],
-                function: function () {
-                    undo()
-                }
-            },
-            {
-                action: "redo",
-                icon: `${url}redo.svg`,
-                title: all_strings["label-title-redo"],
-                function: function () {
-                    redo()
-                }
-            });
+        if (is_undo_redo) {
+            commands.push(
+                {
+                    action: "undo",
+                    icon: `${url}undo.svg`,
+                    title: all_strings["label-title-undo"],
+                    function: function () {
+                        undo()
+                    }
+                },
+                {
+                    action: "redo",
+                    icon: `${url}redo.svg`,
+                    title: all_strings["label-title-redo"],
+                    function: function () {
+                        redo()
+                    }
+                });
+        }
     } else {
         actions = [];
         currentAction = 0;
@@ -1798,6 +1895,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
+        let tertiaryTransparent3 = primary;
         if (tertiaryTransparent.includes("rgb(")) {
             let rgb_temp = tertiaryTransparent.replace("rgb(", "");
             let rgb_temp_arr = rgb_temp.split(",");
@@ -1811,6 +1909,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         } else if (tertiaryTransparent.includes("#")) {
             tertiaryTransparent += "22";
             tertiaryTransparent2 += "88";
+            tertiaryTransparent3 += "BB";
         }
         //console.log(tertiaryTransparent);
 
@@ -1826,6 +1925,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     --tertiary: ${tertiary};
                     --tertiary-transparent: ${tertiaryTransparent};
                     --tertiary-transparent-2: ${tertiaryTransparent2};
+                    --tertiary-transparent-3: ${tertiaryTransparent3};
+                    --background-color: ${background};
+                    --background-section-color: ${backgroundSection};
                 }
                 #open-sticky-button {
                     background-image: url('data:image/svg+xml;base64,${sticky_svg}');

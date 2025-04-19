@@ -94,7 +94,18 @@ var letters_and_numbers = {
 };
 var ctrl_alt_shift = ["default", "domain", "page"];
 
+const linkAcceptPrivacy = "/privacy/index.html";
+
 function loaded() {
+    chrome.runtime.onMessage.addListener((message) => {
+    chrome.storage.local.get("privacy").then(result => {
+        if (result.privacy === undefined) {
+            //not accepted privacy policy -> open 'privacy' page
+            chrome.tabs.create({url: linkAcceptPrivacy});
+            window.close()
+        }
+    });
+
     chrome.runtime.onMessage.addListener((message) => {
         if (message["sync_update"] !== undefined && message["sync_update"]) {
             location.reload();
@@ -140,6 +151,8 @@ function loaded() {
     //TODO: chrome
     chrome.tabs.onActivated.addListener(tabActivated);
     //chrome.tabs.onUpdated.addListener(tabUpdated);
+
+    //catch
 
     document.getElementById("save-settings-button").onclick = function () {
         saveSettings();
@@ -189,6 +202,18 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("save-page-content-check").onchange = function () {
+        settings_json["save-page-content"] = document.getElementById("save-page-content-check").checked;
+
+        saveSettings();
+    };
+
+    document.getElementById("search-page-content-check").onchange = function () {
+        settings_json["search-page-content"] = document.getElementById("search-page-content-check").checked;
+
+        saveSettings();
+    };
+
     document.getElementById("disable-word-wrap-check").onchange = function () {
         settings_json["disable-word-wrap"] = document.getElementById("disable-word-wrap-check").checked;
 
@@ -203,6 +228,8 @@ function loaded() {
 
     setThemeChooser();
     setStickyThemeChooser();
+    setFontFamilyChooser();
+    setDatetimeFormatChooser();
 
     document.getElementById("check-green-icon-global-check").onchange = function () {
         settings_json["check-green-icon-global"] = document.getElementById("check-green-icon-global-check").checked;
@@ -240,13 +267,6 @@ function loaded() {
         saveSettings();
     };
 
-    document.getElementById("font-family-select").onchange = function () {
-        settings_json["font-family"] = document.getElementById("font-family-select").value;
-        sendMessageUpdateToBackground();
-
-        saveSettings();
-    };
-
     document.getElementById("show-title-textbox-check").onchange = function () {
         settings_json["show-title-textbox"] = document.getElementById("show-title-textbox-check").checked;
 
@@ -255,6 +275,12 @@ function loaded() {
 
     document.getElementById("immersive-sticky-notes-check").onchange = function () {
         settings_json["immersive-sticky-notes"] = document.getElementById("immersive-sticky-notes-check").checked;
+
+        saveSettings();
+    }
+
+    document.getElementById("show-undo-redo-check").onchange = function () {
+        settings_json["undo-redo"] = document.getElementById("show-undo-redo-check").checked;
 
         saveSettings();
     }
@@ -346,6 +372,7 @@ function loaded() {
     titleAllNotes.textContent = all_strings["settings-title"];
 
     loadAsideBar();
+    loadDeveloperOptions();
 }
 
 function setThemeChooser() {
@@ -417,6 +444,58 @@ function tabUpdated() {
     });
 }
 
+function setFontFamilyChooser() {
+    document.querySelectorAll('.item-radio-font-family input[name="font-family-radio"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            setFontFamilyChooserByElement(input);
+        });
+    });
+}
+
+function resetFontFamilyChooser() {
+    document.querySelectorAll('.item-radio-font-family input[name="font-family-radio"]').forEach(function (input) {
+        input.closest('.item-radio-font-family').style.boxShadow = 'none';
+    });
+
+}
+
+function setFontFamilyChooserByElement(element, set_variable = true) {
+    resetFontFamilyChooser();
+    element.closest('.item-radio-font-family').style.boxShadow = '0px 0px 0px 5px var(--tertiary-transparent-2)';
+    if (set_variable) {
+        settings_json["font-family"] = element.value;
+
+        saveSettings();
+    }
+    sendMessageUpdateToBackground();
+}
+
+function setDatetimeFormatChooser() {
+    document.querySelectorAll('.item-radio-datetime-format input[name="datetime-format-radio"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            setDatetimeFormatChooserByElement(input);
+        });
+    });
+}
+
+function resetDatetimeFormatChooser() {
+    document.querySelectorAll('.item-radio-datetime-format input[name="datetime-format-radio"]').forEach(function (input) {
+        input.closest('.item-radio-datetime-format').style.boxShadow = 'none';
+    });
+
+}
+
+function setDatetimeFormatChooserByElement(element, set_variable = true) {
+    resetDatetimeFormatChooser();
+    element.closest('.item-radio-datetime-format').style.boxShadow = '0px 0px 0px 5px var(--tertiary-transparent-2)';
+    if (set_variable) {
+        settings_json["datetime-format"] = element.value;
+
+        saveSettings();
+    }
+    sendMessageUpdateToBackground();
+}
+
 function setLanguageUI() {
     document.title = all_strings["settings-title-page"];
 
@@ -440,6 +519,10 @@ function setLanguageUI() {
     document.getElementById("advanced-managing-detailed-text").innerHTML = all_strings["advanced-managing-detailed"];
     document.getElementById("html-text-formatting-text").innerText = all_strings["html-text-formatting"];
     document.getElementById("html-text-formatting-detailed-text").innerHTML = all_strings["html-text-formatting-detailed"];
+    document.getElementById("save-page-content").innerText = all_strings["save-page-content"];
+    document.getElementById("save-page-content-detailed-text").innerHTML = all_strings["save-page-content-detailed"];
+    document.getElementById("search-page-content").innerText = all_strings["search-page-content"];
+    document.getElementById("search-page-content-detailed-text").innerHTML = all_strings["search-page-content-detailed"];
     document.getElementById("disable-word-wrap-text").innerText = all_strings["disable-word-wrap"];
     document.getElementById("spellcheck-detection-text").innerText = all_strings["spellcheck-detection"];
     document.getElementById("check-green-icon-global-text").innerText = all_strings["check-green-icon-global"];
@@ -456,6 +539,14 @@ function setLanguageUI() {
     document.getElementById("check-with-all-supported-protocols-detailed-text").innerHTML = all_strings["check-with-all-supported-protocols-detailed"];
     document.getElementById("font-family-text").innerHTML = all_strings["font-family"];
     document.getElementById("font-family-detailed-text").innerHTML = all_strings["font-family-detailed"];
+    document.getElementById("datetime-format-text").innerHTML = all_strings["datetime-format"];
+    document.getElementById("datetime-format-detailed-text").innerHTML = all_strings["datetime-format-detailed"];
+    document.getElementById("preview-datetime-format-yyyymmdd1").innerText = datetimeToDisplay(new Date(), "yyyymmdd1", true);
+    document.getElementById("preview-datetime-format-yyyyddmm1").innerText = datetimeToDisplay(new Date(), "yyyyddmm1", true);
+    document.getElementById("preview-datetime-format-ddmmyyyy1").innerText = datetimeToDisplay(new Date(), "ddmmyyyy1", true);
+    document.getElementById("preview-datetime-format-ddmmyyyy2").innerText = datetimeToDisplay(new Date(), "ddmmyyyy2", true);
+    document.getElementById("preview-datetime-format-ddmmyyyy1-12h").innerText = datetimeToDisplay(new Date(), "ddmmyyyy1-12h", true);
+    document.getElementById("preview-datetime-format-mmddyyyy1").innerText = datetimeToDisplay(new Date(), "mmddyyyy1", true);
     document.getElementById("theme-text").innerText = all_strings["theme-text"];
     document.getElementById("theme-select-lighter").innerText = all_strings["theme-choose-lighter-select"];
     document.getElementById("theme-select-light").innerText = all_strings["theme-choose-light-select"];
@@ -476,6 +567,7 @@ function setLanguageUI() {
     document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
     document.getElementById("immersive-sticky-notes-text").innerText = all_strings["immersive-sticky-notes-text"];
     document.getElementById("immersive-sticky-notes-detailed-text").innerHTML = all_strings["immersive-sticky-notes-detailed-text"];
+    document.getElementById("show-undo-redo-text").innerText = all_strings["show-undo-redo-text"];
     document.getElementById("show-bold-italic-underline-strikethrough-text").innerText = all_strings["show-bold-italic-underline-strikethrough-text"];
     document.getElementById("show-link-text").innerText = all_strings["show-link-text"];
     document.getElementById("show-spellcheck-text").innerText = all_strings["show-spellcheck-text"];
@@ -588,6 +680,8 @@ function loadSettings() {
             if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
             if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
             if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
+            if (settings_json["save-page-content"] === undefined) settings_json["save-page-content"] = false;
+            if (settings_json["search-page-content"] === undefined) settings_json["search-page-content"] = false;
             if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
             if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = false;
             if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
@@ -598,10 +692,12 @@ function loadSettings() {
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
-            if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+            if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
             if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
             if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
+            if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
 
+            if (settings_json["undo-redo"] === undefined) settings_json["undo-redo"] = true;
             if (settings_json["bold-italic-underline-strikethrough"] === undefined) settings_json["bold-italic-underline-strikethrough"] = true;
             if (settings_json["link"] === undefined) settings_json["link"] = true;
             if (settings_json["spellcheck"] === undefined) settings_json["spellcheck"] = true;
@@ -620,6 +716,8 @@ function loadSettings() {
             document.getElementById("consider-sections-check").checked = settings_json["consider-sections"] === true || settings_json["consider-sections"] === "yes";
             document.getElementById("advanced-managing-check").checked = settings_json["advanced-managing"] === true || settings_json["advanced-managing"] === "yes";
             document.getElementById("html-text-formatting-check").checked = settings_json["html-text-formatting"] === true || settings_json["html-text-formatting"] === "yes";
+            document.getElementById("save-page-content-check").checked = settings_json["save-page-content"] === true || settings_json["save-page-content"] === "yes";
+            document.getElementById("search-page-content-check").checked = settings_json["search-page-content"] === true || settings_json["search-page-content"] === "yes";
             document.getElementById("disable-word-wrap-check").checked = settings_json["disable-word-wrap"] === true || settings_json["disable-word-wrap"] === "yes";
             document.getElementById("spellcheck-detection-check").checked = settings_json["spellcheck-detection"] === true || settings_json["spellcheck-detection"] === "yes";
             document.getElementById("check-green-icon-global-check").checked = settings_json["check-green-icon-global"] === true || settings_json["check-green-icon-global"] === "yes";
@@ -627,12 +725,30 @@ function loadSettings() {
             document.getElementById("check-green-icon-page-check").checked = settings_json["check-green-icon-page"] === true || settings_json["check-green-icon-page"] === "yes";
             document.getElementById("check-green-icon-subdomain-check").checked = settings_json["check-green-icon-subdomain"] === true || settings_json["check-green-icon-subdomain"] === "yes";
 
+            if (document.getElementById("save-page-content-check").checked) {
+                if (document.getElementById("save-content-subsection").classList.contains("hidden")) document.getElementById("save-content-subsection").classList.remove("hidden");
+            } else {
+                document.getElementById("save-content-subsection").classList.add("hidden");
+            }
+
+            //light, dark, lighter, darker, auto
             if (settings_json["theme"] === "light") setThemeChooserByElement(document.getElementById("item-radio-theme-light"), false); else if (settings_json["theme"] === "dark") setThemeChooserByElement(document.getElementById("item-radio-theme-dark"), false); else if (settings_json["theme"] === "lighter") setThemeChooserByElement(document.getElementById("item-radio-theme-lighter"), false); else if (settings_json["theme"] === "darker") setThemeChooserByElement(document.getElementById("item-radio-theme-darker"), false); else if (settings_json["theme"] === "auto") setThemeChooserByElement(document.getElementById("item-radio-theme-auto"), false);
+            //yellow, lime, cyan, pink, white, black, auto
             if (settings_json["sticky-theme"] === "yellow" || settings_json["sticky-theme"] === "lime" || settings_json["sticky-theme"] === "cyan" || settings_json["sticky-theme"] === "pink" || settings_json["sticky-theme"] === "white" || settings_json["sticky-theme"] === "black" || settings_json["sticky-theme"] === "auto") setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-" + settings_json["sticky-theme"]), false);
+            else setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-yellow"), false); //default
+
+            //font family (already checked the supported font family)
+            if (settings_json["font-family"] !== undefined) {
+                let fontFamily = settings_json["font-family"].replaceAll(" ", "").toLowerCase();
+                setFontFamilyChooserByElement(document.getElementById("item-radio-font-family-" + fontFamily), false);
+            }
+
+            if (settings_json["datetime-format"] !== undefined) {
+                setDatetimeFormatChooserByElement(document.getElementById("item-radio-datetime-format-" + settings_json["datetime-format"]), false);
+            }
 
             document.getElementById("open-links-only-with-ctrl-check").checked = settings_json["open-links-only-with-ctrl"] === true || settings_json["open-links-only-with-ctrl"] === "yes";
             document.getElementById("check-with-all-supported-protocols-check").checked = settings_json["check-with-all-supported-protocols"] === true || settings_json["check-with-all-supported-protocols"] === "yes";
-            document.getElementById("font-family-select").value = settings_json["font-family"];
 
             document.getElementById("show-title-textbox-check").checked = settings_json["show-title-textbox"] === true || settings_json["show-title-textbox"] === "yes";
             document.getElementById("immersive-sticky-notes-check").checked = settings_json["immersive-sticky-notes"] === true || settings_json["immersive-sticky-notes"] === "yes";
@@ -643,6 +759,7 @@ function loadSettings() {
                 document.getElementById("html-text-formatting-buttons").classList.add("hidden");
             }
 
+            document.getElementById("show-undo-redo-check").checked = settings_json["undo-redo"] === true || settings_json["undo-redo"] === "yes";
             document.getElementById("show-bold-italic-underline-strikethrough-check").checked = settings_json["bold-italic-underline-strikethrough"] === true || settings_json["bold-italic-underline-strikethrough"] === "yes";
             document.getElementById("show-link-check").checked = settings_json["link"] === true || settings_json["link"] === "yes";
             document.getElementById("show-spellcheck-check").checked = settings_json["spellcheck"] === true || settings_json["spellcheck"] === "yes";
@@ -867,6 +984,107 @@ function loadAsideBar() {
     }
 
     version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", chrome.runtime.getManifest().version);
+}
+
+function loadDeveloperOptions() {
+    if (document.getElementById("version-aside")) {
+        document.getElementById("version-aside").onclick = function () {
+            developerDetails(["general"], document.getElementById("version-aside"), 5, 5); // 5 clicks in 5 seconds
+        }
+    }
+
+
+    if (document.getElementById("notefox-account-settings-text")) {
+        developerDetails(["notefox-account"], document.getElementById("notefox-account-settings-text"), 5, 5); // 5 clicks in 5 seconds
+    }
+
+    if (document.getElementById("title-account")) {
+        developerDetails(["notefox-account-token"], document.getElementById("title-account"), 8, 5); // 5 clicks in 5 seconds
+    }
+}
+
+function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
+    let clickCount = 0;
+    let clickTimeout = null;
+
+    element.onclick = function () {
+        //console.log(`click ${clickCount + 1}/${times} for ${type}`)
+        clickCount++;
+        if (clickTimeout) {
+            clearTimeout(clickTimeout);
+        }
+        clickTimeout = setTimeout(() => {
+            clickCount = 0;
+        }, maxSeconds * 1000);
+
+        if (clickCount === times) {
+            if (type.includes("general")) {
+                //GENERAL case
+                chrome.storage.local.get(["privacy", "settings"]).then(localData => {
+                    chrome.storage.sync.get("installation").then(installation => {
+                        const details = {
+                            "notefox-version": browser.runtime.getManifest().version ?? '??undefined??',
+                            "web-browser": webBrowserUsed ?? '??undefined??',
+                            "installation": installation ?? '??undefined??',
+                            "privacy-acceptance": localData["privacy"] ?? '??undefined??',
+                            "settings": localData["settings"] ?? '??undefined??',
+                        }
+                        console.log(startMessageDeveloperDetails("=GENERAL="), '\n', JSON.stringify(details), '\n', endMessageDeveloperDetails());
+                    });
+                });
+            }
+            if (type.includes("notefox-account")) {
+                //NOTEFOX-ACCOUNT case
+                chrome.storage.local.get(["last-update", "last-sync"]).then(localData => {
+                    chrome.storage.sync.get("notefox-account").then(notefoxAccount => {
+                        let notefoxAccountToUse = notefoxAccount["notefox-account"];
+                        if (notefoxAccountToUse !== undefined && notefoxAccountToUse["token"]) {
+                            //if it's present the token, remove it!
+                            notefoxAccountToUse["token"] = "===REMOVED-TO-PRESERVE-PRIVACY===";
+                        }
+                        const details = {
+                            "notefox-account": notefoxAccountToUse ?? '??undefined??',
+                            "last-update": localData["last-update"] ?? '??undefined??',
+                            "last-sync": localData["last-sync"] ?? '??undefined??',
+                        }
+                        console.log(startMessageDeveloperDetails("=NOTEFOX-ACCOUNT="), JSON.stringify(details), endMessageDeveloperDetails());
+                    });
+                });
+            }
+            if (type.includes("notefox-account-token")) {
+                //NOTEFOX-ACCOUNT-TOKEN case
+                chrome.storage.sync.get("notefox-account").then(notefoxAccount => {
+                    let token = "===NOT-FOUND==="
+                    if (notefoxAccount["notefox-account"] !== undefined && notefoxAccount["notefox-account"]["token"]) {
+                        //if it's present the token, remove it!
+                        token = notefoxAccount["notefox-account"]["token"];
+                    }
+                    const details = {
+                        "notefox-account-token": token ?? '??undefined??'
+                    }
+                    console.log(startMessageDeveloperDetails("=NOTEFOX-ACCOUNT-TOKEN="), JSON.stringify(details), endMessageDeveloperDetails());
+                });
+            }
+            if (type.length === 0) {
+                console.error("DeveloperConsoleError: type is empty!")
+            }
+            clickCount = 0;
+        }
+    };
+
+    function startMessageDeveloperDetails(additionalString = '') {
+        return `
+//∨∨∨∨∨∨∨∨∨∨∨∨${additionalString}∨∨∨∨∨∨∨∨∨∨∨∨//
+THIS IS AN ADVANCED FEATURE: DO NOT SHARE IT WITH ANYONE IF YOU DON'T KNOW WHAT YOU ARE DOING
+//∨∨∨∨∨∨∨∨∨∨∨∨${additionalString}∨∨∨∨∨∨∨∨∨∨∨∨//`;
+    }
+
+    function endMessageDeveloperDetails(additionalString = '') {
+        return `
+//∧∧∧∧∧∧∧∧∧∧∧∧${additionalString}∧∧∧∧∧∧∧∧∧∧∧∧//
+THIS IS AN ADVANCED FEATURE: DO NOT SHARE IT WITH ANYONE IF YOU DON'T KNOW WHAT YOU ARE DOING",
+//∧∧∧∧∧∧∧∧∧∧∧∧${additionalString}∧∧∧∧∧∧∧∧∧∧∧∧//`;
+    }
 }
 
 function checkOperatingSystem() {
@@ -2141,7 +2359,7 @@ function updateSyncDatetime() {
 
 function listenerNotefoxAccount() {
     chrome.runtime.onMessage.addListener((message) => {
-        console.log("**** [settings.js] Message received", message);
+        //console.log("**** [settings.js] Message received", message);
         if (message["api_response"] !== undefined && message["api_response"]) {
             let data = message["data"];
             switch (message["type"]) {
@@ -2744,6 +2962,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
+        let tertiaryTransparent3 = primary;
         if (tertiaryTransparent.includes("rgb(")) {
             let rgb_temp = tertiaryTransparent.replace("rgb(", "");
             let rgb_temp_arr = rgb_temp.split(",");
@@ -2757,6 +2976,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         } else if (tertiaryTransparent.includes("#")) {
             tertiaryTransparent += "22";
             tertiaryTransparent2 += "88";
+            tertiaryTransparent3 += "BB";
         }
         //console.log(tertiaryTransparent);
 
@@ -2772,6 +2992,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     --tertiary: ${tertiary};
                     --tertiary-transparent: ${tertiaryTransparent};
                     --tertiary-transparent-2: ${tertiaryTransparent2};
+                    --tertiary-transparent-3: ${tertiaryTransparent3};
+                    --background-color: ${background};
+                    --background-section-color: ${backgroundSection};
                 }
                 .save-button {
                     background-image: url('data:image/svg+xml;base64,${save_svg}');

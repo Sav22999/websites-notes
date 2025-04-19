@@ -2,7 +2,14 @@ var lang = "";
 
 var strings = []; //strings[language_code] = {};
 
-let supportedLanguages = ["en", "it", "ar", "zh-cn", "zh-tw", "cs", "da", "nl", "fi", "fr", "de", "el", "ja", "pl", "pt-pt", "pt-br", "ro", "ru", "es", "sv-SE", "uk"];
+//TODO!manually: add new languages here
+const supportedLanguages = ["en", "it", "ar", "zh-cn", "zh-tw", "cs", "da", "nl", "fi", "fr", "de", "el", "ja", "pl", "pt-pt", "pt-br", "ro", "ru", "es", "sv-SE", "uk", "ia"];
+
+//TODO!manually: add new fonts here
+const supportedFontFamily = ["Open Sans", "Shantell Sans", "Inter", "Lora", "Noto Sans", "Noto Serif", "Roboto", "Merienda", "Playfair Display", "Victor Mono", "Source Code Pro"];
+
+//TODO!manually: add new datetime formats here
+const supportedDatetimeFormat = ["yyyymmdd1", "yyyyddmm1", "ddmmyyyy1", "ddmmyyyy2", "ddmmyyyy1-12h", "mmddyyyy1"];
 let languageToUse = chrome.i18n.getUILanguage().toString().toLowerCase();
 
 if (!supportedLanguages.includes(languageToUse)) languageToUse = "en";
@@ -817,6 +824,21 @@ function getIconSvgEncoded(icon, color) {
                 '          />\n' +
                 '</svg>';
             break;
+        case "search":
+            svgToReturn = '<svg fill="none" height="800" viewBox="0 0 24 24" width="800" xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <path d="m11 6c2.7614 0 5 2.23858 5 5m.6588 5.6549 4.3412 4.3451m-2-10c0 4.4183-3.5817 8-8 8-4.41828 0-8-3.5817-8-8 0-4.41828 3.58172-8 8-8 4.4183 0 8 3.58172 8 8z"\n' +
+                '          stroke="' + color + '" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>\n' +
+                '</svg>'
+            break;
+        case "show-content":
+            svgToReturn = '<svg xmlns="http://www.w3.org/2000/svg" width="72pt" height="72pt"\n' +
+                '     viewBox="0 0 72 72" version="1.1">\n' +
+                '    <g fill="' + color + '">\n' +
+                '        <path style=" stroke:none;fill-rule:nonzero;fill-opacity:1;"\n' +
+                '              d="M 18.75 6 C 15.027344 6 12 9.027344 12 12.75 L 12 59.25 C 12 62.972656 15.027344 66 18.75 66 L 53.25 66 C 56.972656 66 60 62.972656 60 59.25 L 60 30 L 42.75 30 C 39.027344 30 36 26.972656 36 23.25 L 36 6 Z M 40.5 7.316406 L 40.5 23.25 C 40.5 24.492188 41.507812 25.5 42.75 25.5 L 58.683594 25.5 Z M 26.25 37.5 L 45.75 37.5 C 46.992188 37.5 48 38.507812 48 39.75 C 48 40.992188 46.992188 42 45.75 42 L 26.25 42 C 25.007812 42 24 40.992188 24 39.75 C 24 38.507812 25.007812 37.5 26.25 37.5 Z M 26.234375 48 L 39.730469 48 C 40.972656 48 41.980469 49.007812 41.980469 50.25 C 41.980469 51.386719 41.136719 52.332031 40.035156 52.480469 L 39.730469 52.5 L 26.238281 52.5 C 24.996094 52.5 23.988281 51.492188 23.988281 50.25 C 23.988281 49.113281 24.832031 48.167969 25.929688 48.019531 Z M 26.234375 48 "/>\n' +
+                '    </g>\n' +
+                '</svg>';
+            break;
         /*
     case "":
         svgToReturn = '';
@@ -864,4 +886,81 @@ function correctDatetime(datetime) {
     if (second < 10) today = today + "0" + second; else today = today + "" + second
 
     return today;
+}
+
+/**
+ * This function is used to convert a datetime string to a displayable format
+ * @param datetime The datetime string to convert
+ * @param format The format to use (to force): if undefined, the format will be taken from the settings["datetime-format"]
+ * @param also_time If true (default), the time will be included in the displayable format
+ * @returns {string} The datetime string in the displayable format
+ */
+function datetimeToDisplay(datetime, format = undefined, also_time = true) {
+    //if datetime is not a valid Date, it probably it's "Never", return it as it is
+    if (isNaN((new Date(datetime)).getTime())) {
+        return datetime;
+    }
+
+    let date = new Date(datetime);
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    if (month < 10) month = "0" + month; else month = "" + month;
+    let day = date.getDate();
+    if (day < 10) day = "0" + day; else day = "" + day;
+    let hour = date.getHours();
+    if (hour < 10) hour = "0" + hour; else hour = "" + hour;
+    let minute = date.getMinutes();
+    if (minute < 10) minute = "0" + minute; else minute = "" + minute;
+    let second = date.getSeconds();
+    if (second < 10) second = "0" + second; else second = "" + second;
+
+    let formatToUse = format;
+    if (format === undefined) {
+        formatToUse = settings_json["datetime-format"];
+    }
+    if (!supportedDatetimeFormat.includes(formatToUse)) {
+        formatToUse = "yyyymmdd1";
+    }
+
+    let time_12h = false; //if "-12h" is in the format, the time will be displayed in 12h format (am/pm too)
+    if (formatToUse !== undefined && formatToUse.toString().includes("-12h")) {
+        time_12h = true;
+    }
+
+    let datetimeToReturn = "";
+
+    if (formatToUse === "yyyymmdd1") {
+        //YYYY-MM-DD HH:MM:SS
+        datetimeToReturn = `${year}-${month}-${day}`;
+    } else if (formatToUse === "yyyyddmm1") {
+        //YYYY-DD-MM HH:MM:SS
+        datetimeToReturn = `${year}-${day}-${month}`;
+    } else if (formatToUse === "ddmmyyyy1") {
+        //DD/MM/YYYY HH:MM:SS
+        datetimeToReturn = `${day}/${month}/${year}`;
+    } else if (formatToUse === "ddmmyyyy2") {
+        //DD.MM.YYYY HH:MM:SS
+        datetimeToReturn = `${day}.${month}.${year}`;
+    } else if (formatToUse === "mmddyyyy1") {
+        //MM/DD/YYYY HH:MM:SS
+        datetimeToReturn = `${month}/${day}/${year}`;
+    } else if (formatToUse === "ddmmyyyy1-12h") {
+        //DD/MM/YYYY HH:MM:SS a.m./p.m.
+        datetimeToReturn = `${month}.${day}.${year}`;
+    }
+
+    if (also_time) {
+        if (time_12h) {
+            let am_pm = "a.m.";
+            if (hour >= 12) {
+                am_pm = "p.m.";
+                if (hour > 12) hour -= 12;
+            }
+            datetimeToReturn += ` ${hour}:${minute}:${second} ${am_pm}`;
+        } else {
+            datetimeToReturn += ` ${hour}:${minute}:${second}`;
+        }
+    }
+
+    return datetimeToReturn;
 }

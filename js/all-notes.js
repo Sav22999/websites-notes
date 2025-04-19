@@ -4,6 +4,7 @@ let websites_json_to_show = {};
 let settings_json = {};
 
 const all_strings = strings[languageToUse];
+const linkAcceptPrivacy = "/privacy/index.html";
 
 //Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
@@ -49,6 +50,14 @@ function checkSyncLocal() {
 }
 
 function loaded() {
+    chrome.storage.local.get("privacy").then(result => {
+        if (result.privacy === undefined) {
+            //not accepted privacy policy -> open 'privacy' page
+            chrome.tabs.create({url: linkAcceptPrivacy});
+            window.close()
+        }
+    });
+
     chrome.runtime.onMessage.addListener((message) => {
         if (message["sync_update"] !== undefined && message["sync_update"]) {
             location.reload();
@@ -374,7 +383,8 @@ function loadDataFromBrowser(generate_section = true) {
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
-            if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+            if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
+            if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
 
             //console.log(JSON.stringify(settings_json));
             if (generate_section) {
@@ -536,7 +546,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                             type_to_show = all_strings["global-label"];
                             type_to_use = "global";
                         }
-                        page = generateNotes(page, urlPageDomain, notes, title, lastUpdate, type_to_show, urlPageDomain, type_to_use, true);
+                        page = generateNotes(page, urlPageDomain, notes, title, "", lastUpdate, type_to_show, urlPageDomain, type_to_use, true);
 
                         if (page !== -1) {
                             all_pages.append(page);
@@ -556,10 +566,11 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                                 // console.log(websites_json_by_domain);
                                 // console.log(websites_json_to_show);
                                 let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
-                                let notes = websites_json_to_show[urlPageDomain]["notes"];
                                 let title = websites_json_to_show[urlPageDomain]["title"];
+                                let notes = websites_json_to_show[urlPageDomain]["notes"];
+                                let content = websites_json_to_show[urlPageDomain]["content"] || "";
 
-                                page = generateNotes(page, urlPage, notes, title, lastUpdate, all_strings["page-label"], urlPageDomain, "page", false);
+                                page = generateNotes(page, urlPage, notes, title, content, lastUpdate, all_strings["page-label"], urlPageDomain, "page", false);
 
                                 if (page !== -1) {
                                     all_pages.append(page);
@@ -668,7 +679,8 @@ function search(value = "") {
             if (current_website_json["title"] !== undefined) title_to_use = current_website_json["title"].toLowerCase();
             valueToUse.forEach(key => {
                 if (valid_results > 0 && key.replaceAll(" ", "") !== "" || valid_results === 0) {
-                    if ((current_website_json["notes"].toLowerCase().includes(key) || current_website_json["domain"].toLowerCase().includes(key) || current_website_json["last-update"].toLowerCase().includes(key) || title_to_use.includes(key) || website.includes(key)) && condition_tag_color && condition_type) {
+                    let contentMatch = settings_json["search-page-content"] && current_website_json["content"] && current_website_json["content"].toLowerCase().includes(key);
+                    if ((current_website_json["notes"].toLowerCase().includes(key) || contentMatch || current_website_json["domain"].toLowerCase().includes(key) || current_website_json["last-update"].toLowerCase().includes(key) || title_to_use.includes(key) || website.includes(key)) && condition_tag_color && condition_type) {
                         websites_json_to_show[website] = websites_json[website];
                     }
                 }
@@ -699,7 +711,7 @@ function getType(website, url) {
  */
 function onInputText(url, data, pageLastUpdate) {
     chrome.runtime.sendMessage({from: "all-notes", type: "inline-edit", url: url, data: data});
-    pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", data["lastUpdate"]);
+    pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(data["lastUpdate"]));
     sendMessageUpdateToBackground();
 }
 
@@ -707,7 +719,7 @@ function sendMessageUpdateToBackground() {
     chrome.runtime.sendMessage({"updated": true});
 }
 
-function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_to_use, domain_again) {
+function generateNotes(page, url, notes, title, content, lastUpdate, type, fullUrl, type_to_use, domain_again) {
     try {
         let row1 = document.createElement("div");
         row1.classList.add("rows");
@@ -722,8 +734,8 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         let subrowButtons = document.createElement("div");
         subrowButtons.classList.add("subrow-buttons");
 
+        //Button "Clear notes"
         let inputClearAllNotesPage = document.createElement("input");
-
         inputClearAllNotesPage.type = "button";
         inputClearAllNotesPage.value = all_strings["clear-notes-of-this-page-button"];
         inputClearAllNotesPage.classList.add("button", "very-small-button", "clear2-button", "button-no-text-on-mobile");
@@ -734,11 +746,12 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             }
             clearAllNotesPage(fullUrl, isDomain);
         }
-        let inputInlineEdit = document.createElement("input");
         let pageTitleH3 = document.createElement("h3");
         let textNotes = document.createElement("div");
         let row2 = document.createElement("div");
 
+        //Button "Edit notes"
+        let inputInlineEdit = document.createElement("input");
         inputInlineEdit.type = "button";
         inputInlineEdit.value = all_strings["edit-notes-button"];
         inputInlineEdit.classList.add("button", "very-small-button", "edit-button", "button-no-text-on-mobile");
@@ -765,6 +778,9 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
                 textNotes.readOnly = false;
                 pageTitleH3.classList.add("inline-edit-title");
                 textNotes.classList.add("inline-edit-notes");
+                setTimeout(() => {
+                    pageTitleH3.focus();
+                }, 100);
 
                 if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
             }
@@ -776,8 +792,8 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             }
         }
 
+        //Button "Copy notes"
         let inputCopyNotes = document.createElement("input");
-
         inputCopyNotes.type = "button";
         inputCopyNotes.value = all_strings["copy-notes-button"];
         inputCopyNotes.classList.add("button", "very-small-button", "copy-button", "button-no-text-on-mobile");
@@ -791,8 +807,8 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             }, 3000);
         }
 
+        //Select "Tag colour"
         let tagsColour = document.createElement("select");
-
         let colourList = colourListDefault;
         colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
         for (let colour in colourList) {
@@ -814,6 +830,18 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
 
         subrowUrl.append(pageType);
 
+        if (content !== undefined && content !== "") {
+            //Button "Show content"
+            let inputShowContent = document.createElement("input");
+            inputShowContent.type = "button";
+            inputShowContent.value = all_strings["show-content-button"];
+            inputShowContent.classList.add("button", "very-small-button", "show-content-button", "button-no-text-on-mobile");
+            inputShowContent.onclick = function () {
+                alert(content); // Display the content in an alert for now, until a better UI is implemented.
+            }
+
+            subrowButtons.append(inputShowContent);
+        }
         subrowButtons.append(tagsColour);
         subrowButtons.append(inputInlineEdit);
         subrowButtons.append(inputCopyNotes);
@@ -866,7 +894,9 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
         }
         row2.append(pageTitleH3);
+
         page.append(row2);
+
         let pageNotes = document.createElement("pre");
         pageNotes.classList.add("sub-section-notes");
 
@@ -920,7 +950,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
             textNotes.style.whiteSpace = "pre-wrap";
         }
 
-        if (settings_json["font-family"] === undefined || (settings_json["font-family"] !== "Shantell Sans" && settings_json["font-family"] !== "Open Sans")) settings_json["font-family"] = "Shantell Sans";
+        if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
 
         textNotes.style.fontFamily = `'${settings_json["font-family"]}'`;
 
@@ -931,7 +961,7 @@ function generateNotes(page, url, notes, title, lastUpdate, type, fullUrl, type_
         page.append(pageNotes);
 
         pageLastUpdate.classList.add("sub-section-last-update");
-        pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", lastUpdate);
+        pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(lastUpdate));
         page.append(pageLastUpdate);
 
         return page;
@@ -1226,34 +1256,36 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         //document.getElementById("all-notes-dedication-section").style.backgroundColor = backgroundSection;
         //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
         document.getElementById("all-notes-dedication-section").style.color = primary;
-        var open_external_svg = window.btoa(getIconSvgEncoded("open-external", primary));
-        var donate_svg = window.btoa(getIconSvgEncoded("donate", on_primary));
-        var settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
-        var all_notes_aside_svg = window.btoa(getIconSvgEncoded("all-notes", on_primary));
-        var settings_aside_svg = window.btoa(getIconSvgEncoded("settings", primary));
-        var help_aside_svg = window.btoa(getIconSvgEncoded("help", primary));
-        var review_aside_svg = window.btoa(getIconSvgEncoded("review", primary));
-        var website_aside_svg = window.btoa(getIconSvgEncoded("website", primary));
-        var donate_aside_svg = window.btoa(getIconSvgEncoded("donate", primary));
-        var translate_aside_svg = window.btoa(getIconSvgEncoded("translate", primary));
-        var download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
-        var delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
-        var delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
-        var copy_svg = window.btoa(getIconSvgEncoded("copy", on_primary));
-        var edit_svg = window.btoa(getIconSvgEncoded("edit", on_primary));
-        var finish_edit_svg = window.btoa(getIconSvgEncoded("finish-edit", on_primary));
-        var filter = window.btoa(getIconSvgEncoded("filter", on_primary));
-        var sort_by = window.btoa(getIconSvgEncoded("sort-by", on_primary));
-        var tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
-        var refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
-        var sort_by_svg = window.btoa(getIconSvgEncoded("sort-by", on_primary));
-        var info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", on_primary));
+        let open_external_svg = window.btoa(getIconSvgEncoded("open-external", primary));
+        let donate_svg = window.btoa(getIconSvgEncoded("donate", on_primary));
+        let settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
+        let all_notes_aside_svg = window.btoa(getIconSvgEncoded("all-notes", on_primary));
+        let settings_aside_svg = window.btoa(getIconSvgEncoded("settings", primary));
+        let help_aside_svg = window.btoa(getIconSvgEncoded("help", primary));
+        let review_aside_svg = window.btoa(getIconSvgEncoded("review", primary));
+        let website_aside_svg = window.btoa(getIconSvgEncoded("website", primary));
+        let donate_aside_svg = window.btoa(getIconSvgEncoded("donate", primary));
+        let translate_aside_svg = window.btoa(getIconSvgEncoded("translate", primary));
+        let download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
+        let delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
+        let delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
+        let copy_svg = window.btoa(getIconSvgEncoded("copy", on_primary));
+        let show_content_svg = window.btoa(getIconSvgEncoded("show-content", on_primary));
+        let edit_svg = window.btoa(getIconSvgEncoded("edit", on_primary));
+        let finish_edit_svg = window.btoa(getIconSvgEncoded("finish-edit", on_primary));
+        let filter = window.btoa(getIconSvgEncoded("filter", on_primary));
+        let sort_by = window.btoa(getIconSvgEncoded("sort-by", on_primary));
+        let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
+        let refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
+        let sort_by_svg = window.btoa(getIconSvgEncoded("sort-by", on_primary));
+        let info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         let search_svg = window.btoa(getIconSvgEncoded("search", primary));
 
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
+        let tertiaryTransparent3 = primary;
         if (tertiaryTransparent.includes("rgb(")) {
             let rgb_temp = tertiaryTransparent.replace("rgb(", "");
             let rgb_temp_arr = rgb_temp.split(",");
@@ -1267,6 +1299,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         } else if (tertiaryTransparent.includes("#")) {
             tertiaryTransparent += "22";
             tertiaryTransparent2 += "88";
+            tertiaryTransparent3 += "BB";
         }
         //console.log(tertiaryTransparent);
 
@@ -1282,6 +1315,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     --tertiary: ${tertiary};
                     --tertiary-transparent: ${tertiaryTransparent};
                     --tertiary-transparent-2: ${tertiaryTransparent2};
+                    --tertiary-transparent-3: ${tertiaryTransparent3};
+                    --background-color: ${background};
+                    --background-section-color: ${backgroundSection};
                 }
                 .go-to-external:hover::after {
                     content: url('data:image/svg+xml;base64,${open_external_svg}');
@@ -1324,6 +1360,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .copy-button {
                     background-image: url('data:image/svg+xml;base64,${copy_svg}');
+                }
+                .show-content-button {
+                    background-image: url('data:image/svg+xml;base64,${show_content_svg}');
                 }
                 .edit-button {
                     background-image: url('data:image/svg+xml;base64,${edit_svg}');
