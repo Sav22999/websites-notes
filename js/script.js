@@ -54,6 +54,14 @@ const linkReview = ["https://chromewebstore.google.com/detail/agcdffobijddcccbfn
 const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
 
 let sync_local = chrome.storage.local;
+
+let _domainUrl = undefined
+let _pageUrl = undefined
+let _globalUrl = undefined
+let _allPossibleUrls = undefined
+const MAX_COMBINATIONS = 20;
+const MAX_PARAMETERS = 5;
+
 checkSyncLocal();
 
 function checkSyncLocal() {
@@ -69,7 +77,6 @@ function loaded() {
             window.close()
         }
     });
-
     checkSyncLocal();
     loadSettings();
     checkTheme();
@@ -927,59 +934,63 @@ function getDomainUrl(url, with_protocol = true) {
         let urlParts = url.split(":");
         urlToReturn = urlParts[1];
     }
-
-    if (urlToReturn.includes("/")) {
-        let urlPartsTemp = urlToReturn.split("/");
-        if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
-            urlToReturn = urlPartsTemp[2];
+    if (this._domainUrl === undefined) {
+        if (urlToReturn.includes("/")) {
+            let urlPartsTemp = urlToReturn.split("/");
+            if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
+                urlToReturn = urlPartsTemp[2];
+            }
         }
+        this._domainUrl = urlToReturn;
+    } else {
+        urlToReturn = this._domainUrl;
     }
-
     if (with_protocol) return protocol + "://" + urlToReturn;
     else return urlToReturn;
 }
 
 /**Returns the page url without the protocol (https, http, ftp, ...)!*/
 function getPageUrl(url, with_protocol = true) {
-    if (url === getGlobalUrl()) return url;
-
     let urlToReturn = "";
     let protocol = getTheProtocol(url);
     if (url.includes(":")) {
         let urlParts = url.split(":");
         urlToReturn = urlParts[1];
     }
-
-    if (urlToReturn.includes("/")) {
-        let urlPartsTemp = urlToReturn.split("/");
-        if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
-            urlToReturn = urlPartsTemp[2];
-            for (let i = 3; i < urlPartsTemp.length; i++) {
-                urlToReturn += "/" + urlPartsTemp[i];
-            }
-        }
-    }
-
-    //https://page.example/search#section1
-    if (settings_json["consider-sections"] === "no" || settings_json["consider-parameters"] === "no") {
-        if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
-    }
-
-    //https://page.example/search?parameters
-    if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
-        if (url.includes("?")) {
-            urlToReturn = urlToReturn.split("?")[0];
-            if (urlToReturn.includes("#")) {
-                //if it includes sections, then check if consider-sections is "no"
-                //if it's "no", then remove the section
-                if (settings_json["consider-sections"] === "no" || settings_json["consider-sections"] === false) {
-                    urlToReturn = urlToReturn.replace(urlToReturn.split("#")[0], "");
+    if (this._pageUrl === undefined) {
+        if (urlToReturn.includes("/")) {
+            let urlPartsTemp = urlToReturn.split("/");
+            if (urlPartsTemp[0] === "" && urlPartsTemp[1] === "") {
+                urlToReturn = urlPartsTemp[2];
+                for (let i = 3; i < urlPartsTemp.length; i++) {
+                    urlToReturn += "/" + urlPartsTemp[i];
                 }
             }
         }
-    }
 
-    //console.log(urlToReturn);
+        //https://page.example/search#section1
+        if (settings_json["consider-sections"] === "no" || settings_json["consider-parameters"] === false) {
+            if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
+        }
+
+        //https://page.example/search?parameters
+        if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
+            if (url.includes("?")) {
+                urlToReturn = urlToReturn.split("?")[0];
+                if (urlToReturn.includes("#")) {
+                    //if it includes sections, then check if consider-sections is "no"
+                    //if it's "no", then remove the section
+                    if (settings_json["consider-sections"] === "no" || settings_json["consider-sections"] === false) {
+                        urlToReturn = urlToReturn.replace(urlToReturn.split("#")[0], "");
+                    }
+                }
+            }
+        }
+
+        this._pageUrl = urlToReturn;
+    } else {
+        urlToReturn = this._pageUrl;
+    }
 
     if (with_protocol) return protocol + "://" + urlToReturn;
     else return urlToReturn;
@@ -992,76 +1003,95 @@ function getPageUrl(url, with_protocol = true) {
  */
 function getAllOtherPossibleUrls(url) {
     let urlToReturn = "";
-    let protocol = getTheProtocol(url);
     if (url.includes(":")) {
         let urlParts = url.split(":");
         urlToReturn = urlParts[1];
     }
 
     let urlsToReturn = [];
+    if (this._allPossibleUrls === undefined) {
+        if (urlToReturn.includes("/")) {
+            //remove before the "?" and "#" if it exists
 
-    if (urlToReturn.includes("/")) {
-        //remove before the "?" and "#" if it exists
+            let urlPartsTemp = [];
 
-        let urlPartsTemp = [];
-
-        urlPartsTemp = urlToReturn.split("/");
-        if (urlToReturn.includes("?")) {
-            urlPartsTemp = urlToReturn.split("?")[0].split("/");
-        }
-        if (urlToReturn.includes("#")) {
-            urlPartsTemp = urlToReturn.split("#")[0].split("/");
-        }
-
-        let urlConcat = "/";
-        for (let urlFor = 3; urlFor < urlPartsTemp.length; urlFor++) {
-            if (urlPartsTemp[urlFor] !== "") {
-                urlConcat += urlPartsTemp[urlFor];
-                if (urlConcat !== getDomainUrl(url)) {
-                    //console.log(urlConcat);
-                    urlsToReturn.push(urlConcat + "/*");
-                }
-                urlConcat += "/";
-            }
-        }
-    }
-
-    //get also the all possible combinations of parameters
-    //example: https://example.com/search?param1=1&param2=2&param3=3
-    //it should add urls like: https://example.com/search?param1=1, https://example.com/search?param2=2, https://example.com/search?param3=3, https://example.com/search?param1=1&param2=2, https://example.com/search?param1=1&param3=3, https://example.com/search?param2=2&param3=3, https://example.com/search?param1=1&param2=2&param3=3
-
-    if (urlToReturn.includes("/")) {
-        if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
-            let urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1];
-            if (urlToReturn.includes("#")) {
-                urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1].split("#")[0];
-            }
-
-            //console.log("urlToReturn", urlToReturn)
-            //console.log("urlToReturnTemp", urlToReturnTemp)
-
+            urlPartsTemp = urlToReturn.split("/");
             if (urlToReturn.includes("?")) {
-                let urlPartsTemp = urlToReturnTemp.split("?");
-                urlToReturnTemp = urlPartsTemp[0];
-                let parameters = urlPartsTemp[1].split("&");
-                let parametersToReturn = [];
-                for (let i = 0; i < parameters.length; i++) {
-                    let parameterParts = parameters[i].split("=");
-                    if (parameterParts[1] !== "" && parameterParts[1] !== undefined) {
-                        parametersToReturn.push(parameterParts[0] + "=" + parameterParts[1]);
+                urlPartsTemp = urlToReturn.split("?")[0].split("/");
+            }
+            if (urlToReturn.includes("#")) {
+                urlPartsTemp = urlToReturn.split("#")[0].split("/");
+            }
+
+            const _getDomain = getDomainUrl(url);
+
+            let urlConcat = "/";
+            for (let urlFor = 3; urlFor < urlPartsTemp.length; urlFor++) {
+                if (urlPartsTemp[urlFor] !== "") {
+                    urlConcat += urlPartsTemp[urlFor];
+                    if (urlConcat !== _getDomain) {
+                        urlsToReturn.push(urlConcat + "/*");
                     }
+                    urlConcat += "/";
                 }
-                for (let i = 1; i <= parametersToReturn.length; i++) {
-                    let combinations = getCombinations(parametersToReturn, i);
-                    for (let j = 0; j < combinations.length; j++) {
-                        let urlToPush = urlToReturnTemp + "?" + combinations[j].join("&");
-                        if (urlToPush !== getDomainUrl(url)) {
-                            urlsToReturn.push(urlToPush);
+            }
+        }
+
+        //get also the all possible combinations of parameters
+        //example: https://example.com/search?param1=1&param2=2&param3=3
+        //it should add urls like: https://example.com/search?param1=1, https://example.com/search?param2=2, https://example.com/search?param3=3, https://example.com/search?param1=1&param2=2, https://example.com/search?param1=1&param3=3, https://example.com/search?param2=2&param3=3, https://example.com/search?param1=1&param2=2&param3=3
+
+        if (urlToReturn.includes("/")) {
+            if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
+                let urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1];
+                if (urlToReturn.includes("#")) {
+                    urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1].split("#")[0];
+                }
+
+                //console.log("urlToReturn", urlToReturn)
+                //console.log("urlToReturnTemp", urlToReturnTemp)
+
+                if (urlToReturn.includes("?")) {
+                    let urlPartsTemp = urlToReturnTemp.split("?");
+                    urlToReturnTemp = urlPartsTemp[0];
+                    let parameters = urlPartsTemp[1].split("&");
+                    let parametersToReturn = [];
+                    for (let i = 0; i < parameters.length; i++) {
+                        let parameterParts = parameters[i].split("=");
+                        if (parameterParts[1] !== "" && parameterParts[1] !== undefined) {
+                            parametersToReturn.push(parameterParts[0] + "=" + parameterParts[1]);
+                        }
+                    }
+                    if (parametersToReturn.length <= MAX_PARAMETERS) {
+                        for (let i = 1; i <= parametersToReturn.length; i++) {
+                            let combinations = getCombinations(parametersToReturn, i);
+                            if (combinations.length <= MAX_COMBINATIONS) {
+                                for (let j = 0; j < combinations.length; j++) {
+                                    let urlToPush = urlToReturnTemp + "?" + combinations[j].join("&");
+                                    if (urlToPush !== getDomainUrl(url)) {
+                                        urlsToReturn.push(urlToPush);
+                                    }
+                                }
+                            } else {
+                                console.error("Too many combinations to process. Limit is " + MAX_COMBINATIONS);
+                            }
+                        }
+                    } else {
+                        console.error("Too many parameters to process. Limit is " + MAX_PARAMETERS);
+                        //Use single parameters
+                        for (let i = 0; i < parametersToReturn.length; i++) {
+                            let urlToPush = urlToReturnTemp + "?" + parametersToReturn[i];
+                            if (urlToPush !== getDomainUrl(url)) {
+                                urlsToReturn.push(urlToPush);
+                            }
                         }
                     }
                 }
             }
         }
+        this._allPossibleUrls = urlsToReturn;
+    } else {
+        urlsToReturn = this._allPossibleUrls;
     }
 
     return urlsToReturn;
