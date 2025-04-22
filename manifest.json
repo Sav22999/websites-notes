@@ -5,15 +5,15 @@
   "version": "4.4.1",
   "description": "Take notes on every website in a smart and simple way!",
   "icons": {
-    "16": "./img/icons/icon-16.png",
-    "48": "./img/icons/icon-48.png",
-    "128": "./img/icons/icon-128.png"
+    "16": "img/icons/icon-16.png",
+    "48": "img/icons/icon-48.png",
+    "128": "img/icons/icon-128.png"
   },
   "action": {
     "default_icon": {
-      "16": "./img/icons/icon-16.png",
-      "48": "./img/icons/icon-48.png",
-      "128": "./img/icons/icon-128.png"
+      "16": "img/icons/icon-16.png",
+      "48": "img/icons/icon-48.png",
+      "128": "img/icons/icon-128.png"
     },
     "default_popup": "./popup.html",
     "default_title": "Notefox: Websites notes"
