@@ -1,5 +1,8 @@
 <html xmlns:script="http://www.w3.org/1999/xlink">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome (back) to Notefox</title>
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&display=swap&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap");
 
@@ -111,9 +114,11 @@
             gap: 20px;
 
         }
+
         .flex-1 {
             flex: 1;
         }
+
         .flex-2 {
             flex: 2;
         }
@@ -132,6 +137,7 @@
             font-size: 0.8em;
             font-weight: 500;
         }
+
         button:hover:not(:disabled) {
             background-color: #eeeeee !important;
         }
@@ -140,9 +146,11 @@
             background-color: #FF7A7AFF !important;
             color: #eeeeee !important;
         }
+
         button.red:hover:not(:disabled) {
             background-color: #ff5b5b !important;
         }
+
         a {
             color: inherit;
             text-decoration: underline;
@@ -155,8 +163,72 @@
             cursor: not-allowed;
         }
 
+        .overview-privacy-policy {
+
+            padding: 10px 0px;
+        }
+
+        .overview-privacy-policy .title, .overview-privacy-policy .subtitle {
+            text-align: center;
+            margin: 0px auto;
+            display: block;
+        }
+
+        .overview-privacy-policy .cards {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: stretch;
+            gap: 10px;
+            padding: 20px;
+
+            margin: 0px auto;
+        }
+        .overview-privacy-policy .cards .card {
+            background-color: #ff8d4b;
+            color: #eeeeee;
+            border-radius: 5px;
+            font-size: 1.1em;
+            text-align: center;
+            padding: 20px 5px;
+
+            flex: 1;
+        }
+
+        .overview-privacy-policy .cards .card img {
+            width: 100%;
+            max-width: 50px;
+        }
+
+        .overview-privacy-policy .cards .card h4 {
+            font-size: 1.1em;
+            margin: 10px 0px;
+            line-height: 1em;
+        }
+        .overview-privacy-policy .cards .card p {
+            font-size: 0.8em;
+            margin: 0px;
+        }
+
         .hidden {
             display: none !important;
+        }
+
+        @media screen and (max-width: 800px) {
+            .flex-container {
+                flex-direction: column !important;
+                gap: 10px;
+            }
+
+            #continue-button {
+                padding: 30px 50px;
+            }
+        }
+
+        @media screen and (max-width: 500px) {
+            .overview-privacy-policy .cards {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -173,7 +245,8 @@
             Privacy Policy acceptance
         </h1>
         <div class="section">
-            From the 4.0 version of Notefox, you are able to create a <b>Notefox Account</b> to sync your data across devices.
+            From the 4.0 version of Notefox, you are able to create a <b>Notefox Account</b> to sync your data across
+            devices.
             This is a great feature but, because it's external to your web browser service, it requires a few extra
             steps to ensure your privacy.
         </div>
@@ -197,6 +270,27 @@
         <div class="section flex-container" id="buttons">
             <button id="uninstall-button" class="flex-1 red">I don't want to use Notefox anymore</button>
             <button id="continue-button" class="flex-2">Continue to use Notefox</button>
+        </div>
+    </div>
+    <div class="section overview-privacy-policy">
+        <small class="subtitle">(Only if you create a Notefox account)</small>
+        <h3 class="title">We follow three simple principles</h3>
+        <div class="cards">
+            <div class="card">
+                <img src="./images/collected.svg" alt="Collected image">
+                <h4>Only necessary data is collected</h4>
+                <p>We only collect the data that is necessary to provide the service – such as notes, settings, IP address, ….</p>
+            </div>
+            <div class="card">
+                <img src="./images/encrypted.svg" alt="Encrypted image">
+                <h4>End-to-end encryption</h4>
+                <p>We use end-to-end encryption to protect your data, so only you can access it.</p>
+            </div>
+            <div class="card">
+                <img src="./images/noshared.svg" alt="No Shared image">
+                <h4>Nothing is shared</h4>
+                <p>We don't share your data with third parties.</p>
+            </div>
         </div>
     </div>
     <div class="footer">
