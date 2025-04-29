@@ -114,7 +114,7 @@ async function api_call(endpoint, body) {
  * @returns {Promise<void>} - returns nothing (void)
  */
 async function sendMessage(message) {
-    console.log("[sendMessage] message", message);
+    //console.log("[sendMessage] message", message);
     // Used '(typeof browser !== 'undefined' ? browser : chrome)' instead 'browser' so it's compatible both with Firefox and Chrome
     (typeof browser !== 'undefined' ? browser : chrome).runtime.sendMessage(message);
 }
@@ -295,7 +295,7 @@ async function signup_verify(email, password, verification_code) {
 
 async function login(email, password) {
     const data = await api_call("/login/", {"email": email, "password": password});
-    console.log("[api-service.js::login] data", data);
+    //console.log("[api-service.js::login] data", data);
     if (data.error) {
         sendMessage({
             api_response: true,
