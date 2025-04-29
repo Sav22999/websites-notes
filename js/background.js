@@ -1292,9 +1292,23 @@ function getAllOtherPossibleUrls(url) {
 
         if (urlToReturn.includes("/")) {
             if (settings_json["consider-parameters"] === "no" || settings_json["consider-parameters"] === false) {
-                let urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1];
+                //split the url by "/" to get the domain and the pages
+                let urlPartsTemp = urlToReturn.split("/");
+                //remove the main domain (not the directories) and the empty parts
+                let urlPartsTemp2 = [];
+                for (let i = 0; i < urlPartsTemp.length; i++) {
+                    if (urlPartsTemp[i] !== "") {
+                        urlPartsTemp2.push(urlPartsTemp[i]);
+                    }
+                }
+                //remove the first element of the array (the domain)
+                urlPartsTemp2.shift();
+
+                //join the url with "/" (and add the "/" at the beginning)
+                let urlToReturnTemp = "/" + urlPartsTemp2.join("/");
+
                 if (urlToReturn.includes("#")) {
-                    urlToReturnTemp = "/" + urlToReturn.split("/")[urlToReturn.split("/").length - 1].split("#")[0];
+                    urlToReturnTemp = urlToReturnTemp.split("#")[0];
                 }
 
                 //console.log("urlToReturn", urlToReturn)
