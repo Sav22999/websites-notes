@@ -375,6 +375,12 @@ function checkUserPeriodically(time = 1 * 60 * 1000, just_once = false) {
 
 function tabUpdated(update = false) {
     //console.log(JSON.stringify(all_urls));
+
+    this._pageUrl = undefined
+    this._domainUrl = undefined
+    this._globalUrl = undefined
+    this._allPossibleUrls = undefined
+
     sync_local = browser.storage.sync;
     browser.storage.local.get("storage").then(result => {
         if (result.storage === "sync") sync_local = browser.storage.sync;
@@ -1243,6 +1249,7 @@ function checkIcon() {
             //console.log(url + " : " + tmp_check);
         });
     }
+
     if (check_domain || check_page || check_tab_url || check_global || check_subdomains) {
         changeIcon(1);
     } else {
