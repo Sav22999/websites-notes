@@ -843,6 +843,11 @@ function sendMessageUpdateToBackground() {
 }
 
 function tabUpdated() {
+    this._pageUrl = undefined
+    this._domainUrl = undefined
+    this._globalUrl = undefined
+    this._allPossibleUrls = undefined
+
     loaded();
 }
 

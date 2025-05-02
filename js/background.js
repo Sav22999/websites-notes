@@ -392,6 +392,11 @@ function checkUserPeriodically(time = 1 * 60 * 1000, just_once = false) {
 }
 
 function tabUpdated(update = false) {
+    this._pageUrl = undefined
+    this._domainUrl = undefined
+    this._globalUrl = undefined
+    this._allPossibleUrls = undefined
+
     sync_local = chrome.storage.sync;
     chrome.storage.local.get("storage").then(result => {
         if (result.storage === "sync") sync_local = chrome.storage.sync;
@@ -726,7 +731,7 @@ function checkAllSupportedProtocolsSticky(url, json) {
 }
 
 function checkAllSupportedProtocolsLastUpdate(url, json) {
-    //Supported: http, https, extension
+    //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
         if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["extension://" + getUrlWithoutProtocol(url)] !== undefined && json["extension://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["extension://" + getUrlWithoutProtocol(url)]["last-update"] !== null)
@@ -1303,6 +1308,7 @@ function checkIcon() {
             //console.log(url + " : " + tmp_check);
         });
     }
+
     if (check_domain || check_page || check_tab_url || check_global || check_subdomains) {
         changeIcon(1);
     } else {
