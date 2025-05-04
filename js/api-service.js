@@ -3,6 +3,24 @@ var api_url = "https://www.notefox.eu/api/v1"
 loadAPI();
 
 /**
+ * Use this function to capture errors and save on the local storage (to be used as logs)
+ * @param context {string} - context of the error (where it happened) || use format "file::function[::line]"
+ * @param text {string} - text to be saved as error || it's automatically saved also the date and time
+ * @param url {string} - url of the page where the error happened (if applicable)
+ */
+function onError(context, text, url = undefined) {
+    const error = {"datetime": getDate(), "context": context, "error": text, url: url};
+    browser.storage.local.get("error-logs").then(result => {
+        let error_logs = [];
+        if (result["error-logs"] !== undefined) {
+            error_logs = result["error-logs"];
+        }
+        error_logs.push(error);
+        browser.storage.local.set({"error-logs": error_logs});
+    });
+}
+
+/**
  * Load the API service
  */
 function loadAPI() {
@@ -80,6 +98,7 @@ async function api_request(message) {
             break;
         default:
             console.error("Unknown API request type (" + message["type"] + ")");
+            onError("api-service.js::api_request", "Unknown API request type (" + message["type"] + ")");
     }
 }
 
@@ -102,6 +121,8 @@ async function api_call(endpoint, body) {
         return await response.json();
     } catch (error) {
         console.error(`[api-service.js::api_call::${endpoint}] API request failed:`, error);
+        onError("api-service.js::api_call", "API request failed: " + error.message);
+
         return {error: true, message: error.message};
     }
 }
@@ -809,6 +830,7 @@ async function check_user(login_id, token) {
     } else {
         //console.log("User is not valid: " + data.code);
         console.error("[api-service.js::check_user] User is not valid: " + data.code);
+        onError("api-service.js::check_user", "User is not valid: " + data.code);
         browser.runtime.sendMessage({"check-user--expired": true}).then(response => {
             //logout(login_id, false, false);
             browser.storage.sync.remove("notefox-account");
@@ -879,6 +901,7 @@ async function change_password(login_id_value, token_value, old_password_value, 
 
     } catch (error) {
         console.error('Request failed:', error);
+        onError("api-service.js::change_password", error.message);
 
         browser.runtime.sendMessage({
             "api_response": true,
@@ -916,6 +939,7 @@ async function delete_account(login_id_value, token_value, email_value, password
 
     } catch (error) {
         console.error('Request failed:', error);
+        onError("api-service.js::delete_account", error.message);
 
         browser.runtime.sendMessage({
             "api_response": true,
@@ -954,6 +978,7 @@ async function delete_account_verify(login_id_value, token_value, email_value, p
 
     } catch (error) {
         console.error('Request failed:', error);
+        onError("api-service.js::delete_account_verify", error.message);
 
         browser.runtime.sendMessage({
             "api_response": true,
@@ -989,6 +1014,7 @@ async function delete_account_verify_new_code(email_value, password_value) {
 
     } catch (error) {
         console.error('Request failed:', error);
+        onError("api-service.js::delete_account_verify_new_code", error.message);
 
         browser.runtime.sendMessage({
             "api_response": true,

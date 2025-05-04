@@ -955,3 +955,21 @@ function datetimeToDisplay(datetime, format = undefined, also_time = true) {
 
     return datetimeToReturn;
 }
+
+/**
+ * Use this function to capture errors and save on the local storage (to be used as logs)
+ * @param context {string} - context of the error (where it happened) || use format "file::function[::line]"
+ * @param text {string} - text to be saved as error || it's automatically saved also the date and time
+ * @param url {string} - url of the page where the error happened (if applicable)
+ */
+function onError(context, text, url = undefined) {
+    const error = {"datetime": getDate(), "context": context, "error": text, url: url};
+    browser.storage.local.get("error-logs").then(result => {
+        let error_logs = [];
+        if (result["error-logs"] !== undefined) {
+            error_logs = result["error-logs"];
+        }
+        error_logs.push(error);
+        browser.storage.local.set({"error-logs": error_logs});
+    });
+}

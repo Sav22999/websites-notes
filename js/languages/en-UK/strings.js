@@ -293,6 +293,10 @@ strings[lang] = {
     "default-tag-colour-domain-detailed-text": "When you'll create a new note for a domain, it will have applied this label. You can change it at any time.",
     "default-tag-colour-page-text": "Default label for new page notes",
     "default-tag-colour-page-detailed-text": "When you'll create a new note for a page, it will have applied this label. You can change it at any time.",
+    "show-error-logs-text": "Show error logs",
+    "show-error-logs-detailed-text": "It permits you to see the error logs of the add-on. You can copy and paste them – or download the logs file – and send them to me to help me to fix the problem.",
+    "show-error-logs-button": "Show error logs",
+    "show-error-logs-to-file-button": "Download the logs file",
     "privacy": {
         "title": "Privacy Policy acceptance",
         "description1": "From the 4.0 version of Notefox, you are able to create a <b>Notefox Account</b> to sync your data across devices. This is a great feature but, because it's external to your web browser service, it requires a small extra step to ensure your privacy.",
