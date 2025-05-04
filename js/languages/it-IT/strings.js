@@ -129,7 +129,7 @@ strings[lang] = {
     'settings-button': 'Impostazioni',
     'settings-select-button-yes': 'Sì',
     'settings-select-button-no': 'No',
-    'open-popup-default-shortcut-text': 'Scorciatoia da tastiera per aprire pop up utilizzando la scheda predefinita scelta',
+    'open-popup-default-shortcut-text': 'Keyboard shortcut to open pop-up using the default tab chosen or to close the popup when it\'s opened',
     'open-popup-domain-shortcut-text': 'Scorciatoia da tastiera per aprire pop-up utilizzando la scheda dominio',
     'open-popup-page-shortcut-text': 'Scorciatoia da tastiera per aprire pop-up utilizzando la scheda della pagina',
     'label-ctrl-default': 'Ctrl',
@@ -294,5 +294,20 @@ strings[lang] = {
     'default-tag-colour-domain-text': 'Etichetta predefinita per le nuove note di dominio',
     'default-tag-colour-domain-detailed-text': 'Quando creerai una nuova nota per un dominio, verrà applicata questa etichetta. Puoi cambiarla in qualsiasi momento.',
     'default-tag-colour-page-text': 'Etichetta predefinita per le nuove note di pagina',
-    'default-tag-colour-page-detailed-text': 'Quando creerai una nuova nota per una pagina, sarà stata applicata questa etichetta. Puoi cambiarla in qualsiasi momento.'
+    'default-tag-colour-page-detailed-text': 'Quando creerai una nuova nota per una pagina, sarà stata applicata questa etichetta. Puoi cambiarla in qualsiasi momento.',
+    'show-error-logs-text': 'Show error logs',
+    'show-error-logs-detailed-text': 'It permits you to see the error logs of the add-on. You can copy and paste them – or download the logs file – and send them to me to help me to fix the problem.',
+    'show-error-logs-button': 'Show error logs',
+    'show-error-logs-to-file-button': 'Download the logs file',
+    'privacy': {
+        'title': 'Privacy Policy acceptance',
+        'description1': 'From the 4.0 version of Notefox, you are able to create a <b>Notefox Account</b> to sync your data across devices. This is a great feature but, because it\'s external to your web browser service, it requires a small extra step to ensure your privacy.',
+        'description2-evidence': ' You can also use Notefox without creating an account.',
+        'description3': 'In this case, your data will be stored in your browser\'s local storage only, and it won\'t be collected anything.',
+        'description4': 'To continue to use Notefox, you need to accept the <a href=\'https://addons.mozilla.org/en-GB/firefox/addon/websites-notes/privacy/\'>Privacy Policy</a>, which will be applied only if you create an account.<br><b>This doesn\'t mean that you have to create an account mandatorily.</b>',
+        'you-have-already-accepted': 'You have already accepted the Privacy Policy of Notefox.',
+        'i-dont-want-to-use-notefox-anymore-button': 'I don\'t want to use Notefox anymore',
+        'continue-to-use-notefox-button': 'Continue to use Notefox',
+        'footer-message': 'You can delete a Notefox Account in anytime.<br>Notefox Account uses end-to-end cryptography, so if you lose your password, you will lose all your data.<br>If you delete your account, all your data will be deleted permanently and cannot be recovered.<br>You could be interested also in the <a href=\'https://www.notefox.eu/terms/\'>Terms of Service</a> and the <a href=\'https://www.notefox.eu/privacy/\'>Privacy Policy</a> of Notefox.'
+    }
 };

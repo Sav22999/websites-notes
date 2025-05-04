@@ -51,6 +51,24 @@ const MAX_PARAMETERS = 5;
     }
 });*/
 
+/**
+ * Use this function to capture errors and save on the local storage (to be used as logs)
+ * @param context {string} - context of the error (where it happened) || use format "file::function[::line]"
+ * @param text {string} - text to be saved as error || it's automatically saved also the date and time
+ * @param url {string} - url of the page where the error happened (if applicable)
+ */
+function onError(context, text, url = undefined) {
+    const error = {"datetime": getDate(), "context": context, "error": text, url: url};
+    browser.storage.local.get("error-logs").then(result => {
+        let error_logs = [];
+        if (result["error-logs"] !== undefined) {
+            error_logs = result["error-logs"];
+        }
+        error_logs.push(error);
+        browser.storage.local.set({"error-logs": error_logs});
+    });
+}
+
 function checkSyncLocal() {
     sync_local = browser.storage.local;
     browser.storage.local.get("privacy").then(result => {
@@ -186,6 +204,7 @@ function actionResponse(response) {
                             sendLocalDataToServer();
                         } else {
                             console.error("[background.js::actionResponse] Error: ", data);
+                            onError("background.js::actionResponse", data, tab_url);
                         }
                     }
                 }
@@ -258,6 +277,7 @@ function sendLocalDataToServer() {
             });
         }).catch((e) => {
             console.error(`E-B1: ${e}`);
+            onError("background.js::sendLocalDataToServer", e,tab_url);
         });
     });
 }
@@ -271,6 +291,7 @@ function syncUpdateFromServer() {
             syncUpdateFromServer();
         }, 5 * 60 * 1000); //5 minutes if any issues
         console.error(`E-B2: ${e}`);
+        onError("background.js::syncUpdateFromServer", e,tab_url);
     });
 
     loaded();
@@ -1198,6 +1219,7 @@ function openAsStickyNotes() {
                 opening_sticky = false;
             }).catch(function (error) {
                 console.error("E2: " + error);
+                onError("background.js::openAsStickyNotes", error, tab_url);
                 opening_sticky = false;
             });
         });
@@ -1219,6 +1241,7 @@ function closeStickyNotes(update = true) {
                 if (update) tabUpdated(false);
             }).catch(function (error) {
                 console.error("E1: " + error + "\nin " + activeTab.url);
+                onError("background.js::closeStickyNotes", error, tab_url);
             });
         }
     });
@@ -1344,10 +1367,12 @@ function getAllOtherPossibleUrls(url) {
                                 }
                             } else {
                                 console.error("Too many combinations to process. Limit is " + MAX_COMBINATIONS);
+                                onError("background.js::getAllOtherPossibleUrls", "Too many combinations to process. Limit is " + MAX_COMBINATIONS, tab_url);
                             }
                         }
                     } else {
                         console.error("Too many parameters to process. Limit is " + MAX_PARAMETERS);
+                        onError("background.js::getAllOtherPossibleUrls", "Too many parameters to process. Limit is " + MAX_PARAMETERS, tab_url);
                         //Use single parameters
                         for (let i = 0; i < parametersToReturn.length; i++) {
                             let urlToPush = urlToReturnTemp + "?" + parametersToReturn[i];
@@ -1451,6 +1476,7 @@ function setNewTextFromSticky(text) {
                 //console.log("set || " + JSON.stringify(websites_json));
             }).catch(function (error) {
                 console.error("E3: " + error);
+                onError("background.js::setNewTextFromSticky", error, tab_url);
             });
         }
     });

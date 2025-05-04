@@ -264,6 +264,23 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
     </div>
 
+    <!--Show error logs panel-->
+    <div id="show-error-logs-section">
+        <div class="section" id="show-error-logs-sub-sections">
+            <div class="padding-10">
+                <div id="text-show-error-logs"></div>
+            </div>
+            <div class="padding-10">
+                <textarea id="json-show-error-logs" readonly spellcheck="false"></textarea>
+            </div>
+            <div class="padding-10 text-align-right">
+                <input type="button" value="" id="cancel-show-error-logs-button" class="button float-left"/>
+                <input type="button" value="" id="show-error-logs-to-file-button" class="button download-button"/>
+                <input type="button" value="" id="copy-now-show-error-logs-button" class="button copy-button"/>
+            </div>
+        </div>
+    </div>
+
     <span id="settings-sections">
         <!--<div class="option-settings">
             <label class="item-settings">
@@ -1016,6 +1033,19 @@ Created by Saverio Morelli - saveriomorelli.com
                 <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                       id="search-page-content-detailed-text"></span>
             </div>
+        </div>
+
+        <!--Show error logs section-->
+        <div class="option-settings">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text"
+                      id="show-error-logs-settings-text"></span>
+                <span class="section-grid-item-select text-align-center">
+                    <input type="button" value="" id="show-error-logs-settings-button"
+                           class="button show-content-button"/>
+                </span>
+                <span class="description-option-settings" id="show-error-logs-settings-detailed-text"></span>
+            </span>
         </div>
 </div>
 </div>

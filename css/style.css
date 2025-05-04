@@ -728,16 +728,16 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     padding: 10px;
 }
 
-#import-sub-sections, #export-sub-sections, #account-sub-sections, #login-expired-content, #link-content-section {
+#import-sub-sections, #export-sub-sections, #account-sub-sections, #login-expired-content, #link-content-section, #show-error-logs-sub-sections {
     background-color: var(--tertiary);
     padding: 10px 20px;
 }
 
-#export-to-file-button, #import-from-file-button {
+#export-to-file-button, #import-from-file-button, #show-error-logs-to-file-button {
     margin-left: 0px;
 }
 
-#copy-now-all-notes-button, #import-now-all-notes-button {
+#copy-now-all-notes-button, #import-now-all-notes-button, #copy-now-show-error-logs-button {
     margin-right: 0px;
 }
 
@@ -902,7 +902,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     border-radius: 0px;
 }
 
-#import-section, #export-section, #account-section, #login-expired-section, #link-section {
+#import-section, #export-section, #account-section, #login-expired-section, #link-section, #show-error-logs-section {
     display: none;
     background-color: transparent;
     position: fixed !important;
@@ -931,7 +931,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 }
 
 @media screen and (max-width: 1500px) {
-    #import-section, #account-section, #export-section, #login-expired-section, #link-section {
+    #import-section, #account-section, #export-section, #login-expired-section, #link-section, #show-error-logs-section {
         padding-top: 5%;
         padding-left: 10%;
         padding-right: 10%;
@@ -940,7 +940,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 }
 
 @media screen and (max-width: 1000px) {
-    #import-section, #export-section, #account-section, #login-expired-section, #link-section {
+    #import-section, #export-section, #account-section, #login-expired-section, #link-section, #show-error-logs-section {
         padding-left: 0%;
         padding-right: 0%;
         padding-top: 0%;
@@ -2826,7 +2826,7 @@ option {
     font-size: 1.4em;
 }
 
-.user-select-none  {
+.user-select-none {
     user-select: none;
 }
 

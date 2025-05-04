@@ -139,6 +139,9 @@ function loaded() {
                 hideBackgroundOpacity();
                 document.getElementById("account-section").style.display = "none";
             }
+            if (document.getElementById("show-error-logs-section").style.display === "block") {
+                document.getElementById("cancel-show-error-logs-button").click();
+            }
         }
     }
 
@@ -345,10 +348,34 @@ function loaded() {
             });
         } catch (e) {
             console.error("P3)) " + e);
+            onError("settings.js::loaded::348||P3", e);
+        }
+        document.getElementById("import-from-file-button").onclick = function () {
+            importAllNotes(from_file = true);
         }
     }
-    document.getElementById("import-from-file-button").onclick = function () {
-        importAllNotes(from_file = true);
+    document.getElementById("show-error-logs-settings-button").onclick = function () {
+        exportErrorLogs()
+    }
+    document.getElementById("show-error-logs-to-file-button").onclick = function () {
+        const permissionsToRequest = {
+            permissions: ["downloads"]
+        }
+        try {
+            browser.permissions.request(permissionsToRequest).then(response => {
+                if (response) {
+                    //granted / obtained
+                    exportErrorLogs(to_file = true);
+                    //console.log("Granted");
+                } else {
+                    //rejected
+                    //console.log("Rejected!");
+                }
+            });
+        } catch (e) {
+            console.error("P10)) " + e);
+            onError("settings.js::loaded::374||P10", e);
+        }
     }
 
     document.getElementById("default-tag-colour-domain-select").onchange = function () {
@@ -592,6 +619,8 @@ function setLanguageUI() {
     document.getElementById("text-export").innerHTML = all_strings["export-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
     document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
     document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
+    document.getElementById("cancel-show-error-logs-button").value = all_strings["cancel-button"];
+    document.getElementById("copy-now-show-error-logs-button").value = all_strings["copy-now-button"];
 
     for (let letterNumber in letters_and_numbers) {
         document.getElementById("key-shortcut-default-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-default'>" + letters_and_numbers[letterNumber] + "</option>";
@@ -650,6 +679,10 @@ function setLanguageUI() {
 
     document.getElementById("change-password-cancel").value = all_strings["cancel-button"];
     document.getElementById("change-password-submit").value = all_strings["notefox-account-button-settings-change-password"];
+
+    document.getElementById("show-error-logs-settings-text").innerText = all_strings["show-error-logs-text"];
+    document.getElementById("show-error-logs-settings-detailed-text").innerHTML = all_strings["show-error-logs-detailed-text"];
+    document.getElementById("show-error-logs-settings-button").value = all_strings["show-error-logs-button"];
 }
 
 function loadSettings() {
@@ -658,6 +691,7 @@ function loadSettings() {
         shortcuts.then(getCurrentShortcuts);
     } catch (e) {
         console.error("C-01)) " + e);
+        onError("settings.js::loadSettings", e);
     }
 
     browser.storage.local.get(["storage"]).then(result => {
@@ -1056,6 +1090,7 @@ function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
             }
             if (type.length === 0) {
                 console.error("DeveloperConsoleError: type is empty!")
+                onError("settings.js::developerDetails", "DeveloperConsoleError: type is empty!");
             }
             clickCount = 0;
         }
@@ -1103,6 +1138,7 @@ function getCurrentShortcuts(commands) {
         });
     } catch (e) {
         console.error("C-02)) " + e);
+        onError("settings.js::getCurrentShortcuts", e);
     }
 }
 
@@ -1114,6 +1150,7 @@ function updateShortcut(commandName, shortcut) {
         });
     } catch (e) {
         console.error("C-03)) " + e);
+        onError("settings.js::updateShortcut", e);
     }
 }
 
@@ -1309,6 +1346,7 @@ function importAllNotes(from_file = false) {
                                         loaded();
                                     }).catch(function (error) {
                                         console.error("E10: " + error);
+                                        onError("settings.js::importAllNotes", error);
                                     });
                                 }, 2000);
                             });
@@ -1378,6 +1416,7 @@ function importFromFile() {
                     document.getElementById("import-now-all-notes-button").click();
                 } catch (e) {
                     console.error(`I-E2: ${e}`)
+                    onError("settings.js::importFromFile::1385|I-E2", e);
                 }
             };
 
@@ -1388,6 +1427,7 @@ function importFromFile() {
         input.click();
     } catch (e) {
         console.error(`I-E1: ${e}`);
+        onError("settings.js::importFromFile::1396|I-E1", e);
     }
 }
 
@@ -1459,8 +1499,81 @@ function exportAllNotes(to_file = false) {
             }
         }).catch((e) => {
             console.error(`E-E2: ${e}`);
+            onError("settings.js::exportAllNotes", e);
         });
     });
+}
+
+function exportErrorLogs(to_file = false) {
+    showBackgroundOpacity();
+    browser.storage.local.get(["storage"]).then(getStorageTemp => {
+        browser.storage.local.get("error-logs").then((result) => {
+            let error_logs = result["error-logs"];
+            if (error_logs === undefined || error_logs === null) {
+                error_logs = [];
+            }
+
+            //console.log("QAZ-15")
+            json_to_export = {
+                "notefox": notefox_json,
+                "settings": settings_json,
+                "errors": error_logs,
+            };
+            document.getElementById("show-error-logs-section").style.display = "block";
+            document.getElementById("json-show-error-logs").value = JSON.stringify(json_to_export);
+
+            document.getElementById("cancel-show-error-logs-button").onclick = function () {
+                hideBackgroundOpacity();
+                document.getElementById("show-error-logs-section").style.display = "none";
+
+                document.getElementById("cancel-show-error-logs-button").value = all_strings["cancel-button"];
+                document.getElementById("copy-now-show-error-logs-button").value = all_strings["copy-now-button"];
+            }
+            document.getElementById("copy-now-show-error-logs-button").onclick = function () {
+                document.getElementById("cancel-export-show-error-logs-button").value = all_strings["close-button"];
+                document.getElementById("copy-now-show-error-logs-button").value = all_strings["copied-button"];
+
+                document.getElementById("json-show-error-logs").value = JSON.stringify(json_to_export);
+                document.getElementById("json-show-error-logs").select();
+                document.execCommand("copy");
+            }
+
+            document.getElementById("show-error-logs-to-file-button").value = all_strings["show-error-logs-to-file-button"];
+            if (to_file) {
+                exportToFileErrorLogs();
+            }
+        }).catch((e) => {
+            console.error(`E-E2: ${e}`);
+            onError("settings.js::exportErrorLogs", e);
+        });
+    });
+}
+
+function exportToFileErrorLogs() {
+    const data = JSON.stringify(json_to_export);
+    const blob = new Blob([data], {type: "application/json"});
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-based, so add 1
+    const day = String(today.getDate()).padStart(2, '0');
+
+    const formattedDate = `${year}_${month}_${day}`;
+
+    browser.downloads.download({
+        url: URL.createObjectURL(blob),
+        filename: "notefox_error_logs_" + formattedDate + "_" + Date.now() + ".json",
+        saveAs: false, // Show the file save dialog
+    });
+
+    setTimeout(function () {
+        if (document.getElementById("show-error-logs-section").style.display !== "none") {
+            document.getElementById("cancel-show-error-logs-button").click();
+        }
+    }, 1000);
+
+    document.getElementById("cancel-show-error-logs-button").value = all_strings["close-button"];
+    document.getElementById("show-error-logs-to-file-button").value = all_strings["exported-notes-to-file-button"];
 }
 
 function exportToFile() {
@@ -2393,6 +2506,7 @@ function listenerNotefoxAccount() {
                     break;
                 default:
                     console.error("Error: " + message["type"] + " is not a valid type");
+                    onError("settings.js::listenerNotefoxAccount", "Error: " + message["type"] + " is not a valid type");
             }
 
             disableAside = false;

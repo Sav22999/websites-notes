@@ -428,6 +428,7 @@ function loadUI() {
             });
         } catch (e) {
             console.error("P2)) " + e);
+            onError("script.js::loadUI", e, tab_url);
         }
     }
 
@@ -658,6 +659,7 @@ function setPosition(element, position) {
     } catch (e) {
         element.focus();
         console.error(`Exception SetPosition\n${e}`);
+        onError("script.js::setPosition", e, tab_url);
     }
 }
 
@@ -709,6 +711,7 @@ function saveNotes(title_call = false) {
                     }
                 }).catch(error => {
                     console.error("Error extracting visible text: " + error);
+                    onError("script.js::saveNotes", error, tab_url);
                 });
             });
         }
@@ -1098,10 +1101,12 @@ function getAllOtherPossibleUrls(url) {
                                 }
                             } else {
                                 console.error("Too many combinations to process. Limit is " + MAX_COMBINATIONS);
+                                onError("script.js::getAllOtherPossibleUrls", "Too many combinations to process. Limit is " + MAX_COMBINATIONS, tab_url);
                             }
                         }
                     } else {
                         console.error("Too many parameters to process. Limit is " + MAX_PARAMETERS);
+                        onError("script.js::getAllOtherPossibleUrls", "Too many parameters to process. Limit is " + MAX_PARAMETERS, tab_url);
                         //Use single parameters
                         for (let i = 0; i < parametersToReturn.length; i++) {
                             let urlToPush = urlToReturnTemp + "?" + parametersToReturn[i];
