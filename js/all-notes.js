@@ -143,7 +143,7 @@ function loaded() {
         }
     } catch (e) {
         console.error(`E-L1: ${e}`);
-        onError("all-notes.js::loaded", e);
+        onError("all-notes.js::loaded", e.message);
     }
 
     let titleAllNotes = document.getElementById("title-all-notes-dedication-section");
@@ -227,7 +227,7 @@ function setLanguageUI() {
         };
     } catch (e) {
         console.error(`E-L2: ${e}`);
-        onError("all-notes.js::setLanguageUI", e);
+        onError("all-notes.js::setLanguageUI", e.message);
     }
 }
 
@@ -386,7 +386,7 @@ function loadDataFromBrowser(generate_section = true) {
         applyFilter();
     } catch (e) {
         console.error(`E-L3: ${e}`);
-        onError("all-notes.js::loadDataFromBrowser", e);
+        onError("all-notes.js::loadDataFromBrowser", e.message);
     }
 }
 
@@ -593,7 +593,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
         }
     } catch (e) {
         console.error(`E-L4: ${e}`);
-        onError("all-notes.js::loadAllWebsites", e);
+        onError("all-notes.js::loadAllWebsites", e.message);
     }
 }
 
@@ -679,7 +679,7 @@ function search(value = "") {
         loadAllWebsites(true, sort_by_selected, false);
     } catch (e) {
         console.error(`E-S1: ${e}`);
-        onError("all-notes.js::search", e);
+        onError("all-notes.js::search", e.message);
     }
 }
 
@@ -957,7 +957,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         return page;
     } catch (e) {
         console.error(`E-G1: ${e}`);
-        onError("all-notes.js::generateNotes", e);
+        onError("all-notes.js::generateNotes", e.message);
 
         return undefined;
     }
@@ -1205,7 +1205,7 @@ function sortOnKeys(dict, dict2, sort_by) {
         return tempDict;
     } catch (e) {
         console.error(`E-S2: ${e}`);
-        onError("all-notes.js::sortOnKeys", e);
+        onError("all-notes.js::sortOnKeys", e.message);
 
         return undefined;
     }

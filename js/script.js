@@ -428,7 +428,7 @@ function loadUI() {
             });
         } catch (e) {
             console.error("P2)) " + e);
-            onError("script.js::loadUI", e, tab_url);
+            onError("script.js::loadUI", e.message, tab_url);
         }
     }
 
@@ -659,7 +659,7 @@ function setPosition(element, position) {
     } catch (e) {
         element.focus();
         console.error(`Exception SetPosition\n${e}`);
-        onError("script.js::setPosition", e, tab_url);
+        onError("script.js::setPosition", e.message, tab_url);
     }
 }
 
@@ -711,7 +711,7 @@ function saveNotes(title_call = false) {
                     }
                 }).catch(error => {
                     console.error("Error extracting visible text: " + error);
-                    onError("script.js::saveNotes", error, tab_url);
+                    onError("script.js::saveNotes", error.message, tab_url);
                 });
             });
         }

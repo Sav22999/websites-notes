@@ -277,7 +277,7 @@ function sendLocalDataToServer() {
             });
         }).catch((e) => {
             console.error(`E-B1: ${e}`);
-            onError("background.js::sendLocalDataToServer", e,tab_url);
+            onError("background.js::sendLocalDataToServer", e.message, tab_url);
         });
     });
 }
@@ -291,7 +291,7 @@ function syncUpdateFromServer() {
             syncUpdateFromServer();
         }, 5 * 60 * 1000); //5 minutes if any issues
         console.error(`E-B2: ${e}`);
-        onError("background.js::syncUpdateFromServer", e,tab_url);
+        onError("background.js::syncUpdateFromServer", e.message, tab_url);
     });
 
     loaded();
@@ -1219,7 +1219,7 @@ function openAsStickyNotes() {
                 opening_sticky = false;
             }).catch(function (error) {
                 console.error("E2: " + error);
-                onError("background.js::openAsStickyNotes", error, tab_url);
+                onError("background.js::openAsStickyNotes", error.message, tab_url);
                 opening_sticky = false;
             });
         });
@@ -1241,7 +1241,7 @@ function closeStickyNotes(update = true) {
                 if (update) tabUpdated(false);
             }).catch(function (error) {
                 console.error("E1: " + error + "\nin " + activeTab.url);
-                onError("background.js::closeStickyNotes", error, tab_url);
+                onError("background.js::closeStickyNotes", error.message, tab_url);
             });
         }
     });
@@ -1476,7 +1476,7 @@ function setNewTextFromSticky(text) {
                 //console.log("set || " + JSON.stringify(websites_json));
             }).catch(function (error) {
                 console.error("E3: " + error);
-                onError("background.js::setNewTextFromSticky", error, tab_url);
+                onError("background.js::setNewTextFromSticky", error.message, tab_url);
             });
         }
     });
