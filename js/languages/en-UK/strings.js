@@ -293,7 +293,7 @@ strings[lang] = {
     "default-tag-colour-domain-detailed-text": "When you'll create a new note for a domain, it will have applied this label. You can change it at any time.",
     "default-tag-colour-page-text": "Default label for new page notes",
     "default-tag-colour-page-detailed-text": "When you'll create a new note for a page, it will have applied this label. You can change it at any time.",
-    "show-error-logs-text": "Show error logs",
+    "show-error-logs-text": "Error logs",
     "show-error-logs-detailed-text": "It permits you to see the error logs of the add-on. You can copy and paste them – or download the logs file – and send them to me to help me to fix the problem.",
     "show-error-logs-button": "Show error logs",
     "show-error-logs-to-file-button": "Download the logs file",

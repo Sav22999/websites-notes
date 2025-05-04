@@ -348,7 +348,7 @@ function loaded() {
             });
         } catch (e) {
             console.error("P3)) " + e);
-            onError("settings.js::loaded::348||P3", e);
+            onError("settings.js::loaded::348||P3", e.message);
         }
         document.getElementById("import-from-file-button").onclick = function () {
             importAllNotes(from_file = true);
@@ -374,7 +374,7 @@ function loaded() {
             });
         } catch (e) {
             console.error("P10)) " + e);
-            onError("settings.js::loaded::374||P10", e);
+            onError("settings.js::loaded::374||P10", e.message);
         }
     }
 
@@ -691,7 +691,7 @@ function loadSettings() {
         shortcuts.then(getCurrentShortcuts);
     } catch (e) {
         console.error("C-01)) " + e);
-        onError("settings.js::loadSettings", e);
+        onError("settings.js::loadSettings", e.message);
     }
 
     browser.storage.local.get(["storage"]).then(result => {
@@ -1138,7 +1138,7 @@ function getCurrentShortcuts(commands) {
         });
     } catch (e) {
         console.error("C-02)) " + e);
-        onError("settings.js::getCurrentShortcuts", e);
+        onError("settings.js::getCurrentShortcuts", e.message);
     }
 }
 
@@ -1150,7 +1150,7 @@ function updateShortcut(commandName, shortcut) {
         });
     } catch (e) {
         console.error("C-03)) " + e);
-        onError("settings.js::updateShortcut", e);
+        onError("settings.js::updateShortcut", e.message);
     }
 }
 
@@ -1346,7 +1346,7 @@ function importAllNotes(from_file = false) {
                                         loaded();
                                     }).catch(function (error) {
                                         console.error("E10: " + error);
-                                        onError("settings.js::importAllNotes", error);
+                                        onError("settings.js::importAllNotes", error.message);
                                     });
                                 }, 2000);
                             });
@@ -1416,7 +1416,7 @@ function importFromFile() {
                     document.getElementById("import-now-all-notes-button").click();
                 } catch (e) {
                     console.error(`I-E2: ${e}`)
-                    onError("settings.js::importFromFile::1385|I-E2", e);
+                    onError("settings.js::importFromFile::1385|I-E2", e.message);
                 }
             };
 
@@ -1427,7 +1427,7 @@ function importFromFile() {
         input.click();
     } catch (e) {
         console.error(`I-E1: ${e}`);
-        onError("settings.js::importFromFile::1396|I-E1", e);
+        onError("settings.js::importFromFile::1396|I-E1", e.message);
     }
 }
 
@@ -1499,7 +1499,7 @@ function exportAllNotes(to_file = false) {
             }
         }).catch((e) => {
             console.error(`E-E2: ${e}`);
-            onError("settings.js::exportAllNotes", e);
+            onError("settings.js::exportAllNotes", e.message);
         });
     });
 }
@@ -1544,7 +1544,7 @@ function exportErrorLogs(to_file = false) {
             }
         }).catch((e) => {
             console.error(`E-E2: ${e}`);
-            onError("settings.js::exportErrorLogs", e);
+            onError("settings.js::exportErrorLogs", e.message);
         });
     });
 }
