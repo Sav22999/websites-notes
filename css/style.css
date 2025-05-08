@@ -1200,6 +1200,14 @@ b {
 
 #notes code, #notes pre, .textarea-all-notes code, .textarea-all-notes pre {
     font-family: 'Source Code Pro', monospace;
+    background: inherit;
+}
+
+#notes mark, .textarea-all-notes mark {
+    background-color: var(--tertiary-transparent);
+    color: var(--primary-color);
+    padding: 2px 5px !important;
+    border-radius: 5px;
 }
 
 

@@ -910,13 +910,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 actions.push({text: sanitizeHTML(notes.innerHTML), position: 0});
             }
 
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "z") {
-                //redo();
-            } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
-                //redo();
-            } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
-                //undo();
-            } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
                 bold();
             } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "i") {
                 italic();
@@ -926,6 +920,10 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 strikethrough();
             } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
                 insertLink();
+            } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "j") {
+                hightlighter()
+            } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
+                insertCode();
             }
         }
         listenerLinks(textNotes);
@@ -961,85 +959,6 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
 
         return undefined;
     }
-}
-
-function bold() {
-    //console.log("Bold B")
-    document.execCommand("bold", false);
-}
-
-function italic() {
-    //console.log("Italic I")
-    document.execCommand("italic", false);
-}
-
-function underline() {
-    //console.log("Underline U")
-    document.execCommand("underline", false);
-}
-
-function strikethrough() {
-    //console.log("Strikethrough S")
-    document.execCommand("strikethrough", false);
-}
-
-function insertLink() {
-    //if (isValidURL(value)) {
-    let selectedText = "";
-    if (window.getSelection) {
-        selectedText = window.getSelection().toString();
-    } else if (document.selection && document.selection.type !== 'Control') {
-        // For older versions of Internet Explorer
-        selectedText = document.selection.createRange().text;
-    }
-
-    // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
-    let isLink = hasAncestorTagName(window.getSelection().anchorNode, 'a');
-
-    // If it's already a link, remove the link; otherwise, add the link
-    if (isLink) {
-        // Remove the link
-        let elements = getTheAncestorTagName(window.getSelection().anchorNode, 'a');
-        let anchorElement = elements[0];
-        let parentAnchor = elements[1];
-
-        if (anchorElement && parentAnchor) {
-            // Move children of the anchor element to its parent
-            while (anchorElement.firstChild) {
-                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
-            }
-            // Remove the anchor element itself
-            parentAnchor.removeChild(anchorElement);
-        }
-        saveNotes();
-    } else {
-        /*let url = prompt("Enter the URL:");
-        if (url) {
-            document.execCommand('createLink', false, url);
-        }*/
-        document.execCommand('createLink', false, selectedText);
-    }
-    //}
-}
-
-function hasAncestorTagName(element, tagName) {
-    while (element) {
-        if (element.tagName && element.tagName.toLowerCase() === tagName) {
-            return true; // Found an anchor element
-        }
-        element = element.parentNode; // Move up to the parent node
-    }
-    return false; // Reached the top of the DOM tree without finding an anchor element
-}
-
-function getTheAncestorTagName(element, tagName) {
-    while (element) {
-        if (element.tagName && element.tagName.toLowerCase() === tagName) {
-            return [element, element.parentNode]; // Found an anchor element
-        }
-        element = element.parentNode; // Move up to the parent node
-    }
-    return [false, false]; // Reached the top of the DOM tree without finding an anchor element
 }
 
 function changeTagColour(url, colour) {
