@@ -1209,20 +1209,30 @@ function getTheCorrectUrl(do_not_check_opened = false) {
  * open sticky notes
  */
 function openAsStickyNotes() {
-    if (!opening_sticky) {
-        opening_sticky = true;
+    //before to open, check if the permissions are granted
+    try {
+        browser.permissions.contains(permissionsToRequest).then((response) => {
+            if (response) {
+                if (!opening_sticky) {
+                    opening_sticky = true;
 
-        browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            const activeTab = tabs[0];
-            browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
-                //console.log("Sticky notes ('open')");
-                opening_sticky = false;
-            }).catch(function (error) {
-                console.error("E2: " + error);
-                onError("background.js::openAsStickyNotes", error.message, tab_url);
-                opening_sticky = false;
-            });
+                    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                        const activeTab = tabs[0];
+                        browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
+                            //console.log("Sticky notes ('open')");
+                            opening_sticky = false;
+                        }).catch(function (error) {
+                            console.error("E2: " + error);
+                            onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
+                            opening_sticky = false;
+                        });
+                    });
+                }
+            }
         });
+    } catch (error) {
+        console.error("E-CP2: " + error + "\nin " + activeTab.url);
+        onError("background.js::openAsStickyNotes::E-CP2", error.message, _pageUrl);
     }
 }
 
@@ -1230,22 +1240,35 @@ function openAsStickyNotes() {
  * close sticky notes if exists and the status changed to "closed"
  */
 function closeStickyNotes(update = true) {
-    checkIcon();
-    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
-        const activeTab = tabs[0];
-        if (tabs !== undefined && tabs.length > 0) {
-            browser.tabs.executeScript({
-                code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
-            }).then(function () {
-                //console.log("Sticky notes ('close')");
-                if (update) tabUpdated(false);
-            }).catch(function (error) {
-                console.error("E1: " + error + "\nin " + activeTab.url);
-                onError("background.js::closeStickyNotes", error.message, tab_url);
-            });
-        }
-    });
-    opening_sticky = false;
+    //before to close, check if the permissions are granted
+    const permissionsToRequest = {
+        origins: ["<all_urls>"]
+    }
+    try {
+        browser.permissions.contains(permissionsToRequest).then((response) => {
+            if (response) {
+                checkIcon();
+                browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                    const activeTab = tabs[0];
+                    if (tabs !== undefined && tabs.length > 0) {
+                        browser.tabs.executeScript({
+                            code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
+                        }).then(function () {
+                            //console.log("Sticky notes ('close')");
+                            if (update) tabUpdated(false);
+                        }).catch(function (error) {
+                            console.error("E1: " + error + "\nin " + activeTab.url);
+                            onError("background.js::closeStickyNotes::E1", error.message, tab_url);
+                        });
+                    }
+                });
+                opening_sticky = false;
+            }
+        });
+    } catch (error) {
+        console.error("E-CP1: " + error + "\nin " + activeTab.url);
+        onError("background.js::closeStickyNotes::E-CP1", error.message, _pageUrl);
+    }
 }
 
 function checkIcon() {

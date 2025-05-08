@@ -360,7 +360,7 @@ function loaded() {
             });
         } catch (e) {
             console.error("P3)) " + e);
-            onError("settings.js::loaded::348||P3", e.message);
+            onError("settings.js::loaded::P3", e.message);
         }
         document.getElementById("import-from-file-button").onclick = function () {
             importAllNotes(from_file = true);
@@ -386,7 +386,7 @@ function loaded() {
             });
         } catch (e) {
             console.error("P10)) " + e);
-            onError("settings.js::loaded::374||P10", e.message);
+            onError("settings.js::loaded::P10", e.message);
         }
     }
 
@@ -1439,7 +1439,7 @@ function importFromFile() {
                     document.getElementById("import-now-all-notes-button").click();
                 } catch (e) {
                     console.error(`I-E2: ${e}`)
-                    onError("settings.js::importFromFile::1385|I-E2", e.message);
+                    onError("settings.js::importFromFile::I-E2", e.message);
                 }
             };
 
@@ -1450,7 +1450,7 @@ function importFromFile() {
         input.click();
     } catch (e) {
         console.error(`I-E1: ${e}`);
-        onError("settings.js::importFromFile::1396|I-E1", e.message);
+        onError("settings.js::importFromFile::I-E1", e.message);
     }
 }
 
