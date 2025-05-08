@@ -617,6 +617,13 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 font-family: 'Source Code Pro', monospace;
             }
             
+            #text--sticky-notes-notefox-addon mark {
+                background-color: ${tertiary_transparent_color};
+                color: ${on_primary_color};
+                padding: 2px 5px !important;
+                border-radius: 5px;
+            }
+            
             #text--sticky-notes-notefox-addon h1 {
                 font-family: inherit;
                 font-weight: bolder;
@@ -894,6 +901,10 @@ function onKeyDownText(text, settings_json, e) {
         strikethrough();
     } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
         insertLink(text, settings_json);
+    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "j") {
+        hightlighter()
+    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
+        insertCode();
     }
 }
 
@@ -1105,6 +1116,16 @@ function insertLink(text, settings_json) {
     //}
 }
 
+function hightlighter() {
+    insertHTMLFromTagName("mark");
+    addAction();
+}
+
+function insertCode() {
+    insertHTMLFromTagName("code");
+    addAction();
+}
+
 function isValidURL(url) {
     var urlPattern = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?$/;
     return urlPattern.test(url);
@@ -1168,7 +1189,7 @@ function listenerLinks(element, settings_json) {
 }
 
 function sanitize(element, allowedTags, allowedAttributes) {
-    if (allowedTags === -1) allowedTags = ["b", "i", "u", "a", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q"];
+    if (allowedTags === -1) allowedTags = ["b", "i", "u", "a", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q", "mark"];
     if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite", "href"];
 
     let sanitizedHTML = element;

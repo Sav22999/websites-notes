@@ -47,7 +47,7 @@ const links_aside_bar = {
  * @returns {*}
  */
 function sanitize(element, allowedTags, allowedAttributes) {
-    if (allowedTags === -1) allowedTags = ["b", "i", "u", "a", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q"];
+    if (allowedTags === -1) allowedTags = ["b", "i", "u", "a", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q", "mark"];
     if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite", "href"];
 
     let sanitizedHTML = element;
@@ -94,6 +94,297 @@ function sanitize(element, allowedTags, allowedAttributes) {
         }
     }
     return sanitizedHTML
+}
+
+function bold() {
+    //console.log("Bold B")
+    document.execCommand("bold", false);
+    addAction();
+}
+
+function italic() {
+    //console.log("Italic I")
+    document.execCommand("italic", false);
+    addAction();
+}
+
+function underline() {
+    //console.log("Underline U")
+    document.execCommand("underline", false);
+    addAction();
+}
+
+function strikethrough() {
+    //console.log("Strikethrough S")
+    document.execCommand("strikethrough", false);
+    addAction();
+}
+
+function subscript() {
+    //console.log("Subscript")
+    document.execCommand("subscript", false);
+    addAction();
+}
+
+function superscript() {
+    //console.log("Superscript")
+    document.execCommand("superscript", false);
+    addAction();
+}
+
+function hightlighter() {
+    insertHTMLFromTagName("mark");
+    addAction();
+}
+
+function insertCode() {
+    insertHTMLFromTagName("code");
+    addAction();
+}
+
+function insertHeader(header_size = "h1") {
+    insertHTMLFromTagName(header_size);
+    addAction();
+}
+
+function small() {
+    insertHTMLFromTagName("small");
+    addAction();
+}
+
+function big() {
+    insertHTMLFromTagName("big");
+    addAction();
+}
+
+function insertHTMLFromTagName(tagName) {
+    let selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    } else if (document.selection && document.selection.type !== 'Control') {
+        // For older versions of Internet Explorer
+        selectedText = document.selection.createRange().text;
+    }
+
+    let isTagName = hasAncestorTagName(window.getSelection().anchorNode, tagName);
+
+    if (isTagName) {
+        let elements = getTheAncestorTagName(window.getSelection().anchorNode, tagName);
+        let anchorElement = elements[0];
+        let parentAnchor = elements[1];
+
+        if (anchorElement && parentAnchor) {
+            // Move children of the anchor element to its parent
+            while (anchorElement.firstChild) {
+                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
+            }
+            // Remove the anchor element itself
+            parentAnchor.removeChild(anchorElement);
+        }
+        saveNotes();
+    } else {
+        let html = '<' + tagName + '>' + selectedText + '</' + tagName + '>';
+        document.execCommand('insertHTML', false, html);
+    }
+}
+
+function insertLink() {
+    //if (isValidURL(value)) {
+    let selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    } else if (document.selection && document.selection.type !== 'Control') {
+        // For older versions of Internet Explorer
+        selectedText = document.selection.createRange().text;
+    }
+
+    // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
+    let isLink = hasAncestorTagName(window.getSelection().anchorNode, 'a');
+
+    // If it's already a link, remove the link; otherwise, add the link
+    if (isLink) {
+        // Remove the link
+        let elements = getTheAncestorTagName(window.getSelection().anchorNode, 'a');
+        let anchorElement = elements[0];
+        let parentAnchor = elements[1];
+
+        if (anchorElement && parentAnchor) {
+            // Move children of the anchor element to its parent
+            while (anchorElement.firstChild) {
+                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
+            }
+            // Remove the anchor element itself
+            parentAnchor.removeChild(anchorElement);
+        }
+        saveNotes();
+    } else {
+        /*let url = prompt("Enter the URL:");
+        if (url) {
+            document.execCommand('createLink', false, url);
+        }*/
+        document.execCommand('createLink', false, selectedText);
+    }
+    addAction();
+    //}
+}
+
+/*function insertLink() {
+    //if (isValidURL(value)) {
+    let selectedText = "";
+    if (window.getSelection) {
+        selectedText = window.getSelection().toString();
+    } else if (document.selection && document.selection.type !== 'Control') {
+        // For older versions of Internet Explorer
+        selectedText = document.selection.createRange().text;
+    }
+
+    if (selectedText !== "") {
+        // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
+        let isLink = hasAncestorTagName(window.getSelection().anchorNode, 'a');
+
+        // If it's already a link, remove the link; otherwise, add the link
+        if (isLink) {
+            // Remove the link
+            let elements = getTheAncestorTagName(window.getSelection().anchorNode, 'a');
+            let anchorElement = elements[0];
+            let parentAnchor = elements[1];
+
+            if (anchorElement && parentAnchor) {
+                // Move children of the anchor element to its parent
+                while (anchorElement.firstChild) {
+                    parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
+                }
+                // Remove the anchor element itself
+                parentAnchor.removeChild(anchorElement);
+            }
+            saveNotes();
+        } else {
+            //let url = prompt("Enter the URL:");
+            //if (url) {
+            //    document.execCommand('createLink', false, url);
+            //}
+            let section = document.getElementById("link-section");
+            let background = document.getElementById("background-opacity");
+            let linkUrl = "";
+            if (isValidURL(selectedText)) linkUrl = selectedText;
+
+            section.style.display = "block";
+            background.style.display = "block";
+
+            let linkText = document.getElementById("link-text");
+            linkText.innerHTML = all_strings["insert-link-text"];
+            let linkInput = document.getElementById("link-url-text");
+            linkInput.value = linkUrl;
+            linkInput.placeholder = all_strings["insert-link-placeholder"];
+            let linkButton = document.getElementById("link-button");
+            linkButton.value = all_strings["insert-link-button"];
+            linkButton.onclick = function () {
+                section.style.display = "none";
+                background.style.display = "none";
+                document.execCommand('createLink', false, linkInput.value);
+            }
+            let linkButtonClose = document.getElementById("link-cancel-button");
+            linkButtonClose.value = all_strings["cancel-link-button"];
+            linkButtonClose.onclick = function () {
+                section.style.display = "none";
+                background.style.display = "none";
+            }
+
+            setTimeout(() => {
+                linkInput.focus()
+            }, 100);
+        }
+        addAction();
+    }
+    //}
+}*/
+
+function hasAncestorTagName(element, tagName) {
+    while (element) {
+        if (element.tagName && element.tagName.toLowerCase() === tagName) {
+            return true; // Found an anchor element
+        }
+        element = element.parentNode; // Move up to the parent node
+    }
+    return false; // Reached the top of the DOM tree without finding an anchor element
+}
+
+function getTheAncestorTagName(element, tagName) {
+    while (element) {
+        if (element.tagName && element.tagName.toLowerCase() === tagName) {
+            return [element, element.parentNode]; // Found an anchor element
+        }
+        element = element.parentNode; // Move up to the parent node
+    }
+    return [false, false]; // Reached the top of the DOM tree without finding an anchor element
+}
+
+function isValidURL(url) {
+    var urlPattern = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?$/;
+    return urlPattern.test(url);
+}
+
+function undo() {
+    hideTabSubDomains();
+    if (actions.length > 0 && currentAction > 0) {
+        undoAction = true;
+        document.getElementById("notes").innerHTML = actions[--currentAction].text;
+        saveNotes();
+        setPosition(document.getElementById("notes"), actions[currentAction].position);
+    }
+    document.getElementById("notes").focus();
+}
+
+function redo() {
+    hideTabSubDomains();
+    if (currentAction < actions.length - 1) {
+        undoAction = false;
+        document.getElementById("notes").innerHTML = actions[++currentAction].text;
+        saveNotes();
+        setPosition(document.getElementById("notes"), actions[currentAction].position);
+    }
+    document.getElementById("notes").focus();
+}
+
+function spellcheck(force = false, value = false) {
+    hideTabSubDomains();
+    sync_local.get("settings", function (value) {
+        if (value["settings"] !== undefined) {
+            settings_json = value["settings"];
+            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
+            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = true;
+            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = true;
+
+            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
+            if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
+            else advanced_managing = false;
+
+            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
+            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
+            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = false;
+        }
+
+        if (!document.getElementById("notes").spellcheck || (force && value)) {
+            //enable spellCheck
+            document.getElementById("notes").spellcheck = true;
+            settings_json["spellcheck-detection"] = true;
+            if (document.getElementById("text-spellcheck")) {
+                document.getElementById("text-spellcheck").classList.add("text-spellcheck-sel");
+            }
+        } else {
+            //disable spellCheck
+            document.getElementById("notes").spellcheck = false;
+            settings_json["spellcheck-detection"] = false;
+            if (document.getElementById("text-spellcheck") && document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) {
+                document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
+            }
+        }
+        document.getElementById("notes").focus();
+        //console.log("QAZ-11")
+        sync_local.set({"settings": settings_json, "last-update": getDate()}).then(() => {
+            sendMessageUpdateToBackground();
+        });
+    });
 }
 
 /**
@@ -670,6 +961,9 @@ function getIconSvgEncoded(icon, color) {
                 '    <path d="m391 233.9478h-270a45.1323 45.1323 0 0 0 -45 45v162a45.1323 45.1323 0 0 0 45 45h270a45.1323 45.1323 0 0 0 45-45v-162a45.1323 45.1323 0 0 0 -45-45zm-206.877 135.4316a9.8954 9.8954 0 1 1 -9.8964 17.1387l-16.33-9.4287v18.8593a9.8965 9.8965 0 0 1 -19.793 0v-18.8593l-16.33 9.4287a9.8954 9.8954 0 0 1 -9.8964-17.1387l16.3344-9.4307-16.3344-9.4306a9.8954 9.8954 0 0 1 9.8964-17.1387l16.33 9.4282v-18.8589a9.8965 9.8965 0 0 1 19.793 0v18.8589l16.33-9.4282a9.8954 9.8954 0 0 1 9.8964 17.1387l-16.3344 9.4306zm108 0a9.8954 9.8954 0 1 1 -9.8964 17.1387l-16.33-9.4287v18.8593a9.8965 9.8965 0 0 1 -19.793 0v-18.8593l-16.33 9.4287a9.8954 9.8954 0 0 1 -9.8964-17.1387l16.3344-9.4307-16.3344-9.4306a9.8954 9.8954 0 0 1 9.8964-17.1387l16.33 9.4282v-18.8589a9.8965 9.8965 0 0 1 19.793 0v18.8589l16.33-9.4282a9.8954 9.8954 0 0 1 9.8964 17.1387l-16.3344 9.4306zm108 0a9.8954 9.8954 0 1 1 -9.8964 17.1387l-16.33-9.4287v18.8593a9.8965 9.8965 0 0 1 -19.793 0v-18.8593l-16.33 9.4287a9.8954 9.8954 0 0 1 -9.8964-17.1387l16.3344-9.4307-16.3344-9.4306a9.8954 9.8954 0 0 1 9.8964-17.1387l16.33 9.4282v-18.8589a9.8965 9.8965 0 0 1 19.793 0v18.8589l16.33-9.4282a9.8954 9.8954 0 0 1 9.8964 17.1387l-16.3344 9.4306z"/>\n' +
                 '    <path d="m157.8965 143.9487a98.1035 98.1035 0 1 1 196.207 0v70.1983h19.793v-70.1983a117.8965 117.8965 0 0 0 -235.793 0v70.1983h19.793z"/>\n' +
                 '</svg>';
+            break;
+        case "code-block":
+            svgToReturn = `<svg fill="none" height="800" viewBox="0 0 24 24" width="800" xmlns="http://www.w3.org/2000/svg"><path d="m7 8-4 3.6923 4 4.3077m10-8 4 3.6923-4 4.3077m-3-12-4 16" stroke="${color}" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>`;
             break;
         case "superscript":
             svgToReturn = '<svg fill="' + color + '" height="800" viewBox="0 0 24 24" width="800" xmlns="http://www.w3.org/2000/svg">\n' +

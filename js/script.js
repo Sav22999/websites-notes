@@ -359,6 +359,10 @@ function loadUI() {
             strikethrough();
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
             insertLink();
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "j") {
+            hightlighter()
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
+            insertCode();
         }
     }
     notes.onkeyup = function (e) {
@@ -1277,346 +1281,6 @@ function openStickyNotes() {
     }
 }
 
-function bold() {
-    //console.log("Bold B")
-    document.execCommand("bold", false);
-    addAction();
-}
-
-function italic() {
-    //console.log("Italic I")
-    document.execCommand("italic", false);
-    addAction();
-}
-
-function underline() {
-    //console.log("Underline U")
-    document.execCommand("underline", false);
-    addAction();
-}
-
-function strikethrough() {
-    //console.log("Strikethrough S")
-    document.execCommand("strikethrough", false);
-    addAction();
-}
-
-function subscript() {
-    //console.log("Subscript")
-    document.execCommand("subscript", false);
-    addAction();
-}
-
-function superscript() {
-    //console.log("Superscript")
-    document.execCommand("superscript", false);
-    addAction();
-}
-
-/*var highlighterBackgroundColor = "rgb(255, 255, 0, 0.5)";
-
-function highlighter() {
-    //console.log("Highlighter")
-
-    let selectedText = "";
-    if (window.getSelection) {
-        selectedText = window.getSelection().toString();
-    } else if (document.selection && document.selection.type !== 'Control') {
-        // For older versions of Internet Explorer
-        selectedText = document.selection.createRange().text;
-    }
-
-    // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
-    let isHighlighter = hasAncestorHighlighter(window.getSelection().anchorNode);
-
-    if (isHighlighter) {
-        let elements = getTheAncestorHighlighter(window.getSelection().anchorNode);
-        let anchorElement = elements[0];
-        let parentAnchor = elements[1];
-
-        if (anchorElement && parentAnchor) {
-            // Move children of the anchor element to its parent
-            while (anchorElement.firstChild) {
-                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
-            }
-            // Remove the anchor element itself
-            parentAnchor.removeChild(anchorElement);
-        }
-        saveNotes();
-        document.execCommand('backColor', false, 'transparent');
-    } else {
-        document.execCommand('backColor', false, highlighterBackgroundColor);
-    }
-
-    addAction();
-}
-
-function hasAncestorHighlighter(element) {
-    while (element) {
-        if (element.tagName && element.tagName.toLowerCase() === "span" && element.style.backgroundColor === highlighterBackgroundColor) {
-            return true; // Found an anchor element
-        }
-        element = element.parentNode; // Move up to the parent node
-    }
-    return false; // Reached the top of the DOM tree without finding an anchor element
-}
-
-function getTheAncestorHighlighter(element) {
-    while (element) {
-        if (element.tagName && element.tagName.toLowerCase() === "span" && element.style.backgroundColor === highlighterBackgroundColor) {
-            return [element, element.parentNode]; // Found an anchor element
-        }
-        element = element.parentNode; // Move up to the parent node
-    }
-    return [false, false]; // Reached the top of the DOM tree without finding an anchor element
-}
-*/
-
-function insertHeader(header_size = "h1") {
-    insertHTMLFromTagName(header_size);
-    addAction();
-}
-
-function small() {
-    insertHTMLFromTagName("small");
-    addAction();
-}
-
-function big() {
-    insertHTMLFromTagName("big");
-    addAction();
-}
-
-function insertHTMLFromTagName(tagName) {
-    let selectedText = "";
-    if (window.getSelection) {
-        selectedText = window.getSelection().toString();
-    } else if (document.selection && document.selection.type !== 'Control') {
-        // For older versions of Internet Explorer
-        selectedText = document.selection.createRange().text;
-    }
-
-    let isTagName = hasAncestorTagName(window.getSelection().anchorNode, tagName);
-
-    if (isTagName) {
-        let elements = getTheAncestorTagName(window.getSelection().anchorNode, tagName);
-        let anchorElement = elements[0];
-        let parentAnchor = elements[1];
-
-        if (anchorElement && parentAnchor) {
-            // Move children of the anchor element to its parent
-            while (anchorElement.firstChild) {
-                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
-            }
-            // Remove the anchor element itself
-            parentAnchor.removeChild(anchorElement);
-        }
-        saveNotes();
-    } else {
-        let html = '<' + tagName + '>' + selectedText + '</' + tagName + '>';
-        document.execCommand('insertHTML', false, html);
-    }
-}
-
-function insertLink() {
-    //if (isValidURL(value)) {
-    let selectedText = "";
-    if (window.getSelection) {
-        selectedText = window.getSelection().toString();
-    } else if (document.selection && document.selection.type !== 'Control') {
-        // For older versions of Internet Explorer
-        selectedText = document.selection.createRange().text;
-    }
-
-    // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
-    let isLink = hasAncestorTagName(window.getSelection().anchorNode, 'a');
-
-    // If it's already a link, remove the link; otherwise, add the link
-    if (isLink) {
-        // Remove the link
-        let elements = getTheAncestorTagName(window.getSelection().anchorNode, 'a');
-        let anchorElement = elements[0];
-        let parentAnchor = elements[1];
-
-        if (anchorElement && parentAnchor) {
-            // Move children of the anchor element to its parent
-            while (anchorElement.firstChild) {
-                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
-            }
-            // Remove the anchor element itself
-            parentAnchor.removeChild(anchorElement);
-        }
-        saveNotes();
-    } else {
-        /*let url = prompt("Enter the URL:");
-        if (url) {
-            document.execCommand('createLink', false, url);
-        }*/
-        document.execCommand('createLink', false, selectedText);
-    }
-    addAction();
-    //}
-}
-
-/*function insertLink() {
-    //if (isValidURL(value)) {
-    let selectedText = "";
-    if (window.getSelection) {
-        selectedText = window.getSelection().toString();
-    } else if (document.selection && document.selection.type !== 'Control') {
-        // For older versions of Internet Explorer
-        selectedText = document.selection.createRange().text;
-    }
-
-    if (selectedText !== "") {
-        // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
-        let isLink = hasAncestorTagName(window.getSelection().anchorNode, 'a');
-
-        // If it's already a link, remove the link; otherwise, add the link
-        if (isLink) {
-            // Remove the link
-            let elements = getTheAncestorTagName(window.getSelection().anchorNode, 'a');
-            let anchorElement = elements[0];
-            let parentAnchor = elements[1];
-
-            if (anchorElement && parentAnchor) {
-                // Move children of the anchor element to its parent
-                while (anchorElement.firstChild) {
-                    parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
-                }
-                // Remove the anchor element itself
-                parentAnchor.removeChild(anchorElement);
-            }
-            saveNotes();
-        } else {
-            //let url = prompt("Enter the URL:");
-            //if (url) {
-            //    document.execCommand('createLink', false, url);
-            //}
-            let section = document.getElementById("link-section");
-            let background = document.getElementById("background-opacity");
-            let linkUrl = "";
-            if (isValidURL(selectedText)) linkUrl = selectedText;
-
-            section.style.display = "block";
-            background.style.display = "block";
-
-            let linkText = document.getElementById("link-text");
-            linkText.innerHTML = all_strings["insert-link-text"];
-            let linkInput = document.getElementById("link-url-text");
-            linkInput.value = linkUrl;
-            linkInput.placeholder = all_strings["insert-link-placeholder"];
-            let linkButton = document.getElementById("link-button");
-            linkButton.value = all_strings["insert-link-button"];
-            linkButton.onclick = function () {
-                section.style.display = "none";
-                background.style.display = "none";
-                document.execCommand('createLink', false, linkInput.value);
-            }
-            let linkButtonClose = document.getElementById("link-cancel-button");
-            linkButtonClose.value = all_strings["cancel-link-button"];
-            linkButtonClose.onclick = function () {
-                section.style.display = "none";
-                background.style.display = "none";
-            }
-
-            setTimeout(() => {
-                linkInput.focus()
-            }, 100);
-        }
-        addAction();
-    }
-    //}
-}*/
-
-function hasAncestorTagName(element, tagName) {
-    while (element) {
-        if (element.tagName && element.tagName.toLowerCase() === tagName) {
-            return true; // Found an anchor element
-        }
-        element = element.parentNode; // Move up to the parent node
-    }
-    return false; // Reached the top of the DOM tree without finding an anchor element
-}
-
-function getTheAncestorTagName(element, tagName) {
-    while (element) {
-        if (element.tagName && element.tagName.toLowerCase() === tagName) {
-            return [element, element.parentNode]; // Found an anchor element
-        }
-        element = element.parentNode; // Move up to the parent node
-    }
-    return [false, false]; // Reached the top of the DOM tree without finding an anchor element
-}
-
-function isValidURL(url) {
-    var urlPattern = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?$/;
-    return urlPattern.test(url);
-}
-
-function undo() {
-    hideTabSubDomains();
-    if (actions.length > 0 && currentAction > 0) {
-        undoAction = true;
-        document.getElementById("notes").innerHTML = actions[--currentAction].text;
-        saveNotes();
-        setPosition(document.getElementById("notes"), actions[currentAction].position);
-    }
-    document.getElementById("notes").focus();
-}
-
-function redo() {
-    hideTabSubDomains();
-    if (currentAction < actions.length - 1) {
-        undoAction = false;
-        document.getElementById("notes").innerHTML = actions[++currentAction].text;
-        saveNotes();
-        setPosition(document.getElementById("notes"), actions[currentAction].position);
-    }
-    document.getElementById("notes").focus();
-}
-
-function spellcheck(force = false, value = false) {
-    hideTabSubDomains();
-    sync_local.get("settings", function (value) {
-        if (value["settings"] !== undefined) {
-            settings_json = value["settings"];
-            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "domain";
-            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = true;
-            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = true;
-
-            if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
-            if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
-            else advanced_managing = false;
-
-            if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
-            if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
-            if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = false;
-        }
-
-        if (!document.getElementById("notes").spellcheck || (force && value)) {
-            //enable spellCheck
-            document.getElementById("notes").spellcheck = true;
-            settings_json["spellcheck-detection"] = true;
-            if (document.getElementById("text-spellcheck")) {
-                document.getElementById("text-spellcheck").classList.add("text-spellcheck-sel");
-            }
-        } else {
-            //disable spellCheck
-            document.getElementById("notes").spellcheck = false;
-            settings_json["spellcheck-detection"] = false;
-            if (document.getElementById("text-spellcheck") && document.getElementById("text-spellcheck").classList.contains("text-spellcheck-sel")) {
-                document.getElementById("text-spellcheck").classList.remove("text-spellcheck-sel")
-            }
-        }
-        document.getElementById("notes").focus();
-        //console.log("QAZ-11")
-        sync_local.set({"settings": settings_json, "last-update": getDate()}).then(() => {
-            sendMessageUpdateToBackground();
-        });
-    });
-}
-
 function loadFormatButtons(navigation = true, format = true) {
     let url = "/img/commands/";
 
@@ -1660,6 +1324,16 @@ function loadFormatButtons(navigation = true, format = true) {
     if (settings_json["small-big"] !== undefined) {
         if (settings_json["small-big"] === "yes" || settings_json["small-big"] === true) is_small_big = true;
         else is_small_big = false;
+    }
+    let is_highlighter = false;
+    if (settings_json["highlighter"] !== undefined) {
+        if (settings_json["highlighter"] === "yes" || settings_json["highlighter"] === true) is_highlighter = true;
+        else is_highlighter = false;
+    }
+    let is_code = false;
+    if (settings_json["code-block"] !== undefined) {
+        if (settings_json["code-block"] === "yes" || settings_json["code-block"] === true) is_code = true;
+        else is_code = false;
     }
 
     let commands = [];
@@ -1767,6 +1441,32 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-superscript"],
                     function: function () {
                         superscript();
+                    }
+                }
+            );
+        }
+
+        if(is_highlighter) {
+            commands.push(
+                {
+                    action: "highlighter",
+                    icon: `${url}highlighter.svg`,
+                    title: all_strings["label-title-highlighter"],
+                    function: function () {
+                        hightlighter();
+                    }
+                }
+            );
+        }
+
+        if (is_code) {
+            commands.push(
+                {
+                    action: "code-block",
+                    icon: `${url}code-block.svg`,
+                    title: all_strings["label-title-code-block"],
+                    function: function () {
+                        insertCode();
                     }
                 }
             );
@@ -1949,6 +1649,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let h6_svg = window.btoa(getIconSvgEncoded("h6", on_primary));
         let small_svg = window.btoa(getIconSvgEncoded("small", on_primary));
         let big_svg = window.btoa(getIconSvgEncoded("big", on_primary));
+        let highlighter_svg = window.btoa(getIconSvgEncoded("highlighter", on_primary));
+        let code_block_svg = window.btoa(getIconSvgEncoded("code-block", on_primary));
 
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
@@ -2073,6 +1775,15 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 #text-big {
                     background-image: url('data:image/svg+xml;base64,${big_svg}');
                     background-size: 90% auto;
+                }
+                
+                #text-highlighter {
+                    background-image: url('data:image/svg+xml;base64,${highlighter_svg}');
+                    background-size: 60% auto;
+                }
+                
+                #text-code-block {
+                    background-image: url('data:image/svg+xml;base64,${code_block_svg}');
                 }
                 
                 #text-link {

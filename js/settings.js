@@ -322,6 +322,18 @@ function loaded() {
         saveSettings();
     }
 
+    document.getElementById("show-highlighter-check").onchange = function () {
+        settings_json["highlighter"] = document.getElementById("show-highlighter-check").checked;
+
+        saveSettings();
+    }
+
+    document.getElementById("show-code-block-check").onchange = function () {
+        settings_json["code-block"] = document.getElementById("show-code-block-check").checked;
+
+        saveSettings();
+    }
+
     document.getElementById("clear-all-notes-button").onclick = function () {
         clearAllNotes();
     }
@@ -376,6 +388,10 @@ function loaded() {
             console.error("P10)) " + e);
             onError("settings.js::loaded::374||P10", e.message);
         }
+    }
+
+    document.getElementById("delete-error-logs-settings-button").onclick = function () {
+        deleteErrorLogs();
     }
 
     document.getElementById("default-tag-colour-domain-select").onchange = function () {
@@ -589,6 +605,8 @@ function setLanguageUI() {
     document.getElementById("show-superscript-subscript-text").innerText = all_strings["show-superscript-subscript-text"];
     document.getElementById("show-headers-text").innerText = all_strings["show-headers-text"];
     document.getElementById("show-small-big-text").innerText = all_strings["show-small-big-text"];
+    document.getElementById("show-highlighter-text").innerText = all_strings["show-highlighter-text"];
+    document.getElementById("show-code-block-text").innerText = all_strings["show-code-block-text"];
 
     document.getElementById("default-tag-colour-domain-text").innerText = all_strings["default-tag-colour-domain-text"];
     document.getElementById("default-tag-colour-domain-detailed-text").innerHTML = all_strings["default-tag-colour-domain-detailed-text"];
@@ -683,6 +701,7 @@ function setLanguageUI() {
     document.getElementById("show-error-logs-settings-text").innerText = all_strings["show-error-logs-text"];
     document.getElementById("show-error-logs-settings-detailed-text").innerHTML = all_strings["show-error-logs-detailed-text"];
     document.getElementById("show-error-logs-settings-button").value = all_strings["show-error-logs-button"];
+    document.getElementById("delete-error-logs-settings-button").value = all_strings["delete-error-logs-button"];
 }
 
 function loadSettings() {
@@ -730,6 +749,8 @@ function loadSettings() {
             if (settings_json["superscript-subscript"] === undefined) settings_json["superscript-subscript"] = false;
             if (settings_json["headers"] === undefined) settings_json["headers"] = false;
             if (settings_json["small-big"] === undefined) settings_json["small-big"] = false;
+            if (settings_json["highlighter"] === undefined) settings_json["highlighter"] = false;
+            if (settings_json["code-block"] === undefined) settings_json["code-block"] = false;
 
             if (settings_json["default-tag-colour-domain"] === undefined) settings_json["default-tag-colour-domain"] = "none";
             if (settings_json["default-tag-colour-page"] === undefined) settings_json["default-tag-colour-page"] = "none";
@@ -792,6 +813,8 @@ function loadSettings() {
             document.getElementById("show-superscript-subscript-check").checked = settings_json["superscript-subscript"] === true || settings_json["superscript-subscript"] === "yes";
             document.getElementById("show-headers-check").checked = settings_json["headers"] === true || settings_json["headers"] === "yes";
             document.getElementById("show-small-big-check").checked = settings_json["small-big"] === true || settings_json["small-big"] === "yes";
+            document.getElementById("show-highlighter-check").checked = settings_json["highlighter"] === true || settings_json["highlighter"] === "yes";
+            document.getElementById("show-code-block-check").checked = settings_json["code-block"] === true || settings_json["code-block"] === "yes";
 
             let colourList = colourListDefault;
             colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
@@ -1601,6 +1624,15 @@ function exportToFile() {
 
     document.getElementById("cancel-export-all-notes-button").value = all_strings["close-button"];
     document.getElementById("export-to-file-button").value = all_strings["exported-notes-to-file-button"];
+}
+
+function deleteErrorLogs() {
+    let confirmationDeleteErrorLogs = confirm(all_strings["delete-error-logs-confirmation"]);
+    if (confirmationDeleteErrorLogs) {
+        browser.storage.local.remove("error-logs").then(result => {
+            loaded();
+        });
+    }
 }
 
 function notefoxAccountLoginSignupManage(action = null, data = null, firstTime = false) {
