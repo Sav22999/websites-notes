@@ -463,6 +463,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
         if (theme_colours_json["on-primary"] !== undefined) on_primary_color = theme_colours_json["on-primary"];
         if (theme_colours_json["on-secondary"] !== undefined) on_secondary_color = theme_colours_json["on-secondary"];
     }
+    let tertiary_transparent_color = secondary_color+"44";
     let displayWidth = window.innerWidth;
     let displayHeight = window.innerHeight;
     let yAsInt = parseInt(y.replace("px", ""));
