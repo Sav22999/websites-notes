@@ -1210,6 +1210,9 @@ function getTheCorrectUrl(do_not_check_opened = false) {
  */
 function openAsStickyNotes() {
     //before to open, check if the permissions are granted
+    const permissionsToRequest = {
+        origins: ["<all_urls>"]
+    }
     try {
         browser.permissions.contains(permissionsToRequest).then((response) => {
             if (response) {
@@ -1231,7 +1234,7 @@ function openAsStickyNotes() {
             }
         });
     } catch (error) {
-        console.error("E-CP2: " + error + "\nin " + activeTab.url);
+        console.error("E-CP2: " + error + "\nin " + _pageUrl);
         onError("background.js::openAsStickyNotes::E-CP2", error.message, _pageUrl);
     }
 }
@@ -1266,7 +1269,7 @@ function closeStickyNotes(update = true) {
             }
         });
     } catch (error) {
-        console.error("E-CP1: " + error + "\nin " + activeTab.url);
+        console.error("E-CP1: " + error + "\nin " + _pageUrl);
         onError("background.js::closeStickyNotes::E-CP1", error.message, _pageUrl);
     }
 }
