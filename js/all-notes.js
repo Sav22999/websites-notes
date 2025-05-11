@@ -922,8 +922,6 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 insertLink();
             } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "j") {
                 hightlighter()
-            } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
-                insertCode();
             }
         }
         listenerLinks(textNotes);

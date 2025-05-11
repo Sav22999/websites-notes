@@ -1264,7 +1264,8 @@ b {
 #notes img, .textarea-all-notes img {
     border-radius: 5px;
     width: auto;
-    max-width: 100%;
+    /*max-width: 100%;*/ /*Set on JS, because it depends on the Settings option 'word-wrap'*/
+    max-width: inherit;
     height: auto;
 }
 

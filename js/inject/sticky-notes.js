@@ -904,8 +904,6 @@ function onKeyDownText(text, settings_json, e) {
         insertLink(text, settings_json);
     } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "j") {
         hightlighter()
-    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
-        insertCode();
     }
 }
 
