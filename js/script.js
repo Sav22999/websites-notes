@@ -228,6 +228,13 @@ function loadUI() {
     let notes = document.getElementById("notes");
     let title_notes = document.getElementById("title-notes");
     notes.style.fontFamily = `'${settings_json["font-family"]}'`;
+    if (settings_json !== undefined && settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true)) {
+        document.getElementById("notes").style.whiteSpace = "none";
+        document.getElementById("notes").style.maxWidth = "none";
+    } else {
+        document.getElementById("notes").style.whiteSpace = "pre-wrap";
+        document.getElementById("notes").style.maxWidth = "100%";
+    }
     title_notes.style.fontFamily = `'${settings_json["font-family"]}'`;
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         let activeTab = tabs[0];
@@ -361,8 +368,6 @@ function loadUI() {
             insertLink();
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "j") {
             hightlighter()
-        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
-            insertCode();
         }
     }
     notes.onkeyup = function (e) {
@@ -1446,7 +1451,7 @@ function loadFormatButtons(navigation = true, format = true) {
             );
         }
 
-        if(is_highlighter) {
+        if (is_highlighter) {
             commands.push(
                 {
                     action: "highlighter",
@@ -1582,12 +1587,6 @@ function loadFormatButtons(navigation = true, format = true) {
                 document.getElementById("text-spellcheck").classList.add("text-spellcheck-sel");
             }
         }
-    }
-
-    if (settings_json !== undefined && settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true)) {
-        document.getElementById("notes").style.whiteSpace = "none";
-    } else {
-        document.getElementById("notes").style.whiteSpace = "pre-wrap";
     }
     //document.getElementById("notes").focus();
 }
