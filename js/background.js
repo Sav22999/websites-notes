@@ -92,20 +92,56 @@ function checkSyncLocal() {
         }
     });
 
+    checkVersion();
+
     checkSyncData();
+}
+
+/**Check if it's the first time the user use the current version of Notefox
+ * Useful for the "update" page*/
+function checkVersion() {
+    const currentVersion = browser.runtime.getManifest().version;
+    browser.storage.sync.get(`versions`).then(result => {
+        if (result === undefined || result[currentVersion] === undefined) {
+            let resultToSet = {};
+            if (result !== undefined) {
+                resultToSet = result;
+            }
+
+            resultToSet[currentVersion] = {"date": getDate()};
+
+            //first time using this version
+            browser.storage.sync.set({"versions": resultToSet}).then(() => {
+                //open 'update' page
+                //browser.tabs.create({url: "https://notefox.eu/help/update?version=" + currentVersion});
+
+                //reset error logs
+                browser.storage.local.set({"error-logs": []});
+            });
+        } else {
+            console.log(`Already checked this version (${currentVersion})`);
+        }
+    });
 }
 
 function checkInstallationDate() {
     browser.storage.sync.get("installation").then(result => {
-        if (result.installation !== undefined) {
+        if (result.installation === undefined) {
+            browser.storage.sync.set({
+                "installation": {
+                    "date": getDate(), "version": browser.runtime.getManifest().version
+                }
+            })
+
             let date = new Date(result.installation.date);
             let now = new Date();
             let diff = now - date;
             let days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            if (days > 30) {
-                //open 'first launch' page
-                browser.tabs.create({url: linkFirstLaunch});
-            }
+            //open 'first launch' page
+            browser.tabs.create({url: linkFirstLaunch});
+        } else {
+            //console.log("Installation date: " + result.installation.date);
+            //console.log("Installation version: " + result.installation.version);
         }
     });
 }
@@ -116,9 +152,7 @@ function checkSyncData(just_once = false) {
         //console.log("Sync data: " + JSON.stringify(resultSync));
         if (resultSync["notefox-account"] !== undefined) {
             api_request({
-                "api": true,
-                "type": "get-data",
-                "data": {
+                "api": true, "type": "get-data", "data": {
                     "login-id": resultSync["notefox-account"]["login-id"],
                     "token": resultSync["notefox-account"]["token"]
                 }
@@ -273,9 +307,7 @@ function sendLocalDataToServer() {
             browser.storage.sync.get(["notefox-account"]).then(resultSync => {
                 if (resultSync["notefox-account"] !== undefined) {
                     api_request({
-                        "api": true,
-                        "type": "send-data",
-                        "data": {
+                        "api": true, "type": "send-data", "data": {
                             "login-id": resultSync["notefox-account"]["login-id"],
                             "token": resultSync["notefox-account"]["token"],
                             "updated-locally": correctDatetime(result["last-update"]),
@@ -418,9 +450,7 @@ function tabUpdated(update = false) {
 
     sync_local = browser.storage.sync;
     browser.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = browser.storage.sync;
-        else if (result.storage === "local") sync_local = browser.storage.local;
-        else {
+        if (result.storage === "sync") sync_local = browser.storage.sync; else if (result.storage === "local") sync_local = browser.storage.local; else {
             browser.storage.local.set({"storage": "local"});
             sync_local = browser.storage.local;
         }
@@ -461,9 +491,7 @@ function checkStatus(update = false) {
             let minimize_sticky_icon_svg = window.btoa(getIconSvgEncoded("minimize", settings_json["sticky-on-secondary-color"]));
             let restore_sticky_icon_svg = window.btoa(getIconSvgEncoded("restore", settings_json["sticky-on-secondary-color"]));
             icons_json = {
-                "close": close_sticky_icon_svg,
-                "minimize": minimize_sticky_icon_svg,
-                "restore": restore_sticky_icon_svg
+                "close": close_sticky_icon_svg, "minimize": minimize_sticky_icon_svg, "restore": restore_sticky_icon_svg
             };
 
             theme_colours_json = {
@@ -542,8 +570,7 @@ function checkStatus(update = false) {
                             websites_json[tab_url]["title"] = tab_title;
                             //console.log("QAZ-1")
                             sync_local.set({
-                                "websites": websites_json,
-                                "last-update": getDate()
+                                "websites": websites_json, "last-update": getDate()
                             }).then(resultSet => {
                             });
                         }
@@ -559,8 +586,7 @@ function checkStatus(update = false) {
                         } else {
                             if (value["sticky-notes-coords"] !== undefined && value["sticky-notes-coords"]["x"] !== undefined && value["sticky-notes-coords"]["y"] !== undefined) {
                                 coords = {
-                                    x: value["sticky-notes-coords"]["x"],
-                                    y: value["sticky-notes-coords"]["y"]
+                                    x: value["sticky-notes-coords"]["x"], y: value["sticky-notes-coords"]["y"]
                                 };
                             } else {
                                 coords = {x: "20px", y: "20px"};
@@ -666,36 +692,15 @@ function getIconSvgEncoded(icon, color) {
     let svgToReturn = "";
     switch (icon) {
         case "close":
-            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 800 800"\n' +
-                '     xmlns="http://www.w3.org/2000/svg">\n' +
-                '    <g fill="' + color + '">\n' +
-                '        <path d="m66.667 600c0-62.853 0-94.28 19.526-113.807 19.526-19.526 50.953-19.526 113.807-19.526s94.281 0 113.807 19.526c19.526 19.527 19.526 50.954 19.526 113.807s0 94.28-19.526 113.807c-19.526 19.526-50.953 19.526-113.807 19.526s-94.281 0-113.807-19.526c-19.526-19.527-19.526-50.954-19.526-113.807z"\n' +
-                '              fill-rule="nonzero"/>\n' +
-                '        <path d="m115.482 115.482c-48.815 48.816-48.815 127.383-48.815 284.518 0 13.187 0 25.82.029 37.927 16.936-11.104 35.598-15.967 53.491-18.374 21.52-2.893 47.976-2.89 76.83-2.886h5.967c28.854-.004 55.31-.007 76.83 2.886 23.699 3.187 48.747 10.684 69.349 31.284 20.6 20.603 28.097 45.65 31.284 69.35 2.893 21.52 2.89 47.976 2.886 76.83v5.966c.004 28.857.007 55.31-2.886 76.83-2.407 17.894-7.267 36.554-18.374 53.49 12.11.03 24.74.03 37.927.03 157.133 0 235.703 0 284.517-48.816 48.816-48.814 48.816-127.384 48.816-284.517 0-157.135 0-235.702-48.816-284.518-48.814-48.815-127.384-48.815-284.517-48.815-157.135 0-235.702 0-284.518 48.815zm326.185 92.851c-13.807 0-25 11.193-25 25s11.193 25 25 25h64.643l-123.987 123.99c-9.763 9.764-9.763 25.59 0 35.354 9.764 9.763 25.59 9.763 35.354 0l123.99-123.988v64.644c0 13.807 11.193 25 25 25 13.806 0 25-11.193 25-25v-125c0-13.807-11.194-25-25-25z"/>\n' +
-                '    </g>\n' +
-                '</svg>'
+            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 800 800"\n' + '     xmlns="http://www.w3.org/2000/svg">\n' + '    <g fill="' + color + '">\n' + '        <path d="m66.667 600c0-62.853 0-94.28 19.526-113.807 19.526-19.526 50.953-19.526 113.807-19.526s94.281 0 113.807 19.526c19.526 19.527 19.526 50.954 19.526 113.807s0 94.28-19.526 113.807c-19.526 19.526-50.953 19.526-113.807 19.526s-94.281 0-113.807-19.526c-19.526-19.527-19.526-50.954-19.526-113.807z"\n' + '              fill-rule="nonzero"/>\n' + '        <path d="m115.482 115.482c-48.815 48.816-48.815 127.383-48.815 284.518 0 13.187 0 25.82.029 37.927 16.936-11.104 35.598-15.967 53.491-18.374 21.52-2.893 47.976-2.89 76.83-2.886h5.967c28.854-.004 55.31-.007 76.83 2.886 23.699 3.187 48.747 10.684 69.349 31.284 20.6 20.603 28.097 45.65 31.284 69.35 2.893 21.52 2.89 47.976 2.886 76.83v5.966c.004 28.857.007 55.31-2.886 76.83-2.407 17.894-7.267 36.554-18.374 53.49 12.11.03 24.74.03 37.927.03 157.133 0 235.703 0 284.517-48.816 48.816-48.814 48.816-127.384 48.816-284.517 0-157.135 0-235.702-48.816-284.518-48.814-48.815-127.384-48.815-284.517-48.815-157.135 0-235.702 0-284.518 48.815zm326.185 92.851c-13.807 0-25 11.193-25 25s11.193 25 25 25h64.643l-123.987 123.99c-9.763 9.764-9.763 25.59 0 35.354 9.764 9.763 25.59 9.763 35.354 0l123.99-123.988v64.644c0 13.807 11.193 25 25 25 13.806 0 25-11.193 25-25v-125c0-13.807-11.194-25-25-25z"/>\n' + '    </g>\n' + '</svg>'
             break;
 
         case "restore":
-            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 334 334"\n' +
-                '     xmlns="http://www.w3.org/2000/svg">\n' +
-                '    <g fill="' + color + '" transform="scale(.416667)">\n' +
-                '        <path d="m54.167 400c0 13.807 11.193 25 25 25h365.753l-65.357 56.02c-10.483 8.983-11.696 24.767-2.71 35.25 8.984 10.483 24.767 11.697 35.25 2.71l116.667-100c5.54-4.747 8.73-11.683 8.73-18.98s-3.19-14.233-8.73-18.98l-116.667-100.001c-10.483-8.986-26.266-7.772-35.25 2.711-8.986 10.483-7.773 26.266 2.71 35.251l65.357 56.019h-365.753c-13.807 0-25 11.193-25 25z"/>\n' +
-                '        <path d="m312.5 325.001h12.609c-8.618-24.453-4.306-52.709 13.781-73.809 26.957-31.449 74.303-35.092 105.753-8.135l116.667 100c16.623 14.25 26.19 35.05 26.19 56.943 0 21.897-9.567 42.697-26.19 56.947l-116.667 100c-31.45 26.956-78.796 23.313-105.753-8.137-18.087-21.1-22.399-49.357-13.781-73.81h-12.609v58.333c0 94.28 0 141.42 29.29 170.71s76.43 29.29 170.71 29.29h33.333c94.28 0 141.42 0 170.71-29.29s29.29-76.43 29.29-170.71v-266.666c0-94.281 0-141.422-29.29-170.711s-76.43-29.289-170.71-29.289h-33.333c-94.28 0-141.42 0-170.71 29.289s-29.29 76.43-29.29 170.711z"\n' +
-                '              fill-rule="nonzero"/>\n' +
-                '    </g>\n' +
-                '</svg>';
+            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 334 334"\n' + '     xmlns="http://www.w3.org/2000/svg">\n' + '    <g fill="' + color + '" transform="scale(.416667)">\n' + '        <path d="m54.167 400c0 13.807 11.193 25 25 25h365.753l-65.357 56.02c-10.483 8.983-11.696 24.767-2.71 35.25 8.984 10.483 24.767 11.697 35.25 2.71l116.667-100c5.54-4.747 8.73-11.683 8.73-18.98s-3.19-14.233-8.73-18.98l-116.667-100.001c-10.483-8.986-26.266-7.772-35.25 2.711-8.986 10.483-7.773 26.266 2.71 35.251l65.357 56.019h-365.753c-13.807 0-25 11.193-25 25z"/>\n' + '        <path d="m312.5 325.001h12.609c-8.618-24.453-4.306-52.709 13.781-73.809 26.957-31.449 74.303-35.092 105.753-8.135l116.667 100c16.623 14.25 26.19 35.05 26.19 56.943 0 21.897-9.567 42.697-26.19 56.947l-116.667 100c-31.45 26.956-78.796 23.313-105.753-8.137-18.087-21.1-22.399-49.357-13.781-73.81h-12.609v58.333c0 94.28 0 141.42 29.29 170.71s76.43 29.29 170.71 29.29h33.333c94.28 0 141.42 0 170.71-29.29s29.29-76.43 29.29-170.71v-266.666c0-94.281 0-141.422-29.29-170.711s-76.43-29.289-170.71-29.289h-33.333c-94.28 0-141.42 0-170.71 29.289s-29.29 76.43-29.29 170.711z"\n' + '              fill-rule="nonzero"/>\n' + '    </g>\n' + '</svg>';
             break;
 
         case "minimize":
-            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 334 334"\n' +
-                '     xmlns="http://www.w3.org/2000/svg">\n' +
-                '    <g fill="' + color + '" transform="scale(.416667)">\n' +
-                '        <path d="m537.5 400c0-13.807-11.193-25-25-25h-365.752l65.355-56.019c10.483-8.985 11.697-24.768 2.712-35.251-8.986-10.483-24.768-11.697-35.251-2.711l-116.667 100.001c-5.541 4.747-8.73 11.683-8.73 18.98s3.189 14.233 8.73 18.98l116.667 100c10.483 8.987 26.265 7.773 35.251-2.71 8.985-10.483 7.771-26.267-2.712-35.25l-65.355-56.02h365.752c13.807 0 25-11.193 25-25z"/>\n' +
-                '        <path d="m312.5 266.667c0 23.406 0 35.109 5.617 43.516 2.432 3.641 5.558 6.766 9.198 9.199 8.408 5.617 20.112 5.617 43.518 5.617h141.667c41.42 0 75 33.578 75 75.001 0 41.42-33.58 75-75 75h-141.667c-23.406 0-35.113 0-43.52 5.617-3.639 2.433-6.763 5.556-9.195 9.196-5.618 8.407-5.618 20.11-5.618 43.52 0 94.28 0 141.42 29.29 170.71s76.423 29.29 170.703 29.29h33.334c94.28 0 141.42 0 170.71-29.29s29.29-76.43 29.29-170.71v-266.666c0-94.281 0-141.422-29.29-170.711s-76.43-29.289-170.71-29.289h-33.334c-94.28 0-141.413 0-170.703 29.289s-29.29 76.43-29.29 170.711z"\n' +
-                '              fill-rule="nonzero"/>\n' +
-                '    </g>\n' +
-                '</svg>';
+            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 334 334"\n' + '     xmlns="http://www.w3.org/2000/svg">\n' + '    <g fill="' + color + '" transform="scale(.416667)">\n' + '        <path d="m537.5 400c0-13.807-11.193-25-25-25h-365.752l65.355-56.019c10.483-8.985 11.697-24.768 2.712-35.251-8.986-10.483-24.768-11.697-35.251-2.711l-116.667 100.001c-5.541 4.747-8.73 11.683-8.73 18.98s3.189 14.233 8.73 18.98l116.667 100c10.483 8.987 26.265 7.773 35.251-2.71 8.985-10.483 7.771-26.267-2.712-35.25l-65.355-56.02h365.752c13.807 0 25-11.193 25-25z"/>\n' + '        <path d="m312.5 266.667c0 23.406 0 35.109 5.617 43.516 2.432 3.641 5.558 6.766 9.198 9.199 8.408 5.617 20.112 5.617 43.518 5.617h141.667c41.42 0 75 33.578 75 75.001 0 41.42-33.58 75-75 75h-141.667c-23.406 0-35.113 0-43.52 5.617-3.639 2.433-6.763 5.556-9.195 9.196-5.618 8.407-5.618 20.11-5.618 43.52 0 94.28 0 141.42 29.29 170.71s76.423 29.29 170.703 29.29h33.334c94.28 0 141.42 0 170.71-29.29s29.29-76.43 29.29-170.71v-266.666c0-94.281 0-141.422-29.29-170.711s-76.43-29.289-170.71-29.289h-33.334c-94.28 0-141.413 0-170.703 29.289s-29.29 76.43-29.29 170.711z"\n' + '              fill-rule="nonzero"/>\n' + '    </g>\n' + '</svg>';
             break;
     }
     return svgToReturn;
@@ -705,10 +710,7 @@ function checkAllSupportedProtocols(url, json) {
     //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined)
-            return true;
-        else
-            return false;
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return true; else return false;
     } else {
         return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined;
     }
@@ -718,10 +720,7 @@ function checkAllSupportedProtocolsSticky(url, json) {
     //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined)
-            return true;
-        else
-            return false;
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined) return true; else return false;
     } else {
         return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined;
     }
@@ -731,10 +730,7 @@ function checkAllSupportedProtocolsLastUpdate(url, json) {
     //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["last-update"] !== null)
-            return true;
-        else
-            return false;
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["last-update"] !== null) return true; else return false;
     } else {
         return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["last-update"] !== null;
     }
@@ -744,10 +740,7 @@ function checkAllSupportedProtocolsNotes(url, json) {
     //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["notes"] !== "" || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["notes"] !== "" || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["notes"] !== "")
-            return true;
-        else
-            return false;
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["notes"] !== "" || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["notes"] !== "" || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["notes"] !== "") return true; else return false;
     } else {
         return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["notes"] !== "";
     }
@@ -757,10 +750,7 @@ function getUrlWithSupportedProtocol(url, json) {
     //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
-        else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
-        else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url);
-        else return "";
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url); else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url); else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url); else return "";
     } else {
         return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
     }
@@ -770,10 +760,7 @@ function getUrlWithSupportedProtocolSticky(url, json) {
     //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
-        else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
-        else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url);
-        else return "";
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url); else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url); else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url); else return "";
     } else {
         return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
     }
@@ -806,8 +793,7 @@ function getDomainUrl(url, with_protocol = true) {
     } else {
         urlToReturn = this._domainUrl;
     }
-    if (with_protocol) return protocol + "://" + urlToReturn;
-    else return urlToReturn;
+    if (with_protocol) return protocol + "://" + urlToReturn; else return urlToReturn;
 }
 
 /**Returns the page url without the protocol (https, http, ftp, ...)!*/
@@ -853,8 +839,7 @@ function getPageUrl(url, with_protocol = true) {
         urlToReturn = this._pageUrl;
     }
 
-    if (with_protocol) return protocol + "://" + urlToReturn;
-    else return urlToReturn;
+    if (with_protocol) return protocol + "://" + urlToReturn; else return urlToReturn;
 }
 
 function getTheProtocol(url) {
@@ -927,8 +912,7 @@ function listenerStickyNotes() {
 
                             //console("QAZ-2")
                             sync_local.set({
-                                "websites": websites_json,
-                                "last-update": getDate()
+                                "websites": websites_json, "last-update": getDate()
                             }).then(result => {
                                 //console.log(websites_json[url]);
                             });
@@ -955,8 +939,7 @@ function listenerStickyNotes() {
 
                             //console.log("QAZ-3")
                             sync_local.set({
-                                "websites": websites_json,
-                                "last-update": getDate()
+                                "websites": websites_json, "last-update": getDate()
                             }).then(result => {
                                 //console.log(websites_json[url]);
                             });
@@ -979,8 +962,7 @@ function listenerStickyNotes() {
 
                             //console.log("QAZ-4")
                             sync_local.set({
-                                "websites": websites_json,
-                                "last-update": getDate()
+                                "websites": websites_json, "last-update": getDate()
                             }).then(result => {
                                 //console.log(websites_json[url]);
                             });
@@ -1057,8 +1039,7 @@ function listenerStickyNotes() {
                         })
                     } else {
                         sendResponse({
-                            sticky: true,
-                            minimized: false
+                            sticky: true, minimized: false
                         })
                     }
                 }
@@ -1086,8 +1067,7 @@ function listenerAllNotes() {
                             }
 
                             sync_local.set({
-                                "websites": websites_json,
-                                "last-update": getDate()
+                                "websites": websites_json, "last-update": getDate()
                             });
 
                             if (deleted) browser.runtime.sendMessage({"updated": true});
@@ -1139,9 +1119,7 @@ function isAPage(url) {
 function getTheCorrectUrl(do_not_check_opened = false) {
     let default_url_index = 2;
     if (settings_json !== undefined && settings_json["open-default"] !== undefined) {
-        if (settings_json["open-default"] === "page") default_url_index = 2;
-        else if (settings_json["open-default"] === "domain") default_url_index = 1;
-        else if (settings_json["open-default"] === "global") default_url_index = 0;
+        if (settings_json["open-default"] === "page") default_url_index = 2; else if (settings_json["open-default"] === "domain") default_url_index = 1; else if (settings_json["open-default"] === "global") default_url_index = 0;
     }
 
     //console.log(JSON.stringify(all_urls));
@@ -1185,16 +1163,12 @@ function getTheCorrectUrl(do_not_check_opened = false) {
     let exists = (page_condition || domain_condition || global_condition || subdomains_condition);
 
     let default_condition = false;
-    if (type === 0) default_condition = global_condition;
-    else if (type === 1) default_condition = domain_condition;
-    else if (type === 2) default_condition = page_condition;
-    else if (type === 3) default_condition = subdomains_condition;
+    if (type === 0) default_condition = global_condition; else if (type === 1) default_condition = domain_condition; else if (type === 2) default_condition = page_condition; else if (type === 3) default_condition = subdomains_condition;
 
     if (exists) {
         if (default_condition) {
             //console.log(`Default condition true! (${type})`);
-            if (type === 3) url_to_use = subdomain_url_to_use;
-            else if (type === 0 || type === 1 || type === 2) url_to_use = current_urls[type];
+            if (type === 3) url_to_use = subdomain_url_to_use; else if (type === 0 || type === 1 || type === 2) url_to_use = current_urls[type];
         } else if (global_condition) {
             //console.log("Global condition true!");
             url_to_use = current_urls[0];

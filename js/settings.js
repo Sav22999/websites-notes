@@ -1066,13 +1066,15 @@ function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
         if (clickCount === times) {
             if (type.includes("general")) {
                 //GENERAL case
-                browser.storage.local.get(["privacy", "settings"]).then(localData => {
-                    browser.storage.sync.get("installation").then(installation => {
+                browser.storage.local.get(["settings"]).then(localData => {
+                    browser.storage.sync.get(["privacy", "installation"]).then(syncData => {
+                        //console.log("localData", syncData);
+                        //console.log("syncData", syncData);
                         const details = {
                             "notefox-version": browser.runtime.getManifest().version ?? '??undefined??',
                             "web-browser": webBrowserUsed ?? '??undefined??',
-                            "installation": installation ?? '??undefined??',
-                            "privacy-acceptance": localData["privacy"] ?? '??undefined??',
+                            "installation": syncData.installation ?? '??undefined??',
+                            "privacy-acceptance": syncData.privacy ?? '??undefined??',
                             "settings": localData["settings"] ?? '??undefined??',
                         }
                         console.log(startMessageDeveloperDetails("=GENERAL="), '\n', JSON.stringify(details), '\n', endMessageDeveloperDetails());
