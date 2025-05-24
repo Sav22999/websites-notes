@@ -97,7 +97,7 @@ var ctrl_alt_shift = ["default", "domain", "page"];
 const linkAcceptPrivacy = "/privacy/index.html";
 
 function loaded() {
-    browser.storage.local.get("privacy").then(result => {
+    browser.storage.sync.get("privacy").then(result => {
         if (result.privacy === undefined) {
             //not accepted privacy policy -> open 'privacy' page
             browser.tabs.create({url: linkAcceptPrivacy});
@@ -1553,7 +1553,7 @@ function exportErrorLogs(to_file = false) {
                 document.getElementById("copy-now-show-error-logs-button").value = all_strings["copy-now-button"];
             }
             document.getElementById("copy-now-show-error-logs-button").onclick = function () {
-                document.getElementById("cancel-export-show-error-logs-button").value = all_strings["close-button"];
+                document.getElementById("cancel-show-error-logs-button").value = all_strings["close-button"];
                 document.getElementById("copy-now-show-error-logs-button").value = all_strings["copied-button"];
 
                 document.getElementById("json-show-error-logs").value = JSON.stringify(json_to_export);

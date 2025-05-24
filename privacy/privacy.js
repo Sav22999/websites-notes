@@ -5,7 +5,7 @@ window.onload = function () {
 }
 
 function loaded() {
-    browser.storage.local.get("privacy").then(result => {
+    browser.storage.sync.get("privacy").then(result => {
         //console.log(">> Installation", result)
         if (result.privacy !== undefined) {
             //Already accepted privacy policy
@@ -36,10 +36,10 @@ function uninstall() {
 }
 
 function continueNotefox() {
-    browser.storage.local.get("privacy").then(result => {
+    browser.storage.sync.get("privacy").then(result => {
         //console.log(">> Installation", result)
         if (result.privacy === undefined) {
-            browser.storage.local.set({
+            browser.storage.sync.set({
                 "privacy": {
                     "date": getDate(),
                     "version": browser.runtime.getManifest().version

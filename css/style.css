@@ -626,7 +626,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     padding: 20px;
     width: auto;
     height: auto;
-    margin-left: 10%;
+    margin-left: 200px;
     margin-right: 0%;
     border-radius: 0px;
     box-sizing: border-box;
@@ -634,13 +634,13 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 
 @media screen and (max-width: 2000px) {
     #all-notes-dedication-section, #settings-dedication-section {
-        margin-left: 10%;
+        margin-left: 200px;
     }
 }
 
 @media screen and (max-width: 1700px) {
     #all-notes-dedication-section, #settings-dedication-section {
-        margin-left: 5%;
+        margin-left: 100px;
     }
 }
 
@@ -1441,7 +1441,7 @@ aside {
     background: linear-gradient(to right, var(--tertiary-transparent), var(--tertiary-transparent)), linear-gradient(to right, var(--background-color), var(--background-color));;
     z-index: 2;
     overflow: hidden;
-    width: 10%;
+    width: 200px;
     color: var(--primary-color);
     padding: 3px;
     font-size: 1.1em;
@@ -1478,7 +1478,7 @@ aside > button.sel, aside > button.sel:hover {
 
 @media screen and (max-width: 1700px) {
     aside {
-        width: 5%;
+        width: 100px;
     }
 
     aside > .aside-button {
@@ -1528,6 +1528,20 @@ aside > button.sel, aside > button.sel:hover {
 
     #donate-aside {
         display: none;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    /*Mobile more narrow*/
+    aside {
+        height: 70px;
+    }
+
+    /*Hide the text in the aside buttons*/
+    aside > .aside-button {
+        font-size: 0px;
+        background-position: center center;
+        background-size: 35px auto !important;
     }
 }
 
@@ -2805,9 +2819,15 @@ option {
     }
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1000px) {
     #settings-dedication-section, #all-notes-dedication-section {
         margin-bottom: 100px;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    #settings-dedication-section, #all-notes-dedication-section {
+        margin-bottom: 80px;
     }
 }
 

@@ -71,29 +71,43 @@ function onError(context, text, url = undefined) {
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;
-    browser.storage.local.get("privacy").then(result => {
-        if (result.privacy === undefined) {
-            //not accepted privacy policy -> open 'privacy' page
-            browser.tabs.create({url: linkAcceptPrivacy});
+    browser.storage.sync.get("privacy").then(result => {
+        if (result.privacy !== undefined) {
+            checkInstallationDate();
         } else {
-            browser.storage.sync.get("installation").then(result => {
-                //console.log(">> Installation", result)
-                if (result.installation === undefined) {
-                    browser.storage.sync.set({
-                        "installation": {
-                            "date": getDate(),
-                            "version": browser.runtime.getManifest().version
-                        }
+            //Check if the user has accepted the privacy policy (and saved it in the local storage)
+            browser.storage.local.get("privacy").then(result => {
+                if (result.privacy !== undefined) {
+                    browser.storage.sync.set({"privacy": result.privacy});
+                    //delete the local storage
+                    browser.storage.local.remove("privacy").then(() => {
+                        console.log("Privacy policy removed from local storage");
                     });
-
-                    //first launch -> open 'first launch' page
-                    browser.tabs.create({url: linkFirstLaunch});
+                    checkInstallationDate();
+                } else {
+                    //not accepted privacy policy -> open 'privacy' page
+                    browser.tabs.create({url: linkAcceptPrivacy});
                 }
             });
         }
     });
 
     checkSyncData();
+}
+
+function checkInstallationDate() {
+    browser.storage.sync.get("installation").then(result => {
+        if (result.installation !== undefined) {
+            let date = new Date(result.installation.date);
+            let now = new Date();
+            let diff = now - date;
+            let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            if (days > 30) {
+                //open 'first launch' page
+                browser.tabs.create({url: linkFirstLaunch});
+            }
+        }
+    });
 }
 
 function checkSyncData(just_once = false) {
@@ -544,7 +558,10 @@ function checkStatus(update = false) {
                             coords = {x: websites_json[url]["coords"]["x"], y: websites_json[url]["coords"]["y"]};
                         } else {
                             if (value["sticky-notes-coords"] !== undefined && value["sticky-notes-coords"]["x"] !== undefined && value["sticky-notes-coords"]["y"] !== undefined) {
-                                coords = {x: value["sticky-notes-coords"]["x"], y: value["sticky-notes-coords"]["y"]};
+                                coords = {
+                                    x: value["sticky-notes-coords"]["x"],
+                                    y: value["sticky-notes-coords"]["y"]
+                                };
                             } else {
                                 coords = {x: "20px", y: "20px"};
                             }
@@ -1393,12 +1410,12 @@ function getAllOtherPossibleUrls(url) {
                                 }
                             } else {
                                 console.error("Too many combinations to process. Limit is " + MAX_COMBINATIONS);
-                                onError("background.js::getAllOtherPossibleUrls", "Too many combinations to process. Limit is " + MAX_COMBINATIONS, tab_url);
+                                //onError("background.js::getAllOtherPossibleUrls", "Too many combinations to process. Limit is " + MAX_COMBINATIONS, tab_url);
                             }
                         }
                     } else {
                         console.error("Too many parameters to process. Limit is " + MAX_PARAMETERS);
-                        onError("background.js::getAllOtherPossibleUrls", "Too many parameters to process. Limit is " + MAX_PARAMETERS, tab_url);
+                        //onError("background.js::getAllOtherPossibleUrls", "Too many parameters to process. Limit is " + MAX_PARAMETERS, tab_url);
                         //Use single parameters
                         for (let i = 0; i < parametersToReturn.length; i++) {
                             let urlToPush = urlToReturnTemp + "?" + parametersToReturn[i];
