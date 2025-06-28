@@ -2990,6 +2990,11 @@ function deleteVerifyNewCodeResponse(data) {
 
 function showBackgroundOpacity() {
     document.getElementById("background-opacity").style.display = "block";
+    //if on mobile, scroll to the top of the document
+    // if (window.innerWidth <= 1000) {
+    //     document.body.scrollTop = 0; // For Safari
+    //     document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+    // }
 }
 
 function hideBackgroundOpacity() {
