@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'Wanneer ingeschakeld zal het add-onpictogram in de werkbalk <b>groen</b> zijn als u eerder <b>pagina</b>-notities voor die pagina hebt opgeslagen.',
     'check-green-icon-subdomain': 'Groen add-onpictogram wanneer er Subdomeinnotities zijn opgeslagen',
     'check-green-icon-subdomain-detailed': 'Wanneer ingeschakeld zal het add-onpictogram in de werkbalk <b>groen</b> zijn als u eerder <b>subdomein</b>-notities hebt opgeslagen voor dat subdomein.',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': 'Koppelingen in de notities openen – alleen tijdens het indrukken en ingedrukt houden van de Ctrl-/Commando-/Control-toets',
     'open-links-only-with-ctrl-detailed': 'Wanneer ingeschakeld kunt u koppelingen openen, maar <b>alleen</b>als u de <b>Ctrl-/Command-/Control-</b>toetsen ingedrukt houdt. Wanneer uitgeschakeld kunt helemaal geen koppelingen openen.',
     'check-with-all-supported-protocols': 'Controleer of notities bestaan met alle ondersteunde protocollen',

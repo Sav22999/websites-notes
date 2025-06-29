@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'Wenn aktiviert, wird das Addon-Symbol in der Symbolleiste <b>grün</b> sein, wenn Sie zuvor <b>Seite</b> Notizen für diese Seite gespeichert haben.',
     'check-green-icon-subdomain': 'Grünes Addon-Symbol wenn Subdomain-Notizen gespeichert sind',
     'check-green-icon-subdomain-detailed': 'Wenn aktiviert, wird das Addon-Symbol in der Symbolleiste <b>grün</b> sein, wenn Sie zuvor <b>Subdomain</b> Notizen für diese Subdomain gespeichert haben.',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': 'Links in den Notizen öffnen - nur während der Tastatur Strg/Befehl/Steuerung gedrückt wird',
     'open-links-only-with-ctrl-detailed': 'Wenn aktiviert, können Sie Links aber nur <b>nur</b> öffnen, während Sie <b>Strg/Befehl/Kontrolle</b> Tastatur drücken. Wenn deaktiviert, können Sie keine Links öffnen.',
     'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',

@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'При включении значка аддона на панели инструментов будет <b>зеленый</b> , если вы ранее сохранили <b>страница</b> для этой страницы.',
     'check-green-icon-subdomain': 'Зеленый значок аддона при сохранении заметок поддомена',
     'check-green-icon-subdomain-detailed': 'When enabled the addon icon in the toolbar will be <b>green</b> if you previously saved <b>Subdomain</b> notes for that subdomain.',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': 'Открывать ссылки в заметках – только при нажатии и удерживании клавиши Ctrl/Command/Control',
     'open-links-only-with-ctrl-detailed': 'При включении вы сможете открывать ссылки, но <b>только</b> во время нажатия и удерживания кнопки <b>Ctrl/Command/Control</b> . Если отключено, вы не сможете открывать ссылки вообще.',
     'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',

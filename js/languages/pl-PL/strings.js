@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'Po włączeniu ikona dodatku na pasku narzędzi będzie <b>zielona</b> jeśli poprzednio zapisałeś <b>Page</b> notatki dla tej strony.',
     'check-green-icon-subdomain': 'Ikona dodatku zielonego, gdy zapisano notatki poddomeny',
     'check-green-icon-subdomain-detailed': 'Po włączeniu ikona dodatku na pasku narzędzi będzie <b>zielona</b> jeśli wcześniej zapisałeś <b>Subdomena</b> notatki dla tej subdomeny.',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': 'Otwórz linki w notatkach - tylko podczas naciśnięcia i przytrzymania przycisku Ctrl/Comming/Control',
     'open-links-only-with-ctrl-detailed': 'Po włączeniu będziesz mógł otwierać linki, ale <b>tylko</b> podczas naciskania i przytrzymywania klawiatury <b>Ctrl/Comming/Control</b> . Jeśli wyłączone, w ogóle nie będziesz mógł otwierać linków.',
     'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',

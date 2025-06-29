@@ -416,8 +416,11 @@ function updateIcon(color, tabId, enabled = true) {
     const colorPencil = color;
     let colorBackground = color;
     // reduce colorBackground intensity by 20% (e.g. if colorPencil is #000000, colorBackground should be #222222)
-    if (colorPencil.startsWith("#")) {
-        const r = Math.max(0, parseInt(colorPencil.slice(1, 3), 16) - 51).toString(16).padStart(2, '0');
+    if (colorBackground.startsWith("#")) {
+        const r = Math.max(0, parseInt(colorBackground.slice(1, 3), 16) - 51).toString(16).padStart(2, '0');
+        const g = Math.max(0, parseInt(colorBackground.slice(3, 5), 16) - 51).toString(16).padStart(2, '0');
+        const b = Math.max(0, parseInt(colorBackground.slice(5, 7), 16) - 51).toString(16).padStart(2, '0');
+        colorBackground = `#${r}${g}${b}`;
     }
 
     let colorBorder = "#ffffff"; // default border color
@@ -490,7 +493,9 @@ function getContrastRatio(color1, color2) {
 }
 
 function changeIcon(index, colour = "#00361C") {
-    if (index >= 2) {
+    const conditionSettings = settings_json["change-icon-color-based-on-tag-colour"] !== undefined && settings_json["change-icon-color-based-on-tag-colour"] === true;
+
+    if (index >= 2 && conditionSettings) {
         this.updateIcon(colour, tab_id, index !== 0);
     } else {
         this.updateIcon(index === 0 ? "#FF6200" : "#00361C", tab_id, index !== 0);

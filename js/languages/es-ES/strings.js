@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'Cuando esté habilitado, el icono del complemento en la barra de herramientas será <b>verde</b> si previamente guardaste notas <b>Página</b> para esa página.',
     'check-green-icon-subdomain': 'Icono de complemento verde cuando hay notas de subdominio guardadas',
     'check-green-icon-subdomain-detailed': 'When enabled the addon icon in the toolbar will be <b>green</b> if you previously saved <b>Subdomain</b> notes for that subdomain.',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': 'Abrir enlaces en las notas - sólo mientras presionas y mantén presionado el botón del teclado Ctrl/Comando/Control.',
     'open-links-only-with-ctrl-detailed': 'Cuando esté habilitado, podrás abrir enlaces pero <b>solo</b> mientras presionas y mantienes un botón de teclado <b>Ctrl/Comando/Control</b> . Si está desactivado, no podrá abrir enlaces en absoluto.',
     'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',

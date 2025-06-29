@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'Όταν ενεργοποιηθεί το εικονίδιο πρόσθετου στη γραμμή εργαλείων θα είναι <b>πράσινο</b> αν έχετε αποθηκεύσει προηγουμένως <b>Σελίδα</b> σημειώσεις για αυτή τη σελίδα.',
     'check-green-icon-subdomain': 'Πράσινο εικονίδιο addon όταν υπάρχουν σημειώσεις Subdomain αποθηκεύονται',
     'check-green-icon-subdomain-detailed': 'Όταν ενεργοποιηθεί το εικονίδιο πρόσθετου στη γραμμή εργαλείων θα είναι <b>πράσινο</b> αν έχετε αποθηκεύσει προηγουμένως <b>Subdomain</b> σημειώσεις για αυτόν τον υποτομέα.',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': 'Άνοιγμα συνδέσμων στις σημειώσεις – μόνο πατώντας και κρατώντας πατημένο το πλήκτρο Ctrl/Command/Control πληκτρολόγιο',
     'open-links-only-with-ctrl-detailed': 'Όταν ενεργοποιηθεί, θα μπορείτε να ανοίξετε συνδέσμους αλλά <b>μόνο</b> ενώ πατάτε και κρατάτε πατημένο το πλήκτρο <b>Ctrl/Command/Control</b> . Αν απενεργοποιηθεί, δεν θα μπορείτε να ανοίξετε συνδέσμους καθόλου.',
     'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',

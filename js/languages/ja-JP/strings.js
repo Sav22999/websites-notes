@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'ツールバーのアドオンアイコンを有効にすると、以前にそのページの <b>ページ</b> ノートを保存した場合、 <b>緑</b> になります。',
     'check-green-icon-subdomain': 'サブドメインノートが保存されている場合は緑色のアドオンアイコン',
     'check-green-icon-subdomain-detailed': 'ツールバーのアドオンアイコンを有効にすると、以前にそのサブドメインの <b>サブドメイン</b> ノートを保存した場合、 <b>緑色の</b> になります。',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': 'format@@0/Command/Control キーボードボタンを押したままノート内のリンクを開きます',
     'open-links-only-with-ctrl-detailed': 'When enabled you\'ll be able to open links but <b>only</b> while you are pressing and holding <b>Ctrl/Command/Control</b> keyboard button. If disabled, you won\'t be able to open links at all.',
     'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',

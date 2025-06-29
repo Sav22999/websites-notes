@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'عند تمكين رمز الاضافة في شريط الأدوات سيكون <b>الأخضر</b> إذا قمت سابقا بحفظ ملاحظات <b>الصفحة</b> لتلك الصفحة.',
     'check-green-icon-subdomain': 'رمز الاضافة الخضراء عندما تكون هناك ملاحظات فرعية محفوظة',
     'check-green-icon-subdomain-detailed': 'عند تمكين رمز الاضافة في شريط الأدوات سيكون <b>الأخضر</b> إذا قمت سابقا بحفظ <b>المجال الفرعي</b> ملاحظات لذلك المجال الفرعي.',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': 'فتح الروابط في الملاحظات - فقط أثناء الضغط على زر Ctrl/Comme/Control',
     'open-links-only-with-ctrl-detailed': 'عند التمكين ستتمكن من فتح الروابط ولكن <b>فقط</b> أثناء الضغط على زر <b>Ctrl/Comme/Control</b> . إذا تم التعطيل، لن تتمكن من فتح الروابط على الإطلاق.',
     'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',

@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'Lorsque cette option est activée, l\'icône du module dans la barre d\'outils sera <b>vert</b> si vous avez précédemment enregistré des notes <b>Page</b> pour cette page.',
     'check-green-icon-subdomain': 'Icône d\'extension verte lorsqu\'il y a des notes de sous-domaine enregistrées',
     'check-green-icon-subdomain-detailed': 'When enabled the addon icon in the toolbar will be <b>green</b> if you previously saved <b>Subdomain</b> notes for that subdomain.',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': 'Ouvrir les liens dans les notes – seulement en appuyant et en maintenant enfoncés le bouton du clavier Ctrl/Commande/Contrôle',
     'open-links-only-with-ctrl-detailed': 'Lorsque cette option est activée, vous pourrez ouvrir des liens mais <b>seulement</b> alors que vous appuyez sur le bouton clavier <b>Ctrl/Command/Control</b> . Si cette option est désactivée, vous ne pourrez pas ouvrir de liens du tout.',
     'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',

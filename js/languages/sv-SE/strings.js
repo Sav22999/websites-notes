@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'När aktiverad kommer addon-ikonen i verktygsfältet att vara <b>grön</b> om du tidigare sparade <b>sida</b> anteckningar för den sidan.',
     'check-green-icon-subdomain': 'Grön addon ikon när det finns deldomänanteckningar sparade',
     'check-green-icon-subdomain-detailed': 'När aktiverad kommer addon-ikonen i verktygsfältet att vara <b>grön</b> om du tidigare sparade <b>underdomän</b> anteckningar för den deldomänen.',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': 'Öppna länkar i anteckningarna – endast när du trycker på och håller i Ctrl/Kommandotangentbordsknappen',
     'open-links-only-with-ctrl-detailed': 'När aktiverad kommer du att kunna öppna länkar men <b>bara</b> medan du trycker på och håller i <b>Ctrl/Command/Control</b> tangentbordsknappen. Om inaktiverad kommer du inte att kunna öppna länkar alls.',
     'check-with-all-supported-protocols': 'Check notes existence with all supported protocols',

@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'Kun käytössä on lisäosan kuvake työkalupalkissa on <b>vihreä</b> jos olet aiemmin tallentanut <b>Page</b> toteaa tälle sivulle.',
     'check-green-icon-subdomain': 'Vihreä lisäkuvake, kun Subdomain on tallennettu',
     'check-green-icon-subdomain-detailed': 'Kun käytössä on lisäosan kuvake työkalupalkissa on <b>vihreä</b> jos olet aiemmin tallentanut <b>Subdomain</b> -merkinnän tälle aliverkkotunnukselle.',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': 'Avaa linkit muistiinpanoissa – vain painamalla Ctrl/Command/Control näppäimistöä ja pitämällä sitä painettuna',
     'open-links-only-with-ctrl-detailed': 'Kun käytössä, voit avata linkkejä, mutta <b>vain</b> , kun painat ja pidät pohjassa <b>Ctrl/Command/Control</b> näppäimistöä. Jos poistettu käytöstä, et voi avata linkkejä lainkaan.',
     'check-with-all-supported-protocols': 'Tarkista merkintöjen olemassaoloa kaikilla tuetuilla yhteysprotokollilla',

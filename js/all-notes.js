@@ -972,6 +972,7 @@ function changeTagColour(url, colour) {
         sync_local.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
             updateLastUpdate();
+            sendMessageUpdateToBackground();
         });
     });
 }

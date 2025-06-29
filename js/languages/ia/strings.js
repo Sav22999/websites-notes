@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'Si activate le icone de additivo in le barra del instrumentos sera <b>verde</b> si tu previemente salvava notas de <b>Pagina</b> pro iste pagina.',
     'check-green-icon-subdomain': 'Icone de additivo verde quando il ha Notas de sub-dominio salvate',
     'check-green-icon-subdomain-detailed': 'Si activate le icone de additivo in le barra del instrumentos sera <b>verde</b> si tu previemente salvava notas de <b>Sub-dominio</b> pro iste sub-dominio.',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': 'Aperi le ligamines del notas, simplemente pulsante e retenente le clave Ctrl/Command/Control del claviero',
     'open-links-only-with-ctrl-detailed': 'Si activate tu potera aperir ligamines ma <b>solo</b> dum tu pulsa e retene le button de claviero <b>Ctrl/Commando/Controlar</b>.',
     'check-with-all-supported-protocols': 'Controla le existentia de notas con tote le protocollos supportate',

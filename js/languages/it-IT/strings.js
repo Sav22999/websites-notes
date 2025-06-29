@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'Quando abilitata, l\'icona dell\'addon nella barra degli strumenti sarà <b>verde</b> se hai precedentemente salvato <b>Page</b> note per quella pagina.',
     'check-green-icon-subdomain': 'Icona di Notefox di colore verde quando ci sono note per sottodominio salvate',
     'check-green-icon-subdomain-detailed': 'Quando abilitata, l\'icona di Notefox nella barra degli strumenti sarà <b>verde</b> se hai precedentemente salvato una nota per quello specifico <b>sottodominio</b>.',
+    'change-icon-color-based-on-tag-colour': 'Cambia il colore dell\'icona in base al colore dell\'etichetta',
+    'change-icon-color-based-on-tag-colour-detailed': 'Quando abilitata, l\'icona di Notefox nella barra degli strumenti sarà <b>colorata</b> in base al colore del tag delle note salvate per quella pagina, dominio o globalmente. Se non ci sono note salvate, l\'icona sarà <b>arancione</b>. Se non è stato impostato un colore di etichetta, l\'icona sarà <b>verde</b>.<br><b>Importante:</b> questa opzione funziona insieme alle precedenti opzioni di colore \'icona verde\', quindi l\'icona non sarà più verde, ma sarà colorata in base al colore dell\'etichetta delle note salvate per quella pagina, dominio o globalmente.',
     'open-links-only-with-ctrl': 'Apri i link presenti nelle note – semplicemente premendo e tenendo premuto il tasto Ctrl/Command/Control della tastiera',
     'open-links-only-with-ctrl-detailed': 'Quando abilitato potrai aprire i link ma <b>solo</b> mentre premi e tieni premuto il pulsante <b>Ctrl/Command/Control</b>. Se disabilitato, non sarà possibile aprire i link a tutti.',
     'check-with-all-supported-protocols': 'Verifica l\'esistenza di note con tutti i protocolli supportati',

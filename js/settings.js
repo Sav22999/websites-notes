@@ -263,6 +263,12 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("change-icon-color-based-on-tag-colour-check").onchange = function () {
+        settings_json["change-icon-color-based-on-tag-colour"] = document.getElementById("change-icon-color-based-on-tag-colour-check").checked;
+
+        saveSettings();
+    };
+
     document.getElementById("open-links-only-with-ctrl-check").onchange = function () {
         settings_json["open-links-only-with-ctrl"] = document.getElementById("open-links-only-with-ctrl-check").checked;
 
@@ -573,6 +579,8 @@ function setLanguageUI() {
     document.getElementById("check-green-icon-page-detailed-text").innerHTML = all_strings["check-green-icon-page-detailed"];
     document.getElementById("check-green-icon-subdomain-text").innerText = all_strings["check-green-icon-subdomain"];
     document.getElementById("check-green-icon-subdomain-detailed-text").innerHTML = all_strings["check-green-icon-subdomain-detailed"];
+    document.getElementById("change-icon-color-based-on-tag-colour-text").innerText = all_strings["change-icon-color-based-on-tag-colour"];
+    document.getElementById("change-icon-color-based-on-tag-colour-detailed-text").innerHTML = all_strings["change-icon-color-based-on-tag-colour-detailed"];
     document.getElementById("open-links-only-with-ctrl-text").innerHTML = all_strings["open-links-only-with-ctrl"];
     document.getElementById("open-links-only-with-ctrl-detailed-text").innerHTML = all_strings["open-links-only-with-ctrl-detailed"];
     document.getElementById("check-with-all-supported-protocols-text").innerHTML = all_strings["check-with-all-supported-protocols"];
@@ -743,6 +751,7 @@ function loadSettings() {
             if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = true;
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
+            if (settings_json["change-icon-color-based-on-tag-colour"] === undefined) settings_json["change-icon-color-based-on-tag-colour"] = false;
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
             if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
@@ -780,6 +789,7 @@ function loadSettings() {
             document.getElementById("check-green-icon-domain-check").checked = settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-domain"] === "yes";
             document.getElementById("check-green-icon-page-check").checked = settings_json["check-green-icon-page"] === true || settings_json["check-green-icon-page"] === "yes";
             document.getElementById("check-green-icon-subdomain-check").checked = settings_json["check-green-icon-subdomain"] === true || settings_json["check-green-icon-subdomain"] === "yes";
+            document.getElementById("change-icon-color-based-on-tag-colour-check").checked = settings_json["change-icon-color-based-on-tag-colour"] === true || settings_json["change-icon-color-based-on-tag-colour"] === "yes";
             document.getElementById("sending-error-logs-automatically-check").checked = settings_json["sending-error-logs-automatically"] === true || settings_json["sending-error-logs-automatically"] === "yes";
 
             if (document.getElementById("save-page-content-check").checked) {

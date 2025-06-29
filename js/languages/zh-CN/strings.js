@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': '启用后，如果您之前保存了该页面的<b>页面</b>笔记，则工具栏中的插件图标将变为<b>绿色</b>。',
     'check-green-icon-subdomain': '保存子域笔记时显示绿色插件图标',
     'check-green-icon-subdomain-detailed': '启用后，如果您之前保存了该子域的<b>子域</b>笔记，则工具栏中的插件图标将变为<b>绿色</b>。',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': '打开笔记中的链接 – 仅在按住 Ctrl/Command/Control 键盘按键时',
     'open-links-only-with-ctrl-detailed': '启用后，您将能够打开链接，但<b>仅</b>在您按住 <b>Ctrl/Command/Control</b> 键盘按键时才可以。如果禁用，您将完全无法打开链接。',
     'check-with-all-supported-protocols': '使用所有支持的协议检查笔记的存在',

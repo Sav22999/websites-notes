@@ -102,6 +102,8 @@ strings[lang] = {
     'check-green-icon-page-detailed': 'Når aktiveret vil ikonet addon i værktøjslinjen være <b>grøn</b> hvis du tidligere har gemt <b>Page</b> noter til den side.',
     'check-green-icon-subdomain': 'Grøn addon ikon, når der er Subdomain noter gemt',
     'check-green-icon-subdomain-detailed': 'Når aktiveret vil ikonet addon i værktøjslinjen være <b>grøn</b> hvis du tidligere har gemt <b>Subdomain</b> noter til dette subdomæne.',
+    'change-icon-color-based-on-tag-colour': 'Change the icon color based on the tag colour',
+    'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'open-links-only-with-ctrl': 'Åbn links i noterne – kun mens du trykker og holder Ctrl/Kommando/Control tastatur knappen',
     'open-links-only-with-ctrl-detailed': 'Når aktiveret vil du kunne åbne links, men <b>kun</b> mens du trykker på og holder <b>Ctrl/Kommand/Control</b> tastaturknappen. Hvis deaktiveret, vil du slet ikke kunne åbne links.',
     'check-with-all-supported-protocols': 'Tjek noteseksistens med alle understøttede protokoller',
