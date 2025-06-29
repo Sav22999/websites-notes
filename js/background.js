@@ -190,7 +190,7 @@ function checkErrorLogs() {
     //console.log("Check error logs");
     sync_local.get(["settings", "error-logs"]).then(result => {
         settings_json = {};
-        if (value["settings"] !== undefined) settings_json = result["settings"];
+        if (result["settings"] !== undefined) settings_json = result["settings"];
         if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = true
 
         if (settings_json["sending-error-logs-automatically"]) {
@@ -885,6 +885,54 @@ function checkAllSupportedProtocolsNotes(url, json) {
     }
 }
 
+/**
+ * Get the tag colour for the given url and json data.
+ * @param url the url to check
+ * @param json the json data containing the tag colors
+ * @return {string | undefined} the tag colour if found and not 'none', otherwise undefined
+ */
+function getTagColor(url, json) {
+    //Supported: http, https, moz-extension
+
+    let colorToReturn = undefined;
+
+    if (json[url] !== undefined && json[url]["tag-colour"] !== undefined && json[url]["tag-colour"] !== "none") colorToReturn = json[url]["tag-colour"];
+    else colorToReturn = undefined;
+
+    if (colorToReturn !== undefined) {
+        //transform the color "red", "yellow", "black", "orange", "pink", "purple", "gray", "green", "blue", "white", "aquamarine", "turquoise", "brown", "coral", "cyan", "darkgreen", "violet", "lime", "fuchsia", "indigo", "lavender", "teal", "navy", "olive", "plum", "salmon", "snow" to hex color
+        if (colorToReturn === "red") colorToReturn = "#ff0000";
+        else if (colorToReturn === "yellow") colorToReturn = "#ffff00";
+        else if (colorToReturn === "black") colorToReturn = "#000000";
+        else if (colorToReturn === "orange") colorToReturn = "#ffa500";
+        else if (colorToReturn === "pink") colorToReturn = "#ffc0cb";
+        else if (colorToReturn === "purple") colorToReturn = "#800080";
+        else if (colorToReturn === "gray") colorToReturn = "#808080";
+        else if (colorToReturn === "green") colorToReturn = "#008000";
+        else if (colorToReturn === "blue") colorToReturn = "#0000ff";
+        else if (colorToReturn === "white") colorToReturn = "#ffffff";
+        else if (colorToReturn === "aquamarine") colorToReturn = "#7fffd4";
+        else if (colorToReturn === "turquoise") colorToReturn = "#40e0d0";
+        else if (colorToReturn === "brown") colorToReturn = "#a52a2a";
+        else if (colorToReturn === "coral") colorToReturn = "#ff7f50";
+        else if (colorToReturn === "cyan") colorToReturn = "#00ffff";
+        else if (colorToReturn === "darkgreen") colorToReturn = "#006400";
+        else if (colorToReturn === "violet") colorToReturn = "#ee82ee";
+        else if (colorToReturn === "lime") colorToReturn = "#00ff00";
+        else if (colorToReturn === "fuchsia") colorToReturn = "#ff00ff";
+        else if (colorToReturn === "indigo") colorToReturn = "#4b0082";
+        else if (colorToReturn === "lavender") colorToReturn = "#e6e6fa";
+        else if (colorToReturn === "teal") colorToReturn = "#008080";
+        else if (colorToReturn === "navy") colorToReturn = "#000080";
+        else if (colorToReturn === "olive") colorToReturn = "#808000";
+        else if (colorToReturn === "plum") colorToReturn = "#dda0dd";
+        else if (colorToReturn === "salmon") colorToReturn = "#fa8072";
+        else if (colorToReturn === "snow") colorToReturn = "#fffafa";
+    }
+
+    return colorToReturn;
+}
+
 function getUrlWithSupportedProtocol(url, json) {
     //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
@@ -1430,7 +1478,17 @@ function checkIcon() {
     }
 
     if (check_domain || check_page || check_tab_url || check_global || check_subdomains) {
-        changeIcon(1);
+        let tag_color = undefined
+        if (check_domain) tag_color = getTagColor(_getDomain, websites_json);
+        else if (check_page) tag_color = getTagColor(_getPage, websites_json);
+        else if (check_global) tag_color = getTagColor(global_url, websites_json);
+        else if (check_subdomains) {
+            if (subdomains.length === 1) tag_color = getTagColor(subdomains[0], websites_json);
+            else tag_color = undefined;
+        }
+
+        if (tag_color !== undefined) changeIcon(2, tag_color);
+        else changeIcon(1);
     } else {
         changeIcon(0);
     }
