@@ -1165,7 +1165,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         //document.getElementById("all-notes-dedication-section").style.backgroundColor = backgroundSection;
         //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
         document.getElementById("all-notes-dedication-section").style.color = primary;
-        let open_external_svg = window.btoa(getIconSvgEncoded("open-external", primary));
+        let open_external_svg = window.btoa(getIconSvgEncoded("external-link", primary));
         let donate_svg = window.btoa(getIconSvgEncoded("donate", on_primary));
         let settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
         let all_notes_aside_svg = window.btoa(getIconSvgEncoded("all-notes", on_primary));
