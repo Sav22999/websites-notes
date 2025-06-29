@@ -796,7 +796,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 opacity: 1;
                 cursor: default;
                 border-radius: 15px;
-                z-index: 2;
+                z-index: 1;
             }
             
             #commands-container--sticky-notes-notefox-addon {
