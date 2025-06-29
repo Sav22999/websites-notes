@@ -15,10 +15,10 @@ Created by Saverio Morelli - saveriomorelli.com
 <aside>
     <button id="all-notes-aside" class="aside-button"></button>
     <button id="settings-aside" class="aside-button sel"></button>
-    <button id="help-aside" class="aside-button"></button>
-    <button id="donate-aside" class="aside-button"></button>
-    <button id="translate-aside" class="aside-button"></button>
-    <button id="website-aside" class="aside-button"></button>
+    <button id="help-aside" class="aside-button external-link"></button>
+    <button id="donate-aside" class="aside-button external-link"></button>
+    <button id="translate-aside" class="aside-button external-link"></button>
+    <button id="website-aside" class="aside-button external-link"></button>
 
     <div id="version-aside"></div>
 </aside>
@@ -1070,6 +1070,19 @@ Created by Saverio Morelli - saveriomorelli.com
                 </span>
                 <span class="description-option-settings" id="show-error-logs-settings-detailed-text"></span>
             </span>
+        </div>
+
+        <div id="show-error-logs-subsection">
+            <!--Enable the sending of error logs section-->
+            <div class="option-settings option-indent-settings">
+                <label class="item-settings">
+                    <span class="title-option-settings yes-no-item" id="sending-error-logs-automatically-text"></span>
+                    <input type="checkbox" id="sending-error-logs-automatically-check"/>
+                    <span class="checkmark"></span>
+                </label>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="sending-error-logs-automatically-detailed-text"></span>
+            </div>
         </div>
 </div>
 </div>

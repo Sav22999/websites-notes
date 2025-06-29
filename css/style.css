@@ -1476,6 +1476,11 @@ aside > button.sel, aside > button.sel:hover {
     opacity: 1;
 }
 
+aside > .external-link {
+    background-position: left 10px center, top 5px right 5px;
+    background-size: auto 40%, 10px auto !important;
+}
+
 @media screen and (max-width: 1700px) {
     aside {
         width: 100px;
@@ -1488,6 +1493,11 @@ aside > button.sel, aside > button.sel:hover {
         background-position: center top 10px;
         background-size: 30px auto !important;
         font-size: 0.6em;
+    }
+
+    aside > .external-link {
+        background-position: center top 10px, top 5px right 5px;
+        background-size: 30px auto, 15px auto !important;
     }
 }
 
@@ -1526,6 +1536,11 @@ aside > button.sel, aside > button.sel:hover {
         height: 100%;
     }
 
+    aside > .external-link {
+        background-position: center top 10px, top 5px right 5px;
+        background-size: 40px auto, 15px auto !important;
+    }
+
     #donate-aside {
         display: none;
     }
@@ -1543,6 +1558,11 @@ aside > button.sel, aside > button.sel:hover {
         background-position: center center;
         background-size: 35px auto !important;
     }
+
+    aside > .external-link {
+        background-position: center center, top 5px right 5px;
+        background-size: 35px auto, 10px auto !important;
+    }
 }
 
 #settings-aside {
@@ -1554,24 +1574,24 @@ aside > button.sel, aside > button.sel:hover {
 }
 
 #help-aside {
-    background-image: url("../img/help.svg");
+    background-image: url("../img/help.svg"), url("../img/external-link.svg");
 }
 
 #donate-aside {
     background-size: auto 35%;
-    background-image: url("../img/donate.svg");
+    background-image: url("../img/donate.svg"), url("../img/external-link.svg");
 }
 
 #review-aside {
-    background-image: url("../img/review.svg");
+    background-image: url("../img/review.svg"), url("../img/external-link.svg");
 }
 
 #website-aside {
-    background-image: url("../img/website.svg");
+    background-image: url("../img/website.svg"), url("../img/external-link.svg");
 }
 
 #translate-aside {
-    background-image: url("../img/globe.svg");
+    background-image: url("../img/globe.svg"), url("../img/external-link.svg");
 }
 
 #version-aside {

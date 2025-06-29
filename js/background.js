@@ -95,6 +95,7 @@ function checkSyncLocal() {
     checkVersion();
 
     checkSyncData();
+    checkErrorLogs();
 }
 
 /**Check if it's the first time the user use the current version of Notefox
@@ -182,6 +183,33 @@ function syncData(force_time = 1 * 60 * 1000, just_once = false) {
     }
 }
 
+/**
+ * Check if there are error logs in the local storage each 10 minutes
+ */
+function checkErrorLogs() {
+    //console.log("Check error logs");
+    sync_local.get(["settings", "error-logs"]).then(result => {
+        settings_json = {};
+        if (value["settings"] !== undefined) settings_json = result["settings"];
+        if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = true
+
+        if (settings_json["sending-error-logs-automatically"]) {
+            if (result["error-logs"] !== undefined && result["error-logs"].length > 0) {
+                //console.error("Error logs: ", result["error-logs"]);
+                api_request({
+                    "api": true, "type": "send-error-logs", "data": {"error-logs": result["error-logs"]}
+                });
+            }
+        }
+    })
+
+    const time = 10 * 60 * 1000; //10 minutes
+
+    setTimeout(function () {
+        checkErrorLogs();
+    }, time); //10 minutes
+}
+
 function actionResponse(response) {
     //console.log("[background.js::actionResponse] Response: ", response);
     if (response["api_response"] !== undefined && response["api_response"] === true) {
@@ -258,10 +286,26 @@ function actionResponse(response) {
                 }
             } else if (response["type"] === "send-data") {
                 //console.log("Send data response: " + JSON.stringify(response));
+            } else if (response["type"] === "listen-error-logs") {
+                //console.log("Send error logs response: " + JSON.stringify(response));
+                if (response["data"] !== undefined) {
+                    let data = response["data"];
+                    if (data !== undefined) {
+                        if (data.code === 200) {
+                            //clear error logs
+                            sync_local.set({"error-logs": []});
+                        } else {
+                            console.error("[background.js::actionResponse] Error: ", data);
+                            onError("background.js::actionResponse", data, tab_url);
+                        }
+                    }
+                }
             }
         }
+    } else {
+        //console.error("[background.js::actionResponse] Error: ", response);
+        onError("background.js::actionResponse", response, tab_url);
     }
-
 }
 
 function sendLocalDataToServer() {
@@ -429,8 +473,7 @@ function updateIcon(color, tabId, enabled = true) {
     const dataUrl = svgToDataUrl(svgString);
 
     browser.browserAction.setIcon({
-        path: dataUrl,
-        tabId: tabId
+        path: dataUrl, tabId: tabId
     });
 }
 

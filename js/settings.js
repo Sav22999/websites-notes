@@ -215,6 +215,13 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("sending-error-logs-automatically-check").onchange = function () {
+        settings_json["sending-error-logs-automatically"] = document.getElementById("sending-error-logs-automatically-check").checked;
+
+        saveSettings();
+    };
+
+
     document.getElementById("disable-word-wrap-check").onchange = function () {
         settings_json["disable-word-wrap"] = document.getElementById("disable-word-wrap-check").checked;
 
@@ -362,9 +369,9 @@ function loaded() {
             console.error("P3)) " + e);
             onError("settings.js::loaded::P3", e.message);
         }
-        document.getElementById("import-from-file-button").onclick = function () {
-            importAllNotes(from_file = true);
-        }
+    }
+    document.getElementById("import-from-file-button").onclick = function () {
+        importAllNotes(from_file = true);
     }
     document.getElementById("show-error-logs-settings-button").onclick = function () {
         exportErrorLogs()
@@ -554,6 +561,8 @@ function setLanguageUI() {
     document.getElementById("save-page-content-detailed-text").innerHTML = all_strings["save-page-content-detailed"];
     document.getElementById("search-page-content").innerText = all_strings["search-page-content"];
     document.getElementById("search-page-content-detailed-text").innerHTML = all_strings["search-page-content-detailed"];
+    document.getElementById("sending-error-logs-automatically-text").innerText = all_strings["sending-error-logs-automatically-text"];
+    document.getElementById("sending-error-logs-automatically-detailed-text").innerHTML = all_strings["sending-error-logs-automatically-detailed-text"];
     document.getElementById("disable-word-wrap-text").innerText = all_strings["disable-word-wrap"];
     document.getElementById("spellcheck-detection-text").innerText = all_strings["spellcheck-detection"];
     document.getElementById("check-green-icon-global-text").innerText = all_strings["check-green-icon-global"];
@@ -683,7 +692,6 @@ function setLanguageUI() {
     document.getElementById("verify-delete-submit").value = all_strings["notefox-account-button-delete-account"];
     document.getElementById("verify-delete-new-code").value = all_strings["notefox-account-button-resend-email"];
 
-
     document.getElementById("sync-now-button").value = all_strings["notefox-account-button-settings-sync"];
     document.getElementById("sync-now-text").innerHTML = all_strings["notefox-account-settings-sync-text"].replaceAll("{{parameters}}", "class='button-code'");
     document.getElementById("manage-logout-text").innerHTML = all_strings["notefox-account-settings-logout-text"];
@@ -741,6 +749,7 @@ function loadSettings() {
             if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
             if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
             if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
+            if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = true;
 
             if (settings_json["undo-redo"] === undefined) settings_json["undo-redo"] = true;
             if (settings_json["bold-italic-underline-strikethrough"] === undefined) settings_json["bold-italic-underline-strikethrough"] = true;
@@ -771,6 +780,7 @@ function loadSettings() {
             document.getElementById("check-green-icon-domain-check").checked = settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-domain"] === "yes";
             document.getElementById("check-green-icon-page-check").checked = settings_json["check-green-icon-page"] === true || settings_json["check-green-icon-page"] === "yes";
             document.getElementById("check-green-icon-subdomain-check").checked = settings_json["check-green-icon-subdomain"] === true || settings_json["check-green-icon-subdomain"] === "yes";
+            document.getElementById("sending-error-logs-automatically-check").checked = settings_json["sending-error-logs-automatically"] === true || settings_json["sending-error-logs-automatically"] === "yes";
 
             if (document.getElementById("save-page-content-check").checked) {
                 if (document.getElementById("save-content-subsection").classList.contains("hidden")) document.getElementById("save-content-subsection").classList.remove("hidden");
@@ -3075,6 +3085,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var website_aside_svg = window.btoa(getIconSvgEncoded("website", primary));
         var donate_aside_svg = window.btoa(getIconSvgEncoded("donate", primary));
         var translate_aside_svg = window.btoa(getIconSvgEncoded("translate", primary));
+        let external_link_aside_svg = window.btoa(getIconSvgEncoded("external-link", primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         var import_svg = window.btoa(getIconSvgEncoded("import", on_primary));
         var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
@@ -3172,19 +3183,19 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     background-image: url('data:image/svg+xml;base64,${all_notes_aside_svg}');
                 }
                 #help-aside {
-                    background-image: url('data:image/svg+xml;base64,${help_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${help_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #review-aside {
-                    background-image: url('data:image/svg+xml;base64,${review_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${review_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #website-aside {
-                    background-image: url('data:image/svg+xml;base64,${website_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${website_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #donate-aside {
-                    background-image: url('data:image/svg+xml;base64,${donate_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${donate_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #translate-aside {
-                    background-image: url('data:image/svg+xml;base64,${translate_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${translate_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 .select-box {
                     background-image: url('data:image/svg+xml;base64,${arrow_select_svg}');
