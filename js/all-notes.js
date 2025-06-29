@@ -1175,6 +1175,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let website_aside_svg = window.btoa(getIconSvgEncoded("website", primary));
         let donate_aside_svg = window.btoa(getIconSvgEncoded("donate", primary));
         let translate_aside_svg = window.btoa(getIconSvgEncoded("translate", primary));
+        let external_link_aside_svg = window.btoa(getIconSvgEncoded("external-link", primary));
         let download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
         let delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
         let delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
@@ -1244,19 +1245,19 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     background-image: url('data:image/svg+xml;base64,${all_notes_aside_svg}');
                 }
                 #help-aside {
-                    background-image: url('data:image/svg+xml;base64,${help_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${help_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #review-aside {
-                    background-image: url('data:image/svg+xml;base64,${review_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${review_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #website-aside {
-                    background-image: url('data:image/svg+xml;base64,${website_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${website_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #donate-aside {
-                    background-image: url('data:image/svg+xml;base64,${donate_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${donate_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #translate-aside {
-                    background-image: url('data:image/svg+xml;base64,${translate_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${translate_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 .download-button {
                     background-image: url('data:image/svg+xml;base64,${download_svg}');
