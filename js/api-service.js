@@ -280,7 +280,7 @@ async function login_verify(email, password, login_id, verification_code) {
     }
 }
 
-async function logout(login_id, all_devices, send_response) {
+async function logout(login_id, all_devices = false, send_response = true) {
     let get_params = all_devices ? "?all-devices=true" : "";
     const data = await api_call("/logout/" + get_params, {"login-id": login_id});
     //console.log("[api-service.js::logout] data", data);
@@ -566,7 +566,7 @@ async function delete_account_verify_new_code(email_value, password_value) {
 
 async function send_error_logs(error_logs) {
     const data = await api_call("/error-logs/insert/", {"error-logs": error_logs});
-    console.log("[api-service.js::send_error_logs] data", data);
+    //console.log("[api-service.js::send_error_logs] data", data);
     if (data.error) {
         actionResponse({
             api_response: true,

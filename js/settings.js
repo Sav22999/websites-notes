@@ -2514,6 +2514,7 @@ function updateSyncDatetime() {
 function listenerNotefoxAccount() {
     browser.runtime.onMessage.addListener((message) => {
         if (message["api_response"] !== undefined && message["api_response"]) {
+
             let data = message["data"];
             switch (message["type"]) {
                 case "signup":
