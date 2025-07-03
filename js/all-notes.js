@@ -737,7 +737,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             clearAllNotesPage(fullUrl, isDomain);
         }
         let pageTitleH3 = document.createElement("h3");
-        let textNotes = document.createElement("div");
+        let textNotes = document.createElement("pre");
         let row2 = document.createElement("div");
 
         //Button "Edit notes"
@@ -817,6 +817,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             changeTagColour(fullUrl, tagsColour.value, type_to_use);
         }
         page.id = fullUrl;
+        page.classList.add("notes-pages");
 
         subrowUrl.append(pageType);
 
@@ -887,11 +888,11 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
 
         page.append(row2);
 
-        let pageNotes = document.createElement("pre");
-        pageNotes.classList.add("sub-section-notes");
+        let contentNotesContainer = document.createElement("div");
+        contentNotesContainer.classList.add("content-notes--container");
 
-        let textNotesContainer = document.createElement("div");
-        textNotesContainer.classList.add("div-textnotes-container");
+        let contentNotes = document.createElement("div");
+        contentNotes.classList.add("content-notes", "sub-section-notes");
 
         textNotes.readOnly = true;
         textNotes.innerHTML = notes;
@@ -940,11 +941,10 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
 
         textNotes.style.fontFamily = `'${settings_json["font-family"]}'`;
 
-        textNotesContainer.appendChild(textNotes);
+        contentNotes.append(textNotes);
+        contentNotesContainer.appendChild(contentNotes);
 
-        pageNotes.append(textNotesContainer);
-
-        page.append(pageNotes);
+        page.append(contentNotesContainer);
 
         pageLastUpdate.classList.add("sub-section-last-update");
         pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(lastUpdate));

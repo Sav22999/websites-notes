@@ -430,31 +430,45 @@ body {
     background-color: transparent;
 }
 
-#notes-section > #notes, textarea, .textbox, .div-textnotes-container {
+.content-notes--container > .content-notes > *, textarea, .textbox, .div-textnotes-container {
     width: 100%;
-    height: 300px;
+    min-height: 100%;
     border: 0px;
     border-radius: 5px;
-    background-color: var(--textbox-color);
     color: var(--on-textbox-color);
-    resize: none;
     margin: 0px;
     padding: 7px;
     font-size: 1em;
-    overflow: scroll;
+    overflow: visible;
     word-wrap: normal;
     box-shadow: 0px 0px 0px 0px var(--on-textbox-color);
+    background-color: inherit;
+}
+
+.content-notes--container > .content-notes {
+    height: 300px;
+    overflow: scroll;
+    border-radius: 5px;
+    background-color: transparent;
+    resize: none;
+}
+
+.content-notes--container {
+    border-radius: 5px;
+    overflow: hidden;
+    padding: 2px;
+    background-color: var(--textbox-color);
 }
 
 .div-textnotes-container {
-    padding: 3px;
+    padding: 2px;
 }
 
 textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::placeholder {
     color: inherit;
 }
 
-#notes-section #notes[placeholder]:empty:before {
+.content-notes--container > .content-notes > *[placeholder]:empty:before {
     content: var(--placeholder-notes-text);
     color: var(--secondary-color);
     opacity: 0.8;
@@ -485,9 +499,10 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     border-top-right-radius: 0px !important;
 }
 
-#notes-section > #notes:focus, #notes-section > #title-notes:focus {
+.content-notes--container:focus-within, #notes-section > #title-notes:focus, .content-notes--container:hover {
     border-radius: 5px !important;
     box-shadow: 0px 0px 0px 3px var(--tertiary-transparent-2) inset;
+    transition: 0.5s;
 }
 
 #search-all-notes-text {
@@ -860,16 +875,15 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     cursor: text !important;
 }
 
-.inline-edit-title:focus, .inline-edit-notes:focus {
-    box-shadow: 0px 0px 0px 2px var(--secondary-color) inset, 0px 0px 0px 2px var(--primary-color);
-    border-radius: 3px;
+.inline-edit-title:focus {
+    box-shadow: 0px 0px 0px 2px var(--secondary-color) inset;
+    border-radius: 5px;
     border-bottom-width: 0px;
     transition: 0.5s;
 }
 
 .sub-section-notes {
     margin: 0px;
-    margin-top: 10px;
     opacity: 1;
     /*
     padding: 10px;
@@ -877,9 +891,12 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     */
 }
 
-.sub-section-notes:hover, .div-textnotes-container:hover {
+.notes-pages .content-notes--container {
+    margin-top: 5px;
+}
+
+.content-notes--container:hover {
     opacity: 1;
-    box-shadow: 0px 0px 0px 3px var(--primary-color) inset;
 }
 
 .sub-section-last-update {
@@ -1113,7 +1130,8 @@ h3 {
 }
 
 .sub-section-domain:hover {
-    box-shadow: 0px 0px 0px 3px var(--primary-color) inset;
+    box-shadow: 0px 0px 0px 3px var(--tertiary-transparent-2) inset;
+    transition: 0.5s;
 }
 
 b {
@@ -1170,12 +1188,11 @@ b {
     margin-top: 5px;
 }
 
-.div-textnotes-container {
+.sub-section-notes {
     /*border: 1px solid var(--primary-color);*/
     resize: vertical;
     min-height: 200px;
     height: 200px;
-    overflow: scroll;
 }
 
 .textarea-all-notes {
@@ -1411,8 +1428,6 @@ button.button-format:active, button.button-format:focus {
     .tag-colour-left {
         border-left-width: 20px !important;
     }
-
-
 }
 
 .tag-colour-top {
@@ -2366,6 +2381,9 @@ hr.hr-domain:last-child {
     white-space: nowrap;
     overflow: hidden;
     height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .single-line br {
@@ -2379,7 +2397,7 @@ hr.hr-domain:last-child {
 
 @media screen and (max-width: 1000px) {
     .single-line {
-        padding: 15px 20px !important;
+        padding: 5px !important;
         margin-bottom: 0px !important;
         padding-bottom: 0px !important;
 
