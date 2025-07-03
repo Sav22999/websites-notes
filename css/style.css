@@ -453,6 +453,10 @@ body {
     resize: none;
 }
 
+.notes-pages .content-notes--container > .content-notes {
+    resize: vertical;
+}
+
 .content-notes--container {
     border-radius: 5px;
     overflow: hidden;
@@ -876,7 +880,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 }
 
 .inline-edit-title:focus {
-    box-shadow: 0px 0px 0px 2px var(--secondary-color) inset;
+    box-shadow: 0px 0px 0px 3px var(--secondary-color) inset;
     border-radius: 5px;
     border-bottom-width: 0px;
     transition: 0.5s;
