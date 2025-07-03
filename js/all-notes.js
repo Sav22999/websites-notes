@@ -711,6 +711,11 @@ function sendMessageUpdateToBackground() {
 
 function generateNotes(page, url, notes, title, content, lastUpdate, type, fullUrl, type_to_use, domain_again) {
     try {
+        let pageContentLeft = document.createElement("div")
+        pageContentLeft.classList.add("page-content-left")
+        let pageContentRight = document.createElement("div");
+        pageContentRight.classList.add("page-content-right");
+
         let row1 = document.createElement("div");
         row1.classList.add("rows");
 
@@ -806,7 +811,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             tagColour.value = colour;
             if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] !== undefined && websites_json[fullUrl]["tag-colour"] === colour) {
                 tagColour.selected = true;
-                page.classList.add("tag-colour-left", "tag-colour-" + colour, "sub-section-domain");
+                pageContentLeft.classList.add("tag-colour-" + colour + "-bg");
             }
             tagColour.textContent = colourList[colour];
             //tagColour.classList.add(colour + "-background-tag");
@@ -860,7 +865,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         row1.append(subrowUrl);
         row1.append(subrowButtons)
 
-        page.append(row1);
+        pageContentRight.append(row1);
 
         let pageLastUpdate = document.createElement("div");
 
@@ -886,7 +891,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         }
         row2.append(pageTitleH3);
 
-        page.append(row2);
+        pageContentRight.append(row2);
 
         let contentNotesContainer = document.createElement("div");
         contentNotesContainer.classList.add("content-notes--container");
@@ -944,11 +949,14 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         contentNotes.append(textNotes);
         contentNotesContainer.appendChild(contentNotes);
 
-        page.append(contentNotesContainer);
+        pageContentRight.append(contentNotesContainer);
 
         pageLastUpdate.classList.add("sub-section-last-update");
         pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(lastUpdate));
-        page.append(pageLastUpdate);
+        pageContentRight.append(pageLastUpdate);
+
+        page.append(pageContentLeft);
+        page.append(pageContentRight);
 
         return page;
     } catch (e) {

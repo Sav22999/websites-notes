@@ -895,6 +895,37 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     margin-top: 5px;
 }
 
+.notes-pages {
+    display: grid;
+    grid-template-columns: 20px auto;
+    align-content: stretch;
+    gap: 5px;
+    padding: 5px;
+}
+
+.notes-pages:has(.page-content-left.tag-colour-none-bg) {
+    grid-template-columns: 0px auto;
+    gap: 0px;
+}
+
+.page-content-left {
+    width: 100%;
+    height: 100%;
+    border: 0px;
+    border-radius: 5px;
+}
+
+.page-content-right {
+    flex: 1;
+    height: 100%;
+}
+
+@media screen and (max-width: 1000px) {
+    .notes-pages {
+        grid-template-columns: 20px auto;
+    }
+}
+
 .content-notes--container:hover {
     opacity: 1;
 }
@@ -1120,16 +1151,15 @@ h3 {
     /*box-shadow: 0px 0px 0px 3px var(--primary-color) inset;*/
 }
 
-.sub-section-domain {
+.notes-pages {
     margin: 0px !important;
     margin-top: 5px !important;
     border: 0px solid var(--primary-color) !important;
     box-shadow: 0px 0px 0px 0px var(--primary-color) inset;
     background-color: var(--tertiary-transparent) !important;
-    padding: 10px;
 }
 
-.sub-section-domain:hover {
+.notes-pages:hover {
     box-shadow: 0px 0px 0px 3px var(--tertiary-transparent-2) inset;
     transition: 0.5s;
 }
