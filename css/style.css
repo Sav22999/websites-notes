@@ -442,7 +442,15 @@ body {
     overflow: visible;
     word-wrap: normal;
     box-shadow: 0px 0px 0px 0px var(--on-textbox-color);
-    background-color: inherit;
+    background-color: var(--textbox-color);
+}
+
+.text-json {
+    background-color: var(--textbox-color);
+    overflow: auto;
+    height: 300px;
+    resize: none;
+    width: 100%;
 }
 
 .content-notes--container > .content-notes {
@@ -1101,6 +1109,7 @@ div.h2-container:hover {
 
 @media screen and (max-width: 1000px) {
     div.h2-container {
+        margin-top: -10px;
         position: static;
         background-color: transparent;
         color: var(--primary-color);
@@ -1867,6 +1876,8 @@ aside > .external-link {
     font-weight: 650;
     max-width: 85%;
     flex: 1;
+    display: flex;
+    align-items: center;
 }
 
 .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, .datetime-format-section-radio-container {
@@ -2411,7 +2422,7 @@ hr.hr-domain:last-child {
 /*global*/
 
 .single-line {
-    padding: 5px;
+    padding: 0px 5px;
     white-space: nowrap;
     overflow: hidden;
     height: auto;
@@ -2431,9 +2442,8 @@ hr.hr-domain:last-child {
 
 @media screen and (max-width: 1000px) {
     .single-line {
-        padding: 5px !important;
+        padding: 0px 5px !important;
         margin-bottom: 0px !important;
-        padding-bottom: 0px !important;
 
         font-size: 1.2em;
     }

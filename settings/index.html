@@ -44,7 +44,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <div id="text-import"></div>
             </div>
             <div class="padding-10">
-                <textarea id="json-import" spellcheck="false"></textarea>
+                <textarea id="json-import" class="text-json" spellcheck="false"></textarea>
             </div>
             <div class="padding-10 text-align-right">
                 <input type="button" value="Get local data" id="import-now-all-notes-from-local-button"
@@ -65,7 +65,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <div id="text-export"></div>
             </div>
             <div class="padding-10">
-                <textarea id="json-export" readonly spellcheck="false"></textarea>
+                <textarea id="json-export" class="text-json" readonly spellcheck="false"></textarea>
             </div>
             <div class="padding-10 text-align-right">
                 <input type="button" value="" id="cancel-export-all-notes-button" class="button float-left"/>
@@ -271,7 +271,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <div id="text-show-error-logs"></div>
             </div>
             <div class="padding-10">
-                <textarea id="json-show-error-logs" readonly spellcheck="false"></textarea>
+                <textarea id="json-show-error-logs" class="text-json" readonly spellcheck="false"></textarea>
             </div>
             <div class="padding-10 text-align-right">
                 <input type="button" value="" id="cancel-show-error-logs-button" class="button float-left"/>
@@ -281,7 +281,7 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
     </div>
 
-    <span id="settings-sections">
+    <div id="settings-sections">
         <!--<div class="option-settings">
             <label class="item-settings">
                 <span class="title-option-settings yes-no-item" id="-text"></span>
@@ -1095,7 +1095,7 @@ Created by Saverio Morelli - saveriomorelli.com
                       id="sending-error-logs-automatically-detailed-text"></span>
             </div>
         </div>
-</div>
+    </div>
 </div>
 <script src="../js/definitions.js"></script>
 

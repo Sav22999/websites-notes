@@ -1114,7 +1114,7 @@ function getIconSvgEncoded(icon, color) {
                 '</svg>';
             break;
         case "external-link":
-            svgToReturn = '<svg fill="none" width="10px" height="10px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\n' +
+            svgToReturn = '<svg fill="none" width="14px" height="14px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\n' +
                 '    <g stroke="' + color + '" stroke-linecap="round" stroke-width="2">\n' +
                 '        <path d="m12 3c-7.4115 0-9 1.5885-9 9s1.5885 9 9 9 9-1.5885 9-9"/>\n' +
                 '        <g stroke-linejoin="round">\n' +
