@@ -9,7 +9,13 @@ loadAPI();
  * @param url {string} - url of the page where the error happened (if applicable)
  */
 function onError(context, text, url = undefined) {
-    const error = {"datetime": getDate(), "context": context, "error": text, url: url};
+    const error = {
+        "datetime": getDate(),
+        "context": context,
+        "error": text,
+        url: url,
+        "notefox-version": browser.runtime.getManifest().version
+    };
     browser.storage.local.get("error-logs").then(result => {
         let error_logs = [];
         if (result["error-logs"] !== undefined) {
@@ -98,6 +104,9 @@ async function api_request(message) {
             break;
         case "send-error-logs":
             await send_error_logs(data["error-logs"]);
+            break;
+        case "send-telemetry":
+            await send_telemetry(data["telemetry"]);
             break;
         default:
             console.error("Unknown API request type (" + message["type"] + ")");
@@ -580,6 +589,27 @@ async function send_error_logs(error_logs) {
         actionResponse({
             api_response: true,
             type: "listen-error-logs",
+            data: data
+        });
+    }
+}
+
+async function send_telemetry(telemetry_logs) {
+    const data = await api_call("/telemetry/insert/", {"telemetry": telemetry_logs});
+    //console.log("[api-service.js::send_telemetry] data", data);
+    if (data.error) {
+        actionResponse({
+            api_response: true,
+            type: "listen-telemetry-logs",
+            data: {
+                error: true,
+                message: data.message
+            }
+        });
+    } else {
+        actionResponse({
+            api_response: true,
+            type: "listen-telemetry-logs",
             data: data
         });
     }

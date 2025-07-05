@@ -58,7 +58,13 @@ const MAX_PARAMETERS = 5;
  * @param url {string} - url of the page where the error happened (if applicable)
  */
 function onError(context, text, url = undefined) {
-    const error = {"datetime": getDate(), "context": context, "error": text, url: url};
+    const error = {
+        "datetime": getDate(),
+        "context": context,
+        "error": text,
+        url: url,
+        "notefox-version": browser.runtime.getManifest().version
+    };
     browser.storage.local.get("error-logs").then(result => {
         let error_logs = [];
         if (result["error-logs"] !== undefined) {
@@ -96,6 +102,7 @@ function checkSyncLocal() {
 
     checkSyncData();
     checkErrorLogs();
+    checkTelemetryLogs();
 }
 
 /**Check if it's the first time the user use the current version of Notefox
@@ -210,6 +217,33 @@ function checkErrorLogs() {
     }, time); //10 minutes
 }
 
+/**
+ * Check if there are telemetry logs in the local storage each 10 minutes
+ */
+function checkTelemetryLogs() {
+    //console.log("Check error logs");
+    sync_local.get(["settings", "telemetry"]).then(result => {
+        settings_json = {};
+        if (result["settings"] !== undefined) settings_json = result["settings"];
+        if (settings_json["send-telemetry"] === undefined) settings_json["send-telemetry"] = true
+
+        if (settings_json["send-telemetry"]) {
+            if (result["telemetry"] !== undefined && result["telemetry"].length > 0) {
+                //console.error("Telemetry: ", result["telemetry"]);
+                api_request({
+                    "api": true, "type": "send-telemetry", "data": {"telemetry": result["telemetry"]}
+                });
+            }
+        }
+    })
+
+    const time = 10 * 60 * 1000; //10 minutes
+
+    setTimeout(function () {
+        checkTelemetryLogs();
+    }, time); //10 minutes
+}
+
 function actionResponse(response) {
     //console.log("[background.js::actionResponse] Response: ", response);
     if (response["api_response"] !== undefined && response["api_response"] === true) {
@@ -280,7 +314,7 @@ function actionResponse(response) {
                             sendLocalDataToServer();
                         } else {
                             console.error("[background.js::actionResponse] Error: ", data);
-                            onError("background.js::actionResponse", data, tab_url);
+                            onError("background.js::actionResponse", JSON.stringify(data), tab_url);
                         }
                     }
                 }
@@ -296,7 +330,21 @@ function actionResponse(response) {
                             sync_local.set({"error-logs": []});
                         } else {
                             console.error("[background.js::actionResponse] Error: ", data);
-                            onError("background.js::actionResponse", data, tab_url);
+                            onError("background.js::actionResponse", JSON.stringify(data), tab_url);
+                        }
+                    }
+                }
+            } else if (response["type"] === "listen-telemetry-logs") {
+                //console.log("Send telemetry logs response: " + JSON.stringify(response));
+                if (response["data"] !== undefined) {
+                    let data = response["data"];
+                    if (data !== undefined) {
+                        if (data.code === 200) {
+                            //clear error logs
+                            sync_local.set({"telemetry": []});
+                        } else {
+                            console.error("[background.js::actionResponse] Error: ", data);
+                            onError("background.js::actionResponse", JSON.stringify(data), tab_url);
                         }
                     }
                 }
@@ -304,7 +352,7 @@ function actionResponse(response) {
         }
     } else {
         //console.error("[background.js::actionResponse] Error: ", response);
-        onError("background.js::actionResponse", response, tab_url);
+        onError("background.js::actionResponse", JSON.stringify(response), tab_url);
     }
 }
 

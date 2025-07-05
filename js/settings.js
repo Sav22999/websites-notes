@@ -176,6 +176,7 @@ function loaded() {
 
     document.getElementById("open-by-default-select").onchange = function () {
         settings_json["open-default"] = document.getElementById("open-by-default-select").value;
+        onTelemetry('open-by-default', 'settings.js', null, webBrowserUsed, currentOS, null);
 
         saveSettings();
     };
@@ -217,6 +218,12 @@ function loaded() {
 
     document.getElementById("sending-error-logs-automatically-check").onchange = function () {
         settings_json["sending-error-logs-automatically"] = document.getElementById("sending-error-logs-automatically-check").checked;
+
+        saveSettings();
+    };
+
+    document.getElementById("send-telemetry-check").onchange = function () {
+        settings_json["send-telemetry"] = document.getElementById("send-telemetry-check").checked;
 
         saveSettings();
     };
@@ -569,6 +576,8 @@ function setLanguageUI() {
     document.getElementById("search-page-content-detailed-text").innerHTML = all_strings["search-page-content-detailed"];
     document.getElementById("sending-error-logs-automatically-text").innerText = all_strings["sending-error-logs-automatically-text"];
     document.getElementById("sending-error-logs-automatically-detailed-text").innerHTML = all_strings["sending-error-logs-automatically-detailed-text"];
+    document.getElementById("send-telemetry-text").innerText = all_strings["send-telemetry-text"];
+    document.getElementById("send-telemetry-detailed-text").innerHTML = all_strings["send-telemetry-detailed-text"];
     document.getElementById("disable-word-wrap-text").innerText = all_strings["disable-word-wrap"];
     document.getElementById("spellcheck-detection-text").innerText = all_strings["spellcheck-detection"];
     document.getElementById("check-green-icon-global-text").innerText = all_strings["check-green-icon-global"];
@@ -759,6 +768,7 @@ function loadSettings() {
             if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
             if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
             if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = true;
+            if (settings_json["send-telemetry"] === undefined) settings_json["send-telemetry"] = true;
 
             if (settings_json["undo-redo"] === undefined) settings_json["undo-redo"] = true;
             if (settings_json["bold-italic-underline-strikethrough"] === undefined) settings_json["bold-italic-underline-strikethrough"] = true;
@@ -791,6 +801,7 @@ function loadSettings() {
             document.getElementById("check-green-icon-subdomain-check").checked = settings_json["check-green-icon-subdomain"] === true || settings_json["check-green-icon-subdomain"] === "yes";
             document.getElementById("change-icon-color-based-on-tag-colour-check").checked = settings_json["change-icon-color-based-on-tag-colour"] === true || settings_json["change-icon-color-based-on-tag-colour"] === "yes";
             document.getElementById("sending-error-logs-automatically-check").checked = settings_json["sending-error-logs-automatically"] === true || settings_json["sending-error-logs-automatically"] === "yes";
+            document.getElementById("send-telemetry-check").checked = settings_json["send-telemetry"] === true || settings_json["send-telemetry"] === "yes";
 
             if (document.getElementById("save-page-content-check").checked) {
                 if (document.getElementById("save-content-subsection").classList.contains("hidden")) document.getElementById("save-content-subsection").classList.remove("hidden");

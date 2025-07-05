@@ -1257,7 +1257,13 @@ function datetimeToDisplay(datetime, format = undefined, also_time = true) {
  * @param url {string} - url of the page where the error happened (if applicable)
  */
 function onError(context, text, url = undefined) {
-    const error = {"datetime": getDate(), "context": context, "error": text, url: url};
+    const error = {
+        "datetime": getDate(),
+        "context": context,
+        "error": text,
+        url: url,
+        "notefox-version": browser.runtime.getManifest().version
+    };
     browser.storage.local.get("error-logs").then(result => {
         let error_logs = [];
         if (result["error-logs"] !== undefined) {
@@ -1265,5 +1271,93 @@ function onError(context, text, url = undefined) {
         }
         error_logs.push(error);
         browser.storage.local.set({"error-logs": error_logs});
+    });
+}
+
+function onTelemetry(action, context = null, url = null, browser_name, os, other = null) {
+    //check if the telemetry is enabled
+    if (settings_json["send-telemetry"] !== undefined && settings_json["send-telemetry"] === false) {
+        return;
+    }
+    const notefox_version = browser.runtime.getManifest().version;
+    let notefox_account = null;
+    let anonymous_userid = null;
+    let language = browser.i18n.getUILanguage();
+    let browser_version = null;
+    const current_datetime = getDate();
+    browser.storage.sync.get(["notefox-account", "anonymous-userid"]).then(resultSync => {
+        if (resultSync !== undefined) {
+            notefox_account = resultSync["notefox-account"] !== undefined;
+            if (resultSync["anonymous-userid"] !== undefined) {
+                anonymous_userid = resultSync["anonymous-userid"];
+            } else {
+                anonymous_userid = generateSecureUUID();
+                browser.storage.sync.set({"anonymous-userid": anonymous_userid});
+            }
+        } else {
+            notefox_account = false;
+        }
+
+        browser.runtime.getBrowserInfo().then(info => {
+            if (info !== undefined && info.version !== undefined) {
+                browser_version = info.version;
+            } else {
+                browser_version = null;
+            }
+            const telemetry_logs = {
+                "client-datetime": current_datetime,
+                "action": action,
+                "context": context,
+                "url": url,
+                "browser": browser_name,
+                "browser-version": browser_version,
+                "os": os,
+                "notefox-version": notefox_version,
+                "notefox-account": notefox_account,
+                "anonymous-userid": anonymous_userid,
+                "language": language,
+                "other": other
+            }
+            console.log("Telemetry log:", telemetry_logs);
+            browser.storage.local.get("telemetry").then(result => {
+                let telemetry = [];
+                if (result["telemetry"] !== undefined) {
+                    telemetry = result["telemetry"];
+                }
+                telemetry.push(telemetry_logs);
+                browser.storage.local.set({"telemetry": telemetry});
+            });
+        }).catch(error => {
+            console.error("Error getting browser info for telemetry:", error);
+            onError("telemetry::onTelemetry", "Error getting browser info for telemetry: " + error);
+            browser_version = null;
+        });
+    })
+}
+
+function generateSecureUUID() {
+    if (crypto && crypto.getRandomValues) {
+        // Crittograficamente sicuro
+        const array = new Uint8Array(16);
+        crypto.getRandomValues(array);
+
+        array[6] = (array[6] & 0x0f) | 0x40; // Version 4
+        array[8] = (array[8] & 0x3f) | 0x80; // Variant
+
+        const hex = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+        return [
+            hex.substring(0, 8),
+            hex.substring(8, 12),
+            hex.substring(12, 16),
+            hex.substring(16, 20),
+            hex.substring(20, 32)
+        ].join('-');
+    }
+
+    // Fallback alla tua funzione
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
     });
 }
