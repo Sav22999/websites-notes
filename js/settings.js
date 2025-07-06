@@ -1090,43 +1090,43 @@ function loadAsideBar() {
     all_notes.innerHTML = all_strings["all-notes-aside"];
     all_notes.onclick = function () {
         if (!disableAside) {
-            window.open(links_aside_bar["all-notes"], "_self");
             sendTelemetry("all-notes-aside-clicked", "settings.js::aside-bar");
+            window.open(links_aside_bar["all-notes"], "_self");
         }
     }
     settings.innerHTML = all_strings["settings-aside"];
     settings.onclick = function () {
         if (!disableAside) {
-            window.open(links_aside_bar["settings"], "_self");
             sendTelemetry("settings-aside-clicked", "settings.js::aside-bar");
+            window.open(links_aside_bar["settings"], "_self");
         }
     }
     help.innerHTML = all_strings["help-aside"];
     help.onclick = function () {
         if (!disableAside) {
-            window.open(links_aside_bar["help"], "_self");
             sendTelemetry("help-aside-clicked", "settings.js::aside-bar");
+            window.open(links_aside_bar["help"], "_self");
         }
     }
     website.innerHTML = all_strings["website-aside"];
     website.onclick = function () {
         if (!disableAside) {
-            window.open(links_aside_bar["website"], "_self")
             sendTelemetry("website-aside-clicked", "settings.js::aside-bar");
+            window.open(links_aside_bar["website"], "_self")
         }
     }
     donate.innerHTML = all_strings["donate-aside"];
     donate.onclick = function () {
         if (!disableAside) {
-            window.open(links_aside_bar["donate"], "_self");
             sendTelemetry("donate-aside-clicked", "settings.js::aside-bar");
+            window.open(links_aside_bar["donate"], "_self");
         }
     }
     translate.innerHTML = all_strings["translate-aside"];
     translate.onclick = function () {
         if (!disableAside) {
-            window.open(links_aside_bar["translate"], "_self");
             sendTelemetry("translate-aside-clicked", "settings.js::aside-bar");
+            window.open(links_aside_bar["translate"], "_self");
         }
     }
 

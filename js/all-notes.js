@@ -89,12 +89,12 @@ function loaded() {
             sendTelemetry("refresh-button");
         }
         document.getElementById("settings-all-notes-button").onclick = function () {
-            window.open("../settings/index.html", "_self");
             sendTelemetry("settings-button");
+            window.open("../settings/index.html", "_self");
         }
         document.getElementById("buy-me-a-coffee-button").onclick = function () {
-            browser.tabs.create({url: links["donate"]});
             sendTelemetry("donate-button");
+            browser.tabs.create({url: links["donate"]});
         }
 
         document.getElementById("search-all-notes-text").onkeyup = function () {
@@ -192,8 +192,8 @@ function setLanguageUI() {
         document.title = all_strings["all-notes-title-page"];
 
         document.getElementById("info-tooltip-search").onclick = function () {
-            window.open(links["help-search"], "_blank");
             sendTelemetry("search-tooltip");
+            window.open(links["help-search"], "_blank");
         }
 
         let globalFilterButton = document.getElementById("filter-type-global-button");
@@ -258,33 +258,33 @@ function loadAsideBar() {
 
     all_notes.innerHTML = all_strings["all-notes-aside"];
     all_notes.onclick = function () {
-        window.open(links_aside_bar["all-notes"], "_self");
         sendTelemetry("all-notes-aside");
+        window.open(links_aside_bar["all-notes"], "_self");
     }
     settings.innerHTML = all_strings["settings-aside"];
     settings.onclick = function () {
-        window.open(links_aside_bar["settings"], "_self");
         sendTelemetry("settings-aside");
+        window.open(links_aside_bar["settings"], "_self");
     }
     help.innerHTML = all_strings["help-aside"];
     help.onclick = function () {
-        window.open(links_aside_bar["help"], "_self");
         sendTelemetry("help-aside");
+        window.open(links_aside_bar["help"], "_self");
     }
     website.innerHTML = all_strings["website-aside"];
     website.onclick = function () {
-        window.open(links_aside_bar["website"], "_self")
         sendTelemetry("website-aside");
+        window.open(links_aside_bar["website"], "_self")
     }
     donate.innerHTML = all_strings["donate-aside"];
     donate.onclick = function () {
-        window.open(links_aside_bar["donate"], "_self");
         sendTelemetry("donate-aside");
+        window.open(links_aside_bar["donate"], "_self");
     }
     translate.innerHTML = all_strings["translate-aside"];
     translate.onclick = function () {
-        window.open(links_aside_bar["translate"], "_self");
         sendTelemetry("translate-aside");
+        window.open(links_aside_bar["translate"], "_self");
     }
 
     version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", browser.runtime.getManifest().version);
@@ -529,8 +529,8 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                         if (isUrlSupported(domain)) {
                             h2.classList.add("link", "go-to-external", "domain");
                             h2.onclick = function () {
-                                browser.tabs.create({url: domain});
                                 sendTelemetry(`go-to-domain`, "all-notes.js", domain);
+                                browser.tabs.create({url: domain});
                             }
                         }
                         h2_container.append(h2);
@@ -866,8 +866,8 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             inputShowContent.value = all_strings["show-content-button"];
             inputShowContent.classList.add("button", "very-small-button", "show-content-button", "button-no-text-on-mobile");
             inputShowContent.onclick = function () {
-                alert(content); // Display the content in an alert for now, until a better UI is implemented.
                 sendTelemetry(`show-content`, "all-notes.js", fullUrl);
+                alert(content); // Display the content in an alert for now, until a better UI is implemented.
             }
 
             subrowButtons.append(inputShowContent);
@@ -889,8 +889,8 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             if (isUrlSupported(fullUrlToUse)) {
                 pageUrl.classList.add("link", "go-to-external");
                 pageUrl.onclick = function () {
-                    browser.tabs.create({url: fullUrlToUse});
                     sendTelemetry(`go-to-page`, "all-notes.js", fullUrlToUse);
+                    browser.tabs.create({url: fullUrlToUse});
                 }
             }
 
@@ -1192,8 +1192,8 @@ function loginExpired() {
     loginExpiredButton.onclick = function () {
         section.style.display = "none";
         background.style.display = "none";
-        window.open(links_aside_bar["settings"], "_blank");
         sendTelemetry(`login-expired-settings`);
+        window.open(links_aside_bar["settings"], "_blank");
     }
     let loginExpiredClose = document.getElementById("login-expired-cancel-button");
     loginExpiredClose.value = all_strings["notefox-account-login-later-button"];

@@ -404,9 +404,9 @@ function loadUI() {
 
     document.getElementById("all-notes-button-grid").onclick = function () {
         browser.tabs.create({url: "./all-notes/index.html"});
-        window.close();
-
         sendTelemetry("open-all-notes");
+
+        window.close();
     }
 
     if (settings_json["show-title-textbox"]) {
@@ -1650,9 +1650,9 @@ function loginExpired() {
         section.style.display = "none";
         background.style.display = "none";
         window.open(links_aside_bar["settings"], "_blank");
-        window.close();
-
         sendTelemetry("login-expired-settings");
+
+        window.close();
     }
     let loginExpiredClose = document.getElementById("login-expired-cancel-button");
     loginExpiredClose.value = all_strings["notefox-account-login-later-button"];
