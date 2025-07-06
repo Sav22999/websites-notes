@@ -1879,8 +1879,6 @@ aside > .external-link {
     font-weight: 650;
     max-width: 85%;
     flex: 1;
-    display: flex;
-    align-items: center;
 }
 
 .theme-section-radio-container, .sticky-theme-section-radio-container, .font-family-section-radio-container, .datetime-format-section-radio-container {

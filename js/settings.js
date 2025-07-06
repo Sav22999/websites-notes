@@ -46,7 +46,6 @@ function checkSyncLocal() {
     checkTheme();
 }
 
-var currentOS = "default"; //default: win, linux, ecc. | mac
 var letters_and_numbers = {
     "A": "A",
     "B": "B",
@@ -146,6 +145,7 @@ function loaded() {
 
     checkSyncLocal()
     checkOperatingSystem();
+    checkShortcuts()
     setLanguageUI();
     checkTheme();
 
@@ -237,6 +237,7 @@ function loaded() {
     document.getElementById("send-telemetry-check").onchange = function () {
         settings_json["send-telemetry"] = document.getElementById("send-telemetry-check").checked;
         sendTelemetry(`send-telemetry-check-select`, `settings.js`, settings_json["send-telemetry"]);
+        sendMessageUpdateToBackground();
 
         saveSettings();
     };
@@ -480,6 +481,17 @@ function loaded() {
 
 function sendTelemetry(action, context = "settings.js", other = null) {
     onTelemetry(action, context, null, currentOS, other);
+}
+
+function checkShortcuts() {
+    ctrl_alt_shift.forEach(value => {
+        document.getElementById("select-disable-shortcut-" + value).textContent = all_strings["label-disable-shortcut"];
+        document.getElementById("select-ctrl-shortcut-" + value).textContent = all_strings["label-ctrl-" + currentOS];
+        document.getElementById("select-alt-shortcut-" + value).textContent = all_strings["label-alt-" + currentOS];
+        document.getElementById("select-ctrl-alt-shortcut-" + value).textContent = all_strings["label-ctrl-alt-" + currentOS];
+        document.getElementById("select-ctrl-shift-shortcut-" + value).textContent = all_strings["label-ctrl-shift-" + currentOS];
+        document.getElementById("select-alt-shift-shortcut-" + value).textContent = all_strings["label-alt-shift-" + currentOS];
+    });
 }
 
 function setThemeChooser() {
@@ -1225,26 +1237,6 @@ THIS IS AN ADVANCED FEATURE: DO NOT SHARE IT WITH ANYONE IF YOU DON'T KNOW WHAT 
 THIS IS AN ADVANCED FEATURE: DO NOT SHARE IT WITH ANYONE IF YOU DON'T KNOW WHAT YOU ARE DOING",
 //∧∧∧∧∧∧∧∧∧∧∧∧${additionalString}∧∧∧∧∧∧∧∧∧∧∧∧//`;
     }
-}
-
-function checkOperatingSystem() {
-    let info = browser.runtime.getPlatformInfo();
-    info.then(getOperatingSystem);
-    //"mac", "win", "linux", "bsd", "android", "ios", "other", ...
-    // Docs: (https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/PlatformOs)ˇ
-}
-
-function getOperatingSystem(info) {
-    if (info.os === "mac") currentOS = "mac"; else currentOS = info.os;
-
-    ctrl_alt_shift.forEach(value => {
-        document.getElementById("select-disable-shortcut-" + value).textContent = all_strings["label-disable-shortcut"];
-        document.getElementById("select-ctrl-shortcut-" + value).textContent = all_strings["label-ctrl-" + currentOS];
-        document.getElementById("select-alt-shortcut-" + value).textContent = all_strings["label-alt-" + currentOS];
-        document.getElementById("select-ctrl-alt-shortcut-" + value).textContent = all_strings["label-ctrl-alt-" + currentOS];
-        document.getElementById("select-ctrl-shift-shortcut-" + value).textContent = all_strings["label-ctrl-shift-" + currentOS];
-        document.getElementById("select-alt-shift-shortcut-" + value).textContent = all_strings["label-alt-shift-" + currentOS];
-    });
 }
 
 function getCurrentShortcuts(commands) {

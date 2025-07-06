@@ -39,6 +39,7 @@ const links_aside_bar = {
     "translate": "https://crowdin.com/project/notefox"
 };
 
+var currentOS = "default"; //default: win, linux, ecc. | mac
 
 /**
  * Recursive function to get the sanitized html code from an unsafe one
@@ -1372,4 +1373,15 @@ function generateSecureUUID() {
         const v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
+}
+
+function checkOperatingSystem() {
+    let info = browser.runtime.getPlatformInfo();
+    info.then(getOperatingSystem);
+    //"mac", "win", "linux", "bsd", "android", "ios", "other", ...
+    // Docs: (https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/PlatformOs)ˇ
+}
+
+function getOperatingSystem(info) {
+    if (info.os === "mac") currentOS = "mac"; else currentOS = info.os;
 }

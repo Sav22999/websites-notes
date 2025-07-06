@@ -62,6 +62,7 @@ const MAX_PARAMETERS = 5;
 
 let sync_local = browser.storage.local;
 checkSyncLocal();
+checkOperatingSystem();
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;

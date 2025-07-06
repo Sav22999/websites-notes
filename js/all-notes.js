@@ -73,6 +73,7 @@ function loaded() {
     browser.runtime.sendMessage({"check-user": true});
 
     checkSyncLocal();
+    checkOperatingSystem();
     setLanguageUI();
     checkTheme();
 
