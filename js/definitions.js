@@ -11,6 +11,7 @@ const supportedFontFamily = ["Open Sans", "Shantell Sans", "Inter", "Lora", "Not
 //TODO!manually: add new datetime formats here
 const supportedDatetimeFormat = ["yyyymmdd1", "yyyyddmm1", "ddmmyyyy1", "ddmmyyyy2", "ddmmyyyy1-12h", "mmddyyyy1"];
 
+const webBrowserUsed = "firefox";//TODO:change manually
 let languageToUse = browser.i18n.getUILanguage().toString();
 if (!supportedLanguages.includes(languageToUse)) languageToUse = "en";
 if (supportedLanguages.includes(languageToUse.split("-")[0])) languageToUse = languageToUse.split("-")[0];
@@ -1257,32 +1258,43 @@ function datetimeToDisplay(datetime, format = undefined, also_time = true) {
  * @param url {string} - url of the page where the error happened (if applicable)
  */
 function onError(context, text, url = undefined) {
-    const error = {
-        "datetime": getDate(),
-        "context": context,
-        "error": text,
-        url: url,
-        "notefox-version": browser.runtime.getManifest().version
-    };
-    browser.storage.local.get("error-logs").then(result => {
-        let error_logs = [];
-        if (result["error-logs"] !== undefined) {
-            error_logs = result["error-logs"];
+    browser.storage.sync.get("anonymous-userid").then(resultSync => {
+        let anonymous_userid = null;
+        if (resultSync["anonymous-userid"] !== undefined) {
+            anonymous_userid = resultSync["anonymous-userid"];
+        } else {
+            anonymous_userid = generateSecureUUID();
+            browser.storage.sync.set({"anonymous-userid": anonymous_userid});
         }
-        error_logs.push(error);
-        browser.storage.local.set({"error-logs": error_logs});
+        const error = {
+            "datetime": getDate(),
+            "context": context,
+            "error": text,
+            url: url,
+            "notefox-version": browser.runtime.getManifest().version,
+            "anonymous-userid": anonymous_userid
+        };
+        browser.storage.local.get("error-logs").then(result => {
+            let error_logs = [];
+            if (result["error-logs"] !== undefined) {
+                error_logs = result["error-logs"];
+            }
+            error_logs.push(error);
+            browser.storage.local.set({"error-logs": error_logs});
+        });
     });
 }
 
-function onTelemetry(action, context = null, url = null, browser_name, os, other = null) {
+function onTelemetry(action, context = null, url = null, os, other = null) {
     //check if the telemetry is enabled
     if (settings_json["send-telemetry"] !== undefined && settings_json["send-telemetry"] === false) {
         return;
     }
     const notefox_version = browser.runtime.getManifest().version;
+    const browser_name = webBrowserUsed;
     let notefox_account = null;
     let anonymous_userid = null;
-    let language = browser.i18n.getUILanguage();
+    let language = languageToUse;
     let browser_version = null;
     const current_datetime = getDate();
     browser.storage.sync.get(["notefox-account", "anonymous-userid"]).then(resultSync => {
@@ -1318,7 +1330,7 @@ function onTelemetry(action, context = null, url = null, browser_name, os, other
                 "language": language,
                 "other": other
             }
-            console.log("Telemetry log:", telemetry_logs);
+            //console.log("Telemetry log:", telemetry_logs);
             browser.storage.local.get("telemetry").then(result => {
                 let telemetry = [];
                 if (result["telemetry"] !== undefined) {

@@ -733,7 +733,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     font-weight: 600;
 }
 
-#login-expired-title {
+#login-expired-title, .message-popup .message-popup-content .message-popup-content-title {
     padding: 10px;
     font-size: 1.7em;
     font-weight: bold;
@@ -745,7 +745,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     color: var(--primary-color);
 }
 
-#login-expired-text {
+#login-expired-text, .message-popup .message-popup-content .message-popup-content-description {
     padding: 5px 15px;
     font-size: 1em;
     opacity: 0.7;
@@ -754,11 +754,11 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     width: 100%;
 }
 
-#login-expired-buttons {
+#login-expired-buttons, .message-popup .message-popup-content .message-popup-content-buttons {
     padding: 10px;
 }
 
-#import-sub-sections, #export-sub-sections, #account-sub-sections, #login-expired-content, #link-content-section, #show-error-logs-sub-sections {
+#import-sub-sections, #export-sub-sections, #account-sub-sections, #login-expired-content, #link-content-section, #show-error-logs-sub-sections, .message-popup .message-popup-content {
     background-color: var(--tertiary);
     padding: 10px 20px;
 }
@@ -965,7 +965,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     border-radius: 0px;
 }
 
-#import-section, #export-section, #account-section, #login-expired-section, #link-section, #show-error-logs-section {
+#import-section, #export-section, #account-section, #login-expired-section, #link-section, #show-error-logs-section, #telemetry-added-section, .message-popup {
     display: none;
     background-color: transparent;
     position: fixed !important;
@@ -994,7 +994,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 }
 
 @media screen and (max-width: 1500px) {
-    #import-section, #account-section, #export-section, #login-expired-section, #link-section, #show-error-logs-section {
+    #import-section, #account-section, #export-section, #login-expired-section, #link-section, #show-error-logs-section, #telemetry-added-section, .message-popup {
         padding-top: 5%;
         padding-left: 10%;
         padding-right: 10%;
@@ -1003,7 +1003,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 }
 
 @media screen and (max-width: 1000px) {
-    #import-section, #export-section, #account-section, #login-expired-section, #link-section, #show-error-logs-section {
+    #import-section, #export-section, #account-section, #login-expired-section, #link-section, #show-error-logs-section, #telemetry-added-section, .message-popup {
         padding-left: 0%;
         padding-right: 0%;
         padding-top: 0%;

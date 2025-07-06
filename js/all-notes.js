@@ -85,12 +85,15 @@ function loaded() {
         document.getElementById("refresh-all-notes-button").onclick = function () {
             //location.reload();
             loadDataFromBrowser(true);
+            sendTelemetry("refresh-button");
         }
         document.getElementById("settings-all-notes-button").onclick = function () {
             window.open("../settings/index.html", "_self");
+            sendTelemetry("settings-button");
         }
         document.getElementById("buy-me-a-coffee-button").onclick = function () {
             browser.tabs.create({url: links["donate"]});
+            sendTelemetry("donate-button");
         }
 
         document.getElementById("search-all-notes-text").onkeyup = function () {
@@ -120,12 +123,14 @@ function loaded() {
                 if (document.getElementById("search-filter-sortby").classList.contains("filters-visibile"))
                     document.getElementById("search-filter-sortby").classList.remove("filters-visibile");
             }
+            sendTelemetry("filter-button");
         }
 
         document.getElementById("sort-by-all-notes-button").value = sort_by_selected;
         document.getElementById("sort-by-all-notes-button").onchange = function () {
             sort_by_selected = document.getElementById("sort-by-all-notes-button").value;
             loadAllWebsites(true, sort_by_selected);
+            sendTelemetry(`sort-by`, "all-notes.js", null, sort_by_selected);
         }
 
         setTimeout(function () {
@@ -153,6 +158,10 @@ function loaded() {
     versionNumber.textContent = browser.runtime.getManifest().version;
     versionNumber.id = "version";
     titleAllNotes.append(versionNumber);
+}
+
+function sendTelemetry(action, context = "all-notes.js", url = null, other = null) {
+    onTelemetry(action, context, url, currentOS, other);
 }
 
 function tabUpdated() {
@@ -183,6 +192,7 @@ function setLanguageUI() {
 
         document.getElementById("info-tooltip-search").onclick = function () {
             window.open(links["help-search"], "_blank");
+            sendTelemetry("search-tooltip");
         }
 
         let globalFilterButton = document.getElementById("filter-type-global-button");
@@ -201,6 +211,7 @@ function setLanguageUI() {
             colourFilterButton.classList.add("button", "filter-button-tag", `tag-colour-${colour}`);
             colourFilterButton.onclick = function () {
                 filterByColor(colour, colourFilterButton);
+                sendTelemetry(`filter-by-tag`, `all-notes.js`, null, colour);
             }
             containerColours.appendChild(colourFilterButton);
         }
@@ -212,18 +223,22 @@ function setLanguageUI() {
         noneFilterButton.classList.add("button", "filter-button-tag");
         noneFilterButton.onclick = function () {
             filterByColor("none", noneFilterButton);
+            sendTelemetry(`filter-by-tag`, `all-notes.js`, null, "none");
         }
         globalFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["global-label"]);
         globalFilterButton.onclick = function () {
             filterByType("global", globalFilterButton);
+            sendTelemetry(`filter-by-type`, "all-notes.js", null, "global");
         };
         domainFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["domain-label"]);
         domainFilterButton.onclick = function () {
             filterByType("domain", domainFilterButton);
+            sendTelemetry(`filter-by-type`, "all-notes.js", null, "domain");
         };
         pageFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["page-label"]);
         pageFilterButton.onclick = function () {
             filterByType("page", pageFilterButton);
+            sendTelemetry(`filter-by-type`, "all-notes.js", null, "page");
         };
     } catch (e) {
         console.error(`E-L2: ${e}`);
@@ -243,26 +258,32 @@ function loadAsideBar() {
     all_notes.innerHTML = all_strings["all-notes-aside"];
     all_notes.onclick = function () {
         window.open(links_aside_bar["all-notes"], "_self");
+        sendTelemetry("all-notes-aside");
     }
     settings.innerHTML = all_strings["settings-aside"];
     settings.onclick = function () {
         window.open(links_aside_bar["settings"], "_self");
+        sendTelemetry("settings-aside");
     }
     help.innerHTML = all_strings["help-aside"];
     help.onclick = function () {
         window.open(links_aside_bar["help"], "_self");
+        sendTelemetry("help-aside");
     }
     website.innerHTML = all_strings["website-aside"];
     website.onclick = function () {
         window.open(links_aside_bar["website"], "_self")
+        sendTelemetry("website-aside");
     }
     donate.innerHTML = all_strings["donate-aside"];
     donate.onclick = function () {
         window.open(links_aside_bar["donate"], "_self");
+        sendTelemetry("donate-aside");
     }
     translate.innerHTML = all_strings["translate-aside"];
     translate.onclick = function () {
         window.open(links_aside_bar["translate"], "_self");
+        sendTelemetry("translate-aside");
     }
 
     version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", browser.runtime.getManifest().version);
@@ -337,6 +358,7 @@ function listenerLinks(element) {
                     // Prevent the default link behavior
                 }
                 event.preventDefault();
+                sendTelemetry(`link-clicked`, "all-notes.js", link.href);
             }
         });
     }
@@ -495,6 +517,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                         input_clear_all_notes_domain.classList.add("button", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button", "clear-button-float-right");
                         input_clear_all_notes_domain.onclick = function () {
                             clearAllNotesDomain(domain);
+                            sendTelemetry(`clear-all-notes-domain`, "all-notes.js", domain);
                         }
 
                         let h2_container = document.createElement("div");
@@ -506,6 +529,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                             h2.classList.add("link", "go-to-external", "domain");
                             h2.onclick = function () {
                                 browser.tabs.create({url: domain});
+                                sendTelemetry(`go-to-domain`, "all-notes.js", domain);
                             }
                         }
                         h2_container.append(h2);
@@ -740,6 +764,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 isDomain = true;
             }
             clearAllNotesPage(fullUrl, isDomain);
+            sendTelemetry(`clear-all-notes-page`, "all-notes.js", fullUrl);
         }
         let pageTitleH3 = document.createElement("h3");
         let textNotes = document.createElement("pre");
@@ -765,6 +790,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 } else {
                     row2.classList.add("hidden");
                 }
+                sendTelemetry(`finish-edit-notes`, "all-notes.js", fullUrl);
             } else {
                 textNotes.contentEditable = "true";
                 inputInlineEdit.classList.add("finish-edit-button");
@@ -778,7 +804,10 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 }, 100);
 
                 if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
+
+                sendTelemetry(`start-edit-notes`, "all-notes.js", fullUrl);
             }
+
         }
         pageTitleH3.onkeypress = function (e) {
             if (e.key === "Enter") {
@@ -800,6 +829,8 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             setTimeout(function () {
                 inputCopyNotes.value = all_strings["copy-notes-button"];
             }, 3000);
+
+            sendTelemetry(`copy-notes`, "all-notes.js", fullUrl);
         }
 
         //Select "Tag colour"
@@ -820,6 +851,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         }
         tagsColour.onchange = function () {
             changeTagColour(fullUrl, tagsColour.value, type_to_use);
+            sendTelemetry(`change-tag-colour::${tagsColour.value}`, "all-notes.js", fullUrl);
         }
         page.id = fullUrl;
         page.classList.add("notes-pages");
@@ -834,6 +866,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             inputShowContent.classList.add("button", "very-small-button", "show-content-button", "button-no-text-on-mobile");
             inputShowContent.onclick = function () {
                 alert(content); // Display the content in an alert for now, until a better UI is implemented.
+                sendTelemetry(`show-content`, "all-notes.js", fullUrl);
             }
 
             subrowButtons.append(inputShowContent);
@@ -856,6 +889,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 pageUrl.classList.add("link", "go-to-external");
                 pageUrl.onclick = function () {
                     browser.tabs.create({url: fullUrlToUse});
+                    sendTelemetry(`go-to-page`, "all-notes.js", fullUrlToUse);
                 }
             }
 
@@ -1158,12 +1192,14 @@ function loginExpired() {
         section.style.display = "none";
         background.style.display = "none";
         window.open(links_aside_bar["settings"], "_blank");
+        sendTelemetry(`login-expired-settings`);
     }
     let loginExpiredClose = document.getElementById("login-expired-cancel-button");
     loginExpiredClose.value = all_strings["notefox-account-login-later-button"];
     loginExpiredClose.onclick = function () {
         section.style.display = "none";
         background.style.display = "none";
+        sendTelemetry(`login-expired-close`);
     }
 }
 
