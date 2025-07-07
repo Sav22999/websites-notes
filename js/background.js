@@ -28,7 +28,14 @@ const linkFirstLaunch = "https://notefox.eu/help/first-run"
 const linkAcceptPrivacy = "/privacy/index.html";
 
 let sync_local = browser.storage.local;
-checkSyncLocal();
+browser.runtime.onStartup.addListener(async () => {
+    try {
+        checkSyncLocal();
+    } catch (e) {
+        console.error(`E-B0: ${e}`);
+        onError("background.js::onStartup", e.message, tab_url);
+    }
+});
 
 let _domainUrl = undefined
 let _pageUrl = undefined
@@ -151,13 +158,14 @@ function checkInstallationDate() {
                 }
             })
 
-            let date = new Date(result.installation.date);
-            let now = new Date();
-            let diff = now - date;
-            let days = Math.floor(diff / (1000 * 60 * 60 * 24));
             //open 'first launch' page
             browser.tabs.create({url: linkFirstLaunch});
         } else {
+            let date = new Date(getDate());
+            let now = new Date();
+            let diff = now - date;
+            let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            console.log(`Installation date: ${result.installation.date} (${days} days ago)`);
             //console.log("Installation date: " + result.installation.date);
             //console.log("Installation version: " + result.installation.version);
         }
@@ -693,7 +701,9 @@ function checkStatus(update = false) {
             let minimize_sticky_icon_svg = window.btoa(getIconSvgEncoded("minimize", settings_json["sticky-on-secondary-color"]));
             let restore_sticky_icon_svg = window.btoa(getIconSvgEncoded("restore", settings_json["sticky-on-secondary-color"]));
             icons_json = {
-                "close": close_sticky_icon_svg, "minimize": minimize_sticky_icon_svg, "restore": restore_sticky_icon_svg
+                "close": close_sticky_icon_svg,
+                "minimize": minimize_sticky_icon_svg,
+                "restore": restore_sticky_icon_svg
             };
 
             theme_colours_json = {

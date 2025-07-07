@@ -367,6 +367,7 @@ body {
     border: 0px solid transparent;
     transition: 0.2s;
 }
+
 #tag-colour-section.tag-colour-none-bg {
     display: none;
 }
@@ -533,7 +534,8 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 #search-all-notes-text {
     width: 80%;
     min-width: 200px;
-    margin: 3px;
+    margin: 0px;
+    margin-right: 3px;
     background-color: var(--textbox-color);
     color: var(--on-textbox-color);
     opacity: 0.8;
