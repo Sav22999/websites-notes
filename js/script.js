@@ -69,7 +69,7 @@ function checkSyncLocal() {
 }
 
 function loaded() {
-    browser.storage.local.get("privacy").then(result => {
+    browser.storage.sync.get("privacy").then(result => {
         if (result.privacy === undefined) {
             //not accepted privacy policy -> open 'privacy' page
             browser.tabs.create({url: linkAcceptPrivacy});
