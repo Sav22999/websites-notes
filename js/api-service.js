@@ -16,7 +16,11 @@ function onError(context, text, url = undefined) {
             error_logs = result["error-logs"];
         }
         error_logs.push(error);
-        browser.storage.local.set({"error-logs": error_logs});
+        browser.storage.local.set({"error-logs": error_logs}).catch(error => {
+            console.error("Error saving error logs:", error);
+        });
+    }).catch(error => {
+        console.error("Error saving error logs:", error);
     });
 }
 
