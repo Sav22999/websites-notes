@@ -215,7 +215,7 @@ function listenerLinks() {
                 }
                 event.preventDefault();
 
-                sendTelemetry("click-link", "script.js", {"url-to-open":link.href});
+                sendTelemetry("click-link", "script.js", {"url-to-open": link.href});
             }
         });
     }
@@ -609,6 +609,7 @@ function loadSettings(load_only = false) {
         if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
         if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
         if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
+        if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
 
         if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
         else advanced_managing = false;
@@ -812,7 +813,9 @@ function saveNotes(title_call = false) {
                 let colour = "none";
                 document.getElementById("tag-colour-section").removeAttribute("class");
                 if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) colour = websites_json[url_to_use]["tag-colour"];
-                document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
+                document.getElementById("tag-colour-section").classList.add("tag-colour-" + colour + "-bg");
+
+                if (settings_json["notes-background-follow-tag-colour"]) document.getElementById("popup-content").classList.add("background-as-tag-colour");
 
                 let title = "";
                 if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["title"] !== undefined) title = websites_json[url_to_use]["title"];
@@ -1260,7 +1263,9 @@ function setTab(index, url) {
     let colour = "none";
     document.getElementById("tag-colour-section").removeAttribute("class");
     if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"] !== undefined) colour = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"];
-    document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
+    document.getElementById("tag-colour-section").classList.add("tag-colour-" + colour + "-bg");
+    if (settings_json["notes-background-follow-tag-colour"]) document.getElementById("popup-content").classList.add("background-as-tag-colour");
+
     if (websites_json[currentUrl[selected_tab]] !== undefined) document.getElementById("tag-select-grid").value = websites_json[currentUrl[selected_tab]]["tag-colour"];
 
     let sticky = false;
@@ -1681,9 +1686,9 @@ function checkTelemetryAlert() {
             title.textContent = all_strings["telemetry-alert-title"];
             let description = document.getElementById("telemetry-added-text");
             description.innerHTML = all_strings["telemetry-alert-text"];
-            let buttonDisable = document.getElementById("telemetry-added-disable-button");
-            buttonDisable.value = all_strings["telemetry-alert-button-1"];
-            buttonDisable.onclick = function () {
+            let buttonEnable = document.getElementById("telemetry-added-enable-button");
+            buttonEnable.value = all_strings["telemetry-alert-button-1"];
+            buttonEnable.onclick = function () {
                 section.style.display = "none";
                 background.style.display = "none";
                 browser.storage.local.get("settings", (result) => {
@@ -1691,7 +1696,7 @@ function checkTelemetryAlert() {
                     if (result["settings"] !== undefined) {
                         settings = result["settings"];
                     }
-                    settings["send-telemetry"] = false;
+                    settings["send-telemetry"] = true;
                     browser.storage.local.set({"settings": settings}).then(() => {
                         sendMessageUpdateToBackground();
                     });

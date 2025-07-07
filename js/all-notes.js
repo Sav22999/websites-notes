@@ -399,6 +399,7 @@ function loadDataFromBrowser(generate_section = true) {
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
             if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
             if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
+            if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
 
             //console.log(JSON.stringify(settings_json));
             if (generate_section) {
@@ -856,6 +857,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         }
         page.id = fullUrl;
         page.classList.add("notes-pages");
+        if (settings_json["notes-background-follow-tag-colour"]) page.classList.add("background-as-tag-colour");
 
         subrowUrl.append(pageType);
 

@@ -360,7 +360,15 @@ body {
 }
 
 #tag-colour-section {
-    border-radius: 0px;
+    width: auto;
+    margin: 3px;
+    border-radius: 5px;
+    height: 15px;
+    border: 0px solid transparent;
+    transition: 0.2s;
+}
+#tag-colour-section.tag-colour-none-bg {
+    display: none;
 }
 
 .button {
@@ -442,6 +450,7 @@ body {
     overflow: visible;
     word-wrap: normal;
     box-shadow: 0px 0px 0px 0px var(--on-textbox-color);
+    position: relative;
 }
 
 .textbox {
@@ -473,6 +482,7 @@ body {
     overflow: hidden;
     padding: 2px;
     background-color: var(--textbox-color);
+    display: grid;
 }
 
 .div-textnotes-container {
@@ -933,6 +943,9 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 .page-content-right {
     flex: 1;
     height: 100%;
+
+    display: flex;
+    flex-direction: column;
 }
 
 @media screen and (max-width: 1000px) {
@@ -2476,12 +2489,22 @@ hr.hr-domain:last-child {
     background-color: red !important;
 }
 
+.notes-pages.background-as-tag-colour:has(.tag-colour-red-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-red-bg) {
+    background-color: rgba(255, 0, 0, 0.1) !important;
+}
+
 .tag-colour-yellow {
     border-color: yellow !important;
 }
 
 .tag-colour-yellow-bg {
     background-color: yellow !important;
+}
+
+.notes-pages.background-as-tag-colour:has(.tag-colour-yellow-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-yellow-bg) {
+    background-color: rgba(255, 255, 0, 0.1) !important;
 }
 
 .tag-colour-green {
@@ -2492,12 +2515,22 @@ hr.hr-domain:last-child {
     background-color: green !important;
 }
 
+.notes-pages.background-as-tag-colour:has(.tag-colour-green-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-green-bg) {
+    background-color: rgba(0, 255, 0, 0.1) !important;
+}
+
 .tag-colour-gray {
     border-color: gray !important;
 }
 
 .tag-colour-gray-bg {
     background-color: gray !important;
+}
+
+.notes-pages.background-as-tag-colour:has(.tag-colour-gray-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-gray-bg) {
+    background-color: rgba(128, 128, 128, 0.1) !important;
 }
 
 .tag-colour-purple {
@@ -2508,6 +2541,11 @@ hr.hr-domain:last-child {
     background-color: purple !important;
 }
 
+.notes-pages.background-as-tag-colour:has(.tag-colour-purple-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-purple-bg) {
+    background-color: rgba(128, 0, 128, 0.1) !important;
+}
+
 .tag-colour-pink {
     border-color: pink !important;
 }
@@ -2516,12 +2554,22 @@ hr.hr-domain:last-child {
     background-color: pink !important;
 }
 
+.notes-pages.background-as-tag-colour:has(.tag-colour-pink-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-pink-bg) {
+    background-color: rgba(255, 192, 203, 0.2) !important;
+}
+
 .tag-colour-black {
     border-color: black !important;
 }
 
 .tag-colour-black-bg {
     background-color: black !important;
+}
+
+.notes-pages.background-as-tag-colour:has(.tag-colour-black-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-black-bg) {
+    background-color: rgba(0, 0, 0, 0.1) !important;
 }
 
 .tag-colour-white {
@@ -2540,12 +2588,22 @@ hr.hr-domain:last-child {
     background-color: orange !important;
 }
 
+.notes-pages.background-as-tag-colour:has(.tag-colour-orange-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-orange-bg) {
+    background-color: rgba(255, 165, 0, 0.1) !important;
+}
+
 .tag-colour-blue {
     border-color: blue !important;
 }
 
 .tag-colour-blue-bg {
     background-color: blue !important;
+}
+
+.notes-pages.background-as-tag-colour:has(.tag-colour-blue-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-blue-bg) {
+    background-color: rgba(0, 0, 255, 0.1) !important;
 }
 
 .tag-colour-aquamarine {
@@ -2556,12 +2614,22 @@ hr.hr-domain:last-child {
     background-color: aquamarine !important;
 }
 
+.notes-pages.background-as-tag-colour:has(.tag-colour-aquamarine-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-aquamarine-bg) {
+    background-color: rgba(127, 255, 212, 0.2) !important;
+}
+
 .tag-colour-turquoise {
     border-color: turquoise !important;
 }
 
 .tag-colour-turquoise-bg {
     background-color: turquoise !important;
+}
+
+.notes-pages.background-as-tag-colour:has(.tag-colour-turquoise-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-turquoise-bg) {
+    background-color: rgba(64, 224, 208, 0.1) !important;
 }
 
 .tag-colour-brown {
@@ -2572,12 +2640,22 @@ hr.hr-domain:last-child {
     background-color: brown !important;
 }
 
+.notes-pages.background-as-tag-colour:has(.tag-colour-brown-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-brown-bg) {
+    background-color: rgba(165, 42, 42, 0.1) !important;
+}
+
 .tag-colour-coral {
     border-color: coral !important;
 }
 
 .tag-colour-coral-bg {
     background-color: coral !important;
+}
+
+.notes-pages.background-as-tag-colour:has(.tag-colour-coral-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-coral-bg) {
+    background-color: rgba(255, 127, 80, 0.1) !important;
 }
 
 .tag-colour-cyan {
@@ -2588,12 +2666,22 @@ hr.hr-domain:last-child {
     background-color: cyan !important;
 }
 
+.notes-pages.background-as-tag-colour:has(.tag-colour-cyan-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-cyan-bg) {
+    background-color: rgba(0, 255, 255, 0.1) !important;
+}
+
 .tag-colour-darkgreen {
     border-color: darkgreen !important;
 }
 
 .tag-colour-darkgreen-bg {
     background-color: darkgreen !important;
+}
+
+.notes-pages.background-as-tag-colour:has(.tag-colour-darkgreen-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-darkgreen-bg) {
+    background-color: rgba(0, 100, 0, 0.1) !important;
 }
 
 .tag-colour-violet {
@@ -2604,12 +2692,22 @@ hr.hr-domain:last-child {
     background-color: violet !important;
 }
 
+.notes-pages.background-as-tag-colour:has(.tag-colour-violet-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-violet-bg) {
+    background-color: rgba(238, 130, 238, 0.1) !important;
+}
+
 .tag-colour-lime {
     border-color: lime !important;
 }
 
 .tag-colour-lime-bg {
     background-color: lime !important;
+}
+
+.notes-pages.background-as-tag-colour:has(.tag-colour-lime-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-lime-bg) {
+    background-color: rgba(0, 255, 0, 0.1) !important;
 }
 
 .tag-colour-fuchsia {
@@ -2620,12 +2718,22 @@ hr.hr-domain:last-child {
     background-color: fuchsia !important;
 }
 
+.notes-pages.background-as-tag-colour:has(.tag-colour-fuchsia-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-fuchsia-bg) {
+    background-color: rgba(255, 0, 255, 0.1) !important;
+}
+
 .tag-colour-indigo {
     border-color: indigo !important;
 }
 
 .tag-colour-indigo-bg {
     background-color: indigo !important;
+}
+
+.notes-pages.background-as-tag-colour:has(.tag-colour-indigo-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-indigo-bg) {
+    background-color: rgba(75, 0, 130, 0.1) !important;
 }
 
 .tag-colour-lavender {
@@ -2636,12 +2744,22 @@ hr.hr-domain:last-child {
     background-color: lavender !important;
 }
 
+.notes-pages.background-as-tag-colour:has(.tag-colour-lavender-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-lavender-bg) {
+    background-color: rgba(230, 230, 250, 0.4) !important;
+}
+
 .tag-colour-teal {
     border-color: teal !important;
 }
 
 .tag-colour-teal-bg {
     background-color: teal !important;
+}
+
+.notes-pages.background-as-tag-colour:has(.tag-colour-teal-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-teal-bg) {
+    background-color: rgba(0, 128, 128, 0.1) !important;
 }
 
 .tag-colour-navy {
@@ -2652,12 +2770,22 @@ hr.hr-domain:last-child {
     background-color: navy !important;
 }
 
+.notes-pages.background-as-tag-colour:has(.tag-colour-navy-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-navy-bg) {
+    background-color: rgba(0, 0, 128, 0.1) !important;
+}
+
 .tag-colour-olive {
     border-color: olive !important;
 }
 
 .tag-colour-olive-bg {
     background-color: olive !important;
+}
+
+.notes-pages.background-as-tag-colour:has(.tag-colour-olive-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-olive-bg) {
+    background-color: rgba(128, 128, 0, 0.1) !important;
 }
 
 .tag-colour-plum {
@@ -2668,12 +2796,22 @@ hr.hr-domain:last-child {
     background-color: plum !important;
 }
 
+.notes-pages.background-as-tag-colour:has(.tag-colour-plum-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-plum-bg) {
+    background-color: rgba(221, 160, 221, 0.1) !important;
+}
+
 .tag-colour-salmon {
     border-color: salmon !important;
 }
 
 .tag-colour-salmon-bg {
     background-color: salmon !important;
+}
+
+.notes-pages.background-as-tag-colour:has(.tag-colour-salmon-bg),
+#popup-content.background-as-tag-colour:has(.tag-colour-salmon-bg) {
+    background-color: rgba(250, 128, 114, 0.1) !important;
 }
 
 .tag-colour-snow {

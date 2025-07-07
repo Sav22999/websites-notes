@@ -325,6 +325,13 @@ function loaded() {
         saveSettings();
     }
 
+    document.getElementById("notes-background-follow-tag-colour-check").onchange = function () {
+        settings_json["notes-background-follow-tag-colour"] = document.getElementById("notes-background-follow-tag-colour-check").checked;
+        sendTelemetry(`notes-background-follow-tag-colour-check-select`, `settings.js`, settings_json["notes-background-follow-tag-colour"]);
+
+        saveSettings();
+    }
+
     document.getElementById("show-undo-redo-check").onchange = function () {
         settings_json["undo-redo"] = document.getElementById("show-undo-redo-check").checked;
         sendTelemetry(`show-undo-redo-check-select`, `settings.js`, settings_json["undo-redo"]);
@@ -687,6 +694,8 @@ function setLanguageUI() {
     document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
     document.getElementById("immersive-sticky-notes-text").innerText = all_strings["immersive-sticky-notes-text"];
     document.getElementById("immersive-sticky-notes-detailed-text").innerHTML = all_strings["immersive-sticky-notes-detailed-text"];
+    document.getElementById("notes-background-follow-tag-colour-text").innerText = all_strings["notes-background-follow-tag-colour-text"];
+    document.getElementById("notes-background-follow-tag-colour-detailed-text").innerHTML = all_strings["notes-background-follow-tag-colour-detailed-text"];
     document.getElementById("show-undo-redo-text").innerText = all_strings["show-undo-redo-text"];
     document.getElementById("show-bold-italic-underline-strikethrough-text").innerText = all_strings["show-bold-italic-underline-strikethrough-text"];
     document.getElementById("show-link-text").innerText = all_strings["show-link-text"];
@@ -829,9 +838,10 @@ function loadSettings() {
             if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
             if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
             if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
+            if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
             if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
             if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = true;
-            if (settings_json["send-telemetry"] === undefined) settings_json["send-telemetry"] = true;
+            if (settings_json["send-telemetry"] === undefined) settings_json["send-telemetry"] = false;
 
             if (settings_json["undo-redo"] === undefined) settings_json["undo-redo"] = true;
             if (settings_json["bold-italic-underline-strikethrough"] === undefined) settings_json["bold-italic-underline-strikethrough"] = true;
@@ -893,6 +903,7 @@ function loadSettings() {
 
             document.getElementById("show-title-textbox-check").checked = settings_json["show-title-textbox"] === true || settings_json["show-title-textbox"] === "yes";
             document.getElementById("immersive-sticky-notes-check").checked = settings_json["immersive-sticky-notes"] === true || settings_json["immersive-sticky-notes"] === "yes";
+            document.getElementById("notes-background-follow-tag-colour-check").checked = settings_json["notes-background-follow-tag-colour"] === true || settings_json["notes-background-follow-tag-colour"] === "yes";
 
             if (document.getElementById("html-text-formatting-check").checked) {
                 if (document.getElementById("html-text-formatting-buttons").classList.contains("hidden")) document.getElementById("html-text-formatting-buttons").classList.remove("hidden");

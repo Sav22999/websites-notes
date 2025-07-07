@@ -313,9 +313,11 @@ strings[lang] = {
     "send-telemetry-text": "Anonymous telemetry",
     "send-telemetry-detailed-text": "When enabled, the add-on will anonymous telemetry data to the developer. This permits the developer to improve the add-on, and what features are used more frequently.<br>Telemetry data are <b>totally anonymous</b>, and they contain only information useful to improve the add-on: no personal data is collected.",
     "telemetry-alert-title": "Telemetry added",
-    "telemetry-alert-text": "Notefox added anonymous telemetry logs. By default, telemetry has been enabled, but you can manage it at any time in Settings.",
-    "telemetry-alert-button-1": "Disable telemetry",
+    "telemetry-alert-text": "Notefox added anonymous telemetry logs. By default, telemetry has disabled, but you can manage it at any time in Settings.",
+    "telemetry-alert-button-1": "Enable telemetry",
     "telemetry-alert-button-2": "OK",
+    "notes-background-follow-tag-colour-text": "Notes background follow the tag colour",
+    "notes-background-follow-tag-colour-detailed-text": "When enabled, the background of the notes will follow the tag colour. If there is no tag colour, or it's selected the 'white' or 'snow' color, then the background will be the default one.",
     "privacy": {
         "title": "Privacy Policy acceptance",
         "description1": "From the 4.0 version of Notefox, you are able to create a <b>Notefox Account</b> to sync your data across devices. This is a great feature but, because it's external to your web browser service, it requires a small extra step to ensure your privacy.",
