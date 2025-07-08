@@ -28,17 +28,15 @@ const linkFirstLaunch = "https://notefox.eu/help/first-run"
 const linkAcceptPrivacy = "/privacy/index.html";
 
 let sync_local = undefined;
-browser.runtime.onStartup.addListener(async () => {
-    try {
-        if (browser.storage && browser.storage.local) {
-            sync_local = browser.storage.local;
-            checkSyncLocal();
-            loadDataFromSync();
-        }
-    } catch (e) {
-        console.error(`E-B0: ${e}`);
+try {
+    if (browser.storage && browser.storage.local) {
+        sync_local = browser.storage.local;
+        checkSyncLocal();
+        loadDataFromSync();
     }
-});
+} catch (e) {
+    console.error(`E-B0: ${e}`);
+}
 
 let _domainUrl = undefined
 let _pageUrl = undefined
@@ -321,7 +319,7 @@ function sendLocalDataToServer() {
     let data_to_send = {};
 
     browser.storage.local.get(["storage"]).then(getStorageTemp => {
-        sync_local.get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "last-update"]).then((result) => {
+        sync_local.get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "last-update"]).then(result => {
             // Handle the result
             let sticky_notes = {};
             sticky_notes.coords = result["sticky-notes-coords"];
@@ -414,7 +412,12 @@ function correctDatetime(datetime) {
 }
 
 function changeIcon(index) {
-    browser.browserAction.setIcon({path: icons[index], tabId: tab_id});
+    browser.browserAction.setIcon({path: icons[index], tabId: tab_id}).catch(
+        error => {
+            console.error(`E-B10: ${error}`);
+            onError("background.js::changeIcon::E-B10", error.message, tab_url);
+        }
+    );
 }
 
 function loaded() {
@@ -524,7 +527,7 @@ function tabUpdated(update = false) {
                 tab_url = tabs[0].url;
                 tab_title = tabs[0].title;
             }
-        }).then((tabs) => {
+        }).then(tabs => {
             checkStatus(update);
         }).catch(error => {
             console.error(`E-B12: ${error}`);
@@ -638,7 +641,6 @@ function checkStatus(update = false) {
                         //console.log("QAZ-1")
                         sync_local.set({
                             "websites": websites_json, "last-update": getDate()
-                        }).then(resultSet => {
                         }).catch(error => {
                             console.error(`E-B13A: ${error}`);
                             onError("background.js::checkStatus::E-B13A", error.message, tab_url);
@@ -1314,7 +1316,7 @@ function openAsStickyNotes() {
         origins: ["<all_urls>"]
     }
     try {
-        browser.permissions.contains(permissionsToRequest).then((response) => {
+        browser.permissions.contains(permissionsToRequest).then(response => {
             if (response) {
                 if (!opening_sticky) {
                     opening_sticky = true;
@@ -1348,7 +1350,7 @@ function closeStickyNotes(update = true) {
         origins: ["<all_urls>"]
     }
     try {
-        browser.permissions.contains(permissionsToRequest).then((response) => {
+        browser.permissions.contains(permissionsToRequest).then(response => {
             if (response) {
                 checkIcon();
                 browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
@@ -1544,7 +1546,7 @@ function getCombinations(array, n) {
 function setOpenedSticky(sticky, minimized) {
     //console.log(`sticky: ${sticky} - minimized: ${minimized}`);
 
-    sync_local.get("websites").then((value) => {
+    sync_local.get("websites").then(value => {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
@@ -1582,7 +1584,7 @@ function setOpenedSticky(sticky, minimized) {
 }
 
 function setNewTextFromSticky(text) {
-    sync_local.get("websites").then((value) => {
+    sync_local.get("websites").then(value => {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
@@ -1618,7 +1620,7 @@ function setNewTextFromSticky(text) {
 }
 
 function checkStickyNotes() {
-    sync_local.get("websites").then((value) => {
+    sync_local.get("websites").then(value => {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
