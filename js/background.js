@@ -27,16 +27,8 @@ const page_domain_global = {"page": "Page", "domain": "Domain", "global": "Globa
 const linkFirstLaunch = "https://notefox.eu/help/first-run"
 const linkAcceptPrivacy = "/privacy/index.html";
 
-let sync_local = undefined;
-try {
-    if (browser.storage && browser.storage.local) {
-        sync_local = browser.storage.local;
-        checkSyncLocal();
-        loadDataFromSync();
-    }
-} catch (e) {
-    console.error(`E-B0: ${e}`);
-}
+let sync_local = browser.storage.local;
+checkSyncLocal();
 
 let _domainUrl = undefined
 let _pageUrl = undefined
@@ -73,29 +65,20 @@ function onError(context, text, url = undefined) {
             error_logs = result["error-logs"];
         }
         error_logs.push(error);
-        browser.storage.local.set({"error-logs": error_logs}).catch(error => {
-            console.error(`E-B3: ${error}`);
-            //if there is an error saving the error logs, just print it on the console
-        });
-    }).catch(error => {
-        console.error(`E-B3: ${error}`);
-        //if there is an error saving the error logs, just print it on the console
+        browser.storage.local.set({"error-logs": error_logs});
     });
 }
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;
-    browser.storage.sync.get("privacy").then(resultSync => {
-        if (resultSync.privacy !== undefined) {
+    browser.storage.sync.get("privacy").then(result => {
+        if (result.privacy !== undefined) {
             checkInstallationDate();
         } else {
             //Check if the user has accepted the privacy policy (and saved it in the local storage)
             browser.storage.local.get("privacy").then(result => {
                 if (result.privacy !== undefined) {
-                    browser.storage.sync.set({"privacy": result.privacy}).catch(error => {
-                        console.error(`E-B3: ${error}`);
-                        onError("background.js::checkSyncLocal::E-B3", error.message, tab_url);
-                    });
+                    browser.storage.sync.set({"privacy": result.privacy});
                     //delete the local storage
                     browser.storage.local.remove("privacy").then(() => {
                         console.log("Privacy policy removed from local storage");
@@ -105,17 +88,16 @@ function checkSyncLocal() {
                     //not accepted privacy policy -> open 'privacy' page
                     browser.tabs.create({url: linkAcceptPrivacy});
                 }
-            }).catch(error => {
-                console.error(`E-B6: ${error}`);
-                onError("background.js::checkSyncLocal:.E-B6", error.message, tab_url);
             });
         }
-    }).catch(error => {
-        console.error(`E-B4: ${error}`);
-        onError("background.js::checkSyncLocal::E-B4", error.message, tab_url);
     });
 
-    checkVersion();
+    try {
+        checkVersion();
+    } catch (e) {
+        console.error(`E-B0: ${e}`);
+        onError("background.js::checkSyncLocal::checkVersion", e.message, tab_url);
+    }
 
     checkSyncData();
 }
@@ -124,8 +106,9 @@ function checkSyncLocal() {
  * Useful for the "update" page*/
 function checkVersion() {
     const currentVersion = browser.runtime.getManifest().version;
-    browser.storage.sync.get(`versions`).then(result => {
-        if (result === undefined || result[currentVersion] === undefined) {
+    browser.storage.sync.get("versions").then(result => {
+        console.log("result checkVersion", result);
+        if (result === undefined || result !== undefined && result[currentVersion] === undefined) {
             let resultToSet = {};
             if (result !== undefined) {
                 resultToSet = result;
@@ -140,45 +123,39 @@ function checkVersion() {
 
                 //reset error logs
                 browser.storage.local.set({"error-logs": []});
-            }).catch(error => {
-                console.error(`E-B5A: ${error}`);
-                onError("background.js::checkVersion::E-B5A", error.message, tab_url);
             });
         } else {
             console.log(`Already checked this version (${currentVersion})`);
         }
-    }).catch(error => {
-        console.error(`E-B5B: ${error}`);
-        onError("background.js::checkVersion::E-B5B", error.message, tab_url);
-    })
+    });
+    console.log(`Current version: ${currentVersion}`);
 }
 
 function checkInstallationDate() {
-    browser.storage.sync.get("installation").then(result => {
-        if (result.installation === undefined) {
-            browser.storage.sync.set({
-                "installation": {
-                    "date": getDate(), "version": browser.runtime.getManifest().version
-                }
-            }).catch(error => {
-                console.error(`E-B6: ${error}`);
-                onError("background.js::checkInstallationDate::E-B6", error.message, tab_url);
-            })
+    try {
+        browser.storage.sync.get("installation").then(result => {
+            if (result.installation === undefined) {
+                browser.storage.sync.set({
+                    "installation": {
+                        "date": getDate(), "version": browser.runtime.getManifest().version
+                    }
+                })
 
-            let date = new Date(result.installation.date);
-            let now = new Date();
-            let diff = now - date;
-            let days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            //open 'first launch' page
-            browser.tabs.create({url: linkFirstLaunch});
-        } else {
-            //console.log("Installation date: " + result.installation.date);
-            //console.log("Installation version: " + result.installation.version);
-        }
-    }).catch(error => {
-        console.error(`E-B7: ${error}`);
-        onError("background.js::checkInstallationDate::E-B7", error.message, tab_url);
-    });
+                let date = new Date(result.installation.date);
+                let now = new Date();
+                let diff = now - date;
+                let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                //open 'first launch' page
+                browser.tabs.create({url: linkFirstLaunch});
+            } else {
+                //console.log("Installation date: " + result.installation.date);
+                //console.log("Installation version: " + result.installation.version);
+            }
+        });
+    } catch (error) {
+        console.error(`E-B3: ${error}`);
+        onError("background.js::checkInstallationDate", error.message, tab_url);
+    }
 }
 
 function checkSyncData(just_once = false) {
@@ -197,9 +174,6 @@ function checkSyncData(just_once = false) {
         } else {
             syncData(5 * 60 * 1000, just_once); //5 minutes if the user is not logged in
         }
-    }).catch(error => {
-        console.error(`E-B8: ${error}`);
-        onError("background.js::checkSyncData::E-B8", error.message, tab_url);
     });
 }
 
@@ -211,10 +185,7 @@ function checkSyncData(just_once = false) {
 function syncData(force_time = 1 * 60 * 1000, just_once = false) {
     //console.log(`Sync data each ${force_time} ms`);
 
-    sync_local.set({"last-sync": getDate()}).catch(error => {
-        console.error(`E-B9: ${error}`);
-        onError("background.js::syncData::E-B9", error.message, tab_url);
-    });
+    sync_local.set({"last-sync": getDate()});
 
     if (!just_once) {
         setTimeout(function () {
@@ -262,9 +233,6 @@ function actionResponse(response) {
                                             //console.log("Data updated from server");
 
                                             syncUpdateFromServer();
-                                        }).catch(error => {
-                                            console.error(`E-B9B: ${error}`);
-                                            onError("background.js::actionResponse::E-B9B", error.message, tab_url);
                                         });
                                     } else {
                                         //console.log("Local data is the same as the server one");
@@ -284,14 +252,8 @@ function actionResponse(response) {
                                     sync_local.set(data_to_server).then(result => {
                                         //console.log("Data updated from server");
                                         syncUpdateFromServer();
-                                    }).catch(error => {
-                                        console.error(`E-B9C: ${error}`);
-                                        onError("background.js::actionResponse::E-B9C", error.message, tab_url);
                                     });
                                 }
-                            }).catch(error => {
-                                console.error(`E-B9D: ${error}`);
-                                onError("background.js::actionResponse::EB9D", error.message, tab_url);
                             });
                         } else if (data.code === 201) {
                             //No data on the server ==> never send data
@@ -302,7 +264,7 @@ function actionResponse(response) {
                             sendLocalDataToServer();
                         } else {
                             console.error("[background.js::actionResponse] Error: ", data);
-                            onError("background.js::actionResponse::E-B9E", data, tab_url);
+                            onError("background.js::actionResponse", data, tab_url);
                         }
                     }
                 }
@@ -319,7 +281,7 @@ function sendLocalDataToServer() {
     let data_to_send = {};
 
     browser.storage.local.get(["storage"]).then(getStorageTemp => {
-        sync_local.get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "last-update"]).then(result => {
+        sync_local.get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "last-update"]).then((result) => {
             // Handle the result
             let sticky_notes = {};
             sticky_notes.coords = result["sticky-notes-coords"];
@@ -370,17 +332,11 @@ function sendLocalDataToServer() {
 
             sync_local.set(data_to_send).then(result => {
                 //console.log("Data sent to the server");
-            }).catch(error => {
-                console.error(`E-B1A: ${error}`);
-                onError("background.js::sendLocalDataToServer::E-B1A", error.message, tab_url);
             });
         }).catch((e) => {
-            console.error(`E-B1B: ${e}`);
-            onError("background.js::sendLocalDataToServer::E-B1B", e.message, tab_url);
+            console.error(`E-B1: ${e}`);
+            onError("background.js::sendLocalDataToServer", e.message, tab_url);
         });
-    }).catch(error => {
-        console.error(`E-B2: ${error}`);
-        onError("background.js::sendLocalDataToServer::E-B2", error.message, tab_url);
     });
 }
 
@@ -393,7 +349,7 @@ function syncUpdateFromServer() {
             syncUpdateFromServer();
         }, 5 * 60 * 1000); //5 minutes if any issues
         console.error(`E-B2: ${e}`);
-        onError("background.js::syncUpdateFromServer::E-B2", e.message, tab_url);
+        onError("background.js::syncUpdateFromServer", e.message, tab_url);
     });
 
     loaded();
@@ -412,12 +368,7 @@ function correctDatetime(datetime) {
 }
 
 function changeIcon(index) {
-    browser.browserAction.setIcon({path: icons[index], tabId: tab_id}).catch(
-        error => {
-            console.error(`E-B10: ${error}`);
-            onError("background.js::changeIcon::E-B10", error.message, tab_url);
-        }
-    );
+    browser.browserAction.setIcon({path: icons[index], tabId: tab_id});
 }
 
 function loaded() {
@@ -497,9 +448,6 @@ function checkUserPeriodically(time = 1 * 60 * 1000, just_once = false) {
                 //not logged in
                 if (!just_once) checkUserPeriodically();
             }
-        }).catch(error => {
-            console.error(`E-B10: ${error}`);
-            onError("background.js::checkUserPeriodically::E-B10", error.message, tab_url);
         });
     }, time);
 }
@@ -515,10 +463,7 @@ function tabUpdated(update = false) {
     sync_local = browser.storage.sync;
     browser.storage.local.get("storage").then(result => {
         if (result.storage === "sync") sync_local = browser.storage.sync; else if (result.storage === "local") sync_local = browser.storage.local; else {
-            browser.storage.local.set({"storage": "local"}).catch(error => {
-                console.error(`E-B15: ${error}`);
-                onError("background.js::tabUpdated::E-B15", error.message, tab_url);
-            });
+            browser.storage.local.set({"storage": "local"});
             sync_local = browser.storage.local;
         }
         browser.tabs.query({active: true, currentWindow: true}).then(tabs => {
@@ -527,85 +472,94 @@ function tabUpdated(update = false) {
                 tab_url = tabs[0].url;
                 tab_title = tabs[0].title;
             }
-        }).then(tabs => {
+        }).then((tabs) => {
             checkStatus(update);
-        }).catch(error => {
-            console.error(`E-B12: ${error}`);
-            onError("background.js::tabUpdated::E-B12", error.message, tab_url);
         });
-    }).catch(error => {
-        console.error(`E-B11: ${error}`);
-        onError("background.js::tabUpdated::E-B11", error.message, tab_url);
     });
 }
 
 function checkStatus(update = false) {
     current_urls = [getGlobalUrl(), getDomainUrl(tab_url), getPageUrl(tab_url)];
-    sync_local.get("settings").then(value => {
-        settings_json = {};
-        if (value["settings"] !== undefined) settings_json = value["settings"];
-        if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
-        if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
-        if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
-        if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
-        if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = true;
-        if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
-        if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
-        if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
-        //console.log(JSON.stringify(settings_json));
-        //console.log("checkStatus");
-        //console.log(value);
+    sync_local.get("settings")
+        .then(value => {
+            settings_json = {};
+            if (value["settings"] !== undefined) settings_json = value["settings"];
+            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
+            if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
+            if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
+            if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
+            if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = true;
+            if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
+            if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
+            if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
+            //console.log(JSON.stringify(settings_json));
+            //console.log("checkStatus");
+            //console.log(value);
 
-        if (settings_json["sticky-secondary-color"] === undefined) settings_json["sticky-secondary-color"] = "#ff6200";
-        if (settings_json["sticky-on-secondary-color"] === undefined) settings_json["sticky-on-secondary-color"] = "#ffffff";
+            if (settings_json["sticky-secondary-color"] === undefined) settings_json["sticky-secondary-color"] = "#ff6200";
+            if (settings_json["sticky-on-secondary-color"] === undefined) settings_json["sticky-on-secondary-color"] = "#ffffff";
 
-        let close_sticky_icon_svg = window.btoa(getIconSvgEncoded("close", settings_json["sticky-on-secondary-color"]));
-        let minimize_sticky_icon_svg = window.btoa(getIconSvgEncoded("minimize", settings_json["sticky-on-secondary-color"]));
-        let restore_sticky_icon_svg = window.btoa(getIconSvgEncoded("restore", settings_json["sticky-on-secondary-color"]));
-        icons_json = {
-            "close": close_sticky_icon_svg, "minimize": minimize_sticky_icon_svg, "restore": restore_sticky_icon_svg
-        };
+            let close_sticky_icon_svg = window.btoa(getIconSvgEncoded("close", settings_json["sticky-on-secondary-color"]));
+            let minimize_sticky_icon_svg = window.btoa(getIconSvgEncoded("minimize", settings_json["sticky-on-secondary-color"]));
+            let restore_sticky_icon_svg = window.btoa(getIconSvgEncoded("restore", settings_json["sticky-on-secondary-color"]));
+            icons_json = {
+                "close": close_sticky_icon_svg, "minimize": minimize_sticky_icon_svg, "restore": restore_sticky_icon_svg
+            };
 
-        theme_colours_json = {
-            "primary": getStickyNotesColoursByElement("yellow")[0],
-            "on-primary": getStickyNotesColoursByElement("yellow")[1],
-            "secondary": getStickyNotesColoursByElement("yellow")[2],
-            "on-secondary": getStickyNotesColoursByElement("yellow")[3]
-        };
-        sync_local.get("settings").then(result => {
-            let primary;
-            let secondary;
-            let on_primary;
-            let on_secondary;
-            let default_theme = false;
+            theme_colours_json = {
+                "primary": getStickyNotesColoursByElement("yellow")[0],
+                "on-primary": getStickyNotesColoursByElement("yellow")[1],
+                "secondary": getStickyNotesColoursByElement("yellow")[2],
+                "on-secondary": getStickyNotesColoursByElement("yellow")[3]
+            };
+            sync_local.get("settings").then(result => {
+                let primary;
+                let secondary;
+                let on_primary;
+                let on_secondary;
+                let default_theme = false;
 
-            if (result !== undefined && result["settings"] !== undefined && result["settings"]["sticky-theme"] !== undefined) {
-                let theme = result["settings"]["sticky-theme"];
-                if (theme === "auto") {
-                    browser.theme.getCurrent().then(theme => {
-                        if (theme !== undefined && theme["colors"] !== undefined && theme["colors"] !== null) {
-                            //console.log(JSON.stringify(theme.colors));
-                            primary = theme.colors.toolbar_text;
-                            secondary = theme.colors.toolbar_field;
-                            on_primary = theme.colors.toolbar;
-                            on_secondary = theme.colors.toolbar_field_text;
+                if (result !== undefined && result["settings"] !== undefined && result["settings"]["sticky-theme"] !== undefined) {
+                    let theme = result["settings"]["sticky-theme"];
+                    if (theme === "auto") {
+                        browser.theme.getCurrent().then(theme => {
+                            if (theme !== undefined && theme["colors"] !== undefined && theme["colors"] !== null) {
+                                //console.log(JSON.stringify(theme.colors));
+                                primary = theme.colors.toolbar_text;
+                                secondary = theme.colors.toolbar_field;
+                                on_primary = theme.colors.toolbar;
+                                on_secondary = theme.colors.toolbar_field_text;
 
-                            theme_colours_json = {
-                                "primary": primary,
-                                "on-primary": on_primary,
-                                "secondary": secondary,
-                                "on-secondary": on_secondary
-                            };
+                                theme_colours_json = {
+                                    "primary": primary,
+                                    "on-primary": on_primary,
+                                    "secondary": secondary,
+                                    "on-secondary": on_secondary
+                                };
 
-                            if (primary === undefined || secondary === undefined || on_primary === undefined || on_secondary === undefined) {
+                                if (primary === undefined || secondary === undefined || on_primary === undefined || on_secondary === undefined) {
+                                    default_theme = true;
+                                }
+                            } else {
                                 default_theme = true;
                             }
-                        } else {
-                            default_theme = true;
-                        }
-                    });
+                        });
+                    } else {
+                        let colours = getStickyNotesColoursByElement(theme);
+                        theme_colours_json = {
+                            "primary": colours[0],
+                            "on-primary": colours[1],
+                            "secondary": colours[2],
+                            "on-secondary": colours[3]
+                        };
+                    }
                 } else {
-                    let colours = getStickyNotesColoursByElement(theme);
+                    default_theme = true;
+                }
+
+                if (default_theme) {
+                    //use the default one
+                    let colours = getStickyNotesColoursByElement("yellow");
                     theme_colours_json = {
                         "primary": colours[0],
                         "on-primary": colours[1],
@@ -613,99 +567,79 @@ function checkStatus(update = false) {
                         "on-secondary": colours[3]
                     };
                 }
-            } else {
-                default_theme = true;
-            }
+            });
+        })
+        .then(() => {
+            sync_local.get(["websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"])
+                .then(value => {
+                    if (value["websites"] !== undefined) {
+                        websites_json = value["websites"];
 
-            if (default_theme) {
-                //use the default one
-                let colours = getStickyNotesColoursByElement("yellow");
-                theme_colours_json = {
-                    "primary": colours[0],
-                    "on-primary": colours[1],
-                    "secondary": colours[2],
-                    "on-secondary": colours[3]
-                };
-            }
+                        //console.log(JSON.stringify(websites_json[getTheCorrectUrl()]));
+                        //console.log(tab_title);
+                        if (websites_json[tab_url] !== undefined && websites_json[tab_url]["title"] === undefined) {
+                            //if the title it's not specified yet, so it's set with the title of the tab
+                            websites_json[tab_url]["title"] = tab_title;
+                            //console.log("QAZ-1")
+                            sync_local.set({
+                                "websites": websites_json, "last-update": getDate()
+                            }).then(resultSet => {
+                            });
+                        }
+
+                        let url = getTheCorrectUrl();
+                        //console.log(">>>" + url);
+                        //console.log(websites_json[url]);
+
+                        checkIcon();
+
+                        if (websites_json[url] !== undefined && websites_json[url]["coords"] !== undefined && websites_json[url]["coords"]["x"] !== undefined && websites_json[url]["coords"]["y"] !== undefined) {
+                            coords = {x: websites_json[url]["coords"]["x"], y: websites_json[url]["coords"]["y"]};
+                        } else {
+                            if (value["sticky-notes-coords"] !== undefined && value["sticky-notes-coords"]["x"] !== undefined && value["sticky-notes-coords"]["y"] !== undefined) {
+                                coords = {
+                                    x: value["sticky-notes-coords"]["x"], y: value["sticky-notes-coords"]["y"]
+                                };
+                            } else {
+                                coords = {x: "20px", y: "20px"};
+                            }
+                        }
+                        if (websites_json[url] !== undefined && websites_json[url]["sizes"] !== undefined && websites_json[url]["sizes"]["w"] !== undefined && websites_json[url]["sizes"]["h"] !== undefined) {
+                            sizes = {w: websites_json[url]["sizes"]["w"], h: websites_json[url]["sizes"]["h"]};
+                        } else {
+                            if (value["sticky-notes-sizes"] !== undefined && value["sticky-notes-sizes"]["w"] !== undefined && value["sticky-notes-sizes"]["h"] !== undefined) {
+                                sizes = {w: value["sticky-notes-sizes"]["w"], h: value["sticky-notes-sizes"]["h"]};
+                            } else {
+                                sizes = {w: "300px", h: "300px"};
+                            }
+                        }
+                        if (websites_json[url] !== undefined && websites_json[url]["opacity"] !== undefined && websites_json[url]["opacity"]["value"] !== undefined) {
+                            opacity = {value: websites_json[url]["opacity"]["value"]};
+                        } else {
+                            if (value["sticky-notes-opacity"] !== undefined && value["sticky-notes-opacity"]["value"] !== undefined) {
+                                opacity = {value: value["sticky-notes-opacity"]["value"]};
+                            } else {
+                                opacity = {value: 0.8};
+                            }
+                        }
+
+                        // console.log("coords: " + JSON.stringify(coords));
+                        // console.log("sizes: " + JSON.stringify(sizes));
+                        // console.log("opacity: " + JSON.stringify(opacity));
+
+                        //console.log(url);
+                        if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"]) {
+                            openAsStickyNotes();
+                        } else {
+                            closeStickyNotes(update);
+                        }
+                    } else {
+                        changeIcon(0);
+                    }
+                    //console.log(JSON.stringify(websites_json));
+                });
+            //console.log("checkStatus (continued)");
         });
-        sync_local.get(["websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"])
-            .then(value => {
-                if (value["websites"] !== undefined) {
-                    websites_json = value["websites"];
-
-                    //console.log(JSON.stringify(websites_json[getTheCorrectUrl()]));
-                    //console.log(tab_title);
-                    if (websites_json[tab_url] !== undefined && websites_json[tab_url]["title"] === undefined) {
-                        //if the title it's not specified yet, so it's set with the title of the tab
-                        websites_json[tab_url]["title"] = tab_title;
-                        //console.log("QAZ-1")
-                        sync_local.set({
-                            "websites": websites_json, "last-update": getDate()
-                        }).catch(error => {
-                            console.error(`E-B13A: ${error}`);
-                            onError("background.js::checkStatus::E-B13A", error.message, tab_url);
-                        });
-                    }
-
-                    let url = getTheCorrectUrl();
-                    //console.log(">>>" + url);
-                    //console.log(websites_json[url]);
-
-                    checkIcon();
-
-                    if (websites_json[url] !== undefined && websites_json[url]["coords"] !== undefined && websites_json[url]["coords"]["x"] !== undefined && websites_json[url]["coords"]["y"] !== undefined) {
-                        coords = {x: websites_json[url]["coords"]["x"], y: websites_json[url]["coords"]["y"]};
-                    } else {
-                        if (value["sticky-notes-coords"] !== undefined && value["sticky-notes-coords"]["x"] !== undefined && value["sticky-notes-coords"]["y"] !== undefined) {
-                            coords = {
-                                x: value["sticky-notes-coords"]["x"], y: value["sticky-notes-coords"]["y"]
-                            };
-                        } else {
-                            coords = {x: "20px", y: "20px"};
-                        }
-                    }
-                    if (websites_json[url] !== undefined && websites_json[url]["sizes"] !== undefined && websites_json[url]["sizes"]["w"] !== undefined && websites_json[url]["sizes"]["h"] !== undefined) {
-                        sizes = {w: websites_json[url]["sizes"]["w"], h: websites_json[url]["sizes"]["h"]};
-                    } else {
-                        if (value["sticky-notes-sizes"] !== undefined && value["sticky-notes-sizes"]["w"] !== undefined && value["sticky-notes-sizes"]["h"] !== undefined) {
-                            sizes = {w: value["sticky-notes-sizes"]["w"], h: value["sticky-notes-sizes"]["h"]};
-                        } else {
-                            sizes = {w: "300px", h: "300px"};
-                        }
-                    }
-                    if (websites_json[url] !== undefined && websites_json[url]["opacity"] !== undefined && websites_json[url]["opacity"]["value"] !== undefined) {
-                        opacity = {value: websites_json[url]["opacity"]["value"]};
-                    } else {
-                        if (value["sticky-notes-opacity"] !== undefined && value["sticky-notes-opacity"]["value"] !== undefined) {
-                            opacity = {value: value["sticky-notes-opacity"]["value"]};
-                        } else {
-                            opacity = {value: 0.8};
-                        }
-                    }
-
-                    // console.log("coords: " + JSON.stringify(coords));
-                    // console.log("sizes: " + JSON.stringify(sizes));
-                    // console.log("opacity: " + JSON.stringify(opacity));
-
-                    //console.log(url);
-                    if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"]) {
-                        openAsStickyNotes();
-                    } else {
-                        closeStickyNotes(update);
-                    }
-                } else {
-                    changeIcon(0);
-                }
-                //console.log(JSON.stringify(websites_json));
-            }).catch(error => {
-            console.error(`E-B13B: ${error}`);
-            onError("background.js::checkStatus::E-B13B", error.message, tab_url);
-        });
-        //console.log("checkStatus (continued)");
-    }).catch(error => {
-        console.error(`E-B14: ${error}`);
-        onError("background.js::checkStatus::E-B14", error.message, tab_url);
-    });
 }
 
 /**
@@ -929,24 +863,15 @@ function listenerShortcuts() {
         if (command === "opened-by-domain") {
             //domain
             browser.browserAction.openPopup();
-            sync_local.set({"opened-by-shortcut": "domain"}).catch(error => {
-                console.error(`E-B18: ${error}`);
-                onError("background.js::listenerShortcuts::E-B18", error.message, tab_url);
-            });
+            sync_local.set({"opened-by-shortcut": "domain"});
         } else if (command === "opened-by-page") {
             //page
             browser.browserAction.openPopup();
-            sync_local.set({"opened-by-shortcut": "page"}).catch(error => {
-                console.error(`E-B19: ${error}`);
-                onError("background.js::listenerShortcuts::E-B19", error.message, tab_url);
-            });
+            sync_local.set({"opened-by-shortcut": "page"});
         } else if (command === "opened-by-global") {
             //global
             browser.browserAction.openPopup();
-            sync_local.set({"opened-by-shortcut": "global"}).catch(error => {
-                console.error(`E-B20: ${error}`);
-                onError("background.js::listenerShortcuts::E-B20", error.message, tab_url);
-            });
+            sync_local.set({"opened-by-shortcut": "global"});
         }
     });
 }
@@ -1002,14 +927,8 @@ function listenerStickyNotes() {
                                 "websites": websites_json, "last-update": getDate()
                             }).then(result => {
                                 //console.log(websites_json[url]);
-                            }).catch(error => {
-                                console.error(`E-B15A: ${error}`);
-                                onError("background.js::listenerStickyNotes::E-B15A", error.message, tab_url);
                             });
                         }
-                    }).catch(error => {
-                        console.error(`E-B15B: ${error}`);
-                        onError("background.js::listenerStickyNotes::E-B15B", error.message, tab_url);
                     });
                 }
 
@@ -1035,14 +954,8 @@ function listenerStickyNotes() {
                                 "websites": websites_json, "last-update": getDate()
                             }).then(result => {
                                 //console.log(websites_json[url]);
-                            }).catch(error => {
-                                console.error(`E-B16A: ${error}`);
-                                onError("background.js::listenerStickyNotes::E-B16A", error.message, tab_url);
                             });
                         }
-                    }).catch(error => {
-                        console.error(`E-B16B: ${error}`);
-                        onError("background.js::listenerStickyNotes::E-B16B", error.message, tab_url);
                     });
                 }
 
@@ -1064,14 +977,8 @@ function listenerStickyNotes() {
                                 "websites": websites_json, "last-update": getDate()
                             }).then(result => {
                                 //console.log(websites_json[url]);
-                            }).catch(error => {
-                                console.error(`E-B17A: ${error}`);
-                                onError("background.js::listenerStickyNotes::E-B17A", error.message, tab_url);
-                            })
+                            });
                         }
-                    }).catch(error => {
-                        console.error(`E-B17B: ${error}`);
-                        onError("background.js::listenerStickyNotes::E-B17B", error.message, tab_url);
                     });
                 }
 
@@ -1173,16 +1080,10 @@ function listenerAllNotes() {
 
                             sync_local.set({
                                 "websites": websites_json, "last-update": getDate()
-                            }).catch(error => {
-                                console.error(`E-B18A: ${error}`);
-                                onError("background.js::listenerAllNotes::E-B18A", error.message, tab_url);
-                            })
+                            });
 
                             if (deleted) browser.runtime.sendMessage({"updated": true});
                         }
-                    }).catch(error => {
-                        console.error(`E-B18B: ${error}`);
-                        onError("background.js::listenerAllNotes::E-B18B", error.message, tab_url);
                     });
                 }
             }
@@ -1316,7 +1217,7 @@ function openAsStickyNotes() {
         origins: ["<all_urls>"]
     }
     try {
-        browser.permissions.contains(permissionsToRequest).then(response => {
+        browser.permissions.contains(permissionsToRequest).then((response) => {
             if (response) {
                 if (!opening_sticky) {
                     opening_sticky = true;
@@ -1350,7 +1251,7 @@ function closeStickyNotes(update = true) {
         origins: ["<all_urls>"]
     }
     try {
-        browser.permissions.contains(permissionsToRequest).then(response => {
+        browser.permissions.contains(permissionsToRequest).then((response) => {
             if (response) {
                 checkIcon();
                 browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
@@ -1546,7 +1447,7 @@ function getCombinations(array, n) {
 function setOpenedSticky(sticky, minimized) {
     //console.log(`sticky: ${sticky} - minimized: ${minimized}`);
 
-    sync_local.get("websites").then(value => {
+    sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
@@ -1569,22 +1470,16 @@ function setOpenedSticky(sticky, minimized) {
                             //console.log("::1::" + url)
                         }
                     }
-                }).catch(error => {
-                    console.error("E-B14A: " + error);
-                    onError("background.js::setOpenedSticky::E-B14A", error.message, tab_url);
                 });
             } else {
                 closeStickyNotes();
             }
         }
-    }).catch((error) => {
-        console.error("E-B14B: " + error);
-        onError("background.js::setOpenedSticky::E-B14B", error.message, tab_url);
     });
 }
 
 function setNewTextFromSticky(text) {
-    sync_local.get("websites").then(value => {
+    sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
@@ -1610,17 +1505,14 @@ function setNewTextFromSticky(text) {
                 //console.log("set || " + JSON.stringify(websites_json));
             }).catch(function (error) {
                 console.error("E3: " + error);
-                onError("background.js::setNewTextFromSticky::E3", error.message, tab_url);
+                onError("background.js::setNewTextFromSticky", error.message, tab_url);
             });
         }
-    }).catch((error) => {
-        console.error("E-B13: " + error);
-        onError("background.js::setNewTextFromSticky::E-B13", error.message, tab_url);
     });
 }
 
 function checkStickyNotes() {
-    sync_local.get("websites").then(value => {
+    sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
@@ -1632,9 +1524,6 @@ function checkStickyNotes() {
                 openAsStickyNotes();
             }
         }
-    }).catch((error) => {
-        console.error("E-B12: " + error);
-        onError("background.js::checkStickyNotes::E-B12", error.message, tab_url);
     });
 }
 
@@ -1655,3 +1544,5 @@ function getDate() {
 
     return today;
 }
+
+loadDataFromSync();
