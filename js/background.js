@@ -37,6 +37,7 @@ let _allPossibleUrls = undefined
 const MAX_COMBINATIONS = 20;
 const MAX_PARAMETERS = 5;
 
+
 /*browser.runtime.onInstalled.addListener(async ({reason, temporary}) => {
     //if (temporary) return; // skip during development
 
@@ -107,7 +108,7 @@ function checkSyncLocal() {
 function checkVersion() {
     const currentVersion = browser.runtime.getManifest().version;
     browser.storage.sync.get("versions").then(result => {
-        console.log("result checkVersion", result);
+        //console.log("result checkVersion", result);
         if (result === undefined || result !== undefined && result[currentVersion] === undefined) {
             let resultToSet = {};
             if (result !== undefined) {
@@ -125,10 +126,10 @@ function checkVersion() {
                 browser.storage.local.set({"error-logs": []});
             });
         } else {
-            console.log(`Already checked this version (${currentVersion})`);
+            //console.log(`Already checked this version (${currentVersion})`);
         }
     });
-    console.log(`Current version: ${currentVersion}`);
+    //console.log(`Current version: ${currentVersion}`);
 }
 
 function checkInstallationDate() {
@@ -386,27 +387,29 @@ function loaded() {
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         // since only one tab should be active and in the current window at once
         // the return variable should only have one entry
-        let activeTab = tabs[0];
-        tab_id = activeTab.id;
-        tab_url = activeTab.url;
-        tab_title = activeTab.title;
+        if (tabs !== undefined && tabs.length > 0) {
+            let activeTab = tabs[0];
+            tab_id = activeTab.id;
+            tab_url = activeTab.url;
+            tab_title = activeTab.title;
 
-        //catch changing of tab
-        browser.tabs.onActivated.addListener(function () {
-            tabUpdated();
-            type_to_use = -1;
-        });
-        browser.tabs.onUpdated.addListener(tabUpdated);
-        browser.windows.onFocusChanged.addListener(tabUpdated);
+            //catch changing of tab
+            browser.tabs.onActivated.addListener(function () {
+                tabUpdated();
+                type_to_use = -1;
+            });
+            browser.tabs.onUpdated.addListener(tabUpdated);
+            browser.windows.onFocusChanged.addListener(tabUpdated);
 
-        browser.runtime.onMessage.addListener((message) => {
-            if (message["updated"] !== undefined && message["updated"]) {
-                checkStatus();
-                checkStickyNotes();
-            }
-        });
+            browser.runtime.onMessage.addListener((message) => {
+                if (message["updated"] !== undefined && message["updated"]) {
+                    checkStatus();
+                    checkStickyNotes();
+                }
+            });
 
-        checkStatus();
+            checkStatus();
+        }
     });
 }
 
@@ -454,7 +457,6 @@ function checkUserPeriodically(time = 1 * 60 * 1000, just_once = false) {
 
 function tabUpdated(update = false) {
     //console.log(JSON.stringify(all_urls));
-
     this._pageUrl = undefined
     this._domainUrl = undefined
     this._globalUrl = undefined
@@ -472,7 +474,7 @@ function tabUpdated(update = false) {
                 tab_url = tabs[0].url;
                 tab_title = tabs[0].title;
             }
-        }).then((tabs) => {
+        }).then(() => {
             checkStatus(update);
         });
     });
@@ -1223,15 +1225,17 @@ function openAsStickyNotes() {
                     opening_sticky = true;
 
                     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                        const activeTab = tabs[0];
-                        browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
-                            //console.log("Sticky notes ('open')");
-                            opening_sticky = false;
-                        }).catch(function (error) {
-                            console.error("E2: " + error);
-                            onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
-                            opening_sticky = false;
-                        });
+                        if (tabs !== undefined && tabs.length > 0) {
+                            const activeTab = tabs[0];
+                            browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
+                                //console.log("Sticky notes ('open')");
+                                opening_sticky = false;
+                            }).catch(function (error) {
+                                console.error("E2: " + error);
+                                onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
+                                opening_sticky = false;
+                            });
+                        }
                     });
                 }
             }
@@ -1255,8 +1259,8 @@ function closeStickyNotes(update = true) {
             if (response) {
                 checkIcon();
                 browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                    const activeTab = tabs[0];
                     if (tabs !== undefined && tabs.length > 0) {
+                        const activeTab = tabs[0];
                         browser.tabs.executeScript({
                             code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
                         }).then(function () {
