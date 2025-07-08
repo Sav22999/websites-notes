@@ -28,14 +28,13 @@ const linkFirstLaunch = "https://notefox.eu/help/first-run"
 const linkAcceptPrivacy = "/privacy/index.html";
 
 let sync_local = browser.storage.local;
-browser.runtime.onStartup.addListener(async () => {
-    try {
-        checkSyncLocal();
-    } catch (e) {
-        console.error(`E-B0: ${e}`);
-        onError("background.js::onStartup", e.message, tab_url);
-    }
-});
+try {
+    checkSyncLocal();
+    loadDataFromSync();
+} catch (e) {
+    console.error(`E-B0: ${e}`);
+    onError("background.js::onStartup", e.message, tab_url);
+}
 
 let _domainUrl = undefined
 let _pageUrl = undefined
@@ -1802,5 +1801,3 @@ function getDate() {
 
     return today;
 }
-
-loadDataFromSync();
