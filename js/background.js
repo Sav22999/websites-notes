@@ -583,27 +583,29 @@ function loaded() {
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         // since only one tab should be active and in the current window at once
         // the return variable should only have one entry
-        let activeTab = tabs[0];
-        tab_id = activeTab.id;
-        tab_url = activeTab.url;
-        tab_title = activeTab.title;
+        if (tabs !== undefined && tabs.length > 0) {
+            let activeTab = tabs[0];
+            tab_id = activeTab.id;
+            tab_url = activeTab.url;
+            tab_title = activeTab.title;
 
-        //catch changing of tab
-        browser.tabs.onActivated.addListener(function () {
-            tabUpdated();
-            type_to_use = -1;
-        });
-        browser.tabs.onUpdated.addListener(tabUpdated);
-        browser.windows.onFocusChanged.addListener(tabUpdated);
+            //catch changing of tab
+            browser.tabs.onActivated.addListener(function () {
+                tabUpdated();
+                type_to_use = -1;
+            });
+            browser.tabs.onUpdated.addListener(tabUpdated);
+            browser.windows.onFocusChanged.addListener(tabUpdated);
 
-        browser.runtime.onMessage.addListener((message) => {
-            if (message["updated"] !== undefined && message["updated"]) {
-                checkStatus();
-                checkStickyNotes();
-            }
-        });
+            browser.runtime.onMessage.addListener((message) => {
+                if (message["updated"] !== undefined && message["updated"]) {
+                    checkStatus();
+                    checkStickyNotes();
+                }
+            });
 
-        checkStatus();
+            checkStatus();
+        }
     });
 }
 
@@ -1470,15 +1472,17 @@ function openAsStickyNotes() {
                     opening_sticky = true;
 
                     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                        const activeTab = tabs[0];
-                        browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
-                            //console.log("Sticky notes ('open')");
-                            opening_sticky = false;
-                        }).catch(function (error) {
-                            console.error("E2: " + error);
-                            onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
-                            opening_sticky = false;
-                        });
+                        if (tabs !== undefined && tabs.length > 0) {
+                            const activeTab = tabs[0];
+                            browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
+                                //console.log("Sticky notes ('open')");
+                                opening_sticky = false;
+                            }).catch(function (error) {
+                                console.error("E2: " + error);
+                                onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
+                                opening_sticky = false;
+                            });
+                        }
                     });
                 }
             }
@@ -1502,8 +1506,8 @@ function closeStickyNotes(update = true) {
             if (response) {
                 checkIcon();
                 browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                    const activeTab = tabs[0];
                     if (tabs !== undefined && tabs.length > 0) {
+                        const activeTab = tabs[0];
                         browser.tabs.executeScript({
                             code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
                         }).then(function () {
