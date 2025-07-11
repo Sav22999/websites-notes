@@ -361,7 +361,7 @@ body {
 
 #tag-colour-section {
     width: auto;
-    margin: 3px;
+    margin: 2px;
     border-radius: 5px;
     height: 15px;
     border: 0px solid transparent;
@@ -1523,7 +1523,39 @@ aside {
     font-size: 1.1em;
 }
 
-aside > .aside-button {
+aside .aside-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+
+    align-content: space-between;
+    justify-content: center;
+}
+
+aside .aside-container > .aside-buttons {
+    flex: 1;
+    align-items: start;
+    justify-content: center;
+    overflow-y: auto;
+}
+
+aside .aside-container > .aside-version {
+    align-items: end;
+    justify-content: center;
+}
+
+aside .aside-container > .aside-version > .separator {
+    width: 80%;
+    height: 1px;
+    background-color: var(--primary-color);
+    margin: 5px auto;
+    opacity: 0.5;
+    border: 0px;
+    border-radius: 0px;
+}
+
+aside .aside-button {
     padding: 10px;
     box-sizing: border-box;
     width: 100%;
@@ -1540,19 +1572,19 @@ aside > .aside-button {
     opacity: 0.7;
 }
 
-aside > .aside-button:hover {
+aside .aside-button:hover {
     background-color: var(--tertiary-transparent);
     color: inherit;
     opacity: 1;
 }
 
-aside > button.sel, aside > button.sel:hover {
+.aside-button.sel, .aside-button.sel:hover {
     background-color: var(--primary-color);
     color: var(--on-primary-color);
     opacity: 1;
 }
 
-aside > .external-link {
+aside .external-link {
     background-position: left 10px center, top 5px right 5px;
     background-size: auto 40%, 10px auto !important;
 }
@@ -1562,7 +1594,7 @@ aside > .external-link {
         width: 100px;
     }
 
-    aside > .aside-button {
+    aside .aside-button {
         text-align: center;
         padding: 10px;
         padding-top: 50px;
@@ -1571,7 +1603,7 @@ aside > .external-link {
         font-size: 0.6em;
     }
 
-    aside > .external-link {
+    .aside-button.external-link {
         background-position: center top 10px, top 5px right 5px;
         background-size: 30px auto, 15px auto !important;
     }
@@ -1597,7 +1629,7 @@ aside > .external-link {
         display: flex;
     }
 
-    aside > .aside-button {
+    aside .aside-button {
         flex: 1;
 
         text-align: center;
@@ -1612,7 +1644,7 @@ aside > .external-link {
         height: 100%;
     }
 
-    aside > .external-link {
+    .aside-button.external-link {
         background-position: center top 10px, top 5px right 5px;
         background-size: 40px auto, 15px auto !important;
     }
@@ -1629,13 +1661,13 @@ aside > .external-link {
     }
 
     /*Hide the text in the aside buttons*/
-    aside > .aside-button {
+    aside .aside-button {
         font-size: 0px;
         background-position: center center;
         background-size: 35px auto !important;
     }
 
-    aside > .external-link {
+    .aside-button.external-link {
         background-position: center center, top 5px right 5px;
         background-size: 35px auto, 10px auto !important;
     }
@@ -1671,15 +1703,10 @@ aside > .external-link {
 }
 
 #version-aside {
-    float: left;
-    width: 100%;
     text-align: center;
     font-size: 0.7em;
     color: inherit;
     padding: 10px 2px;
-    position: absolute;
-    top: auto;
-    bottom: 0px;
 
     user-select: none;
 
@@ -2835,6 +2862,10 @@ hr.hr-domain:last-child {
 
 .display-block {
     display: block !important;
+}
+
+.padding-top-5 {
+    padding-top: 5px !important;
 }
 
 .padding-top-10 {

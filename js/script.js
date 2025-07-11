@@ -79,7 +79,7 @@ function loaded() {
     });
     checkSyncLocal();
     loadSettings();
-    checkTheme();
+    //checkTheme();
     checkTimesOpened();
     checkTelemetryAlert();
     browser.runtime.onMessage.addListener((message) => {
@@ -856,7 +856,10 @@ function checkNeverSaved(never_saved) {
             if (document.getElementById("format-buttons").childNodes.length === 0) {
                 document.getElementById("format-buttons").classList.add("hidden");
                 if (document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
+            } else {
+                document.getElementById("all-notes-section").classList.add("padding-top-5");
             }
+            document.getElementById("last-updated-section").classList.add("hidden");
         } else {
             if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
             if (document.getElementById("tag-select-grid").classList.contains("hidden")) document.getElementById("tag-select-grid").classList.remove("hidden");
@@ -865,6 +868,12 @@ function checkNeverSaved(never_saved) {
                 document.getElementById("format-buttons").classList.remove("hidden");
                 if (!document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.add("padding-top-10");
             }
+            if (document.getElementById("last-updated-section").classList.contains("hidden")) {
+                document.getElementById("last-updated-section").classList.remove("hidden");
+            }
+            if (document.getElementById("all-notes-section").classList.contains("padding-top-5")) {
+                document.getElementById("all-notes-section").classList.remove("padding-top-5");
+            }
         }
     } else {
         document.getElementById("open-sticky-button").classList.add("hidden");
@@ -872,6 +881,9 @@ function checkNeverSaved(never_saved) {
         document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
         document.getElementById("format-buttons").classList.add("hidden");
         if (document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
+        if (document.getElementById("all-notes-section").classList.contains("padding-top-5")) {
+            document.getElementById("all-notes-section").classList.remove("padding-top-5");
+        }
     }
 }
 

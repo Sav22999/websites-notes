@@ -147,7 +147,7 @@ function loaded() {
     checkOperatingSystem();
     checkShortcuts()
     setLanguageUI();
-    checkTheme();
+    //checkTheme();
 
     browser.tabs.onActivated.addListener(tabUpdated);
     browser.tabs.onUpdated.addListener(tabUpdated);
@@ -609,7 +609,7 @@ function setDatetimeFormatChooserByElement(element, set_variable = true) {
 }
 
 function tabUpdated() {
-    checkTheme();
+    //checkTheme();
     browser.storage.local.get(["settings"]).then(result => {
         if (result.settings !== undefined && result.settings !== settings_json) {
             loadSettings();
@@ -1081,7 +1081,7 @@ function saveSettings(update_datetime = true) {
                 //console.log(JSON.stringify(settings_json));
 
                 if (rrr1 !== undefined && rrr1["settings"] !== undefined && rrr1["settings"]["theme"] !== undefined && rrr1["settings"]["theme"] !== settings_json["theme"] || settings_json["theme"] === undefined) {
-                    checkTheme();
+                    //checkTheme();
                 }
                 loadSettings();
             });

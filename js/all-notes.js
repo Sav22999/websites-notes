@@ -75,7 +75,7 @@ function loaded() {
     checkSyncLocal();
     checkOperatingSystem();
     setLanguageUI();
-    checkTheme();
+    //checkTheme();
 
     browser.tabs.onActivated.addListener(tabUpdated);
     browser.tabs.onUpdated.addListener(tabUpdated);

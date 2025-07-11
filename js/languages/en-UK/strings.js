@@ -185,7 +185,7 @@ strings[lang] = {
     "donate-aside": "Buy me a coffee",
     "website-aside": "Website",
     "translate-aside": "Translate",
-    "version-aside": "Notefox version {{version}}",
+    "version-aside": "Notefox {{version}}",
     "general-title-settings": "General",
     "advanced-title-settings": "Advanced",
     "appearance-title-settings": "Appearance",
