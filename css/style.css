@@ -1037,6 +1037,7 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
 
     display: flex;
     flex-wrap: wrap;
+    gap: 2px;
 }
 
 #text-import {
@@ -3000,7 +3001,11 @@ option {
 }
 
 .subrow-url {
+    display: flex;
+    flex-wrap: wrap;
+
     flex: 50%;
+    order: 2;
 }
 
 .subrow-buttons {
@@ -3011,11 +3016,16 @@ option {
     justify-content: right;
 
     flex: 50%;
+    order: 1;
+
+    gap: 4px;
 }
 
 .subrow-buttons > * {
     flex: auto;
     max-width: none;
+
+    margin: 0px;
 }
 
 @media screen and (max-width: 1000px) {
