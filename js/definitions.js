@@ -43,12 +43,12 @@ var currentOS = "default"; //default: win, linux, ecc. | mac
 
 /**
  * Recursive function to get the sanitized html code from an unsafe one
- * @param element
+ * @param element the element to sanitize
  * @param allowedTags
  * @param allowedAttributes
  * @returns {*}
  */
-function sanitize(element, allowedTags, allowedAttributes) {
+function sanitize(element, allowedTags = -1, allowedAttributes = -1) {
     if (allowedTags === -1) allowedTags = ["b", "i", "u", "a", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q", "mark"];
     if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite", "href"];
 
@@ -95,7 +95,7 @@ function sanitize(element, allowedTags, allowedAttributes) {
             //console.log("????")
         }
     }
-    return sanitizedHTML
+    return sanitizedHTML;
 }
 
 function bold() {

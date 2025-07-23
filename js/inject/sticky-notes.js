@@ -918,11 +918,18 @@ function onKeyDownText(text, settings_json, e) {
 
 function onPasteText(text, e) {
     if (((e.originalEvent || e).clipboardData).getData("text/html") !== "") {
+        //WITH FORMATTING (HTML)
         e.preventDefault(); // Prevent the default paste action
         let clipboardData = (e.originalEvent || e).clipboardData;
         let pastedText = clipboardData.getData("text/html");
         let sanitizedHTML = sanitizeHTML(pastedText)
         document.execCommand("insertHTML", false, sanitizedHTML);
+    } else {
+        //WITHOUT FORMATTING (TEXT)
+        e.preventDefault(); // Prevent the default paste action
+        let clipboardData = (e.originalEvent || e).clipboardData;
+        let pastedText = clipboardData.getData("text/plain");
+        document.execCommand("insertText", false, pastedText);
     }
 }
 

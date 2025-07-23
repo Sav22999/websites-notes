@@ -349,15 +349,22 @@ function loadUI() {
         }
     }
     notes.onpaste = function (e) {
+        //Ctrl+V (or Cmd+V on Mac) to paste WITH HTML formatting, Ctrl+Shift+V (or Cmd+Shift+V on Mac) to paste WITHOUT HTML formatting
         if (((e.originalEvent || e).clipboardData).getData("text/html") !== "") {
             e.preventDefault(); // Prevent the default paste action
             let clipboardData = (e.originalEvent || e).clipboardData;
             let pastedText = clipboardData.getData("text/html");
             let sanitizedHTML = sanitizeHTML(pastedText)
             document.execCommand("insertHTML", false, sanitizedHTML);
+        } else if (((e.originalEvent || e).clipboardData).getData("text/plain") !== "") {
+            e.preventDefault(); // Prevent the default paste action
+            let clipboardData = (e.originalEvent || e).clipboardData;
+            let pastedText = clipboardData.getData("text/plain");
+            document.execCommand("insertText", false, pastedText);
         }
         addAction();
     }
+
     notes.onkeydown = function (e) {
         if (actions.length === 0) {
             //first action on notes add the "initial state" of it

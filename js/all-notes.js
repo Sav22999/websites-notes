@@ -947,12 +947,23 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             }
             onInputText(fullUrl, data, pageLastUpdate);
         }
-        textNotes.onkeydown = function (e) {
-            if (actions.length === 0) {
-                //first action on notes add the "initial state" of it
-                actions.push({text: sanitizeHTML(notes.innerHTML), position: 0});
+        textNotes.onpaste = function (e) {
+            //Ctrl+V (or Cmd+V on Mac) to paste WITH HTML formatting, Ctrl+Shift+V (or Cmd+Shift+V on Mac) to paste WITHOUT HTML formatting
+            if (((e.originalEvent || e).clipboardData).getData("text/html") !== "") {
+                e.preventDefault(); // Prevent the default paste action
+                let clipboardData = (e.originalEvent || e).clipboardData;
+                let pastedText = clipboardData.getData("text/html");
+                let sanitizedHTML = document.createElement("div");
+                sanitizedHTML.innerHTML = pastedText;
+                document.execCommand("insertHTML", false, sanitize(sanitizedHTML).innerHTML);
+            } else if (((e.originalEvent || e).clipboardData).getData("text/plain") !== "") {
+                e.preventDefault(); // Prevent the default paste action
+                let clipboardData = (e.originalEvent || e).clipboardData;
+                let pastedText = clipboardData.getData("text/plain");
+                document.execCommand("insertText", false, pastedText);
             }
-
+        }
+        textNotes.onkeydown = function (e) {
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
                 bold();
             } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "i") {
