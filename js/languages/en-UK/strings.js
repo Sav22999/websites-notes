@@ -311,7 +311,7 @@ strings[lang] = {
     "sending-error-logs-automatically-text": "Enable automatic sending of error logs",
     "sending-error-logs-automatically-detailed-text": "When enabled, the add-on will automatically send error logs to the developer periodically. This helps to improve the add-on and fix bugs more quickly.<br>Error logs are <b>totally anonymous</b>, and they contain only information useful to fix bugs.",
     "send-telemetry-text": "Anonymous telemetry",
-    "send-telemetry-detailed-text": "When enabled, the add-on will send anonymous telemetry data to the developer. This permits the developer to improve the add-on, and what features are used more frequently.<br>Telemetry data are <b>totally anonymous</b>, and they contain only information useful to improve the add-on: no personal data is collected.",
+    "send-telemetry-detailed-text": "When enabled, Notefox will send anonymous telemetry data to the developer. This permits the developer to improve the add-on, and see what features are used more frequently.<br>Telemetry data are <b>totally anonymous</b>, and they contain only information useful to improve the add-on: no personal data is collected.",
     "telemetry-alert-title": "Telemetry added",
     "telemetry-alert-text": "Notefox added anonymous telemetry logs. By default, telemetry has disabled, but you can manage it at any time in Settings.",
     "telemetry-alert-button-1": "Enable telemetry",
