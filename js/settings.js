@@ -8,7 +8,6 @@ checkSyncLocal();
 var disableAside = false;
 let show_conversion_message_attention = false;
 var notefox_json = {};
-const webBrowserUsed = "firefox";//TODO:change manually
 var json_to_export = {};
 
 //Do not add "None" because it's treated in a different way!
@@ -47,7 +46,6 @@ function checkSyncLocal() {
     checkTheme();
 }
 
-var currentOS = "default"; //default: win, linux, ecc. | mac
 var letters_and_numbers = {
     "A": "A",
     "B": "B",
@@ -147,8 +145,9 @@ function loaded() {
 
     checkSyncLocal()
     checkOperatingSystem();
+    checkShortcuts()
     setLanguageUI();
-    checkTheme();
+    //checkTheme();
 
     browser.tabs.onActivated.addListener(tabUpdated);
     browser.tabs.onUpdated.addListener(tabUpdated);
@@ -157,72 +156,103 @@ function loaded() {
 
     document.getElementById("save-settings-button").onclick = function () {
         saveSettings();
+        sendTelemetry('save-settings-button', "settings.js::deprecated");
     }
     document.getElementById("translate-addon").onclick = function () {
         browser.tabs.create({url: links.translate});
+        sendTelemetry('translate-addon-button', "settings.js::deprecated");
     }
     document.getElementById("support-telegram-button").onclick = function () {
         browser.tabs.create({url: links.support_telegram});
+        sendTelemetry('support-telegram-button', "settings.js::deprecated");
     }
     document.getElementById("support-email-button").onclick = function () {
         browser.tabs.create({url: links.support_email});
+        sendTelemetry('support-email-button', "settings.js::deprecated");
     }
     document.getElementById("support-github-button").onclick = function () {
         browser.tabs.create({url: links.support_github});
+        sendTelemetry('support-github-button', "settings.js::deprecated");
     }
     document.getElementById("review-on-firefox-addons-button").onclick = function () {
         browser.tabs.create({url: links.review});
+        sendTelemetry('review-on-firefox-addons-button', "settings.js::deprecated");
     }
 
     document.getElementById("open-by-default-select").onchange = function () {
         settings_json["open-default"] = document.getElementById("open-by-default-select").value;
+        sendTelemetry(`open-by-default-select`, `settings.js`, settings_json["open-default"]);
 
         saveSettings();
     };
 
     document.getElementById("consider-parameters-check").onchange = function () {
         settings_json["consider-parameters"] = document.getElementById("consider-parameters-check").checked;
+        sendTelemetry(`consider-parameters-check-select","settings.js`, settings_json["consider-parameters"]);
 
         saveSettings();
     };
     document.getElementById("consider-sections-check").onchange = function () {
         settings_json["consider-sections"] = document.getElementById("consider-sections-check").checked;
+        sendTelemetry(`consider-sections-check-select","settings.js`, settings_json["consider-sections"]);
 
         saveSettings();
     };
 
     document.getElementById("advanced-managing-check").onchange = function () {
         settings_json["advanced-managing"] = document.getElementById("advanced-managing-check").checked;
+        sendTelemetry(`advanced-managing-check-select`, `settings.js`, settings_json["advanced-managing"]);
 
         saveSettings();
     };
 
     document.getElementById("html-text-formatting-check").onchange = function () {
         settings_json["html-text-formatting"] = document.getElementById("html-text-formatting-check").checked;
+        sendTelemetry(`html-text-formatting-check-select`, `settings.js`, settings_json["html-text-formatting"]);
 
         saveSettings();
     };
 
     document.getElementById("save-page-content-check").onchange = function () {
         settings_json["save-page-content"] = document.getElementById("save-page-content-check").checked;
+        sendTelemetry(`save-page-content-check-select`, `settings.js`, settings_json["save-page-content"]);
 
         saveSettings();
     };
 
     document.getElementById("search-page-content-check").onchange = function () {
         settings_json["search-page-content"] = document.getElementById("search-page-content-check").checked;
+        sendTelemetry(`search-page-content-check-select`, `settings.js`, settings_json["search-page-content"]);
 
         saveSettings();
     };
 
+    document.getElementById("sending-error-logs-automatically-check").onchange = function () {
+        settings_json["sending-error-logs-automatically"] = document.getElementById("sending-error-logs-automatically-check").checked;
+        sendTelemetry(`sending-error-logs-automatically-check-select`, `settings.js`, settings_json["sending-error-logs-automatically"]);
+
+        saveSettings();
+    };
+
+    document.getElementById("send-telemetry-check").onchange = function () {
+        settings_json["send-telemetry"] = document.getElementById("send-telemetry-check").checked;
+        sendTelemetry(`send-telemetry-check-select`, `settings.js`, settings_json["send-telemetry"]);
+        sendMessageUpdateToBackground();
+
+        saveSettings();
+    };
+
+
     document.getElementById("disable-word-wrap-check").onchange = function () {
         settings_json["disable-word-wrap"] = document.getElementById("disable-word-wrap-check").checked;
+        sendTelemetry(`disable-word-wrap-check-select`, `settings.js`, settings_json["disable-word-wrap"]);
 
         saveSettings();
     };
 
     document.getElementById("spellcheck-detection-check").onchange = function () {
         settings_json["spellcheck-detection"] = document.getElementById("spellcheck-detection-check").checked;
+        sendTelemetry(`spellcheck-detection-check-select`, `settings.js`, settings_json["spellcheck-detection"]);
 
         saveSettings();
     };
@@ -234,114 +264,148 @@ function loaded() {
 
     document.getElementById("check-green-icon-global-check").onchange = function () {
         settings_json["check-green-icon-global"] = document.getElementById("check-green-icon-global-check").checked;
+        sendTelemetry(`check-green-icon-global-check-select`, `settings.js`, settings_json["check-green-icon-global"]);
 
         saveSettings();
     };
 
     document.getElementById("check-green-icon-domain-check").onchange = function () {
         settings_json["check-green-icon-domain"] = document.getElementById("check-green-icon-domain-check").checked;
+        sendTelemetry(`check-green-icon-domain-check-select`, `settings.js`, settings_json["check-green-icon-domain"]);
 
         saveSettings();
     };
 
     document.getElementById("check-green-icon-page-check").onchange = function () {
         settings_json["check-green-icon-page"] = document.getElementById("check-green-icon-page-check").checked;
+        sendTelemetry(`check-green-icon-page-check-select`, `settings.js`, settings_json["check-green-icon-page"]);
 
         saveSettings();
     };
 
     document.getElementById("check-green-icon-subdomain-check").onchange = function () {
         settings_json["check-green-icon-subdomain"] = document.getElementById("check-green-icon-subdomain-check").checked;
+        sendTelemetry(`check-green-icon-subdomain-check-select`, `settings.js`, settings_json["check-green-icon-subdomain"]);
+
+        saveSettings();
+    };
+
+    document.getElementById("change-icon-color-based-on-tag-colour-check").onchange = function () {
+        settings_json["change-icon-color-based-on-tag-colour"] = document.getElementById("change-icon-color-based-on-tag-colour-check").checked;
+        sendTelemetry(`change-icon-color-based-on-tag-colour-check-select`, `settings.js`, settings_json["change-icon-color-based-on-tag-colour"]);
 
         saveSettings();
     };
 
     document.getElementById("open-links-only-with-ctrl-check").onchange = function () {
         settings_json["open-links-only-with-ctrl"] = document.getElementById("open-links-only-with-ctrl-check").checked;
+        sendTelemetry(`open-links-only-with-ctrl-check-select`, `settings.js`, settings_json["open-links-only-with-ctrl"]);
 
         saveSettings();
     };
 
     document.getElementById("check-with-all-supported-protocols-check").onchange = function () {
         settings_json["check-with-all-supported-protocols"] = document.getElementById("check-with-all-supported-protocols-check").checked;
+        sendTelemetry(`check-with-all-supported-protocols-check-select`, `settings.js`, settings_json["check-with-all-supported-protocols"]);
 
         saveSettings();
     };
 
     document.getElementById("show-title-textbox-check").onchange = function () {
         settings_json["show-title-textbox"] = document.getElementById("show-title-textbox-check").checked;
+        sendTelemetry(`show-title-textbox-check-select`, `settings.js`, settings_json["show-title-textbox"]);
 
         saveSettings();
     }
 
     document.getElementById("immersive-sticky-notes-check").onchange = function () {
         settings_json["immersive-sticky-notes"] = document.getElementById("immersive-sticky-notes-check").checked;
+        sendTelemetry(`immersive-sticky-notes-check-select`, `settings.js`, settings_json["immersive-sticky-notes"]);
+
+        saveSettings();
+    }
+
+    document.getElementById("notes-background-follow-tag-colour-check").onchange = function () {
+        settings_json["notes-background-follow-tag-colour"] = document.getElementById("notes-background-follow-tag-colour-check").checked;
+        sendTelemetry(`notes-background-follow-tag-colour-check-select`, `settings.js`, settings_json["notes-background-follow-tag-colour"]);
 
         saveSettings();
     }
 
     document.getElementById("show-undo-redo-check").onchange = function () {
         settings_json["undo-redo"] = document.getElementById("show-undo-redo-check").checked;
+        sendTelemetry(`show-undo-redo-check-select`, `settings.js`, settings_json["undo-redo"]);
 
         saveSettings();
     }
 
     document.getElementById("show-bold-italic-underline-strikethrough-check").onchange = function () {
         settings_json["bold-italic-underline-strikethrough"] = document.getElementById("show-bold-italic-underline-strikethrough-check").checked;
+        sendTelemetry(`show-bold-italic-underline-strikethrough-check-select`, `settings.js`, settings_json["bold-italic-underline-strikethrough"]);
 
         saveSettings();
     }
 
     document.getElementById("show-link-check").onchange = function () {
         settings_json["link"] = document.getElementById("show-link-check").checked;
+        sendTelemetry(`show-link-check-select`, `settings.js`, settings_json["link"]);
 
         saveSettings();
     }
 
     document.getElementById("show-spellcheck-check").onchange = function () {
         settings_json["spellcheck"] = document.getElementById("show-spellcheck-check").checked;
+        sendTelemetry(`show-spellcheck-check-select`, `settings.js`, settings_json["spellcheck"]);
 
         saveSettings();
     }
 
     document.getElementById("show-superscript-subscript-check").onchange = function () {
         settings_json["superscript-subscript"] = document.getElementById("show-superscript-subscript-check").checked;
+        sendTelemetry(`show-superscript-subscript-check-select`, `settings.js`, settings_json["superscript-subscript"]);
 
         saveSettings();
     }
 
     document.getElementById("show-headers-check").onchange = function () {
         settings_json["headers"] = document.getElementById("show-headers-check").checked;
+        sendTelemetry(`show-headers-check-select`, `settings.js`, settings_json["headers"]);
 
         saveSettings();
     }
 
     document.getElementById("show-small-big-check").onchange = function () {
         settings_json["small-big"] = document.getElementById("show-small-big-check").checked;
+        sendTelemetry(`show-small-big-check-select`, `settings.js`, settings_json["small-big"]);
 
         saveSettings();
     }
 
     document.getElementById("show-highlighter-check").onchange = function () {
         settings_json["highlighter"] = document.getElementById("show-highlighter-check").checked;
+        sendTelemetry(`show-highlighter-check-select`, `settings.js`, settings_json["highlighter"]);
 
         saveSettings();
     }
 
     document.getElementById("show-code-block-check").onchange = function () {
         settings_json["code-block"] = document.getElementById("show-code-block-check").checked;
+        sendTelemetry(`show-code-block-check-select`, `settings.js`, settings_json["code-block"]);
 
         saveSettings();
     }
 
     document.getElementById("clear-all-notes-button").onclick = function () {
         clearAllNotes();
+        sendTelemetry('clear-all-notes-button');
     }
     document.getElementById("import-all-notes-button").onclick = function () {
         importAllNotes();
+        sendTelemetry('import-all-notes-button');
     }
     document.getElementById("export-all-notes-button").onclick = function () {
         exportAllNotes();
+        sendTelemetry('export-all-notes-button');
     }
     document.getElementById("export-to-file-button").onclick = function () {
         const permissionsToRequest = {
@@ -352,6 +416,7 @@ function loaded() {
                 if (response) {
                     //granted / obtained
                     exportAllNotes(to_file = true);
+                    sendTelemetry('export-all-notes-button');
                     //console.log("Granted");
                 } else {
                     //rejected
@@ -362,12 +427,14 @@ function loaded() {
             console.error("P3)) " + e);
             onError("settings.js::loaded::P3", e.message);
         }
-        document.getElementById("import-from-file-button").onclick = function () {
-            importAllNotes(from_file = true);
-        }
+    }
+    document.getElementById("import-from-file-button").onclick = function () {
+        importAllNotes(from_file = true);
+        sendTelemetry('import-from-file-button');
     }
     document.getElementById("show-error-logs-settings-button").onclick = function () {
         exportErrorLogs()
+        sendTelemetry('show-error-logs-settings-button');
     }
     document.getElementById("show-error-logs-to-file-button").onclick = function () {
         const permissionsToRequest = {
@@ -378,6 +445,7 @@ function loaded() {
                 if (response) {
                     //granted / obtained
                     exportErrorLogs(to_file = true);
+                    sendTelemetry('show-error-logs-to-file-button');
                     //console.log("Granted");
                 } else {
                     //rejected
@@ -392,16 +460,19 @@ function loaded() {
 
     document.getElementById("delete-error-logs-settings-button").onclick = function () {
         deleteErrorLogs();
+        sendTelemetry('delete-error-logs-settings-button');
     }
 
     document.getElementById("default-tag-colour-domain-select").onchange = function () {
         settings_json["default-tag-colour-domain"] = document.getElementById("default-tag-colour-domain-select").value;
+        sendTelemetry(`default-tag-colour-domain-select`, `settings.js`, settings_json["default-tag-colour-domain"]);
 
         saveSettings();
     }
 
     document.getElementById("default-tag-colour-page-select").onchange = function () {
         settings_json["default-tag-colour-page"] = document.getElementById("default-tag-colour-page-select").value;
+        sendTelemetry(`default-tag-colour-page-select`, `settings.js`, settings_json["default-tag-colour-page"]);
 
         saveSettings();
     }
@@ -413,6 +484,21 @@ function loaded() {
 
     loadAsideBar();
     loadDeveloperOptions();
+}
+
+function sendTelemetry(action, context = "settings.js", other = null) {
+    onTelemetry(action, context, null, currentOS, other);
+}
+
+function checkShortcuts() {
+    ctrl_alt_shift.forEach(value => {
+        document.getElementById("select-disable-shortcut-" + value).textContent = all_strings["label-disable-shortcut"];
+        document.getElementById("select-ctrl-shortcut-" + value).textContent = all_strings["label-ctrl-" + currentOS];
+        document.getElementById("select-alt-shortcut-" + value).textContent = all_strings["label-alt-" + currentOS];
+        document.getElementById("select-ctrl-alt-shortcut-" + value).textContent = all_strings["label-ctrl-alt-" + currentOS];
+        document.getElementById("select-ctrl-shift-shortcut-" + value).textContent = all_strings["label-ctrl-shift-" + currentOS];
+        document.getElementById("select-alt-shift-shortcut-" + value).textContent = all_strings["label-alt-shift-" + currentOS];
+    });
 }
 
 function setThemeChooser() {
@@ -438,6 +524,7 @@ function setThemeChooserByElement(element, set_variable = true) {
         saveSettings();
     }
     checkTheme();
+    if (set_variable) sendTelemetry(`theme-radio-select`, "settings.js", settings_json["theme"]);
 }
 
 function setStickyThemeChooser() {
@@ -464,6 +551,7 @@ function setStickyThemeChooserByElement(element, set_variable = true) {
         saveSettings();
     }
     sendMessageUpdateToBackground();
+    if (set_variable) sendTelemetry(`sticky-theme-radio-select`, "settings.js", settings_json["sticky-theme"]);
 }
 
 function setFontFamilyChooser() {
@@ -490,6 +578,7 @@ function setFontFamilyChooserByElement(element, set_variable = true) {
         saveSettings();
     }
     sendMessageUpdateToBackground();
+    if (set_variable) sendTelemetry(`font-family-radio-select`, "settings.js", settings_json["font-family"]);
 }
 
 function setDatetimeFormatChooser() {
@@ -516,10 +605,11 @@ function setDatetimeFormatChooserByElement(element, set_variable = true) {
         saveSettings();
     }
     sendMessageUpdateToBackground();
+    if (set_variable) sendTelemetry(`datetime-format-radio-select`, "settings.js", settings_json["datetime-format"]);
 }
 
 function tabUpdated() {
-    checkTheme();
+    //checkTheme();
     browser.storage.local.get(["settings"]).then(result => {
         if (result.settings !== undefined && result.settings !== settings_json) {
             loadSettings();
@@ -554,6 +644,10 @@ function setLanguageUI() {
     document.getElementById("save-page-content-detailed-text").innerHTML = all_strings["save-page-content-detailed"];
     document.getElementById("search-page-content").innerText = all_strings["search-page-content"];
     document.getElementById("search-page-content-detailed-text").innerHTML = all_strings["search-page-content-detailed"];
+    document.getElementById("sending-error-logs-automatically-text").innerText = all_strings["sending-error-logs-automatically-text"];
+    document.getElementById("sending-error-logs-automatically-detailed-text").innerHTML = all_strings["sending-error-logs-automatically-detailed-text"];
+    document.getElementById("send-telemetry-text").innerText = all_strings["send-telemetry-text"];
+    document.getElementById("send-telemetry-detailed-text").innerHTML = all_strings["send-telemetry-detailed-text"];
     document.getElementById("disable-word-wrap-text").innerText = all_strings["disable-word-wrap"];
     document.getElementById("spellcheck-detection-text").innerText = all_strings["spellcheck-detection"];
     document.getElementById("check-green-icon-global-text").innerText = all_strings["check-green-icon-global"];
@@ -564,6 +658,8 @@ function setLanguageUI() {
     document.getElementById("check-green-icon-page-detailed-text").innerHTML = all_strings["check-green-icon-page-detailed"];
     document.getElementById("check-green-icon-subdomain-text").innerText = all_strings["check-green-icon-subdomain"];
     document.getElementById("check-green-icon-subdomain-detailed-text").innerHTML = all_strings["check-green-icon-subdomain-detailed"];
+    document.getElementById("change-icon-color-based-on-tag-colour-text").innerText = all_strings["change-icon-color-based-on-tag-colour"];
+    document.getElementById("change-icon-color-based-on-tag-colour-detailed-text").innerHTML = all_strings["change-icon-color-based-on-tag-colour-detailed"];
     document.getElementById("open-links-only-with-ctrl-text").innerHTML = all_strings["open-links-only-with-ctrl"];
     document.getElementById("open-links-only-with-ctrl-detailed-text").innerHTML = all_strings["open-links-only-with-ctrl-detailed"];
     document.getElementById("check-with-all-supported-protocols-text").innerHTML = all_strings["check-with-all-supported-protocols"];
@@ -598,6 +694,8 @@ function setLanguageUI() {
     document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
     document.getElementById("immersive-sticky-notes-text").innerText = all_strings["immersive-sticky-notes-text"];
     document.getElementById("immersive-sticky-notes-detailed-text").innerHTML = all_strings["immersive-sticky-notes-detailed-text"];
+    document.getElementById("notes-background-follow-tag-colour-text").innerText = all_strings["notes-background-follow-tag-colour-text"];
+    document.getElementById("notes-background-follow-tag-colour-detailed-text").innerHTML = all_strings["notes-background-follow-tag-colour-detailed-text"];
     document.getElementById("show-undo-redo-text").innerText = all_strings["show-undo-redo-text"];
     document.getElementById("show-bold-italic-underline-strikethrough-text").innerText = all_strings["show-bold-italic-underline-strikethrough-text"];
     document.getElementById("show-link-text").innerText = all_strings["show-link-text"];
@@ -683,7 +781,6 @@ function setLanguageUI() {
     document.getElementById("verify-delete-submit").value = all_strings["notefox-account-button-delete-account"];
     document.getElementById("verify-delete-new-code").value = all_strings["notefox-account-button-resend-email"];
 
-
     document.getElementById("sync-now-button").value = all_strings["notefox-account-button-settings-sync"];
     document.getElementById("sync-now-text").innerHTML = all_strings["notefox-account-settings-sync-text"].replaceAll("{{parameters}}", "class='button-code'");
     document.getElementById("manage-logout-text").innerHTML = all_strings["notefox-account-settings-logout-text"];
@@ -735,12 +832,16 @@ function loadSettings() {
             if (settings_json["check-green-icon-domain"] === undefined) settings_json["check-green-icon-domain"] = true;
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
+            if (settings_json["change-icon-color-based-on-tag-colour"] === undefined) settings_json["change-icon-color-based-on-tag-colour"] = false;
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
             if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
             if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
             if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
+            if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
             if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
+            if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = true;
+            if (settings_json["send-telemetry"] === undefined) settings_json["send-telemetry"] = false;
 
             if (settings_json["undo-redo"] === undefined) settings_json["undo-redo"] = true;
             if (settings_json["bold-italic-underline-strikethrough"] === undefined) settings_json["bold-italic-underline-strikethrough"] = true;
@@ -771,6 +872,9 @@ function loadSettings() {
             document.getElementById("check-green-icon-domain-check").checked = settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-domain"] === "yes";
             document.getElementById("check-green-icon-page-check").checked = settings_json["check-green-icon-page"] === true || settings_json["check-green-icon-page"] === "yes";
             document.getElementById("check-green-icon-subdomain-check").checked = settings_json["check-green-icon-subdomain"] === true || settings_json["check-green-icon-subdomain"] === "yes";
+            document.getElementById("change-icon-color-based-on-tag-colour-check").checked = settings_json["change-icon-color-based-on-tag-colour"] === true || settings_json["change-icon-color-based-on-tag-colour"] === "yes";
+            document.getElementById("sending-error-logs-automatically-check").checked = settings_json["sending-error-logs-automatically"] === true || settings_json["sending-error-logs-automatically"] === "yes";
+            document.getElementById("send-telemetry-check").checked = settings_json["send-telemetry"] === true || settings_json["send-telemetry"] === "yes";
 
             if (document.getElementById("save-page-content-check").checked) {
                 if (document.getElementById("save-content-subsection").classList.contains("hidden")) document.getElementById("save-content-subsection").classList.remove("hidden");
@@ -799,6 +903,7 @@ function loadSettings() {
 
             document.getElementById("show-title-textbox-check").checked = settings_json["show-title-textbox"] === true || settings_json["show-title-textbox"] === "yes";
             document.getElementById("immersive-sticky-notes-check").checked = settings_json["immersive-sticky-notes"] === true || settings_json["immersive-sticky-notes"] === "yes";
+            document.getElementById("notes-background-follow-tag-colour-check").checked = settings_json["notes-background-follow-tag-colour"] === true || settings_json["notes-background-follow-tag-colour"] === "yes";
 
             if (document.getElementById("html-text-formatting-check").checked) {
                 if (document.getElementById("html-text-formatting-buttons").classList.contains("hidden")) document.getElementById("html-text-formatting-buttons").classList.remove("hidden");
@@ -927,6 +1032,7 @@ function setNotefoxAccountLoginSignupManageButton() {
         document.getElementById("notefox-account-settings-button").onclick = function () {
             browser.runtime.sendMessage({"check-user": true});
             notefoxAccountLoginSignupManage();
+            sendTelemetry("notefox-account-settings-button-clicked", "settings.js::setNotefoxAccountLoginSignupManageButton");
         }
     });
 }
@@ -975,7 +1081,7 @@ function saveSettings(update_datetime = true) {
                 //console.log(JSON.stringify(settings_json));
 
                 if (rrr1 !== undefined && rrr1["settings"] !== undefined && rrr1["settings"]["theme"] !== undefined && rrr1["settings"]["theme"] !== settings_json["theme"] || settings_json["theme"] === undefined) {
-                    checkTheme();
+                    //checkTheme();
                 }
                 loadSettings();
             });
@@ -995,36 +1101,42 @@ function loadAsideBar() {
     all_notes.innerHTML = all_strings["all-notes-aside"];
     all_notes.onclick = function () {
         if (!disableAside) {
+            sendTelemetry("all-notes-aside-clicked", "settings.js::aside-bar");
             window.open(links_aside_bar["all-notes"], "_self");
         }
     }
     settings.innerHTML = all_strings["settings-aside"];
     settings.onclick = function () {
         if (!disableAside) {
+            sendTelemetry("settings-aside-clicked", "settings.js::aside-bar");
             window.open(links_aside_bar["settings"], "_self");
         }
     }
     help.innerHTML = all_strings["help-aside"];
     help.onclick = function () {
         if (!disableAside) {
+            sendTelemetry("help-aside-clicked", "settings.js::aside-bar");
             window.open(links_aside_bar["help"], "_self");
         }
     }
     website.innerHTML = all_strings["website-aside"];
     website.onclick = function () {
         if (!disableAside) {
+            sendTelemetry("website-aside-clicked", "settings.js::aside-bar");
             window.open(links_aside_bar["website"], "_self")
         }
     }
     donate.innerHTML = all_strings["donate-aside"];
     donate.onclick = function () {
         if (!disableAside) {
+            sendTelemetry("donate-aside-clicked", "settings.js::aside-bar");
             window.open(links_aside_bar["donate"], "_self");
         }
     }
     translate.innerHTML = all_strings["translate-aside"];
     translate.onclick = function () {
         if (!disableAside) {
+            sendTelemetry("translate-aside-clicked", "settings.js::aside-bar");
             window.open(links_aside_bar["translate"], "_self");
         }
     }
@@ -1036,6 +1148,7 @@ function loadDeveloperOptions() {
     if (document.getElementById("version-aside")) {
         document.getElementById("version-aside").onclick = function () {
             developerDetails(["general"], document.getElementById("version-aside"), 5, 5); // 5 clicks in 5 seconds
+            sendTelemetry("version-aside-clicked", "settings.js::developer-options");
         }
     }
 
@@ -1119,6 +1232,7 @@ function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
             }
             clickCount = 0;
         }
+        sendTelemetry("developer-details-clicked", "settings.js::developerDetails");
     };
 
     function startMessageDeveloperDetails(additionalString = '') {
@@ -1136,26 +1250,6 @@ THIS IS AN ADVANCED FEATURE: DO NOT SHARE IT WITH ANYONE IF YOU DON'T KNOW WHAT 
     }
 }
 
-function checkOperatingSystem() {
-    let info = browser.runtime.getPlatformInfo();
-    info.then(getOperatingSystem);
-    //"mac", "win", "linux", "openbsd", "cros", ...
-    // Docs: (https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/PlatformOs)ˇ
-}
-
-function getOperatingSystem(info) {
-    if (info.os === "mac") currentOS = "mac"; else currentOS = "default";
-
-    ctrl_alt_shift.forEach(value => {
-        document.getElementById("select-disable-shortcut-" + value).textContent = all_strings["label-disable-shortcut"];
-        document.getElementById("select-ctrl-shortcut-" + value).textContent = all_strings["label-ctrl-" + currentOS];
-        document.getElementById("select-alt-shortcut-" + value).textContent = all_strings["label-alt-" + currentOS];
-        document.getElementById("select-ctrl-alt-shortcut-" + value).textContent = all_strings["label-ctrl-alt-" + currentOS];
-        document.getElementById("select-ctrl-shift-shortcut-" + value).textContent = all_strings["label-ctrl-shift-" + currentOS];
-        document.getElementById("select-alt-shift-shortcut-" + value).textContent = all_strings["label-alt-shift-" + currentOS];
-    });
-}
-
 function getCurrentShortcuts(commands) {
     try {
         commands.forEach((command) => {
@@ -1170,9 +1264,15 @@ function getCurrentShortcuts(commands) {
 function updateShortcut(commandName, shortcut) {
     //to disable the shortcut -> the "shortcut" value have to be an empty string
     try {
-        browser.commands.update({
-            name: commandName, shortcut: shortcut
-        });
+        if (shortcut !== "disabled") {
+            browser.commands.update({
+                name: commandName, shortcut: shortcut
+            });
+        } else {
+            browser.commands.update({
+                name: commandName, shortcut: ""
+            });
+        }
     } catch (e) {
         console.error("C-03)) " + e);
         onError("settings.js::updateShortcut", e.message);
@@ -1225,6 +1325,8 @@ function importAllNotes(from_file = false) {
                     delete result["sticky-notes-opacity"];
                     jsonImportElement.value = JSON.stringify(result);
                     json_old_version = result;
+
+                    sendTelemetry("import-now-all-notes-from-local-button-clicked", "settings.js::importAllNotes");
                 }
             }
         } else {
@@ -1243,6 +1345,7 @@ function importAllNotes(from_file = false) {
         document.getElementById("cancel-import-all-notes-button").onclick = function () {
             hideBackgroundOpacity();
             document.getElementById("import-section").style.display = "none";
+            sendTelemetry("cancel-import-all-notes-button-clicked", "settings.js::importAllNotes");
         }
         document.getElementById("import-now-all-notes-button").onclick = function () {
             let value = jsonImportElement.value;
@@ -1508,6 +1611,8 @@ function exportAllNotes(to_file = false) {
 
                 document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
                 document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
+
+                sendTelemetry("cancel-export-all-notes-button-clicked", "settings.js::exportAllNotes");
             }
             document.getElementById("copy-now-all-notes-button").onclick = function () {
                 document.getElementById("cancel-export-all-notes-button").value = all_strings["close-button"];
@@ -1516,6 +1621,8 @@ function exportAllNotes(to_file = false) {
                 document.getElementById("json-export").value = JSON.stringify(json_to_export);
                 document.getElementById("json-export").select();
                 document.execCommand("copy");
+
+                sendTelemetry("copy-now-all-notes-button-clicked", "settings.js::exportAllNotes");
             }
 
             document.getElementById("export-to-file-button").value = all_strings["export-notes-to-file-button"];
@@ -1553,6 +1660,8 @@ function exportErrorLogs(to_file = false) {
 
                 document.getElementById("cancel-show-error-logs-button").value = all_strings["cancel-button"];
                 document.getElementById("copy-now-show-error-logs-button").value = all_strings["copy-now-button"];
+
+                sendTelemetry("cancel-show-error-logs-button-clicked", "settings.js::exportErrorLogs");
             }
             document.getElementById("copy-now-show-error-logs-button").onclick = function () {
                 document.getElementById("cancel-show-error-logs-button").value = all_strings["close-button"];
@@ -1561,6 +1670,8 @@ function exportErrorLogs(to_file = false) {
                 document.getElementById("json-show-error-logs").value = JSON.stringify(json_to_export);
                 document.getElementById("json-show-error-logs").select();
                 document.execCommand("copy");
+
+                sendTelemetry("copy-now-show-error-logs-button-clicked", "settings.js::exportErrorLogs");
             }
 
             document.getElementById("show-error-logs-to-file-button").value = all_strings["show-error-logs-to-file-button"];
@@ -1646,6 +1757,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
         elements[i].onclick = function () {
             hideBackgroundOpacity();
             document.getElementById("account-section").style.display = "none";
+
+            sendTelemetry("close-notefox-account-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
         }
     }
     browser.storage.sync.get(["notefox-account"]).then(savedData => {
@@ -1741,6 +1854,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         }, 1000);
                     });
                 }, 500);
+
+                sendTelemetry("sync-now-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
             }
 
             document.getElementById("manage-logout").onclick = function () {
@@ -1751,6 +1866,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         "login-id": savedData["notefox-account"]["login-id"]
                     }
                 });
+
+                sendTelemetry("manage-logout-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
             }
 
             document.getElementById("manage-logout-all-devices").onclick = function () {
@@ -1761,14 +1878,20 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         "login-id": savedData["notefox-account"]["login-id"]
                     }
                 });
+
+                sendTelemetry("manage-logout-all-devices-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
             }
 
             document.getElementById("manage-delete-account-button").onclick = function () {
                 notefoxAccountLoginSignupManage("delete");
+
+                sendTelemetry("manage-delete-account-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
             }
 
             document.getElementById("manage-change-password-button").onclick = function () {
                 notefoxAccountLoginSignupManage("change-password");
+
+                sendTelemetry("manage-change-password-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
             }
 
             //console.log(savedData["notefox-account"]);
@@ -1856,6 +1979,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         code_element.disabled = true;
                         disableAside = true;
                     }
+
+                    sendTelemetry("verify-login-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
                 }
 
                 code_element.onkeypress = function (e) {
@@ -1880,6 +2005,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         code_element.disabled = true;
                         disableAside = true;
                     }
+
+                    sendTelemetry("verify-login-new-code-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
                 }
             } else if
             (action === "verify-signup") {
@@ -1986,6 +2113,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         password_element.disabled = true;
                         disableAside = true;
                     }
+
+                    sendTelemetry("verify-signup-new-code-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
                 }
 
                 submit_element.onclick = function () {
@@ -2011,6 +2140,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         password_element.disabled = true;
                         disableAside = true;
                     }
+
+                    sendTelemetry("verify-signup-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
                 }
             } else if (action === "delete") {
                 title.innerText = all_strings["notefox-account-button-settings-delete"];
@@ -2088,6 +2219,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                             });
                         });
                     }
+
+                    sendTelemetry("delete-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
                 }
             } else if (action === "delete-verify") {
                 title.innerText = all_strings["notefox-account-button-settings-delete"];
@@ -2161,6 +2294,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         code_element.disabled = true;
                         disableAside = true;
                     }
+
+                    sendTelemetry("verify-delete-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
                 }
 
                 code_element.onkeypress = function (e) {
@@ -2185,6 +2320,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         code_element.disabled = true;
                         disableAside = true;
                     }
+
+                    sendTelemetry("verify-delete-new-code-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
                 }
             } else if (action === "change-password") {
                 title.innerText = all_strings["notefox-account-button-settings-change-password"];
@@ -2277,6 +2414,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         new_password_confirm_element.disabled = true;
                         disableAside = true;
                     }
+
+                    sendTelemetry("change-password-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
                 }
 
             } else if (action === "login") {
@@ -2289,6 +2428,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 document.getElementById("login-not-yet-account-button").innerText = all_strings["notefox-account-button-settings-signup"];
                 document.getElementById("login-not-yet-account-button").onclick = function () {
                     notefoxAccountLoginSignupManage("signup");
+
+                    sendTelemetry("login-not-yet-account-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
                 }
 
                 let email = "";
@@ -2359,6 +2500,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         password_element.disabled = true;
                         disableAside = true;
                     }
+
+                    sendTelemetry("login-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
                 }
             } else if
             ((action === "signup" || action === null)) {
@@ -2379,6 +2522,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 document.getElementById("signup-already-account-button").innerText = all_strings["notefox-account-button-settings-login"];
                 document.getElementById("signup-already-account-button").onclick = function () {
                     notefoxAccountLoginSignupManage("login");
+
+                    sendTelemetry("signup-already-account-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
                 }
 
                 let signup_submit_element = document.getElementById("signup-submit");
@@ -2470,6 +2615,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         confirm_password_element.disabled = true;
                         disableAside = true;
                     }
+
+                    sendTelemetry("signup-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
                 }
             } else if (action === "manage") {
                 //console.log(`Data: ${JSON.stringify(data)}`);
@@ -2494,6 +2641,7 @@ function updateSyncDatetime() {
 function listenerNotefoxAccount() {
     browser.runtime.onMessage.addListener((message) => {
         if (message["api_response"] !== undefined && message["api_response"]) {
+
             let data = message["data"];
             switch (message["type"]) {
                 case "signup":
@@ -2601,6 +2749,8 @@ function signUpResponse(data) {
             if (verify_signup_element.classList.contains("hidden")) verify_signup_element.classList.remove("hidden");
             verify_signup_element.onclick = function () {
                 notefoxAccountLoginSignupManage("verify-signup", {"email": email_element.value});
+
+                sendTelemetry("verify-signup-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
             }
         } else {
             //Unknown
@@ -2990,6 +3140,11 @@ function deleteVerifyNewCodeResponse(data) {
 
 function showBackgroundOpacity() {
     document.getElementById("background-opacity").style.display = "block";
+    //if on mobile, scroll to the top of the document
+    // if (window.innerWidth <= 1000) {
+    //     document.body.scrollTop = 0; // For Safari
+    //     document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+    // }
 }
 
 function hideBackgroundOpacity() {
@@ -3070,6 +3225,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var website_aside_svg = window.btoa(getIconSvgEncoded("website", primary));
         var donate_aside_svg = window.btoa(getIconSvgEncoded("donate", primary));
         var translate_aside_svg = window.btoa(getIconSvgEncoded("translate", primary));
+        let external_link_aside_svg = window.btoa(getIconSvgEncoded("external-link", primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         var import_svg = window.btoa(getIconSvgEncoded("import", on_primary));
         var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
@@ -3167,19 +3323,19 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     background-image: url('data:image/svg+xml;base64,${all_notes_aside_svg}');
                 }
                 #help-aside {
-                    background-image: url('data:image/svg+xml;base64,${help_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${help_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #review-aside {
-                    background-image: url('data:image/svg+xml;base64,${review_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${review_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #website-aside {
-                    background-image: url('data:image/svg+xml;base64,${website_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${website_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #donate-aside {
-                    background-image: url('data:image/svg+xml;base64,${donate_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${donate_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #translate-aside {
-                    background-image: url('data:image/svg+xml;base64,${translate_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${translate_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 .select-box {
                     background-image: url('data:image/svg+xml;base64,${arrow_select_svg}');

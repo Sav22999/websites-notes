@@ -73,8 +73,9 @@ function loaded() {
     browser.runtime.sendMessage({"check-user": true});
 
     checkSyncLocal();
+    checkOperatingSystem();
     setLanguageUI();
-    checkTheme();
+    //checkTheme();
 
     browser.tabs.onActivated.addListener(tabUpdated);
     browser.tabs.onUpdated.addListener(tabUpdated);
@@ -85,11 +86,14 @@ function loaded() {
         document.getElementById("refresh-all-notes-button").onclick = function () {
             //location.reload();
             loadDataFromBrowser(true);
+            sendTelemetry("refresh-button");
         }
         document.getElementById("settings-all-notes-button").onclick = function () {
+            sendTelemetry("settings-button");
             window.open("../settings/index.html", "_self");
         }
         document.getElementById("buy-me-a-coffee-button").onclick = function () {
+            sendTelemetry("donate-button");
             browser.tabs.create({url: links["donate"]});
         }
 
@@ -120,12 +124,14 @@ function loaded() {
                 if (document.getElementById("search-filter-sortby").classList.contains("filters-visibile"))
                     document.getElementById("search-filter-sortby").classList.remove("filters-visibile");
             }
+            sendTelemetry("filter-button");
         }
 
         document.getElementById("sort-by-all-notes-button").value = sort_by_selected;
         document.getElementById("sort-by-all-notes-button").onchange = function () {
             sort_by_selected = document.getElementById("sort-by-all-notes-button").value;
             loadAllWebsites(true, sort_by_selected);
+            sendTelemetry(`sort-by`, "all-notes.js", null, sort_by_selected);
         }
 
         setTimeout(function () {
@@ -155,6 +161,10 @@ function loaded() {
     titleAllNotes.append(versionNumber);
 }
 
+function sendTelemetry(action, context = "all-notes.js", url = null, other = null) {
+    onTelemetry(action, context, url, currentOS, other);
+}
+
 function tabUpdated() {
     checkTheme();
     browser.storage.local.get([
@@ -182,6 +192,7 @@ function setLanguageUI() {
         document.title = all_strings["all-notes-title-page"];
 
         document.getElementById("info-tooltip-search").onclick = function () {
+            sendTelemetry("search-tooltip");
             window.open(links["help-search"], "_blank");
         }
 
@@ -201,6 +212,7 @@ function setLanguageUI() {
             colourFilterButton.classList.add("button", "filter-button-tag", `tag-colour-${colour}`);
             colourFilterButton.onclick = function () {
                 filterByColor(colour, colourFilterButton);
+                sendTelemetry(`filter-by-tag`, `all-notes.js`, null, colour);
             }
             containerColours.appendChild(colourFilterButton);
         }
@@ -212,18 +224,22 @@ function setLanguageUI() {
         noneFilterButton.classList.add("button", "filter-button-tag");
         noneFilterButton.onclick = function () {
             filterByColor("none", noneFilterButton);
+            sendTelemetry(`filter-by-tag`, `all-notes.js`, null, "none");
         }
         globalFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["global-label"]);
         globalFilterButton.onclick = function () {
             filterByType("global", globalFilterButton);
+            sendTelemetry(`filter-by-type`, "all-notes.js", null, "global");
         };
         domainFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["domain-label"]);
         domainFilterButton.onclick = function () {
             filterByType("domain", domainFilterButton);
+            sendTelemetry(`filter-by-type`, "all-notes.js", null, "domain");
         };
         pageFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["page-label"]);
         pageFilterButton.onclick = function () {
             filterByType("page", pageFilterButton);
+            sendTelemetry(`filter-by-type`, "all-notes.js", null, "page");
         };
     } catch (e) {
         console.error(`E-L2: ${e}`);
@@ -242,26 +258,32 @@ function loadAsideBar() {
 
     all_notes.innerHTML = all_strings["all-notes-aside"];
     all_notes.onclick = function () {
+        sendTelemetry("all-notes-aside");
         window.open(links_aside_bar["all-notes"], "_self");
     }
     settings.innerHTML = all_strings["settings-aside"];
     settings.onclick = function () {
+        sendTelemetry("settings-aside");
         window.open(links_aside_bar["settings"], "_self");
     }
     help.innerHTML = all_strings["help-aside"];
     help.onclick = function () {
+        sendTelemetry("help-aside");
         window.open(links_aside_bar["help"], "_self");
     }
     website.innerHTML = all_strings["website-aside"];
     website.onclick = function () {
+        sendTelemetry("website-aside");
         window.open(links_aside_bar["website"], "_self")
     }
     donate.innerHTML = all_strings["donate-aside"];
     donate.onclick = function () {
+        sendTelemetry("donate-aside");
         window.open(links_aside_bar["donate"], "_self");
     }
     translate.innerHTML = all_strings["translate-aside"];
     translate.onclick = function () {
+        sendTelemetry("translate-aside");
         window.open(links_aside_bar["translate"], "_self");
     }
 
@@ -337,6 +359,7 @@ function listenerLinks(element) {
                     // Prevent the default link behavior
                 }
                 event.preventDefault();
+                sendTelemetry(`link-clicked`, "all-notes.js", link.href);
             }
         });
     }
@@ -376,6 +399,7 @@ function loadDataFromBrowser(generate_section = true) {
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
             if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
             if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
+            if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
 
             //console.log(JSON.stringify(settings_json));
             if (generate_section) {
@@ -495,6 +519,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                         input_clear_all_notes_domain.classList.add("button", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button", "clear-button-float-right");
                         input_clear_all_notes_domain.onclick = function () {
                             clearAllNotesDomain(domain);
+                            sendTelemetry(`clear-all-notes-domain`, "all-notes.js", domain);
                         }
 
                         let h2_container = document.createElement("div");
@@ -505,6 +530,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                         if (isUrlSupported(domain)) {
                             h2.classList.add("link", "go-to-external", "domain");
                             h2.onclick = function () {
+                                sendTelemetry(`go-to-domain`, "all-notes.js", domain);
                                 browser.tabs.create({url: domain});
                             }
                         }
@@ -711,6 +737,11 @@ function sendMessageUpdateToBackground() {
 
 function generateNotes(page, url, notes, title, content, lastUpdate, type, fullUrl, type_to_use, domain_again) {
     try {
+        let pageContentLeft = document.createElement("div")
+        pageContentLeft.classList.add("page-content-left")
+        let pageContentRight = document.createElement("div");
+        pageContentRight.classList.add("page-content-right");
+
         let row1 = document.createElement("div");
         row1.classList.add("rows");
 
@@ -735,9 +766,10 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 isDomain = true;
             }
             clearAllNotesPage(fullUrl, isDomain);
+            sendTelemetry(`clear-all-notes-page`, "all-notes.js", fullUrl);
         }
         let pageTitleH3 = document.createElement("h3");
-        let textNotes = document.createElement("div");
+        let textNotes = document.createElement("pre");
         let row2 = document.createElement("div");
 
         //Button "Edit notes"
@@ -760,6 +792,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 } else {
                     row2.classList.add("hidden");
                 }
+                sendTelemetry(`finish-edit-notes`, "all-notes.js", fullUrl);
             } else {
                 textNotes.contentEditable = "true";
                 inputInlineEdit.classList.add("finish-edit-button");
@@ -773,7 +806,10 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 }, 100);
 
                 if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
+
+                sendTelemetry(`start-edit-notes`, "all-notes.js", fullUrl);
             }
+
         }
         pageTitleH3.onkeypress = function (e) {
             if (e.key === "Enter") {
@@ -795,6 +831,8 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             setTimeout(function () {
                 inputCopyNotes.value = all_strings["copy-notes-button"];
             }, 3000);
+
+            sendTelemetry(`copy-notes`, "all-notes.js", fullUrl);
         }
 
         //Select "Tag colour"
@@ -806,7 +844,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             tagColour.value = colour;
             if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] !== undefined && websites_json[fullUrl]["tag-colour"] === colour) {
                 tagColour.selected = true;
-                page.classList.add("tag-colour-left", "tag-colour-" + colour, "sub-section-domain");
+                pageContentLeft.classList.add("tag-colour-" + colour + "-bg");
             }
             tagColour.textContent = colourList[colour];
             //tagColour.classList.add(colour + "-background-tag");
@@ -815,8 +853,11 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         }
         tagsColour.onchange = function () {
             changeTagColour(fullUrl, tagsColour.value, type_to_use);
+            sendTelemetry(`change-tag-colour::${tagsColour.value}`, "all-notes.js", fullUrl);
         }
         page.id = fullUrl;
+        page.classList.add("notes-pages");
+        if (settings_json["notes-background-follow-tag-colour"]) page.classList.add("background-as-tag-colour");
 
         subrowUrl.append(pageType);
 
@@ -827,6 +868,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             inputShowContent.value = all_strings["show-content-button"];
             inputShowContent.classList.add("button", "very-small-button", "show-content-button", "button-no-text-on-mobile");
             inputShowContent.onclick = function () {
+                sendTelemetry(`show-content`, "all-notes.js", fullUrl);
                 alert(content); // Display the content in an alert for now, until a better UI is implemented.
             }
 
@@ -849,6 +891,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             if (isUrlSupported(fullUrlToUse)) {
                 pageUrl.classList.add("link", "go-to-external");
                 pageUrl.onclick = function () {
+                    sendTelemetry(`go-to-page`, "all-notes.js", fullUrlToUse);
                     browser.tabs.create({url: fullUrlToUse});
                 }
             }
@@ -859,7 +902,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         row1.append(subrowUrl);
         row1.append(subrowButtons)
 
-        page.append(row1);
+        pageContentRight.append(row1);
 
         let pageLastUpdate = document.createElement("div");
 
@@ -885,13 +928,13 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         }
         row2.append(pageTitleH3);
 
-        page.append(row2);
+        pageContentRight.append(row2);
 
-        let pageNotes = document.createElement("pre");
-        pageNotes.classList.add("sub-section-notes");
+        let contentNotesContainer = document.createElement("div");
+        contentNotesContainer.classList.add("content-notes--container");
 
-        let textNotesContainer = document.createElement("div");
-        textNotesContainer.classList.add("div-textnotes-container");
+        let contentNotes = document.createElement("div");
+        contentNotes.classList.add("content-notes", "sub-section-notes");
 
         textNotes.readOnly = true;
         textNotes.innerHTML = notes;
@@ -904,12 +947,23 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             }
             onInputText(fullUrl, data, pageLastUpdate);
         }
-        textNotes.onkeydown = function (e) {
-            if (actions.length === 0) {
-                //first action on notes add the "initial state" of it
-                actions.push({text: sanitizeHTML(notes.innerHTML), position: 0});
+        textNotes.onpaste = function (e) {
+            //Ctrl+V (or Cmd+V on Mac) to paste WITH HTML formatting, Ctrl+Shift+V (or Cmd+Shift+V on Mac) to paste WITHOUT HTML formatting
+            if (((e.originalEvent || e).clipboardData).getData("text/html") !== "") {
+                e.preventDefault(); // Prevent the default paste action
+                let clipboardData = (e.originalEvent || e).clipboardData;
+                let pastedText = clipboardData.getData("text/html");
+                let sanitizedHTML = document.createElement("div");
+                sanitizedHTML.innerHTML = pastedText;
+                document.execCommand("insertHTML", false, sanitize(sanitizedHTML).innerHTML);
+            } else if (((e.originalEvent || e).clipboardData).getData("text/plain") !== "") {
+                e.preventDefault(); // Prevent the default paste action
+                let clipboardData = (e.originalEvent || e).clipboardData;
+                let pastedText = clipboardData.getData("text/plain");
+                document.execCommand("insertText", false, pastedText);
             }
-
+        }
+        textNotes.onkeydown = function (e) {
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
                 bold();
             } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "i") {
@@ -940,15 +994,17 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
 
         textNotes.style.fontFamily = `'${settings_json["font-family"]}'`;
 
-        textNotesContainer.appendChild(textNotes);
+        contentNotes.append(textNotes);
+        contentNotesContainer.appendChild(contentNotes);
 
-        pageNotes.append(textNotesContainer);
-
-        page.append(pageNotes);
+        pageContentRight.append(contentNotesContainer);
 
         pageLastUpdate.classList.add("sub-section-last-update");
         pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(lastUpdate));
-        page.append(pageLastUpdate);
+        pageContentRight.append(pageLastUpdate);
+
+        page.append(pageContentLeft);
+        page.append(pageContentRight);
 
         return page;
     } catch (e) {
@@ -972,6 +1028,7 @@ function changeTagColour(url, colour) {
         sync_local.set({"websites": websites_json}, function () {
             loadDataFromBrowser(true);
             updateLastUpdate();
+            sendMessageUpdateToBackground();
         });
     });
 }
@@ -1148,6 +1205,7 @@ function loginExpired() {
     loginExpiredButton.onclick = function () {
         section.style.display = "none";
         background.style.display = "none";
+        sendTelemetry(`login-expired-settings`);
         window.open(links_aside_bar["settings"], "_blank");
     }
     let loginExpiredClose = document.getElementById("login-expired-cancel-button");
@@ -1155,6 +1213,7 @@ function loginExpired() {
     loginExpiredClose.onclick = function () {
         section.style.display = "none";
         background.style.display = "none";
+        sendTelemetry(`login-expired-close`);
     }
 }
 
@@ -1165,7 +1224,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         //document.getElementById("all-notes-dedication-section").style.backgroundColor = backgroundSection;
         //document.getElementById("all-notes-dedication-section").style.color = theme.colors.icons;
         document.getElementById("all-notes-dedication-section").style.color = primary;
-        let open_external_svg = window.btoa(getIconSvgEncoded("open-external", primary));
+        let open_external_svg = window.btoa(getIconSvgEncoded("external-link", primary));
         let donate_svg = window.btoa(getIconSvgEncoded("donate", on_primary));
         let settings_svg = window.btoa(getIconSvgEncoded("settings", on_primary));
         let all_notes_aside_svg = window.btoa(getIconSvgEncoded("all-notes", on_primary));
@@ -1175,6 +1234,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let website_aside_svg = window.btoa(getIconSvgEncoded("website", primary));
         let donate_aside_svg = window.btoa(getIconSvgEncoded("donate", primary));
         let translate_aside_svg = window.btoa(getIconSvgEncoded("translate", primary));
+        let external_link_aside_svg = window.btoa(getIconSvgEncoded("external-link", primary));
         let download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
         let delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
         let delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
@@ -1244,19 +1304,19 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     background-image: url('data:image/svg+xml;base64,${all_notes_aside_svg}');
                 }
                 #help-aside {
-                    background-image: url('data:image/svg+xml;base64,${help_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${help_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #review-aside {
-                    background-image: url('data:image/svg+xml;base64,${review_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${review_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #website-aside {
-                    background-image: url('data:image/svg+xml;base64,${website_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${website_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #donate-aside {
-                    background-image: url('data:image/svg+xml;base64,${donate_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${donate_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 #translate-aside {
-                    background-image: url('data:image/svg+xml;base64,${translate_aside_svg}');
+                    background-image: url('data:image/svg+xml;base64,${translate_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
                 .download-button {
                     background-image: url('data:image/svg+xml;base64,${download_svg}');

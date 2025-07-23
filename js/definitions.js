@@ -11,6 +11,7 @@ const supportedFontFamily = ["Open Sans", "Shantell Sans", "Inter", "Lora", "Not
 //TODO!manually: add new datetime formats here
 const supportedDatetimeFormat = ["yyyymmdd1", "yyyyddmm1", "ddmmyyyy1", "ddmmyyyy2", "ddmmyyyy1-12h", "mmddyyyy1"];
 
+const webBrowserUsed = "firefox";//TODO:change manually
 let languageToUse = browser.i18n.getUILanguage().toString();
 if (!supportedLanguages.includes(languageToUse)) languageToUse = "en";
 if (supportedLanguages.includes(languageToUse.split("-")[0])) languageToUse = languageToUse.split("-")[0];
@@ -38,15 +39,16 @@ const links_aside_bar = {
     "translate": "https://crowdin.com/project/notefox"
 };
 
+var currentOS = "default"; //default: win, linux, ecc. | mac
 
 /**
  * Recursive function to get the sanitized html code from an unsafe one
- * @param element
+ * @param element the element to sanitize
  * @param allowedTags
  * @param allowedAttributes
  * @returns {*}
  */
-function sanitize(element, allowedTags, allowedAttributes) {
+function sanitize(element, allowedTags = -1, allowedAttributes = -1) {
     if (allowedTags === -1) allowedTags = ["b", "i", "u", "a", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q", "mark"];
     if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite", "href"];
 
@@ -93,7 +95,7 @@ function sanitize(element, allowedTags, allowedAttributes) {
             //console.log("????")
         }
     }
-    return sanitizedHTML
+    return sanitizedHTML;
 }
 
 function bold() {
@@ -501,17 +503,6 @@ function checkTheme(set_theme = true, theme = "", function_to_execute = function
 function getIconSvgEncoded(icon, color) {
     let svgToReturn = "";
     switch (icon) {
-        case "open-external":
-            svgToReturn = '<svg width="10px" height="10px" viewBox="0 0 10 10" version="1.1" xmlns="http://www.w3.org/2000/svg"\n' +
-                '     xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"\n' +
-                '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-miterlimit:2;">\n' +
-                '    <path d="M8.854,5C8.854,7.129 7.129,8.854 5,8.854C2.871,8.854 1.146,7.129 1.146,5C1.146,2.871 2.871,1.146 5,1.146C5.173,1.146 5.313,1.006 5.313,0.833C5.313,0.661 5.173,0.521 5,0.521C2.526,0.521 0.521,2.526 0.521,5C0.521,7.474 2.526,9.479 5,9.479C7.474,9.479 9.479,7.474 9.479,5C9.479,4.827 9.339,4.688 9.167,4.688C8.994,4.688 8.854,4.827 8.854,5Z"\n' +
-                '          style="fill:' + color + ';fill-rule:nonzero;stroke:' + color + ';stroke-width:0.5px;"/>\n' +
-                '    <path d="M5.196,4.362C5.074,4.484 5.074,4.682 5.196,4.804C5.318,4.926 5.516,4.926 5.638,4.804L8.854,1.588L8.854,3.06C8.854,3.232 8.994,3.372 9.167,3.372C9.339,3.372 9.479,3.232 9.479,3.06L9.479,0.833C9.479,0.661 9.339,0.521 9.167,0.521L6.94,0.521C6.768,0.521 6.628,0.661 6.628,0.833C6.628,1.006 6.768,1.146 6.94,1.146L8.412,1.146L5.196,4.362Z"\n' +
-                '          style="fill:' + color + ';fill-rule:nonzero;stroke:' + color + ';stroke-width:0.5px;"/>\n' +
-                '</svg>'
-            break;
-
         case "donate":
             svgToReturn = '<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n' +
                 '    <path d="M16.5 13.2871C14.0251 10.5713 11 12.5746 11 15.3995C11 17.9583 12.814 19.4344 14.3584 20.6912L14.4018 20.7265C14.5474 20.8449 14.6903 20.9615 14.829 21.0769C15.4 21.5523 15.95 22 16.5 22C17.05 22 17.6 21.5523 18.171 21.0769C19.7893 19.7296 22 18.2243 22 15.3995C22 14.4715 21.6735 13.6321 21.1474 13.0197C20.0718 11.7677 18.1619 11.4635 16.5 13.2871Z"\n' +
@@ -1124,6 +1115,17 @@ function getIconSvgEncoded(icon, color) {
                 '    </g>\n' +
                 '</svg>';
             break;
+        case "external-link":
+            svgToReturn = '<svg fill="none" width="14px" height="14px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\n' +
+                '    <g stroke="' + color + '" stroke-linecap="round" stroke-width="2">\n' +
+                '        <path d="m12 3c-7.4115 0-9 1.5885-9 9s1.5885 9 9 9 9-1.5885 9-9"/>\n' +
+                '        <g stroke-linejoin="round">\n' +
+                '            <path d="m20.5 3.5-5.5 5.5"/>\n' +
+                '            <path d="m16 3h4.6717c.1813 0 .3283.14703.3283.32837v4.67163"/>\n' +
+                '        </g>\n' +
+                '    </g>\n' +
+                '</svg>';
+            break;
         /*
     case "":
         svgToReturn = '';
@@ -1257,13 +1259,129 @@ function datetimeToDisplay(datetime, format = undefined, also_time = true) {
  * @param url {string} - url of the page where the error happened (if applicable)
  */
 function onError(context, text, url = undefined) {
-    const error = {"datetime": getDate(), "context": context, "error": text, url: url};
-    browser.storage.local.get("error-logs").then(result => {
-        let error_logs = [];
-        if (result["error-logs"] !== undefined) {
-            error_logs = result["error-logs"];
+    browser.storage.sync.get("anonymous-userid").then(resultSync => {
+        let anonymous_userid = null;
+        if (resultSync["anonymous-userid"] !== undefined) {
+            anonymous_userid = resultSync["anonymous-userid"];
+        } else {
+            anonymous_userid = generateSecureUUID();
+            browser.storage.sync.set({"anonymous-userid": anonymous_userid});
         }
-        error_logs.push(error);
-        browser.storage.local.set({"error-logs": error_logs});
+        const error = {
+            "datetime": getDate(),
+            "context": context,
+            "error": text,
+            url: url,
+            "notefox-version": browser.runtime.getManifest().version,
+            "anonymous-userid": anonymous_userid
+        };
+        browser.storage.local.get("error-logs").then(result => {
+            let error_logs = [];
+            if (result["error-logs"] !== undefined) {
+                error_logs = result["error-logs"];
+            }
+            error_logs.push(error);
+            browser.storage.local.set({"error-logs": error_logs});
+        });
     });
+}
+
+function onTelemetry(action, context = null, url = null, os, other = null) {
+    //check if the telemetry is enabled
+    if (settings_json["send-telemetry"] !== undefined && settings_json["send-telemetry"] === false) {
+        return;
+    }
+    const notefox_version = browser.runtime.getManifest().version;
+    const browser_name = webBrowserUsed;
+    let notefox_account = null;
+    let anonymous_userid = null;
+    let language = languageToUse;
+    let browser_version = null;
+    const current_datetime = getDate();
+    browser.storage.sync.get(["notefox-account", "anonymous-userid"]).then(resultSync => {
+        if (resultSync !== undefined) {
+            notefox_account = resultSync["notefox-account"] !== undefined;
+            if (resultSync["anonymous-userid"] !== undefined) {
+                anonymous_userid = resultSync["anonymous-userid"];
+            } else {
+                anonymous_userid = generateSecureUUID();
+                browser.storage.sync.set({"anonymous-userid": anonymous_userid});
+            }
+        } else {
+            notefox_account = false;
+        }
+
+        browser.runtime.getBrowserInfo().then(info => {
+            if (info !== undefined && info.version !== undefined) {
+                browser_version = info.version;
+            } else {
+                browser_version = null;
+            }
+            const telemetry_logs = {
+                "client-datetime": current_datetime,
+                "action": action,
+                "context": context,
+                "url": url,
+                "browser": browser_name,
+                "browser-version": browser_version,
+                "os": os,
+                "notefox-version": notefox_version,
+                "notefox-account": notefox_account,
+                "anonymous-userid": anonymous_userid,
+                "language": language,
+                "other": other
+            }
+            //console.log("Telemetry log:", telemetry_logs);
+            browser.storage.local.get("telemetry").then(result => {
+                let telemetry = [];
+                if (result["telemetry"] !== undefined) {
+                    telemetry = result["telemetry"];
+                }
+                telemetry.push(telemetry_logs);
+                browser.storage.local.set({"telemetry": telemetry});
+            });
+        }).catch(error => {
+            console.error("Error getting browser info for telemetry:", error);
+            onError("telemetry::onTelemetry", "Error getting browser info for telemetry: " + error);
+            browser_version = null;
+        });
+    })
+}
+
+function generateSecureUUID() {
+    if (crypto && crypto.getRandomValues) {
+        // Crittograficamente sicuro
+        const array = new Uint8Array(16);
+        crypto.getRandomValues(array);
+
+        array[6] = (array[6] & 0x0f) | 0x40; // Version 4
+        array[8] = (array[8] & 0x3f) | 0x80; // Variant
+
+        const hex = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+        return [
+            hex.substring(0, 8),
+            hex.substring(8, 12),
+            hex.substring(12, 16),
+            hex.substring(16, 20),
+            hex.substring(20, 32)
+        ].join('-');
+    }
+
+    // Fallback alla tua funzione
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+function checkOperatingSystem() {
+    let info = browser.runtime.getPlatformInfo();
+    info.then(getOperatingSystem);
+    //"mac", "win", "linux", "bsd", "android", "ios", "other", ...
+    // Docs: (https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/PlatformOs)ˇ
+}
+
+function getOperatingSystem(info) {
+    if (info.os === "mac") currentOS = "mac"; else currentOS = info.os;
 }

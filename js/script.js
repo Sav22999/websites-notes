@@ -62,6 +62,7 @@ const MAX_PARAMETERS = 5;
 
 let sync_local = browser.storage.local;
 checkSyncLocal();
+checkOperatingSystem();
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;
@@ -78,8 +79,9 @@ function loaded() {
     });
     checkSyncLocal();
     loadSettings();
-    checkTheme();
+    //checkTheme();
     checkTimesOpened();
+    checkTelemetryAlert();
     browser.runtime.onMessage.addListener((message) => {
         if (message["sync_update"] !== undefined && message["sync_update"]) {
             loaded();
@@ -124,6 +126,12 @@ function continueLoaded() {
 
     checkOpenedBy();
     document.getElementById("notes").focus();
+}
+
+function sendTelemetry(action, context = "script.js", other = null, url = undefined) {
+    let urlToUse = url;
+    if (urlToUse === undefined) urlToUse = currentUrl[selected_tab];
+    onTelemetry(action, context, urlToUse, currentOS, other);
 }
 
 function checkOpenedBy() {
@@ -206,6 +214,8 @@ function listenerLinks() {
                     // Prevent the default link behavior
                 }
                 event.preventDefault();
+
+                sendTelemetry("click-link", "script.js", {"url-to-open": link.href});
             }
         });
     }
@@ -306,16 +316,20 @@ function loadUI() {
 
     document.getElementById("domain-button").onclick = function () {
         setTab(1, currentUrl[1]);
+        sendTelemetry("select-domain", "script.js", null, currentUrl[1]);
     }
     document.getElementById("page-button").onclick = function () {
         setTab(2, currentUrl[2]);
+        sendTelemetry("select-page", "script.js", null, currentUrl[2]);
     }
     document.getElementById("global-button").onclick = function () {
         setTab(0, currentUrl[0]);
+        sendTelemetry("select-global", "script.js", null, currentUrl[0]);
     }
     document.getElementById("tab-other-button").onclick = function () {
         //setTab(3, "");
         showTabSubDomains();
+        sendTelemetry("tab-other-button");
     }
 
     document.getElementById("panel-other-tabs").onmouseleave = function () {
@@ -335,15 +349,22 @@ function loadUI() {
         }
     }
     notes.onpaste = function (e) {
+        //Ctrl+V (or Cmd+V on Mac) to paste WITH HTML formatting, Ctrl+Shift+V (or Cmd+Shift+V on Mac) to paste WITHOUT HTML formatting
         if (((e.originalEvent || e).clipboardData).getData("text/html") !== "") {
             e.preventDefault(); // Prevent the default paste action
             let clipboardData = (e.originalEvent || e).clipboardData;
             let pastedText = clipboardData.getData("text/html");
             let sanitizedHTML = sanitizeHTML(pastedText)
             document.execCommand("insertHTML", false, sanitizedHTML);
+        } else if (((e.originalEvent || e).clipboardData).getData("text/plain") !== "") {
+            e.preventDefault(); // Prevent the default paste action
+            let clipboardData = (e.originalEvent || e).clipboardData;
+            let pastedText = clipboardData.getData("text/plain");
+            document.execCommand("insertText", false, pastedText);
         }
         addAction();
     }
+
     notes.onkeydown = function (e) {
         if (actions.length === 0) {
             //first action on notes add the "initial state" of it
@@ -390,6 +411,8 @@ function loadUI() {
 
     document.getElementById("all-notes-button-grid").onclick = function () {
         browser.tabs.create({url: "./all-notes/index.html"});
+        sendTelemetry("open-all-notes");
+
         window.close();
     }
 
@@ -415,6 +438,7 @@ function loadUI() {
     }
     tagSelect.onchange = function () {
         changeTagColour(currentUrl[selected_tab], tagSelect.value);
+        sendTelemetry("change-tag-colour", "script.js", tagSelect.value);
     }
 
     document.getElementById("open-sticky-button").onclick = function (event) {
@@ -439,6 +463,7 @@ function loadUI() {
             console.error("P2)) " + e);
             onError("script.js::loadUI", e.message, _pageUrl);
         }
+        sendTelemetry("open-sticky-notes");
     }
 
     loadFormatButtons(false, false);
@@ -547,6 +572,7 @@ function appendSubDomains(subdomains) {
             else if (currentUrl.length === 4) currentUrl[3] = url;
 
             setTab(3, url);
+            sendTelemetry("select-subdomain", "script.js", null, url);
         }
         list.appendChild(newSubDomain);
     });
@@ -590,6 +616,7 @@ function loadSettings(load_only = false) {
         if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
         if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
         if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
+        if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
 
         if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
         else advanced_managing = false;
@@ -793,7 +820,9 @@ function saveNotes(title_call = false) {
                 let colour = "none";
                 document.getElementById("tag-colour-section").removeAttribute("class");
                 if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) colour = websites_json[url_to_use]["tag-colour"];
-                document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
+                document.getElementById("tag-colour-section").classList.add("tag-colour-" + colour + "-bg");
+
+                if (settings_json["notes-background-follow-tag-colour"]) document.getElementById("popup-content").classList.add("background-as-tag-colour");
 
                 let title = "";
                 if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["title"] !== undefined) title = websites_json[url_to_use]["title"];
@@ -834,7 +863,10 @@ function checkNeverSaved(never_saved) {
             if (document.getElementById("format-buttons").childNodes.length === 0) {
                 document.getElementById("format-buttons").classList.add("hidden");
                 if (document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
+            } else {
+                document.getElementById("all-notes-section").classList.add("padding-top-5");
             }
+            document.getElementById("last-updated-section").classList.add("hidden");
         } else {
             if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
             if (document.getElementById("tag-select-grid").classList.contains("hidden")) document.getElementById("tag-select-grid").classList.remove("hidden");
@@ -843,6 +875,12 @@ function checkNeverSaved(never_saved) {
                 document.getElementById("format-buttons").classList.remove("hidden");
                 if (!document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.add("padding-top-10");
             }
+            if (document.getElementById("last-updated-section").classList.contains("hidden")) {
+                document.getElementById("last-updated-section").classList.remove("hidden");
+            }
+            if (document.getElementById("all-notes-section").classList.contains("padding-top-5")) {
+                document.getElementById("all-notes-section").classList.remove("padding-top-5");
+            }
         }
     } else {
         document.getElementById("open-sticky-button").classList.add("hidden");
@@ -850,6 +888,9 @@ function checkNeverSaved(never_saved) {
         document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
         document.getElementById("format-buttons").classList.add("hidden");
         if (document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
+        if (document.getElementById("all-notes-section").classList.contains("padding-top-5")) {
+            document.getElementById("all-notes-section").classList.remove("padding-top-5");
+        }
     }
 }
 
@@ -1241,7 +1282,9 @@ function setTab(index, url) {
     let colour = "none";
     document.getElementById("tag-colour-section").removeAttribute("class");
     if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"] !== undefined) colour = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"];
-    document.getElementById("tag-colour-section").classList.add("tag-colour-top", "tag-colour-" + colour);
+    document.getElementById("tag-colour-section").classList.add("tag-colour-" + colour + "-bg");
+    if (settings_json["notes-background-follow-tag-colour"]) document.getElementById("popup-content").classList.add("background-as-tag-colour");
+
     if (websites_json[currentUrl[selected_tab]] !== undefined) document.getElementById("tag-select-grid").value = websites_json[currentUrl[selected_tab]]["tag-colour"];
 
     let sticky = false;
@@ -1351,6 +1394,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-undo"],
                     function: function () {
                         undo()
+                        sendTelemetry("button-format::undo");
                     }
                 },
                 {
@@ -1359,6 +1403,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-redo"],
                     function: function () {
                         redo()
+                        sendTelemetry("button-format::redo");
                     }
                 });
         }
@@ -1375,6 +1420,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-bold"],
                     function: function () {
                         bold();
+                        sendTelemetry("button-format::bold");
                     }
                 },
                 {
@@ -1383,6 +1429,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-italic"],
                     function: function () {
                         italic();
+                        sendTelemetry("button-format::italic");
                     }
                 },
                 {
@@ -1391,6 +1438,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-underline"],
                     function: function () {
                         underline();
+                        sendTelemetry("button-format::underline");
                     }
                 },
                 {
@@ -1399,6 +1447,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-strikethrough"],
                     function: function () {
                         strikethrough();
+                        sendTelemetry("button-format::strikethrough");
                     }
                 }
             );
@@ -1412,6 +1461,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-link"],
                     function: function () {
                         insertLink();
+                        sendTelemetry("button-format::link");
                     }
                 }
             );
@@ -1425,6 +1475,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-spellcheck"],
                     function: function () {
                         spellcheck();
+                        sendTelemetry("button-format::spellcheck");
                     }
                 }
             );
@@ -1438,6 +1489,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-subscript"],
                     function: function () {
                         subscript();
+                        sendTelemetry("button-format::subscript");
                     }
                 },
                 {
@@ -1446,6 +1498,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-superscript"],
                     function: function () {
                         superscript();
+                        sendTelemetry("button-format::superscript");
                     }
                 }
             );
@@ -1459,6 +1512,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-highlighter"],
                     function: function () {
                         hightlighter();
+                        sendTelemetry("button-format::highlighter");
                     }
                 }
             );
@@ -1472,6 +1526,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-code-block"],
                     function: function () {
                         insertCode();
+                        sendTelemetry("button-format::code-block");
                     }
                 }
             );
@@ -1485,6 +1540,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-header-h1"],
                     function: function () {
                         insertHeader("h1");
+                        sendTelemetry("button-format::h1");
                     }
                 },
                 {
@@ -1493,6 +1549,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-header-h2"],
                     function: function () {
                         insertHeader("h2");
+                        sendTelemetry("button-format::h2");
                     }
                 },
                 {
@@ -1501,6 +1558,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-header-h3"],
                     function: function () {
                         insertHeader("h3");
+                        sendTelemetry("button-format::h3");
                     }
                 },
                 {
@@ -1509,6 +1567,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-header-h4"],
                     function: function () {
                         insertHeader("h4");
+                        sendTelemetry("button-format::h4");
                     }
                 },
                 {
@@ -1517,6 +1576,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-header-h5"],
                     function: function () {
                         insertHeader("h5");
+                        sendTelemetry("button-format::h5");
                     }
                 },
                 {
@@ -1525,6 +1585,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-header-h6"],
                     function: function () {
                         insertHeader("h6");
+                        sendTelemetry("button-format::h6");
                     }
                 }
             );
@@ -1538,6 +1599,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-small"],
                     function: function () {
                         small();
+                        sendTelemetry("button-format::small");
                     }
                 },
                 {
@@ -1546,6 +1608,7 @@ function loadFormatButtons(navigation = true, format = true) {
                     title: all_strings["label-title-big"],
                     function: function () {
                         big();
+                        sendTelemetry("button-format::big");
                     }
                 }
             )
@@ -1611,6 +1674,8 @@ function loginExpired() {
         section.style.display = "none";
         background.style.display = "none";
         window.open(links_aside_bar["settings"], "_blank");
+        sendTelemetry("login-expired-settings");
+
         window.close();
     }
     let loginExpiredClose = document.getElementById("login-expired-cancel-button");
@@ -1618,7 +1683,58 @@ function loginExpired() {
     loginExpiredClose.onclick = function () {
         section.style.display = "none";
         background.style.display = "none";
+
+        sendTelemetry("login-expired-close");
     }
+}
+
+/**
+ * Show the telemetry alert section
+ */
+function checkTelemetryAlert() {
+    //todo : add check if telemetry alert has been already displayed
+    browser.storage.sync.get("telemetry-alert-displayed", (resultSync) => {
+        if (resultSync["telemetry-alert-displayed"] === undefined || resultSync["telemetry-alert-displayed"] === false) {
+            let section = document.getElementById("telemetry-added-section");
+            let background = document.getElementById("background-opacity");
+
+            section.style.display = "block";
+            background.style.display = "block";
+
+            let title = document.getElementById("telemetry-added-title");
+            title.textContent = all_strings["telemetry-alert-title"];
+            let description = document.getElementById("telemetry-added-text");
+            description.innerHTML = all_strings["telemetry-alert-text"];
+            let buttonEnable = document.getElementById("telemetry-added-enable-button");
+            buttonEnable.value = all_strings["telemetry-alert-button-1"];
+            buttonEnable.onclick = function () {
+                section.style.display = "none";
+                background.style.display = "none";
+                browser.storage.local.get("settings", (result) => {
+                    let settings = []
+                    if (result["settings"] !== undefined) {
+                        settings = result["settings"];
+                    }
+                    settings["send-telemetry"] = true;
+                    browser.storage.local.set({"settings": settings}).then(() => {
+                        sendMessageUpdateToBackground();
+                    });
+                })
+                browser.storage.sync.set({"telemetry-alert-displayed": true}).then(() => {
+                    //console.log("Telemetry alert displayed set to true");
+                });
+            }
+            let buttonOk = document.getElementById("telemetry-added-ok-button");
+            buttonOk.value = all_strings["telemetry-alert-button-2"];
+            buttonOk.onclick = function () {
+                section.style.display = "none";
+                background.style.display = "none";
+                browser.storage.sync.set({"telemetry-alert-displayed": true}).then(() => {
+                    //console.log("Telemetry alert displayed set to true");
+                });
+            }
+        }
+    });
 }
 
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {

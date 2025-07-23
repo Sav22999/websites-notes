@@ -455,6 +455,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
 
     let primary_color = "#fffd7d";
     let secondary_color = "#ff6200";
+    let secondary_color_semi_transparent = secondary_color + "88";
     let on_primary_color = "#111111";
     let on_secondary_color = "#ffffff";
     if (theme_colours_json !== undefined) {
@@ -463,7 +464,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
         if (theme_colours_json["on-primary"] !== undefined) on_primary_color = theme_colours_json["on-primary"];
         if (theme_colours_json["on-secondary"] !== undefined) on_secondary_color = theme_colours_json["on-secondary"];
     }
-    let tertiary_transparent_color = secondary_color+"44";
+    let tertiary_transparent_color = secondary_color + "44";
     let displayWidth = window.innerWidth;
     let displayHeight = window.innerHeight;
     let yAsInt = parseInt(y.replace("px", ""));
@@ -542,8 +543,8 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 position: absolute;
                 right: 0px;
                 bottom: 0px;
-                width: 10px;
-                height: 10px;
+                width: 20px;
+                height: 20px;
                 background-color: transparent;
                 opacity: 1;
                 cursor: nwse-resize;
@@ -557,17 +558,25 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
             #resize--sticky-notes-notefox-addon:active, #resize--sticky-notes-notefox-addon:focus{
                 cursor: nwse-resize;
             }
-            #resize--sticky-notes-notefox-addon:before{
+            #resize--sticky-notes-notefox-addon::before{
                 cursor: nwse-resize;
                 content: '';
                 position: absolute;
                 top: 0;
                 left: 0;
-                border-top: 10px solid transparent;
-                border-right-width: 10px;
+                border-top: 20px solid transparent;
+                border-right-width: 20px;
                 border-right-style: solid;
                 border-right-color: inherit;
                 width: 0;
+                height: 0;
+                border-bottom-right-radius: 10px;
+                opacity: 0.6;
+            }
+            #resize--sticky-notes-notefox-addon:hover::before{
+                opacity: 0.8;
+            }#resize--sticky-notes-notefox-addon:active::before{
+                opacity: 1;
             }
             #text--sticky-notes-notefox-addon {
                 scrollbar-color: ${secondary_color} transparent;
@@ -740,7 +749,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 z-index: 2;
                 width: auto !important;
                 left: 8px !important;
-                right: 8px !important;
+                right: 22px !important;
                 bottom: 7px !important;
                 margin: 0px !important;
                 padding: 0px !important;
@@ -796,7 +805,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 opacity: 1;
                 cursor: default;
                 border-radius: 15px;
-                z-index: 2;
+                z-index: 1;
             }
             
             #commands-container--sticky-notes-notefox-addon {
@@ -909,11 +918,18 @@ function onKeyDownText(text, settings_json, e) {
 
 function onPasteText(text, e) {
     if (((e.originalEvent || e).clipboardData).getData("text/html") !== "") {
+        //WITH FORMATTING (HTML)
         e.preventDefault(); // Prevent the default paste action
         let clipboardData = (e.originalEvent || e).clipboardData;
         let pastedText = clipboardData.getData("text/html");
         let sanitizedHTML = sanitizeHTML(pastedText)
         document.execCommand("insertHTML", false, sanitizedHTML);
+    } else {
+        //WITHOUT FORMATTING (TEXT)
+        e.preventDefault(); // Prevent the default paste action
+        let clipboardData = (e.originalEvent || e).clipboardData;
+        let pastedText = clipboardData.getData("text/plain");
+        document.execCommand("insertText", false, pastedText);
     }
 }
 
