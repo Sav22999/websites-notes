@@ -3103,9 +3103,16 @@ option {
 }
 
 .flex-container {
-    display: flex;
+    /*display: flex;*/
     flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
+}
+
+@media screen and (max-width: 800px) {
+    .flex-container {
+        display: flex;
+    }
 }
 
 .flex-item {
