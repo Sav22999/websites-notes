@@ -140,10 +140,10 @@ function checkVersion() {
                 //browser.tabs.create({url: "https://notefox.eu/help/update?version=" + currentVersion});
 
                 //reset error logs
-                browser.storage.local.set({"error-logs": []});
+                //browser.storage.local.set({"error-logs": []});
             });
         } else {
-            console.log(`Already checked this version (${currentVersion})`);
+            //console.log(`Already checked this version (${currentVersion})`);
         }
     });
 }
