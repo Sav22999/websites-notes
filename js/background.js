@@ -65,7 +65,7 @@ const MAX_PARAMETERS = 5;
  */
 function onError(context, text, url = undefined) {
     //if url starts with "http" or "https", then it's a valid url
-    if (url !== undefined && (url.startsWith("http://") || url.startsWith("https://"))) {
+    if (url !== undefined && (url.startsWith("http://") || url.startsWith("https://")) && !url.startsWith("https://addons.mozilla.org")) {
         browser.storage.sync.get("anonymous-userid").then(resultSync => {
             let anonymous_userid = null;
             if (resultSync["anonymous-userid"] !== undefined) {
