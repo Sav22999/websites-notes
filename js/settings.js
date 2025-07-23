@@ -524,7 +524,7 @@ function setThemeChooserByElement(element, set_variable = true) {
         saveSettings();
     }
     checkTheme();
-    sendTelemetry(`theme-radio-select`, "settings.js", settings_json["theme"]);
+    if (set_variable) sendTelemetry(`theme-radio-select`, "settings.js", settings_json["theme"]);
 }
 
 function setStickyThemeChooser() {
@@ -551,7 +551,7 @@ function setStickyThemeChooserByElement(element, set_variable = true) {
         saveSettings();
     }
     sendMessageUpdateToBackground();
-    sendTelemetry(`sticky-theme-radio-select`, "settings.js", settings_json["sticky-theme"]);
+    if (set_variable) sendTelemetry(`sticky-theme-radio-select`, "settings.js", settings_json["sticky-theme"]);
 }
 
 function setFontFamilyChooser() {
@@ -578,7 +578,7 @@ function setFontFamilyChooserByElement(element, set_variable = true) {
         saveSettings();
     }
     sendMessageUpdateToBackground();
-    sendTelemetry(`font-family-radio-select`, "settings.js", settings_json["font-family"]);
+    if (set_variable) sendTelemetry(`font-family-radio-select`, "settings.js", settings_json["font-family"]);
 }
 
 function setDatetimeFormatChooser() {
@@ -605,7 +605,7 @@ function setDatetimeFormatChooserByElement(element, set_variable = true) {
         saveSettings();
     }
     sendMessageUpdateToBackground();
-    sendTelemetry(`datetime-format-radio-select`, "settings.js", settings_json["datetime-format"]);
+    if (set_variable) sendTelemetry(`datetime-format-radio-select`, "settings.js", settings_json["datetime-format"]);
 }
 
 function tabUpdated() {
