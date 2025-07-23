@@ -1645,6 +1645,13 @@ aside .external-link {
         height: 100%;
     }
 
+    aside .aside-buttons {
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        flex-direction: row;
+    }
+
     .aside-button.external-link {
         background-position: center top 10px, top 5px right 5px;
         background-size: 40px auto, 15px auto !important;
@@ -1719,7 +1726,7 @@ aside .external-link {
 }
 
 @media screen and (max-width: 1000px) {
-    #version-aside {
+    .aside-version {
         display: none;
     }
 }
