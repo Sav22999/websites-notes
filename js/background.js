@@ -64,31 +64,34 @@ const MAX_PARAMETERS = 5;
  * @param url {string} - url of the page where the error happened (if applicable)
  */
 function onError(context, text, url = undefined) {
-    browser.storage.sync.get("anonymous-userid").then(resultSync => {
-        let anonymous_userid = null;
-        if (resultSync["anonymous-userid"] !== undefined) {
-            anonymous_userid = resultSync["anonymous-userid"];
-        } else {
-            anonymous_userid = generateSecureUUID();
-            browser.storage.sync.set({"anonymous-userid": anonymous_userid});
-        }
-        const error = {
-            "datetime": getDate(),
-            "context": context,
-            "error": text,
-            url: url,
-            "notefox-version": browser.runtime.getManifest().version,
-            "anonymous-userid": anonymous_userid
-        };
-        browser.storage.local.get("error-logs").then(result => {
-            let error_logs = [];
-            if (result["error-logs"] !== undefined) {
-                error_logs = result["error-logs"];
+    //if url starts with "http" or "https", then it's a valid url
+    if (url !== undefined && (url.startsWith("http://") || url.startsWith("https://"))) {
+        browser.storage.sync.get("anonymous-userid").then(resultSync => {
+            let anonymous_userid = null;
+            if (resultSync["anonymous-userid"] !== undefined) {
+                anonymous_userid = resultSync["anonymous-userid"];
+            } else {
+                anonymous_userid = generateSecureUUID();
+                browser.storage.sync.set({"anonymous-userid": anonymous_userid});
             }
-            error_logs.push(error);
-            browser.storage.local.set({"error-logs": error_logs});
+            const error = {
+                "datetime": getDate(),
+                "context": context,
+                "error": text,
+                url: url,
+                "notefox-version": browser.runtime.getManifest().version,
+                "anonymous-userid": anonymous_userid
+            };
+            browser.storage.local.get("error-logs").then(result => {
+                let error_logs = [];
+                if (result["error-logs"] !== undefined) {
+                    error_logs = result["error-logs"];
+                }
+                error_logs.push(error);
+                browser.storage.local.set({"error-logs": error_logs});
+            });
         });
-    });
+    }
 }
 
 function checkSyncLocal() {
@@ -140,7 +143,7 @@ function checkVersion() {
                 //browser.tabs.create({url: "https://notefox.eu/help/update?version=" + currentVersion});
 
                 //reset error logs
-                //browser.storage.local.set({"error-logs": []});
+                browser.storage.local.set({"error-logs": []});
             });
         } else {
             //console.log(`Already checked this version (${currentVersion})`);

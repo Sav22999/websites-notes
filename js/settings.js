@@ -803,8 +803,10 @@ function setLanguageUI() {
 
 function loadSettings() {
     try {
-        let shortcuts = browser.commands.getAll();
-        shortcuts.then(getCurrentShortcuts);
+        if (browser.commands !== undefined) {
+            let shortcuts = browser.commands.getAll();
+            shortcuts.then(getCurrentShortcuts);
+        }
     } catch (e) {
         console.error("C-01)) " + e);
         onError("settings.js::loadSettings", e.message);
