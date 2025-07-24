@@ -1815,8 +1815,10 @@ aside .external-link {
 
   aside:has(+ .from-firefox-addons) {
         display: none !important;
-    }aside .aside-button {
-    flex: 1;
+    }
+
+    aside .aside-button {
+        flex: 1;
 
     text-align: center;
     padding: 10px;
@@ -3967,6 +3969,10 @@ option {
     #settings-dedication-section.from-firefox-addons, #all-notes-dedication-section.from-firefox-addons {
         margin-bottom: 0px;
     }
+
+    #settings-dedication-section.from-firefox-addons, #all-notes-dedication-section.from-firefox-addons {
+        margin-bottom: 0px;
+    }
 }
 
 @media screen and (max-width: 800px) {
@@ -3974,6 +3980,10 @@ option {
   #all-notes-dedication-section {
     margin-bottom: 80px;
   }
+
+    #settings-dedication-section.from-firefox-addons, #all-notes-dedication-section.from-firefox-addons {
+        margin-bottom: 0px;
+    }
 
     #settings-dedication-section.from-firefox-addons, #all-notes-dedication-section.from-firefox-addons {
         margin-bottom: 0px;
