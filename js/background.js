@@ -562,12 +562,8 @@ function updateIcon(color, tabId, enabled = true) {
     });
     chrome.action.setIcon({path: {"16": icons16[index], "48": icons48[index], "128": icons128[index]}});
     */
-    chrome.action.onClicked.addListener((tab) => {
-        chrome.action.setIcon({
-            tabId: tab.id,
-            path: dataUrl,
-        });
-    });
+
+    //TODO: in chrome this does not work, so use the default icon
 }
 
 function getLuminance(hex) {
@@ -585,10 +581,23 @@ function getContrastRatio(color1, color2) {
 function changeIcon(index, colour = "#00361C") {
     const conditionSettings = settings_json["change-icon-color-based-on-tag-colour"] !== undefined && settings_json["change-icon-color-based-on-tag-colour"] === true;
 
-    if (index >= 2 && conditionSettings) {
-        this.updateIcon(colour, tab_id, index !== 0);
+    //on Chrome use the default icon
+    if (webBrowserUsed === "chrome") {
+        let indexToUse = index;
+        if (indexToUse > 1) indexToUse = 1; // Chrome only supports 2 icons (active and inactive)
+        chrome.action.setIcon({
+            path: {
+                "16": icons16[indexToUse],
+                "48": icons48[indexToUse],
+                "128": icons128[indexToUse]
+            }
+        });
     } else {
-        this.updateIcon(index === 0 ? "#FF6200" : "#00361C", tab_id, index !== 0);
+        if (index >= 2 && conditionSettings) {
+            this.updateIcon(colour, tab_id, index !== 0);
+        } else {
+            this.updateIcon(index === 0 ? "#FF6200" : "#00361C", tab_id, index !== 0);
+        }
     }
     //browser.browserAction.setIcon({path: icons[index], tabId: tab_id});
 }

@@ -962,7 +962,14 @@ function loadSettings() {
             document.getElementById("default-tag-colour-page-select").value = settings_json["default-tag-colour-page"];
             document.getElementById("default-tag-colour-page-select").classList = ["select-box tag-colour-" + settings_json["default-tag-colour-page"]];
 
-            //TODO:chrome
+            if (webBrowserUsed === "chrome") {
+                //all elements with the class "hide-on-chrome" should be added the "hidden" class
+                let hideOnChromeElements = document.getElementsByClassName("hide-on-chrome");
+                for (let i = 0; i < hideOnChromeElements.length; i++)
+                    hideOnChromeElements[i].classList.add("hidden");
+            }
+
+            //TODO: on chrome it's disabled
             /*let keyboardShortcutCtrlAltShiftDefault = document.getElementById("key-shortcut-ctrl-alt-shift-default-selected");
             let keyboardShortcutLetterNumberDefault = document.getElementById("key-shortcut-default-selected");
             let keyboardShortcutCtrlAltShiftDomain = document.getElementById("key-shortcut-ctrl-alt-shift-domain-selected");
