@@ -692,6 +692,11 @@ textarea::placeholder, .textbox::placeholder, pre::placeholder, #title-notes::pl
     }
 }
 
+.from-firefox-addons {
+    max-height: 600px !important;
+    overflow: auto;
+}
+
 .settings-section-grid {
     display: grid;
     grid-template-columns: auto auto;
@@ -1628,6 +1633,10 @@ aside .external-link {
         color: var(--primary-color);
 
         display: flex;
+    }
+
+    aside:has(+ .from-firefox-addons) {
+        display: none !important;
     }
 
     aside .aside-button {
@@ -3094,11 +3103,19 @@ option {
     #settings-dedication-section, #all-notes-dedication-section {
         margin-bottom: 100px;
     }
+
+    #settings-dedication-section.from-firefox-addons, #all-notes-dedication-section.from-firefox-addons {
+        margin-bottom: 0px;
+    }
 }
 
 @media screen and (max-width: 800px) {
     #settings-dedication-section, #all-notes-dedication-section {
         margin-bottom: 80px;
+    }
+
+    #settings-dedication-section.from-firefox-addons, #all-notes-dedication-section.from-firefox-addons {
+        margin-bottom: 0px;
     }
 }
 
