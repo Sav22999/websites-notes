@@ -832,7 +832,7 @@ function checkStatus(update = false) {
                         // console.log("opacity: " + JSON.stringify(opacity));
 
                         //console.log(url);
-                        if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"]) {
+                        if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"] === true) {
                             openAsStickyNotes();
                         } else {
                             closeStickyNotes(update);
@@ -1501,30 +1501,32 @@ function openAsStickyNotes() {
  */
 function closeStickyNotes(update = true) {
     //before to close, check if the permissions are granted
-    const permissionsToRequest = {
-        origins: ["<all_urls>"]
-    }
     try {
-        browser.permissions.contains(permissionsToRequest).then((response) => {
-            if (response) {
-                checkIcon();
-                browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                    if (tabs !== undefined && tabs.length > 0) {
-                        const activeTab = tabs[0];
-                        browser.tabs.executeScript({
-                            code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
-                        }).then(function () {
-                            //console.log("Sticky notes ('close')");
-                            if (update) tabUpdated(false);
-                        }).catch(function (error) {
-                            console.error("E1: " + error + "\nin " + activeTab.url);
-                            onError("background.js::closeStickyNotes::E1", error.message, tab_url);
-                        });
-                    }
-                });
-                opening_sticky = false;
+        browser.permissions.getAll().then(
+            (permissions) => {
+                //console.log("Permissions: ", permissions);
+                if (permissions.origins.includes("<all_urls>")) {
+                    checkIcon();
+                    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                        if (tabs !== undefined && tabs.length > 0) {
+                            const activeTab = tabs[0];
+                            browser.tabs.executeScript({
+                                code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
+                            }).then(function () {
+                                //console.log("Sticky notes ('close')");
+                                if (update) tabUpdated(false);
+                            }).catch(function (error) {
+                                console.error("E1: " + error + "\nin " + activeTab.url);
+                                onError("background.js::closeStickyNotes::E1", error.message, tab_url);
+                            });
+                        }
+                    });
+                    opening_sticky = false;
+                } else {
+                    //console.error("All URLs permission not granted");
+                }
             }
-        });
+        )
     } catch (error) {
         console.error("E-CP1: " + error + "\nin " + _pageUrl);
         onError("background.js::closeStickyNotes::E-CP1", error.message, _pageUrl);
