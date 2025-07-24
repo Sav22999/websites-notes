@@ -1517,7 +1517,7 @@ function closeStickyNotes(update = true) {
                                 if (update) tabUpdated(false);
                             }).catch(function (error) {
                                 console.error("E1: " + error + "\nin " + activeTab.url);
-                                onError("background.js::closeStickyNotes::E1", error.message, tab_url);
+                                //onError("background.js::closeStickyNotes::E1", error.message, tab_url);
                             });
                         }
                     });
