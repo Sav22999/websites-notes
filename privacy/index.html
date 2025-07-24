@@ -3,6 +3,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome (back) to Notefox</title>
+    <link rel="icon" href="/img/icon.png" type="image/png">
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&display=swap&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap");
 
@@ -184,6 +185,7 @@
 
             margin: 0px auto;
         }
+
         .overview-privacy-policy .cards .card {
             background-color: #ff8d4b;
             color: #eeeeee;
@@ -205,6 +207,7 @@
             margin: 10px 0px;
             line-height: 1em;
         }
+
         .overview-privacy-policy .cards .card p {
             font-size: 0.8em;
             margin: 0px;
@@ -246,28 +249,32 @@
 
     </div>
     <div class="main">
-        <h1>
+        <h1 id="title">
             Privacy Policy acceptance
         </h1>
-        <div class="section">
+        <div class="section" id="description1">
             From the 4.0 version of Notefox, you are able to create a <b>Notefox Account</b> to sync your data across
             devices.
             This is a great feature but, because it's external to your web browser service, it requires a small extra
             step to ensure your privacy.
         </div>
-        <div class="pay-attention">
+        <div class="pay-attention" id="description2-evidence">
             You can also use Notefox without creating an account.
         </div>
-        <div class="section">
+        <div class="section" id="description3">
             In this case, your data will be stored in your browser's local storage only, and it won't be collected
             anything.
         </div>
         <div class="section center-text">
-            To continue to use Notefox, you need to accept the <a
-                href="https://addons.mozilla.org/en-GB/firefox/addon/websites-notes/privacy/">Privacy Policy</a>, which
-            will be applied only if you create an account.
-            <br>
-            <b>This doesn't mean that you have to create an account mandatorily.</b>
+            <div id="description4">
+                To continue to use Notefox, you need to accept the <a
+                    href="https://addons.mozilla.org/en-GB/firefox/addon/websites-notes/privacy/">Privacy Policy</a>,
+                which
+                will be applied only if you create an account.
+            </div>
+            <div id="description5">
+                <b>This doesn't mean that you have to create an account mandatorily.</b>
+            </div>
         </div>
         <div class="pay-attention red hidden" id="privacy-policy-already-accepted">
             You have already accepted the Privacy Policy of Notefox.
@@ -278,38 +285,91 @@
         </div>
     </div>
     <div class="section overview-privacy-policy">
-        <small class="subtitle">(Only if you create a Notefox account)</small>
-        <h3 class="title">We follow three simple principles</h3>
+        <small class="subtitle" id="description6">(Only if you create a Notefox account)</small>
+        <h3 class="title" id="description7">We follow three simple principles</h3>
         <div class="cards">
             <div class="card">
                 <img src="./images/collected.svg" alt="Collected image">
-                <h4>Only necessary data is collected</h4>
-                <p>We only collect the data that is necessary to provide the service – such as notes, settings, IP address, ….</p>
+                <h4 id="description8">Only necessary data is collected</h4>
+                <p id="description9">We only collect the data that is necessary to provide the service – such as notes,
+                    settings, IP
+                    address, ….</p>
             </div>
             <div class="card">
                 <img src="./images/encrypted.svg" alt="Encrypted image" class="encrypted">
-                <h4>End-to-end encryption</h4>
-                <p>We use end-to-end encryption to protect your data, so only you can access it.</p>
+                <h4 id="description10">End-to-end encryption</h4>
+                <p id="description11">We use end-to-end encryption to protect your data, so only you can access it.</p>
             </div>
             <div class="card">
                 <img src="./images/noshared.svg" alt="No Shared image">
-                <h4>Nothing is shared</h4>
-                <p>We don't share your data with third parties.</p>
+                <h4 id="description12">Nothing is shared</h4>
+                <p id="description13">We don't share your data with third parties.</p>
             </div>
         </div>
     </div>
     <div class="footer">
-        <div class="small-text">
+        <div class="small-text" id="footer-message">
             You can delete a Notefox Account in anytime.
             <br>Notefox Account uses end-to-end cryptography, so if you lose your password, you will lose all your data.
             <br>If you delete your account, all your data will be deleted permanently and cannot be recovered.
         </div>
-        <div class="small-text">
+        <div class="small-text" id="footer-message2">
             You could be interested also in the <a href="https://www.notefox.eu/terms/">Terms of Service</a> and the <a
                 href="https://www.notefox.eu/privacy/">Privacy Policy</a> of Notefox.
         </div>
     </div>
 </div>
+
+<script src="../js/definitions.js"></script>
+
+<!--include all translation files-->
+<!--en English-->
+<script src="../js/languages/en-UK/strings.js"></script>
+<!--it Italian-->
+<script src="../js/languages/it-IT/strings.js"></script>
+<!--ar Arabic-->
+<script src="../js/languages/ar-SA/strings.js"></script>
+<!--zh-cn Chinese Simplified-->
+<script src="../js/languages/zh-CN/strings.js"></script>
+<!--zh-tw Chinese Traditional-->
+<script src="../js/languages/zh-TW/strings.js"></script>
+<!--cs Czech-->
+<script src="../js/languages/cs-CZ/strings.js"></script>
+<!--da Danish-->
+<script src="../js/languages/da-DK/strings.js"></script>
+<!--nl Dutch-->
+<script src="../js/languages/nl-NL/strings.js"></script>
+<!--fi Finnish-->
+<script src="../js/languages/fi-FI/strings.js"></script>
+<!--fr French-->
+<script src="../js/languages/fr-FR/strings.js"></script>
+<!--de German-->
+<script src="../js/languages/de-DE/strings.js"></script>
+<!--el Greek-->
+<script src="../js/languages/el-GR/strings.js"></script>
+<!--ja Japanese-->
+<script src="../js/languages/ja-JP/strings.js"></script>
+<!--no Norwegian-->
+<script src="../js/languages/no-NO/strings.js"></script>
+<!--pl Polish-->
+<script src="../js/languages/pl-PL/strings.js"></script>
+<!--pt-pt Portuguese, Portugal-->
+<script src="../js/languages/pt-PT/strings.js"></script>
+<!--pt-br Portuguese, Brazil-->
+<script src="../js/languages/pt-BR/strings.js"></script>
+<!--ro Romanian-->
+<script src="../js/languages/ro-RO/strings.js"></script>
+<!--ru Russian-->
+<script src="../js/languages/ru-RU/strings.js"></script>
+<!--es Spanish-->
+<script src="../js/languages/es-ES/strings.js"></script>
+<!--sv-se Swedish-->
+<script src="../js/languages/sv-SE/strings.js"></script>
+<!--uk Ukrainian-->
+<script src="../js/languages/uk-UA/strings.js"></script>
+<!--ia Interlingua-->
+<script src="../js/languages/ia/strings.js"></script>
+<!--END|include all translation files-->
 
 <script src="./privacy.js"></script>
 </body>

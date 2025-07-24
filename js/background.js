@@ -31,8 +31,14 @@ const linkFirstLaunch = "https://notefox.eu/help/first-run"
 const linkAcceptPrivacy = "/privacy/index.html";
 
 let sync_local = chrome.storage.local;
-checkSyncLocal();
-generalListener();
+try {
+    checkSyncLocal();
+    loadDataFromSync();
+    generalListener();
+} catch (e) {
+    console.error(`E-B0: ${e}`);
+    onError("background.js::onStartup", e.message, tab_url);
+}
 
 let _domainUrl = undefined
 let _pageUrl = undefined
@@ -42,8 +48,6 @@ const MAX_COMBINATIONS = 20;
 const MAX_PARAMETERS = 5;
 
 /*chrome.runtime.onInstalled.addListener(async ({reason, temporary}) => {
-
-/*browser.runtime.onInstalled.addListener(async ({reason, temporary}) => {
     //if (temporary) return; // skip during development
 
     console.log(reason);
@@ -57,31 +61,121 @@ const MAX_PARAMETERS = 5;
     }
 });*/
 
+/**
+ * Use this function to capture errors and save on the local storage (to be used as logs)
+ * @param context {string} - context of the error (where it happened) || use format "file::function[::line]"
+ * @param text {string} - text to be saved as error || it's automatically saved also the date and time
+ * @param url {string} - url of the page where the error happened (if applicable)
+ */
+function onError(context, text, url = undefined) {
+    //if url starts with "http" or "https", then it's a valid url
+    if (url !== undefined && (url.startsWith("http://") || url.startsWith("https://")) && !url.startsWith("https://addons.mozilla.org")) {
+        chrome.storage.sync.get("anonymous-userid").then(resultSync => {
+            let anonymous_userid = null;
+            if (resultSync["anonymous-userid"] !== undefined) {
+                anonymous_userid = resultSync["anonymous-userid"];
+            } else {
+                anonymous_userid = generateSecureUUID();
+                chrome.storage.sync.set({"anonymous-userid": anonymous_userid});
+            }
+            const error = {
+                "datetime": getDate(),
+                "context": context,
+                "error": text,
+                url: url,
+                "notefox-version": browser.runtime.getManifest().version,
+                "anonymous-userid": anonymous_userid
+            };
+            chrome.storage.local.get("error-logs").then(result => {
+                let error_logs = [];
+                if (result["error-logs"] !== undefined) {
+                    error_logs = result["error-logs"];
+                }
+                error_logs.push(error);
+                chrome.storage.local.set({"error-logs": error_logs});
+            });
+        });
+    }
+}
+
 function checkSyncLocal() {
     sync_local = chrome.storage.local;
-    chrome.storage.local.get("privacy").then(result => {
-        if (result.privacy === undefined) {
-            //not accepted privacy policy -> open 'privacy' page
-            chrome.tabs.create({url: linkAcceptPrivacy});
+    chrome.storage.sync.get("privacy").then(result => {
+        if (result.privacy !== undefined) {
+            checkInstallationDate();
         } else {
-            chrome.storage.sync.get("installation").then(result => {
-                //console.log(">> Installation", result)
-                if (result.installation === undefined) {
-                    chrome.storage.sync.set({
-                        "installation": {
-                            "date": getDate(),
-                            "version": chrome.runtime.getManifest().version
-                        }
+            //Check if the user has accepted the privacy policy (and saved it in the local storage)
+            chrome.storage.local.get("privacy").then(result => {
+                if (result.privacy !== undefined) {
+                    chrome.storage.sync.set({"privacy": result.privacy});
+                    //delete the local storage
+                    chrome.storage.local.remove("privacy").then(() => {
+                        console.log("Privacy policy removed from local storage");
                     });
-
-                    //first launch -> open 'first launch' page
-                    chrome.tabs.create({url: linkFirstLaunch});
+                    checkInstallationDate();
+                } else {
+                    //not accepted privacy policy -> open 'privacy' page
+                    chrome.tabs.create({url: linkAcceptPrivacy});
                 }
             });
         }
     });
 
+    checkVersion();
+
     checkSyncData();
+    checkErrorLogs();
+    checkTelemetryLogs();
+}
+
+/**Check if it's the first time the user use the current version of Notefox
+ * Useful for the "update" page*/
+function checkVersion() {
+    const currentVersion = chrome.runtime.getManifest().version;
+    chrome.storage.sync.get(`versions`).then(result => {
+        if (result === undefined || result[currentVersion] === undefined) {
+            let resultToSet = {};
+            if (result !== undefined) {
+                resultToSet = result;
+            }
+
+            resultToSet[currentVersion] = {"date": getDate()};
+
+            //first time using this version
+            chrome.storage.sync.set({"versions": resultToSet}).then(() => {
+                //open 'update' page
+                //browser.tabs.create({url: "https://notefox.eu/help/update?version=" + currentVersion});
+
+                //reset error logs
+                chrome.storage.local.set({"error-logs": []});
+            });
+        } else {
+            //console.log(`Already checked this version (${currentVersion})`);
+        }
+    });
+}
+
+function checkInstallationDate() {
+    chrome.storage.sync.get("installation").then(result => {
+        if (result.installation === undefined) {
+            chrome.storage.sync.set({
+                "installation": {
+                    "date": getDate(), "version": chrome.runtime.getManifest().version
+                }
+            })
+
+            //open 'first launch' page
+            chrome.tabs.create({url: linkFirstLaunch});
+        } else {
+            let date = new Date(getDate());
+            let now = new Date();
+            let diff = now - date;
+            let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            console.log(`Installation date: ${result.installation.date} (${days} days ago)`);
+            //console.log("Installation date: " + result.installation.date);
+            //console.log("Installation version: " + result.installation.version);
+        }
+    });
 }
 
 function generalListener() {
@@ -100,9 +194,7 @@ function checkSyncData(just_once = false) {
 
         if (resultSync["notefox-account"] !== undefined) {
             api_request({
-                "api": true,
-                "type": "get-data",
-                "data": {
+                "api": true, "type": "get-data", "data": {
                     "login-id": resultSync["notefox-account"]["login-id"],
                     "token": resultSync["notefox-account"]["token"]
                 }
@@ -130,6 +222,60 @@ function syncData(force_time = 1 * 60 * 1000, just_once = false) {
             checkSyncData();
         }, force_time);
     }
+}
+
+/**
+ * Check if there are error logs in the local storage each 10 minutes
+ */
+function checkErrorLogs() {
+    //console.log("Check error logs");
+    sync_local.get(["settings", "error-logs"]).then(result => {
+        settings_json = {};
+        if (result["settings"] !== undefined) settings_json = result["settings"];
+        if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = true
+
+        if (settings_json["sending-error-logs-automatically"]) {
+            if (result["error-logs"] !== undefined && result["error-logs"].length > 0) {
+                //console.error("Error logs: ", result["error-logs"]);
+                api_request({
+                    "api": true, "type": "send-error-logs", "data": {"error-logs": result["error-logs"]}
+                });
+            }
+        }
+    })
+
+    const time = 10 * 60 * 1000; //10 minutes
+
+    setTimeout(function () {
+        checkErrorLogs();
+    }, time); //10 minutes
+}
+
+/**
+ * Check if there are telemetry logs in the local storage each 10 minutes
+ */
+function checkTelemetryLogs() {
+    //console.log("Check error logs");
+    sync_local.get(["settings", "telemetry"]).then(result => {
+        settings_json = {};
+        if (result["settings"] !== undefined) settings_json = result["settings"];
+        if (settings_json["send-telemetry"] === undefined) settings_json["send-telemetry"] = true
+
+        if (settings_json["send-telemetry"]) {
+            if (result["telemetry"] !== undefined && result["telemetry"].length > 0) {
+                //console.error("Telemetry: ", result["telemetry"]);
+                api_request({
+                    "api": true, "type": "send-telemetry", "data": {"telemetry": result["telemetry"]}
+                });
+            }
+        }
+    })
+
+    const time = 10 * 60 * 1000; //10 minutes
+
+    setTimeout(function () {
+        checkTelemetryLogs();
+    }, time); //10 minutes
 }
 
 function actionResponse(response) {
@@ -202,15 +348,46 @@ function actionResponse(response) {
                             sendLocalDataToServer();
                         } else {
                             console.error("[background.js::actionResponse] Error: ", data);
+                            onError("background.js::actionResponse::get-data", JSON.stringify(data), tab_url);
                         }
                     }
                 }
             } else if (response["type"] === "send-data") {
                 //console.log("Send data response: " + JSON.stringify(response));
+            } else if (response["type"] === "listen-error-logs") {
+                //console.log("Send error logs response: " + JSON.stringify(response));
+                if (response["data"] !== undefined) {
+                    let data = response["data"];
+                    if (data !== undefined) {
+                        if (data.code === 200) {
+                            //clear error logs
+                            sync_local.set({"error-logs": []});
+                        } else {
+                            console.error("[background.js::actionResponse] Error: ", data);
+                            onError("background.js::actionResponse::listen-error-logs", JSON.stringify(data), tab_url);
+                        }
+                    }
+                }
+            } else if (response["type"] === "listen-telemetry-logs") {
+                //console.log("Send telemetry logs response: " + JSON.stringify(response));
+                if (response["data"] !== undefined) {
+                    let data = response["data"];
+                    if (data !== undefined) {
+                        if (data.code === 200) {
+                            //clear error logs
+                            sync_local.set({"telemetry": []});
+                        } else {
+                            console.error("[background.js::actionResponse] Error: ", data);
+                            onError("background.js::actionResponse::listen-telemetry-logs", JSON.stringify(data), tab_url);
+                        }
+                    }
+                }
             }
         }
+    } else {
+        //console.error("[background.js::actionResponse] Error: ", response);
+        onError("background.js::actionResponse", JSON.stringify(response), tab_url);
     }
-
 }
 
 function sendLocalDataToServer() {
@@ -256,9 +433,7 @@ function sendLocalDataToServer() {
             chrome.storage.sync.get(["notefox-account"]).then(resultSync => {
                 if (resultSync["notefox-account"] !== undefined) {
                     api_request({
-                        "api": true,
-                        "type": "send-data",
-                        "data": {
+                        "api": true, "type": "send-data", "data": {
                             "login-id": resultSync["notefox-account"]["login-id"],
                             "token": resultSync["notefox-account"]["token"],
                             "updated-locally": correctDatetime(result["last-update"]),
@@ -274,6 +449,7 @@ function sendLocalDataToServer() {
             });
         }).catch((e) => {
             console.error(`E-B1: ${e}`);
+            onError("background.js::sendLocalDataToServer", e.message, tab_url);
         });
     });
 }
@@ -287,6 +463,7 @@ function syncUpdateFromServer() {
             syncUpdateFromServer();
         }, 5 * 60 * 1000); //5 minutes if any issues
         console.error(`E-B2: ${e}`);
+        onError("background.js::syncUpdateFromServer", e.message, tab_url);
     });
 
     loaded();
@@ -304,8 +481,113 @@ function correctDatetime(datetime) {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-function changeIcon(index) {
+function svgToDataUrl(svgString) {
+    const encoded = encodeURIComponent(svgString)
+        .replace(/'/g, '%27')
+        .replace(/"/g, '%22');
+    return `data:image/svg+xml,${encoded}`;
+}
+
+/**
+ * Update the browser action icon with customised colour
+ * @param color {string} - Hex colour code (e.g. "#ff0000" for red)
+ * @param tabId {number} - The ID of the tab where the icon should be updated
+ * @param enabled {boolean} - Whether the icon should be enabled or not (default: false)
+ */
+function updateIcon(color, tabId, enabled = true) {
+    const colorPencil = color;
+    let colorBackground = color;
+    // reduce colorBackground intensity by 20% (e.g. if colorPencil is #000000, colorBackground should be #222222)
+    if (colorBackground.startsWith("#")) {
+        const r = Math.max(0, parseInt(colorBackground.slice(1, 3), 16) - 51).toString(16).padStart(2, '0');
+        const g = Math.max(0, parseInt(colorBackground.slice(3, 5), 16) - 51).toString(16).padStart(2, '0');
+        const b = Math.max(0, parseInt(colorBackground.slice(5, 7), 16) - 51).toString(16).padStart(2, '0');
+        colorBackground = `#${r}${g}${b}`;
+    }
+
+    let colorBorder = "#ffffff"; // default border color
+    //check readability of the color on the colorBackground (change from #fff to #000 if the color is too light)
+    if (getContrastRatio(colorBorder, colorBackground) < 2.5) {
+        colorBorder = "#000000"; // Switch to black if contrast is too low
+    }
+
+    if (colorPencil === "#FF6200") {
+        colorBackground = "#FFB788";
+        colorBorder = "#ffffff";
+    } else if (colorPencil === "#00361C") {
+        colorBackground = "#00A81C";
+        colorBorder = "#ffffff";
+    }
+
+    const colorText = enabled ? colorBorder : colorBackground;
+
+    const svgString = `
+    <svg width="100%" height="100%" viewBox="0 0 36 36" version="1.1" xmlns="http://www.w3.org/2000/svg"
+     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+        <g transform="matrix(0.833333,0,0,0.833333,-0.155476,3.47124)">
+            <g transform="matrix(0.00367347,-9.96139e-35,9.96139e-35,-0.00367347,-0.43707,7.79545)">
+                <g transform="matrix(1,1.09476e-47,-1.09476e-47,1,-736.712,51.3984)">
+                    <!--background-->
+                    <path d="M9707.7,2169.4C9707.7,2169.4 3617.54,2262.14 2522.17,2161.68C2423.83,2152.66 2356.55,2124.83 2321.45,2004.41C2284.75,1878.48 2249.8,659.559 2249.8,-117.4C2249.8,-1760.3 2249.9,-5589.6 2249.9,-6400.7C2249.9,-6922.52 2297.45,-7339.61 2317.54,-7459.99C2330.44,-7537.32 2421.3,-7529.4 2421.3,-7529.4L4586.8,-7529.4C6430.4,-7529.4 9035.57,-7617.26 9565.31,-7490.99C9727.52,-7452.32 9760.92,-7371.07 9783.87,-7221.07C9865.28,-6688.92 9900,-2838.8 9900,-1007.8L9900,1989.6C9901.78,2109.98 9834.17,2163.21 9707.7,2169.4Z"
+                          fill="${colorBackground}" style="fill-rule:nonzero;"/>
+                    <path d="M2421.3,-7856.08C2337.04,-7855.32 2045.43,-7814.06 1995.33,-7513.75C1974.22,-7387.24 1923.23,-6949.02 1923.23,-6400.7C1923.23,-5589.6 1923.13,-1760.3 1923.13,-117.4C1923.13,693.158 1969.55,1964.44 2007.83,2095.82C2052.26,2248.23 2127.65,2335.04 2212.45,2393.61C2288.81,2446.35 2380.25,2476.7 2492.33,2486.98C3593.01,2587.93 9712.67,2496.03 9712.67,2496.03C9716.34,2495.97 9720.01,2495.86 9723.67,2495.68C9877.86,2488.13 9990.79,2436.57 10070,2365.54C10164.1,2281.23 10228.2,2162.17 10226.7,1988.8L10226.7,-1007.8C10226.7,-2853.37 10188.8,-6734.09 10106.8,-7270.47C10079.9,-7446.01 10026.3,-7565.19 9934.93,-7655.21C9868.63,-7720.51 9778.76,-7775.93 9641.06,-7808.75C9103.25,-7936.95 6458.48,-7856.07 4586.8,-7856.07L2431.65,-7855.85C2428.28,-7855.95 2424.83,-7856.02 2421.3,-7856.08L2421.3,-7529.4L4586.8,-7529.4C6430.4,-7529.4 9035.57,-7617.26 9565.31,-7490.99C9727.52,-7452.32 9760.92,-7371.07 9783.87,-7221.07C9865.28,-6688.92 9900,-2838.8 9900,-1007.8L9900,1989.6C9901.78,2109.98 9834.17,2163.21 9707.7,2169.4C9707.7,2169.4 3617.54,2262.14 2522.17,2161.68C2423.83,2152.66 2356.55,2124.83 2321.45,2004.41C2284.75,1878.48 2249.8,659.559 2249.8,-117.4C2249.8,-1760.3 2249.9,-5589.6 2249.9,-6400.7C2249.9,-6740.28 2270.04,-7035.51 2289.64,-7233.48C2083.36,-7362.7 2421.3,-7856.08 2421.3,-7856.08Z"
+                          fill="${colorBorder}"/>
+                </g>
+                <g transform="matrix(-0.975524,-2.34562e-34,2.34562e-34,-0.984174,10684,-4202.33)">
+                    <!--pencil-->
+                    <path d="M2963.46,-2483.19C1504.46,-3386.19 130.4,-4038.7 117.8,-4051.2C105.3,-4059.6 96.9,-4201.7 101.1,-4364.7C105.3,-4883.1 360.3,-5280.2 836.9,-5518.5L1087.7,-5643.9C1087.7,-5643.9 2529.42,-4538.25 3827.77,-3740.84L6430.3,-2337.1C6430.3,-2337.1 7217.28,-934.507 7084.9,-815.068C6973.6,-714.648 5761.36,-818.125 5460.4,-848.9C5453,-849.656 4629.81,-1451.86 2963.46,-2483.19Z"
+                          fill="${colorPencil}" style="fill-rule:nonzero;"/>
+                    <path d="M-88.819,-3791.8C-67.834,-3776.39 -35.504,-3755.3 9.853,-3732.53C252.482,-3610.73 1485.26,-3006.76 2786.11,-2201.65C4276.37,-1279.3 5088.01,-702.39 5240.79,-595.677C5346.81,-521.622 5421.45,-519.202 5426.04,-518.733C5676.1,-493.162 6532.01,-420.966 6923.52,-445.831C7128.6,-458.855 7261.87,-525.903 7310.31,-569.61C7368.15,-621.796 7419.85,-699.629 7432.17,-814.867C7439.22,-880.781 7428.78,-987.776 7387.02,-1119.05C7247.21,-1558.5 6722.95,-2498.43 6722.95,-2498.43C6692.1,-2553.41 6646.11,-2598.58 6590.36,-2628.65C6590.36,-2628.65 3996.26,-4027.84 3993.97,-4029.24C2711.75,-4817.89 1292.61,-5906.42 1292.61,-5906.42C1190.52,-5984.71 1052.13,-5997.87 936.885,-5940.25L686.085,-5814.85C89.646,-5516.63 -227.56,-5018.52 -233.728,-4370.21C-238.644,-4169.58 -217.347,-3993.27 -203.058,-3951.36C-168.524,-3850.06 -107.34,-3801.49 -70.109,-3776.47L-88.819,-3791.8ZM2963.46,-2483.19C1504.46,-3386.19 130.4,-4038.7 117.8,-4051.2C105.3,-4059.6 96.9,-4201.7 101.1,-4364.7C105.3,-4883.1 360.3,-5280.2 836.9,-5518.5L1087.7,-5643.9C1087.7,-5643.9 2529.42,-4538.25 3827.77,-3740.84L6430.3,-2337.1C6430.3,-2337.1 7217.28,-934.507 7084.9,-815.068C6973.6,-714.648 5761.36,-818.125 5460.4,-848.9C5453,-849.656 4629.81,-1451.86 2963.46,-2483.19Z"
+                          fill="${colorBorder}"/>
+                </g>
+            </g>
+    
+            <!--text-->
+            <g transform="matrix(1.2,0,0,1.2,0.186572,-4.16549)">
+                <path d="M7.025,7.976C7.025,7.875 7.119,7.797 7.166,7.707C7.327,7.397 7.536,7.098 7.718,6.802C7.736,6.772 7.817,6.595 7.873,6.548C7.906,6.519 7.972,6.419 7.972,6.463C7.972,7.126 8.057,7.779 8.057,8.443L8.057,9.291C8.057,9.325 8.065,9.535 8.142,9.475C8.639,9.088 9.076,8.407 9.627,8.132C9.678,8.106 9.728,8.19 9.768,8.231C9.899,8.361 10.041,8.499 10.235,8.542C10.457,8.591 10.462,8.322 10.603,8.287C10.879,8.218 11.163,8.47 11.466,8.372C11.933,8.221 12.23,7.913 12.611,7.622C12.673,7.575 12.868,7.374 12.993,7.424C13.119,7.475 13.147,7.582 13.234,7.665C13.469,7.889 13.754,8.144 14.012,8.315C14.116,8.385 14.368,8.023 14.422,7.976C14.746,7.696 15.136,7.466 15.553,7.368C15.646,7.346 15.757,7.273 15.836,7.325C15.95,7.401 15.947,7.614 15.977,7.736C16.035,7.967 16.261,8.61 16.598,8.652C17.297,8.74 17.729,7.75 18.368,7.608C18.684,7.538 18.838,8.191 19.146,8.259C19.332,8.3 19.5,8.166 19.683,8.146C20,8.111 20.327,8.16 20.645,8.16"
+                      stroke="${colorText}" style="fill:none;stroke-width:1px;"/>
+            </g>
+            <g transform="matrix(1.2,0,0,1.2,0.186572,-4.16549)">
+                <path d="M6.756,14.921C6.833,14.869 6.794,14.768 6.798,14.68C6.81,14.463 6.82,14.246 6.841,14.029C6.878,13.629 6.97,13.205 7.197,12.865C7.254,12.779 7.401,12.586 7.52,12.573C8.276,12.485 8.278,13.345 8.679,13.747C8.779,13.846 9.32,13.589 9.387,13.577C9.58,13.542 9.638,13.835 9.839,13.902C10.161,14.01 10.846,13.963 11.126,13.888C11.341,13.83 11.652,13.722 11.805,13.549C11.871,13.474 11.878,13.239 11.961,13.294C12.355,13.557 13.193,13.83 13.587,13.633"
+                      stroke="${colorText}" style="fill:none;stroke-width:1px;"/>
+            </g>
+        </g>
+    </svg>
+    `;
+
+    const dataUrl = svgToDataUrl(svgString);
+
+    /*browser.browserAction.setIcon({
+        path: dataUrl, tabId: tabId
+    });
     chrome.action.setIcon({path: {"16": icons16[index], "48": icons48[index], "128": icons128[index]}});
+    */
+    chrome.action.setIcon({
+        path: dataUrl
+    });
+}
+
+function getLuminance(hex) {
+    const rgb = hex.match(/\w\w/g).map(x => parseInt(x, 16) / 255);
+    const adjusted = rgb.map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+    return 0.2126 * adjusted[0] + 0.7152 * adjusted[1] + 0.0722 * adjusted[2];
+}
+
+function getContrastRatio(color1, color2) {
+    const lum1 = getLuminance(color1);
+    const lum2 = getLuminance(color2);
+    return (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05);
+}
+
+function changeIcon(index, colour = "#00361C") {
+    const conditionSettings = settings_json["change-icon-color-based-on-tag-colour"] !== undefined && settings_json["change-icon-color-based-on-tag-colour"] === true;
+
+    if (index >= 2 && conditionSettings) {
+        this.updateIcon(colour, tab_id, index !== 0);
+    } else {
+        this.updateIcon(index === 0 ? "#FF6200" : "#00361C", tab_id, index !== 0);
+    }
+    //browser.browserAction.setIcon({path: icons[index], tabId: tab_id});
 }
 
 function loaded() {
@@ -324,28 +606,30 @@ function loaded() {
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         // since only one tab should be active and in the current window at once
         // the return variable should only have one entry
-        let activeTab = tabs[0];
-        tab_id = activeTab.id;
-        tab_url = activeTab.url;
-        tab_title = activeTab.title;
+        if (tabs !== undefined && tabs.length > 0) {
+            let activeTab = tabs[0];
+            tab_id = activeTab.id;
+            tab_url = activeTab.url;
+            tab_title = activeTab.title;
 
-        //catch changing of tab
-        //catch changing of tab
-        chrome.tabs.onActivated.addListener(function () {
-            tabUpdated();
-            type_to_use = -1;
-        });
-        chrome.tabs.onUpdated.addListener(tabUpdated);
-        chrome.windows.onFocusChanged.addListener(tabUpdated);
+            //catch changing of tab
+            //catch changing of tab
+            chrome.tabs.onActivated.addListener(function () {
+                tabUpdated();
+                type_to_use = -1;
+            });
+            chrome.tabs.onUpdated.addListener(tabUpdated);
+            chrome.windows.onFocusChanged.addListener(tabUpdated);
 
-        chrome.runtime.onMessage.addListener((message) => {
-            if (message["updated"] !== undefined && message["updated"]) {
-                checkStatus();
-                checkStickyNotes();
-            }
-        });
+            chrome.runtime.onMessage.addListener((message) => {
+                if (message["updated"] !== undefined && message["updated"]) {
+                    checkStatus();
+                    checkStickyNotes();
+                }
+            });
 
-        checkStatus();
+            checkStatus();
+        }
     });
 }
 
@@ -399,9 +683,7 @@ function tabUpdated(update = false) {
 
     sync_local = chrome.storage.sync;
     chrome.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = chrome.storage.sync;
-        else if (result.storage === "local") sync_local = chrome.storage.local;
-        else {
+        if (result.storage === "sync") sync_local = chrome.storage.sync; else if (result.storage === "local") sync_local = chrome.storage.local; else {
             chrome.storage.local.set({"storage": "local"});
             sync_local = chrome.storage.local;
         }
@@ -546,8 +828,7 @@ function checkStatus(update = false) {
                             websites_json[tab_url]["title"] = tab_title;
                             //console.log("QAZ-1")
                             sync_local.set({
-                                "websites": websites_json,
-                                "last-update": getDate()
+                                "websites": websites_json, "last-update": getDate()
                             }).then(resultSet => {
                             });
                         }
@@ -562,7 +843,9 @@ function checkStatus(update = false) {
                             coords = {x: websites_json[url]["coords"]["x"], y: websites_json[url]["coords"]["y"]};
                         } else {
                             if (value["sticky-notes-coords"] !== undefined && value["sticky-notes-coords"]["x"] !== undefined && value["sticky-notes-coords"]["y"] !== undefined) {
-                                coords = {x: value["sticky-notes-coords"]["x"], y: value["sticky-notes-coords"]["y"]};
+                                coords = {
+                                    x: value["sticky-notes-coords"]["x"], y: value["sticky-notes-coords"]["y"]
+                                };
                             } else {
                                 coords = {x: "20px", y: "20px"};
                             }
@@ -591,7 +874,7 @@ function checkStatus(update = false) {
                         // console.log("opacity: " + JSON.stringify(opacity));
 
                         //console.log(url);
-                        if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"]) {
+                        if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"] === true) {
                             setTimeout(function () {
                                 openAsStickyNotes();
                             }, 200);
@@ -669,36 +952,15 @@ function getIconSvgEncoded(icon, color) {
     let svgToReturn = "";
     switch (icon) {
         case "close":
-            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 800 800"\n' +
-                '     xmlns="http://www.w3.org/2000/svg">\n' +
-                '    <g fill="' + color + '">\n' +
-                '        <path d="m66.667 600c0-62.853 0-94.28 19.526-113.807 19.526-19.526 50.953-19.526 113.807-19.526s94.281 0 113.807 19.526c19.526 19.527 19.526 50.954 19.526 113.807s0 94.28-19.526 113.807c-19.526 19.526-50.953 19.526-113.807 19.526s-94.281 0-113.807-19.526c-19.526-19.527-19.526-50.954-19.526-113.807z"\n' +
-                '              fill-rule="nonzero"/>\n' +
-                '        <path d="m115.482 115.482c-48.815 48.816-48.815 127.383-48.815 284.518 0 13.187 0 25.82.029 37.927 16.936-11.104 35.598-15.967 53.491-18.374 21.52-2.893 47.976-2.89 76.83-2.886h5.967c28.854-.004 55.31-.007 76.83 2.886 23.699 3.187 48.747 10.684 69.349 31.284 20.6 20.603 28.097 45.65 31.284 69.35 2.893 21.52 2.89 47.976 2.886 76.83v5.966c.004 28.857.007 55.31-2.886 76.83-2.407 17.894-7.267 36.554-18.374 53.49 12.11.03 24.74.03 37.927.03 157.133 0 235.703 0 284.517-48.816 48.816-48.814 48.816-127.384 48.816-284.517 0-157.135 0-235.702-48.816-284.518-48.814-48.815-127.384-48.815-284.517-48.815-157.135 0-235.702 0-284.518 48.815zm326.185 92.851c-13.807 0-25 11.193-25 25s11.193 25 25 25h64.643l-123.987 123.99c-9.763 9.764-9.763 25.59 0 35.354 9.764 9.763 25.59 9.763 35.354 0l123.99-123.988v64.644c0 13.807 11.193 25 25 25 13.806 0 25-11.193 25-25v-125c0-13.807-11.194-25-25-25z"/>\n' +
-                '    </g>\n' +
-                '</svg>'
+            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 800 800"\n' + '     xmlns="http://www.w3.org/2000/svg">\n' + '    <g fill="' + color + '">\n' + '        <path d="m66.667 600c0-62.853 0-94.28 19.526-113.807 19.526-19.526 50.953-19.526 113.807-19.526s94.281 0 113.807 19.526c19.526 19.527 19.526 50.954 19.526 113.807s0 94.28-19.526 113.807c-19.526 19.526-50.953 19.526-113.807 19.526s-94.281 0-113.807-19.526c-19.526-19.527-19.526-50.954-19.526-113.807z"\n' + '              fill-rule="nonzero"/>\n' + '        <path d="m115.482 115.482c-48.815 48.816-48.815 127.383-48.815 284.518 0 13.187 0 25.82.029 37.927 16.936-11.104 35.598-15.967 53.491-18.374 21.52-2.893 47.976-2.89 76.83-2.886h5.967c28.854-.004 55.31-.007 76.83 2.886 23.699 3.187 48.747 10.684 69.349 31.284 20.6 20.603 28.097 45.65 31.284 69.35 2.893 21.52 2.89 47.976 2.886 76.83v5.966c.004 28.857.007 55.31-2.886 76.83-2.407 17.894-7.267 36.554-18.374 53.49 12.11.03 24.74.03 37.927.03 157.133 0 235.703 0 284.517-48.816 48.816-48.814 48.816-127.384 48.816-284.517 0-157.135 0-235.702-48.816-284.518-48.814-48.815-127.384-48.815-284.517-48.815-157.135 0-235.702 0-284.518 48.815zm326.185 92.851c-13.807 0-25 11.193-25 25s11.193 25 25 25h64.643l-123.987 123.99c-9.763 9.764-9.763 25.59 0 35.354 9.764 9.763 25.59 9.763 35.354 0l123.99-123.988v64.644c0 13.807 11.193 25 25 25 13.806 0 25-11.193 25-25v-125c0-13.807-11.194-25-25-25z"/>\n' + '    </g>\n' + '</svg>'
             break;
 
         case "restore":
-            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 334 334"\n' +
-                '     xmlns="http://www.w3.org/2000/svg">\n' +
-                '    <g fill="' + color + '" transform="scale(.416667)">\n' +
-                '        <path d="m54.167 400c0 13.807 11.193 25 25 25h365.753l-65.357 56.02c-10.483 8.983-11.696 24.767-2.71 35.25 8.984 10.483 24.767 11.697 35.25 2.71l116.667-100c5.54-4.747 8.73-11.683 8.73-18.98s-3.19-14.233-8.73-18.98l-116.667-100.001c-10.483-8.986-26.266-7.772-35.25 2.711-8.986 10.483-7.773 26.266 2.71 35.251l65.357 56.019h-365.753c-13.807 0-25 11.193-25 25z"/>\n' +
-                '        <path d="m312.5 325.001h12.609c-8.618-24.453-4.306-52.709 13.781-73.809 26.957-31.449 74.303-35.092 105.753-8.135l116.667 100c16.623 14.25 26.19 35.05 26.19 56.943 0 21.897-9.567 42.697-26.19 56.947l-116.667 100c-31.45 26.956-78.796 23.313-105.753-8.137-18.087-21.1-22.399-49.357-13.781-73.81h-12.609v58.333c0 94.28 0 141.42 29.29 170.71s76.43 29.29 170.71 29.29h33.333c94.28 0 141.42 0 170.71-29.29s29.29-76.43 29.29-170.71v-266.666c0-94.281 0-141.422-29.29-170.711s-76.43-29.289-170.71-29.289h-33.333c-94.28 0-141.42 0-170.71 29.289s-29.29 76.43-29.29 170.711z"\n' +
-                '              fill-rule="nonzero"/>\n' +
-                '    </g>\n' +
-                '</svg>';
+            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 334 334"\n' + '     xmlns="http://www.w3.org/2000/svg">\n' + '    <g fill="' + color + '" transform="scale(.416667)">\n' + '        <path d="m54.167 400c0 13.807 11.193 25 25 25h365.753l-65.357 56.02c-10.483 8.983-11.696 24.767-2.71 35.25 8.984 10.483 24.767 11.697 35.25 2.71l116.667-100c5.54-4.747 8.73-11.683 8.73-18.98s-3.19-14.233-8.73-18.98l-116.667-100.001c-10.483-8.986-26.266-7.772-35.25 2.711-8.986 10.483-7.773 26.266 2.71 35.251l65.357 56.019h-365.753c-13.807 0-25 11.193-25 25z"/>\n' + '        <path d="m312.5 325.001h12.609c-8.618-24.453-4.306-52.709 13.781-73.809 26.957-31.449 74.303-35.092 105.753-8.135l116.667 100c16.623 14.25 26.19 35.05 26.19 56.943 0 21.897-9.567 42.697-26.19 56.947l-116.667 100c-31.45 26.956-78.796 23.313-105.753-8.137-18.087-21.1-22.399-49.357-13.781-73.81h-12.609v58.333c0 94.28 0 141.42 29.29 170.71s76.43 29.29 170.71 29.29h33.333c94.28 0 141.42 0 170.71-29.29s29.29-76.43 29.29-170.71v-266.666c0-94.281 0-141.422-29.29-170.711s-76.43-29.289-170.71-29.289h-33.333c-94.28 0-141.42 0-170.71 29.289s-29.29 76.43-29.29 170.711z"\n' + '              fill-rule="nonzero"/>\n' + '    </g>\n' + '</svg>';
             break;
 
         case "minimize":
-            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 334 334"\n' +
-                '     xmlns="http://www.w3.org/2000/svg">\n' +
-                '    <g fill="' + color + '" transform="scale(.416667)">\n' +
-                '        <path d="m537.5 400c0-13.807-11.193-25-25-25h-365.752l65.355-56.019c10.483-8.985 11.697-24.768 2.712-35.251-8.986-10.483-24.768-11.697-35.251-2.711l-116.667 100.001c-5.541 4.747-8.73 11.683-8.73 18.98s3.189 14.233 8.73 18.98l116.667 100c10.483 8.987 26.265 7.773 35.251-2.71 8.985-10.483 7.771-26.267-2.712-35.25l-65.355-56.02h365.752c13.807 0 25-11.193 25-25z"/>\n' +
-                '        <path d="m312.5 266.667c0 23.406 0 35.109 5.617 43.516 2.432 3.641 5.558 6.766 9.198 9.199 8.408 5.617 20.112 5.617 43.518 5.617h141.667c41.42 0 75 33.578 75 75.001 0 41.42-33.58 75-75 75h-141.667c-23.406 0-35.113 0-43.52 5.617-3.639 2.433-6.763 5.556-9.195 9.196-5.618 8.407-5.618 20.11-5.618 43.52 0 94.28 0 141.42 29.29 170.71s76.423 29.29 170.703 29.29h33.334c94.28 0 141.42 0 170.71-29.29s29.29-76.43 29.29-170.71v-266.666c0-94.281 0-141.422-29.29-170.711s-76.43-29.289-170.71-29.289h-33.334c-94.28 0-141.413 0-170.703 29.289s-29.29 76.43-29.29 170.711z"\n' +
-                '              fill-rule="nonzero"/>\n' +
-                '    </g>\n' +
-                '</svg>';
+            svgToReturn = '<svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 334 334"\n' + '     xmlns="http://www.w3.org/2000/svg">\n' + '    <g fill="' + color + '" transform="scale(.416667)">\n' + '        <path d="m537.5 400c0-13.807-11.193-25-25-25h-365.752l65.355-56.019c10.483-8.985 11.697-24.768 2.712-35.251-8.986-10.483-24.768-11.697-35.251-2.711l-116.667 100.001c-5.541 4.747-8.73 11.683-8.73 18.98s3.189 14.233 8.73 18.98l116.667 100c10.483 8.987 26.265 7.773 35.251-2.71 8.985-10.483 7.771-26.267-2.712-35.25l-65.355-56.02h365.752c13.807 0 25-11.193 25-25z"/>\n' + '        <path d="m312.5 266.667c0 23.406 0 35.109 5.617 43.516 2.432 3.641 5.558 6.766 9.198 9.199 8.408 5.617 20.112 5.617 43.518 5.617h141.667c41.42 0 75 33.578 75 75.001 0 41.42-33.58 75-75 75h-141.667c-23.406 0-35.113 0-43.52 5.617-3.639 2.433-6.763 5.556-9.195 9.196-5.618 8.407-5.618 20.11-5.618 43.52 0 94.28 0 141.42 29.29 170.71s76.423 29.29 170.703 29.29h33.334c94.28 0 141.42 0 170.71-29.29s29.29-76.43 29.29-170.71v-266.666c0-94.281 0-141.422-29.29-170.711s-76.43-29.289-170.71-29.289h-33.334c-94.28 0-141.413 0-170.703 29.289s-29.29 76.43-29.29 170.711z"\n' + '              fill-rule="nonzero"/>\n' + '    </g>\n' + '</svg>';
             break;
     }
     return svgToReturn;
@@ -708,10 +970,7 @@ function checkAllSupportedProtocols(url, json) {
     //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined)
-            return true;
-        else
-            return false;
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return true; else return false;
     } else {
         return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined;
     }
@@ -721,10 +980,7 @@ function checkAllSupportedProtocolsSticky(url, json) {
     //Supported: http, https, extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined || json["extension://" + getUrlWithoutProtocol(url)] !== undefined && json["extension://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined)
-            return true;
-        else
-            return false;
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined) return true; else return false;
     } else {
         return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined;
     }
@@ -734,10 +990,7 @@ function checkAllSupportedProtocolsLastUpdate(url, json) {
     //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["extension://" + getUrlWithoutProtocol(url)] !== undefined && json["extension://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["extension://" + getUrlWithoutProtocol(url)]["last-update"] !== null)
-            return true;
-        else
-            return false;
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["last-update"] !== null) return true; else return false;
     } else {
         return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["last-update"] !== null;
     }
@@ -747,23 +1000,65 @@ function checkAllSupportedProtocolsNotes(url, json) {
     //Supported: http, https, extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["notes"] !== "" || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["notes"] !== "" || json["extension://" + getUrlWithoutProtocol(url)] !== undefined && json["extension://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["extension://" + getUrlWithoutProtocol(url)]["notes"] !== "")
-            return true;
-        else
-            return false;
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["notes"] !== "" || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["notes"] !== "" || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["notes"] !== "") return true; else return false;
     } else {
         return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["notes"] !== "";
     }
+}
+
+/**
+ * Get the tag colour for the given url and json data.
+ * @param url the url to check
+ * @param json the json data containing the tag colors
+ * @return {string | undefined} the tag colour if found and not 'none', otherwise undefined
+ */
+function getTagColor(url, json) {
+    //Supported: http, https, moz-extension
+
+    let colorToReturn = undefined;
+
+    if (json[url] !== undefined && json[url]["tag-colour"] !== undefined && json[url]["tag-colour"] !== "none") colorToReturn = json[url]["tag-colour"];
+    else colorToReturn = undefined;
+
+    if (colorToReturn !== undefined) {
+        //transform the color "red", "yellow", "black", "orange", "pink", "purple", "gray", "green", "blue", "white", "aquamarine", "turquoise", "brown", "coral", "cyan", "darkgreen", "violet", "lime", "fuchsia", "indigo", "lavender", "teal", "navy", "olive", "plum", "salmon", "snow" to hex color
+        if (colorToReturn === "red") colorToReturn = "#ff0000";
+        else if (colorToReturn === "yellow") colorToReturn = "#ffff00";
+        else if (colorToReturn === "black") colorToReturn = "#000000";
+        else if (colorToReturn === "orange") colorToReturn = "#ffa500";
+        else if (colorToReturn === "pink") colorToReturn = "#ffc0cb";
+        else if (colorToReturn === "purple") colorToReturn = "#800080";
+        else if (colorToReturn === "gray") colorToReturn = "#808080";
+        else if (colorToReturn === "green") colorToReturn = "#008000";
+        else if (colorToReturn === "blue") colorToReturn = "#0000ff";
+        else if (colorToReturn === "white") colorToReturn = "#ffffff";
+        else if (colorToReturn === "aquamarine") colorToReturn = "#7fffd4";
+        else if (colorToReturn === "turquoise") colorToReturn = "#40e0d0";
+        else if (colorToReturn === "brown") colorToReturn = "#a52a2a";
+        else if (colorToReturn === "coral") colorToReturn = "#ff7f50";
+        else if (colorToReturn === "cyan") colorToReturn = "#00ffff";
+        else if (colorToReturn === "darkgreen") colorToReturn = "#006400";
+        else if (colorToReturn === "violet") colorToReturn = "#ee82ee";
+        else if (colorToReturn === "lime") colorToReturn = "#00ff00";
+        else if (colorToReturn === "fuchsia") colorToReturn = "#ff00ff";
+        else if (colorToReturn === "indigo") colorToReturn = "#4b0082";
+        else if (colorToReturn === "lavender") colorToReturn = "#e6e6fa";
+        else if (colorToReturn === "teal") colorToReturn = "#008080";
+        else if (colorToReturn === "navy") colorToReturn = "#000080";
+        else if (colorToReturn === "olive") colorToReturn = "#808000";
+        else if (colorToReturn === "plum") colorToReturn = "#dda0dd";
+        else if (colorToReturn === "salmon") colorToReturn = "#fa8072";
+        else if (colorToReturn === "snow") colorToReturn = "#fffafa";
+    }
+
+    return colorToReturn;
 }
 
 function getUrlWithSupportedProtocol(url, json) {
     //Supported: http, https, extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
-        else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
-        else if (json["extension://" + getUrlWithoutProtocol(url)] !== undefined) return "extension://" + getUrlWithoutProtocol(url);
-        else return "";
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url); else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url); else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url); else return "";
     } else {
         return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
     }
@@ -773,10 +1068,7 @@ function getUrlWithSupportedProtocolSticky(url, json) {
     //Supported: http, https, extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
-        else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
-        else if (json["extension://" + getUrlWithoutProtocol(url)] !== undefined && json["extension://" + getUrlWithoutProtocol(url)] !== undefined) return "extension://" + getUrlWithoutProtocol(url);
-        else return "";
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url); else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url); else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url); else return "";
     } else {
         return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
     }
@@ -809,8 +1101,7 @@ function getDomainUrl(url, with_protocol = true) {
     } else {
         urlToReturn = this._domainUrl;
     }
-    if (with_protocol) return protocol + "://" + urlToReturn;
-    else return urlToReturn;
+    if (with_protocol) return protocol + "://" + urlToReturn; else return urlToReturn;
 }
 
 /**Returns the page url without the protocol (https, http, ftp, ...)!*/
@@ -856,8 +1147,7 @@ function getPageUrl(url, with_protocol = true) {
         urlToReturn = this._pageUrl;
     }
 
-    if (with_protocol) return protocol + "://" + urlToReturn;
-    else return urlToReturn;
+    if (with_protocol) return protocol + "://" + urlToReturn; else return urlToReturn;
 }
 
 function getTheProtocol(url) {
@@ -933,8 +1223,7 @@ function listenerStickyNotes() {
 
                             //console("QAZ-2")
                             sync_local.set({
-                                "websites": websites_json,
-                                "last-update": getDate()
+                                "websites": websites_json, "last-update": getDate()
                             }).then(result => {
                                 //console.log(websites_json[url]);
                             });
@@ -961,8 +1250,7 @@ function listenerStickyNotes() {
 
                             //console.log("QAZ-3")
                             sync_local.set({
-                                "websites": websites_json,
-                                "last-update": getDate()
+                                "websites": websites_json, "last-update": getDate()
                             }).then(result => {
                                 //console.log(websites_json[url]);
                             });
@@ -985,8 +1273,7 @@ function listenerStickyNotes() {
 
                             //console.log("QAZ-4")
                             sync_local.set({
-                                "websites": websites_json,
-                                "last-update": getDate()
+                                "websites": websites_json, "last-update": getDate()
                             }).then(result => {
                                 //console.log(websites_json[url]);
                             });
@@ -1063,8 +1350,7 @@ function listenerStickyNotes() {
                         })
                     } else {
                         sendResponse({
-                            sticky: true,
-                            minimized: false
+                            sticky: true, minimized: false
                         })
                     }
                 }
@@ -1092,8 +1378,7 @@ function listenerAllNotes() {
                             }
 
                             sync_local.set({
-                                "websites": websites_json,
-                                "last-update": getDate()
+                                "websites": websites_json, "last-update": getDate()
                             });
 
                             if (deleted) chrome.runtime.sendMessage({"updated": true});
@@ -1145,9 +1430,7 @@ function isAPage(url) {
 function getTheCorrectUrl(do_not_check_opened = false) {
     let default_url_index = 2;
     if (settings_json !== undefined && settings_json["open-default"] !== undefined) {
-        if (settings_json["open-default"] === "page") default_url_index = 2;
-        else if (settings_json["open-default"] === "domain") default_url_index = 1;
-        else if (settings_json["open-default"] === "global") default_url_index = 0;
+        if (settings_json["open-default"] === "page") default_url_index = 2; else if (settings_json["open-default"] === "domain") default_url_index = 1; else if (settings_json["open-default"] === "global") default_url_index = 0;
     }
 
     //console.log(JSON.stringify(all_urls));
@@ -1191,16 +1474,12 @@ function getTheCorrectUrl(do_not_check_opened = false) {
     let exists = (page_condition || domain_condition || global_condition || subdomains_condition);
 
     let default_condition = false;
-    if (type === 0) default_condition = global_condition;
-    else if (type === 1) default_condition = domain_condition;
-    else if (type === 2) default_condition = page_condition;
-    else if (type === 3) default_condition = subdomains_condition;
+    if (type === 0) default_condition = global_condition; else if (type === 1) default_condition = domain_condition; else if (type === 2) default_condition = page_condition; else if (type === 3) default_condition = subdomains_condition;
 
     if (exists) {
         if (default_condition) {
             //console.log(`Default condition true! (${type})`);
-            if (type === 3) url_to_use = subdomain_url_to_use;
-            else if (type === 0 || type === 1 || type === 2) url_to_use = current_urls[type];
+            if (type === 3) url_to_use = subdomain_url_to_use; else if (type === 0 || type === 1 || type === 2) url_to_use = current_urls[type];
         } else if (global_condition) {
             //console.log("Global condition true!");
             url_to_use = current_urls[0];
@@ -1232,24 +1511,38 @@ function getTheCorrectUrl(do_not_check_opened = false) {
  * open sticky notes
  */
 function openAsStickyNotes() {
-    if (!opening_sticky) {
-        opening_sticky = true;
+    //before to open, check if the permissions are granted
+    const permissionsToRequest = {
+        origins: ["<all_urls>"]
+    }
+    try {
+        browser.permissions.contains(permissionsToRequest).then((response) => {
+            if (response) {
+                if (!opening_sticky) {
+                    opening_sticky = true;
 
-        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            if (tabs !== undefined && tabs.length > 0) {
-                const activeTab = tabs[0];
-                chrome.scripting.executeScript({
-                    target: {tabId: activeTab.id},
-                    files: ['./js/inject/sticky-notes.js']
-                }).then(() => {
-                    // Script executed successfully
-                    opening_sticky = false;
-                }).catch((error) => {
-                    console.error("E2: " + error);
-                    opening_sticky = false;
-                });
+                    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                        if (tabs !== undefined && tabs.length > 0) {
+                            const activeTab = tabs[0];
+                            chrome.scripting.executeScript({
+                                target: {tabId: activeTab.id},
+                                files: ['./js/inject/sticky-notes.js']
+                            }).then(() => {
+                                // Script executed successfully
+                                opening_sticky = false;
+                            }).catch((error) => {
+                                console.error("E2: " + error);
+                                onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
+                                opening_sticky = false;
+                            });
+                        }
+                    });
+                }
             }
         });
+    } catch (error) {
+        console.error("E-CP2: " + error + "\nin " + _pageUrl);
+        onError("background.js::openAsStickyNotes::E-CP2", error.message, _pageUrl);
     }
 }
 
@@ -1257,31 +1550,45 @@ function openAsStickyNotes() {
  * close sticky notes if exists and the status changed to "closed"
  */
 function closeStickyNotes(update = true) {
-    checkIcon();
-    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-        const activeTab = tabs[0];
-        if (tabs !== undefined && tabs.length > 0 && activeTab !== undefined && activeTab.id !== undefined) {
-            chrome.scripting.executeScript({
-                target: {tabId: activeTab.id},
-                func: () => {
-                    if (document.getElementById("sticky-notes-notefox-addon")) {
-                        document.getElementById("sticky-notes-notefox-addon").remove();
-                    }
-                    if (document.getElementById("restore--sticky-notes-notefox-addon")) {
-                        document.getElementById("restore--sticky-notes-notefox-addon").remove();
-                    }
+    //before to close, check if the permissions are granted
+    try {
+        chrome.permissions.getAll().then(
+            (permissions) => {
+                //console.log("Permissions: ", permissions);
+                if (permissions.origins.includes("<all_urls>")) {
+                    checkIcon();
+                    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                        if (tabs !== undefined && tabs.length > 0) {
+                            const activeTab = tabs[0];
+                            chrome.scripting.executeScript({
+                                target: {tabId: activeTab.id},
+                                func: () => {
+                                    if (document.getElementById("sticky-notes-notefox-addon")) {
+                                        document.getElementById("sticky-notes-notefox-addon").remove();
+                                    }
+                                    if (document.getElementById("restore--sticky-notes-notefox-addon")) {
+                                        document.getElementById("restore--sticky-notes-notefox-addon").remove();
+                                    }
+                                }
+                            }).then(() => {
+                                //console.log("Sticky notes ('close')");
+                                if (update) tabUpdated(false);
+                            }).catch((error) => {
+                                console.error("E1: " + error + "\nin " + activeTab.url);
+                                onError("background.js::closeStickyNotes::E1", error.message, tab_url);
+                            });
+                        }
+                    });
+                    opening_sticky = false;
+                } else {
+                    //console.error("All URLs permission not granted");
                 }
-            }).then(() => {
-                // Script executed successfully
-                //if (update) tabUpdated(false);
-            }).catch((error) => {
-                if (!activeTab.url.includes("chrome://") && !activeTab.url.includes("edge://") && !activeTab.url.includes("chrome-extension://")) {
-                    console.error("E1: " + error + "\nin " + activeTab.url, activeTab);
-                }
-            });
-        }
-    });
-    opening_sticky = false;
+            }
+        )
+    } catch (error) {
+        console.error("E-CP1: " + error + "\nin " + _pageUrl);
+        onError("background.js::closeStickyNotes::E-CP1", error.message, _pageUrl);
+    }
 }
 
 function checkIcon() {
@@ -1310,7 +1617,17 @@ function checkIcon() {
     }
 
     if (check_domain || check_page || check_tab_url || check_global || check_subdomains) {
-        changeIcon(1);
+        let tag_color = undefined
+        if (check_domain) tag_color = getTagColor(_getDomain, websites_json);
+        else if (check_page) tag_color = getTagColor(_getPage, websites_json);
+        else if (check_global) tag_color = getTagColor(global_url, websites_json);
+        else if (check_subdomains) {
+            if (subdomains.length === 1) tag_color = getTagColor(subdomains[0], websites_json);
+            else tag_color = undefined;
+        }
+
+        if (tag_color !== undefined) changeIcon(2, tag_color);
+        else changeIcon(1);
     } else {
         changeIcon(0);
     }
@@ -1403,10 +1720,12 @@ function getAllOtherPossibleUrls(url) {
                                 }
                             } else {
                                 console.error("Too many combinations to process. Limit is " + MAX_COMBINATIONS);
+                                //onError("background.js::getAllOtherPossibleUrls", "Too many combinations to process. Limit is " + MAX_COMBINATIONS, tab_url);
                             }
                         }
                     } else {
                         console.error("Too many parameters to process. Limit is " + MAX_PARAMETERS);
+                        //onError("background.js::getAllOtherPossibleUrls", "Too many parameters to process. Limit is " + MAX_PARAMETERS, tab_url);
                         //Use single parameters
                         for (let i = 0; i < parametersToReturn.length; i++) {
                             let urlToPush = urlToReturnTemp + "?" + parametersToReturn[i];
@@ -1510,6 +1829,7 @@ function setNewTextFromSticky(text) {
                 //console.log("set || " + JSON.stringify(websites_json));
             }).catch(function (error) {
                 console.error("E3: " + error);
+                onError("background.js::setNewTextFromSticky", error.message, tab_url);
             });
         }
     });
@@ -1548,5 +1868,3 @@ function getDate() {
 
     return today;
 }
-
-loadDataFromSync();
