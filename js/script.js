@@ -614,7 +614,7 @@ function loadSettings(load_only = false) {
         if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
         else advanced_managing = false;
 
-        if(!load_only) continueLoaded();
+        if (!load_only) continueLoaded();
         //console.log(JSON.stringify(settings_json));
     });
 }
@@ -729,22 +729,24 @@ function saveNotes(title_call = false) {
         if (settings_json["save-page-content"]) {
             chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                 let activeTab = tabs[0];
-                chrome.scripting.executeScript({
-                    target: {tabId: activeTab.id},
-                    function: function () {
-                        return "document.body.innerText";
-                    }
-                }).then(result => {
-                    if (result && result[0]) {
-                        websites_json[url_to_use]["content"] = result[0];
-                        // Save here because text extraction is asynchronous, and this function gets called AFTER the
-                        // "sync_local" call which is further below in the code.
-                        sync_local.set({"websites": websites_json, "last-update": getDate()});
-                    }
-                }).catch(error => {
-                    console.error("Error extracting visible text: " + error);
-                    onError("script.js::saveNotes", error.message, _pageUrl);
-                });
+                if (chrome.scripting !== undefined && chrome.scripting.executeScript !== undefined) {
+                    chrome.scripting.executeScript({
+                        target: {tabId: activeTab.id},
+                        function: function () {
+                            return "document.body.innerText";
+                        }
+                    }).then(result => {
+                        if (result && result[0]) {
+                            websites_json[url_to_use]["content"] = result[0];
+                            // Save here because text extraction is asynchronous, and this function gets called AFTER the
+                            // "sync_local" call which is further below in the code.
+                            sync_local.set({"websites": websites_json, "last-update": getDate()});
+                        }
+                    }).catch(error => {
+                        console.error("Error extracting visible text: " + error);
+                        onError("script.js::saveNotes", error.message, _pageUrl);
+                    });
+                }
             });
         }
 
@@ -1706,8 +1708,8 @@ function checkTelemetryAlert() {
             buttonEnable.onclick = function () {
                 section.style.display = "none";
                 background.style.display = "none";
-                browser.storage.local.get("settings", (result) => {
-                    let settings = []
+                chrome.storage.local.get("settings", (result) => {
+                    let settings = {};
                     if (result["settings"] !== undefined) {
                         settings = result["settings"];
                     }
@@ -1725,7 +1727,7 @@ function checkTelemetryAlert() {
             buttonOk.onclick = function () {
                 section.style.display = "none";
                 background.style.display = "none";
-                browser.storage.sync.set({"telemetry-alert-displayed": true}).then(() => {
+                chrome.storage.sync.set({"telemetry-alert-displayed": true}).then(() => {
                     //console.log("Telemetry alert displayed set to true");
                 });
             }

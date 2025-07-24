@@ -10,13 +10,13 @@ const supportedFontFamily = ["Open Sans", "Shantell Sans", "Inter", "Lora", "Not
 
 //TODO!manually: add new datetime formats here
 const supportedDatetimeFormat = ["yyyymmdd1", "yyyyddmm1", "ddmmyyyy1", "ddmmyyyy2", "ddmmyyyy1-12h", "mmddyyyy1"];
+
 let languageToUse = chrome.i18n.getUILanguage().toString().toLowerCase();
-
-const webBrowserUsed = "firefox";//TODO:change manually
-let languageToUse = browser.i18n.getUILanguage().toString();
 if (!supportedLanguages.includes(languageToUse)) languageToUse = "en";
-
 if (supportedLanguages.includes(languageToUse.split("-")[0])) languageToUse = languageToUse.split("-")[0];
+
+const webBrowserUsed = "chrome";//TODO:change manually
+
 
 let links = {
     "donate": "https://liberapay.com/Sav22999",
@@ -1269,31 +1269,33 @@ function datetimeToDisplay(datetime, format = undefined, also_time = true) {
  * @param url {string} - url of the page where the error happened (if applicable)
  */
 function onError(context, text, url = undefined) {
-    browser.storage.sync.get("anonymous-userid").then(resultSync => {
-        let anonymous_userid = null;
-        if (resultSync["anonymous-userid"] !== undefined) {
-            anonymous_userid = resultSync["anonymous-userid"];
-        } else {
-            anonymous_userid = generateSecureUUID();
-            browser.storage.sync.set({"anonymous-userid": anonymous_userid});
-        }
-        const error = {
-            "datetime": getDate(),
-            "context": context,
-            "error": text,
-            url: url,
-            "notefox-version": browser.runtime.getManifest().version,
-            "anonymous-userid": anonymous_userid
-        };
-        browser.storage.local.get("error-logs").then(result => {
-            let error_logs = [];
-            if (result["error-logs"] !== undefined) {
-                error_logs = result["error-logs"];
+    if (url !== undefined && (url.startsWith("http://") || url.startsWith("https://")) && !(url.startsWith("https://addons.mozilla.org") || url.startsWith("chrome://") || url.startsWith("chrome-extension://"))) {
+        chrome.storage.sync.get("anonymous-userid").then(resultSync => {
+            let anonymous_userid = null;
+            if (resultSync["anonymous-userid"] !== undefined) {
+                anonymous_userid = resultSync["anonymous-userid"];
+            } else {
+                anonymous_userid = generateSecureUUID();
+                chrome.storage.sync.set({"anonymous-userid": anonymous_userid});
             }
-            error_logs.push(error);
-            browser.storage.local.set({"error-logs": error_logs});
+            const error = {
+                "datetime": getDate(),
+                "context": context,
+                "error": text,
+                url: url,
+                "notefox-version": chrome.runtime.getManifest().version,
+                "anonymous-userid": anonymous_userid
+            };
+            chrome.storage.local.get("error-logs").then(result => {
+                let error_logs = [];
+                if (result["error-logs"] !== undefined) {
+                    error_logs = result["error-logs"];
+                }
+                error_logs.push(error);
+                chrome.storage.local.set({"error-logs": error_logs});
+            });
         });
-    });
+    }
 }
 
 function onTelemetry(action, context = null, url = null, os, other = null) {
@@ -1301,59 +1303,49 @@ function onTelemetry(action, context = null, url = null, os, other = null) {
     if (settings_json["send-telemetry"] !== undefined && settings_json["send-telemetry"] === false) {
         return;
     }
-    const notefox_version = browser.runtime.getManifest().version;
+    const notefox_version = chrome.runtime.getManifest().version;
     const browser_name = webBrowserUsed;
     let notefox_account = null;
     let anonymous_userid = null;
     let language = languageToUse;
     let browser_version = null;
     const current_datetime = getDate();
-    browser.storage.sync.get(["notefox-account", "anonymous-userid"]).then(resultSync => {
+    chrome.storage.sync.get(["notefox-account", "anonymous-userid"]).then(resultSync => {
         if (resultSync !== undefined) {
             notefox_account = resultSync["notefox-account"] !== undefined;
             if (resultSync["anonymous-userid"] !== undefined) {
                 anonymous_userid = resultSync["anonymous-userid"];
             } else {
                 anonymous_userid = generateSecureUUID();
-                browser.storage.sync.set({"anonymous-userid": anonymous_userid});
+                chrome.storage.sync.set({"anonymous-userid": anonymous_userid});
             }
         } else {
             notefox_account = false;
         }
 
-        browser.runtime.getBrowserInfo().then(info => {
-            if (info !== undefined && info.version !== undefined) {
-                browser_version = info.version;
-            } else {
-                browser_version = null;
+        browser_version = null;
+        const telemetry_logs = {
+            "client-datetime": current_datetime,
+            "action": action,
+            "context": context,
+            "url": url,
+            "browser": browser_name,
+            "browser-version": browser_version,
+            "os": os,
+            "notefox-version": notefox_version,
+            "notefox-account": notefox_account,
+            "anonymous-userid": anonymous_userid,
+            "language": language,
+            "other": other
+        }
+        //console.log("Telemetry log:", telemetry_logs);
+        chrome.storage.local.get("telemetry").then(result => {
+            let telemetry = [];
+            if (result["telemetry"] !== undefined) {
+                telemetry = result["telemetry"];
             }
-            const telemetry_logs = {
-                "client-datetime": current_datetime,
-                "action": action,
-                "context": context,
-                "url": url,
-                "browser": browser_name,
-                "browser-version": browser_version,
-                "os": os,
-                "notefox-version": notefox_version,
-                "notefox-account": notefox_account,
-                "anonymous-userid": anonymous_userid,
-                "language": language,
-                "other": other
-            }
-            //console.log("Telemetry log:", telemetry_logs);
-            browser.storage.local.get("telemetry").then(result => {
-                let telemetry = [];
-                if (result["telemetry"] !== undefined) {
-                    telemetry = result["telemetry"];
-                }
-                telemetry.push(telemetry_logs);
-                browser.storage.local.set({"telemetry": telemetry});
-            });
-        }).catch(error => {
-            console.error("Error getting browser info for telemetry:", error);
-            onError("telemetry::onTelemetry", "Error getting browser info for telemetry: " + error);
-            browser_version = null;
+            telemetry.push(telemetry_logs);
+            chrome.storage.local.set({"telemetry": telemetry});
         });
     })
 }
@@ -1386,7 +1378,7 @@ function generateSecureUUID() {
 }
 
 function checkOperatingSystem() {
-    let info = browser.runtime.getPlatformInfo();
+    let info = chrome.runtime.getPlatformInfo();
     info.then(getOperatingSystem);
     //"mac", "win", "linux", "bsd", "android", "ios", "other", ...
     // Docs: (https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/PlatformOs)ˇ

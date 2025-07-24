@@ -9,30 +9,30 @@ loadAPI();
  * @param url {string} - url of the page where the error happened (if applicable)
  */
 function onError(context, text, url = undefined) {
-    const browser = (typeof browser !== 'undefined' ? browser : chrome);
-    browser.storage.sync.get("anonymous-userid").then(resultSync => {
+    const browserToUse = (typeof browser !== 'undefined' ? browser : chrome);
+    browserToUse.storage.sync.get("anonymous-userid").then(resultSync => {
         let anonymous_userid = null;
         if (resultSync["anonymous-userid"] !== undefined) {
             anonymous_userid = resultSync["anonymous-userid"];
         } else {
             anonymous_userid = generateSecureUUID();
-            browser.storage.sync.set({"anonymous-userid": anonymous_userid});
+            browserToUse.storage.sync.set({"anonymous-userid": anonymous_userid});
         }
         const error = {
             "datetime": getDate(),
             "context": context,
             "error": text,
             url: url,
-            "notefox-version": browser.runtime.getManifest().version,
+            "notefox-version": browserToUse.runtime.getManifest().version,
             "anonymous-userid": anonymous_userid
         };
-        browser.storage.local.get("error-logs").then(result => {
+        browserToUse.storage.local.get("error-logs").then(result => {
             let error_logs = [];
             if (result["error-logs"] !== undefined) {
                 error_logs = result["error-logs"];
             }
             error_logs.push(error);
-            browser.storage.local.set({"error-logs": error_logs});
+            browserToUse.storage.local.set({"error-logs": error_logs});
         });
     });
 }

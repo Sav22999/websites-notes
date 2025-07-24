@@ -8,8 +8,10 @@ checkSyncLocal();
 var disableAside = false;
 let show_conversion_message_attention = false;
 var notefox_json = {};
-const webBrowserUsed = "chrome";//TODO:change manually
+//const webBrowserUsed = "chrome";//TODO:change manually
 var json_to_export = {};
+
+let activatedTab = false;
 
 //Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
@@ -444,7 +446,7 @@ function loaded() {
             permissions: ["downloads"]
         }
         try {
-            browser.permissions.request(permissionsToRequest).then(response => {
+            chrome.permissions.request(permissionsToRequest).then(response => {
                 if (response) {
                     //granted / obtained
                     exportErrorLogs(to_file = true);
@@ -558,12 +560,20 @@ function setStickyThemeChooserByElement(element, set_variable = true) {
 }
 
 function tabActivated() {
-    checkTheme();
-    chrome.storage.local.get(["settings"]).then(result => {
-        if (result.settings !== undefined && result.settings !== settings_json) {
-            loadSettings();
-        }
-    });
+    //checkTheme();
+    if (!activatedTab) {
+        activatedTab = true;
+        chrome.storage.local.get(["settings"]).then(result => {
+            if (result.settings !== undefined && result.settings !== settings_json) {
+                loadSettings();
+            }
+            activatedTab = false;
+        }).catch(error => {
+            console.error("Error loading settings on tab activation:", error);
+            onError("settings.js::tabActivated", error.message);
+            activatedTab = false;
+        })
+    }
 }
 
 function tabUpdated() {
@@ -827,7 +837,7 @@ function loadSettings() {
     chrome.storage.local.get(["storage"]).then(result => {
         sync_local.get("settings", function (value) {
             settings_json = {};
-            if (value["settings"] !== undefined) settings_json = value["settings"];
+            if (value["settings"] !== undefined && !Array.isArray(settings_json)) settings_json = value["settings"];
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
             if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
             if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
@@ -1078,11 +1088,10 @@ function saveSettings(update_datetime = true) {
             let lastUpdateToUse = rrr1["last-update"];
             if (update_datetime) lastUpdateToUse = getDate();
             //console.log("QAZ-12")
-            sync_local.set({"settings": settings_json, "last-update": lastUpdateToUse}).then(resultF => {
-                //Saved
-                let buttonSave = document.getElementById("save-settings-button");
-                buttonSave.value = all_strings["saved-button"];
-
+            if (settings_json !== undefined && Array.isArray(settings_json)) {
+                settings_json = {};
+            }
+            sync_local.set({"settings": settings_json, "last-update": lastUpdateToUse}).then(() => {
                 /*updateShortcut("_execute_browser_action", settings_json["open-popup-default"]);
                 //updateShortcut("opened-by-global", settings_json["open-popup-global"]);
                 updateShortcut("opened-by-domain", settings_json["open-popup-domain"]);
@@ -1091,16 +1100,14 @@ function saveSettings(update_datetime = true) {
 
                 sendMessageUpdateToBackground();
 
-                setTimeout(function () {
-                    buttonSave.value = all_strings["save-settings-button"];
-                }, 2000);
-                //console.log(JSON.stringify(settings_json));
-
                 if (rrr1 !== undefined && rrr1["settings"] !== undefined && rrr1["settings"]["theme"] !== undefined && rrr1["settings"]["theme"] !== settings_json["theme"] || settings_json["theme"] === undefined) {
-                    //checkTheme();
+                    checkTheme();
                 }
-                loadSettings();
-            });
+                //loadSettings();
+            }).catch(error => {
+                console.error("C-02)) " + error);
+                onError("settings.js::saveSettings", error.message);
+            })
         });
     });
 }
@@ -1995,7 +2002,10 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                     } else {
                         chrome.runtime.sendMessage({
                             "api": true, "type": "login-verify", "data": {
-                                "email": email, "password": password, "login-id": login_id, "verification-code": code
+                                "email": email,
+                                "password": password,
+                                "login-id": login_id,
+                                "verification-code": code
                             }
                         });
                         verify_login_submit_element.disabled = true;
@@ -2871,7 +2881,9 @@ function loginResponse(data) {
         if (data.code === 200 && data["data"] !== undefined) {
             //Success
             notefoxAccountLoginSignupManage("verify-login", {
-                "email": email_element.value, "password": password_element.value, "login-id": data["data"]["login-id"]
+                "email": email_element.value,
+                "password": password_element.value,
+                "login-id": data["data"]["login-id"]
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
@@ -2951,7 +2963,9 @@ function loginVerifyResponse(data) {
             //Invalid credentials
             showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
             notefoxAccountLoginSignupManage("verify-login", {
-                "email": email_element.value, "password": password_element.value, "login-id": data["data"]["login-id"]
+                "email": email_element.value,
+                "password": password_element.value,
+                "login-id": data["data"]["login-id"]
             });
         } else if (data.code === 413) {
             //Invalid verification code

@@ -69,7 +69,7 @@ const MAX_PARAMETERS = 5;
  */
 function onError(context, text, url = undefined) {
     //if url starts with "http" or "https", then it's a valid url
-    if (url !== undefined && (url.startsWith("http://") || url.startsWith("https://")) && !url.startsWith("https://addons.mozilla.org")) {
+    if (url !== undefined && (url.startsWith("http://") || url.startsWith("https://")) && !(url.startsWith("https://addons.mozilla.org") || url.startsWith("chrome://") || url.startsWith("chrome-extension://"))) {
         chrome.storage.sync.get("anonymous-userid").then(resultSync => {
             let anonymous_userid = null;
             if (resultSync["anonymous-userid"] !== undefined) {
@@ -83,7 +83,7 @@ function onError(context, text, url = undefined) {
                 "context": context,
                 "error": text,
                 url: url,
-                "notefox-version": browser.runtime.getManifest().version,
+                "notefox-version": chrome.runtime.getManifest().version,
                 "anonymous-userid": anonymous_userid
             };
             chrome.storage.local.get("error-logs").then(result => {
@@ -144,7 +144,7 @@ function checkVersion() {
             //first time using this version
             chrome.storage.sync.set({"versions": resultToSet}).then(() => {
                 //open 'update' page
-                //browser.tabs.create({url: "https://notefox.eu/help/update?version=" + currentVersion});
+                //chrome.tabs.create({url: "https://notefox.eu/help/update?version=" + currentVersion});
 
                 //reset error logs
                 chrome.storage.local.set({"error-logs": []});
@@ -562,8 +562,11 @@ function updateIcon(color, tabId, enabled = true) {
     });
     chrome.action.setIcon({path: {"16": icons16[index], "48": icons48[index], "128": icons128[index]}});
     */
-    chrome.action.setIcon({
-        path: dataUrl
+    chrome.action.onClicked.addListener((tab) => {
+        chrome.action.setIcon({
+            tabId: tab.id,
+            path: dataUrl,
+        });
     });
 }
 
@@ -1512,11 +1515,14 @@ function getTheCorrectUrl(do_not_check_opened = false) {
  */
 function openAsStickyNotes() {
     //before to open, check if the permissions are granted
+    //chrome.permissions.getAll().then(result => {
+    //    console.log("All permissions", result);
+    //})
     const permissionsToRequest = {
         origins: ["<all_urls>"]
     }
     try {
-        browser.permissions.contains(permissionsToRequest).then((response) => {
+        chrome.permissions.contains(permissionsToRequest).then((response) => {
             if (response) {
                 if (!opening_sticky) {
                     opening_sticky = true;
@@ -1574,8 +1580,8 @@ function closeStickyNotes(update = true) {
                                 //console.log("Sticky notes ('close')");
                                 if (update) tabUpdated(false);
                             }).catch((error) => {
-                                console.error("E1: " + error + "\nin " + activeTab.url);
-                                onError("background.js::closeStickyNotes::E1", error.message, tab_url);
+                                //console.error("E1: " + error + "\nin " + tab_url);
+                                //onError("background.js::closeStickyNotes::E1", error.message, tab_url);
                             });
                         }
                     });
