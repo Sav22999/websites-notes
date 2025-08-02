@@ -2489,10 +2489,10 @@ function importAllNotes(from_file = false) {
                                                 document.getElementById("cancel-import-all-notes-button").disabled = true;
                                                 document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
                                                 if (document.getElementById("loading-importing").classList.contains("hidden")) document.getElementById("loading-importing").classList.remove("hidden");
-                                                setTimeout(function () {
-                                                    document.getElementById("import-now-all-notes-button").disabled = false;
-                                                    document.getElementById("cancel-import-all-notes-button").disabled = false;
-                                                    document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
+                                setTimeout(function () {
+                                    document.getElementById("import-now-all-notes-button").disabled = false;
+                                    document.getElementById("cancel-import-all-notes-button").disabled = false;
+                                    document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
 
                                                     if (json_to_import_temp["last-update"] !== undefined)
                                                         result["last-update"] =
@@ -2575,7 +2575,7 @@ function importAllNotes(from_file = false) {
 
                                                             document.getElementById("import-section").style.display = "none";
                                                             document.getElementById("loading-importing").classList.add("hidden");
-                                                            hideBackgroundOpacity()
+                                        hideBackgroundOpacity()
 
                                                             loaded();
                                                         })
@@ -3382,6 +3382,7 @@ function notefoxAccountLoginSignupManage(
                     "verify-signup-password"
                 );
                 let spinner_loading = document.getElementById("loading-signup");
+                let spinner_loading = document.getElementById("loading-signup");
 
                 if (submit_element.classList.contains("hidden"))
                     submit_element.classList.remove("hidden");
@@ -3622,8 +3623,8 @@ function notefoxAccountLoginSignupManage(
                         showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
 
                         if (email === "") email_element.classList.add("textbox-error");
-                        if (password === "")
-                            password_element.classList.add("textbox-error");
+                        if (password === "") password_element.classList.add("textbox-error");
+
                         delete_submit_element.disabled = false;
                         spinner_loading.classList.add("hidden");
                     } else {
@@ -3757,13 +3758,10 @@ function notefoxAccountLoginSignupManage(
                     if (code === "") {
                         showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
                         code_element.classList.add("textbox-error");
+
                         verify_delete_submit_element.disabled = false;
                         spinner_loading.classList.add("hidden");
-                    } else if (
-                        email === "" ||
-                        password === "" ||
-                        login_id === "" ||
-                        token === ""
+                    } else if (email === "" || password === "" || login_id === "" || token === ""
                     ) {
                         if (email === "") console.log("email is empty");
                         if (password === "") console.log("password is empty");
@@ -3868,6 +3866,7 @@ function notefoxAccountLoginSignupManage(
                     "change-password-new-password-confirm"
                 );
                 let spinner_loading = document.getElementById("loading-change-password");
+                let spinner_loading = document.getElementById("loading-change-password");
 
                 password_element.value = "";
                 new_password_element.value = "";
@@ -3939,12 +3938,10 @@ function notefoxAccountLoginSignupManage(
                     ) {
                         showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
 
-                        if (password === "")
-                            password_element.classList.add("textbox-error");
-                        if (new_password === "")
-                            new_password_element.classList.add("textbox-error");
-                        if (new_password_confirm === "")
-                            new_password_confirm_element.classList.add("textbox-error");
+                        if (password === "") password_element.classList.add("textbox-error");
+                        if (new_password === "") new_password_element.classList.add("textbox-error");
+                        if (new_password_confirm === "") new_password_confirm_element.classList.add("textbox-error");
+
                         change_password_submit_element.disabled = false;
                         spinner_loading.classList.add("hidden");
                     } else if (new_password !== new_password_confirm) {
@@ -4080,6 +4077,15 @@ function notefoxAccountLoginSignupManage(
                         }
                     }
                 }
+                email_element.onkeypress = function (e) {
+                    if (e.key === "Enter") {
+                        if (password_element.value === "") {
+                            password_element.focus();
+                        } else {
+                            login_submit_element.click();
+                        }
+                    }
+                }
                 password_element.onfocus = function () {
                     if (password_element.classList.contains("textbox-error"))
                         password_element.classList.remove("textbox-error");
@@ -4102,8 +4108,8 @@ function notefoxAccountLoginSignupManage(
                         showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
 
                         if (email === "") email_element.classList.add("textbox-error");
-                        if (password === "")
-                            password_element.classList.add("textbox-error");
+                        if (password === "") password_element.classList.add("textbox-error");
+
                         login_submit_element.disabled = false;
                         spinner_loading.classList.add("hidden");
                     } else {
@@ -4185,6 +4191,7 @@ function notefoxAccountLoginSignupManage(
                 let confirm_password_element = document.getElementById(
                     "signup-confirm-password"
                 );
+                let spinner_loading = document.getElementById("loading-signup");
                 let spinner_loading = document.getElementById("loading-signup");
 
                 signup_submit_element.disabled = false;
@@ -4501,6 +4508,7 @@ function signUpResponse(data) {
             );
             spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -4554,6 +4562,7 @@ function signUpNewCodeResponse(data) {
             );
             spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -4621,6 +4630,7 @@ function signUpVerifyResponse(data) {
             );
             spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -4670,6 +4680,7 @@ function loginResponse(data) {
             );
             spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -4728,6 +4739,7 @@ function loginNewCodeResponse(data) {
             );
             spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -4801,6 +4813,7 @@ function loginVerifyResponse(data) {
             );
             spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -4909,6 +4922,7 @@ function changePasswordResponse(data) {
         "change-password-new-password-confirm"
     );
     let spinner_loading = document.getElementById("loading-change-password");
+    let spinner_loading = document.getElementById("loading-change-password");
 
     change_password_submit_element.disabled = false;
     cancel_element.disabled = false;
@@ -4967,6 +4981,7 @@ function changePasswordResponse(data) {
             );
             spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -5014,6 +5029,7 @@ function deleteResponse(data) {
             );
             spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -5084,6 +5100,7 @@ function deleteVerifyResponse(data) {
             );
             spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -5131,6 +5148,7 @@ function deleteVerifyNewCodeResponse(data) {
             );
             spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
