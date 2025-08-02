@@ -58,12 +58,29 @@ Created by Saverio Morelli - saveriomorelli.com
                        class="button import-button"/>
                 <input type="file" value="" id="import-from-file-input-hidden"
                        class="button import-button hidden float-left"/>
+                <div class="lds-spinner hidden" id="loading-importing">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
                 <input type="button" value="" id="cancel-import-all-notes-button" class="button float-left"/>
                 <input type="button" value="" id="import-from-file-button" class="button import-button"/>
                 <input type="button" value="" id="import-now-all-notes-button" class="button import-button"/>
             </div>
         </div>
     </div>
+
+    <!--TODO:add the spinner to sections-->
+    <!--<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>-->
 
     <!--Export panel-->
     <div id="export-section">
@@ -117,6 +134,20 @@ Created by Saverio Morelli - saveriomorelli.com
 
                 </div>
                 <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-signup">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                     <input type="button" value="" id="signup-cancel"
                            class="button float-left button-close-notefox-account"/>
                     <input class="button login-button hidden" id="verify-signup" value="" type="button"/>
@@ -143,11 +174,39 @@ Created by Saverio Morelli - saveriomorelli.com
                     </div>
                 </div>
                 <div id="account-section--verify-login-grid" class="padding-10 hidden">
+                    <div class="lds-spinner hidden" id="loading-verify-login">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                     <input class="textbox account-section--verify-login--code label-with-image code-label account-text"
                            id="verify-login-code" type="text" name="code">
 
                 </div>
                 <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-login">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                     <input type="button" value="" id="login-cancel"
                            class="button float-left button-close-notefox-account"/>
                     <input class="button login-button hidden" id="verify-login" value="" type="button"/>
@@ -163,11 +222,41 @@ Created by Saverio Morelli - saveriomorelli.com
                 <div class="padding-10 text-align-right">
                     <div class="option-settings">
                         <span class="item-settings section-grid-container width-100-important">
+                            <div class="lds-spinner hidden" id="loading-manage-user">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
                             <span class="title-option-settings section-grid-item-text no-bold"
                                   id="sync-now-text"></span>
                             <span class="section-grid-item-select text-align-center">
-                                <input type="button" value="" id="sync-now-button"
-                                       class="button sync-button width-100"/>
+                                <div class="width-100 sync-spinner-container">
+                                    <div class="lds-spinner hidden" id="loading-syncing">
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                    <input type="button" value="" id="sync-now-button"
+                                           class="button sync-button width-100"/>
+                                </div>
                                 <div id="last-sync" class="width-100-important"></div>
                             </span>
                         </span>
@@ -234,6 +323,20 @@ Created by Saverio Morelli - saveriomorelli.com
                            id="change-password-new-password-confirm" type="password">
                 </div>
                 <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-change-password">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                     <input type="button" value="" id="change-password-cancel"
                            class="button float-left button-close-notefox-account"/>
                     <input type="button" value="" id="change-password-submit"
@@ -259,6 +362,20 @@ Created by Saverio Morelli - saveriomorelli.com
 
                 </div>
                 <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-delete">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                     <input type="button" value="" id="delete-cancel"
                            class="button float-left button-close-notefox-account"/>
                     <input class="button hidden" id="verify-delete" value="" type="button"/>
