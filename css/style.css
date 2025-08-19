@@ -2567,22 +2567,596 @@ hr.hr-domain:last-child {
   color: #444444;
 }
 
-#item-radio-theme-blue {
-  background-color: #2563eb;
+/* Blue Theme (Dark Mode) */
+#item-radio-theme-blue-dark {
+  background-color: #1e40af;
 }
-
-#theme-select-blue {
+#theme-select-blue-dark {
   color: #f1f5f9;
 }
-
-#radio-blue-theme .primary {
+#radio-blue-dark-theme .primary {
   background-color: #3b82f6;
   color: #ffffff;
 }
-
-#radio-blue-theme .secondary {
+#radio-blue-dark-theme .secondary {
   background-color: #64748b;
   color: #f1f5f9;
+}
+
+/* Blue Theme (Light Mode) - Fixed contrast */
+#item-radio-theme-blue-light {
+  background-color: #3b82f6;
+}
+#theme-select-blue-light {
+  color: #ffffff; /* Changed from #475569 to white for better contrast */
+}
+#radio-blue-light-theme .primary {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+#radio-blue-light-theme .secondary {
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+/* Lavender Theme (Dark Mode) */
+#item-radio-theme-lavender-dark {
+  background-color: #6d28d9;
+}
+#theme-select-lavender-dark {
+  color: #e8e5f3;
+}
+#radio-lavender-dark-theme .primary {
+  background-color: #8b7cf6;
+  color: #ffffff;
+}
+#radio-lavender-dark-theme .secondary {
+  background-color: #6b5b95;
+  color: #e8e5f3;
+}
+
+/* Lavender Theme (Light Mode) */
+#item-radio-theme-lavender-light {
+  background-color: #7b68ee;
+}
+#theme-select-lavender-light {
+  color: #4b0082;
+}
+#radio-lavender-light-theme .primary {
+  background-color: #7b68ee;
+  color: #ffffff;
+}
+#radio-lavender-light-theme .secondary {
+  background-color: #e6e6fa;
+  color: #4b0082;
+}
+
+/* Matcha Theme (Dark Mode) */
+#item-radio-theme-matcha-dark {
+  background-color: #365314;
+}
+#theme-select-matcha-dark {
+  color: #e8f0e4;
+}
+#radio-matcha-dark-theme .primary {
+  background-color: #7cb342;
+  color: #ffffff;
+}
+#radio-matcha-dark-theme .secondary {
+  background-color: #5a6b4a;
+  color: #e8f0e4;
+}
+
+/* Matcha Theme (Light Mode) - Fixed contrast */
+#item-radio-theme-matcha-light {
+  background-color: #4a7c59;
+}
+#theme-select-matcha-light {
+  color: #ffffff; /* Changed from #2d5016 to white for better contrast */
+}
+#radio-matcha-light-theme .primary {
+  background-color: #4a7c59;
+  color: #ffffff;
+}
+#radio-matcha-light-theme .secondary {
+  background-color: #e8f5e8;
+  color: #2d5016;
+}
+
+/* Forest Theme (Dark Mode) */
+#item-radio-theme-forest-dark {
+  background-color: #14532d;
+}
+#theme-select-forest-dark {
+  color: #dcfce7;
+}
+#radio-forest-dark-theme .primary {
+  background-color: #22c55e;
+  color: #ffffff;
+}
+#radio-forest-dark-theme .secondary {
+  background-color: #4a5c47;
+  color: #dcfce7;
+}
+
+/* Forest Theme (Light Mode) - Fixed contrast */
+#item-radio-theme-forest-light {
+  background-color: #166534;
+}
+#theme-select-forest-light {
+  color: #ffffff; /* Changed from #14532d to white for better contrast */
+}
+#radio-forest-light-theme .primary {
+  background-color: #166534;
+  color: #ffffff;
+}
+#radio-forest-light-theme .secondary {
+  background-color: #bbefcd;
+  color: #14532d;
+}
+
+#item-radio-theme-light {
+  background-color: #eeeeee;
+}
+
+#theme-select-light {
+  color: #ff6200;
+}
+
+#radio-light-theme .primary {
+  background-color: #ff6200;
+  color: #ffffff;
+}
+
+#radio-light-theme .secondary {
+  background-color: #ffb788;
+  color: #ffffff;
+}
+
+#item-radio-theme-lighter {
+  background-color: #eeeeee;
+}
+
+#theme-select-lighter {
+  color: #333333;
+}
+
+#radio-lighter-theme .primary {
+  background-color: #333333;
+  color: #ffffff;
+}
+
+#radio-lighter-theme .secondary {
+  background-color: #666666;
+  color: #ffffff;
+}
+
+#item-radio-theme-dark {
+  background-color: #222222;
+}
+
+#theme-select-dark {
+  color: #ffa56f;
+}
+
+#radio-dark-theme .primary {
+  background-color: #ffa56f;
+  color: #222222;
+}
+
+#radio-dark-theme .secondary {
+  background-color: #ffd8be;
+  color: #444444;
+}
+
+#item-radio-theme-darker {
+  background-color: #222222;
+}
+
+#theme-select-darker {
+  color: #ffffff;
+}
+
+#radio-darker-theme .primary {
+  background-color: #ffffff;
+  color: #222222;
+}
+
+#radio-darker-theme .secondary {
+  background-color: #dddddd;
+  color: #444444;
+}
+
+/* Blue Theme (Dark Mode) */
+#item-radio-theme-blue-dark {
+  background-color: #1e40af;
+}
+#theme-select-blue-dark {
+  color: #f1f5f9;
+}
+#radio-blue-dark-theme .primary {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+#radio-blue-dark-theme .secondary {
+  background-color: #64748b;
+  color: #f1f5f9;
+}
+
+/* Blue Theme (Light Mode) - Fixed contrast */
+#item-radio-theme-blue-light {
+  background-color: #3b82f6;
+}
+#theme-select-blue-light {
+  color: #ffffff; /* Changed from #475569 to white for better contrast */
+}
+#radio-blue-light-theme .primary {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+#radio-blue-light-theme .secondary {
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+/* Lavender Theme (Dark Mode) */
+#item-radio-theme-lavender-dark {
+  background-color: #6d28d9;
+}
+#theme-select-lavender-dark {
+  color: #e8e5f3;
+}
+#radio-lavender-dark-theme .primary {
+  background-color: #8b7cf6;
+  color: #ffffff;
+}
+#radio-lavender-dark-theme .secondary {
+  background-color: #6b5b95;
+  color: #e8e5f3;
+}
+
+/* Lavender Theme (Light Mode) */
+#item-radio-theme-lavender-light {
+  background-color: #7b68ee;
+}
+#theme-select-lavender-light {
+  color: #4b0082;
+}
+#radio-lavender-light-theme .primary {
+  background-color: #7b68ee;
+  color: #ffffff;
+}
+#radio-lavender-light-theme .secondary {
+  background-color: #e6e6fa;
+  color: #4b0082;
+}
+
+/* Matcha Theme (Dark Mode) */
+#item-radio-theme-matcha-dark {
+  background-color: #365314;
+}
+#theme-select-matcha-dark {
+  color: #e8f0e4;
+}
+#radio-matcha-dark-theme .primary {
+  background-color: #7cb342;
+  color: #ffffff;
+}
+#radio-matcha-dark-theme .secondary {
+  background-color: #5a6b4a;
+  color: #e8f0e4;
+}
+
+/* Matcha Theme (Light Mode) - Fixed contrast */
+#item-radio-theme-matcha-light {
+  background-color: #4a7c59;
+}
+#theme-select-matcha-light {
+  color: #ffffff; /* Changed from #2d5016 to white for better contrast */
+}
+#radio-matcha-light-theme .primary {
+  background-color: #4a7c59;
+  color: #ffffff;
+}
+#radio-matcha-light-theme .secondary {
+  background-color: #e8f5e8;
+  color: #2d5016;
+}
+
+/* Forest Theme (Dark Mode) */
+#item-radio-theme-forest-dark {
+  background-color: #14532d;
+}
+#theme-select-forest-dark {
+  color: #dcfce7;
+}
+#radio-forest-dark-theme .primary {
+  background-color: #22c55e;
+  color: #ffffff;
+}
+#radio-forest-dark-theme .secondary {
+  background-color: #4a5c47;
+  color: #dcfce7;
+}
+
+/* Forest Theme (Light Mode) - Fixed contrast */
+#item-radio-theme-forest-light {
+  background-color: #166534;
+}
+#theme-select-forest-light {
+  color: #ffffff; /* Changed from #14532d to white for better contrast */
+}
+#radio-forest-light-theme .primary {
+  background-color: #166534;
+  color: #ffffff;
+}
+#radio-forest-light-theme .secondary {
+  background-color: #bbefcd;
+  color: #14532d;
+}
+
+#item-radio-theme-light {
+  background-color: #eeeeee;
+}
+
+#theme-select-light {
+  color: #ff6200;
+}
+
+#radio-light-theme .primary {
+  background-color: #ff6200;
+  color: #ffffff;
+}
+
+#radio-light-theme .secondary {
+  background-color: #ffb788;
+  color: #ffffff;
+}
+
+#item-radio-theme-lighter {
+  background-color: #eeeeee;
+}
+
+#theme-select-lighter {
+  color: #333333;
+}
+
+#radio-lighter-theme .primary {
+  background-color: #333333;
+  color: #ffffff;
+}
+
+#radio-lighter-theme .secondary {
+  background-color: #666666;
+  color: #ffffff;
+}
+
+#item-radio-theme-dark {
+  background-color: #222222;
+}
+
+#theme-select-dark {
+  color: #ffa56f;
+}
+
+#radio-dark-theme .primary {
+  background-color: #ffa56f;
+  color: #222222;
+}
+
+#radio-dark-theme .secondary {
+  background-color: #ffd8be;
+  color: #444444;
+}
+
+#item-radio-theme-darker {
+  background-color: #222222;
+}
+
+#theme-select-darker {
+  color: #ffffff;
+}
+
+#radio-darker-theme .primary {
+  background-color: #ffffff;
+  color: #222222;
+}
+
+#radio-darker-theme .secondary {
+  background-color: #dddddd;
+  color: #444444;
+}
+
+/* Blue Theme (Light Mode) */
+#item-radio-theme-blue-light {
+  background-color: #3b82f6;
+}
+#theme-select-blue-light {
+  color: #ffffff;
+}
+#radio-blue-light-theme .primary {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+#radio-blue-light-theme .secondary {
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+/* Blue Theme (Dark Mode) */
+#item-radio-theme-blue-dark {
+  background-color: #1e40af;
+}
+#theme-select-blue-dark {
+  color: #f1f5f9;
+}
+#radio-blue-dark-theme .primary {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+#radio-blue-dark-theme .secondary {
+  background-color: #64748b;
+  color: #f1f5f9;
+}
+
+/* Lavender Theme (Light Mode) */
+#item-radio-theme-lavender-light {
+  background-color: #7b68ee;
+}
+#theme-select-lavender-light {
+  color: #4b0082;
+}
+#radio-lavender-light-theme .primary {
+  background-color: #7b68ee;
+  color: #ffffff;
+}
+#radio-lavender-light-theme .secondary {
+  background-color: #e6e6fa;
+  color: #4b0082;
+}
+
+/* Lavender Theme (Dark Mode) */
+#item-radio-theme-lavender-dark {
+  background-color: #6d28d9;
+}
+#theme-select-lavender-dark {
+  color: #e8e5f3;
+}
+#radio-lavender-dark-theme .primary {
+  background-color: #8b7cf6;
+  color: #ffffff;
+}
+#radio-lavender-dark-theme .secondary {
+  background-color: #6b5b95;
+  color: #e8e5f3;
+}
+
+/* Retro Pink Theme (Light Mode) */
+#item-radio-theme-retro-pink-light {
+  background-color: #be185d;
+}
+#theme-select-retro-pink-light {
+  color: #ffffff;
+}
+#radio-retro-pink-light-theme .primary {
+  background-color: #be185d;
+  color: #ffffff;
+}
+#radio-retro-pink-light-theme .secondary {
+  background-color: #f9a8d4;
+  color: #831843;
+}
+
+/* Retro Pink Theme (Dark Mode) */
+#item-radio-theme-retro-pink-dark {
+  background-color: #831843;
+}
+#theme-select-retro-pink-dark {
+  color: #fce7f3;
+}
+#radio-retro-pink-dark-theme .primary {
+  background-color: #ec4899;
+  color: #ffffff;
+}
+#radio-retro-pink-dark-theme .secondary {
+  background-color: #7c2d5a;
+  color: #fce7f3;
+}
+
+/* Matcha Theme (Light Mode) */
+#item-radio-theme-matcha-light {
+  background-color: #4a7c59;
+}
+#theme-select-matcha-light {
+  color: #ffffff;
+}
+#radio-matcha-light-theme .primary {
+  background-color: #4a7c59;
+  color: #ffffff;
+}
+#radio-matcha-light-theme .secondary {
+  background-color: #e8f5e8;
+  color: #2d5016;
+}
+
+/* Matcha Theme (Dark Mode) */
+#item-radio-theme-matcha-dark {
+  background-color: #365314;
+}
+#theme-select-matcha-dark {
+  color: #e8f0e4;
+}
+#radio-matcha-dark-theme .primary {
+  background-color: #7cb342;
+  color: #ffffff;
+}
+#radio-matcha-dark-theme .secondary {
+  background-color: #5a6b4a;
+  color: #e8f0e4;
+}
+
+/* Forest Theme (Light Mode) */
+#item-radio-theme-forest-light {
+  background-color: #166534;
+}
+#theme-select-forest-light {
+  color: #ffffff;
+}
+#radio-forest-light-theme .primary {
+  background-color: #166534;
+  color: #ffffff;
+}
+#radio-forest-light-theme .secondary {
+  background-color: #bbefcd;
+  color: #14532d;
+}
+
+/* Forest Theme (Dark Mode) */
+#item-radio-theme-forest-dark {
+  background-color: #14532d;
+}
+#theme-select-forest-dark {
+  color: #dcfce7;
+}
+#radio-forest-dark-theme .primary {
+  background-color: #22c55e;
+  color: #ffffff;
+}
+#radio-forest-dark-theme .secondary {
+  background-color: #4a5c47;
+  color: #dcfce7;
+}
+
+/* Retro Teal Theme (Light Mode) */
+#item-radio-theme-retro-teal-light {
+  background-color: #0f766e;
+}
+#theme-select-retro-teal-light {
+  color: #ffffff;
+}
+#radio-retro-teal-light-theme .primary {
+  background-color: #0f766e;
+  color: #ffffff;
+}
+#radio-retro-teal-light-theme .secondary {
+  background-color: #99f6e4;
+  color: #134e4a;
+}
+
+/* Retro Teal Theme (Dark Mode) */
+#item-radio-theme-retro-teal-dark {
+  background-color: #134e4a;
+}
+#theme-select-retro-teal-dark {
+  color: #f0fdfa;
+}
+#radio-retro-teal-dark-theme .primary {
+  background-color: #14b8a6;
+  color: #ffffff;
+}
+#radio-retro-teal-dark-theme .secondary {
+  background-color: #4a6662;
+  color: #f0fdfa;
 }
 
 #account-section--signup-grid,

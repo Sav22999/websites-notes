@@ -1012,8 +1012,6 @@ function setLanguageUI() {
     all_strings["theme-choose-dark-select"];
   document.getElementById("theme-select-darker").innerText =
     all_strings["theme-choose-darker-select"];
-  document.getElementById("theme-select-blue").innerText =
-    all_strings["theme-choose-blue-select"] || "Blue";
   document.getElementById("theme-select-firefox").innerText =
     all_strings["theme-choose-firefox-select"];
   document.getElementById("theme-detailed-text").innerHTML = all_strings[
@@ -1024,6 +1022,43 @@ function setLanguageUI() {
       all_strings["theme-choose-firefox-select"] +
       `</span>`
   );
+
+  // Blue Theme
+  document.getElementById("theme-select-blue-light").innerText =
+    all_strings["theme-choose-blue-light-select"] || "Blue Light";
+  document.getElementById("theme-select-blue-dark").innerText =
+    all_strings["theme-choose-blue-dark-select"] || "Blue Dark";
+
+  // Lavender Theme
+  document.getElementById("theme-select-lavender-light").innerText =
+    all_strings["theme-choose-lavender-light-select"] || "Lavender Light";
+  document.getElementById("theme-select-lavender-dark").innerText =
+    all_strings["theme-choose-lavender-dark-select"] || "Lavender Dark";
+
+  // Retro Pink Theme
+  document.getElementById("theme-select-retro-pink-light").innerText =
+    all_strings["theme-choose-retro-pink-light-select"] || "Retro Pink Light";
+  document.getElementById("theme-select-retro-pink-dark").innerText =
+    all_strings["theme-choose-retro-pink-dark-select"] || "Retro Pink Dark";
+
+  // Matcha Theme
+  document.getElementById("theme-select-matcha-light").innerText =
+    all_strings["theme-choose-matcha-light-select"] || "Matcha Light";
+  document.getElementById("theme-select-matcha-dark").innerText =
+    all_strings["theme-choose-matcha-dark-select"] || "Matcha Dark";
+
+  // Forest Theme
+  document.getElementById("theme-select-forest-light").innerText =
+    all_strings["theme-choose-forest-light-select"] || "Forest Light";
+  document.getElementById("theme-select-forest-dark").innerText =
+    all_strings["theme-choose-forest-dark-select"] || "Forest Dark";
+
+  // Retro Teal Theme
+  document.getElementById("theme-select-retro-teal-light").innerText =
+    all_strings["theme-choose-retro-teal-light-select"] || "Retro Teal Light";
+  document.getElementById("theme-select-retro-teal-dark").innerText =
+    all_strings["theme-choose-retro-teal-dark-select"] || "Retro Teal Dark";
+
   document.getElementById("sticky-theme-text").innerText =
     all_strings["sticky-theme-text"];
   document.getElementById("sticky-theme-select-yellow").innerText =
@@ -1467,16 +1502,78 @@ function loadSettings() {
           document.getElementById("item-radio-theme-darker"),
           false
         );
-      else if (settings_json["theme"] === "blue")
-        setThemeChooserByElement(
-          document.getElementById("item-radio-theme-blue"),
-          false
-        );
       else if (settings_json["theme"] === "auto")
         setThemeChooserByElement(
           document.getElementById("item-radio-theme-auto"),
           false
         );
+      // Blue Theme
+      else if (settings_json["theme"] === "blue-light")
+        setThemeChooserByElement(
+          document.getElementById("item-radio-theme-blue-light"),
+          false
+        );
+      else if (settings_json["theme"] === "blue-dark")
+        setThemeChooserByElement(
+          document.getElementById("item-radio-theme-blue-dark"),
+          false
+        );
+      // Lavender Theme
+      else if (settings_json["theme"] === "lavender-light")
+        setThemeChooserByElement(
+          document.getElementById("item-radio-theme-lavender-light"),
+          false
+        );
+      else if (settings_json["theme"] === "lavender-dark")
+        setThemeChooserByElement(
+          document.getElementById("item-radio-theme-lavender-dark"),
+          false
+        );
+      // Retro Pink Theme
+      else if (settings_json["theme"] === "retro-pink-light")
+        setThemeChooserByElement(
+          document.getElementById("item-radio-theme-retro-pink-light"),
+          false
+        );
+      else if (settings_json["theme"] === "retro-pink-dark")
+        setThemeChooserByElement(
+          document.getElementById("item-radio-theme-retro-pink-dark"),
+          false
+        );
+      // Matcha Theme
+      else if (settings_json["theme"] === "matcha-light")
+        setThemeChooserByElement(
+          document.getElementById("item-radio-theme-matcha-light"),
+          false
+        );
+      else if (settings_json["theme"] === "matcha-dark")
+        setThemeChooserByElement(
+          document.getElementById("item-radio-theme-matcha-dark"),
+          false
+        );
+      // Forest Theme
+      else if (settings_json["theme"] === "forest-light")
+        setThemeChooserByElement(
+          document.getElementById("item-radio-theme-forest-light"),
+          false
+        );
+      else if (settings_json["theme"] === "forest-dark")
+        setThemeChooserByElement(
+          document.getElementById("item-radio-theme-forest-dark"),
+          false
+        );
+      // Retro Teal Theme
+      else if (settings_json["theme"] === "retro-teal-light")
+        setThemeChooserByElement(
+          document.getElementById("item-radio-theme-retro-teal-light"),
+          false
+        );
+      else if (settings_json["theme"] === "retro-teal-dark")
+        setThemeChooserByElement(
+          document.getElementById("item-radio-theme-retro-teal-dark"),
+          false
+        );
+
       //yellow, lime, cyan, pink, white, black, auto
       if (
         settings_json["sticky-theme"] === "yellow" ||

@@ -669,13 +669,46 @@ function checkTheme(
             textbox_color
           );
         else function_to_execute();
-      } else if (
-        force_theme === "blue" ||
+      }
+
+      // Blue Theme (Light Mode)
+      else if (
+        force_theme === "blue-light" ||
         (result["settings"] !== undefined &&
           result["settings"]["theme"] !== undefined &&
-          result["settings"]["theme"] === "blue")
+          result["settings"]["theme"] === "blue-light")
       ) {
-        //use the blue theme
+        //use the blue light theme
+        background = "#FFFFFF";
+        backgroundSection = "#F1F5F9";
+        primary = "#3B82F6";
+        secondary = "#E2E8F0";
+        on_primary = "#FFFFFF";
+        on_secondary = "#475569";
+        textbox_background = "#FFFFFF";
+        textbox_color = "#3B82F6";
+        if (set_theme)
+          setTheme(
+            background,
+            backgroundSection,
+            primary,
+            secondary,
+            on_primary,
+            on_secondary,
+            textbox_background,
+            textbox_color
+          );
+        else function_to_execute();
+      }
+
+      // Blue Theme (Dark Mode)
+      else if (
+        force_theme === "blue-dark" ||
+        (result["settings"] !== undefined &&
+          result["settings"]["theme"] !== undefined &&
+          result["settings"]["theme"] === "blue-dark")
+      ) {
+        //use the blue dark theme
         background = "#0f172a";
         backgroundSection = "#1e293b";
         primary = "#3b82f6";
@@ -684,6 +717,306 @@ function checkTheme(
         on_secondary = "#f1f5f9";
         textbox_background = "#334155";
         textbox_color = "#f8fafc";
+        if (set_theme)
+          setTheme(
+            background,
+            backgroundSection,
+            primary,
+            secondary,
+            on_primary,
+            on_secondary,
+            textbox_background,
+            textbox_color
+          );
+        else function_to_execute();
+      }
+
+      // Lavender Theme (Light Mode)
+      else if (
+        force_theme === "lavender-light" ||
+        (result["settings"] !== undefined &&
+          result["settings"]["theme"] !== undefined &&
+          result["settings"]["theme"] === "lavender-light")
+      ) {
+        //use the lavender light theme
+        background = "#FFFFFF";
+        backgroundSection = "#F8F6FF";
+        primary = "#7B68EE";
+        secondary = "#E6E6FA";
+        on_primary = "#FFFFFF";
+        on_secondary = "#4B0082";
+        textbox_background = "#FFFFFF";
+        textbox_color = "#7B68EE";
+        if (set_theme)
+          setTheme(
+            background,
+            backgroundSection,
+            primary,
+            secondary,
+            on_primary,
+            on_secondary,
+            textbox_background,
+            textbox_color
+          );
+        else function_to_execute();
+      }
+
+      // Lavender Theme (Dark Mode)
+      else if (
+        force_theme === "lavender-dark" ||
+        (result["settings"] !== undefined &&
+          result["settings"]["theme"] !== undefined &&
+          result["settings"]["theme"] === "lavender-dark")
+      ) {
+        //use the lavender dark theme
+        background = "#1a0f1f";
+        backgroundSection = "#2d1b3d";
+        primary = "#8b7cf6";
+        secondary = "#6b5b95";
+        on_primary = "#ffffff";
+        on_secondary = "#e8e5f3";
+        textbox_background = "#4c3d5a";
+        textbox_color = "#f3f1f7";
+        if (set_theme)
+          setTheme(
+            background,
+            backgroundSection,
+            primary,
+            secondary,
+            on_primary,
+            on_secondary,
+            textbox_background,
+            textbox_color
+          );
+        else function_to_execute();
+      }
+
+      // Retro Pink Theme (Light Mode)
+      else if (
+        force_theme === "retro-pink-light" ||
+        (result["settings"] !== undefined &&
+          result["settings"]["theme"] !== undefined &&
+          result["settings"]["theme"] === "retro-pink-light")
+      ) {
+        //use the retro pink light theme
+        background = "#FFFFFF";
+        backgroundSection = "#FDF2F8";
+        primary = "#BE185D";
+        secondary = "#F9A8D4";
+        on_primary = "#FFFFFF";
+        on_secondary = "#831843";
+        textbox_background = "#FFFFFF";
+        textbox_color = "#BE185D";
+        if (set_theme)
+          setTheme(
+            background,
+            backgroundSection,
+            primary,
+            secondary,
+            on_primary,
+            on_secondary,
+            textbox_background,
+            textbox_color
+          );
+        else function_to_execute();
+      }
+
+      // Retro Pink Theme (Dark Mode)
+      else if (
+        force_theme === "retro-pink-dark" ||
+        (result["settings"] !== undefined &&
+          result["settings"]["theme"] !== undefined &&
+          result["settings"]["theme"] === "retro-pink-dark")
+      ) {
+        //use the retro pink dark theme
+        background = "#1a0a14";
+        backgroundSection = "#2d1b26";
+        primary = "#ec4899";
+        secondary = "#7c2d5a";
+        on_primary = "#ffffff";
+        on_secondary = "#fce7f3";
+        textbox_background = "#4a2c3a";
+        textbox_color = "#fdf2f8";
+        if (set_theme)
+          setTheme(
+            background,
+            backgroundSection,
+            primary,
+            secondary,
+            on_primary,
+            on_secondary,
+            textbox_background,
+            textbox_color
+          );
+        else function_to_execute();
+      }
+
+      // Matcha Theme (Light Mode)
+      else if (
+        force_theme === "matcha-light" ||
+        (result["settings"] !== undefined &&
+          result["settings"]["theme"] !== undefined &&
+          result["settings"]["theme"] === "matcha-light")
+      ) {
+        //use the matcha light theme
+        background = "#FFFFFF";
+        backgroundSection = "#F8FCF6";
+        primary = "#4A7C59";
+        secondary = "#E8F5E8";
+        on_primary = "#FFFFFF";
+        on_secondary = "#2D5016";
+        textbox_background = "#FFFFFF";
+        textbox_color = "#4A7C59";
+        if (set_theme)
+          setTheme(
+            background,
+            backgroundSection,
+            primary,
+            secondary,
+            on_primary,
+            on_secondary,
+            textbox_background,
+            textbox_color
+          );
+        else function_to_execute();
+      }
+
+      // Matcha Theme (Dark Mode)
+      else if (
+        force_theme === "matcha-dark" ||
+        (result["settings"] !== undefined &&
+          result["settings"]["theme"] !== undefined &&
+          result["settings"]["theme"] === "matcha-dark")
+      ) {
+        //use the matcha dark theme
+        background = "#0d1510";
+        backgroundSection = "#1a2e20";
+        primary = "#7cb342";
+        secondary = "#5a6b4a";
+        on_primary = "#ffffff";
+        on_secondary = "#e8f0e4";
+        textbox_background = "#334238";
+        textbox_color = "#f0f4e8";
+        if (set_theme)
+          setTheme(
+            background,
+            backgroundSection,
+            primary,
+            secondary,
+            on_primary,
+            on_secondary,
+            textbox_background,
+            textbox_color
+          );
+        else function_to_execute();
+      }
+
+      // Forest Theme (Light Mode)
+      else if (
+        force_theme === "forest-light" ||
+        (result["settings"] !== undefined &&
+          result["settings"]["theme"] !== undefined &&
+          result["settings"]["theme"] === "forest-light")
+      ) {
+        //use the forest light theme
+        background = "#FFFFFF";
+        backgroundSection = "#F0FDF4";
+        primary = "#166534";
+        secondary = "#BBEFCD";
+        on_primary = "#FFFFFF";
+        on_secondary = "#14532D";
+        textbox_background = "#FFFFFF";
+        textbox_color = "#166534";
+        if (set_theme)
+          setTheme(
+            background,
+            backgroundSection,
+            primary,
+            secondary,
+            on_primary,
+            on_secondary,
+            textbox_background,
+            textbox_color
+          );
+        else function_to_execute();
+      }
+
+      // Forest Theme (Dark Mode)
+      else if (
+        force_theme === "forest-dark" ||
+        (result["settings"] !== undefined &&
+          result["settings"]["theme"] !== undefined &&
+          result["settings"]["theme"] === "forest-dark")
+      ) {
+        //use the forest dark theme
+        background = "#0a0f0a";
+        backgroundSection = "#1a2518";
+        primary = "#22c55e";
+        secondary = "#4a5c47";
+        on_primary = "#ffffff";
+        on_secondary = "#dcfce7";
+        textbox_background = "#2d3f2a";
+        textbox_color = "#f0fdf4";
+        if (set_theme)
+          setTheme(
+            background,
+            backgroundSection,
+            primary,
+            secondary,
+            on_primary,
+            on_secondary,
+            textbox_background,
+            textbox_color
+          );
+        else function_to_execute();
+      }
+
+      // Retro Teal Theme (Light Mode)
+      else if (
+        force_theme === "retro-teal-light" ||
+        (result["settings"] !== undefined &&
+          result["settings"]["theme"] !== undefined &&
+          result["settings"]["theme"] === "retro-teal-light")
+      ) {
+        //use the retro teal light theme
+        background = "#FFFFFF";
+        backgroundSection = "#F0FDFA";
+        primary = "#0F766E";
+        secondary = "#99F6E4";
+        on_primary = "#FFFFFF";
+        on_secondary = "#134E4A";
+        textbox_background = "#FFFFFF";
+        textbox_color = "#0F766E";
+        if (set_theme)
+          setTheme(
+            background,
+            backgroundSection,
+            primary,
+            secondary,
+            on_primary,
+            on_secondary,
+            textbox_background,
+            textbox_color
+          );
+        else function_to_execute();
+      }
+
+      // Retro Teal Theme (Dark Mode)
+      else if (
+        force_theme === "retro-teal-dark" ||
+        (result["settings"] !== undefined &&
+          result["settings"]["theme"] !== undefined &&
+          result["settings"]["theme"] === "retro-teal-dark")
+      ) {
+        //use the retro teal dark theme
+        background = "#0a1514";
+        backgroundSection = "#1b2e2a";
+        primary = "#14b8a6";
+        secondary = "#4a6662";
+        on_primary = "#ffffff";
+        on_secondary = "#f0fdfa";
+        textbox_background = "#2d4742";
+        textbox_color = "#ccfbf1";
         if (set_theme)
           setTheme(
             background,
