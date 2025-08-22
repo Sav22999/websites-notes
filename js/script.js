@@ -1151,12 +1151,12 @@ function getAllOtherPossibleUrls(url) {
                                 }
                             } else {
                                 console.error("Too many combinations to process. Limit is " + MAX_COMBINATIONS);
-                                onError("script.js::getAllOtherPossibleUrls", "Too many combinations to process. Limit is " + MAX_COMBINATIONS, _pageUrl);
+                                //onError("script.js::getAllOtherPossibleUrls", "Too many combinations to process. Limit is " + MAX_COMBINATIONS, _pageUrl);
                             }
                         }
                     } else {
                         console.error("Too many parameters to process. Limit is " + MAX_PARAMETERS);
-                        onError("script.js::getAllOtherPossibleUrls", "Too many parameters to process. Limit is " + MAX_PARAMETERS, _pageUrl);
+                        //onError("script.js::getAllOtherPossibleUrls", "Too many parameters to process. Limit is " + MAX_PARAMETERS, _pageUrl);
                         //Use single parameters
                         for (let i = 0; i < parametersToReturn.length; i++) {
                             let urlToPush = urlToReturnTemp + "?" + parametersToReturn[i];

@@ -43,44 +43,61 @@ Created by Saverio Morelli - saveriomorelli.com
             <input type="button" value="Save settings" id="save-settings-button" class="button save-button hidden" />
         </div>
 
-        <div id="background-opacity"></div>
-        <!--Import panel-->
-        <div id="import-section">
-            <div class="section" id="import-sub-sections">
-                <div class="padding-10">
-                    <div id="text-import"></div>
+    <div id="background-opacity"></div>
+    <!--Import panel-->
+    <div id="import-section">
+        <div class="section" id="import-sub-sections">
+            <div class="padding-10">
+                <div id="text-import"></div>
+            </div>
+            <div class="padding-10">
+                <textarea id="json-import" class="text-json" spellcheck="false"></textarea>
+            </div>
+            <div class="padding-10 text-align-right">
+                <input type="button" value="Get local data" id="import-now-all-notes-from-local-button"
+                       class="button import-button"/>
+                <input type="file" value="" id="import-from-file-input-hidden"
+                       class="button import-button hidden float-left"/>
+                <div class="lds-spinner hidden" id="loading-importing">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
                 </div>
-                <div class="padding-10">
-                    <textarea id="json-import" class="text-json" spellcheck="false"></textarea>
-                </div>
-                <div class="padding-10 text-align-right">
-                    <input type="button" value="Get local data" id="import-now-all-notes-from-local-button"
-                        class="button import-button" />
-                    <input type="file" value="" id="import-from-file-input-hidden"
-                        class="button import-button hidden float-left" />
-                    <input type="button" value="" id="cancel-import-all-notes-button" class="button float-left" />
-                    <input type="button" value="" id="import-from-file-button" class="button import-button" />
-                    <input type="button" value="" id="import-now-all-notes-button" class="button import-button" />
-                </div>
+                <input type="button" value="" id="cancel-import-all-notes-button" class="button float-left"/>
+                <input type="button" value="" id="import-from-file-button" class="button import-button"/>
+                <input type="button" value="" id="import-now-all-notes-button" class="button import-button"/>
             </div>
         </div>
+    </div>
 
-        <!--Export panel-->
-        <div id="export-section">
-            <div class="section" id="export-sub-sections">
-                <div class="padding-10">
-                    <div id="text-export"></div>
-                </div>
-                <div class="padding-10">
-                    <textarea id="json-export" class="text-json" readonly spellcheck="false"></textarea>
-                </div>
-                <div class="padding-10 text-align-right">
-                    <input type="button" value="" id="cancel-export-all-notes-button" class="button float-left" />
-                    <input type="button" value="" id="export-to-file-button" class="button download-button" />
-                    <input type="button" value="" id="copy-now-all-notes-button" class="button copy-button" />
-                </div>
+    <!--TODO:add the spinner to sections-->
+    <!--<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>-->
+
+    <!--Export panel-->
+    <div id="export-section">
+        <div class="section" id="export-sub-sections">
+            <div class="padding-10">
+                <div id="text-export"></div>
+            </div>
+            <div class="padding-10">
+                <textarea id="json-export" class="text-json" readonly spellcheck="false"></textarea>
+            </div>
+            <div class="padding-10 text-align-right">
+                <input type="button" value="" id="cancel-export-all-notes-button" class="button float-left"/>
+                <input type="button" value="" id="export-to-file-button" class="button download-button"/>
+                <input type="button" value="" id="copy-now-all-notes-button" class="button copy-button"/>
             </div>
         </div>
+    </div>
 
         <!--Notefox account panel-->
         <div id="account-section">
@@ -122,12 +139,26 @@ Created by Saverio Morelli - saveriomorelli.com
                             class="textbox account-section--verify-signup--code label-with-image code-label account-text"
                             id="verify-signup-code" type="text" name="code">
 
+                </div>
+                <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-signup">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
                     </div>
-                    <div class="padding-10 text-align-right">
-                        <input type="button" value="" id="signup-cancel"
-                            class="button float-left button-close-notefox-account" />
-                        <input class="button login-button hidden" id="verify-signup" value="" type="button" />
-                        <input class="button login-button hidden" id="signup-submit" value="" type="button" />
+                    <input type="button" value="" id="signup-cancel"
+                           class="button float-left button-close-notefox-account"/>
+                    <input class="button login-button hidden" id="verify-signup" value="" type="button"/>
+                    <input class="button login-button hidden" id="signup-submit" value="" type="button"/>
 
                         <input class="button hidden" id="verify-signup-new-code" value="" type="button" />
                         <input class="button login-button hidden" id="verify-signup-submit" value="" type="button" />
@@ -145,43 +176,100 @@ Created by Saverio Morelli - saveriomorelli.com
                             class="textbox account-section--login--password width-100 label-with-image password-label account-text"
                             id="login-password" type="password" name="password">
 
-                        <hr class="hr-big-space hr-center account-section-hr">
-                        <div class="text-align-center margin-bottom-20-px" id="login-not-yet-account">
-                            <span id="login-not-yet-account-text"></span> <span class="link"
-                                id="login-not-yet-account-button"></span>
-                        </div>
+                    <hr class="hr-big-space hr-center account-section-hr">
+                    <div class="text-align-center margin-bottom-20-px" id="login-not-yet-account">
+                        <span id="login-not-yet-account-text"></span> <span class="link"
+                                                                            id="login-not-yet-account-button"></span>
                     </div>
-                    <div id="account-section--verify-login-grid" class="padding-10 hidden">
-                        <input
-                            class="textbox account-section--verify-login--code label-with-image code-label account-text"
-                            id="verify-login-code" type="text" name="code">
+                </div>
+                <div id="account-section--verify-login-grid" class="padding-10 hidden">
+                    <div class="lds-spinner hidden" id="loading-verify-login">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <input class="textbox account-section--verify-login--code label-with-image code-label account-text"
+                           id="verify-login-code" type="text" name="code">
 
+                </div>
+                <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-login">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
                     </div>
-                    <div class="padding-10 text-align-right">
-                        <input type="button" value="" id="login-cancel"
-                            class="button float-left button-close-notefox-account" />
-                        <input class="button login-button hidden" id="verify-login" value="" type="button" />
-                        <input class="button login-button hidden" id="login-submit" value="" type="button" />
+                    <input type="button" value="" id="login-cancel"
+                           class="button float-left button-close-notefox-account"/>
+                    <input class="button login-button hidden" id="verify-login" value="" type="button"/>
+                    <input class="button login-button hidden" id="login-submit" value="" type="button"/>
 
                         <input class="button hidden" id="verify-login-new-code" value="" type="button" />
                         <input class="button login-button hidden" id="verify-login-submit" value="" type="button" />
                     </div>
                 </div>
 
-                <!-- manage -->
-                <div id="notefox-account-manage-section">
-                    <div class="padding-10 text-align-right">
-                        <div class="option-settings">
-                            <span class="item-settings section-grid-container width-100-important">
-                                <span class="title-option-settings section-grid-item-text no-bold"
-                                    id="sync-now-text"></span>
-                                <span class="section-grid-item-select text-align-center">
+            <!-- manage -->
+            <div id="notefox-account-manage-section">
+                <div class="padding-10 text-align-right">
+                    <div class="option-settings">
+                        <span class="item-settings section-grid-container width-100-important">
+                            <div class="lds-spinner hidden" id="loading-manage-user">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
+                            <span class="title-option-settings section-grid-item-text no-bold"
+                                  id="sync-now-text"></span>
+                            <span class="section-grid-item-select text-align-center">
+                                <div class="width-100 sync-spinner-container">
+                                    <div class="lds-spinner hidden" id="loading-syncing">
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
                                     <input type="button" value="" id="sync-now-button"
-                                        class="button sync-button width-100" />
-                                    <div id="last-sync" class="width-100-important"></div>
-                                </span>
+                                           class="button sync-button width-100"/>
+                                </div>
+                                <div id="last-sync" class="width-100-important"></div>
                             </span>
-                        </div>
+                        </span>
+                    </div>
 
                         <div class="option-settings">
                             <span class="item-settings section-grid-container width-100-important">
@@ -233,25 +321,37 @@ Created by Saverio Morelli - saveriomorelli.com
                     </div>
                 </div>
 
-                <!-- change password -->
-                <div id="notefox-account-change-password-section">
-                    <div class="padding-10" id="account-section--change-password-grid">
-                        <input
-                            class="textbox account-section--change-password--old-password width-100 label-with-image password-label account-text"
-                            id="change-password-old-password" type="password">
-                        <input
-                            class="textbox account-section--change-password--new-password width-100 label-with-image password-label account-text"
-                            id="change-password-new-password" type="password">
-                        <input
-                            class="textbox account-section--change-password--confirm-new-password width-100 label-with-image password-label account-text"
-                            id="change-password-new-password-confirm" type="password">
-                    </div>
-                    <div class="padding-10 text-align-right">
-                        <input type="button" value="" id="change-password-cancel"
-                            class="button float-left button-close-notefox-account" />
-                        <input type="button" value="" id="change-password-submit" class="button edit-button" />
-                    </div>
+            <!-- change password -->
+            <div id="notefox-account-change-password-section">
+                <div class="padding-10" id="account-section--change-password-grid">
+                    <input class="textbox account-section--change-password--old-password width-100 label-with-image password-label account-text"
+                           id="change-password-old-password" type="password">
+                    <input class="textbox account-section--change-password--new-password width-100 label-with-image password-label account-text"
+                           id="change-password-new-password" type="password">
+                    <input class="textbox account-section--change-password--confirm-new-password width-100 label-with-image password-label account-text"
+                           id="change-password-new-password-confirm" type="password">
                 </div>
+                <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-change-password">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <input type="button" value="" id="change-password-cancel"
+                           class="button float-left button-close-notefox-account"/>
+                    <input type="button" value="" id="change-password-submit"
+                           class="button edit-button"/>
+                </div>
+            </div>
 
                 <!-- delete -->
                 <div id="notefox-account-delete-section">
@@ -274,12 +374,26 @@ Created by Saverio Morelli - saveriomorelli.com
                             class="textbox account-section--verify-delete--code label-with-image code-label account-text"
                             id="verify-delete-code" type="text">
 
+                </div>
+                <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-delete">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
                     </div>
-                    <div class="padding-10 text-align-right">
-                        <input type="button" value="" id="delete-cancel"
-                            class="button float-left button-close-notefox-account" />
-                        <input class="button hidden" id="verify-delete" value="" type="button" />
-                        <input class="button hidden" id="delete-submit" value="" type="button" />
+                    <input type="button" value="" id="delete-cancel"
+                           class="button float-left button-close-notefox-account"/>
+                    <input class="button hidden" id="verify-delete" value="" type="button"/>
+                    <input class="button hidden" id="delete-submit" value="" type="button"/>
 
                         <input class="button hidden" id="verify-delete-new-code" value="" type="button" />
                         <input class="button hidden" id="verify-delete-submit" value="" type="button" />
