@@ -3382,7 +3382,6 @@ function notefoxAccountLoginSignupManage(
                     "verify-signup-password"
                 );
                 let spinner_loading = document.getElementById("loading-signup");
-                let spinner_loading = document.getElementById("loading-signup");
 
                 if (submit_element.classList.contains("hidden"))
                     submit_element.classList.remove("hidden");
@@ -3866,7 +3865,6 @@ function notefoxAccountLoginSignupManage(
                     "change-password-new-password-confirm"
                 );
                 let spinner_loading = document.getElementById("loading-change-password");
-                let spinner_loading = document.getElementById("loading-change-password");
 
                 password_element.value = "";
                 new_password_element.value = "";
@@ -4191,7 +4189,6 @@ function notefoxAccountLoginSignupManage(
                 let confirm_password_element = document.getElementById(
                     "signup-confirm-password"
                 );
-                let spinner_loading = document.getElementById("loading-signup");
                 let spinner_loading = document.getElementById("loading-signup");
 
                 signup_submit_element.disabled = false;
@@ -4921,7 +4918,6 @@ function changePasswordResponse(data) {
     let new_password_confirm_element = document.getElementById(
         "change-password-new-password-confirm"
     );
-    let spinner_loading = document.getElementById("loading-change-password");
     let spinner_loading = document.getElementById("loading-change-password");
 
     change_password_submit_element.disabled = false;
