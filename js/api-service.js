@@ -1,6 +1,11 @@
 var api_url = "https://www.notefox.eu/api/v1"
 
-loadAPI();
+try {
+    loadAPI();
+} catch (error) {
+    console.error("[api-service.js] Error loading API service:", error);
+    onError("api-service.js::loadAPI", "Error loading API service: " + error.message);
+}
 
 /**
  * Use this function to capture errors and save on the local storage (to be used as logs)
@@ -40,7 +45,6 @@ function onError(context, text, url = undefined) {
  * Load the API service
  */
 function loadAPI() {
-
     // Listen for messages
     (typeof browser !== 'undefined' ? browser : chrome).runtime.onMessage.addListener((message) => {
         if (message["api"] !== undefined && message["api"]) {
