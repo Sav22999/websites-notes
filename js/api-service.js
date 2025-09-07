@@ -1,6 +1,11 @@
 var api_url = "https://www.notefox.eu/api/v1"
 
-loadAPI();
+try {
+    loadAPI();
+} catch (error) {
+    console.error("[api-service.js] Error loading API service:", error);
+    onError("api-service.js::loadAPI", "Error loading API service: " + error.message);
+}
 
 /**
  * Use this function to capture errors and save on the local storage (to be used as logs)
@@ -40,7 +45,6 @@ function onError(context, text, url = undefined) {
  * Load the API service
  */
 function loadAPI() {
-
     // Listen for messages
     (typeof browser !== 'undefined' ? browser : chrome).runtime.onMessage.addListener((message) => {
         if (message["api"] !== undefined && message["api"]) {
@@ -138,14 +142,18 @@ async function api_call(endpoint, body) {
             body: JSON.stringify(body)
         });
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            console.error(`[api-service.js::api_call::${endpoint}] HTTP error! Status: ${response.status}`);
+            return {error: true, message: `HTTP error! Status: ${response.status}`, details: response};
+            //throw new Error(`HTTP error! Status: ${response.status}`);
         }
+
+        browser.storage.local.remove("notefox-server-error-shown");
         return await response.json();
     } catch (error) {
         console.error(`[api-service.js::api_call::${endpoint}] API request failed:`, error);
         onError("api-service.js::api_call", "API request failed: " + error.message);
 
-        return {error: true, message: error.message};
+        return {error: true, message: error.message, details: error};
     }
 }
 
@@ -421,13 +429,20 @@ async function check_user(login_id, token) {
 
     if (data.code !== undefined && data.code === 200) {
         //console.log("User is valid");
-    } else {
+    } else if (data.code !== undefined && data.code !== 200) {
         //console.log("User is not valid: " + data.code);
         console.error("[api-service.js::check_user] User is not valid: " + data.code);
         onError("api-service.js::check_user", "User is not valid: " + data.code);
         sendMessage({"check-user--expired": true}).then(response => {
             //logout(login_id, false, false);
-            browser.storage.sync.remove("notefox-account");
+            if (data.code && data.code !== 200) browser.storage.sync.remove("notefox-account");
+        });
+    } else {
+        console.error("[api-service.js::check_user::exception] User is not valid", data);
+        onError("api-service.js::check_user::exception", "User is not valid", data);
+        sendMessage({"check-user--exception": true}).then(response => {
+            //logout(login_id, false, false);
+            //browser.storage.sync.remove("notefox-account");
         });
     }
 }

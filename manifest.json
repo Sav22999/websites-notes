@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Notefox: Websites notes",
   "author": "Saverio Morelli (Sav22999)",
-  "version": "4.5.0.3",
+  "version": "4.5.3",
   "description": "Take notes on every website in a smart and simple way!",
   "icons": {
     "16": "./img/icon.svg",
@@ -33,7 +33,7 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "websitesnotes@saveriomorelli.com",
-      "strict_min_version": "58.0"
+      "strict_min_version": "60.0"
     }
   },
   "browser_action": {

@@ -288,6 +288,21 @@ function loadAsideBar() {
     }
 
     version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", browser.runtime.getManifest().version);
+
+    //get the current tabUrl
+    browser.tabs.query({active: true, currentWindow: true}).then(tabs => {
+        if (tabs.length > 0) {
+            let tabUrl = tabs[0].url;
+            //if it starts with "about:addons"
+            if (tabUrl.startsWith("about:addons")) {
+                document.getElementById("all-notes-dedication-section").classList.add("from-firefox-addons");
+            } else {
+                if (document.getElementById("all-notes-dedication-section").classList.contains("from-firefox-addons")) {
+                    document.getElementById("all-notes-dedication-section").classList.remove("from-firefox-addons");
+                }
+            }
+        }
+    });
 }
 
 function filterByColor(color, tagButton) {
