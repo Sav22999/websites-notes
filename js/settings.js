@@ -114,6 +114,15 @@ function loaded() {
             //console.log("User expired! Log in again | script");
             notefoxAccountLoginSignupManage("login-expired");
         }
+        if (message["check-user--exception"] !== undefined && message["check-user--exception"]) {
+            //console.log("User not logged! Log in | script");
+            //console.log(message);
+            browser.storage.local.get("notefox-server-error-shown").then(result => {
+                if (result["notefox-server-error-shown"] === undefined || result["notefox-server-error-shown"] === false) {
+                    notefoxServerError();
+                }
+            });
+        }
     });
     browser.runtime.sendMessage({"check-user": true});
 
@@ -2119,7 +2128,7 @@ function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
                                 "privacy-acceptance": syncData.privacy ?? "??undefined??",
                                 settings: localData["settings"] ?? "??undefined??",
                             };
-                            console.log(
+                            console.warn(
                                 startMessageDeveloperDetails("=GENERAL="),
                                 "\n",
                                 JSON.stringify(details),
@@ -2151,7 +2160,7 @@ function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
                                     "last-update": localData["last-update"] ?? "??undefined??",
                                     "last-sync": localData["last-sync"] ?? "??undefined??",
                                 };
-                                console.log(
+                                console.warn(
                                     startMessageDeveloperDetails("=NOTEFOX-ACCOUNT="),
                                     JSON.stringify(details),
                                     endMessageDeveloperDetails()
@@ -2173,7 +2182,7 @@ function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
                     const details = {
                         "notefox-account-token": token ?? "??undefined??",
                     };
-                    console.log(
+                    console.warn(
                         startMessageDeveloperDetails("=NOTEFOX-ACCOUNT-TOKEN="),
                         JSON.stringify(details),
                         endMessageDeveloperDetails()
@@ -2489,10 +2498,10 @@ function importAllNotes(from_file = false) {
                                                 document.getElementById("cancel-import-all-notes-button").disabled = true;
                                                 document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
                                                 if (document.getElementById("loading-importing").classList.contains("hidden")) document.getElementById("loading-importing").classList.remove("hidden");
-                                setTimeout(function () {
-                                    document.getElementById("import-now-all-notes-button").disabled = false;
-                                    document.getElementById("cancel-import-all-notes-button").disabled = false;
-                                    document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
+                                                setTimeout(function () {
+                                                    document.getElementById("import-now-all-notes-button").disabled = false;
+                                                    document.getElementById("cancel-import-all-notes-button").disabled = false;
+                                                    document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
 
                                                     if (json_to_import_temp["last-update"] !== undefined)
                                                         result["last-update"] =
@@ -2575,7 +2584,7 @@ function importAllNotes(from_file = false) {
 
                                                             document.getElementById("import-section").style.display = "none";
                                                             document.getElementById("loading-importing").classList.add("hidden");
-                                        hideBackgroundOpacity()
+                                                            hideBackgroundOpacity()
 
                                                             loaded();
                                                         })
@@ -2939,6 +2948,47 @@ function deleteErrorLogs() {
         browser.storage.local.remove("error-logs").then((result) => {
             loaded();
         });
+    }
+}
+
+function notefoxServerError() {
+    let section = document.getElementById("notefox-server-error-section");
+    let background = document.getElementById("background-opacity");
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    let title = document.getElementById("notefox-server-error-title");
+    title.textContent = all_strings["notefox-account-message-server-error-title"];
+    let text = document.getElementById("notefox-server-error-text");
+    text.innerHTML = all_strings["notefox-account-message-server-error-text"];
+    let text2 = document.getElementById("notefox-server-error-text2");
+    text2.innerHTML = all_strings["notefox-account-message-server-error-text2"];
+    let text3 = document.getElementById("notefox-server-error-text3");
+    text3.innerHTML = all_strings["notefox-account-message-server-error-text3"];
+    let button1 = document.getElementById("notefox-server-error-button1");
+    button1.value = all_strings["notefox-account-message-button1"];
+    button1.onclick = function () {
+        //log out
+        section.style.display = "none";
+        background.style.display = "none";
+
+        browser.storage.sync.remove("notefox-account");
+        browser.storage.local.set({"notefox-server-error-shown": true});
+        sendTelemetry("notefox-server-error-logout");
+        window.close();
+    }
+    let button2 = document.getElementById("notefox-server-error-button2");
+    button2.value = all_strings["notefox-account-message-button2"];
+    button2.onclick = function () {
+        //close the message
+        section.style.display = "none";
+        background.style.display = "none";
+
+        browser.storage.local.set({"notefox-server-error-shown": true}).then(() => {
+            //console.log("Notefox server error shown set to true");
+        });
+        sendTelemetry("notefox-server-error-continue");
     }
 }
 
@@ -3762,10 +3812,10 @@ function notefoxAccountLoginSignupManage(
                         spinner_loading.classList.add("hidden");
                     } else if (email === "" || password === "" || login_id === "" || token === ""
                     ) {
-                        if (email === "") console.log("email is empty");
+                        /*if (email === "") console.log("email is empty");
                         if (password === "") console.log("password is empty");
                         if (login_id === "") console.log("login_id is empty");
-                        if (token === "") console.log("token is empty");
+                        if (token === "") console.log("token is empty");*/
 
                         notefoxAccountLoginSignupManage("delete");
                     } else {

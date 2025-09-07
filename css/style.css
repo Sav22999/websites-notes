@@ -819,6 +819,7 @@ pre::placeholder,
 }
 
 #login-expired-title,
+#notefox-server-error-title,
 .message-popup .message-popup-content .message-popup-content-title {
   padding: 10px;
   font-size: 1.7em;
@@ -832,6 +833,7 @@ pre::placeholder,
 }
 
 #login-expired-text,
+#notefox-server-error-text, #notefox-server-error-text2, #notefox-server-error-text3,
 .message-popup .message-popup-content .message-popup-content-description {
   padding: 5px 15px;
   font-size: 1em;
@@ -842,6 +844,7 @@ pre::placeholder,
 }
 
 #login-expired-buttons,
+#notefox-server-error-buttons,
 .message-popup .message-popup-content .message-popup-content-buttons {
   padding: 10px;
 }
@@ -850,6 +853,7 @@ pre::placeholder,
 #export-sub-sections,
 #account-sub-sections,
 #login-expired-content,
+#notefox-server-error-content,
 #link-content-section,
 #show-error-logs-sub-sections,
 .message-popup .message-popup-content {
@@ -1079,6 +1083,7 @@ pre::placeholder,
 #export-section,
 #account-section,
 #login-expired-section,
+#notefox-server-error-section,
 #link-section,
 #show-error-logs-section,
 #telemetry-added-section,
@@ -1115,6 +1120,7 @@ pre::placeholder,
   #account-section,
   #export-section,
   #login-expired-section,
+  #notefox-server-error-section,
   #link-section,
   #show-error-logs-section,
   #telemetry-added-section,
@@ -1131,6 +1137,7 @@ pre::placeholder,
   #export-section,
   #account-section,
   #login-expired-section,
+  #notefox-server-error-section,
   #link-section,
   #show-error-logs-section,
   #telemetry-added-section,
