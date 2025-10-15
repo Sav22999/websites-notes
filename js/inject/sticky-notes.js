@@ -490,7 +490,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 padding: 15px !important;
                 margin: 0px !important;
                 box-sizing: border-box !important;
-                border-radius: 10px;
+                border-radius: 15px;
                 cursor: default;
                 box-shadow: 0px 0px 5px rgba(255,98,0,0.27);
                 font-family: inherit;
@@ -597,7 +597,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 cursor: text;
                 z-index: 1;
                 border: 0px solid transparent !important;
-                border-radius: 10px;
+                border-radius: 15px;
                 overflow: auto;
                 resize: none;
                 transition: 0.2s;
@@ -631,7 +631,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 background-color: ${tertiary_transparent_color};
                 color: ${on_primary_color};
                 padding: 2px 5px !important;
-                border-radius: 5px;
+                border-radius: 15px;
             }
             
             #text--sticky-notes-notefox-addon h1 {
@@ -679,7 +679,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
             }
             
             #text--sticky-notes-notefox-addon img {
-                border-radius: 5px;
+                border-radius: 15px;
                 width: auto;
                 max-width: 100%;
                 height: auto;
@@ -726,7 +726,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 border: 0px solid transparent;
                 color: ${on_secondary_color};
                 z-index: 5;
-                border-radius: 10px;
+                border-radius: 15px;
                 cursor: pointer;
                 margin: 0px !important;
                 padding: 0px !important;
@@ -766,7 +766,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 opacity: 0.7;
                 transition: opacity .2s;
                 cursor: pointer;
-                border-radius: 10px;
+                border-radius: 15px;
                 margin: 0px !important;
                 padding: 0px !important;
                 box-sizing: border-box !important;
@@ -1321,7 +1321,7 @@ function getCSSMinimized(settings_json, icons_json, theme_colours_json) {
                 right: auto;
                 background-image: url('data:image/svg+xml;base64,${svg_image_restore}');
                 background-size: 70% auto;
-                border-radius: 0px 10px 10px 0px;
+                border-radius: 0px 15px 15px 0px;
                 opacity: 0.2;
                 background-repeat: no-repeat;
                 background-position: center center;

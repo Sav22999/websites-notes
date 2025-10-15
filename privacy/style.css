@@ -84,7 +84,7 @@ a, a:hover, a:active, a:focus {
     background-color: #f47500;
     color: #eeeeee;
     padding: 15px 20px;
-    border-radius: 5px;
+    border-radius: 15px;
     font-size: 1.25em;
     user-select: none;
     margin-bottom: 0px;
@@ -113,7 +113,7 @@ a, a:hover, a:active, a:focus {
     overflow: hidden;
     padding: 0 20px;
     background-color: #eeeeee55;
-    border-radius: 0 0 5px 5px;
+    border-radius: 0 0 15px 15px;
     transition: max-height 0.4s ease, padding 0.4s ease;
 }
 
@@ -144,7 +144,7 @@ a, a:hover, a:active, a:focus {
     height: 24px;
     background-color: #ffffff;
     border: 0px solid #ccc;
-    border-radius: 5px;
+    border-radius: 15px;
     display: inline-block;
     margin-right: 10px;
     flex-shrink: 0;
@@ -192,7 +192,7 @@ a, a:hover, a:active, a:focus {
     background-color: #ffffff;
     color: #ff7a00;
     border: none;
-    border-radius: 5px;
+    border-radius: 15px;
     font-weight: 600;
     font-size: 1em;
     cursor: pointer;
