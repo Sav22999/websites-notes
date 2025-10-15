@@ -185,6 +185,7 @@ body {
 
 .select-box:hover {
     opacity: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .clear-button,
@@ -430,6 +431,7 @@ body {
 #tabs-section > .tab:hover {
     /*background-color: #dddddd;*/
     opacity: 0.9;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 #tabs-section > .tab:active,
@@ -447,6 +449,10 @@ textarea:active,
     border-radius: 15px !important;
     z-index: 2;
     transition: 0.5s;
+}
+
+.div-textnotes-container:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 #tabs-section > .tab:active,
@@ -473,6 +479,7 @@ textarea:active,
     /*background-color: var(--primary-color);*/
     /*border-color: var(--primary-color);*/
     opacity: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 #tabs-section > .tab-sel.not-sel {
@@ -583,6 +590,10 @@ pre::placeholder,
     border-radius: 15px !important;
     box-shadow: 0px 0px 0px 3px var(--tertiary-transparent-2) inset;
     transition: 0.5s;
+}
+
+.content-notes--container:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 #search-all-notes-text {
@@ -1056,6 +1067,7 @@ pre::placeholder,
 
 .content-notes--container:hover {
     opacity: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .sub-section-last-update {
@@ -1242,6 +1254,7 @@ div.h2-container {
 
 div.h2-container:hover {
     opacity: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .clear-button-float-right {
@@ -1305,6 +1318,7 @@ h3 {
 
 .section-domain:hover {
     /*box-shadow: 0px 0px 0px 3px var(--primary-color) inset;*/
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .notes-pages {
@@ -1318,6 +1332,7 @@ h3 {
 .notes-pages:hover {
     box-shadow: 0px 0px 0px 3px var(--tertiary-transparent-2) inset;
     transition: 0.5s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 b {
@@ -1765,6 +1780,7 @@ aside .aside-button:hover {
     background-color: var(--tertiary-transparent);
     color: inherit;
     opacity: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .aside-button.sel,
@@ -1772,6 +1788,10 @@ aside .aside-button:hover {
     background-color: var(--primary-color);
     color: var(--on-primary-color);
     opacity: 1;
+}
+
+.aside-button.sel:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 aside .external-link {
@@ -1995,6 +2015,10 @@ aside .external-link {
 .item-settings:hover input[type="checkbox"] ~ .checkmark {
     background-color: var(--tertiary-transparent-2);
     opacity: 0.7;
+}
+
+.item-settings input[type="checkbox"]:hover ~ .checkmark {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .item-settings input[type="checkbox"]:checked ~ .checkmark {
@@ -2457,6 +2481,13 @@ hr.hr-domain:last-child {
     user-select: none;
     border-radius: 15px;
     overflow: hidden;
+}
+
+.item-radio-theme:hover,
+.item-radio-sticky-theme:hover,
+.item-radio-font-family:hover,
+.item-radio-datetime-format:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
 .item-radio-theme input[type="radio"],
