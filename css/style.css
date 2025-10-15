@@ -3984,7 +3984,7 @@ option {
     flex: 50%;
     order: 1;
 
-    gap: 4px;
+    gap: 2px;
 }
 
 .subrow-buttons > * {

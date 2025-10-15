@@ -531,7 +531,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                     if (domain !== "**global") {
                         input_clear_all_notes_domain.type = "button";
                         input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
-                        input_clear_all_notes_domain.classList.add("button", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button", "clear-button-float-right");
+                        input_clear_all_notes_domain.classList.add("button", "small-button", "clear-button", "clear-button-float-right");
                         input_clear_all_notes_domain.onclick = function () {
                             clearAllNotesDomain(domain);
                             sendTelemetry(`clear-all-notes-domain`, "all-notes.js", domain);
