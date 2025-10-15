@@ -1379,7 +1379,7 @@ function loadSettings() {
                 settings_json["font-family"] === undefined ||
                 !supportedFontFamily.includes(settings_json["font-family"])
             )
-                settings_json["font-family"] = "Shantell Sans";
+                settings_json["font-family"] = "Merienda";
             if (settings_json["show-title-textbox"] === undefined)
                 settings_json["show-title-textbox"] = false;
             if (settings_json["immersive-sticky-notes"] === undefined)
@@ -1392,7 +1392,7 @@ function loadSettings() {
             )
                 settings_json["datetime-format"] = "yyyymmdd1";
             if (settings_json["sending-error-logs-automatically"] === undefined)
-                settings_json["sending-error-logs-automatically"] = true;
+                settings_json["sending-error-logs-automatically"] = false;
             if (settings_json["send-telemetry"] === undefined)
                 settings_json["send-telemetry"] = false;
 

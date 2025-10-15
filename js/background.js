@@ -218,7 +218,7 @@ function checkErrorLogs() {
     sync_local.get(["settings", "error-logs"]).then(result => {
         settings_json = {};
         if (result["settings"] !== undefined) settings_json = result["settings"];
-        if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = true
+        if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = false;
 
         if (settings_json["sending-error-logs-automatically"]) {
             if (result["error-logs"] !== undefined && result["error-logs"].length > 0) {
