@@ -216,8 +216,7 @@ function listenerLinks() {
                 if ((settings_json["open-links-only-with-ctrl"] === "yes" || settings_json["open-links-only-with-ctrl"] === true) && (event.ctrlKey || event.metaKey)) {
                     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         browser.tabs.create({
-                            url: link.href,
-                            index: tabs[0].index + 1
+                            url: link.href, index: tabs[0].index + 1
                         });
                     });
                 } else {
@@ -269,9 +268,7 @@ function loadUI() {
                 //console.log("websites: "+JSON.stringify(value));
                 let default_index = 2;
                 if (!isUrlSupported(activeTabUrl)) default_index = 1;
-                if (settings_json["open-default"] === "page" && isUrlSupported(activeTabUrl)) default_index = 2;
-                else if (settings_json["open-default"] === "domain" || !isUrlSupported(activeTabUrl) && settings_json["open-default"] === "page") default_index = 1;
-                else if (settings_json["open-default"] === "global") default_index = 0;
+                if (settings_json["open-default"] === "page" && isUrlSupported(activeTabUrl)) default_index = 2; else if (settings_json["open-default"] === "domain" || !isUrlSupported(activeTabUrl) && settings_json["open-default"] === "page") default_index = 1; else if (settings_json["open-default"] === "global") default_index = 0;
                 if (value["websites"] !== undefined) {
                     websites_json = value["websites"];
                     let check_for_domain = checkAllSupportedProtocols(currentUrl[1], websites_json) && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]["notes"] !== "";
@@ -284,8 +281,7 @@ function loadUI() {
                         let tmp_check = checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["last-update"] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["last-update"] != null && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["notes"] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["notes"] !== "";
                         if (tmp_check) {
                             check_for_subdomains = true;
-                            if (currentUrl.length === 4) currentUrl[3] = url;
-                            else currentUrl.push(url);
+                            if (currentUrl.length === 4) currentUrl[3] = url; else currentUrl.push(url);
                         }
                         //console.log(url + " : " + tmp_check);
                     });
@@ -628,8 +624,7 @@ function loadSettings(load_only = false) {
         if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
         if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
 
-        if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
-        else advanced_managing = false;
+        if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true; else advanced_managing = false;
 
         if (!load_only) continueLoaded();
         //console.log(JSON.stringify(settings_json));
@@ -858,10 +853,7 @@ function saveNotes(title_call = false) {
 }
 
 function getCurrentTabNameTag(tab) {
-    if (tab === 0) return "global";
-    else if (tab === 1) return "domain";
-    else if (tab === 2) return "page";
-    else if (tab === 3) return "subdomain";
+    if (tab === 0) return "global"; else if (tab === 1) return "domain"; else if (tab === 2) return "page"; else if (tab === 3) return "subdomain";
 }
 
 function checkNeverSaved(never_saved) {
@@ -961,10 +953,7 @@ function checkAllSupportedProtocols(url, json) {
 
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === true;
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["extension://" + getUrlWithoutProtocol(url)] !== undefined || json["chrome-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["about://" + getUrlWithoutProtocol(url)] !== undefined)
-            return true;
-        else
-            return false;
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["extension://" + getUrlWithoutProtocol(url)] !== undefined || json["chrome-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["about://" + getUrlWithoutProtocol(url)] !== undefined) return true; else return false;
     } else {
         return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined;
     }
@@ -976,13 +965,7 @@ function getUrlWithSupportedProtocol(url, json) {
 
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === true;
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
-        else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
-        else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url);
-        else if (json["extension://" + getUrlWithoutProtocol(url)] !== undefined) return "extension://" + getUrlWithoutProtocol(url);
-        else if (json["chrome-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "chrome-extension://" + getUrlWithoutProtocol(url);
-        else if (json["about://" + getUrlWithoutProtocol(url)] !== undefined) return "about://" + getUrlWithoutProtocol(url);
-        else return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url); else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url); else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url); else if (json["extension://" + getUrlWithoutProtocol(url)] !== undefined) return "extension://" + getUrlWithoutProtocol(url); else if (json["chrome-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "chrome-extension://" + getUrlWithoutProtocol(url); else if (json["about://" + getUrlWithoutProtocol(url)] !== undefined) return "about://" + getUrlWithoutProtocol(url); else return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
     } else {
         return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
     }
@@ -1016,8 +999,7 @@ function getDomainUrl(url, with_protocol = true) {
     } else {
         urlToReturn = this._domainUrl;
     }
-    if (with_protocol) return protocol + "://" + urlToReturn;
-    else return urlToReturn;
+    if (with_protocol) return protocol + "://" + urlToReturn; else return urlToReturn;
 }
 
 /**Returns the page url without the protocol (https, http, ftp, ...)!*/
@@ -1063,8 +1045,7 @@ function getPageUrl(url, with_protocol = true) {
         urlToReturn = this._pageUrl;
     }
 
-    if (with_protocol) return protocol + "://" + urlToReturn;
-    else return urlToReturn;
+    if (with_protocol) return protocol + "://" + urlToReturn; else return urlToReturn;
 }
 
 /**
@@ -1344,61 +1325,51 @@ function loadFormatButtons(navigation = true, format = true) {
 
     let html_text_formatting = true;
     if (settings_json["html-text-formatting"] !== undefined) {
-        if (settings_json["html-text-formatting"] === "yes" || settings_json["html-text-formatting"] === true) html_text_formatting = true;
-        else html_text_formatting = false;
+        if (settings_json["html-text-formatting"] === "yes" || settings_json["html-text-formatting"] === true) html_text_formatting = true; else html_text_formatting = false;
     }
 
     let is_undo_redo = true;
     if (settings_json["undo-redo"] !== undefined) {
-        if (settings_json["undo-redo"] === "yes" || settings_json["undo-redo"] === true) is_undo_redo = true;
-        else is_undo_redo = false;
+        if (settings_json["undo-redo"] === "yes" || settings_json["undo-redo"] === true) is_undo_redo = true; else is_undo_redo = false;
     }
     let is_bold_italic_underline_strikethrough = true;
     if (settings_json["bold-italic-underline-strikethrough"] !== undefined) {
-        if (settings_json["bold-italic-underline-strikethrough"] === "yes" || settings_json["bold-italic-underline-strikethrough"] === true) is_bold_italic_underline_strikethrough = true;
-        else is_bold_italic_underline_strikethrough = false;
+        if (settings_json["bold-italic-underline-strikethrough"] === "yes" || settings_json["bold-italic-underline-strikethrough"] === true) is_bold_italic_underline_strikethrough = true; else is_bold_italic_underline_strikethrough = false;
     }
     let is_link = true;
     if (settings_json["link"] !== undefined) {
-        if (settings_json["link"] === "yes" || settings_json["link"] === true) is_link = true;
-        else is_link = false;
+        if (settings_json["link"] === "yes" || settings_json["link"] === true) is_link = true; else is_link = false;
     }
     let is_spellcheck = true;
     if (settings_json["spellcheck"] !== undefined) {
-        if (settings_json["spellcheck"] === "yes" || settings_json["spellcheck"] === true) is_spellcheck = true;
-        else is_spellcheck = false;
+        if (settings_json["spellcheck"] === "yes" || settings_json["spellcheck"] === true) is_spellcheck = true; else is_spellcheck = false;
     }
     let is_subscript_superscript = false;
     if (settings_json["superscript-subscript"] !== undefined) {
-        if (settings_json["superscript-subscript"] === "yes" || settings_json["superscript-subscript"] === true) is_subscript_superscript = true;
-        else is_subscript_superscript = false;
+        if (settings_json["superscript-subscript"] === "yes" || settings_json["superscript-subscript"] === true) is_subscript_superscript = true; else is_subscript_superscript = false;
     }
     let is_headers = false;
     if (settings_json["headers"] !== undefined) {
-        if (settings_json["headers"] === "yes" || settings_json["headers"] === true) is_headers = true;
-        else is_headers = false;
+        if (settings_json["headers"] === "yes" || settings_json["headers"] === true) is_headers = true; else is_headers = false;
     }
     let is_small_big = false;
     if (settings_json["small-big"] !== undefined) {
-        if (settings_json["small-big"] === "yes" || settings_json["small-big"] === true) is_small_big = true;
-        else is_small_big = false;
+        if (settings_json["small-big"] === "yes" || settings_json["small-big"] === true) is_small_big = true; else is_small_big = false;
     }
     let is_highlighter = false;
     if (settings_json["highlighter"] !== undefined) {
-        if (settings_json["highlighter"] === "yes" || settings_json["highlighter"] === true) is_highlighter = true;
-        else is_highlighter = false;
+        if (settings_json["highlighter"] === "yes" || settings_json["highlighter"] === true) is_highlighter = true; else is_highlighter = false;
     }
     let is_code = false;
     if (settings_json["code-block"] !== undefined) {
-        if (settings_json["code-block"] === "yes" || settings_json["code-block"] === true) is_code = true;
-        else is_code = false;
+        if (settings_json["code-block"] === "yes" || settings_json["code-block"] === true) is_code = true; else is_code = false;
     }
 
     let commands = [];
     if (navigation && html_text_formatting) {
         if (is_undo_redo) {
-            commands.push(
-                {
+            commands.push({
+                "undo_redo_group": [{
                     action: "undo",
                     icon: `${url}undo.svg`,
                     title: all_strings["label-title-undo"],
@@ -1406,8 +1377,7 @@ function loadFormatButtons(navigation = true, format = true) {
                         undo()
                         sendTelemetry("button-format::undo");
                     }
-                },
-                {
+                }, {
                     action: "redo",
                     icon: `${url}redo.svg`,
                     title: all_strings["label-title-redo"],
@@ -1415,7 +1385,8 @@ function loadFormatButtons(navigation = true, format = true) {
                         redo()
                         sendTelemetry("button-format::redo");
                     }
-                });
+                }]
+            });
         }
     } else {
         actions = [];
@@ -1423,205 +1394,268 @@ function loadFormatButtons(navigation = true, format = true) {
     }
     if (format && html_text_formatting) {
         if (is_bold_italic_underline_strikethrough) {
-            commands.push(
-                {
-                    action: "bold",
-                    icon: `${url}bold.svg`,
-                    title: all_strings["label-title-bold"],
-                    function: function () {
-                        bold();
-                        sendTelemetry("button-format::bold");
+            commands.push({
+                "bold_italic_underline_strikethrough_group":
+                    [{
+                        action: "bold", icon:
+                            `${url}bold.svg`, title:
+                            all_strings["label-title-bold"], function:
+
+                            function () {
+                                bold();
+                                sendTelemetry("button-format::bold");
+                            }
                     }
-                },
-                {
-                    action: "italic",
-                    icon: `${url}italic.svg`,
-                    title: all_strings["label-title-italic"],
-                    function: function () {
-                        italic();
-                        sendTelemetry("button-format::italic");
-                    }
-                },
-                {
-                    action: "underline",
-                    icon: `${url}underline.svg`,
-                    title: all_strings["label-title-underline"],
-                    function: function () {
-                        underline();
-                        sendTelemetry("button-format::underline");
-                    }
-                },
-                {
-                    action: "strikethrough",
-                    icon: `${url}strikethrough.svg`,
-                    title: all_strings["label-title-strikethrough"],
-                    function: function () {
-                        strikethrough();
-                        sendTelemetry("button-format::strikethrough");
-                    }
-                }
-            );
+                        ,
+                        {
+                            action: "italic",
+                            icon:
+                                `${url}italic.svg`,
+                            title:
+                                all_strings["label-title-italic"],
+                            function:
+
+                                function () {
+                                    italic();
+                                    sendTelemetry("button-format::italic");
+                                }
+                        }
+                        ,
+                        {
+                            action: "underline",
+                            icon:
+                                `${url}underline.svg`,
+                            title:
+                                all_strings["label-title-underline"],
+                            function:
+
+                                function () {
+                                    underline();
+                                    sendTelemetry("button-format::underline");
+                                }
+                        }
+                        ,
+                        {
+                            action: "strikethrough",
+                            icon:
+                                `${url}strikethrough.svg`,
+                            title:
+                                all_strings["label-title-strikethrough"],
+                            function:
+
+                                function () {
+                                    strikethrough();
+                                    sendTelemetry("button-format::strikethrough");
+                                }
+                        }]
+            });
         }
 
         if (is_link) {
-            commands.push(
-                {
-                    action: "link",
-                    icon: `${url}link.svg`,
-                    title: all_strings["label-title-link"],
-                    function: function () {
-                        insertLink();
-                        sendTelemetry("button-format::link");
-                    }
-                }
-            );
+            commands.push({
+                "link_group":
+                    [{
+                        action: "link", icon:
+                            `${url}link.svg`, title:
+                            all_strings["label-title-link"], function:
+
+                            function () {
+                                insertLink();
+                                sendTelemetry("button-format::link");
+                            }
+                    }]
+            });
         }
 
         if (is_spellcheck) {
-            commands.push(
-                {
-                    action: "spellcheck",
-                    icon: `${url}spellcheck.svg`,
-                    title: all_strings["label-title-spellcheck"],
-                    function: function () {
-                        spellcheck();
-                        sendTelemetry("button-format::spellcheck");
-                    }
-                }
-            );
+            commands.push({
+                "spellcheck_group":
+                    [{
+                        action: "spellcheck",
+                        icon:
+                            `${url}spellcheck.svg`,
+                        title:
+                            all_strings["label-title-spellcheck"],
+                        function:
+
+                            function () {
+                                spellcheck();
+                                sendTelemetry("button-format::spellcheck");
+                            }
+                    }]
+            });
         }
 
         if (is_subscript_superscript) {
-            commands.push(
-                {
-                    action: "subscript",
-                    icon: `${url}subscript.svg`,
-                    title: all_strings["label-title-subscript"],
-                    function: function () {
-                        subscript();
-                        sendTelemetry("button-format::subscript");
+            commands.push({
+                "subscript_superscript_group":
+                    [{
+                        action: "subscript",
+                        icon:
+                            `${url}subscript.svg`,
+                        title:
+                            all_strings["label-title-subscript"],
+                        function:
+
+                            function () {
+                                subscript();
+                                sendTelemetry("button-format::subscript");
+                            }
                     }
-                },
-                {
-                    action: "superscript",
-                    icon: `${url}superscript.svg`,
-                    title: all_strings["label-title-superscript"],
-                    function: function () {
-                        superscript();
-                        sendTelemetry("button-format::superscript");
-                    }
-                }
-            );
+                        ,
+                        {
+                            action: "superscript",
+                            icon:
+                                `${url}superscript.svg`,
+                            title:
+                                all_strings["label-title-superscript"],
+                            function:
+
+                                function () {
+                                    superscript();
+                                    sendTelemetry("button-format::superscript");
+                                }
+                        }]
+            });
         }
 
         if (is_highlighter) {
-            commands.push(
-                {
-                    action: "highlighter",
-                    icon: `${url}highlighter.svg`,
-                    title: all_strings["label-title-highlighter"],
-                    function: function () {
-                        hightlighter();
-                        sendTelemetry("button-format::highlighter");
-                    }
-                }
-            );
+            commands.push({
+                "highlighter_group":
+                    [{
+                        action: "highlighter",
+                        icon:
+                            `${url}highlighter.svg`,
+                        title:
+                            all_strings["label-title-highlighter"],
+                        function:
+
+                            function () {
+                                hightlighter();
+                                sendTelemetry("button-format::highlighter");
+                            }
+                    }]
+            });
         }
 
         if (is_code) {
-            commands.push(
-                {
-                    action: "code-block",
-                    icon: `${url}code-block.svg`,
-                    title: all_strings["label-title-code-block"],
-                    function: function () {
-                        insertCode();
-                        sendTelemetry("button-format::code-block");
-                    }
-                }
-            );
+            commands.push({
+                "code_block_group":
+                    [{
+                        action: "code-block",
+                        icon:
+                            `${url}code-block.svg`,
+                        title:
+                            all_strings["label-title-code-block"],
+                        function:
+
+                            function () {
+                                insertCode();
+                                sendTelemetry("button-format::code-block");
+                            }
+                    }]
+            });
         }
 
         if (is_headers) {
-            commands.push(
-                {
-                    action: "h1",
-                    icon: `${url}h1.svg`,
-                    title: all_strings["label-title-header-h1"],
-                    function: function () {
-                        insertHeader("h1");
-                        sendTelemetry("button-format::h1");
+            commands.push({
+                "headers_group":
+                    [{
+                        action: "h1", icon:
+                            `${url}h1.svg`, title:
+                            all_strings["label-title-header-h1"], function:
+
+                            function () {
+                                insertHeader("h1");
+                                sendTelemetry("button-format::h1");
+                            }
                     }
-                },
-                {
-                    action: "h2",
-                    icon: `${url}h2.svg`,
-                    title: all_strings["label-title-header-h2"],
-                    function: function () {
-                        insertHeader("h2");
-                        sendTelemetry("button-format::h2");
-                    }
-                },
-                {
-                    action: "h3",
-                    icon: `${url}h3.svg`,
-                    title: all_strings["label-title-header-h3"],
-                    function: function () {
-                        insertHeader("h3");
-                        sendTelemetry("button-format::h3");
-                    }
-                },
-                {
-                    action: "h4",
-                    icon: `${url}h4.svg`,
-                    title: all_strings["label-title-header-h4"],
-                    function: function () {
-                        insertHeader("h4");
-                        sendTelemetry("button-format::h4");
-                    }
-                },
-                {
-                    action: "h5",
-                    icon: `${url}h5.svg`,
-                    title: all_strings["label-title-header-h5"],
-                    function: function () {
-                        insertHeader("h5");
-                        sendTelemetry("button-format::h5");
-                    }
-                },
-                {
-                    action: "h6",
-                    icon: `${url}h6.svg`,
-                    title: all_strings["label-title-header-h6"],
-                    function: function () {
-                        insertHeader("h6");
-                        sendTelemetry("button-format::h6");
-                    }
-                }
-            );
+                        ,
+                        {
+                            action: "h2", icon:
+                                `${url}h2.svg`, title:
+                                all_strings["label-title-header-h2"], function:
+
+                                function () {
+                                    insertHeader("h2");
+                                    sendTelemetry("button-format::h2");
+                                }
+                        }
+                        ,
+                        {
+                            action: "h3", icon:
+                                `${url}h3.svg`, title:
+                                all_strings["label-title-header-h3"], function:
+
+                                function () {
+                                    insertHeader("h3");
+                                    sendTelemetry("button-format::h3");
+                                }
+                        }
+                        ,
+                        {
+                            action: "h4", icon:
+                                `${url}h4.svg`, title:
+                                all_strings["label-title-header-h4"], function:
+
+                                function () {
+                                    insertHeader("h4");
+                                    sendTelemetry("button-format::h4");
+                                }
+                        }
+                        ,
+                        {
+                            action: "h5", icon:
+                                `${url}h5.svg`, title:
+                                all_strings["label-title-header-h5"], function:
+
+                                function () {
+                                    insertHeader("h5");
+                                    sendTelemetry("button-format::h5");
+                                }
+                        }
+                        ,
+                        {
+                            action: "h6", icon:
+                                `${url}h6.svg`, title:
+                                all_strings["label-title-header-h6"], function:
+
+                                function () {
+                                    insertHeader("h6");
+                                    sendTelemetry("button-format::h6");
+                                }
+                        }]
+            });
         }
 
         if (is_small_big) {
-            commands.push(
-                {
-                    action: "small",
-                    icon: `${url}small.svg`,
-                    title: all_strings["label-title-small"],
-                    function: function () {
-                        small();
-                        sendTelemetry("button-format::small");
+            commands.push({
+                "small_big_group":
+                    [{
+                        action: "small",
+                        icon:
+                            `${url}small.svg`,
+                        title:
+                            all_strings["label-title-small"],
+                        function:
+
+                            function () {
+                                small();
+                                sendTelemetry("button-format::small");
+                            }
                     }
-                },
-                {
-                    action: "big",
-                    icon: `${url}big.svg`,
-                    title: all_strings["label-title-big"],
-                    function: function () {
-                        big();
-                        sendTelemetry("button-format::big");
-                    }
-                }
-            )
+                        ,
+                        {
+                            action: "big", icon:
+                                `${url}big.svg`, title:
+                                all_strings["label-title-big"], function:
+
+                                function () {
+                                    big();
+                                    sendTelemetry("button-format::big");
+                                }
+                        }]
+            })
         }
     }
 
@@ -1637,15 +1671,21 @@ function loadFormatButtons(navigation = true, format = true) {
     buttons_container = document.getElementById("format-buttons");
     buttons_container.innerHTML = "";
     let tabIndex = 1;
-    commands.forEach(value => {
-        let button = document.createElement("button");
-        button.classList.add("button-format", "button");
-        //button.style.backgroundImage = `url('${value.icon}')`;
-        button.id = `text-${value.action}`;
-        button.onclick = value.function;
-        button.title = value.title;
-        button.tabIndex = tabIndex;
-        buttons_container.appendChild(button);
+    commands.forEach(group => {
+        let buttons_group = document.createElement("div");
+        buttons_group.classList.add("button-group");
+        buttons_group.id = Object.keys(group)[0];
+        group[Object.keys(group)[0]].forEach(value => {
+            let button = document.createElement("button");
+            button.classList.add("button-format", "button");
+            //button.style.backgroundImage = `url('${value.icon}')`;
+            button.id = `text-${value.action}`;
+            button.onclick = value.function;
+            button.title = value.title;
+            button.tabIndex = tabIndex;
+            buttons_group.appendChild(button);
+        });
+        buttons_container.appendChild(buttons_group);
     })
 
     if (format) {
@@ -1824,6 +1864,19 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         let arrow_right_svg = window.btoa(getIconSvgEncoded("arrow-right", on_primary));
 
+        let primaryTransparent = primary;
+        if (primaryTransparent.includes("rgb(")) {
+            let rgb_temp = primaryTransparent.replace("rgb(", "");
+            let rgb_temp_arr = rgb_temp.split(",");
+            if (rgb_temp_arr.length >= 3) {
+                let red = rgb_temp_arr[0].replace(" ", "");
+                let green = rgb_temp_arr[1].replace(" ", "");
+                let blue = rgb_temp_arr[2].replace(")", "").replace(" ", "");
+                primaryTransparent = `rgba(${red}, ${green}, ${blue}, 0.8)`;
+            }
+        } else if (primaryTransparent.includes("#")) {
+            primaryTransparent += "88";
+        }
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
@@ -1849,6 +1902,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
             <style>
                 :root {
                     --primary-color: ${primary};
+                    --primary-color-transparent: ${primaryTransparent};
                     --secondary-color: ${secondary};
                     --on-primary-color: ${on_primary};
                     --on-secondary-color: ${on_secondary};

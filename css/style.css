@@ -55,6 +55,7 @@
 
 :root {
     --primary-color: #ff6200;
+    --primary-color-transparent: rgba(255, 98, 0, 0.8);
     --secondary-color: #ffb788;
     --on-primary-color: #ffffff;
     --on-secondary-color: #ffffff;
@@ -179,7 +180,7 @@ body {
 }
 
 .button {
-    padding: 7px 10px;
+    padding: 10px;
     height: auto !important;
 }
 
@@ -327,7 +328,7 @@ body {
 .sort-by-button {
     background-image: url("../img/sort-by.svg"), url("../img/arrow-select.svg");
     background-repeat: no-repeat;
-    background-position: center left 5px, center right 5px;
+    background-position: center left 10px, center right 10px;
     background-size: auto 60%, auto 60%;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -434,6 +435,20 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.div-textnotes-container:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 15px !important;
+    z-index: 2;
+    transition: 0.5s;
+}
+
+.button:hover {
+    /*background-color: var(--primary-color);*/
+    /*border-color: var(--primary-color);*/
+    opacity: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 #tabs-section > .tab:active,
 #tabs-section > .tab:focus,
 .button:active,
@@ -441,7 +456,6 @@ body {
 textarea:focus,
 textarea:active,
 .div-textnotes-container:active,
-.div-textnotes-container:hover,
 .textbox:focus,
 .textbox:active {
     box-shadow: 0px 0px 0px 2px var(--secondary-color) inset,
@@ -451,9 +465,6 @@ textarea:active,
     transition: 0.5s;
 }
 
-.div-textnotes-container:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
 
 #tabs-section > .tab:active,
 #tabs-section > .tab:focus {
@@ -474,8 +485,7 @@ textarea:active,
     max-height: 50px !important;
 }
 
-#tabs-section > .tab-sel:hover,
-.button:hover {
+#tabs-section > .tab-sel:hover {
     /*background-color: var(--primary-color);*/
     /*border-color: var(--primary-color);*/
     opacity: 1;
@@ -539,6 +549,7 @@ textarea,
     padding: 2px;
     background-color: var(--textbox-color);
     display: grid;
+    transition: 0.5s all;
 }
 
 .div-textnotes-container {
@@ -584,16 +595,14 @@ pre::placeholder,
     border-top-right-radius: 0px !important;
 }
 
-.content-notes--container:focus-within,
-#notes-section > #title-notes:focus,
-.content-notes--container:hover {
-    border-radius: 15px !important;
-    box-shadow: 0px 0px 0px 3px var(--tertiary-transparent-2) inset;
-    transition: 0.5s;
-}
-
 .content-notes--container:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    opacity: 1;
+}
+
+.content-notes--container:focus-within,
+#notes-section > #title-notes:focus {
+    box-shadow: 0px 0px 0px 3px var(--tertiary-transparent-2) inset;
 }
 
 #search-all-notes-text {
@@ -1065,11 +1074,6 @@ pre::placeholder,
     }
 }
 
-.content-notes--container:hover {
-    opacity: 1;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
 .sub-section-last-update {
     padding: 5px;
     font-size: 12px;
@@ -1219,7 +1223,7 @@ h2 {
     font-size: 1.2em;
     padding: 5px;
     padding-left: 10px;
-    height: 35px;
+    min-height: 35px;
 }
 
 h2.domain {
@@ -1254,7 +1258,6 @@ div.h2-container {
 
 div.h2-container:hover {
     opacity: 1;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .clear-button-float-right {
@@ -1281,7 +1284,7 @@ h3 {
     color: var(--primary-color);
     font-size: 1em;
     padding: 3px;
-    height: 25px;
+    min-height: 25px;
 }
 
 .go-to-external {
@@ -1318,7 +1321,6 @@ h3 {
 
 .section-domain:hover {
     /*box-shadow: 0px 0px 0px 3px var(--primary-color) inset;*/
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .notes-pages {
@@ -1332,7 +1334,6 @@ h3 {
 .notes-pages:hover {
     box-shadow: 0px 0px 0px 3px var(--tertiary-transparent-2) inset;
     transition: 0.5s;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 b {
@@ -1606,6 +1607,18 @@ div#format-buttons {
     padding-right: 40px;
 }
 
+div#format-buttons > div.button-group {
+    display: inline-block;
+    margin: 2px;
+    background-color: var(--primary-color);
+    opacity: 0.8;
+}
+
+div#format-buttons > div.button-group:hover,
+div#format-buttons > div.button-group:focus-within {
+    opacity: 1;
+}
+
 #open-sticky-button {
     z-index: 6;
 }
@@ -1618,43 +1631,8 @@ button.button-format {
     background-position: center center;
     border: 0px solid transparent;
     cursor: pointer;
-    margin: 2px;
+    margin: 0px;
     border-radius: 15px;
-}
-
-#text-bold,
-#text-undo,
-#text-subscript,
-#text-h1,
-#text-small {
-    margin-right: 0px;
-    border-top-right-radius: 0px;
-    border-bottom-right-radius: 0px;
-}
-
-#text-italic,
-#text-underline,
-#text-h2,
-#text-h3,
-#text-h4,
-#text-h5 {
-    margin: 2px 0px;
-    border-radius: 0px;
-}
-
-#text-strikethrough,
-#text-redo,
-#text-superscript,
-#text-h6,
-#text-big {
-    margin-left: 0px;
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-}
-
-button.button-format:active,
-button.button-format:focus {
-    border-radius: 15px !important;
 }
 
 #info-tooltip-search {
@@ -1788,10 +1766,6 @@ aside .aside-button:hover {
     background-color: var(--primary-color);
     color: var(--on-primary-color);
     opacity: 1;
-}
-
-.aside-button.sel:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 aside .external-link {
@@ -3920,7 +3894,7 @@ hr.hr-domain:last-child {
 .select-grid-no-text {
     background-repeat: no-repeat;
     /*background-position: center left 8px, center right 8px;*/
-    background-position: center left 20%, center right 20%;
+    background-position: center left 10px, center right 10px;
     background-size: auto 20px, auto 20px;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -3966,12 +3940,12 @@ option {
 }
 
 .buttons-grid > select {
-    background-position: center left 20%, center right 20%;
+    background-position: center left 10px, center right 10px;
 }
 
 @media screen and (max-width: 1000px) {
     .buttons-grid > select {
-        background-position: center left 20%, center right 20%;
+        background-position: center left 10px, center right 10px;
         min-width: 80px;
     }
 
@@ -4027,7 +4001,7 @@ option {
 
 @media screen and (max-width: 1000px) {
     .subrow-buttons > select {
-        background-position: center left 20%, center right 20%;
+        background-position: center left 10px, center right 10px;
     }
 }
 
@@ -4163,7 +4137,7 @@ option {
     .section-grid-item-select select {
         width: 100%;
         padding: 15px 20px;
-        background-position: right 20px center;
+        background-position: right 10px center;
         margin: 0px;
     }
 }
