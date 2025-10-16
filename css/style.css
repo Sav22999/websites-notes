@@ -1414,7 +1414,7 @@ strong {
 .textarea-all-notes b,
 .textarea-all-notes strong {
     font-family: inherit;
-    font-weight: bolder;
+    font-weight: 800;
 }
 
 #notes i,
