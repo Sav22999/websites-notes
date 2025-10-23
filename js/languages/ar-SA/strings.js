@@ -94,6 +94,8 @@ strings[lang] = {
     'search-page-content-detailed': 'When enabled, Notefox will search in the page content too. This could increase the time of the search.',
     'disable-word-wrap': 'تعطيل نص ملاحظات الكلمات',
     'spellcheck-detection': 'تمكين الكشف عن تهجئة اللغة للملاحظات',
+    'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
+    'disable-confirmation-popup-detailed': 'When enabled, you won\'t see confirmation popups when deleting notes. <b>Be careful:</b> deleted notes cannot be recovered.',
     'check-green-icon-global': 'أيقونة الإدمان الأخضر عندما تكون هناك ملاحظات عالمية محفوظة',
     'check-green-icon-global-detailed': 'عند تمكين رمز الاضافة في شريط الأدوات سيكون <b>أخضر</b> إذا قمت سابقا بحفظ ملاحظات <b>العالمية</b>.',
     'check-green-icon-domain': 'أيقونة الإدانة الخضراء عند وجود ملاحظات النطاق المحفوظة',

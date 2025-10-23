@@ -255,7 +255,7 @@ body {
     width: 30px !important;
     height: 30px !important;
     background-image: url("../img/sticky-open.svg");
-    background-size: auto 70%;
+    background-size: auto 18px;
     background-repeat: no-repeat;
     background-position: center center;
     background-color: #ff6200;
@@ -1626,7 +1626,7 @@ div#format-buttons > div.button-group:focus-within {
 button.button-format {
     width: 30px !important;
     height: 30px !important;
-    background-size: auto 20px;
+    background-size: auto 15px !important;
     background-repeat: no-repeat;
     background-position: center center;
     border: 0px solid transparent;

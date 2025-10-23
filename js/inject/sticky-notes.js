@@ -719,7 +719,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 width: 30px;
                 height: 30px;
                 background-image: url('data:image/svg+xml;base64,${svg_image_close}');
-                background-size: auto 70%;
+                background-size: auto 18px;
                 background-repeat: no-repeat;
                 background-position: center center;
                 background-color: ${secondary_color};

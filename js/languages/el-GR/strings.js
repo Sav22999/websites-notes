@@ -94,6 +94,8 @@ strings[lang] = {
     'search-page-content-detailed': 'When enabled, Notefox will search in the page content too. This could increase the time of the search.',
     'disable-word-wrap': 'Απενεργοποίηση κειμένου αναδίπλωσης λέξεων',
     'spellcheck-detection': 'Ενεργοποιημένος εντοπισμός ορθογραφικού ελέγχου γλώσσας για σημειώσεις',
+    'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
+    'disable-confirmation-popup-detailed': 'When enabled, you won\'t see confirmation popups when deleting notes. <b>Be careful:</b> deleted notes cannot be recovered.',
     'check-green-icon-global': 'Πράσινο εικονίδιο πρόσθετου όταν υπάρχουν καθολικές σημειώσεις αποθηκεύονται',
     'check-green-icon-global-detailed': 'Όταν ενεργοποιηθεί το εικονίδιο πρόσθετου στη γραμμή εργαλείων θα είναι <b>πράσινο</b> αν έχετε αποθηκεύσει προηγουμένως <b>Global</b>.',
     'check-green-icon-domain': 'Πράσινο εικονίδιο πρόσθετου όταν υπάρχουν σημειώσεις τομέα αποθηκεύονται',

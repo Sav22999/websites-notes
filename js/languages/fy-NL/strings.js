@@ -94,6 +94,8 @@ strings[lang] = {
     'search-page-content-detailed': 'When enabled, Notefox will search in the page content too. This could increase the time of the search.',
     'disable-word-wrap': 'Tekst tekstomslach útskeakelje',
     'spellcheck-detection': 'Ynskeakele staveringshifkerdeteksje foar notysjes',
+    'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
+    'disable-confirmation-popup-detailed': 'When enabled, you won\'t see confirmation popups when deleting notes. <b>Be careful:</b> deleted notes cannot be recovered.',
     'check-green-icon-global': 'Grien add-onpiktogram wannear der globale notysjes bewarre binne',
     'check-green-icon-global-detailed': 'Wannear ynskeakele sil it add-onpiktogram yn de arkbalke <b>grien</b> wêze as jo earder <b>globale</b> notysjes bewarre hawwe.',
     'check-green-icon-domain': 'Green addon icon when there are Domain notes saved',

@@ -94,6 +94,8 @@ strings[lang] = {
     'search-page-content-detailed': 'When enabled, Notefox will search in the page content too. This could increase the time of the search.',
     'disable-word-wrap': 'Dezactivează textul cuvintelor-cadou notelor',
     'spellcheck-detection': 'Permis de detectare a ortografiei limbii pentru note',
+    'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
+    'disable-confirmation-popup-detailed': 'When enabled, you won\'t see confirmation popups when deleting notes. <b>Be careful:</b> deleted notes cannot be recovered.',
     'check-green-icon-global': 'Iconiță addon verde când există note globale salvate',
     'check-green-icon-global-detailed': 'Când este activată, iconița addon din bara de instrumente va fi <b>green</b> dacă ai salvat în trecut note <b>Global</b>.',
     'check-green-icon-domain': 'Iconiță addon verde atunci când există note de domeniu salvate',

@@ -94,6 +94,8 @@ strings[lang] = {
     'search-page-content-detailed': 'When enabled, Notefox will search in the page content too. This could increase the time of the search.',
     'disable-word-wrap': 'Text der Wort-Wrap-Notizen deaktivieren',
     'spellcheck-detection': 'Sprachrechtschreibprüfung für Notizen aktiviert',
+    'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
+    'disable-confirmation-popup-detailed': 'When enabled, you won\'t see confirmation popups when deleting notes. <b>Be careful:</b> deleted notes cannot be recovered.',
     'check-green-icon-global': 'Grünes Addon-Symbol wenn globale Notizen gespeichert sind',
     'check-green-icon-global-detailed': 'Wenn aktiviert, wird das Addon-Symbol in der Symbolleiste <b>grün</b> sein, wenn Sie zuvor <b>Globale</b> Notizen gespeichert haben.',
     'check-green-icon-domain': 'Grünes Addon-Symbol wenn Domain-Notizen gespeichert werden',
