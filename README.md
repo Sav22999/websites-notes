@@ -59,5 +59,5 @@ https://www.notefox.eu/terms/
 
 See folder <code>screenshots</code> to see screenshots also of the older versions.
 
-<img src="screenshots/4.0/1.png" width="400px"></img><img src="screenshots/4.0/2.png" width="400px"></img><img src="screenshots/4.0/3.png" width="400px"></img><img src="screenshots/4.0/4.png" width="400px"></img>
-<img src="screenshots/4.0/tutorial1.png" width="400px"></img><img src="screenshots/4.0/tutorial2.png" width="400px"></img>
+<img src="screenshots/4.5.5/1.png" width="400px"></img><img src="screenshots/4.5.5/2.png" width="400px"></img><img src="screenshots/4.5.5/3.png" width="400px"></img><img src="screenshots/4.5.5/4.png" width="400px"></img>
+<img src="screenshots/4.5.5/tutorial1.png" width="400px"></img><img src="screenshots/4.5.5/tutorial2.png" width="400px"></img>

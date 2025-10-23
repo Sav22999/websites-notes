@@ -5,43 +5,43 @@ Created by Saverio Morelli - saveriomorelli.com
 
 <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/style.css"/>
     <title>Notefox - Settings</title>
-    <link rel="icon" href="../img/icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=0.8" />
+    <link rel="icon" href="../img/icon.svg"/>
+    <meta name="viewport" content="width=device-width, initial-scale=0.8"/>
 </head>
 
 <body>
-    <aside>
-        <div class="aside-container">
-            <div class="aside-buttons">
-                <button id="all-notes-aside" class="aside-button"></button>
-                <button id="settings-aside" class="aside-button sel"></button>
-                <button id="help-aside" class="aside-button external-link"></button>
-                <button id="donate-aside" class="aside-button external-link"></button>
-                <button id="translate-aside" class="aside-button external-link"></button>
-                <button id="website-aside" class="aside-button external-link"></button>
-            </div>
-
-            <div class="aside-version">
-                <div class="separator"></div>
-                <div id="version-aside"></div>
-            </div>
+<aside>
+    <div class="aside-container">
+        <div class="aside-buttons">
+            <button id="all-notes-aside" class="aside-button"></button>
+            <button id="settings-aside" class="aside-button sel"></button>
+            <button id="help-aside" class="aside-button external-link"></button>
+            <button id="donate-aside" class="aside-button external-link"></button>
+            <button id="translate-aside" class="aside-button external-link"></button>
+            <button id="website-aside" class="aside-button external-link"></button>
         </div>
-    </aside>
-    <div id="settings-dedication-section">
-        <h1 id="title-settings-dedication-section" class="hidden">Settings</h1>
-        <div class="section text-align-right" id="actions">
-            <input type="button" value="Support on Telegram" id="support-telegram-button"
-                class="button telegram-button" />
-            <input type="button" value="Support on GitHub" id="support-github-button" class="button github-button" />
-            <input type="button" value="Support via email" id="support-email-button" class="button email-button" />
-            <input type="button" value="Rate the add-on" id="review-on-firefox-addons-button"
-                class="button firefox-button" />
 
-            <input type="button" value="Translate on Crowdin" id="translate-addon" class="button translate-button" />
-            <input type="button" value="Save settings" id="save-settings-button" class="button save-button hidden" />
+        <div class="aside-version">
+            <div class="separator"></div>
+            <div id="version-aside"></div>
         </div>
+    </div>
+</aside>
+<div id="settings-dedication-section">
+    <h1 id="title-settings-dedication-section" class="hidden">Settings</h1>
+    <div class="section text-align-right" id="actions">
+        <input type="button" value="Support on Telegram" id="support-telegram-button"
+               class="button telegram-button"/>
+        <input type="button" value="Support on GitHub" id="support-github-button" class="button github-button"/>
+        <input type="button" value="Support via email" id="support-email-button" class="button email-button"/>
+        <input type="button" value="Rate the add-on" id="review-on-firefox-addons-button"
+               class="button firefox-button"/>
+
+        <input type="button" value="Translate on Crowdin" id="translate-addon" class="button translate-button"/>
+        <input type="button" value="Save settings" id="save-settings-button" class="button save-button hidden"/>
+    </div>
 
     <div id="background-opacity"></div>
     <!--Import panel-->
@@ -99,43 +99,43 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
     </div>
 
-        <!--Notefox account panel-->
-        <div id="account-section">
-            <div class="section" id="account-sub-sections">
-                <div class="padding-10">
-                    <div id="title-account" class="user-select-none"></div>
-                    <div id="text-account"></div>
-                    <div id="message-from-api" class="hidden no-margin margin-top-10-px"></div>
-                </div>
-                <!-- sign up -->
-                <div id="notefox-account-signup-section">
-                    <div id="account-section--signup-grid" class="padding-10 hidden">
-                        <input
+    <!--Notefox account panel-->
+    <div id="account-section">
+        <div class="section" id="account-sub-sections">
+            <div class="padding-10">
+                <div id="title-account" class="user-select-none"></div>
+                <div id="text-account"></div>
+                <div id="message-from-api" class="hidden no-margin margin-top-10-px"></div>
+            </div>
+            <!-- sign up -->
+            <div id="notefox-account-signup-section">
+                <div id="account-section--signup-grid" class="padding-10 hidden">
+                    <input
                             class="textbox account-section--signup--username width-100 label-with-image account-label account-text"
                             id="signup-username" type="text" name="username">
-                        <input
+                    <input
                             class="textbox account-section--signup--email width-100 label-with-image email-label account-text"
                             id="signup-email" type="email" name="email">
-                        <input
+                    <input
                             class="textbox account-section--signup--password width-100 label-with-image password-label account-text"
                             id="signup-password" type="password" name="password">
-                        <input
+                    <input
                             class="textbox account-section--signup--confirm-password width-100 label-with-image password-label account-text"
                             id="signup-confirm-password" type="password" name="confirm-password">
-                        <hr class="hr-big-space hr-center account-section-hr">
-                        <div class="text-align-center margin-bottom-20-px" id="signup-already-account">
-                            <span id="signup-already-account-text"></span> <span class="link"
-                                id="signup-already-account-button"></span>
-                        </div>
+                    <hr class="hr-big-space hr-center account-section-hr">
+                    <div class="text-align-center margin-bottom-20-px" id="signup-already-account">
+                        <span id="signup-already-account-text"></span> <span class="link"
+                                                                             id="signup-already-account-button"></span>
                     </div>
-                    <div id="account-section--verify-signup-grid" class="padding-10 hidden">
-                        <input
+                </div>
+                <div id="account-section--verify-signup-grid" class="padding-10 hidden">
+                    <input
                             class="textbox account-section--verify-signup--email width-100 label-with-image email-label account-text hidden"
                             id="verify-signup-email" type="email">
-                        <input
+                    <input
                             class="textbox account-section--verify-signup--password width-100 label-with-image password-label account-text hidden"
                             id="verify-signup-password" type="password">
-                        <input
+                    <input
                             class="textbox account-section--verify-signup--code label-with-image code-label account-text"
                             id="verify-signup-code" type="text" name="code">
 
@@ -160,19 +160,19 @@ Created by Saverio Morelli - saveriomorelli.com
                     <input class="button login-button hidden" id="verify-signup" value="" type="button"/>
                     <input class="button login-button hidden" id="signup-submit" value="" type="button"/>
 
-                        <input class="button hidden" id="verify-signup-new-code" value="" type="button" />
-                        <input class="button login-button hidden" id="verify-signup-submit" value="" type="button" />
-                    </div>
+                    <input class="button hidden" id="verify-signup-new-code" value="" type="button"/>
+                    <input class="button login-button hidden" id="verify-signup-submit" value="" type="button"/>
                 </div>
+            </div>
 
-                <!-- login -->
-                <div id="notefox-account-login-section">
-                    <div id="login-exprired-section" class="section-warning hidden"></div>
-                    <div id="account-section--login-grid" class="padding-10 hidden">
-                        <input
+            <!-- login -->
+            <div id="notefox-account-login-section">
+                <div id="login-exprired-section" class="section-warning hidden"></div>
+                <div id="account-section--login-grid" class="padding-10 hidden">
+                    <input
                             class="textbox account-section--login--email width-100 label-with-image email-label account-text"
                             id="login-email" type="email" name="email">
-                        <input
+                    <input
                             class="textbox account-section--login--password width-100 label-with-image password-label account-text"
                             id="login-password" type="password" name="password">
 
@@ -221,10 +221,10 @@ Created by Saverio Morelli - saveriomorelli.com
                     <input class="button login-button hidden" id="verify-login" value="" type="button"/>
                     <input class="button login-button hidden" id="login-submit" value="" type="button"/>
 
-                        <input class="button hidden" id="verify-login-new-code" value="" type="button" />
-                        <input class="button login-button hidden" id="verify-login-submit" value="" type="button" />
-                    </div>
+                    <input class="button hidden" id="verify-login-new-code" value="" type="button"/>
+                    <input class="button login-button hidden" id="verify-login-submit" value="" type="button"/>
                 </div>
+            </div>
 
             <!-- manage -->
             <div id="notefox-account-manage-section">
@@ -271,55 +271,55 @@ Created by Saverio Morelli - saveriomorelli.com
                         </span>
                     </div>
 
-                        <div class="option-settings">
+                    <div class="option-settings">
                             <span class="item-settings section-grid-container width-100-important">
                                 <span class="title-option-settings section-grid-item-text no-bold"
-                                    id="manage-logout-text"></span>
+                                      id="manage-logout-text"></span>
                                 <span class="section-grid-item-select">
                                     <input type="button" value="" id="manage-logout"
-                                        class="button logout-button width-100" />
+                                           class="button logout-button width-100"/>
                                 </span>
                             </span>
-                        </div>
+                    </div>
 
-                        <div class="option-settings">
+                    <div class="option-settings">
                             <span class="item-settings section-grid-container width-100-important">
                                 <span class="title-option-settings section-grid-item-text no-bold"
-                                    id="manage-logout-all-devices-text"></span>
+                                      id="manage-logout-all-devices-text"></span>
                                 <span class="section-grid-item-select">
                                     <input type="button" value="" id="manage-logout-all-devices"
-                                        class="button logout-button width-100" />
+                                           class="button logout-button width-100"/>
                                 </span>
                             </span>
-                        </div>
+                    </div>
 
-                        <div class="option-settings">
+                    <div class="option-settings">
                             <span class="item-settings section-grid-container width-100-important">
                                 <span class="title-option-settings section-grid-item-text no-bold"
-                                    id="manage-change-password-text"></span>
+                                      id="manage-change-password-text"></span>
                                 <span class="section-grid-item-select">
                                     <input type="button" value="" id="manage-change-password-button"
-                                        class="button edit-button width-100" />
+                                           class="button edit-button width-100"/>
                                 </span>
                             </span>
-                        </div>
+                    </div>
 
-                        <div class="option-settings">
+                    <div class="option-settings">
                             <span class="item-settings section-grid-container width-100-important">
                                 <span class="title-option-settings section-grid-item-text no-bold"
-                                    id="manage-delete-account-text"></span>
+                                      id="manage-delete-account-text"></span>
                                 <span class="section-grid-item-select">
                                     <input type="button" value="" id="manage-delete-account-button"
-                                        class="button button-red width-100" />
+                                           class="button button-red width-100"/>
                                 </span>
                             </span>
-                        </div>
+                    </div>
 
-                        <div class="text-align-left margin-top-20-px">
-                            <input type="button" value="" class="button button-close-notefox-account" />
-                        </div>
+                    <div class="text-align-left margin-top-20-px">
+                        <input type="button" value="" class="button button-close-notefox-account"/>
                     </div>
                 </div>
+            </div>
 
             <!-- change password -->
             <div id="notefox-account-change-password-section">
@@ -353,24 +353,24 @@ Created by Saverio Morelli - saveriomorelli.com
                 </div>
             </div>
 
-                <!-- delete -->
-                <div id="notefox-account-delete-section">
-                    <div id="account-section--delete-grid" class="padding-10 hidden">
-                        <input
+            <!-- delete -->
+            <div id="notefox-account-delete-section">
+                <div id="account-section--delete-grid" class="padding-10 hidden">
+                    <input
                             class="textbox account-section--delete--email width-100 label-with-image email-label account-text"
                             id="delete-email" type="email">
-                        <input
+                    <input
                             class="textbox account-section--delete--password width-100 label-with-image password-label account-text"
                             id="delete-password" type="password">
-                    </div>
-                    <div id="account-section--verify-delete-grid" class="padding-10 hidden">
-                        <input
+                </div>
+                <div id="account-section--verify-delete-grid" class="padding-10 hidden">
+                    <input
                             class="textbox account-section--verify-delete--email width-100 label-with-image email-label account-text hidden"
                             id="verify-delete-email" type="email">
-                        <input
+                    <input
                             class="textbox account-section--verify-delete--password width-100 label-with-image password-label account-text hidden"
                             id="verify-delete-password" type="password">
-                        <input
+                    <input
                             class="textbox account-section--verify-delete--code label-with-image code-label account-text"
                             id="verify-delete-code" type="text">
 
@@ -395,72 +395,73 @@ Created by Saverio Morelli - saveriomorelli.com
                     <input class="button hidden" id="verify-delete" value="" type="button"/>
                     <input class="button hidden" id="delete-submit" value="" type="button"/>
 
-                        <input class="button hidden" id="verify-delete-new-code" value="" type="button" />
-                        <input class="button hidden" id="verify-delete-submit" value="" type="button" />
-                    </div>
+                    <input class="button hidden" id="verify-delete-new-code" value="" type="button"/>
+                    <input class="button hidden" id="verify-delete-submit" value="" type="button"/>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!--Show error logs panel-->
-        <div id="show-error-logs-section">
-            <div class="section" id="show-error-logs-sub-sections">
-                <div class="padding-10">
-                    <div id="text-show-error-logs"></div>
-                </div>
-                <div class="padding-10">
-                    <textarea id="json-show-error-logs" class="text-json" readonly spellcheck="false"></textarea>
-                </div>
-                <div class="padding-10 text-align-right">
-                    <input type="button" value="" id="cancel-show-error-logs-button" class="button float-left" />
-                    <input type="button" value="" id="show-error-logs-to-file-button" class="button download-button" />
-                    <input type="button" value="" id="copy-now-show-error-logs-button" class="button copy-button" />
-                </div>
+    <!--Show error logs panel-->
+    <div id="show-error-logs-section">
+        <div class="section" id="show-error-logs-sub-sections">
+            <div class="padding-10">
+                <div id="text-show-error-logs"></div>
+            </div>
+            <div class="padding-10">
+                <textarea id="json-show-error-logs" class="text-json" readonly spellcheck="false"></textarea>
+            </div>
+            <div class="padding-10 text-align-right">
+                <input type="button" value="" id="cancel-show-error-logs-button" class="button float-left"/>
+                <input type="button" value="" id="show-error-logs-to-file-button" class="button download-button"/>
+                <input type="button" value="" id="copy-now-show-error-logs-button" class="button copy-button"/>
             </div>
         </div>
+    </div>
 
-        <!--Notefox server error panel-->
-        <div id="notefox-server-error-section">
-            <div id="notefox-server-error-content" class="section">
-                <div id="notefox-server-error-title" class="padding-10"></div>
-                <div id="notefox-server-error-text" class="padding-10"></div>
-                <div id="notefox-server-error-text2" class="padding-10"></div>
-                <div id="notefox-server-error-text3" class="padding-10"></div>
-                <div id="notefox-server-error-buttons" class="padding-10 text-align-right">
-                    <input type="button" value="" id="notefox-server-error-button1" class="button logout-button" tabindex="1"/>
-                    <input type="button" value="" id="notefox-server-error-button2" class="button" tabindex="2"/>
-                </div>
+    <!--Notefox server error panel-->
+    <div id="notefox-server-error-section">
+        <div id="notefox-server-error-content" class="section">
+            <div id="notefox-server-error-title" class="padding-10"></div>
+            <div id="notefox-server-error-text" class="padding-10"></div>
+            <div id="notefox-server-error-text2" class="padding-10"></div>
+            <div id="notefox-server-error-text3" class="padding-10"></div>
+            <div id="notefox-server-error-buttons" class="padding-10 text-align-right">
+                <input type="button" value="" id="notefox-server-error-button1" class="button logout-button"
+                       tabindex="1"/>
+                <input type="button" value="" id="notefox-server-error-button2" class="button" tabindex="2"/>
             </div>
         </div>
+    </div>
 
-        <div id="settings-sections">
-            <!--<div class="option-settings">
-            <label class="item-settings">
-                <span class="title-option-settings yes-no-item" id="-text"></span>
-                <input type="checkbox" id="-check"/>
-                <span class="checkmark"></span>
-            </label>
-            <span class="description-option-settings description-option-settings-yes-no yes-no-item" id="-detailed-text"></span>
-        </div>-->
+    <div id="settings-sections">
+        <!--<div class="option-settings">
+        <label class="item-settings">
+            <span class="title-option-settings yes-no-item" id="-text"></span>
+            <input type="checkbox" id="-check"/>
+            <span class="checkmark"></span>
+        </label>
+        <span class="description-option-settings description-option-settings-yes-no yes-no-item" id="-detailed-text"></span>
+    </div>-->
 
-            <!--<div class="option-settings">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="-text"></span>
-                <span class="section-grid-item-select">
-                    <select class="select-box" id="-select">
-                        <option value="" id=""></option>
-                    </select>
-                </span>
-                <span class="description-option-settings" id="-detailed-text"></span>
+        <!--<div class="option-settings">
+        <span class="item-settings section-grid-container">
+            <span class="title-option-settings section-grid-item-text" id="-text"></span>
+            <span class="section-grid-item-select">
+                <select class="select-box" id="-select">
+                    <option value="" id=""></option>
+                </select>
             </span>
-        </div>-->
+            <span class="description-option-settings" id="-detailed-text"></span>
+        </span>
+    </div>-->
 
-            <!--====================-->
-            <!--General section-->
-            <div class="section-title-settings" id="general-title-settings"></div>
+        <!--====================-->
+        <!--General section-->
+        <div class="section-title-settings" id="general-title-settings"></div>
 
-            <!--Open by default section-->
-            <div class="option-settings">
+        <!--Open by default section-->
+        <div class="option-settings">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text" id="open-by-default-text"></span>
                     <span class="section-grid-item-select">
@@ -470,48 +471,48 @@ Created by Saverio Morelli - saveriomorelli.com
                         </select>
                     </span>
                 </span>
-            </div>
+        </div>
 
-            <!--Disable word wrap section-->
-            <div class="option-settings">
-                <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="disable-word-wrap-text"></span>
-                    <input type="checkbox" id="disable-word-wrap-check" />
-                    <span class="checkmark"></span>
-                </label>
-            </div>
+        <!--Disable word wrap section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="disable-word-wrap-text"></span>
+                <input type="checkbox" id="disable-word-wrap-check"/>
+                <span class="checkmark"></span>
+            </label>
+        </div>
 
-            <!--Spellcheck detection section-->
-            <div class="option-settings">
-                <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="spellcheck-detection-text"></span>
-                    <input type="checkbox" id="spellcheck-detection-check" />
-                    <span class="checkmark"></span>
-                </label>
-            </div>
+        <!--Spellcheck detection section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="spellcheck-detection-text"></span>
+                <input type="checkbox" id="spellcheck-detection-check"/>
+                <span class="checkmark"></span>
+            </label>
+        </div>
 
-            <!--Open links only with Ctrl section-->
-            <div class="option-settings">
-                <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="open-links-only-with-ctrl-text"></span>
-                    <input type="checkbox" id="open-links-only-with-ctrl-check" />
-                    <span class="checkmark"></span>
-                </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="open-links-only-with-ctrl-detailed-text"></span>
-            </div>
+        <!--Open links only with Ctrl section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="open-links-only-with-ctrl-text"></span>
+                <input type="checkbox" id="open-links-only-with-ctrl-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="open-links-only-with-ctrl-detailed-text"></span>
+        </div>
 
-            <hr class="hr-big-space">
+        <hr class="hr-big-space">
 
-            <!--====================-->
-            <!--Keyboard Shortcuts section-->
-            <div class="section-title-settings" id="shortcuts-title-settings"></div>
+        <!--====================-->
+        <!--Keyboard Shortcuts section-->
+        <div class="section-title-settings" id="shortcuts-title-settings"></div>
 
-            <!--Default shortcut section-->
-            <div class="option-settings">
+        <!--Default shortcut section-->
+        <div class="option-settings">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text"
-                        id="open-popup-default-shortcut-text"></span>
+                          id="open-popup-default-shortcut-text"></span>
                     <span class="section-grid-item-select">
                         <div class="flex-container">
                             <select class="select-box flex-item" id="key-shortcut-ctrl-alt-shift-default-selected">
@@ -528,13 +529,13 @@ Created by Saverio Morelli - saveriomorelli.com
                         </div>
                     </span>
                 </span>
-            </div>
+        </div>
 
-            <!--Domain shortcut-->
-            <div class="option-settings">
+        <!--Domain shortcut-->
+        <div class="option-settings">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text"
-                        id="open-popup-domain-shortcut-text"></span>
+                          id="open-popup-domain-shortcut-text"></span>
                     <span class="section-grid-item-select">
                         <div class="flex-container">
                             <select class="select-box flex-item" id="key-shortcut-ctrl-alt-shift-domain-selected">
@@ -551,13 +552,13 @@ Created by Saverio Morelli - saveriomorelli.com
                         </div>
                     </span>
                 </span>
-            </div>
+        </div>
 
-            <!--Page shortcut-->
-            <div class="option-settings">
+        <!--Page shortcut-->
+        <div class="option-settings">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text"
-                        id="open-popup-page-shortcut-text"></span>
+                          id="open-popup-page-shortcut-text"></span>
                     <span class="section-grid-item-select">
                         <div class="flex-container">
                             <select class="select-box flex-item" id="key-shortcut-ctrl-alt-shift-page-selected">
@@ -574,168 +575,168 @@ Created by Saverio Morelli - saveriomorelli.com
                         </div>
                     </span>
                 </span>
-            </div>
+        </div>
 
-            <hr class="hr-big-space">
+        <hr class="hr-big-space">
 
-            <!--====================-->
-            <!--Appearance section-->
-            <div class="section-title-settings" id="appearance-title-settings"></div>
+        <!--====================-->
+        <!--Appearance section-->
+        <div class="section-title-settings" id="appearance-title-settings"></div>
 
-            <!--Show HTML text formatting section-->
-            <div class="option-settings">
+        <!--Show HTML text formatting section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="html-text-formatting-text"></span>
+                <input type="checkbox" id="html-text-formatting-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="html-text-formatting-detailed-text"></span>
+        </div>
+
+        <div id="html-text-formatting-buttons">
+            <!--Show HTML text formatting section :: Undo, Redo-->
+            <div class="option-settings option-indent-settings">
                 <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="html-text-formatting-text"></span>
-                    <input type="checkbox" id="html-text-formatting-check" />
+                    <span class="title-option-settings yes-no-item" id="show-undo-redo-text"></span>
+                    <input type="checkbox" id="show-undo-redo-check"/>
                     <span class="checkmark"></span>
                 </label>
                 <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="html-text-formatting-detailed-text"></span>
+                      id="show-undo-redo-detailed-text"></span>
             </div>
 
-            <div id="html-text-formatting-buttons">
-                <!--Show HTML text formatting section :: Undo, Redo-->
-                <div class="option-settings option-indent-settings">
-                    <label class="item-settings">
-                        <span class="title-option-settings yes-no-item" id="show-undo-redo-text"></span>
-                        <input type="checkbox" id="show-undo-redo-check" />
-                        <span class="checkmark"></span>
-                    </label>
-                    <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                        id="show-undo-redo-detailed-text"></span>
-                </div>
-
-                <!--Show HTML text formatting section :: Bold, Italic, Underline, Strikethrough-->
-                <div class="option-settings option-indent-settings">
-                    <label class="item-settings">
+            <!--Show HTML text formatting section :: Bold, Italic, Underline, Strikethrough-->
+            <div class="option-settings option-indent-settings">
+                <label class="item-settings">
                         <span class="title-option-settings yes-no-item"
-                            id="show-bold-italic-underline-strikethrough-text"></span>
-                        <input type="checkbox" id="show-bold-italic-underline-strikethrough-check" />
-                        <span class="checkmark"></span>
-                    </label>
-                    <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                        id="show-bold-italic-underline-strikethrough-detailed-text"></span>
-                </div>
-
-                <!--Show HTML text formatting section :: Link-->
-                <div class="option-settings option-indent-settings">
-                    <label class="item-settings">
-                        <span class="title-option-settings yes-no-item" id="show-link-text"></span>
-                        <input type="checkbox" id="show-link-check" />
-                        <span class="checkmark"></span>
-                    </label>
-                    <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                        id="show-link-detailed-text"></span>
-                </div>
-
-                <!--Show HTML text formatting section :: Spellcheck-->
-                <div class="option-settings option-indent-settings">
-                    <label class="item-settings">
-                        <span class="title-option-settings yes-no-item" id="show-spellcheck-text"></span>
-                        <input type="checkbox" id="show-spellcheck-check" />
-                        <span class="checkmark"></span>
-                    </label>
-                    <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                        id=show-spellcheck-detailed-text"></span>
-                </div>
-
-                <!--Show HTML text formatting section :: Superscript, Subscript-->
-                <div class="option-settings option-indent-settings">
-                    <label class="item-settings">
-                        <span class="title-option-settings yes-no-item" id="show-superscript-subscript-text"></span>
-                        <input type="checkbox" id="show-superscript-subscript-check" />
-                        <span class="checkmark"></span>
-                    </label>
-                    <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                        id="show-superscript-subscript-detailed-text"></span>
-                </div>
-
-                <!--Show HTML text formatting section :: Headers (h1, ..., h6)-->
-                <div class="option-settings option-indent-settings">
-                    <label class="item-settings">
-                        <span class="title-option-settings yes-no-item" id="show-headers-text"></span>
-                        <input type="checkbox" id="show-headers-check" />
-                        <span class="checkmark"></span>
-                    </label>
-                    <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                        id="show-headers-detailed-text"></span>
-                </div>
-
-                <!--Show HTML text formatting section :: Small, Big-->
-                <div class="option-settings option-indent-settings">
-                    <label class="item-settings">
-                        <span class="title-option-settings yes-no-item" id="show-small-big-text"></span>
-                        <input type="checkbox" id="show-small-big-check" />
-                        <span class="checkmark"></span>
-                    </label>
-                    <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                        id="show-small-big-detailed-text"></span>
-                </div>
-
-                <!--Show HTML text formatting section :: Highlighter-->
-                <div class="option-settings option-indent-settings">
-                    <label class="item-settings">
-                        <span class="title-option-settings yes-no-item" id="show-highlighter-text"></span>
-                        <input type="checkbox" id="show-highlighter-check" />
-                        <span class="checkmark"></span>
-                    </label>
-                    <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                        id="show-highlighter-detailed-text"></span>
-                </div>
-
-                <!--Show HTML text formatting section :: Code block-->
-                <div class="option-settings option-indent-settings">
-                    <label class="item-settings">
-                        <span class="title-option-settings yes-no-item" id="show-code-block-text"></span>
-                        <input type="checkbox" id="show-code-block-check" />
-                        <span class="checkmark"></span>
-                    </label>
-                    <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                        id="show-code-block-detailed-text"></span>
-                </div>
-            </div>
-
-            <!--Show title textbox section-->
-            <div class="option-settings">
-                <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="show-title-textbox-text"></span>
-                    <input type="checkbox" id="show-title-textbox-check" />
+                              id="show-bold-italic-underline-strikethrough-text"></span>
+                    <input type="checkbox" id="show-bold-italic-underline-strikethrough-check"/>
                     <span class="checkmark"></span>
                 </label>
                 <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="show-title-textbox-detailed-text"></span>
+                      id="show-bold-italic-underline-strikethrough-detailed-text"></span>
             </div>
 
-            <!--Immersive sticky notes section-->
-            <div class="option-settings">
+            <!--Show HTML text formatting section :: Link-->
+            <div class="option-settings option-indent-settings">
                 <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="immersive-sticky-notes-text"></span>
-                    <input type="checkbox" id="immersive-sticky-notes-check" />
+                    <span class="title-option-settings yes-no-item" id="show-link-text"></span>
+                    <input type="checkbox" id="show-link-check"/>
                     <span class="checkmark"></span>
                 </label>
                 <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="immersive-sticky-notes-detailed-text"></span>
+                      id="show-link-detailed-text"></span>
             </div>
 
-            <!--Notes background follow the tag colour section-->
-            <div class="option-settings">
+            <!--Show HTML text formatting section :: Spellcheck-->
+            <div class="option-settings option-indent-settings">
                 <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="notes-background-follow-tag-colour-text"></span>
-                    <input type="checkbox" id="notes-background-follow-tag-colour-check" />
+                    <span class="title-option-settings yes-no-item" id="show-spellcheck-text"></span>
+                    <input type="checkbox" id="show-spellcheck-check"/>
                     <span class="checkmark"></span>
                 </label>
                 <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="notes-background-follow-tag-colour-detailed-text"></span>
+                      id=show-spellcheck-detailed-text"></span>
             </div>
 
-            <!--Notefox theme section-->
-            <div class="option-settings">
+            <!--Show HTML text formatting section :: Superscript, Subscript-->
+            <div class="option-settings option-indent-settings">
+                <label class="item-settings">
+                    <span class="title-option-settings yes-no-item" id="show-superscript-subscript-text"></span>
+                    <input type="checkbox" id="show-superscript-subscript-check"/>
+                    <span class="checkmark"></span>
+                </label>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-superscript-subscript-detailed-text"></span>
+            </div>
+
+            <!--Show HTML text formatting section :: Headers (h1, ..., h6)-->
+            <div class="option-settings option-indent-settings">
+                <label class="item-settings">
+                    <span class="title-option-settings yes-no-item" id="show-headers-text"></span>
+                    <input type="checkbox" id="show-headers-check"/>
+                    <span class="checkmark"></span>
+                </label>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-headers-detailed-text"></span>
+            </div>
+
+            <!--Show HTML text formatting section :: Small, Big-->
+            <div class="option-settings option-indent-settings">
+                <label class="item-settings">
+                    <span class="title-option-settings yes-no-item" id="show-small-big-text"></span>
+                    <input type="checkbox" id="show-small-big-check"/>
+                    <span class="checkmark"></span>
+                </label>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-small-big-detailed-text"></span>
+            </div>
+
+            <!--Show HTML text formatting section :: Highlighter-->
+            <div class="option-settings option-indent-settings">
+                <label class="item-settings">
+                    <span class="title-option-settings yes-no-item" id="show-highlighter-text"></span>
+                    <input type="checkbox" id="show-highlighter-check"/>
+                    <span class="checkmark"></span>
+                </label>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-highlighter-detailed-text"></span>
+            </div>
+
+            <!--Show HTML text formatting section :: Code block-->
+            <div class="option-settings option-indent-settings">
+                <label class="item-settings">
+                    <span class="title-option-settings yes-no-item" id="show-code-block-text"></span>
+                    <input type="checkbox" id="show-code-block-check"/>
+                    <span class="checkmark"></span>
+                </label>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-code-block-detailed-text"></span>
+            </div>
+        </div>
+
+        <!--Show title textbox section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="show-title-textbox-text"></span>
+                <input type="checkbox" id="show-title-textbox-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="show-title-textbox-detailed-text"></span>
+        </div>
+
+        <!--Immersive sticky notes section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="immersive-sticky-notes-text"></span>
+                <input type="checkbox" id="immersive-sticky-notes-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="immersive-sticky-notes-detailed-text"></span>
+        </div>
+
+        <!--Notes background follow the tag colour section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="notes-background-follow-tag-colour-text"></span>
+                <input type="checkbox" id="notes-background-follow-tag-colour-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="notes-background-follow-tag-colour-detailed-text"></span>
+        </div>
+
+        <!--Notefox theme section-->
+        <div class="option-settings">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text" id="theme-text"></span>
                     <span class="section-grid-item-select"></span>
                     <span class="description-option-settings display-block" id="theme-detailed-text"></span>
                 </span>
-                <span class="theme-section-radio-container">
+            <span class="theme-section-radio-container">
                     <label class="item-radio-theme" id="item-radio-theme-lighter">
                         <input name="theme-radio" type="radio" value="lighter">
                         <span class="item-radio-theme-preview-container" id="radio-lighter-theme">
@@ -777,7 +778,7 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="theme-select-firefox"></span>
                     </label>
 
-                    <!-- Blue Theme (Light Mode) -->
+                <!-- Blue Theme (Light Mode) -->
                     <label class="item-radio-theme" id="item-radio-theme-blue-light">
                         <input name="theme-radio" type="radio" value="blue-light">
                         <span class="item-radio-theme-preview-container" id="radio-blue-light-theme">
@@ -787,7 +788,7 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="theme-select-blue-light"></span>
                     </label>
 
-                    <!-- Blue Theme (Dark Mode) -->
+                <!-- Blue Theme (Dark Mode) -->
                     <label class="item-radio-theme" id="item-radio-theme-blue-dark">
                         <input name="theme-radio" type="radio" value="blue-dark">
                         <span class="item-radio-theme-preview-container" id="radio-blue-dark-theme">
@@ -797,7 +798,7 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="theme-select-blue-dark"></span>
                     </label>
 
-                    <!-- Lavender Theme (Light Mode) -->
+                <!-- Lavender Theme (Light Mode) -->
                     <label class="item-radio-theme" id="item-radio-theme-lavender-light">
                         <input name="theme-radio" type="radio" value="lavender-light">
                         <span class="item-radio-theme-preview-container" id="radio-lavender-light-theme">
@@ -807,7 +808,7 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="theme-select-lavender-light"></span>
                     </label>
 
-                    <!-- Lavender Theme (Dark Mode) -->
+                <!-- Lavender Theme (Dark Mode) -->
                     <label class="item-radio-theme" id="item-radio-theme-lavender-dark">
                         <input name="theme-radio" type="radio" value="lavender-dark">
                         <span class="item-radio-theme-preview-container" id="radio-lavender-dark-theme">
@@ -817,7 +818,7 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="theme-select-lavender-dark"></span>
                     </label>
 
-                    <!-- Retro Pink Theme (Light Mode) -->
+                <!-- Retro Pink Theme (Light Mode) -->
                     <label class="item-radio-theme" id="item-radio-theme-retro-pink-light">
                         <input name="theme-radio" type="radio" value="retro-pink-light">
                         <span class="item-radio-theme-preview-container" id="radio-retro-pink-light-theme">
@@ -827,7 +828,7 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="theme-select-retro-pink-light"></span>
                     </label>
 
-                    <!-- Retro Pink Theme (Dark Mode) -->
+                <!-- Retro Pink Theme (Dark Mode) -->
                     <label class="item-radio-theme" id="item-radio-theme-retro-pink-dark">
                         <input name="theme-radio" type="radio" value="retro-pink-dark">
                         <span class="item-radio-theme-preview-container" id="radio-retro-pink-dark-theme">
@@ -837,7 +838,7 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="theme-select-retro-pink-dark"></span>
                     </label>
 
-                    <!-- Matcha Theme (Light Mode) -->
+                <!-- Matcha Theme (Light Mode) -->
                     <label class="item-radio-theme" id="item-radio-theme-matcha-light">
                         <input name="theme-radio" type="radio" value="matcha-light">
                         <span class="item-radio-theme-preview-container" id="radio-matcha-light-theme">
@@ -847,7 +848,7 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="theme-select-matcha-light"></span>
                     </label>
 
-                    <!-- Matcha Theme (Dark Mode) -->
+                <!-- Matcha Theme (Dark Mode) -->
                     <label class="item-radio-theme" id="item-radio-theme-matcha-dark">
                         <input name="theme-radio" type="radio" value="matcha-dark">
                         <span class="item-radio-theme-preview-container" id="radio-matcha-dark-theme">
@@ -857,7 +858,7 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="theme-select-matcha-dark"></span>
                     </label>
 
-                    <!-- Forest Theme (Light Mode) -->
+                <!-- Forest Theme (Light Mode) -->
                     <label class="item-radio-theme" id="item-radio-theme-forest-light">
                         <input name="theme-radio" type="radio" value="forest-light">
                         <span class="item-radio-theme-preview-container" id="radio-forest-light-theme">
@@ -867,7 +868,7 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="theme-select-forest-light"></span>
                     </label>
 
-                    <!-- Forest Theme (Dark Mode) -->
+                <!-- Forest Theme (Dark Mode) -->
                     <label class="item-radio-theme" id="item-radio-theme-forest-dark">
                         <input name="theme-radio" type="radio" value="forest-dark">
                         <span class="item-radio-theme-preview-container" id="radio-forest-dark-theme">
@@ -877,7 +878,7 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="theme-select-forest-dark"></span>
                     </label>
 
-                    <!-- Retro Teal Theme (Light Mode) -->
+                <!-- Retro Teal Theme (Light Mode) -->
                     <label class="item-radio-theme" id="item-radio-theme-retro-teal-light">
                         <input name="theme-radio" type="radio" value="retro-teal-light">
                         <span class="item-radio-theme-preview-container" id="radio-retro-teal-light-theme">
@@ -887,7 +888,7 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="theme-select-retro-teal-light"></span>
                     </label>
 
-                    <!-- Retro Teal Theme (Dark Mode) -->
+                <!-- Retro Teal Theme (Dark Mode) -->
                     <label class="item-radio-theme" id="item-radio-theme-retro-teal-dark">
                         <input name="theme-radio" type="radio" value="retro-teal-dark">
                         <span class="item-radio-theme-preview-container" id="radio-retro-teal-dark-theme">
@@ -897,16 +898,16 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="theme-select-retro-teal-dark"></span>
                     </label>
                 </span>
-            </div>
+        </div>
 
-            <!--Sticky theme section-->
-            <div class="option-settings margin-top-20-px">
+        <!--Sticky theme section-->
+        <div class="option-settings margin-top-20-px">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text" id="sticky-theme-text"></span>
                     <span class="section-grid-item-select"></span>
                     <span class="description-option-settings display-block" id="sticky-theme-detailed-text"></span>
                 </span>
-                <span class="sticky-theme-section-radio-container">
+            <span class="sticky-theme-section-radio-container">
                     <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-yellow">
                         <input name="theme-radio-sticky" type="radio" value="yellow">
                         <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-yellow">
@@ -963,377 +964,377 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span class="item-radio-title" id="sticky-theme-select-auto"></span>
                     </label>
                 </span>
-            </div>
+        </div>
 
-            <!--Font family section-->
-            <div class="option-settings margin-top-20-px">
+        <!--Font family section-->
+        <div class="option-settings margin-top-20-px">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text" id="font-family-text"></span>
                     <span class="section-grid-item-select"></span>
                     <span class="description-option-settings" id="font-family-detailed-text"></span>
                 </span>
-                <span class="font-family-section-radio-container">
+            <span class="font-family-section-radio-container">
                     <label class="item-radio-font-family" id="item-radio-font-family-opensans">
                         <input name="font-family-radio" type="radio" value="Open Sans">
                         <span class="item-radio-font-family-preview-container" id="radio-font-family-opensans">
                             <span class="item-radio-font-family-preview-item primary"
-                                id="preview-font-family-opensans">Notefox</span>
+                                  id="preview-font-family-opensans">Notefox</span>
                         </span>
                         <span class="item-radio-title item-radio-title-font-family"
-                            id="font-family-select-opensans">Open Sans</span>
+                              id="font-family-select-opensans">Open Sans</span>
                     </label>
 
                     <label class="item-radio-font-family" id="item-radio-font-family-shantellsans">
                         <input name="font-family-radio" type="radio" value="Shantell Sans">
                         <span class="item-radio-font-family-preview-container" id="radio-font-family-shantellsans">
                             <span class="item-radio-font-family-preview-item primary"
-                                id="preview-font-family-shantellsans">Notefox</span>
+                                  id="preview-font-family-shantellsans">Notefox</span>
                         </span>
                         <span class="item-radio-title item-radio-title-font-family"
-                            id="font-family-select-shantellsans">Shantell Sans</span>
+                              id="font-family-select-shantellsans">Shantell Sans</span>
                     </label>
 
                     <label class="item-radio-font-family" id="item-radio-font-family-inter">
                         <input name="font-family-radio" type="radio" value="Inter">
                         <span class="item-radio-font-family-preview-container" id="radio-font-family-inter">
                             <span class="item-radio-font-family-preview-item primary"
-                                id="preview-font-family-inter">Notefox</span>
+                                  id="preview-font-family-inter">Notefox</span>
                         </span>
                         <span class="item-radio-title item-radio-title-font-family"
-                            id="font-family-select-inter">Inter</span>
+                              id="font-family-select-inter">Inter</span>
                     </label>
 
                     <label class="item-radio-font-family" id="item-radio-font-family-lora">
                         <input name="font-family-radio" type="radio" value="Lora">
                         <span class="item-radio-font-family-preview-container" id="radio-font-family-lora">
                             <span class="item-radio-font-family-preview-item primary"
-                                id="preview-font-family-lora">Notefox</span>
+                                  id="preview-font-family-lora">Notefox</span>
                         </span>
                         <span class="item-radio-title item-radio-title-font-family"
-                            id="font-family-select-lora">Lora</span>
+                              id="font-family-select-lora">Lora</span>
                     </label>
 
                     <label class="item-radio-font-family" id="item-radio-font-family-merienda">
                         <input name="font-family-radio" type="radio" value="Merienda">
                         <span class="item-radio-font-family-preview-container" id="radio-font-family-merienda">
                             <span class="item-radio-font-family-preview-item primary"
-                                id="preview-font-family-merienda">Notefox</span>
+                                  id="preview-font-family-merienda">Notefox</span>
                         </span>
                         <span class="item-radio-title item-radio-title-font-family"
-                            id="font-family-select-merienda">Merienda</span>
+                              id="font-family-select-merienda">Merienda</span>
                     </label>
 
                     <label class="item-radio-font-family" id="item-radio-font-family-notosans">
                         <input name="font-family-radio" type="radio" value="Noto Sans">
                         <span class="item-radio-font-family-preview-container" id="radio-font-family-notosans">
                             <span class="item-radio-font-family-preview-item primary"
-                                id="preview-font-family-notosans">Notefox</span>
+                                  id="preview-font-family-notosans">Notefox</span>
                         </span>
                         <span class="item-radio-title item-radio-title-font-family"
-                            id="font-family-select-notosans">Noto Sans</span>
+                              id="font-family-select-notosans">Noto Sans</span>
                     </label>
 
                     <label class="item-radio-font-family" id="item-radio-font-family-notoserif">
                         <input name="font-family-radio" type="radio" value="Noto Serif">
                         <span class="item-radio-font-family-preview-container" id="radio-font-family-notoserif">
                             <span class="item-radio-font-family-preview-item primary"
-                                id="preview-font-family-notoserif">Notefox</span>
+                                  id="preview-font-family-notoserif">Notefox</span>
                         </span>
                         <span class="item-radio-title item-radio-title-font-family"
-                            id="font-family-select-notoserif">Noto Serif</span>
+                              id="font-family-select-notoserif">Noto Serif</span>
                     </label>
 
                     <label class="item-radio-font-family" id="item-radio-font-family-playfairdisplay">
                         <input name="font-family-radio" type="radio" value="Playfair Display">
                         <span class="item-radio-font-family-preview-container" id="radio-font-family-playfairdisplay">
                             <span class="item-radio-font-family-preview-item primary"
-                                id="preview-font-family-playfairdisplay">Notefox</span>
+                                  id="preview-font-family-playfairdisplay">Notefox</span>
                         </span>
                         <span class="item-radio-title item-radio-title-font-family"
-                            id="font-family-select-playfairdisplay">Playfair Display</span>
+                              id="font-family-select-playfairdisplay">Playfair Display</span>
                     </label>
 
                     <label class="item-radio-font-family" id="item-radio-font-family-roboto">
                         <input name="font-family-radio" type="radio" value="Roboto">
                         <span class="item-radio-font-family-preview-container" id="radio-font-family-roboto">
                             <span class="item-radio-font-family-preview-item primary"
-                                id="preview-font-family-roboto">Notefox</span>
+                                  id="preview-font-family-roboto">Notefox</span>
                         </span>
                         <span class="item-radio-title item-radio-title-font-family"
-                            id="font-family-select-roboto">Roboto</span>
+                              id="font-family-select-roboto">Roboto</span>
                     </label>
 
                     <label class="item-radio-font-family" id="item-radio-font-family-sourcecodepro">
                         <input name="font-family-radio" type="radio" value="Source Code Pro">
                         <span class="item-radio-font-family-preview-container" id="radio-font-family-sourcecodepro">
                             <span class="item-radio-font-family-preview-item primary"
-                                id="preview-font-family-sourcecodepro">Notefox</span>
+                                  id="preview-font-family-sourcecodepro">Notefox</span>
                         </span>
                         <span class="item-radio-title item-radio-title-font-family"
-                            id="font-family-select-sourcecodepro">Source Code Pro</span>
+                              id="font-family-select-sourcecodepro">Source Code Pro</span>
                     </label>
 
                     <label class="item-radio-font-family" id="item-radio-font-family-victormono">
                         <input name="font-family-radio" type="radio" value="Victor Mono">
                         <span class="item-radio-font-family-preview-container" id="radio-font-family-victormono">
                             <span class="item-radio-font-family-preview-item primary"
-                                id="preview-font-family-victormono">Notefox</span>
+                                  id="preview-font-family-victormono">Notefox</span>
                         </span>
                         <span class="item-radio-title item-radio-title-font-family"
-                            id="font-family-select-victormono">Victor Mono</span>
+                              id="font-family-select-victormono">Victor Mono</span>
                     </label>
                 </span>
-            </div>
+        </div>
 
-            <!--Datetime format section-->
-            <div class="option-settings margin-top-20-px">
+        <!--Datetime format section-->
+        <div class="option-settings margin-top-20-px">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text" id="datetime-format-text"></span>
                     <span class="section-grid-item-select"></span>
                     <span class="description-option-settings" id="datetime-format-detailed-text"></span>
                 </span>
-                <span class="datetime-format-section-radio-container">
+            <span class="datetime-format-section-radio-container">
                     <label class="item-radio-datetime-format" id="item-radio-datetime-format-yyyymmdd1">
                         <input name="datetime-format-radio" type="radio" value="yyyymmdd1">
                         <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-yyyymmdd1">
                             <span class="item-radio-datetime-format-preview-item primary"
-                                id="preview-datetime-format-yyyymmdd1"></span>
+                                  id="preview-datetime-format-yyyymmdd1"></span>
                         </span>
                         <span class="item-radio-title item-radio-title-datetime-format"
-                            id="datetime-format-select-yyyymmdd1">YYYY-MM-DD HH:MM:SS</span>
+                              id="datetime-format-select-yyyymmdd1">YYYY-MM-DD HH:MM:SS</span>
                     </label>
 
                     <label class="item-radio-datetime-format" id="item-radio-datetime-format-yyyyddmm1">
                         <input name="datetime-format-radio" type="radio" value="yyyyddmm1">
                         <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-yyyyddmm1">
                             <span class="item-radio-datetime-format-preview-item primary"
-                                id="preview-datetime-format-yyyyddmm1"></span>
+                                  id="preview-datetime-format-yyyyddmm1"></span>
                         </span>
                         <span class="item-radio-title item-radio-title-datetime-format"
-                            id="datetime-format-select-yyyyddmm1">YYYY-DD-MM HH:MM:SS</span>
+                              id="datetime-format-select-yyyyddmm1">YYYY-DD-MM HH:MM:SS</span>
                     </label>
 
                     <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy1">
                         <input name="datetime-format-radio" type="radio" value="ddmmyyyy1">
                         <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-ddmmyyyy1">
                             <span class="item-radio-datetime-format-preview-item primary"
-                                id="preview-datetime-format-ddmmyyyy1"></span>
+                                  id="preview-datetime-format-ddmmyyyy1"></span>
                         </span>
                         <span class="item-radio-title item-radio-title-datetime-format"
-                            id="datetime-format-select-ddmmyyyy1">DD/MM/YYYY HH:MM:SS</span>
+                              id="datetime-format-select-ddmmyyyy1">DD/MM/YYYY HH:MM:SS</span>
                     </label>
 
                     <label class="item-radio-datetime-format" id="item-radio-datetime-format-mmddyyyy1">
                         <input name="datetime-format-radio" type="radio" value="mmddyyyy1">
                         <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-mmddyyyy1">
                             <span class="item-radio-datetime-format-preview-item primary"
-                                id="preview-datetime-format-mmddyyyy1"></span>
+                                  id="preview-datetime-format-mmddyyyy1"></span>
                         </span>
                         <span class="item-radio-title item-radio-title-datetime-format"
-                            id="datetime-format-select-mmddyyyy1">MM/DD/YYYY HH:MM:SS</span>
+                              id="datetime-format-select-mmddyyyy1">MM/DD/YYYY HH:MM:SS</span>
                     </label>
 
                     <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy2">
                         <input name="datetime-format-radio" type="radio" value="ddmmyyyy2">
                         <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-ddmmyyyy2">
                             <span class="item-radio-datetime-format-preview-item primary"
-                                id="preview-datetime-format-ddmmyyyy2"></span>
+                                  id="preview-datetime-format-ddmmyyyy2"></span>
                         </span>
                         <span class="item-radio-title item-radio-title-datetime-format"
-                            id="datetime-format-select-ddmmyyyy2">DD.MM.YYYY HH:MM:SS</span>
+                              id="datetime-format-select-ddmmyyyy2">DD.MM.YYYY HH:MM:SS</span>
                     </label>
 
                     <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy1-12h">
                         <input name="datetime-format-radio" type="radio" value="ddmmyyyy1-12h">
                         <span class="item-radio-datetime-format-preview-container"
-                            id="radio-datetime-format-ddmmyyyy1-12h">
+                              id="radio-datetime-format-ddmmyyyy1-12h">
                             <span class="item-radio-datetime-format-preview-item primary"
-                                id="preview-datetime-format-ddmmyyyy1-12h"></span>
+                                  id="preview-datetime-format-ddmmyyyy1-12h"></span>
                         </span>
                         <span class="item-radio-title item-radio-title-datetime-format"
-                            id="datetime-format-select-ddmmyyyy1-12h">DD/MM/YYYY 12H:MM:SS</span>
+                              id="datetime-format-select-ddmmyyyy1-12h">DD/MM/YYYY 12H:MM:SS</span>
                     </label>
                 </span>
-            </div>
+        </div>
 
-            <hr class="hr-big-space">
+        <hr class="hr-big-space">
 
-            <!--====================-->
-            <!--Icon Behaviour section-->
-            <div class="section-title-settings" id="icon-behaviour-title-settings"></div>
+        <!--====================-->
+        <!--Icon Behaviour section-->
+        <div class="section-title-settings" id="icon-behaviour-title-settings"></div>
 
-            <!--Check green icon (domain) section-->
-            <div class="option-settings">
-                <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="check-green-icon-domain-text"></span>
-                    <input type="checkbox" id="check-green-icon-domain-check" />
-                    <span class="checkmark"></span>
-                </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="check-green-icon-domain-detailed-text"></span>
-            </div>
+        <!--Check green icon (domain) section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="check-green-icon-domain-text"></span>
+                <input type="checkbox" id="check-green-icon-domain-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="check-green-icon-domain-detailed-text"></span>
+        </div>
 
-            <!--Check green icon (page) section-->
-            <div class="option-settings">
-                <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="check-green-icon-page-text"></span>
-                    <input type="checkbox" id="check-green-icon-page-check" />
-                    <span class="checkmark"></span>
-                </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="check-green-icon-page-detailed-text"></span>
-            </div>
+        <!--Check green icon (page) section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="check-green-icon-page-text"></span>
+                <input type="checkbox" id="check-green-icon-page-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="check-green-icon-page-detailed-text"></span>
+        </div>
 
-            <!--Check green icon (subdomain) section-->
-            <div class="option-settings">
-                <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="check-green-icon-subdomain-text"></span>
-                    <input type="checkbox" id="check-green-icon-subdomain-check" />
-                    <span class="checkmark"></span>
-                </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="check-green-icon-subdomain-detailed-text"></span>
-            </div>
+        <!--Check green icon (subdomain) section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="check-green-icon-subdomain-text"></span>
+                <input type="checkbox" id="check-green-icon-subdomain-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="check-green-icon-subdomain-detailed-text"></span>
+        </div>
 
-            <!--Check green icon (global) section-->
-            <div class="option-settings">
-                <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="check-green-icon-global-text"></span>
-                    <input type="checkbox" id="check-green-icon-global-check" />
-                    <span class="checkmark"></span>
-                </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="check-green-icon-global-detailed-text"></span>
-            </div>
+        <!--Check green icon (global) section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="check-green-icon-global-text"></span>
+                <input type="checkbox" id="check-green-icon-global-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="check-green-icon-global-detailed-text"></span>
+        </div>
 
-            <!--Change toolbar icon colour based on the notes tag colour section-->
-            <div class="option-settings">
-                <label class="item-settings">
+        <!--Change toolbar icon colour based on the notes tag colour section-->
+        <div class="option-settings">
+            <label class="item-settings">
                     <span class="title-option-settings yes-no-item"
-                        id="change-icon-color-based-on-tag-colour-text"></span>
-                    <input type="checkbox" id="change-icon-color-based-on-tag-colour-check" />
-                    <span class="checkmark"></span>
-                </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="change-icon-color-based-on-tag-colour-detailed-text"></span>
-            </div>
+                          id="change-icon-color-based-on-tag-colour-text"></span>
+                <input type="checkbox" id="change-icon-color-based-on-tag-colour-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="change-icon-color-based-on-tag-colour-detailed-text"></span>
+        </div>
 
-            <hr class="hr-big-space">
+        <hr class="hr-big-space">
 
-            <!--====================-->
-            <!--Data section-->
-            <div class="section-title-settings" id="data-title-settings"></div>
+        <!--====================-->
+        <!--Data section-->
+        <div class="section-title-settings" id="data-title-settings"></div>
 
-            <!--Notefox account button (login/logout) section-->
-            <div class="option-settings">
+        <!--Notefox account button (login/logout) section-->
+        <div class="option-settings">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text"
-                        id="notefox-account-settings-text"></span>
+                          id="notefox-account-settings-text"></span>
                     <span class="section-grid-item-select text-align-center">
                         <input type="button" value="" id="notefox-account-settings-button"
-                            class="button manage-account-button" />
+                               class="button manage-account-button"/>
                     </span>
                     <span class="description-option-settings" id="notefox-account-settings-detailed-text"></span>
                 </span>
-            </div>
+        </div>
 
-            <!--Export all data section-->
-            <div class="option-settings">
+        <!--Export all data section-->
+        <div class="option-settings">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text" id="export-text"></span>
                     <span class="section-grid-item-select">
-                        <input type="button" value="" id="export-all-notes-button" class="button export-button" />
+                        <input type="button" value="" id="export-all-notes-button" class="button export-button"/>
                     </span>
                     <span class="description-option-settings" id="export-detailed-text"></span>
                 </span>
-            </div>
+        </div>
 
-            <!--Import data section-->
-            <div class="option-settings">
+        <!--Import data section-->
+        <div class="option-settings">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text" id="import-text"></span>
                     <span class="section-grid-item-select">
-                        <input type="button" value="" id="import-all-notes-button" class="button import-button" />
+                        <input type="button" value="" id="import-all-notes-button" class="button import-button"/>
                     </span>
                     <span class="description-option-settings" id="import-detailed-text"></span>
                 </span>
-            </div>
+        </div>
 
-            <!--Clear all data section-->
-            <div class="option-settings">
+        <!--Clear all data section-->
+        <div class="option-settings">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text" id="clear-all-notes-text"></span>
                     <span class="section-grid-item-select">
-                        <input type="button" value="" id="clear-all-notes-button" class="button clear-button" />
+                        <input type="button" value="" id="clear-all-notes-button" class="button clear-button"/>
                     </span>
                     <span class="description-option-settings" id="clear-all-notes-detailed-text"></span>
                 </span>
-            </div>
+        </div>
 
-            <hr class="hr-big-space">
+        <hr class="hr-big-space">
 
-            <!--====================-->
-            <!--Advanced section-->
-            <div class="section-title-settings" id="advanced-title-settings"></div>
+        <!--====================-->
+        <!--Advanced section-->
+        <div class="section-title-settings" id="advanced-title-settings"></div>
 
-            <!--Consider parameters section-->
-            <div class="option-settings">
-                <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="consider-parameters-text"></span>
-                    <input type="checkbox" id="consider-parameters-check" />
-                    <span class="checkmark"></span>
-                </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="consider-parameters-detailed-text"></span>
-            </div>
+        <!--Consider parameters section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="consider-parameters-text"></span>
+                <input type="checkbox" id="consider-parameters-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="consider-parameters-detailed-text"></span>
+        </div>
 
-            <!--Consider sections section-->
-            <div class="option-settings">
-                <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="consider-sections-text"></span>
-                    <input type="checkbox" id="consider-sections-check" />
-                    <span class="checkmark"></span>
-                </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="consider-sections-detailed-text"></span>
-            </div>
+        <!--Consider sections section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="consider-sections-text"></span>
+                <input type="checkbox" id="consider-sections-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="consider-sections-detailed-text"></span>
+        </div>
 
-            <!--Advanced managing section-->
-            <div class="option-settings">
-                <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="advanced-managing-text"></span>
-                    <input type="checkbox" id="advanced-managing-check" />
-                    <span class="checkmark"></span>
-                </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="advanced-managing-detailed-text"></span>
-            </div>
+        <!--Advanced managing section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="advanced-managing-text"></span>
+                <input type="checkbox" id="advanced-managing-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="advanced-managing-detailed-text"></span>
+        </div>
 
-            <!--Check with all supported protocols section-->
-            <div class="option-settings">
-                <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="check-with-all-supported-protocols-text"></span>
-                    <input type="checkbox" id="check-with-all-supported-protocols-check" />
-                    <span class="checkmark"></span>
-                </label>
-                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="check-with-all-supported-protocols-detailed-text"></span>
-            </div>
+        <!--Check with all supported protocols section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="check-with-all-supported-protocols-text"></span>
+                <input type="checkbox" id="check-with-all-supported-protocols-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="check-with-all-supported-protocols-detailed-text"></span>
+        </div>
 
-            <!--Default tag colour for domains section-->
-            <div class="option-settings">
+        <!--Default tag colour for domains section-->
+        <div class="option-settings">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text"
-                        id="default-tag-colour-domain-text"></span>
+                          id="default-tag-colour-domain-text"></span>
                     <span class="section-grid-item-select">
                         <select class="select-box" id="default-tag-colour-domain-select"></select>
                     </span>
                     <span class="description-option-settings" id="default-tag-colour-domain-detailed-text"></span>
                 </span>
-            </div>
+        </div>
 
-            <!--Default tag colour for pages section-->
-            <div class="option-settings">
+        <!--Default tag colour for pages section-->
+        <div class="option-settings">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text" id="default-tag-colour-page-text"></span>
                     <span class="section-grid-item-select">
@@ -1341,126 +1342,126 @@ Created by Saverio Morelli - saveriomorelli.com
                     </span>
                     <span class="description-option-settings" id="default-tag-colour-page-detailed-text"></span>
                 </span>
-            </div>
+        </div>
 
 
-            <!--Save page content section-->
-            <div class="option-settings">
+        <!--Save page content section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="save-page-content"></span>
+                <input type="checkbox" id="save-page-content-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="save-page-content-detailed-text"></span>
+        </div>
+
+        <div id="save-content-subsection">
+            <!--Search page content section-->
+            <div class="option-settings option-indent-settings">
                 <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="save-page-content"></span>
-                    <input type="checkbox" id="save-page-content-check" />
+                    <span class="title-option-settings yes-no-item" id="search-page-content"></span>
+                    <input type="checkbox" id="search-page-content-check"/>
                     <span class="checkmark"></span>
                 </label>
                 <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="save-page-content-detailed-text"></span>
+                      id="search-page-content-detailed-text"></span>
             </div>
+        </div>
 
-            <div id="save-content-subsection">
-                <!--Search page content section-->
-                <div class="option-settings option-indent-settings">
-                    <label class="item-settings">
-                        <span class="title-option-settings yes-no-item" id="search-page-content"></span>
-                        <input type="checkbox" id="search-page-content-check" />
-                        <span class="checkmark"></span>
-                    </label>
-                    <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                        id="search-page-content-detailed-text"></span>
-                </div>
-            </div>
-
-            <!--Show error logs section-->
-            <div class="option-settings">
+        <!--Show error logs section-->
+        <div class="option-settings">
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text"
-                        id="show-error-logs-settings-text"></span>
+                          id="show-error-logs-settings-text"></span>
                     <span class="section-grid-item-select text-align-center">
                         <input type="button" value="" id="show-error-logs-settings-button"
-                            class="button show-content-button" />
+                               class="button show-content-button"/>
                         <input type="button" value="" id="delete-error-logs-settings-button"
-                            class="button delete-content-button clear2-button" />
+                               class="button delete-content-button clear2-button"/>
                     </span>
                     <span class="description-option-settings" id="show-error-logs-settings-detailed-text"></span>
                 </span>
-            </div>
+        </div>
 
-            <div id="show-error-logs-subsection">
-                <!--Enable the sending of error logs section-->
-                <div class="option-settings option-indent-settings">
-                    <label class="item-settings">
-                        <span class="title-option-settings yes-no-item"
-                            id="sending-error-logs-automatically-text"></span>
-                        <input type="checkbox" id="sending-error-logs-automatically-check" />
-                        <span class="checkmark"></span>
-                    </label>
-                    <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                        id="sending-error-logs-automatically-detailed-text"></span>
-                </div>
-            </div>
-
-            <!--Send telemetry section-->
-            <div class="option-settings">
+        <div id="show-error-logs-subsection">
+            <!--Enable the sending of error logs section-->
+            <div class="option-settings option-indent-settings">
                 <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="send-telemetry-text"></span>
-                    <input type="checkbox" id="send-telemetry-check" />
+                        <span class="title-option-settings yes-no-item"
+                              id="sending-error-logs-automatically-text"></span>
+                    <input type="checkbox" id="sending-error-logs-automatically-check"/>
                     <span class="checkmark"></span>
                 </label>
                 <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                    id="send-telemetry-detailed-text"></span>
+                      id="sending-error-logs-automatically-detailed-text"></span>
             </div>
         </div>
+
+        <!--Send telemetry section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="send-telemetry-text"></span>
+                <input type="checkbox" id="send-telemetry-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="send-telemetry-detailed-text"></span>
+        </div>
     </div>
-    <script src="../js/definitions.js"></script>
+</div>
+<script src="../js/definitions.js"></script>
 
-    <!--include all translation files-->
-    <!--en English-->
-    <script src="../js/languages/en-UK/strings.js"></script>
-    <!--it Italian-->
-    <script src="../js/languages/it-IT/strings.js"></script>
-    <!--ar Arabic-->
-    <script src="../js/languages/ar-SA/strings.js"></script>
-    <!--zh-cn Chinese Simplified-->
-    <script src="../js/languages/zh-CN/strings.js"></script>
-    <!--zh-tw Chinese Traditional-->
-    <script src="../js/languages/zh-TW/strings.js"></script>
-    <!--cs Czech-->
-    <script src="../js/languages/cs-CZ/strings.js"></script>
-    <!--da Danish-->
-    <script src="../js/languages/da-DK/strings.js"></script>
-    <!--nl Dutch-->
-    <script src="../js/languages/nl-NL/strings.js"></script>
-    <!--fi Finnish-->
-    <script src="../js/languages/fi-FI/strings.js"></script>
-    <!--fr French-->
-    <script src="../js/languages/fr-FR/strings.js"></script>
-    <!--de German-->
-    <script src="../js/languages/de-DE/strings.js"></script>
-    <!--el Greek-->
-    <script src="../js/languages/el-GR/strings.js"></script>
-    <!--ja Japanese-->
-    <script src="../js/languages/ja-JP/strings.js"></script>
-    <!--no Norwegian-->
-    <script src="../js/languages/no-NO/strings.js"></script>
-    <!--pl Polish-->
-    <script src="../js/languages/pl-PL/strings.js"></script>
-    <!--pt-pt Portuguese, Portugal-->
-    <script src="../js/languages/pt-PT/strings.js"></script>
-    <!--pt-br Portuguese, Brazil-->
-    <script src="../js/languages/pt-BR/strings.js"></script>
-    <!--ro Romanian-->
-    <script src="../js/languages/ro-RO/strings.js"></script>
-    <!--ru Russian-->
-    <script src="../js/languages/ru-RU/strings.js"></script>
-    <!--es Spanish-->
-    <script src="../js/languages/es-ES/strings.js"></script>
-    <!--sv-se Swedish-->
-    <script src="../js/languages/sv-SE/strings.js"></script>
-    <!--uk Ukrainian-->
-    <script src="../js/languages/uk-UA/strings.js"></script>
-    <!--ia Interlingua-->
-    <script src="../js/languages/ia/strings.js"></script>
-    <!--END|include all translation files-->
+<!--include all translation files-->
+<!--en English-->
+<script src="../js/languages/en-UK/strings.js"></script>
+<!--it Italian-->
+<script src="../js/languages/it-IT/strings.js"></script>
+<!--ar Arabic-->
+<script src="../js/languages/ar-SA/strings.js"></script>
+<!--zh-cn Chinese Simplified-->
+<script src="../js/languages/zh-CN/strings.js"></script>
+<!--zh-tw Chinese Traditional-->
+<script src="../js/languages/zh-TW/strings.js"></script>
+<!--cs Czech-->
+<script src="../js/languages/cs-CZ/strings.js"></script>
+<!--da Danish-->
+<script src="../js/languages/da-DK/strings.js"></script>
+<!--nl Dutch-->
+<script src="../js/languages/nl-NL/strings.js"></script>
+<!--fi Finnish-->
+<script src="../js/languages/fi-FI/strings.js"></script>
+<!--fr French-->
+<script src="../js/languages/fr-FR/strings.js"></script>
+<!--de German-->
+<script src="../js/languages/de-DE/strings.js"></script>
+<!--el Greek-->
+<script src="../js/languages/el-GR/strings.js"></script>
+<!--ja Japanese-->
+<script src="../js/languages/ja-JP/strings.js"></script>
+<!--no Norwegian-->
+<script src="../js/languages/no-NO/strings.js"></script>
+<!--pl Polish-->
+<script src="../js/languages/pl-PL/strings.js"></script>
+<!--pt-pt Portuguese, Portugal-->
+<script src="../js/languages/pt-PT/strings.js"></script>
+<!--pt-br Portuguese, Brazil-->
+<script src="../js/languages/pt-BR/strings.js"></script>
+<!--ro Romanian-->
+<script src="../js/languages/ro-RO/strings.js"></script>
+<!--ru Russian-->
+<script src="../js/languages/ru-RU/strings.js"></script>
+<!--es Spanish-->
+<script src="../js/languages/es-ES/strings.js"></script>
+<!--sv-se Swedish-->
+<script src="../js/languages/sv-SE/strings.js"></script>
+<!--uk Ukrainian-->
+<script src="../js/languages/uk-UA/strings.js"></script>
+<!--ia Interlingua-->
+<script src="../js/languages/ia/strings.js"></script>
+<!--END|include all translation files-->
 
-    <script src="../js/settings.js"></script>
+<script src="../js/settings.js"></script>
 </body>
 
 </html>

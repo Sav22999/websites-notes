@@ -1,376 +1,92 @@
-<html xmlns:script="http://www.w3.org/1999/xlink">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome (back) to Notefox</title>
+    <title>Consent Experience - Notefox</title>
     <link rel="icon" href="/img/icon.png" type="image/png">
-    <style>
-        @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&display=swap&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap");
-
-        * {
-            box-sizing: border-box;
-            font-family: "Open Sans", sans-serif;
-            transition: 0.5s;
-        }
-
-        body {
-        }
-
-        .email-content {
-            width: 100%;
-            max-width: 700px;
-            min-width: 300px;
-            margin: -0px auto;
-            padding: 0px;
-            background-color: #ffa56f;
-            color: #ffffff;
-            border-radius: 5px;
-
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        .header {
-            width: 100%;
-            text-align: center;
-            background-color: #eeeeee;
-            padding: 10px;
-        }
-
-        #notefox-logo--image {
-            width: 20%;
-            min-width: 150px;
-            height: auto;
-            display: block;
-
-            margin: 0px auto;
-        }
-
-        #sav-account-logo-image {
-            width: 12%;
-            min-width: 70px;
-            height: auto;
-            display: block;
-
-            margin: 0px auto;
-        }
-
-        .main * {
-            background: transparent;
-            color: #ffffff;
-        }
-
-        .main h1 {
-            font-size: 1.6em;
-            text-align: center;
-            font-weight: 700;
-            font-family: "Shantell Sans", sans-serif;
-        }
-
-        .main .section {
-            text-align: left;
-            padding: 20px;
-            font-size: 1.2em;
-            background-color: #ff8d4b;
-            color: #ffffff;
-            font-family: "Open Sans", sans-serif;
-        }
-
-        .main .pay-attention {
-            display: block;
-            text-align: center;
-            font-size: 1.4em;
-            padding: 20px;
-            background-color: #eeeeee;
-            color: #fe6301;
-            font-weight: 600;
-        }
-
-        .footer {
-            padding: 15px 20px;
-            font-family: "Open Sans", sans-serif;
-
-            text-align: center;
-        }
-
-        .small-text {
-            font-size: 0.7em;
-
-            background-color: inherit;
-            color: inherit;
-        }
-
-        .center-text {
-            text-align: center;
-
-            background-color: inherit;
-            color: inherit;
-        }
-
-        .flex-container {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: stretch;
-            gap: 20px;
-
-        }
-
-        .flex-1 {
-            flex: 1;
-        }
-
-        .flex-2 {
-            flex: 2;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #ffffff !important;
-            color: #fe6301 !important;
-            border: none;
-            margin: 0px;
-            opacity: 1;
-            box-sizing: border-box;
-            cursor: pointer;
-            user-select: none;
-            border-radius: 5px;
-            font-size: 0.8em;
-            font-weight: 500;
-        }
-
-        button:hover:not(:disabled) {
-            background-color: #eeeeee !important;
-        }
-
-        .red {
-            background-color: #FF7A7AFF !important;
-            color: #eeeeee !important;
-        }
-
-        button.red:hover:not(:disabled) {
-            background-color: #ff5b5b !important;
-        }
-
-        a {
-            color: inherit;
-            text-decoration: underline;
-        }
-
-
-        button:disabled {
-            background-color: #eeeeee !important;
-            color: #aaaaaa !important;
-            cursor: not-allowed;
-        }
-
-        .overview-privacy-policy {
-
-            padding: 10px 0px;
-        }
-
-        .overview-privacy-policy .title, .overview-privacy-policy .subtitle {
-            text-align: center;
-            margin: 0px auto;
-            display: block;
-        }
-
-        .overview-privacy-policy .cards {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: stretch;
-            gap: 10px;
-            padding: 20px;
-
-            margin: 0px auto;
-        }
-
-        .overview-privacy-policy .cards .card {
-            background-color: #ff8d4b;
-            color: #eeeeee;
-            border-radius: 5px;
-            font-size: 1.1em;
-            text-align: center;
-            padding: 20px 5px;
-
-            flex: 1;
-        }
-
-        .overview-privacy-policy .cards .card img {
-            width: 100%;
-            max-width: 50px;
-        }
-
-        .overview-privacy-policy .cards .card h4 {
-            font-size: 1.1em;
-            margin: 10px 0px;
-            line-height: 1em;
-        }
-
-        .overview-privacy-policy .cards .card p {
-            font-size: 0.8em;
-            margin: 0px;
-        }
-
-        img.encrypted {
-            margin-top: -5px;
-            margin-bottom: 5px;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        @media screen and (max-width: 800px) {
-            .flex-container {
-                flex-direction: column !important;
-                gap: 10px;
-            }
-
-            #continue-button {
-                padding: 30px 50px;
-            }
-        }
-
-        @media screen and (max-width: 500px) {
-            .overview-privacy-policy .cards {
-                flex-direction: column;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="email-content">
-    <div class="header">
-        <img id="notefox-logo--image"
-             alt="Notefox logo"
-             src="data:image/svg+xml;base64,PHN2ZyBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjIiIHZpZXdCb3g9IjAgMCAxMzAgMzYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0iI2ZmNjIwMCIgZmlsbC1ydWxlPSJub256ZXJvIiB0cmFuc2Zvcm09Im1hdHJpeCgxLjMxNDMyIDAgMCAuNjA4MDMzIC03LjM3MjM2IDYuNDQ3MzYpIj48cGF0aCBkPSJtMzUuMjkgMzQuNTUxYy0uMzc3IDAtLjY1Ni0uMjEyLS44MzUtLjYzNi0uMTc5LS40MjMtLjI2OC0uOTg1LS4yNjgtMS42ODUgMC0uNTQyLjAyNy0xLjA4Mi4wODItMS42MTguMDU1LS41MzcuMTItMS4yMDQuMTk2LTIuMDAyLjA3NS0uNzk3LjE0LTEuODQuMTk1LTMuMTI5LjA1NS0xLjI5LjA4Mi0yLjk1LjA4Mi00Ljk4MiAwLTEuMTMxLS4wMTUtMi4zMDktLjA0NS0zLjUzMy0uMDMxLTEuMjIzLS4wNjQtMi4zOTQtLjEwMS0zLjUxMy0uMDM2LTEuMTE4LS4wNy0yLjA5Mi0uMS0yLjkyLS4wMzEtLjgyOS0uMDQ2LTEuNDAyLS4wNDYtMS43MTcgMC0uNzkuMTAzLTEuNDYxLjMxLTIuMDE0LjIwNy0uNTUyLjUxMi0uODI4LjkxMy0uODI4LjUwOSAwIC45ODQuMyAxLjQyNS44OTkuNDQuNi44NTEgMS40MTkgMS4yMzIgMi40NTZzLjc0IDIuMjA5IDEuMDc4IDMuNTE3Yy4zMzcgMS4zMDcuNjU4IDIuNjY1Ljk2NCA0LjA3My4zMDUgMS40MDguNjAzIDIuNzk1Ljg5NCA0LjE2LjI5MSAxLjM2Ni41NzcgMi42MjcuODU5IDMuNzgyLjI4MSAxLjE1NS41NjcgMi4xMjUuODU4IDIuOTA5cy41OSAxLjMwMi44OTcgMS41NTVsLTEuMjUzIDEuMjc5Yy4xNjEtLjMyMS4zMS0uNjk5LjQ0OS0xLjEzM3MuMjUxLTEuMDEzLjMzNi0xLjczNy4xMjgtMS42NzUuMTI4LTIuODU0YzAtMS41NjgtLjAyMS0zLjA3My0uMDY0LTQuNTE1cy0uMDc2LTIuODQtLjEtNC4xOTJjLS4wMjUtMS4zNTMtLjAyLTIuNjcyLjAxMi0zLjk1OS4wMzMtMS4yODcuMTIxLTIuNTc1LjI2NS0zLjg2NC4xMDUtLjg2OC4yNDEtMS40ODguNDA5LTEuODU5cy4zOTMtLjU1Ny42NzYtLjU1N2MuMzcgMCAuNjUxLjIxNS44NDMuNjQzLjE5My40MjkuMzE4Ljk0Mi4zNzcgMS41NC4wNTguNTk3LjA1OSAxLjE3LjAwMyAxLjcxNy0uMTIyIDEuMjYzLS4xOTcgMi40NjUtLjIyNiAzLjYwN3MtLjAzNSAyLjI3Ny0uMDE4IDMuNDAzLjAzOSAyLjMwNy4wNjcgMy41NDEuMDQyIDIuNTg4LjA0MiA0LjA2MWMwIDEuOTUzLS4wNTQgMy42OTEtLjE2MyA1LjIxNC0uMTA4IDEuNTI0LS4zMjggMi43MjEtLjY2IDMuNTkyLS4zMzMuODcxLS44MzEgMS4zMDctMS40OTYgMS4zMDctLjQ3NyAwLS45MDUtLjI2Ny0xLjI4NC0uODAxLS4zNzgtLjUzNS0uNzI2LTEuMjcyLTEuMDQyLTIuMjExLS4zMTctLjkzOS0uNjE1LTIuMDE1LS44OTUtMy4yMjktLjI4LTEuMjEzLS41NTctMi41MDYtLjgzMS0zLjg4LS4yNzQtMS4zNzMtLjU2Mi0yLjc2OC0uODY0LTQuMTg0LS4zMDEtMS40MTUtLjYyOC0yLjc4NC0uOTgtNC4xMDVzLS43NDgtMi41MjktMS4xODktMy42MjNsLjQyLS4yMDZjLjA3OCAxLjIuMTM0IDIuMjY1LjE3IDMuMTk0LjAzNS45MjkuMDYxIDEuNzkxLjA3OCAyLjU4NS4wMTcuNzk1LjAyNiAxLjU5NS4wMjYgMi40IDAgMi40NzQtLjA1MSA0LjcxOC0uMTUzIDYuNzM0LS4xMDMgMi4wMTYtLjI2IDMuNzk1LS40NzIgNS4zMzYtLjA3LjYxMS0uMjA1IDEuMDk0LS40MDUgMS40NDlzLS40NjUuNTMzLS43OTYuNTMzeiIvPjxwYXRoIGQ9Im01Mi41NjggMzQuNDcyYy0xLjAxMyAwLTEuOTEyLS40NDktMi42OTktMS4zNDYtLjc4Ni0uODk3LTEuNDA0LTIuMTM4LTEuODUyLTMuNzIycy0uNjcyLTMuMzk1LS42NzItNS40MzFjMC0xLjM4NC4xMzEtMi42ODguMzkzLTMuOTEyLjI2Mi0xLjIyMy42LTIuMzA1IDEuMDE1LTMuMjQ0LjQxNS0uOTQuODYxLTEuNjc2IDEuMzM3LTIuMjA3LjQ3Ni0uNTMyLjkyNS0uNzk4IDEuMzQ2LS43OTguMTg1IDAgLjM1NS4wNjIuNTA5LjE4Ni4xNTUuMTI0LjI4LjMxNi4zNzUuNTc2LjA5NC4yNjEuMTQyLjYxNS4xNDIgMS4wNjIgMCAuOC0uMDc3IDEuNTA4LS4yMyAyLjEyNC0uMTU0LjYxNi0uNDY1IDEuMTE4LS45MzUgMS41MDctLjMwOS4zMzctLjU3OS43NDUtLjgwOSAxLjIyNHMtLjQxIDEuMDItLjU0MSAxLjYyMmMtLjEzLjYwMy0uMTk1IDEuMjQxLS4xOTUgMS45MTUgMCAxLjcxMS4yNDcgMy4wODUuNzQxIDQuMTI1LjQ5NSAxLjAzOSAxLjE2MSAxLjU1OSAxLjk5OCAxLjU1OS43MDQgMCAxLjI3NS0uNTI5IDEuNzEzLTEuNTg3cy42NTctMi40NjMuNjU3LTQuMjE1YzAtMS41NTgtLjE4Ny0yLjc5NC0uNTYyLTMuNzA3cy0uODc0LTEuMzctMS40OTctMS4zN2MtLjMxOSAwLS41OC4xNTgtLjc4Mi40NzRzLS40MjUuNzM3LS42NjggMS4yNjNjLS4xOC4zODktLjMyOS43MTctLjQ0OC45ODMtLjExOC4yNjYtLjIzNi40NjYtLjM1Ni42LS4xMTkuMTM0LS4yNjkuMjAxLS40NDkuMjAxLS4yMDIgMC0uMzc1LS4xNTktLjUyLS40NzctLjE0NS0uMzE5LS4yMTgtLjkxMi0uMjE4LTEuNzgxIDAtLjY5OS4wOTMtMS40MTEuMjc4LTIuMTM1LjE4NS0uNzIzLjQzMS0xLjM4NC43MzgtMS45ODEuMzA2LS41OTguNjUtMS4wODEgMS4wMy0xLjQ0OS4zNzktLjM2OS43NjYtLjU1MyAxLjE2MS0uNTUzLjk3OSAwIDEuODE3LjQwMiAyLjUxNCAxLjIwNC42OTguODAzIDEuMjMyIDEuOTM4IDEuNjA0IDMuNDA3LjM3MSAxLjQ2OC41NTYgMy4yMS41NTYgNS4yMjYgMCAyLjAxNS0uMjA1IDMuODI4LS42MTcgNS40MzktLjQxMSAxLjYxLS45NjcgMi44ODMtMS42NjkgMy44MTctLjcwMS45MzQtMS40OTcgMS40MDEtMi4zODggMS40MDF6Ii8+PHBhdGggZD0ibTYyLjU1NiAzNC41MTFjLTEuMDI3IDAtMS44NTItLjQ5NC0yLjQ3Ni0xLjQ4NC0uNjIzLS45ODktMS4wNzItMi4zNzktMS4zNDYtNC4xNjgtLjI3My0xLjc4OS0uNDEtMy44NjUtLjQxLTYuMjI4IDAtMS4zNTMuMDMxLTIuNTY0LjA5My0zLjYzMnMuMTI3LTIuMDkuMTk1LTMuMDY3Yy4wNjgtLjk3Ni4xMTUtMi4wMDEuMTM5LTMuMDc0LjAyOS0xLjE0OC4wMzMtMi4wNzkuMDExLTIuNzk1cy0uMDI2LTEuMzk1LS4wMTEtMi4wMzdjLjAxLS41NTguMDk1LTEuMDUzLjI1Ny0xLjQ4NC4xNjItLjQzMi40MjUtLjY0Ny43ODgtLjY0Ny41MDEgMCAuODcuNDc2IDEuMTA2IDEuNDI5LjIzNi45NTIuMzMgMi41MDguMjgxIDQuNjY1LS4wMjkuODU4LS4wNjkgMS42NzYtLjEyIDIuNDU1LS4wNTIuNzc5LS4xMDQgMS41NjctLjE1NyAyLjM2NS0uMDU0Ljc5Ny0uMSAxLjY0OS0uMTM5IDIuNTU3cy0uMDU5IDEuOTI4LS4wNTkgMy4wNTljMCAxLjczNy4wNzkgMy4xMTguMjM4IDQuMTQ1LjE1OCAxLjAyNi4zOTMgMS43NTguNzA2IDIuMTk0LjMxMy40MzcuNzAyLjY1NiAxLjE2Ny42NTYuMjkgMCAuNTItLjA2Mi42OTEtLjE4Ni4xNy0uMTIzLjMyLS4yNDQuNDQ5LS4zNjMuMTI5LS4xMTguMjc2LS4xNzcuNDQyLS4xNzcuMjUgMCAuNDQyLjE2My41NzMuNDg5LjEzMi4zMjYuMTk3LjgxNi4xOTcgMS40NjggMCAxLjA1My0uMjA5IDEuOTU5LS42MjggMi43Mi0uNDE5Ljc2LTEuMDgxIDEuMTQtMS45ODcgMS4xNHptLTIuMDUyLTE0LjM2N2MtLjQ0My40MDUtLjc4Ni40MDEtMS4wMjgtLjAxMnMtLjM2NC0xLjAwOS0uMzY0LTEuNzg4YzAtLjY5NS4wNjYtMS4zMTguMTk4LTEuODcxLjEzMS0uNTUzLjQ2LTEuMDM3Ljk4Ni0xLjQ1Mi40NzctLjM4NSAxLjAxLS42OTMgMS41OTctLjkyNC41ODgtLjIzMiAxLjE0NC0uMzQ4IDEuNjY4LS4zNDguNTg5IDAgMS4wMDcuMjQ5IDEuMjU0Ljc0Ni4yNDcuNDk4LjM3MSAxLjEzNi4zNzEgMS45MTUgMCAuNTg5LS4wODQgMS4wNDItLjI1IDEuMzU4LS4xNjcuMzE1LS4zOTUuNS0uNjg1LjU1Mi0uNTM2LjA3OS0xLjAxLjE5Mi0xLjQyMy4zNC0uNDEyLjE0Ny0uOC4zMzktMS4xNjMuNTc2cy0uNzUuNTM5LTEuMTYxLjkwOHoiLz48cGF0aCBkPSJtNjkuNDA4IDM0LjM5M2MtMS4wMTggMC0xLjg1LS4zNzUtMi40OTYtMS4xMjUtLjY0Ny0uNzUtMS4xMjMtMS43NzYtMS40MjgtMy4wNzktLjMwNi0xLjMwMi0uNDU5LTIuNzk2LS40NTktNC40OCAwLTEuMzk0LjEyMS0yLjc5Ni4zNjItNC4yMDMuMjQxLTEuNDA4LjU4Ny0yLjY5OCAxLjAzNy0zLjg2OS40NTEtMS4xNzEuOTkyLTIuMTExIDEuNjI1LTIuODIyLjYzMy0uNzEgMS4zNDItMS4wNjYgMi4xMjYtMS4wNjYuNjUyIDAgMS4yMjQuMjQzIDEuNzE0LjcyNy40OTEuNDg0Ljg3NSAxLjIwNSAxLjE1MyAyLjE2My4yNzcuOTU3LjQxNiAyLjE1Mi40MTYgMy41ODQgMCAxLjQ1OC0uMjA4IDIuNjcxLS42MjMgMy42MzlzLS45NzIgMS42OTUtMS42NzEgMi4xNzljLS42OTguNDg0LTEuNDc0LjcyNi0yLjMyNi43MjYtLjY4MiAwLTEuMTg5LS4yNDUtMS41MjEtLjczNC0uMzMyLS40OS0uNDk5LTEuMDUtLjQ5OS0xLjY4MiAwLS4zNTIuMDM5LS42MTYuMTE3LS43OTMuMDc4LS4xNzYuMjEtLjI2NC4zOTUtLjI2NC4xMzQgMCAuMjk1LjA0LjQ4NC4xMjIuMTg4LjA4Mi40NTEuMTIyLjc4Ny4xMjIuNDcyIDAgLjkwNS0uMTMzIDEuMy0uMzk4LjM5NC0uMjY2LjcxNC0uNjM2Ljk1OS0xLjExLjI0NC0uNDczLjM2Ny0xLjAxLjM2Ny0xLjYxIDAtLjY4NC0uMDgtMS4xOTctLjI0LTEuNTM5LS4xNTktLjM0Mi0uNDI2LS41MTMtLjgwMS0uNTEzLS40MTIgMC0uNzg5LjIyMy0xLjEzMy42NzEtLjM0My40NDctLjY0MSAxLjA0OC0uODk0IDEuODA0LS4yNTQuNzU1LS40NDkgMS42MTMtLjU4NyAyLjU3My0uMTM3Ljk2MS0uMjA2IDEuOTU0LS4yMDYgMi45OCAwIC43MjEuMDU5IDEuMzU0LjE3NyAxLjg5OS4xMTkuNTQ1LjMxNS45NjYuNTkgMS4yNjNzLjY0NS40NDYgMS4xMS40NDZjLjY4OSAwIDEuMjY3LS4xNSAxLjczMi0uNDUuNDY0LS4zLjg1My0uNjQ2IDEuMTY0LTEuMDM4LjMxMi0uMzkyLjU4MS0uNzM4LjgwNi0xLjAzOHMuNDQyLS40NS42NTItLjQ1Yy4yMTQgMCAuMzY5LjE0My40NjUuNDNzLjE0NC43MjIuMTQ0IDEuMzA3YzAgLjYzMS0uMTIgMS4yODEtLjM2MSAxLjk1LS4yNDEuNjY4LS41NzcgMS4yNzYtMS4wMDggMS44MjNzLS45MzguOTkzLTEuNTIxIDEuMzM4LTEuMjE5LjUxNy0xLjkwOC41MTd6Ii8+PHBhdGggZD0ibTc3LjE5IDM0LjM3Yy0uNDMzIDAtLjc3Ni0uMzM5LTEuMDMtMS4wMTUtLjI1My0uNjc2LS4zNzktMS42OTEtLjM3OS0zLjA0MyAwLTEuMjA1LS4wMTQtMi4yNzEtLjA0Mi0zLjE5Ny0uMDI4LS45MjctLjA2MS0xLjc4LS4wOTktMi41NjJzLS4wNzctMS41NS0uMTE5LTIuMzA1Yy0uMDQxLS43NTYtLjA3Ni0xLjU1My0uMTA0LTIuMzkyLS4wMjgtLjg0LS4wNDItMS43ODMtLjA0Mi0yLjgzIDAtMi4wMjEuMTI5LTMuODMuMzg1LTUuNDI4LjI1Ny0xLjU5Ny42MS0yLjk2MyAxLjA2LTQuMDk3LjQ0OS0xLjEzNC45NTgtMi4wMDEgMS41MjYtMi42MDEuNTY5LS42IDEuMTYxLS45IDEuNzc3LS45LjMyOSAwIC42My4xOTIuOTA2LjU3Ni4yNzUuMzg1LjQxMiAxLjAyMS40MTIgMS45MTEgMCAuNTI2LS4wNjMuOTY3LS4xOSAxLjMyMi0uMTI2LjM1NS0uMzE3LjYxNy0uNTczLjc4NS0uNjM1LjM5LTEuMTQ5Ljg1Ny0xLjU0MSAxLjQwMi0uMzkyLjU0NC0uNjg4IDEuMjAzLS44ODggMS45NzctLjE5OS43NzQtLjMzNCAxLjY5Mi0uNDA1IDIuNzU2LS4wNzEgMS4wNjMtLjEwNiAyLjMyMy0uMTA2IDMuNzggMCAuODUzLjAyMyAxLjcxNC4wNjggMi41ODIuMDQ1Ljg2OS4wOTkgMS43OTMuMTYyIDIuNzc1LjA2My45ODEuMTE4IDIuMDY0LjE2MyAzLjI0OHMuMDY3IDIuNTA1LjA2NyAzLjk2M2MwIDEuMzA1LS4wODEgMi4xOC0uMjQ0IDIuNjI1LS4xNjQuNDQ1LS40MTguNjY4LS43NjQuNjY4em0tLjIwMS0xNC40OTRjLS4yODIgMC0uNTE3LS4xNjQtLjcwNC0uNDktLjE4OC0uMzI3LS4yODItLjc0OC0uMjgyLTEuMjYzIDAtLjczNy4wOTItMS40MDUuMjc2LTIuMDA1cy40NTItMS4wMjQuODA1LTEuMjcxYy40NjMtLjMuOS0uNTIgMS4zMTItLjY1OS40MTEtLjE0LjgxLS4yMSAxLjE5Ny0uMjEuMjkyIDAgLjU0MS4xMTIuNzQ3LjMzNi4yMDYuMjIzLjM2Mi41MzkuNDY4Ljk0N3MuMTU5Ljg5Ni4xNTkgMS40NjVjMCAuNDYzLS4wNjMuODYzLS4xODggMS4xOTktLjEyNi4zMzctLjMyNS41MjEtLjU5OC41NTMtLjU0LjA2My0uOTg3LjE3MS0xLjM0LjMyNC0uMzUzLjE1Mi0uNjQxLjMwOS0uODY0LjQ2OS0uMjIyLjE2MS0uNDA5LjMwMi0uNTYuNDIzcy0uMjk0LjE4Mi0uNDI4LjE4MnoiLz48cGF0aCBkPSJtODYuMDIxIDM0LjQ3MmMtMS4wMTMgMC0xLjkxMi0uNDQ5LTIuNjk5LTEuMzQ2LS43ODYtLjg5Ny0xLjQwMy0yLjEzOC0xLjg1MS0zLjcyMnMtLjY3My0zLjM5NS0uNjczLTUuNDMxYzAtMS4zODQuMTMxLTIuNjg4LjM5My0zLjkxMi4yNjItMS4yMjMuNi0yLjMwNSAxLjAxNS0zLjI0NC40MTYtLjk0Ljg2MS0xLjY3NiAxLjMzNy0yLjIwNy40NzYtLjUzMi45MjUtLjc5OCAxLjM0Ni0uNzk4LjE4NSAwIC4zNTUuMDYyLjUwOS4xODYuMTU1LjEyNC4yOC4zMTYuMzc1LjU3Ni4wOTUuMjYxLjE0Mi42MTUuMTQyIDEuMDYyIDAgLjgtLjA3NyAxLjUwOC0uMjMgMi4xMjRzLS40NjUgMS4xMTgtLjkzNSAxLjUwN2MtLjMwOS4zMzctLjU3OS43NDUtLjgwOSAxLjIyNHMtLjQxIDEuMDItLjU0IDEuNjIyYy0uMTMxLjYwMy0uMTk2IDEuMjQxLS4xOTYgMS45MTUgMCAxLjcxMS4yNDcgMy4wODUuNzQyIDQuMTI1LjQ5NCAxLjAzOSAxLjE2IDEuNTU5IDEuOTk4IDEuNTU5LjcwMyAwIDEuMjc0LS41MjkgMS43MTItMS41ODcuNDM5LTEuMDU4LjY1OC0yLjQ2My42NTgtNC4yMTUgMC0xLjU1OC0uMTg4LTIuNzk0LS41NjMtMy43MDdzLS44NzQtMS4zNy0xLjQ5Ny0xLjM3Yy0uMzE5IDAtLjU4LjE1OC0uNzgyLjQ3NHMtLjQyNS43MzctLjY2OCAxLjI2M2MtLjE4LjM4OS0uMzI5LjcxNy0uNDQ3Ljk4My0uMTE5LjI2Ni0uMjM3LjQ2Ni0uMzU3LjYtLjExOS4xMzQtLjI2OC4yMDEtLjQ0OS4yMDEtLjIwMiAwLS4zNzUtLjE1OS0uNTItLjQ3Ny0uMTQ1LS4zMTktLjIxNy0uOTEyLS4yMTctMS43ODEgMC0uNjk5LjA5Mi0xLjQxMS4yNzctMi4xMzUuMTg1LS43MjMuNDMxLTEuMzg0LjczOC0xLjk4MS4zMDctLjU5OC42NS0xLjA4MSAxLjAzLTEuNDQ5LjM4LS4zNjkuNzY3LS41NTMgMS4xNjEtLjU1My45NzkgMCAxLjgxNy40MDIgMi41MTUgMS4yMDQuNjk3LjgwMyAxLjIzMSAxLjkzOCAxLjYwMyAzLjQwNy4zNzEgMS40NjguNTU3IDMuMjEuNTU3IDUuMjI2IDAgMi4wMTUtLjIwNiAzLjgyOC0uNjE3IDUuNDM5LS40MTIgMS42MS0uOTY4IDIuODgzLTEuNjY5IDMuODE3LS43MDIuOTM0LTEuNDk4IDEuNDAxLTIuMzg5IDEuNDAxeiIvPjxwYXRoIGQ9Im05Mi4zMDYgMzQuNjA2Yy0uMjI5IDAtLjQyLS4xMzEtLjU3NS0uMzk0cy0uMjQ2LS42NzEtLjI3Ni0xLjIyNGMtLjAyOS0uNTUyLjAyNy0xLjI1NS4xNjktMi4xMDguMTQ2LS45NDcuMzg3LTIuMDU1LjcyNC0zLjMyMy4zMzgtMS4yNjguNzU3LTIuNjA1IDEuMjU5LTQuMDExLjUwMS0xLjQwNSAxLjA2OC0yLjc5MiAxLjcwMS00LjE2czEuMzEzLTIuNjE4IDIuMDM4LTMuNzVjLjMwNy0uNTA1LjU3OC0uODk2LjgxNS0xLjE3Mi4yMzYtLjI3Ny40NDktLjQ3LjYzOS0uNTguMTktLjExMS4zNjMtLjE2Ni41MTgtLjE2Ni4yODggMCAuNTI5LjIxMS43MjUuNjMycy4yOTQgMS4wMzEuMjk0IDEuODMxYzAgLjU1Mi0uMDY0IDEuMDIyLS4xOTMgMS40MDlzLS4zMTEuNzMzLS41NDQgMS4wMzhjLS44MjYgMS4wNjMtMS41OTcgMi4zMzctMi4zMTIgMy44MjEtLjcxNiAxLjQ4NC0xLjM3NiAzLjA5Ni0xLjk4IDQuODM1LS42MDQgMS43NC0xLjE2IDMuNTE0LTEuNjY5IDUuMzI1LS4yMDkuNzI2LS40MjMgMS4yNDEtLjY0MSAxLjU0NC0uMjE4LjMwMi0uNDQ4LjQ1My0uNjkyLjQ1M3ptNy4wMDktLjA1NWMtLjI2MyAwLS41MDktLjE0NS0uNzM2LS40MzQtLjIyOC0uMjktLjQ3LS44NDUtLjcyNS0xLjY2Ni0uMzQzLTEuMDg5LS43NDEtMi4yNDctMS4xOTQtMy40NzMtLjQ1My0xLjIyNy0uOTMtMi40MzgtMS40MzItMy42MzYtLjUwMi0xLjE5Ny0uOTk5LTIuMzIzLTEuNDk0LTMuMzc4LS40OTQtMS4wNTYtLjk1OC0xLjk2Mi0xLjM5MS0yLjcyLS4zLS41MjYtLjUzNi0xLjAxNi0uNzA5LTEuNDY4LS4xNzMtLjQ1My0uMjU5LTEuMDE2LS4yNTktMS42OSAwLS42NjMuMDgxLTEuMjIxLjI0My0xLjY3NC4xNjItLjQ1Mi4zOTktLjY3OS43MS0uNjc5LjI0NCAwIC40NzEuMTIzLjY4My4zNjhzLjQ5Ny42ODguODU1IDEuMzNjLjI1MS40NTIuNTY4IDEuMDg5Ljk1MSAxLjkxLjM4NC44MjEuNzk1IDEuNzQyIDEuMjM1IDIuNzYzLjQzOSAxLjAyMS44NzUgMi4wNjcgMS4zMDkgMy4xMzguNDMzIDEuMDcxLjgzNiAyLjA4NiAxLjIwNyAzLjA0NC4zNzEuOTU3LjY3IDEuNzg2Ljg5NiAyLjQ4Ni4zNjggMS4xMjEuNjA0IDEuOTc1LjcwOSAyLjU2MnMuMTU3IDEuMDY0LjE1NyAxLjQzM2MwIC41NjgtLjA5MSAxLjAwOC0uMjcyIDEuMzE4LS4xODIuMzExLS40MjkuNDY2LS43NDMuNDY2eiIvPjwvZz48cGF0aCBkPSJtOTcwNy43IDIxNjkuNHMtNjA5MC4xNiA5Mi43NC03MTg1LjUzLTcuNzJjLTk4LjM0LTkuMDItMTY1LjYyLTM2Ljg1LTIwMC43Mi0xNTcuMjctMzYuNy0xMjUuOTMtNzEuNjUtMTM0NC44NTEtNzEuNjUtMjEyMS44MSAwLTE2NDIuOS4xLTU0NzIuMi4xLTYyODMuMyAwLTUyMS44MiA0Ny41NS05MzguOTEgNjcuNjQtMTA1OS4yOSAxMi45LTc3LjMzIDEwMy43Ni02OS40MSAxMDMuNzYtNjkuNDFoMjE2NS41YzE4NDMuNiAwIDQ0NDguNzctODcuODYgNDk3OC41MSAzOC40MSAxNjIuMjEgMzguNjcgMTk1LjYxIDExOS45MiAyMTguNTYgMjY5LjkyIDgxLjQxIDUzMi4xNSAxMTYuMTMgNDM4Mi4yNyAxMTYuMTMgNjIxMy4yN3YyOTk3LjRjMS43OCAxMjAuMzgtNjUuODMgMTczLjYxLTE5Mi4zIDE3OS44eiIgZmlsbD0iI2ZmYjc4OCIgdHJhbnNmb3JtPSJtYXRyaXgoLjAwMzA2MTIyIDAgMCAtLjAwMzA2MTIyIC0yLjc3NDk0IDkuODEwMSkiLz48cGF0aCBkPSJtMjQyMS4zLTc4NTYuMDdjLTg0LjIzLjc2LTM3NS44NiA0Mi4wMS00MjUuOTcgMzQyLjMtMjEuMTEgMTI2LjUtNzIuMSA1NjQuNzMtNzIuMSAxMTEzLjA3IDAgODExLjEtLjEgNDY0MC40LS4xIDYyODMuMyAwIDgxMC41NTggNDYuNDIgMjA4MS44MyA4NC43MSAyMjEzLjIxIDQ0LjQyIDE1Mi40MyAxMTkuODEgMjM5LjI0IDIwNC42MiAyOTcuODEgNzYuMzYgNTIuNzMgMTY3Ljc5IDgzLjA4IDI3OS44OCA5My4zNiAxMTAwLjY3IDEwMC45NSA3MjIwLjMzIDkuMDUgNzIyMC4zMyA5LjA1IDMuNjctLjA2IDcuMzMtLjE3IDEwLjk5LS4zNSAxNTQuMi03LjU1IDI2Ny4xMy01OS4xMSAzNDYuMzQtMTMwLjE0IDk0LjEtODQuMzIgMTU4LjItMjAzLjM4IDE1Ni43LTM3Ni43NXYtMjk5Ni41OWMwLTE4NDUuNTctMzcuOS01NzI2LjI4LTExOS45LTYyNjIuNjctMjYuOS0xNzUuNTQtODAuNS0yOTQuNzItMTcxLjg2LTM4NC43NC02Ni4zMS02NS4zLTE1Ni4xNy0xMjAuNzEtMjkzLjg4LTE1My41NC01MzcuODItMTI4LjItMzE4Mi41OC00Ny4zMi01MDU0LjI2LTQ3LjMybC0yMTU1LjE2LjIyYy0zLjM3LS4xLTYuODItLjE3LTEwLjM0LS4yMnYzMjYuNjdoMjE2NS41YzE4NDMuNiAwIDQ0NDguNzctODcuODYgNDk3OC41MSAzOC40MSAxNjIuMjEgMzguNjcgMTk1LjYxIDExOS45MiAyMTguNTYgMjY5LjkyIDgxLjQxIDUzMi4xNSAxMTYuMTMgNDM4Mi4yNyAxMTYuMTMgNjIxMy4yN3YyOTk3LjRjMS43OCAxMjAuMzgtNjUuODMgMTczLjYxLTE5Mi4zIDE3OS44IDAgMC02MDkwLjE2IDkyLjc0LTcxODUuNTMtNy43Mi05OC4zNC05LjAyLTE2NS42Mi0zNi44NS0yMDAuNzItMTU3LjI3LTM2LjctMTI1LjkzLTcxLjY1LTEzNDQuODUxLTcxLjY1LTIxMjEuODEgMC0xNjQyLjkuMS01NDcyLjIuMS02MjgzLjMgMC0zMzkuNTggMjAuMTQtNjM0LjgxIDM5Ljc0LTgzMi43OC0yMDYuMjUtMTI5LjIzIDEzMS42Ni02MjIuNTkgMTMxLjY2LTYyMi41OXoiIGZpbGw9IiNmZmYiIHRyYW5zZm9ybT0ibWF0cml4KC4wMDMwNjEyMiAwIDAgLS4wMDMwNjEyMiAtMi43NzQ5NCA5LjgxMDEpIi8+PGcgdHJhbnNmb3JtPSJtYXRyaXgoLS4wMDI5ODYzIDAgMCAuMDAzMDEyNzggMzIuMTg2NCAyMi44MzE3KSI+PHBhdGggZD0ibTI5NjMuNDYtMjQ4My4xOWMtMTQ1OS05MDMtMjgzMy4wNi0xNTU1LjUxLTI4NDUuNjYtMTU2OC4wMS0xMi41LTguNC0yMC45LTE1MC41LTE2LjctMzEzLjUgNC4yLTUxOC40IDI1OS4yLTkxNS41IDczNS44LTExNTMuOGwyNTAuOC0xMjUuNHMxNDQxLjcyIDExMDUuNjUgMjc0MC4wNyAxOTAzLjA2bDI2MDIuNTMgMTQwMy43NHM3ODYuOTggMTQwMi41OTMgNjU0LjYgMTUyMi4wMzJjLTExMS4zIDEwMC40Mi0xMzIzLjU0LTMuMDU3LTE2MjQuNS0zMy44MzItNy40LS43NTYtODMwLjU5LTYwMi45Ni0yNDk2Ljk0LTE2MzQuMjl6IiBmaWxsPSIjZmY2MjAwIi8+PHBhdGggZD0ibS04OC44MTktMzc5MS44YzIwLjk4NSAxNS40MSA1My4zMTUgMzYuNSA5OC42NzIgNTkuMjcgMjQyLjYyOSAxMjEuOCAxNDc1LjQwNyA3MjUuNzcgMjc3Ni4yNTcgMTUzMC44OCAxNDkwLjI2IDkyMi4zNSAyMzAxLjkgMTQ5OS4yNiAyNDU0LjY4IDE2MDUuOTczIDEwNi4wMiA3NC4wNTUgMTgwLjY2IDc2LjQ3NSAxODUuMjUgNzYuOTQ0IDI1MC4wNiAyNS41NzEgMTEwNS45NyA5Ny43NjcgMTQ5Ny40OCA3Mi45MDIgMjA1LjA4LTEzLjAyNCAzMzguMzUtODAuMDcyIDM4Ni43OS0xMjMuNzc5IDU3Ljg0LTUyLjE4NiAxMDkuNTQtMTMwLjAxOSAxMjEuODYtMjQ1LjI1NyA3LjA1LTY1LjkxNC0zLjM5LTE3Mi45MDktNDUuMTUtMzA0LjE4My0xMzkuODEtNDM5LjQ1LTY2NC4wNy0xMzc5LjM4LTY2NC4wNy0xMzc5LjM4LTMwLjg1LTU0Ljk4LTc2Ljg0LTEwMC4xNS0xMzIuNTktMTMwLjIyIDAgMC0yNTk0LjEtMTM5OS4xOS0yNTk2LjM5LTE0MDAuNTktMTI4Mi4yMi03ODguNjUtMjcwMS4zNi0xODc3LjE4LTI3MDEuMzYtMTg3Ny4xOC0xMDIuMDktNzguMjktMjQwLjQ4LTkxLjQ1LTM1NS43MjUtMzMuODNsLTI1MC44IDEyNS40Yy01OTYuNDM5IDI5OC4yMi05MTMuNjQ1IDc5Ni4zMy05MTkuODEzIDE0NDQuNjQtNC45MTYgMjAwLjYzIDE2LjM4MSAzNzYuOTQgMzAuNjcgNDE4Ljg1IDM0LjUzNCAxMDEuMyA5NS43MTggMTQ5Ljg3IDEzMi45NDkgMTc0Ljg5em0zMDUyLjI3OSAxMzA4LjYxYy0xNDU5LTkwMy0yODMzLjA2LTE1NTUuNTEtMjg0NS42Ni0xNTY4LjAxLTEyLjUtOC40LTIwLjktMTUwLjUtMTYuNy0zMTMuNSA0LjItNTE4LjQgMjU5LjItOTE1LjUgNzM1LjgtMTE1My44bDI1MC44LTEyNS40czE0NDEuNzIgMTEwNS42NSAyNzQwLjA3IDE5MDMuMDZsMjYwMi41MyAxNDAzLjc0czc4Ni45OCAxNDAyLjU5MyA2NTQuNiAxNTIyLjAzMmMtMTExLjMgMTAwLjQyLTEzMjMuNTQtMy4wNTctMTYyNC41LTMzLjgzMi03LjQtLjc1Ni04MzAuNTktNjAyLjk2LTI0OTYuOTQtMTYzNC4yOXoiIGZpbGw9IiNmZmYiLz48L2c+PC9zdmc+"/>
 
-    </div>
-    <div class="main">
-        <h1 id="title">
-            Privacy Policy acceptance
-        </h1>
-        <div class="section" id="description1">
-            From the 4.0 version of Notefox, you are able to create a <b>Notefox Account</b> to sync your data across
-            devices.
-            This is a great feature but, because it's external to your web browser service, it requires a small extra
-            step to ensure your privacy.
-        </div>
-        <div class="pay-attention" id="description2-evidence">
-            You can also use Notefox without creating an account.
-        </div>
-        <div class="section" id="description3">
-            In this case, your data will be stored in your browser's local storage only, and it won't be collected
-            anything.
-        </div>
-        <div class="section center-text">
-            <div id="description4">
-                To continue to use Notefox, you need to accept the <a
-                    href="https://addons.mozilla.org/en-GB/firefox/addon/websites-notes/privacy/">Privacy Policy</a>,
-                which
-                will be applied only if you create an account.
+    <!-- Header -->
+    <header class="header">
+        <img id="notefox-logo--image" alt="Notefox logo" src="/img/logo-orange.svg">
+    </header>
+
+    <main class="main">
+        <section class="section color-2 no-bottom-padding">
+            <h1>Consent Experience</h1>
+        </section>
+
+        <!-- Short description -->
+        <section class="section color-2">
+            <p>Notefox is a free, open-source add-on that lets you take and sync notes securely. You are in control of
+                what data is sent to our servers.</p>
+        </section>
+
+        <!-- Telemetry Data Section -->
+        <section class="section">
+            <div class="toggle-header" id="telemetry-header">
+                Telemetry Data <span class="arrow">▼</span>
             </div>
-            <div id="description5">
-                <b>This doesn't mean that you have to create an account mandatorily.</b>
+            <div id="telemetry-details" class="expandable">
+                <h4>What they are:</h4>
+                <p>Anonymous usage data sent to Notefox, including account status, anonymous user ID, browser language,
+                    actions (save/delete note), context, website URL (if applicable), browser and OS info, and Notefox
+                    version.</p>
+                <h4>How they are used:</h4>
+                <p>Used only for anonymous internal statistics, feature usage analysis, and product improvement. Data
+                    are never shared with third parties or used for marketing.</p>
+                <p>See our <a href="https://www.notefox.eu/privacy/">Privacy Policy</a> and <a
+                        href="https://www.notefox.eu/terms/">Terms of Service</a> for details.</p>
             </div>
-        </div>
-        <div class="pay-attention red hidden" id="privacy-policy-already-accepted">
-            You have already accepted the Privacy Policy of Notefox.
-        </div>
-        <div class="section flex-container" id="buttons">
-            <button id="uninstall-button" class="flex-1 red">I don't want to use Notefox anymore</button>
-            <button id="continue-button" class="flex-2">Continue to use Notefox</button>
-        </div>
-    </div>
-    <div class="section overview-privacy-policy">
-        <small class="subtitle" id="description6">(Only if you create a Notefox account)</small>
-        <h3 class="title" id="description7">We follow three simple principles</h3>
-        <div class="cards">
-            <div class="card">
-                <img src="./images/collected.svg" alt="Collected image">
-                <h4 id="description8">Only necessary data is collected</h4>
-                <p id="description9">We only collect the data that is necessary to provide the service – such as notes,
-                    settings, IP
-                    address, ….</p>
+            <label class="checkbox-container">
+                <input type="checkbox" id="telemetry-consent">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-label-text">I <b>accept</b> to transmit telemetry data to the Notefox server <span
+                        class="optional-text">optional</span></span>
+            </label>
+        </section>
+
+        <!-- Error Logs Section -->
+        <section class="section">
+            <div class="toggle-header" id="errorlogs-header">
+                Error Logs Data <span class="arrow">▼</span>
             </div>
-            <div class="card">
-                <img src="./images/encrypted.svg" alt="Encrypted image" class="encrypted">
-                <h4 id="description10">End-to-end encryption</h4>
-                <p id="description11">We use end-to-end encryption to protect your data, so only you can access it.</p>
+            <div id="errorlogs-details" class="expandable">
+                <h4>What they are:</h4>
+                <p>Anonymous technical error data including error messages, context (page or popup), date/time, website
+                    URL (if applicable), Notefox version, and anonymous user ID.</p>
+                <h4>How they are used:</h4>
+                <p>Used exclusively to detect and fix bugs, improve add-on stability, and enhance user experience. Data
+                    are never shared for marketing or statistics.</p>
+                <p>See our <a href="https://www.notefox.eu/privacy/">Privacy Policy</a> and <a
+                        href="https://www.notefox.eu/terms/">Terms of Service</a> for details.</p>
             </div>
-            <div class="card">
-                <img src="./images/noshared.svg" alt="No Shared image">
-                <h4 id="description12">Nothing is shared</h4>
-                <p id="description13">We don't share your data with third parties.</p>
-            </div>
+            <label class="checkbox-container">
+                <input type="checkbox" id="errorlogs-consent">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-label-text">I <b>accept</b> to transmit automatically error logs data to the Notefox server <span
+                        class="optional-text">optional</span></span>
+            </label>
+        </section>
+
+        <!-- Action Buttons -->
+        <div class="section color-2">
+            <button id="continue-button" class="full-width-button">Continue to use Notefox</button>
+            <button id="uninstall-button" class="link-button">I don’t want to use Notefox anymore</button>
         </div>
-    </div>
-    <div class="footer">
-        <div class="small-text" id="footer-message">
-            You can delete a Notefox Account in anytime.
-            <br>Notefox Account uses end-to-end cryptography, so if you lose your password, you will lose all your data.
-            <br>If you delete your account, all your data will be deleted permanently and cannot be recovered.
-        </div>
-        <div class="small-text" id="footer-message2">
-            You could be interested also in the <a href="https://www.notefox.eu/terms/">Terms of Service</a> and the <a
-                href="https://www.notefox.eu/privacy/">Privacy Policy</a> of Notefox.
-        </div>
-    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="small-text center-text">You might also be interested in the <a href="https://www.notefox.eu/terms/">Terms
+            of Service</a> and the <a href="https://www.notefox.eu/privacy/">Privacy Policy</a> of Notefox.</p>
+    </footer>
 </div>
 
-<script src="../js/definitions.js"></script>
-
-<!--include all translation files-->
-<!--en English-->
-<script src="../js/languages/en-UK/strings.js"></script>
-<!--it Italian-->
-<script src="../js/languages/it-IT/strings.js"></script>
-<!--ar Arabic-->
-<script src="../js/languages/ar-SA/strings.js"></script>
-<!--zh-cn Chinese Simplified-->
-<script src="../js/languages/zh-CN/strings.js"></script>
-<!--zh-tw Chinese Traditional-->
-<script src="../js/languages/zh-TW/strings.js"></script>
-<!--cs Czech-->
-<script src="../js/languages/cs-CZ/strings.js"></script>
-<!--da Danish-->
-<script src="../js/languages/da-DK/strings.js"></script>
-<!--nl Dutch-->
-<script src="../js/languages/nl-NL/strings.js"></script>
-<!--fi Finnish-->
-<script src="../js/languages/fi-FI/strings.js"></script>
-<!--fr French-->
-<script src="../js/languages/fr-FR/strings.js"></script>
-<!--de German-->
-<script src="../js/languages/de-DE/strings.js"></script>
-<!--el Greek-->
-<script src="../js/languages/el-GR/strings.js"></script>
-<!--ja Japanese-->
-<script src="../js/languages/ja-JP/strings.js"></script>
-<!--no Norwegian-->
-<script src="../js/languages/no-NO/strings.js"></script>
-<!--pl Polish-->
-<script src="../js/languages/pl-PL/strings.js"></script>
-<!--pt-pt Portuguese, Portugal-->
-<script src="../js/languages/pt-PT/strings.js"></script>
-<!--pt-br Portuguese, Brazil-->
-<script src="../js/languages/pt-BR/strings.js"></script>
-<!--ro Romanian-->
-<script src="../js/languages/ro-RO/strings.js"></script>
-<!--ru Russian-->
-<script src="../js/languages/ru-RU/strings.js"></script>
-<!--es Spanish-->
-<script src="../js/languages/es-ES/strings.js"></script>
-<!--sv-se Swedish-->
-<script src="../js/languages/sv-SE/strings.js"></script>
-<!--uk Ukrainian-->
-<script src="../js/languages/uk-UA/strings.js"></script>
-<!--ia Interlingua-->
-<script src="../js/languages/ia/strings.js"></script>
-<!--END|include all translation files-->
-
-<script src="./privacy.js"></script>
+<script src="privacy.js"></script>
 </body>
 </html>

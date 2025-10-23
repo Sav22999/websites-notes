@@ -1379,7 +1379,7 @@ function loadSettings() {
                 settings_json["font-family"] === undefined ||
                 !supportedFontFamily.includes(settings_json["font-family"])
             )
-                settings_json["font-family"] = "Shantell Sans";
+                settings_json["font-family"] = "Merienda";
             if (settings_json["show-title-textbox"] === undefined)
                 settings_json["show-title-textbox"] = false;
             if (settings_json["immersive-sticky-notes"] === undefined)
@@ -1392,7 +1392,7 @@ function loadSettings() {
             )
                 settings_json["datetime-format"] = "yyyymmdd1";
             if (settings_json["sending-error-logs-automatically"] === undefined)
-                settings_json["sending-error-logs-automatically"] = true;
+                settings_json["sending-error-logs-automatically"] = false;
             if (settings_json["send-telemetry"] === undefined)
                 settings_json["send-telemetry"] = false;
 
@@ -5351,6 +5351,19 @@ function setTheme(
         );
         var code_label_svg = window.btoa(getIconSvgEncoded("code", textbox_color));
 
+        let primaryTransparent = primary;
+        if (primaryTransparent.includes("rgb(")) {
+            let rgb_temp = primaryTransparent.replace("rgb(", "");
+            let rgb_temp_arr = rgb_temp.split(",");
+            if (rgb_temp_arr.length >= 3) {
+                let red = rgb_temp_arr[0].replace(" ", "");
+                let green = rgb_temp_arr[1].replace(" ", "");
+                let blue = rgb_temp_arr[2].replace(")", "").replace(" ", "");
+                primaryTransparent = `rgba(${red}, ${green}, ${blue}, 0.8)`;
+            }
+        } else if (primaryTransparent.includes("#")) {
+            primaryTransparent += "88";
+        }
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
@@ -5376,6 +5389,7 @@ function setTheme(
             <style>
                 :root {
                     --primary-color: ${primary};
+                    --primary-color-transparent: ${primaryTransparent};
                     --secondary-color: ${secondary};
                     --on-primary-color: ${on_primary};
                     --on-secondary-color: ${on_secondary};

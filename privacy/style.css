@@ -1,0 +1,247 @@
+@import url('https://fonts.googleapis.com/css2?family=Merienda:wght@300..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+* {
+    box-sizing: border-box;
+    font-family: "Open Sans", sans-serif;
+    transition: 0.3s;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #fff7f0;
+}
+
+.email-content {
+    max-width: 700px;
+    margin: 20px auto;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #ffa56f;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    text-align: center;
+    background-color: #eeeeee;
+    padding: 15px;
+}
+
+#notefox-logo--image {
+    width: 20%;
+    min-width: 150px;
+    height: auto;
+}
+
+.main h1 {
+    font-family: "Merienda", cursive;
+    font-weight: 700;
+    font-size: 1.8em;
+    text-align: center;
+    margin: 0;
+    border-radius: 8px;
+    background-color: #ff7a00;
+    padding: 15px;
+}
+
+.section {
+    background-color: #ff8d4b;
+    padding: 20px;
+    font-size: 1.15em;
+    border-radius: 0px;
+    margin: 0px;
+}
+
+.section.color-2 {
+    background-color: #ffa56f;
+    color: #ffffff;
+}
+
+.section.color-3 {
+    background-color: #eeeeee;
+}
+
+.section.no-bottom-padding {
+    padding-bottom: 0px;
+}
+
+.section.no-top-padding {
+    padding-top: 0px;
+}
+
+a, a:hover, a:active, a:focus {
+    color: inherit;
+}
+
+/* Toggle header */
+.toggle-header {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    background-color: #f47500;
+    color: #eeeeee;
+    padding: 15px 20px;
+    border-radius: 15px;
+    font-size: 1.25em;
+    user-select: none;
+    margin-bottom: 0px;
+}
+
+.toggle-header:hover {
+    background-color: #ff7a00;
+}
+
+.toggle-header .arrow {
+    transition: transform 0.3s ease;
+}
+
+.toggle-header.active {
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+.toggle-header.active .arrow {
+    transform: rotate(180deg);
+}
+
+/* Expandable section */
+.expandable {
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 20px;
+    background-color: #eeeeee55;
+    border-radius: 0 0 15px 15px;
+    transition: max-height 0.4s ease, padding 0.4s ease;
+}
+
+.expandable.show {
+    max-height: 1000px;
+    padding: 10px 20px;
+}
+
+/* Classic-style checkbox */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin: 20px 0 20px 0;
+    font-size: 0.95em;
+    color: #ffffff;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+}
+
+.checkbox-container input {
+    opacity: 0;
+    position: absolute;
+}
+
+.checkbox-custom {
+    width: 24px;
+    height: 24px;
+    background-color: #ffffff;
+    border: 0px solid #ccc;
+    border-radius: 15px;
+    display: inline-block;
+    margin-right: 10px;
+    flex-shrink: 0;
+    position: relative;
+    transition: border 0.2s, background 0.2s;
+}
+
+.checkbox-custom::after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 8px;
+    top: 3px;
+    width: 6px;
+    height: 12px;
+    border: solid #ff7a00;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-container input:checked + .checkbox-custom::after {
+    display: block;
+}
+
+.checkbox-container:hover .checkbox-custom {
+    border-color: #ff7a00;
+}
+
+.checkbox-label-text {
+    user-select: none;
+}
+
+.optional-text {
+    background-color: #ffffff55;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 0.75em;
+}
+
+/* Buttons */
+.full-width-button {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background-color: #ffffff;
+    color: #ff7a00;
+    border: none;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 1em;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.full-width-button:hover {
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.link-button {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    color: #eeeeee;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.8em;
+    text-align: center;
+    padding: 5px 0;
+}
+
+.link-button:hover {
+    color: #ffffff;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 15px 10px;
+    font-size: 0.7em;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .section {
+        font-size: 1em;
+        padding: 15px;
+    }
+
+    .toggle-header {
+        font-size: 1.1em;
+        padding: 12px 15px;
+    }
+
+    .full-width-button, .link-button {
+        font-size: 0.95em;
+        padding: 12px;
+    }
+}

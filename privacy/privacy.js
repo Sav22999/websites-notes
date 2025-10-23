@@ -1,112 +1,101 @@
-const linkFirstLaunch = "https://notefox.eu/help/first-run"
-
-const all_strings = strings[languageToUse];
+const linkFirstLaunch = "https://notefox.eu/help/first-run";
 
 window.onload = function () {
-    loaded()
-}
+    initConsent();
+};
 
-function loaded() {
-    browser.storage.sync.get("privacy").then(result => {
-        //console.log(">> Installation", result)
-        if (result.privacy !== undefined) {
-            //Already accepted privacy policy
-            //console.log(result.privacy);
+function initConsent() {
+    const telemetryCheckbox = document.getElementById("telemetry-consent");
+    const errorlogsCheckbox = document.getElementById("errorlogs-consent");
+    const continueBtn = document.getElementById("continue-button");
+    const uninstallBtn = document.getElementById("uninstall-button");
 
-            document.getElementById("uninstall-button").disabled = true;
-            document.getElementById("continue-button").disabled = true;
-            if (document.getElementById("privacy-policy-already-accepted").classList.contains("hidden")) {
-                document.getElementById("privacy-policy-already-accepted").classList.remove("hidden");
-            }
-            document.getElementById("buttons").classList.add("red");
-
-            window.close();
-        }
+    // Get state from of the checkboxes
+    (typeof browser !== 'undefined' ? browser : chrome).storage.local.get("settings").then(data => {
+        const settings = data.settings || {};
+        telemetryCheckbox.checked = settings["send-telemetry"] || false;
+        errorlogsCheckbox.checked = settings["sending-error-logs-automatically"] || false;
     });
 
-    document.getElementById("uninstall-button").onclick = uninstall;
-    document.getElementById("continue-button").onclick = continueNotefox;
-    //document.getElementById("privacy").onclick = uninstall;
+    // Save state on change
+    telemetryCheckbox.addEventListener("change", () => {
+        (typeof browser !== 'undefined' ? browser : chrome).storage.local.get("settings").then(data => {
+            const settings = data.settings || {};
+            settings["send-telemetry"] = telemetryCheckbox.checked;
+            (typeof browser !== 'undefined' ? browser : chrome).storage.local.set({settings});
+        });
+    });
 
-    this.loadUI();
+    errorlogsCheckbox.addEventListener("change", () => {
+        (typeof browser !== 'undefined' ? browser : chrome).storage.local.get("settings").then(data => {
+            const settings = data.settings || {};
+            settings["sending-error-logs-automatically"] = errorlogsCheckbox.checked;
+            (typeof browser !== 'undefined' ? browser : chrome).storage.local.set({settings});
+        });
+    });
+
+    // Toggle sections
+    document.getElementById("telemetry-header").addEventListener("click", () => toggleSection("telemetry-details", "telemetry-header"));
+    document.getElementById("errorlogs-header").addEventListener("click", () => toggleSection("errorlogs-details", "errorlogs-header"));
+
+    // Button actions
+    continueBtn.onclick = continueNotefox;
+    uninstallBtn.onclick = uninstall;
+
+    // Check if privacy was already accepted
+    (typeof browser !== 'undefined' ? browser : chrome).storage.sync.get("privacy").then(result => {
+        if (result.privacy !== undefined) {
+            continueBtn.disabled = false;
+            uninstallBtn.disabled = true;
+        }
+    });
 }
 
-function loadUI() {
-    document.getElementById("title").innerHTML = all_strings["privacy"]["title"];
-    document.getElementById("description1").innerHTML = all_strings["privacy"]["description1"];
-    document.getElementById("description2-evidence").innerHTML = all_strings["privacy"]["description2-evidence"];
-    document.getElementById("description3").innerHTML = all_strings["privacy"]["description3"];
-    document.getElementById("description4").innerHTML = all_strings["privacy"]["description4"];
-    document.getElementById("description5").innerHTML = all_strings["privacy"]["description5"];
-    document.getElementById("description6").innerHTML = all_strings["privacy"]["description6"];
-    document.getElementById("description7").innerHTML = all_strings["privacy"]["description7"];
-    document.getElementById("description8").innerHTML = all_strings["privacy"]["description8"];
-    document.getElementById("description9").innerHTML = all_strings["privacy"]["description9"];
-    document.getElementById("description10").innerHTML = all_strings["privacy"]["description10"];
-    document.getElementById("description11").innerHTML = all_strings["privacy"]["description11"];
-    document.getElementById("description12").innerHTML = all_strings["privacy"]["description12"];
-    document.getElementById("description13").innerHTML = all_strings["privacy"]["description13"];
-    document.getElementById("footer-message").innerHTML = all_strings["privacy"]["footer-message"];
-    document.getElementById("footer-message2").innerHTML = all_strings["privacy"]["footer-message2"];
-    document.getElementById("privacy-policy-already-accepted").innerHTML = all_strings["privacy"]["you-have-already-accepted"];
-    document.getElementById("uninstall-button").innerHTML = all_strings["privacy"]["i-dont-want-to-use-notefox-anymore-button"];
-    document.getElementById("continue-button").innerHTML = all_strings["privacy"]["continue-to-use-notefox-button"];
+function toggleSection(sectionId, headerId) {
+    const section = document.getElementById(sectionId);
+    const header = document.getElementById(headerId);
+    const isShown = section.classList.toggle("show");
+    header.classList.toggle("active", isShown);
 }
 
 function uninstall() {
     if (confirm("Notefox will be uninstalled, are you sure?")) {
-        browser.management.uninstallSelf();
-    } else {
-        // Do nothing
+        (typeof browser !== 'undefined' ? browser : chrome).management.uninstallSelf();
     }
 }
 
 function continueNotefox() {
-    browser.storage.sync.get("privacy").then(result => {
-        //console.log(">> Installation", result)
+    (typeof browser !== 'undefined' ? browser : chrome).storage.sync.get("privacy").then(result => {
         if (result.privacy === undefined) {
-            browser.storage.sync.set({
+            (typeof browser !== 'undefined' ? browser : chrome).storage.sync.set({
                 "privacy": {
-                    "date": getDate(),
-                    "version": browser.runtime.getManifest().version
+                    date: getDate(),
+                    version: (typeof browser !== 'undefined' ? browser : chrome).runtime.getManifest().version
                 }
-            }).then(
-                () => {
-                    browser.storage.sync.get("installation").then(result => {
-                        if (result.installation === undefined) {
-                            browser.storage.sync.set({
-                                "installation": {
-                                    "date": getDate(),
-                                    "version": browser.runtime.getManifest().version
-                                }
-                            });
-
-                            //first launch -> open 'first launch' page
-                            browser.tabs.create({url: linkFirstLaunch});
-                        }
-
-                        window.close();
-                    });
-                }
-            )
+            }).then(() => {
+                (typeof browser !== 'undefined' ? browser : chrome).storage.sync.get("installation").then(result => {
+                    if (result.installation === undefined) {
+                        (typeof browser !== 'undefined' ? browser : chrome).storage.sync.set({
+                            "installation": {
+                                date: getDate(),
+                                version: (typeof browser !== 'undefined' ? browser : chrome).runtime.getManifest().version
+                            }
+                        });
+                        // Open first launch page
+                        (typeof browser !== 'undefined' ? browser : chrome).tabs.create({url: linkFirstLaunch});
+                    }
+                    window.close();
+                });
+            });
+        } else {
+            // privacy already accepted, just close
+            window.close();
         }
     });
 }
 
 function getDate() {
-    let todayDate = new Date();
-    let today = "";
-    today = todayDate.getFullYear() + "-";
-    let month = todayDate.getMonth() + 1;
-    if (month < 10) today = today + "0" + month + "-"; else today = today + "" + month + "-";
-    let day = todayDate.getDate();
-    if (day < 10) today = today + "0" + day + " "; else today = today + "" + day + " ";
-    let hour = todayDate.getHours();
-    if (hour < 10) today = today + "0" + hour + ":"; else today = today + "" + hour + ":"
-    let minute = todayDate.getMinutes();
-    if (minute < 10) today = today + "0" + minute + ":"; else today = today + "" + minute + ":"
-    let second = todayDate.getSeconds();
-    if (second < 10) today = today + "0" + second; else today = today + "" + second
-
-    return today;
+    const now = new Date();
+    const pad = n => n.toString().padStart(2, "0");
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 }

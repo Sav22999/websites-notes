@@ -412,7 +412,7 @@ function loadDataFromBrowser(generate_section = true) {
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
-            if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
+            if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
             if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
             if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
 
@@ -531,7 +531,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                     if (domain !== "**global") {
                         input_clear_all_notes_domain.type = "button";
                         input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
-                        input_clear_all_notes_domain.classList.add("button", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button", "clear-button-float-right");
+                        input_clear_all_notes_domain.classList.add("button", "small-button", "clear-button", "clear-button-float-right");
                         input_clear_all_notes_domain.onclick = function () {
                             clearAllNotesDomain(domain);
                             sendTelemetry(`clear-all-notes-domain`, "all-notes.js", domain);
@@ -1005,7 +1005,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             textNotes.style.whiteSpace = "pre-wrap";
         }
 
-        if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
+        if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
 
         textNotes.style.fontFamily = `'${settings_json["font-family"]}'`;
 
@@ -1266,6 +1266,19 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         let search_svg = window.btoa(getIconSvgEncoded("search", primary));
 
+        let primaryTransparent = primary;
+        if (primaryTransparent.includes("rgb(")) {
+            let rgb_temp = primaryTransparent.replace("rgb(", "");
+            let rgb_temp_arr = rgb_temp.split(",");
+            if (rgb_temp_arr.length >= 3) {
+                let red = rgb_temp_arr[0].replace(" ", "");
+                let green = rgb_temp_arr[1].replace(" ", "");
+                let blue = rgb_temp_arr[2].replace(")", "").replace(" ", "");
+                primaryTransparent = `rgba(${red}, ${green}, ${blue}, 0.8)`;
+            }
+        } else if (primaryTransparent.includes("#")) {
+            primaryTransparent += "88";
+        }
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
@@ -1291,6 +1304,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
             <style>
                 :root {
                     --primary-color: ${primary};
+                    --primary-color-transparent: ${primaryTransparent};
                     --secondary-color: ${secondary};
                     --on-primary-color: ${on_primary};
                     --on-secondary-color: ${on_secondary};
