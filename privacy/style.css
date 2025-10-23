@@ -15,7 +15,7 @@ body {
 .email-content {
     max-width: 700px;
     margin: 20px auto;
-    border-radius: 8px;
+    border-radius: 15px;
     overflow: hidden;
     background-color: #ffa56f;
     color: #ffffff;
@@ -40,7 +40,7 @@ body {
     font-size: 1.8em;
     text-align: center;
     margin: 0;
-    border-radius: 8px;
+    border-radius: 15px;
     background-color: #ff7a00;
     padding: 15px;
 }
