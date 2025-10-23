@@ -94,6 +94,8 @@ strings[lang] = {
     'search-page-content-detailed': 'When enabled, Notefox will search in the page content too. This could increase the time of the search.',
     'disable-word-wrap': 'Désactiver le texte des notes de retour de mot',
     'spellcheck-detection': 'Correction orthographique activée pour les notes',
+    'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
+    'disable-confirmation-popup-detailed': 'When enabled, you won\'t see confirmation popups when deleting notes. <b>Be careful:</b> deleted notes cannot be recovered.',
     'check-green-icon-global': 'Icône d\'extension verte lorsqu\'il y a des notes globales enregistrées',
     'check-green-icon-global-detailed': 'Lorsque cette option est activée, l\'icône du module dans la barre d\'outils sera <b>vert</b> si vous avez précédemment enregistré des notes <b>Global</b>.',
     'check-green-icon-domain': 'Icône d\'extension verte lorsqu\'il y a des notes de domaine enregistrées',

@@ -94,6 +94,8 @@ strings[lang] = {
     'search-page-content-detailed': 'When enabled, Notefox will search in the page content too. This could increase the time of the search.',
     'disable-word-wrap': 'Zakázat text poznámek ke slovu',
     'spellcheck-detection': 'Detekce kontroly pravopisu v jazyce pro poznámky',
+    'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
+    'disable-confirmation-popup-detailed': 'When enabled, you won\'t see confirmation popups when deleting notes. <b>Be careful:</b> deleted notes cannot be recovered.',
     'check-green-icon-global': 'Zelená ikona doplňku, když jsou uloženy globální poznámky',
     'check-green-icon-global-detailed': 'Pokud je povoleno, ikona doplňku v panelu nástrojů bude <b>zelená</b> , pokud jste dříve uložili <b>globální</b> poznámky.',
     'check-green-icon-domain': 'Zelená ikona doplňku, když jsou uloženy doménové poznámky',

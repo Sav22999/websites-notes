@@ -94,6 +94,8 @@ strings[lang] = {
     'search-page-content-detailed': 'When enabled, Notefox will search in the page content too. This could increase the time of the search.',
     'disable-word-wrap': 'Disactivar le interruption de lineas de texto del notas',
     'spellcheck-detection': 'Activate pro notas le detection del lingua del controlo orthographic',
+    'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
+    'disable-confirmation-popup-detailed': 'When enabled, you won\'t see confirmation popups when deleting notes. <b>Be careful:</b> deleted notes cannot be recovered.',
     'check-green-icon-global': 'Icone de additivo verde quando il ha Notas global salvate',
     'check-green-icon-global-detailed': 'Si activate le icone de additivo in le barra del instrumentos sera <b>verde</b> si tu previemente salvava notas <b>Global</b>.',
     'check-green-icon-domain': 'Icone de additivo verde quando il ha Notas de dominio salvate',

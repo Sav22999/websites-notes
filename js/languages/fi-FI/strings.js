@@ -94,6 +94,8 @@ strings[lang] = {
     'search-page-content-detailed': 'When enabled, Notefox will search in the page content too. This could increase the time of the search.',
     'disable-word-wrap': 'Poista tekstikenttä käytöstä',
     'spellcheck-detection': 'Käytössä kielen oikoluvun tunnistus muistiinpanoja varten',
+    'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
+    'disable-confirmation-popup-detailed': 'When enabled, you won\'t see confirmation popups when deleting notes. <b>Be careful:</b> deleted notes cannot be recovered.',
     'check-green-icon-global': 'Vihreä lisäkuvake, kun globaalit merkinnät on tallennettu',
     'check-green-icon-global-detailed': 'Kun käytössä on lisäosan kuvake työkalupalkissa on <b>vihreä</b> jos olet aiemmin tallentanut <b>Global</b> -merkinnät.',
     'check-green-icon-domain': 'Vihreä lisäkuvake, kun verkkotunnuksia on tallennettu',

@@ -94,6 +94,8 @@ strings[lang] = {
     'search-page-content-detailed': 'When enabled, Notefox will search in the page content too. This could increase the time of the search.',
     'disable-word-wrap': 'Wyłącz tekst notatek na słowo',
     'spellcheck-detection': 'Włączone wykrywanie pisowni językowych dla notatek',
+    'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
+    'disable-confirmation-popup-detailed': 'When enabled, you won\'t see confirmation popups when deleting notes. <b>Be careful:</b> deleted notes cannot be recovered.',
     'check-green-icon-global': 'Ikona dodatku zielonego, gdy są zapisane globalne notatki',
     'check-green-icon-global-detailed': 'Po włączeniu ikona dodatku na pasku narzędzi będzie <b>green</b> jeśli wcześniej zapisałeś <b>Global</b>.',
     'check-green-icon-domain': 'Ikona dodatku zielonego, gdy zapisano notatki domeny',

@@ -1917,7 +1917,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 #open-sticky-button {
                     background-image: url('data:image/svg+xml;base64,${sticky_svg}');
-                    background-size: auto 80%;
+                    //background-size: auto 18px;
                 }
                 
                 #text-bold {

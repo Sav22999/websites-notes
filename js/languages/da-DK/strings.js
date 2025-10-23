@@ -94,6 +94,8 @@ strings[lang] = {
     'search-page-content-detailed': 'Når aktiveret, søger Notefox også i sideindholdet. Dette kan øge søgetiden.',
     'disable-word-wrap': 'Deaktiver tekst-wrap noter tekst',
     'spellcheck-detection': 'Aktiverede detektering af sprogstavekontrol for noter',
+    'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
+    'disable-confirmation-popup-detailed': 'When enabled, you won\'t see confirmation popups when deleting notes. <b>Be careful:</b> deleted notes cannot be recovered.',
     'check-green-icon-global': 'Grøn addon ikon når der er globale noter gemt',
     'check-green-icon-global-detailed': 'Når aktiveret vil ikonet addon i værktøjslinjen være <b>grøn</b> hvis du tidligere har gemt <b>Global</b> noter.',
     'check-green-icon-domain': 'Grøn addon ikon når der er Domain noter gemt',

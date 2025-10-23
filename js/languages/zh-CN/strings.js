@@ -94,6 +94,8 @@ strings[lang] = {
     'search-page-content-detailed': '启用后，Notefox 也会在页面内容中进行搜索。这可能会增加搜索时间。',
     'disable-word-wrap': '禁用单词换行笔记文本',
     'spellcheck-detection': '启用语法拼写检查笔记检测',
+    'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
+    'disable-confirmation-popup-detailed': 'When enabled, you won\'t see confirmation popups when deleting notes. <b>Be careful:</b> deleted notes cannot be recovered.',
     'check-green-icon-global': '保存全局笔记时显示绿色插件图标',
     'check-green-icon-global-detailed': '启用后，如果您之前保存了<b>全局</b>笔记，则工具栏中的插件图标将变为<b>绿色</b>。',
     'check-green-icon-domain': '保存域笔记时显示绿色插件图标',
