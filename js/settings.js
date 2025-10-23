@@ -754,14 +754,18 @@ function resetThemeChooser() {
     document
         .querySelectorAll('.item-radio-theme input[name="theme-radio"]')
         .forEach(function (input) {
-            input.closest(".item-radio-theme").style.boxShadow = "none";
+            //input.closest(".item-radio-theme").style.boxShadow = "none";
+            if (input.closest(".item-radio-theme").classList.contains("sel")) {
+                input.closest(".item-radio-theme").classList.remove("sel");
+            }
         });
 }
 
 function setThemeChooserByElement(element, set_variable = true) {
     resetThemeChooser();
-    element.closest(".item-radio-theme").style.boxShadow =
-        "0px 0px 0px 5px var(--tertiary-transparent-2)";
+    /*element.closest(".item-radio-theme").style.boxShadow =
+        "0px 0px 0px 5px var(--tertiary-transparent-2)";*/
+    element.closest(".item-radio-theme").classList.add("sel");
     if (set_variable) {
         settings_json["theme"] = element.value;
         saveSettings();
@@ -789,14 +793,18 @@ function resetStickyThemeChooser() {
             '.item-radio-sticky-theme input[name="theme-radio-sticky"]'
         )
         .forEach(function (input) {
-            input.closest(".item-radio-sticky-theme").style.boxShadow = "none";
+            //input.closest(".item-radio-sticky-theme").style.boxShadow = "none";
+            if (input.closest(".item-radio-sticky-theme").classList.contains("sel")) {
+                input.closest(".item-radio-sticky-theme").classList.remove("sel");
+            }
         });
 }
 
 function setStickyThemeChooserByElement(element, set_variable = true) {
     resetStickyThemeChooser();
-    element.closest(".item-radio-sticky-theme").style.boxShadow =
-        "0px 0px 0px 5px var(--tertiary-transparent-2)";
+    /*element.closest(".item-radio-sticky-theme").style.boxShadow =
+        "0px 0px 0px 5px var(--tertiary-transparent-2)";*/
+    element.closest(".item-radio-sticky-theme").classList.add("sel");
     if (set_variable) {
         settings_json["sticky-theme"] = element.value;
 
@@ -825,14 +833,18 @@ function resetFontFamilyChooser() {
     document
         .querySelectorAll('.item-radio-font-family input[name="font-family-radio"]')
         .forEach(function (input) {
-            input.closest(".item-radio-font-family").style.boxShadow = "none";
+            //input.closest(".item-radio-font-family").style.boxShadow = "none";
+            if (input.closest(".item-radio-font-family").classList.contains("sel")) {
+                input.closest(".item-radio-font-family").classList.remove("sel");
+            }
         });
 }
 
 function setFontFamilyChooserByElement(element, set_variable = true) {
     resetFontFamilyChooser();
-    element.closest(".item-radio-font-family").style.boxShadow =
-        "0px 0px 0px 5px var(--tertiary-transparent-2)";
+    /*element.closest(".item-radio-font-family").style.boxShadow =
+        "0px 0px 0px 5px var(--tertiary-transparent-2)";*/
+    element.closest(".item-radio-font-family").classList.add("sel");
     if (set_variable) {
         settings_json["font-family"] = element.value;
 
@@ -865,14 +877,18 @@ function resetDatetimeFormatChooser() {
             '.item-radio-datetime-format input[name="datetime-format-radio"]'
         )
         .forEach(function (input) {
-            input.closest(".item-radio-datetime-format").style.boxShadow = "none";
+            //input.closest(".item-radio-datetime-format").style.boxShadow = "none";
+            if (input.closest(".item-radio-datetime-format").classList.contains("sel")) {
+                input.closest(".item-radio-datetime-format").classList.remove("sel");
+            }
         });
 }
 
 function setDatetimeFormatChooserByElement(element, set_variable = true) {
     resetDatetimeFormatChooser();
-    element.closest(".item-radio-datetime-format").style.boxShadow =
-        "0px 0px 0px 5px var(--tertiary-transparent-2)";
+    /*element.closest(".item-radio-datetime-format").style.boxShadow =
+        "0px 0px 0px 5px var(--tertiary-transparent-2)";*/
+    element.closest(".item-radio-datetime-format").classList.add("sel");
     if (set_variable) {
         settings_json["datetime-format"] = element.value;
 
@@ -1258,6 +1274,8 @@ function setLanguageUI() {
         all_strings["notefox-account-button-verify-email"];
     document.getElementById("verify-login-new-code").value =
         all_strings["notefox-account-button-resend-email"];
+    document.getElementById("verify-email-not-actived").value =
+        all_strings["notefox-account-button-verify-email"];
 
     document.getElementById("change-password-old-password").placeholder =
         all_strings["old-password-textbox"];
@@ -3322,69 +3340,84 @@ function notefoxAccountLoginSignupManage(
 
                 code_element.focus();
 
-                verify_login_submit_element.onclick = function () {
-                    let code = code_element.value;
-                    if (code === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
-                        code_element.classList.add("textbox-error");
-                        code_element.disabled = false;
-                        spinner_loading.classList.add("hidden");
-                    } else if (email === "" || password === "" || login_id === "") {
-                        notefoxAccountLoginSignupManage("login");
-                    } else {
-                        browser.runtime.sendMessage({
-                            api: true,
-                            type: "login-verify",
-                            data: {
-                                email: email,
-                                password: password,
-                                "login-id": login_id,
-                                "verification-code": code,
-                            },
-                        });
-                        verify_login_submit_element.disabled = true;
-                        if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
-                        new_code_element.disabled = true;
-                        cancel_element.disabled = true;
-                        code_element.disabled = true;
-                        disableAside = true;
-                    }
+                try {
+                    verify_login_submit_element.onclick = function () {
+                        let code = code_element.value;
+                        if (code === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            code_element.classList.add("textbox-error");
+                            code_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (email === "" || password === "" || login_id === "") {
+                            notefoxAccountLoginSignupManage("login");
+                        } else {
+                            browser.runtime.sendMessage({
+                                api: true,
+                                type: "login-verify",
+                                data: {
+                                    email: email,
+                                    password: password,
+                                    "login-id": login_id,
+                                    "verification-code": code,
+                                },
+                            });
+                            verify_login_submit_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            disableAside = true;
+                        }
 
-                    sendTelemetry(
-                        "verify-login-submit-button-clicked",
-                        "settings.js::notefoxAccountLoginSignupManage"
-                    );
-                };
+                        sendTelemetry(
+                            "verify-login-submit-button-clicked",
+                            "settings.js::notefoxAccountLoginSignupManage"
+                        );
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::verify_login_submit_element-events|verify-login", e.message);
+                }
 
-                code_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        verify_login_submit_element.click();
-                    }
-                };
+                try {
+                    code_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            verify_login_submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::code_element-events|verify-login", e.message);
+                }
 
-                new_code_element.onclick = function () {
-                    if (email === "" || password === "" || login_id === "") {
-                        notefoxAccountLoginSignupManage("login");
-                    } else {
-                        browser.runtime.sendMessage({
-                            api: true,
-                            type: "login-new-code",
-                            data: {email: email, password: password, "login-id": login_id},
-                        });
+                try {
+                    new_code_element.onclick = function () {
+                        if (email === "" || password === "" || login_id === "") {
+                            notefoxAccountLoginSignupManage("login");
+                        } else {
+                            browser.runtime.sendMessage({
+                                api: true,
+                                type: "login-new-code",
+                                data: {email: email, password: password, "login-id": login_id},
+                            });
 
-                        verify_login_submit_element.disabled = true;
-                        if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
-                        new_code_element.disabled = true;
-                        cancel_element.disabled = true;
-                        code_element.disabled = true;
-                        disableAside = true;
-                    }
+                            verify_login_submit_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            disableAside = true;
+                        }
 
-                    sendTelemetry(
-                        "verify-login-new-code-button-clicked",
-                        "settings.js::notefoxAccountLoginSignupManage"
-                    );
-                };
+                        sendTelemetry(
+                            "verify-login-new-code-button-clicked",
+                            "settings.js::notefoxAccountLoginSignupManage"
+                        );
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::new_code_element-events|verify-login", e.message);
+                }
             } else if (action === "verify-signup") {
                 title.innerText = all_strings["notefox-account-button-settings-signup"];
                 if (
@@ -3465,129 +3498,155 @@ function notefoxAccountLoginSignupManage(
                     if (email === "") email_element.focus();
                 }
 
-                email_element.onfocus = function () {
-                    if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
+                try {
+                    email_element.disabled = true;
+                    email_element.onfocus = function () {
+                        if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
+                    }
+                    email_element.onblur = function () {
+                        if (email_element.value === "") email_element.classList.add("textbox-error");
+                    }
+                    email_element.onkeyup(function (e) {
+                        if (e.key === "Enter") {
+                            if (password_element.value === "") {
+                                password_element.focus();
+                            } else {
+                                submit_element.click();
+                            }
+                        }
+                    })
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::email_element-events|verify-signup", e.message);
                 }
-                email_element.onblur = function () {
-                    if (email_element.value === "") email_element.classList.add("textbox-error");
-                }
-                email_element.onkeypress(function (e) {
-                    if (e.key === "Enter") {
-                        if (password_element.value === "") {
-                            password_element.focus();
-                        } else {
-                            submit_element.click();
+                try {
+                    password_element.onfocus = function () {
+                        if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+                    }
+                    password_element.onblur = function () {
+                        if (password_element.value === "") password_element.classList.add("textbox-error");
+                    }
+                    password_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            if (code_element.value === "") {
+                                code_element.focus();
+                            } else {
+                                submit_element.click();
+                            }
                         }
                     }
-                })
-                password_element.onfocus = function () {
-                    if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::password_element-events|verify-signup", e.message);
                 }
-                password_element.onblur = function () {
-                    if (password_element.value === "") password_element.classList.add("textbox-error");
-                }
-                password_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        if (code_element.value === "") {
-                            code_element.focus();
-                        } else {
+
+                try {
+                    code_element.onfocus = function () {
+                        if (code_element.classList.contains("textbox-error"))
+                            code_element.classList.remove("textbox-error");
+                    };
+                    code_element.onblur = function () {
+                        if (code_element.value === "")
+                            code_element.classList.add("textbox-error");
+                    };
+                    code_element.oninput = function () {
+                        if (
+                            code_element.value === "" &&
+                            code_element.classList.contains("monospace")
+                        )
+                            code_element.classList.remove("monospace");
+                        else code_element.classList.add("monospace");
+                    };
+
+                    code_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
                             submit_element.click();
                         }
-                    }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::code_element-events|verify-signup", e.message);
                 }
 
-                code_element.onfocus = function () {
-                    if (code_element.classList.contains("textbox-error"))
-                        code_element.classList.remove("textbox-error");
-                };
-                code_element.onblur = function () {
-                    if (code_element.value === "")
-                        code_element.classList.add("textbox-error");
-                };
-                code_element.oninput = function () {
-                    if (
-                        code_element.value === "" &&
-                        code_element.classList.contains("monospace")
-                    )
-                        code_element.classList.remove("monospace");
-                    else code_element.classList.add("monospace");
-                };
+                try {
+                    new_code_element.onclick = function () {
+                        let email = email_element.value;
+                        let password = password_element.value;
 
-                code_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        submit_element.click();
-                    }
-                };
+                        if (email === "" || password === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
 
-                new_code_element.onclick = function () {
-                    let email = email_element.value;
-                    let password = password_element.value;
+                            if (email === "") email_element.classList.add("textbox-error");
+                            if (password === "")
+                                password_element.classList.add("textbox-error");
+                        } else {
+                            browser.runtime.sendMessage({
+                                api: true,
+                                type: "signup-new-code",
+                                data: {email: email, password: password},
+                            });
 
-                    if (email === "" || password === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            submit_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            email_element.disabled = true;
+                            password_element.disabled = true;
+                            disableAside = true;
+                        }
 
-                        if (email === "") email_element.classList.add("textbox-error");
-                        if (password === "")
-                            password_element.classList.add("textbox-error");
-                    } else {
-                        browser.runtime.sendMessage({
-                            api: true,
-                            type: "signup-new-code",
-                            data: {email: email, password: password},
-                        });
+                        sendTelemetry(
+                            "verify-signup-new-code-button-clicked",
+                            "settings.js::notefoxAccountLoginSignupManage"
+                        );
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::new_code_element-events|verify-signup", e.message);
+                }
 
-                        submit_element.disabled = true;
-                        if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
-                        new_code_element.disabled = true;
-                        cancel_element.disabled = true;
-                        code_element.disabled = true;
-                        email_element.disabled = true;
-                        password_element.disabled = true;
-                        disableAside = true;
-                    }
+                try {
+                    submit_element.onclick = function () {
+                        let email = email_element.value;
+                        let password = password_element.value;
+                        let code = code_element.value;
 
-                    sendTelemetry(
-                        "verify-signup-new-code-button-clicked",
-                        "settings.js::notefoxAccountLoginSignupManage"
-                    );
-                };
+                        if (code === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            code_element.classList.add("textbox-error");
+                            submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else {
+                            browser.runtime.sendMessage({
+                                api: true,
+                                type: "signup-verify",
+                                data: {
+                                    email: email,
+                                    password: password,
+                                    "verification-code": code,
+                                },
+                            });
 
-                submit_element.onclick = function () {
-                    let email = email_element.value;
-                    let password = password_element.value;
-                    let code = code_element.value;
+                            submit_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            email_element.disabled = true;
+                            password_element.disabled = true;
+                            disableAside = true;
+                        }
 
-                    if (code === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
-                        code_element.classList.add("textbox-error");
-                        submit_element.disabled = false;
-                        spinner_loading.classList.add("hidden");
-                    } else {
-                        browser.runtime.sendMessage({
-                            api: true,
-                            type: "signup-verify",
-                            data: {
-                                email: email,
-                                password: password,
-                                "verification-code": code,
-                            },
-                        });
-
-                        submit_element.disabled = true;
-                        if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
-                        new_code_element.disabled = true;
-                        cancel_element.disabled = true;
-                        code_element.disabled = true;
-                        email_element.disabled = true;
-                        password_element.disabled = true;
-                        disableAside = true;
-                    }
-
-                    sendTelemetry(
-                        "verify-signup-submit-button-clicked",
-                        "settings.js::notefoxAccountLoginSignupManage"
-                    );
-                };
+                        sendTelemetry(
+                            "verify-signup-submit-button-clicked",
+                            "settings.js::notefoxAccountLoginSignupManage"
+                        );
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::submit_element-events|verify-signup", e.message);
+                }
             } else if (action === "delete") {
                 title.innerText = all_strings["notefox-account-button-settings-delete"];
 
@@ -3637,85 +3696,101 @@ function notefoxAccountLoginSignupManage(
                 cancel_element.disabled = false;
                 spinner_loading.classList.add("hidden");
 
-                email_element.onfocus = function () {
-                    if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
+                try {
+                    email_element.onfocus = function () {
+                        if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
+                    }
+                    email_element.onblur = function () {
+                        if (email_element.value === "") email_element.classList.add("textbox-error");
+                    }
+                    email_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            if (password_element.value === "") {
+                                password_element.focus();
+                            } else {
+                                delete_submit_element.click();
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::email_element-events|delete", e.message);
                 }
-                email_element.onblur = function () {
-                    if (email_element.value === "") email_element.classList.add("textbox-error");
-                }
-                email_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        if (password_element.value === "") {
-                            password_element.focus();
-                        } else {
+
+                try {
+                    password_element.onfocus = function () {
+                        if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+                    }
+                    password_element.onblur = function () {
+                        if (password_element.value === "") password_element.classList.add("textbox-error");
+                    }
+                    password_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
                             delete_submit_element.click();
                         }
                     }
-                }
-                password_element.onfocus = function () {
-                    if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
-                }
-                password_element.onblur = function () {
-                    if (password_element.value === "") password_element.classList.add("textbox-error");
-                }
-                password_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        delete_submit_element.click();
-                    }
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::password_element-events|delete", e.message);
                 }
 
-                delete_submit_element.onclick = function () {
-                    let email = email_element.value;
-                    let password = password_element.value;
+                try {
+                    delete_submit_element.onclick = function () {
+                        let email = email_element.value;
+                        let password = password_element.value;
 
-                    if (email === "" || password === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                        if (email === "" || password === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
 
-                        if (email === "") email_element.classList.add("textbox-error");
-                        if (password === "") password_element.classList.add("textbox-error");
+                            if (email === "") email_element.classList.add("textbox-error");
+                            if (password === "") password_element.classList.add("textbox-error");
 
-                        delete_submit_element.disabled = false;
-                        spinner_loading.classList.add("hidden");
-                    } else {
-                        browser.runtime.sendMessage({
-                            api: true,
-                            type: "delete-account",
-                            data: {
-                                email: email,
-                                password: password,
-                                "login-id": savedData["notefox-account"]["login-id"],
-                                token: savedData["notefox-account"]["token"],
-                            },
-                        });
+                            delete_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else {
+                            browser.runtime.sendMessage({
+                                api: true,
+                                type: "delete-account",
+                                data: {
+                                    email: email,
+                                    password: password,
+                                    "login-id": savedData["notefox-account"]["login-id"],
+                                    token: savedData["notefox-account"]["token"],
+                                },
+                            });
 
-                        email_element.disabled = true;
-                        password_element.disabled = true;
-                        delete_submit_element.disabled = true;
-                        cancel_element.disabled = true;
-                        if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
-                        disableAside = true;
+                            email_element.disabled = true;
+                            password_element.disabled = true;
+                            delete_submit_element.disabled = true;
+                            cancel_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
 
-                        browser.storage.sync.remove("notefox-account").then((result) => {
-                            browser.storage.local
-                                .remove([
-                                    "last-sync",
-                                    "last-update",
-                                    "opened-by-shortcut",
-                                    "settings",
-                                    "sticky-notes",
-                                    "websites",
-                                ])
-                                .then((result) => {
-                                    notefoxAccountLoginSignupManage();
-                                });
-                        });
-                    }
+                            browser.storage.sync.remove("notefox-account").then((result) => {
+                                browser.storage.local
+                                    .remove([
+                                        "last-sync",
+                                        "last-update",
+                                        "opened-by-shortcut",
+                                        "settings",
+                                        "sticky-notes",
+                                        "websites",
+                                    ])
+                                    .then((result) => {
+                                        notefoxAccountLoginSignupManage();
+                                    });
+                            });
+                        }
 
-                    sendTelemetry(
-                        "delete-submit-button-clicked",
-                        "settings.js::notefoxAccountLoginSignupManage"
-                    );
-                };
+                        sendTelemetry(
+                            "delete-submit-button-clicked",
+                            "settings.js::notefoxAccountLoginSignupManage"
+                        );
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::delete_submit_element-events|delete", e.message);
+                }
             } else if (action === "delete-verify") {
                 title.innerText = all_strings["notefox-account-button-settings-delete"];
 
@@ -3802,92 +3877,107 @@ function notefoxAccountLoginSignupManage(
 
                 code_element.focus();
 
-                verify_delete_submit_element.onclick = function () {
-                    let code = code_element.value;
-                    if (code === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
-                        code_element.classList.add("textbox-error");
+                try {
+                    verify_delete_submit_element.onclick = function () {
+                        let code = code_element.value;
+                        if (code === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            code_element.classList.add("textbox-error");
 
-                        verify_delete_submit_element.disabled = false;
-                        spinner_loading.classList.add("hidden");
-                    } else if (email === "" || password === "" || login_id === "" || token === ""
-                    ) {
-                        /*if (email === "") console.log("email is empty");
-                        if (password === "") console.log("password is empty");
-                        if (login_id === "") console.log("login_id is empty");
-                        if (token === "") console.log("token is empty");*/
+                            verify_delete_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (email === "" || password === "" || login_id === "" || token === ""
+                        ) {
+                            /*if (email === "") console.log("email is empty");
+                            if (password === "") console.log("password is empty");
+                            if (login_id === "") console.log("login_id is empty");
+                            if (token === "") console.log("token is empty");*/
 
-                        notefoxAccountLoginSignupManage("delete");
-                    } else {
-                        showMessageNotefoxAccount(
-                            all_strings["notefox-account-deleting-account-text"],
-                            false
+                            notefoxAccountLoginSignupManage("delete");
+                        } else {
+                            showMessageNotefoxAccount(
+                                all_strings["notefox-account-deleting-account-text"],
+                                false
+                            );
+
+                            browser.runtime.sendMessage({
+                                api: true,
+                                type: "delete-account-verify",
+                                data: {
+                                    email: email,
+                                    password: password,
+                                    "login-id": login_id,
+                                    token: token,
+                                    "deleting-code": code,
+                                },
+                            });
+                            verify_delete_submit_element.disabled = true;
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
+
+                        sendTelemetry(
+                            "verify-delete-submit-button-clicked",
+                            "settings.js::notefoxAccountLoginSignupManage"
                         );
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::verify_delete_submit_element-events|delete-verify", e.message);
+                }
 
-                        browser.runtime.sendMessage({
-                            api: true,
-                            type: "delete-account-verify",
-                            data: {
-                                email: email,
-                                password: password,
-                                "login-id": login_id,
-                                token: token,
-                                "deleting-code": code,
-                            },
-                        });
-                        verify_delete_submit_element.disabled = true;
-                        new_code_element.disabled = true;
-                        cancel_element.disabled = true;
-                        code_element.disabled = true;
-                        if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
-                        disableAside = true;
-                    }
+                try {
+                    code_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            verify_delete_submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::code_element-events|delete-verify", e.message);
+                }
 
-                    sendTelemetry(
-                        "verify-delete-submit-button-clicked",
-                        "settings.js::notefoxAccountLoginSignupManage"
-                    );
-                };
+                try {
+                    new_code_element.onclick = function () {
+                        if (
+                            email === "" ||
+                            password === "" ||
+                            login_id === "" ||
+                            token === ""
+                        ) {
+                            notefoxAccountLoginSignupManage("delete");
+                        } else {
+                            browser.runtime.sendMessage({
+                                api: true,
+                                type: "delete-account-new-code",
+                                data: {
+                                    email: email,
+                                    password: password,
+                                    "login-id": login_id,
+                                    token: token,
+                                },
+                            });
 
-                code_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        verify_delete_submit_element.click();
-                    }
-                };
+                            verify_delete_submit_element.disabled = true;
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
 
-                new_code_element.onclick = function () {
-                    if (
-                        email === "" ||
-                        password === "" ||
-                        login_id === "" ||
-                        token === ""
-                    ) {
-                        notefoxAccountLoginSignupManage("delete");
-                    } else {
-                        browser.runtime.sendMessage({
-                            api: true,
-                            type: "delete-account-new-code",
-                            data: {
-                                email: email,
-                                password: password,
-                                "login-id": login_id,
-                                token: token,
-                            },
-                        });
-
-                        verify_delete_submit_element.disabled = true;
-                        new_code_element.disabled = true;
-                        cancel_element.disabled = true;
-                        code_element.disabled = true;
-                        if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
-                        disableAside = true;
-                    }
-
-                    sendTelemetry(
-                        "verify-delete-new-code-button-clicked",
-                        "settings.js::notefoxAccountLoginSignupManage"
-                    );
-                };
+                        sendTelemetry(
+                            "verify-delete-new-code-button-clicked",
+                            "settings.js::notefoxAccountLoginSignupManage"
+                        );
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::new_code_element-events|delete-verify", e.message);
+                }
             } else if (action === "change-password") {
                 title.innerText =
                     all_strings["notefox-account-button-settings-change-password"];
@@ -3932,112 +4022,128 @@ function notefoxAccountLoginSignupManage(
                 new_password_confirm_element.disabled = false;
                 spinner_loading.classList.add("hidden");
 
-                password_element.onfocus = function () {
-                    if (password_element.classList.contains("textbox-error"))
-                        password_element.classList.remove("textbox-error");
-                };
-                password_element.onblur = function () {
-                    if (password_element.value === "")
-                        password_element.classList.add("textbox-error");
-                };
-                password_element.onkeypress(function (e) {
-                    if (e.key === "Enter") {
-                        if (new_password_element.value === "") {
-                            new_password_element.focus();
-                        } else if (new_password_confirm_element.value === "") {
-                            new_password_confirm_element.focus();
-                        } else {
+                try {
+                    password_element.onfocus = function () {
+                        if (password_element.classList.contains("textbox-error"))
+                            password_element.classList.remove("textbox-error");
+                    };
+                    password_element.onblur = function () {
+                        if (password_element.value === "")
+                            password_element.classList.add("textbox-error");
+                    };
+                    password_element.onkeyup(function (e) {
+                        if (e.key === "Enter") {
+                            if (new_password_element.value === "") {
+                                new_password_element.focus();
+                            } else if (new_password_confirm_element.value === "") {
+                                new_password_confirm_element.focus();
+                            } else {
+                                change_password_submit_element.click();
+                            }
+                        }
+                    })
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::password_element-events|change-password", e.message);
+                }
+
+                try {
+                    new_password_element.onfocus = function () {
+                        if (new_password_element.classList.contains("textbox-error"))
+                            new_password_element.classList.remove("textbox-error");
+                    };
+                    new_password_element.onblur = function () {
+                        if (new_password_element.value === "")
+                            new_password_element.classList.add("textbox-error");
+                    };
+                    new_password_confirm_element.onfocus = function () {
+                        if (new_password_confirm_element.classList.contains("textbox-error"))
+                            new_password_confirm_element.classList.remove("textbox-error");
+                    };
+                    new_password_confirm_element.onblur = function () {
+                        if (new_password_confirm_element.value === "")
+                            new_password_confirm_element.classList.add("textbox-error");
+                    };
+
+                    new_password_confirm_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
                             change_password_submit_element.click();
                         }
-                    }
-                })
-                new_password_element.onfocus = function () {
-                    if (new_password_element.classList.contains("textbox-error"))
-                        new_password_element.classList.remove("textbox-error");
-                };
-                new_password_element.onblur = function () {
-                    if (new_password_element.value === "")
-                        new_password_element.classList.add("textbox-error");
-                };
-                new_password_confirm_element.onfocus = function () {
-                    if (new_password_confirm_element.classList.contains("textbox-error"))
-                        new_password_confirm_element.classList.remove("textbox-error");
-                };
-                new_password_confirm_element.onblur = function () {
-                    if (new_password_confirm_element.value === "")
-                        new_password_confirm_element.classList.add("textbox-error");
-                };
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::new_password_elements-events|change-password", e.message);
+                }
 
-                new_password_confirm_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        change_password_submit_element.click();
-                    }
-                };
+                try {
+                    change_password_submit_element.onclick = function () {
+                        password = password_element.value;
+                        new_password = new_password_element.value;
+                        new_password_confirm = new_password_confirm_element.value;
 
-                change_password_submit_element.onclick = function () {
-                    password = password_element.value;
-                    new_password = new_password_element.value;
-                    new_password_confirm = new_password_confirm_element.value;
+                        if (
+                            password === "" ||
+                            new_password === "" ||
+                            new_password_confirm === ""
+                        ) {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
 
-                    if (
-                        password === "" ||
-                        new_password === "" ||
-                        new_password_confirm === ""
-                    ) {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            if (password === "") password_element.classList.add("textbox-error");
+                            if (new_password === "") new_password_element.classList.add("textbox-error");
+                            if (new_password_confirm === "") new_password_confirm_element.classList.add("textbox-error");
 
-                        if (password === "") password_element.classList.add("textbox-error");
-                        if (new_password === "") new_password_element.classList.add("textbox-error");
-                        if (new_password_confirm === "") new_password_confirm_element.classList.add("textbox-error");
+                            change_password_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (new_password !== new_password_confirm) {
+                            showMessageNotefoxAccount(
+                                all_strings["passwords-not-equal-alert"],
+                                true
+                            );
 
-                        change_password_submit_element.disabled = false;
-                        spinner_loading.classList.add("hidden");
-                    } else if (new_password !== new_password_confirm) {
-                        showMessageNotefoxAccount(
-                            all_strings["passwords-not-equal-alert"],
-                            true
+                            new_password_element.classList.add("textbox-error");
+                            new_password_confirm_element.classList.add("textbox-error");
+                            change_password_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (!isStrongPassword(new_password)) {
+                            showMessageNotefoxAccount(
+                                all_strings["password-not-strong-alert"],
+                                true
+                            );
+
+                            new_password_element.classList.add("textbox-error");
+                            new_password_confirm_element.classList.add("textbox-error");
+                            change_password_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else {
+                            browser.runtime.sendMessage({
+                                api: true,
+                                type: "change-password",
+                                data: {
+                                    "login-id": savedData["notefox-account"]["login-id"],
+                                    token: savedData["notefox-account"]["token"],
+                                    "old-password": password,
+                                    "new-password": new_password,
+                                },
+                            });
+
+                            change_password_submit_element.disabled = true;
+                            cancel_element.disabled = true;
+                            password_element.disabled = true;
+                            new_password_element.disabled = true;
+                            new_password_confirm_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
+
+                        sendTelemetry(
+                            "change-password-submit-button-clicked",
+                            "settings.js::notefoxAccountLoginSignupManage"
                         );
-
-                        new_password_element.classList.add("textbox-error");
-                        new_password_confirm_element.classList.add("textbox-error");
-                        change_password_submit_element.disabled = false;
-                        spinner_loading.classList.add("hidden");
-                    } else if (!isStrongPassword(new_password)) {
-                        showMessageNotefoxAccount(
-                            all_strings["password-not-strong-alert"],
-                            true
-                        );
-
-                        new_password_element.classList.add("textbox-error");
-                        new_password_confirm_element.classList.add("textbox-error");
-                        change_password_submit_element.disabled = false;
-                        spinner_loading.classList.add("hidden");
-                    } else {
-                        browser.runtime.sendMessage({
-                            api: true,
-                            type: "change-password",
-                            data: {
-                                "login-id": savedData["notefox-account"]["login-id"],
-                                token: savedData["notefox-account"]["token"],
-                                "old-password": password,
-                                "new-password": new_password,
-                            },
-                        });
-
-                        change_password_submit_element.disabled = true;
-                        cancel_element.disabled = true;
-                        password_element.disabled = true;
-                        new_password_element.disabled = true;
-                        new_password_confirm_element.disabled = true;
-                        if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
-                        disableAside = true;
-                    }
-
-                    sendTelemetry(
-                        "change-password-submit-button-clicked",
-                        "settings.js::notefoxAccountLoginSignupManage"
-                    );
-                };
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::change_password_submit_element-events|change-password", e.message);
+                }
             } else if (action === "login") {
                 title.innerText = all_strings["notefox-account-button-settings-login"];
                 if (
@@ -4063,15 +4169,23 @@ function notefoxAccountLoginSignupManage(
                     all_strings["notefox-account-not-yet-an-account"];
                 document.getElementById("login-not-yet-account-button").innerText =
                     all_strings["notefox-account-button-settings-signup"];
-                document.getElementById("login-not-yet-account-button").onclick =
-                    function () {
-                        notefoxAccountLoginSignupManage("signup");
 
-                        sendTelemetry(
-                            "login-not-yet-account-button-clicked",
-                            "settings.js::notefoxAccountLoginSignupManage"
-                        );
-                    };
+                document.getElementById("verify-email-not-actived").classList.add("hidden");
+
+                try {
+                    document.getElementById("login-not-yet-account-button").onclick =
+                        function () {
+                            notefoxAccountLoginSignupManage("signup");
+
+                            sendTelemetry(
+                                "login-not-yet-account-button-clicked",
+                                "settings.js::notefoxAccountLoginSignupManage"
+                            );
+                        };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::login-not-yet-account-button-events|login", e.message);
+                }
 
                 let email = "";
                 let password = "";
@@ -4108,78 +4222,95 @@ function notefoxAccountLoginSignupManage(
                 email_element.value = email;
                 password_element.value = password;
 
-                email_element.onfocus = function () {
-                    if (email_element.classList.contains("textbox-error"))
-                        email_element.classList.remove("textbox-error");
-                };
-                email_element.onblur = function () {
-                    if (email_element.value === "")
-                        email_element.classList.add("textbox-error");
-                };
-                email_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        if (password_element.value === "") {
-                            password_element.focus();
-                        } else {
-                            login_submit_element.click();
+                try {
+                    email_element.disabled = false;
+                    email_element.onfocus = function () {
+                        if (email_element.classList.contains("textbox-error"))
+                            email_element.classList.remove("textbox-error");
+                    };
+                    email_element.onblur = function () {
+                        if (email_element.value === "")
+                            email_element.classList.add("textbox-error");
+                    };
+                    email_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            if (password_element.value === "") {
+                                password_element.focus();
+                            } else {
+                                login_submit_element.click();
+                            }
                         }
                     }
-                }
-                email_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        if (password_element.value === "") {
-                            password_element.focus();
-                        } else {
-                            login_submit_element.click();
+                    email_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            if (password_element.value === "") {
+                                password_element.focus();
+                            } else {
+                                login_submit_element.click();
+                            }
                         }
                     }
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::email_element-events|login", e.message);
                 }
-                password_element.onfocus = function () {
-                    if (password_element.classList.contains("textbox-error"))
-                        password_element.classList.remove("textbox-error");
-                };
-                password_element.onblur = function () {
-                    if (password_element.value === "")
-                        password_element.classList.add("textbox-error");
-                };
-                password_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        login_submit_element.click();
-                    }
-                };
 
-                login_submit_element.onclick = function () {
-                    let email = email_element.value;
-                    let password = password_element.value;
+                try {
+                    password_element.onfocus = function () {
+                        if (password_element.classList.contains("textbox-error"))
+                            password_element.classList.remove("textbox-error");
+                    };
+                    password_element.onblur = function () {
+                        if (password_element.value === "")
+                            password_element.classList.add("textbox-error");
+                    };
+                    password_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            login_submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::password_element-events|login", e.message);
+                }
 
-                    if (email === "" || password === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                try {
+                    login_submit_element.onclick = function () {
+                        let email = email_element.value;
+                        let password = password_element.value;
 
-                        if (email === "") email_element.classList.add("textbox-error");
-                        if (password === "") password_element.classList.add("textbox-error");
+                        if (email === "" || password === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
 
-                        login_submit_element.disabled = false;
-                        spinner_loading.classList.add("hidden");
-                    } else {
-                        browser.runtime.sendMessage({
-                            api: true,
-                            type: "login",
-                            data: {email: email, password: password},
-                        });
+                            if (email === "") email_element.classList.add("textbox-error");
+                            if (password === "") password_element.classList.add("textbox-error");
 
-                        login_submit_element.disabled = true;
-                        cancel_element.disabled = true;
-                        email_element.disabled = true;
-                        password_element.disabled = true;
-                        if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
-                        disableAside = true;
-                    }
+                            login_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else {
+                            browser.runtime.sendMessage({
+                                api: true,
+                                type: "login",
+                                data: {email: email, password: password},
+                            });
 
-                    sendTelemetry(
-                        "login-submit-button-clicked",
-                        "settings.js::notefoxAccountLoginSignupManage"
-                    );
-                };
+                            login_submit_element.disabled = true;
+                            cancel_element.disabled = true;
+                            email_element.disabled = true;
+                            password_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
+
+                        sendTelemetry(
+                            "login-submit-button-clicked",
+                            "settings.js::notefoxAccountLoginSignupManage"
+                        );
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::login_submit_element-events|login", e.message);
+                }
             } else if (action === "signup" || action === null) {
                 title.innerText = all_strings["notefox-account-button-settings-signup"];
                 if (
@@ -4258,126 +4389,158 @@ function notefoxAccountLoginSignupManage(
                 if (confirm_password_element.classList.contains("textbox-error"))
                     confirm_password_element.classList.remove("textbox-error");
 
-                email_element.onfocus = function () {
-                    if (email_element.classList.contains("textbox-error"))
-                        email_element.classList.remove("textbox-error");
-                };
-                username_element.onfocus = function () {
-                    if (username_element.classList.contains("textbox-error"))
-                        username_element.classList.remove("textbox-error");
-                };
-                password_element.onfocus = function () {
-                    if (password_element.classList.contains("textbox-error"))
-                        password_element.classList.remove("textbox-error");
-                };
-                confirm_password_element.onfocus = function () {
-                    if (confirm_password_element.classList.contains("textbox-error"))
-                        confirm_password_element.classList.remove("textbox-error");
-                };
-                email_element.onblur = function () {
-                    if (email_element.value === "")
-                        email_element.classList.add("textbox-error");
-                };
-                username_element.onblur = function () {
-                    if (username_element.value === "")
-                        username_element.classList.add("textbox-error");
-                };
-                password_element.onblur = function () {
-                    if (password_element.value === "")
-                        password_element.classList.add("textbox-error");
-                };
-                confirm_password_element.onblur = function () {
-                    if (confirm_password_element.value === "")
-                        confirm_password_element.classList.add("textbox-error");
-                };
-                //if press enter
-                username_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        email_element.focus();
+                try {
+                    email_element.onfocus = function () {
+                        if (email_element.classList.contains("textbox-error"))
+                            email_element.classList.remove("textbox-error");
+                    };
+                    email_element.onblur = function () {
+                        if (email_element.value === "")
+                            email_element.classList.add("textbox-error");
+                    };
+                    email_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            password_element.focus();
+                        }
                     }
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::email_element-events|signup", e.message);
                 }
-                email_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        password_element.focus();
-                    }
-                }
-                password_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        confirm_password_element.focus();
-                    }
-                }
-                confirm_password_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        signup_submit_element.click();
-                    }
-                };
-                signup_submit_element.onclick = function () {
-                    let username = document.getElementById("signup-username").value;
-                    let password = document.getElementById("signup-password").value;
-                    let password2 = document.getElementById(
-                        "signup-confirm-password"
-                    ).value;
-                    let email = document.getElementById("signup-email").value;
 
-                    if (
-                        username === "" ||
-                        password === "" ||
-                        password2 === "" ||
-                        email === ""
-                    ) {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
-
-                        if (username === "")
+                try {
+                    username_element.onfocus = function () {
+                        if (username_element.classList.contains("textbox-error"))
+                            username_element.classList.remove("textbox-error");
+                    };
+                    username_element.onblur = function () {
+                        if (username_element.value === "")
                             username_element.classList.add("textbox-error");
-                        if (password === "")
-                            password_element.classList.add("textbox-error");
-                        if (password2 === "")
-                            confirm_password_element.classList.add("textbox-error");
-                        if (email === "") email_element.classList.add("textbox-error");
-                        signup_submit_element.disabled = false;
-                        spinner_loading.classList.add("hidden");
-                    } else if (password !== password2) {
-                        showMessageNotefoxAccount(
-                            all_strings["passwords-not-equal-alert"],
-                            true
-                        );
+                    };
 
-                        password_element.classList.add("textbox-error");
-                        confirm_password_element.classList.add("textbox-error");
-                        signup_submit_element.disabled = false;
-                        spinner_loading.classList.add("hidden");
-                    } else if (!isStrongPassword(password)) {
-                        showMessageNotefoxAccount(
-                            all_strings["password-not-strong-alert"],
-                            true
-                        );
-
-                        password_element.classList.add("textbox-error");
-                        confirm_password_element.classList.add("textbox-error");
-                        signup_submit_element.disabled = false;
-                        spinner_loading.classList.add("hidden");
-                    } else {
-                        browser.runtime.sendMessage({
-                            api: true,
-                            type: "signup",
-                            data: {username: username, password: password, email: email},
-                        });
-
-                        signup_submit_element.disabled = true;
-                        cancel_element.disabled = true;
-                        email_element.disabled = true;
-                        username_element.disabled = true;
-                        password_element.disabled = true;
-                        confirm_password_element.disabled = true;
-                        if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
-                        disableAside = true;
+                    //if press enter
+                    username_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            email_element.focus();
+                        }
                     }
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::username_element-events|signup", e.message);
+                }
 
-                    sendTelemetry(
-                        "signup-submit-button-clicked",
-                        "settings.js::notefoxAccountLoginSignupManage"
-                    );
-                };
+                try {
+                    password_element.onfocus = function () {
+                        if (password_element.classList.contains("textbox-error"))
+                            password_element.classList.remove("textbox-error");
+                    };
+                    password_element.onblur = function () {
+                        if (password_element.value === "")
+                            password_element.classList.add("textbox-error");
+                    };
+
+                    password_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            confirm_password_element.focus();
+                        }
+                    }
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::password_element-events|signup", e.message);
+                }
+
+                try {
+                    confirm_password_element.onfocus = function () {
+                        if (confirm_password_element.classList.contains("textbox-error"))
+                            confirm_password_element.classList.remove("textbox-error");
+                    };
+                    confirm_password_element.onblur = function () {
+                        if (confirm_password_element.value === "")
+                            confirm_password_element.classList.add("textbox-error");
+                    };
+
+                    confirm_password_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            signup_submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::confirm_password_element-events|signup", e.message);
+                }
+
+                try {
+                    signup_submit_element.onclick = function () {
+                        let username = document.getElementById("signup-username").value;
+                        let password = document.getElementById("signup-password").value;
+                        let password2 = document.getElementById(
+                            "signup-confirm-password"
+                        ).value;
+                        let email = document.getElementById("signup-email").value;
+
+                        if (
+                            username === "" ||
+                            password === "" ||
+                            password2 === "" ||
+                            email === ""
+                        ) {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+
+                            if (username === "")
+                                username_element.classList.add("textbox-error");
+                            if (password === "")
+                                password_element.classList.add("textbox-error");
+                            if (password2 === "")
+                                confirm_password_element.classList.add("textbox-error");
+                            if (email === "") email_element.classList.add("textbox-error");
+                            signup_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (password !== password2) {
+                            showMessageNotefoxAccount(
+                                all_strings["passwords-not-equal-alert"],
+                                true
+                            );
+
+                            password_element.classList.add("textbox-error");
+                            confirm_password_element.classList.add("textbox-error");
+                            signup_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (!isStrongPassword(password)) {
+                            showMessageNotefoxAccount(
+                                all_strings["password-not-strong-alert"],
+                                true
+                            );
+
+                            password_element.classList.add("textbox-error");
+                            confirm_password_element.classList.add("textbox-error");
+                            signup_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else {
+                            browser.runtime.sendMessage({
+                                api: true,
+                                type: "signup",
+                                data: {username: username, password: password, email: email},
+                            });
+
+                            signup_submit_element.disabled = true;
+                            cancel_element.disabled = true;
+                            email_element.disabled = true;
+                            username_element.disabled = true;
+                            password_element.disabled = true;
+                            confirm_password_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
+
+                        sendTelemetry(
+                            "signup-submit-button-clicked",
+                            "settings.js::notefoxAccountLoginSignupManage"
+                        );
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::signup_submit_element-events|signup", e.message);
+                }
             } else if (action === "manage") {
                 //console.log(`Data: ${JSON.stringify(data)}`);
                 if (data !== null) {
@@ -4484,6 +4647,8 @@ function signUpResponse(data) {
     document.getElementById("signup-cancel").disabled = false;
     //data should be defined as {code: X, status: Y, data: Z}
 
+    console.info(data);
+
     let submit_element = document.getElementById("signup-submit");
     let cancel_element = document.getElementById("signup-cancel");
     let email_element = document.getElementById("signup-email");
@@ -4535,6 +4700,8 @@ function signUpResponse(data) {
                 all_strings["notefox-account-message-error-" + data.code],
                 true
             );
+            submit_element.disabled = true;
+            submit_element.classList.add("hidden");
             if (verify_signup_element.classList.contains("hidden"))
                 verify_signup_element.classList.remove("hidden");
             verify_signup_element.onclick = function () {
@@ -4687,6 +4854,7 @@ function loginResponse(data) {
     let email_element = document.getElementById("login-email");
     let password_element = document.getElementById("login-password");
     let spinner_loading = document.getElementById("loading-login");
+    let verify_email_element = document.getElementById("verify-email-not-actived");
 
     login_submit_element.disabled = false;
     cancel_element.disabled = false;
@@ -4719,6 +4887,26 @@ function loginResponse(data) {
                 all_strings["notefox-account-message-error-" + data.code],
                 true
             );
+        } else if (data.code === 411) {
+            //Account not verified (need to verify email)
+            showMessageNotefoxAccount(
+                all_strings["notefox-account-message-error-" + data.code],
+                true
+            );
+            if (verify_email_element.classList.contains("hidden"))
+                verify_email_element.classList.remove("hidden");
+            login_submit_element.disabled = true;
+            login_submit_element.classList.add("hidden");
+            verify_email_element.onclick = function () {
+                notefoxAccountLoginSignupManage("verify-signup", {
+                    email: email_element.value,
+                });
+
+                sendTelemetry(
+                    "verify-email-not-actived-button-clicked",
+                    "settings.js::notefoxAccountLoginSignupManage"
+                );
+            };
         } else {
             //Unknown
             showMessageNotefoxAccount(

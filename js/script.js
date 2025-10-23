@@ -349,7 +349,7 @@ function loadUI() {
     title_notes.oninput = function () {
         saveNotes(title = true);
     }
-    title_notes.onkeypress = function (e) {
+    title_notes.onkeyup = function (e) {
         if (e.key === "Enter") {
             document.getElementById("notes").focus();
         }
