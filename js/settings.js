@@ -343,6 +343,19 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("disable-confirmation-popup-check").onchange = function () {
+        settings_json["disable-confirmation-popup"] = document.getElementById(
+            "disable-confirmation-popup-check"
+        ).checked;
+        sendTelemetry(
+            `disable-confirmation-popup-check-select`,
+            `settings.js`,
+            settings_json["disable-confirmation-popup"]
+        );
+
+        saveSettings();
+    };
+
     setThemeChooser();
     setStickyThemeChooser();
     setFontFamilyChooser();
@@ -1375,6 +1388,8 @@ function loadSettings() {
                 settings_json["disable-word-wrap"] = false;
             if (settings_json["spellcheck-detection"] === undefined)
                 settings_json["spellcheck-detection"] = false;
+            if (settings_json["disable-confirmation-popup"] === undefined)
+                settings_json["disable-confirmation-popup"] = false;
             if (settings_json["theme"] === undefined)
                 settings_json["theme"] = "light";
             if (settings_json["sticky-theme"] === undefined)
@@ -1467,6 +1482,9 @@ function loadSettings() {
             document.getElementById("spellcheck-detection-check").checked =
                 settings_json["spellcheck-detection"] === true ||
                 settings_json["spellcheck-detection"] === "yes";
+            document.getElementById("disable-confirmation-popup-check").checked =
+                settings_json["disable-confirmation-popup"] === true ||
+                settings_json["disable-confirmation-popup"] === "yes";
             document.getElementById("check-green-icon-global-check").checked =
                 settings_json["check-green-icon-global"] === true ||
                 settings_json["check-green-icon-global"] === "yes";
