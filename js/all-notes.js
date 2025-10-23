@@ -826,7 +826,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             }
 
         }
-        pageTitleH3.onkeypress = function (e) {
+        pageTitleH3.onkeyup = function (e) {
             if (e.key === "Enter") {
                 e.preventDefault();
                 inputInlineEdit.click();

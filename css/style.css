@@ -2457,11 +2457,18 @@ hr.hr-domain:last-child {
     overflow: hidden;
 }
 
-.item-radio-theme:hover,
-.item-radio-sticky-theme:hover,
-.item-radio-font-family:hover,
-.item-radio-datetime-format:hover {
+.item-radio-theme:not(.sel):hover,
+.item-radio-sticky-theme:not(.sel):hover,
+.item-radio-font-family:not(.sel):hover,
+.item-radio-datetime-format:not(.sel):hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.item-radio-theme.sel,
+.item-radio-sticky-theme.sel,
+.item-radio-font-family.sel,
+.item-radio-datetime-format.sel {
+    box-shadow: 0px 0px 0px 5px var(--tertiary-transparent-2)
 }
 
 .item-radio-theme input[type="radio"],
