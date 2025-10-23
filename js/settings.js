@@ -989,6 +989,10 @@ function setLanguageUI() {
         all_strings["disable-word-wrap"];
     document.getElementById("spellcheck-detection-text").innerText =
         all_strings["spellcheck-detection"];
+    document.getElementById("disable-confirmation-popup-text").innerText =
+        all_strings["disable-confirmation-popup"];
+    document.getElementById("disable-confirmation-popup-detailed-text").innerHTML =
+        all_strings["disable-confirmation-popup-detailed"];
     document.getElementById("check-green-icon-global-text").innerText =
         all_strings["check-green-icon-global"];
     document.getElementById("check-green-icon-global-detailed-text").innerHTML =
