@@ -3788,7 +3788,7 @@ function notefoxAccountLoginSignupManage(
                             if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
                             disableAside = true;
 
-                            browser.storage.sync.remove("notefox-account").then((result) => {
+                            /*browser.storage.sync.remove("notefox-account").then((result) => {
                                 browser.storage.local
                                     .remove([
                                         "last-sync",
@@ -3801,7 +3801,7 @@ function notefoxAccountLoginSignupManage(
                                     .then((result) => {
                                         notefoxAccountLoginSignupManage();
                                     });
-                            });
+                            });*/
                         }
 
                         sendTelemetry(
@@ -3908,14 +3908,13 @@ function notefoxAccountLoginSignupManage(
 
                             verify_delete_submit_element.disabled = false;
                             spinner_loading.classList.add("hidden");
-                        } else if (email === "" || password === "" || login_id === "" || token === ""
-                        ) {
+                        } else if (email === "" || password === "" || login_id === "" || token === "") {
                             /*if (email === "") console.log("email is empty");
                             if (password === "") console.log("password is empty");
                             if (login_id === "") console.log("login_id is empty");
                             if (token === "") console.log("token is empty");*/
 
-                            notefoxAccountLoginSignupManage("delete");
+                            //notefoxAccountLoginSignupManage("delete");
                         } else {
                             showMessageNotefoxAccount(
                                 all_strings["notefox-account-deleting-account-text"],
@@ -5342,6 +5341,11 @@ function deleteVerifyResponse(data) {
             showMessageNotefoxAccount(
                 all_strings["notefox-account-button-settings-account-deleted"]
             );
+
+            //disable all textboxes and buttons
+            submit_element.disabled = true;
+            new_code_element.disabled = true;
+            code_element.disabled = true;
         } else if (data.code === 400 || data.code === 401) {
             //Error
             showMessageNotefoxAccount(
