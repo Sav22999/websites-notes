@@ -94,6 +94,8 @@ strings[lang] = {
     'search-page-content-detailed': 'When enabled, Notefox will search in the page content too. This could increase the time of the search.',
     'disable-word-wrap': 'Inaktivera text för ord-wrap',
     'spellcheck-detection': 'Aktiverad språkstavningskontroll för anteckningar',
+    'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
+    'disable-confirmation-popup-detailed': 'When enabled, you won\'t see confirmation popups when deleting notes. <b>Be careful:</b> deleted notes cannot be recovered.',
     'check-green-icon-global': 'Grön addon ikon när det finns Globala anteckningar sparade',
     'check-green-icon-global-detailed': 'När aktiverad kommer addon-ikonen i verktygsfältet att vara <b>grön</b> om du tidigare sparade <b>Global</b> anteckningar.',
     'check-green-icon-domain': 'Grön addon ikon när det finns Domänanteckningar sparade',

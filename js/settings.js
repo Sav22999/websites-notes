@@ -343,6 +343,19 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("disable-confirmation-popup-check").onchange = function () {
+        settings_json["disable-confirmation-popup"] = document.getElementById(
+            "disable-confirmation-popup-check"
+        ).checked;
+        sendTelemetry(
+            `disable-confirmation-popup-check-select`,
+            `settings.js`,
+            settings_json["disable-confirmation-popup"]
+        );
+
+        saveSettings();
+    };
+
     setThemeChooser();
     setStickyThemeChooser();
     setFontFamilyChooser();
@@ -976,6 +989,10 @@ function setLanguageUI() {
         all_strings["disable-word-wrap"];
     document.getElementById("spellcheck-detection-text").innerText =
         all_strings["spellcheck-detection"];
+    document.getElementById("disable-confirmation-popup-text").innerText =
+        all_strings["disable-confirmation-popup"];
+    document.getElementById("disable-confirmation-popup-detailed-text").innerHTML =
+        all_strings["disable-confirmation-popup-detailed"];
     document.getElementById("check-green-icon-global-text").innerText =
         all_strings["check-green-icon-global"];
     document.getElementById("check-green-icon-global-detailed-text").innerHTML =
@@ -1375,6 +1392,8 @@ function loadSettings() {
                 settings_json["disable-word-wrap"] = false;
             if (settings_json["spellcheck-detection"] === undefined)
                 settings_json["spellcheck-detection"] = false;
+            if (settings_json["disable-confirmation-popup"] === undefined)
+                settings_json["disable-confirmation-popup"] = false;
             if (settings_json["theme"] === undefined)
                 settings_json["theme"] = "light";
             if (settings_json["sticky-theme"] === undefined)
@@ -1467,6 +1486,9 @@ function loadSettings() {
             document.getElementById("spellcheck-detection-check").checked =
                 settings_json["spellcheck-detection"] === true ||
                 settings_json["spellcheck-detection"] === "yes";
+            document.getElementById("disable-confirmation-popup-check").checked =
+                settings_json["disable-confirmation-popup"] === true ||
+                settings_json["disable-confirmation-popup"] === "yes";
             document.getElementById("check-green-icon-global-check").checked =
                 settings_json["check-green-icon-global"] === true ||
                 settings_json["check-green-icon-global"] === "yes";
@@ -3766,7 +3788,7 @@ function notefoxAccountLoginSignupManage(
                             if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
                             disableAside = true;
 
-                            browser.storage.sync.remove("notefox-account").then((result) => {
+                            /*browser.storage.sync.remove("notefox-account").then((result) => {
                                 browser.storage.local
                                     .remove([
                                         "last-sync",
@@ -3779,7 +3801,7 @@ function notefoxAccountLoginSignupManage(
                                     .then((result) => {
                                         notefoxAccountLoginSignupManage();
                                     });
-                            });
+                            });*/
                         }
 
                         sendTelemetry(
@@ -3886,14 +3908,13 @@ function notefoxAccountLoginSignupManage(
 
                             verify_delete_submit_element.disabled = false;
                             spinner_loading.classList.add("hidden");
-                        } else if (email === "" || password === "" || login_id === "" || token === ""
-                        ) {
+                        } else if (email === "" || password === "" || login_id === "" || token === "") {
                             /*if (email === "") console.log("email is empty");
                             if (password === "") console.log("password is empty");
                             if (login_id === "") console.log("login_id is empty");
                             if (token === "") console.log("token is empty");*/
 
-                            notefoxAccountLoginSignupManage("delete");
+                            //notefoxAccountLoginSignupManage("delete");
                         } else {
                             showMessageNotefoxAccount(
                                 all_strings["notefox-account-deleting-account-text"],
@@ -5320,6 +5341,11 @@ function deleteVerifyResponse(data) {
             showMessageNotefoxAccount(
                 all_strings["notefox-account-button-settings-account-deleted"]
             );
+
+            //disable all textboxes and buttons
+            submit_element.disabled = true;
+            new_code_element.disabled = true;
+            code_element.disabled = true;
         } else if (data.code === 400 || data.code === 401) {
             //Error
             showMessageNotefoxAccount(

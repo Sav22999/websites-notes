@@ -430,7 +430,14 @@ function loadDataFromBrowser(generate_section = true) {
 }
 
 function clearAllNotesDomain(url) {
-    let confirmation = confirm(all_strings["clear-all-notes-domain-confirmation"]);
+    // Check if confirmation popup is disabled
+    let shouldConfirm = !(settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes");
+    
+    let confirmation = true;
+    if (shouldConfirm) {
+        confirmation = confirm(all_strings["clear-all-notes-domain-confirmation"]);
+    }
+    
     if (confirmation) {
         for (let index in websites_json_by_domain[url]) {
             //delete all pages
@@ -453,7 +460,15 @@ function clearAllNotesPage(url, isDomain = false) {
     if (!isDomain) {
         messageToShow = all_strings["clear-all-notes-page-with-confirmation"].replaceAll("{{url}}", url);
     }
-    let confirmation = confirm(messageToShow);
+    
+    // Check if confirmation popup is disabled
+    let shouldConfirm = !(settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes");
+    
+    let confirmation = true;
+    if (shouldConfirm) {
+        confirmation = confirm(messageToShow);
+    }
+    
     if (confirmation) {
         //delete the selected page
         delete websites_json[url];
