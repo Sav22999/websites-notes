@@ -53,7 +53,7 @@ function loaded() {
     browser.storage.sync.get("privacy").then(result => {
         if (result.privacy === undefined) {
             //not accepted privacy policy -> open 'privacy' page
-            browser.tabs.create({url: linkAcceptPrivacy});
+            browser.tabs.create({ url: linkAcceptPrivacy });
             window.close()
         }
     });
@@ -70,7 +70,7 @@ function loaded() {
             loginExpired();
         }
     });
-    browser.runtime.sendMessage({"check-user": true});
+    browser.runtime.sendMessage({ "check-user": true });
 
     checkSyncLocal();
     checkOperatingSystem();
@@ -94,7 +94,7 @@ function loaded() {
         }
         document.getElementById("buy-me-a-coffee-button").onclick = function () {
             sendTelemetry("donate-button");
-            browser.tabs.create({url: links["donate"]});
+            browser.tabs.create({ url: links["donate"] });
         }
 
         document.getElementById("search-all-notes-text").onkeyup = function () {
@@ -290,7 +290,7 @@ function loadAsideBar() {
     version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", browser.runtime.getManifest().version);
 
     //get the current tabUrl
-    browser.tabs.query({active: true, currentWindow: true}).then(tabs => {
+    browser.tabs.query({ active: true, currentWindow: true }).then(tabs => {
         if (tabs.length > 0) {
             let tabUrl = tabs[0].url;
             //if it starts with "about:addons"
@@ -364,7 +364,7 @@ function listenerLinks(element) {
             }
             link.onclick = function (event) {
                 if ((settings_json["open-links-only-with-ctrl"] === "yes" || settings_json["open-links-only-with-ctrl"] === true) && (event.ctrlKey || event.metaKey)) {
-                    browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                    browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
                         browser.tabs.create({
                             url: link.href,
                             index: tabs[0].index + 1
@@ -381,7 +381,7 @@ function listenerLinks(element) {
 }
 
 function updateLastUpdate() {
-    sync_local.set({"last-update": getDate()});
+    sync_local.set({ "last-update": getDate() });
 }
 
 function loadDataFromBrowser(generate_section = true) {
@@ -432,12 +432,12 @@ function loadDataFromBrowser(generate_section = true) {
 function clearAllNotesDomain(url) {
     // Check if confirmation popup is disabled
     let shouldConfirm = !(settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes");
-    
+
     let confirmation = true;
     if (shouldConfirm) {
         confirmation = confirm(all_strings["clear-all-notes-domain-confirmation"]);
     }
-    
+
     if (confirmation) {
         for (let index in websites_json_by_domain[url]) {
             //delete all pages
@@ -448,7 +448,7 @@ function clearAllNotesDomain(url) {
         delete websites_json[url];
         websites_json_to_show = websites_json;
 
-        sync_local.set({"websites": websites_json}, function () {
+        sync_local.set({ "websites": websites_json }, function () {
             loadDataFromBrowser(true);
             updateLastUpdate();
         });
@@ -460,21 +460,21 @@ function clearAllNotesPage(url, isDomain = false) {
     if (!isDomain) {
         messageToShow = all_strings["clear-all-notes-page-with-confirmation"].replaceAll("{{url}}", url);
     }
-    
+
     // Check if confirmation popup is disabled
     let shouldConfirm = !(settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes");
-    
+
     let confirmation = true;
     if (shouldConfirm) {
         confirmation = confirm(messageToShow);
     }
-    
+
     if (confirmation) {
         //delete the selected page
         delete websites_json[url];
         websites_json_to_show = websites_json;
 
-        sync_local.set({"websites": websites_json}, function () {
+        sync_local.set({ "websites": websites_json }, function () {
             loadDataFromBrowser(true);
             updateLastUpdate();
         });
@@ -561,7 +561,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                             h2.classList.add("link", "go-to-external", "domain");
                             h2.onclick = function () {
                                 sendTelemetry(`go-to-domain`, "all-notes.js", domain);
-                                browser.tabs.create({url: domain});
+                                browser.tabs.create({ url: domain });
                             }
                         }
                         h2_container.append(h2);
@@ -756,13 +756,13 @@ function getType(website, url) {
  * @param pageLastUpdate the element to update the last update
  */
 function onInputText(url, data, pageLastUpdate) {
-    browser.runtime.sendMessage({from: "all-notes", type: "inline-edit", url: url, data: data});
+    browser.runtime.sendMessage({ from: "all-notes", type: "inline-edit", url: url, data: data });
     pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(data["lastUpdate"]));
     sendMessageUpdateToBackground();
 }
 
 function sendMessageUpdateToBackground() {
-    browser.runtime.sendMessage({"updated": true});
+    browser.runtime.sendMessage({ "updated": true });
 }
 
 function generateNotes(page, url, notes, title, content, lastUpdate, type, fullUrl, type_to_use, domain_again) {
@@ -771,6 +771,11 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         pageContentLeft.classList.add("page-content-left")
         let pageContentRight = document.createElement("div");
         pageContentRight.classList.add("page-content-right");
+        // Get the font-size for this specific note (default to 14 if not set)
+        let noteFontSize = 14;
+        if (websites_json[fullUrl] && websites_json[fullUrl]["font-size"]) {
+            noteFontSize = websites_json[fullUrl]["font-size"];
+        }
 
         let row1 = document.createElement("div");
         row1.classList.add("rows");
@@ -868,7 +873,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         //Select "Tag colour"
         let tagsColour = document.createElement("select");
         let colourList = colourListDefault;
-        colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
+        colourList = Object.assign({}, { "none": all_strings["none-colour"] }, colourList);
         for (let colour in colourList) {
             let tagColour = document.createElement("option");
             tagColour.value = colour;
@@ -885,6 +890,35 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             changeTagColour(fullUrl, tagsColour.value, type_to_use);
             sendTelemetry(`change-tag-colour::${tagsColour.value}`, "all-notes.js", fullUrl);
         }
+        // Add Font-Size Selector
+        let fontSizeSelect = document.createElement("select");
+        fontSizeSelect.classList.add("select-font-size-all-notes", "button", "very-small-button", "font-size-button", "select-grid-no-text");
+
+        const fontSizes = [
+            { value: 10, label: "10px" },
+            { value: 12, label: "12px" },
+            { value: 14, label: "14px" },
+            { value: 16, label: "16px" },
+            { value: 18, label: "18px" },
+            { value: 20, label: "20px" },
+            { value: 22, label: "22px" },
+            { value: 24, label: "24px" }
+        ];
+
+        fontSizes.forEach(size => {
+            let option = document.createElement("option");
+            option.value = size.value;
+            option.textContent = size.label;
+            if (noteFontSize == size.value) {
+                option.selected = true;
+            }
+            fontSizeSelect.appendChild(option);
+        });
+
+        fontSizeSelect.onchange = function () {
+            changeNoteFontSize(fullUrl, parseInt(fontSizeSelect.value), textNotes);
+            sendTelemetry(`change-font-size::${fontSizeSelect.value}`, "all-notes.js", fullUrl);
+        };
         page.id = fullUrl;
         page.classList.add("notes-pages");
         if (settings_json["notes-background-follow-tag-colour"]) page.classList.add("background-as-tag-colour");
@@ -905,6 +939,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             subrowButtons.append(inputShowContent);
         }
         subrowButtons.append(tagsColour);
+        subrowButtons.append(fontSizeSelect);
         subrowButtons.append(inputInlineEdit);
         subrowButtons.append(inputCopyNotes);
         subrowButtons.append(inputClearAllNotesPage);
@@ -922,7 +957,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 pageUrl.classList.add("link", "go-to-external");
                 pageUrl.onclick = function () {
                     sendTelemetry(`go-to-page`, "all-notes.js", fullUrlToUse);
-                    browser.tabs.create({url: fullUrlToUse});
+                    browser.tabs.create({ url: fullUrlToUse });
                 }
             }
 
@@ -1022,7 +1057,11 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
 
         if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
 
-        textNotes.style.fontFamily = `'${settings_json["font-family"]}'`;
+       textNotes.style.fontFamily = `'${settings_json["font-family"]}'`;
+       
+       // Apply the note-specific font-size with setProperty
+       textNotes.style.setProperty('font-size', noteFontSize + 'px', 'important');
+
 
         contentNotes.append(textNotes);
         contentNotesContainer.appendChild(contentNotes);
@@ -1055,8 +1094,33 @@ function changeTagColour(url, colour) {
         websites_json[url]["tag-colour"] = colour;
         websites_json[url]["last-update"] = getDate();
         websites_json_to_show = websites_json;
-        sync_local.set({"websites": websites_json}, function () {
+        sync_local.set({ "websites": websites_json }, function () {
             loadDataFromBrowser(true);
+            updateLastUpdate();
+            sendMessageUpdateToBackground();
+        });
+    });
+}
+
+function changeNoteFontSize(url, fontSize, textElement) {
+    sync_local.get("websites", function (value) {
+        websites_json = {};
+        if (value["websites"] !== undefined) {
+            websites_json = value["websites"];
+        }
+        
+        // Save the font-size for this specific note
+        if (websites_json[url] === undefined) {
+            websites_json[url] = {};
+        }
+        websites_json[url]["font-size"] = fontSize;
+        websites_json[url]["last-update"] = getDate();
+        websites_json_to_show = websites_json;
+        
+        // Apply immediately to the text element with !important
+        textElement.style.setProperty('font-size', fontSize + 'px', 'important');
+        
+        sync_local.set({"websites": websites_json}, function () {
             updateLastUpdate();
             sendMessageUpdateToBackground();
         });

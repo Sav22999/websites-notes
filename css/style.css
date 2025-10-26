@@ -4257,4 +4257,25 @@ option {
         opacity: 0;
     }
 }
+.select-font-size-all-notes {
+    min-width: 70px;
+    padding: 5px 8px;
+    font-size: 0.9em;
+}
 
+.font-size-button {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><text x="2" y="18" font-size="14" font-weight="bold">Aa</text></svg>');
+    background-repeat: no-repeat;
+    background-position: left 8px center;
+    background-size: 20px;
+    padding-left: 32px;
+}
+
+.textarea-all-notes {
+    font-size: inherit !important;
+}
+
+/* Or more specifically: */
+pre.textarea-all-notes {
+    font-size: inherit !important;
+}
