@@ -966,7 +966,7 @@ pre::placeholder,
 #filters {
     position: sticky;
     top: 54.5px;
-    margin-top: -5px;
+    margin-top: 0px;
     border-radius: 0px;
     margin-left: -20px;
     margin-right: -20px;
@@ -4259,3 +4259,73 @@ option {
     }
 }
 
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100vw;
+    height: 100vh;
+
+    border: 0px solid transparent;
+    border-radius: 0px;
+
+    color: #ff6200;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    flex-direction: column;
+    gap: 20px;
+
+    z-index: 150;
+
+    animation: splash-animation 0.3s linear forwards;
+}
+
+.splash-screen > img {
+    height: 100%;
+    max-height: 60px;
+    border-radius: 0px;
+    opacity: 0.5;
+}
+
+.splash-screen > #loading-splash-screen {
+    opacity: 0.7;
+}
+
+.splash-screen-popup {
+    animation-duration: 0s; /*check if use or not*/
+}
+
+@keyframes splash-animation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+    }
+    99% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+        display: none;
+    }
+}
+
+/*initial color (based on web browser)*/
+@media (prefers-color-scheme: light) {
+    .splash-screen, body {
+        background-color: white;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .splash-screen, body {
+        background-color: black;
+    }
+}

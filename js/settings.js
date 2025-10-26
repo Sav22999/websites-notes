@@ -5595,7 +5595,9 @@ function setTheme(
         var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
         var download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
         var delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
+        var delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
         var copy_svg = window.btoa(getIconSvgEncoded("copy", on_primary));
+        let show_content_svg = window.btoa(getIconSvgEncoded("show-content", on_primary));
 
         var login_svg = window.btoa(getIconSvgEncoded("login", on_primary));
         var logout_svg = window.btoa(getIconSvgEncoded("logout", on_primary));
@@ -5702,6 +5704,12 @@ function setTheme(
                 .clear-button {
                     background-image: url('data:image/svg+xml;base64,${delete_svg}');
                 }
+                .clear2-button {
+                    background-image: url('data:image/svg+xml;base64,${delete2_svg}');
+                }
+                .show-content-button {
+                    background-image: url('data:image/svg+xml;base64,${show_content_svg}');
+                }
                 #settings-aside {
                     background-image: url('data:image/svg+xml;base64,${settings_aside_svg}');
                 }
@@ -5756,7 +5764,6 @@ function setTheme(
                 .manage-account-button {
                     background-image: url('data:image/svg+xml;base64,${manage_svg}');
                 }
-                
                 .password-label {
                     background-image: url('data:image/svg+xml;base64,${password_label_svg}');
                 }
