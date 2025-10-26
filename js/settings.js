@@ -139,24 +139,7 @@ function loaded() {
 
     document.onkeyup = function (e) {
         if (e.key === "Escape") {
-            if (document.getElementById("export-section").style.display === "block") {
-                document.getElementById("cancel-export-all-notes-button").click();
-            }
-            if (document.getElementById("import-section").style.display === "block") {
-                document.getElementById("cancel-import-all-notes-button").click();
-            }
-            if (
-                document.getElementById("account-section").style.display === "block"
-            ) {
-                hideBackgroundOpacity();
-                document.getElementById("account-section").style.display = "none";
-            }
-            if (
-                document.getElementById("show-error-logs-section").style.display ===
-                "block"
-            ) {
-                document.getElementById("cancel-show-error-logs-button").click();
-            }
+            hideAllPopups();
         }
     };
 
@@ -428,6 +411,22 @@ function loaded() {
             `change-icon-color-based-on-tag-colour-check-select`,
             `settings.js`,
             settings_json["change-icon-color-based-on-tag-colour"]
+        );
+
+        saveSettings();
+    };
+
+    document.getElementById(
+        "show-badge-with-number-of-notes-check"
+    ).onchange = function () {
+        settings_json["show-icon-badge"] =
+            document.getElementById(
+                "show-badge-with-number-of-notes-check"
+            ).checked;
+        sendTelemetry(
+            `show-badge-with-number-of-notes-check-select`,
+            `settings.js`,
+            settings_json["show-icon-badge"]
         );
 
         saveSettings();
@@ -736,6 +735,36 @@ function sendTelemetry(action, context = "settings.js", other = null) {
     onTelemetry(action, context, null, currentOS, other);
 }
 
+function hideAllPopups() {
+    let backgroundOpacity = document.getElementById("background-opacity");
+
+    if (document.getElementById("export-section").style.display === "block") {
+        document.getElementById("export-section").style.display = "none";
+    }
+    if (document.getElementById("import-section").style.display === "block") {
+        document.getElementById("import-section").style.display = "none";
+    }
+    if (
+        document.getElementById("account-section").style.display === "block"
+    ) {
+        hideBackgroundOpacity();
+        document.getElementById("account-section").style.display = "none";
+    }
+    if (
+        document.getElementById("show-error-logs-section").style.display ===
+        "block"
+    ) {
+        document.getElementById("show-error-logs-section").style.display = "none";
+    }
+
+    if (document.getElementById("notefox-server-error-section").style.display === "block") {
+        //nothing: notefox server error is NOT "skippable"
+    } else {
+        //hide background opacity only if no other popup is shown (account-section is excluded)
+        hideBackgroundOpacity();
+    }
+}
+
 function checkShortcuts() {
     ctrl_alt_shift.forEach((value) => {
         document.getElementById("select-disable-shortcut-" + value).textContent =
@@ -1016,6 +1045,12 @@ function setLanguageUI() {
     document.getElementById(
         "change-icon-color-based-on-tag-colour-detailed-text"
     ).innerHTML = all_strings["change-icon-color-based-on-tag-colour-detailed"];
+    document.getElementById(
+        "show-badge-with-number-of-notes-text"
+    ).innerText = all_strings["show-badge-with-number-of-notes"];
+    document.getElementById(
+        "show-badge-with-number-of-notes-detailed-text"
+    ).innerHTML = all_strings["show-badge-with-number-of-notes-detailed"];
     document.getElementById("open-links-only-with-ctrl-text").innerHTML =
         all_strings["open-links-only-with-ctrl"];
     document.getElementById("open-links-only-with-ctrl-detailed-text").innerHTML =
@@ -1408,6 +1443,8 @@ function loadSettings() {
                 settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["change-icon-color-based-on-tag-colour"] === undefined)
                 settings_json["change-icon-color-based-on-tag-colour"] = false;
+            if (settings_json["show-icon-badge"] === undefined)
+                settings_json["show-icon-badge"] = false;
             if (settings_json["open-links-only-with-ctrl"] === undefined)
                 settings_json["open-links-only-with-ctrl"] = true;
             if (settings_json["check-with-all-supported-protocols"] === undefined)
@@ -1506,6 +1543,11 @@ function loadSettings() {
             ).checked =
                 settings_json["change-icon-color-based-on-tag-colour"] === true ||
                 settings_json["change-icon-color-based-on-tag-colour"] === "yes";
+            document.getElementById(
+                "show-badge-with-number-of-notes-check"
+            ).checked =
+                settings_json["show-icon-badge"] === true ||
+                settings_json["show-icon-badge"] === "yes";
             document.getElementById(
                 "sending-error-logs-automatically-check"
             ).checked =
@@ -2994,6 +3036,20 @@ function deleteErrorLogs() {
 function notefoxServerError() {
     let section = document.getElementById("notefox-server-error-section");
     let background = document.getElementById("background-opacity");
+
+    if (
+        document.getElementById("account-section").style.display === "block"
+    ) {
+        hideBackgroundOpacity();
+        document.getElementById("account-section").style.display = "none";
+    }
+
+    if (
+        document.getElementById("show-error-logs-section").style.display ===
+        "block"
+    ) {
+        document.getElementById("show-error-logs-section").style.display = "none";
+    }
 
     section.style.display = "block";
     background.style.display = "block";

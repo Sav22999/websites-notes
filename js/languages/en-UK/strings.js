@@ -108,6 +108,8 @@ strings[lang] = {
     "check-green-icon-subdomain-detailed": "When enabled the addon icon in the toolbar will be <b>green</b> if you previously saved <b>Subdomain</b> notes for that subdomain.",
     "change-icon-color-based-on-tag-colour": "Change the icon color based on the tag colour",
     "change-icon-color-based-on-tag-colour-detailed": "When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn't a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous 'green icon' colour options, so the icon won't be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.",
+    "show-badge-with-number-of-notes": "Show badge with number of notes saved",
+    "show-badge-with-number-of-notes-detailed": "When enabled the addon icon in the toolbar will show a badge with the number of notes saved for that page, domain or globally.",
     "open-links-only-with-ctrl": "Open links in the notes – only while pressing and holding the Ctrl/Command/Control keyboard button",
     "open-links-only-with-ctrl-detailed": "When enabled you'll be able to open links but <b>only</b> while you are pressing and holding <b>Ctrl/Command/Control</b> keyboard button. If disabled, you won't be able to open links at all.",
     "check-with-all-supported-protocols": "Check notes existence with all supported protocols",
