@@ -570,7 +570,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 border-right-color: inherit;
                 width: 0;
                 height: 0;
-                border-bottom-right-radius: 10px;
+                border-bottom-right-radius: 15px;
                 opacity: 0.6;
             }
             #resize--sticky-notes-notefox-addon:hover::before{

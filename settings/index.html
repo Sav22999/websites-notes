@@ -747,6 +747,17 @@ Created by Saverio Morelli - saveriomorelli.com
                   id="notes-background-follow-tag-colour-detailed-text"></span>
         </div>
 
+        <!--Allow popup resizing section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="allow-resize-popup-text"></span>
+                <input type="checkbox" id="allow-resize-popup-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="allow-resize-popup-detailed-text"></span>
+        </div>
+
         <!--Notefox theme section-->
         <div class="option-settings">
                 <span class="item-settings section-grid-container">
@@ -1106,73 +1117,133 @@ Created by Saverio Morelli - saveriomorelli.com
 
         <!--Datetime format section-->
         <div class="option-settings margin-top-20-px">
-                <span class="item-settings section-grid-container">
-                    <span class="title-option-settings section-grid-item-text" id="datetime-format-text"></span>
-                    <span class="section-grid-item-select"></span>
-                    <span class="description-option-settings" id="datetime-format-detailed-text"></span>
-                </span>
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id="datetime-format-text"></span>
+                <span class="section-grid-item-select"></span>
+                <span class="description-option-settings" id="datetime-format-detailed-text"></span>
+            </span>
             <span class="datetime-format-section-radio-container">
-                    <label class="item-radio-datetime-format" id="item-radio-datetime-format-yyyymmdd1">
-                        <input name="datetime-format-radio" type="radio" value="yyyymmdd1">
-                        <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-yyyymmdd1">
-                            <span class="item-radio-datetime-format-preview-item primary"
-                                  id="preview-datetime-format-yyyymmdd1"></span>
-                        </span>
-                        <span class="item-radio-title item-radio-title-datetime-format"
-                              id="datetime-format-select-yyyymmdd1">YYYY-MM-DD HH:MM:SS</span>
-                    </label>
+                <label class="item-radio-datetime-format" id="item-radio-datetime-format-yyyymmdd1">
+                    <input name="datetime-format-radio" type="radio" value="yyyymmdd1">
+                    <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-yyyymmdd1">
+                        <span class="item-radio-datetime-format-preview-item primary"
+                              id="preview-datetime-format-yyyymmdd1"></span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-datetime-format"
+                          id="datetime-format-select-yyyymmdd1">YYYY-MM-DD HH:MM:SS</span>
+                </label>
 
-                    <label class="item-radio-datetime-format" id="item-radio-datetime-format-yyyyddmm1">
-                        <input name="datetime-format-radio" type="radio" value="yyyyddmm1">
-                        <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-yyyyddmm1">
-                            <span class="item-radio-datetime-format-preview-item primary"
-                                  id="preview-datetime-format-yyyyddmm1"></span>
-                        </span>
-                        <span class="item-radio-title item-radio-title-datetime-format"
-                              id="datetime-format-select-yyyyddmm1">YYYY-DD-MM HH:MM:SS</span>
-                    </label>
+                <label class="item-radio-datetime-format" id="item-radio-datetime-format-yyyyddmm1">
+                    <input name="datetime-format-radio" type="radio" value="yyyyddmm1">
+                    <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-yyyyddmm1">
+                        <span class="item-radio-datetime-format-preview-item primary"
+                              id="preview-datetime-format-yyyyddmm1"></span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-datetime-format"
+                          id="datetime-format-select-yyyyddmm1">YYYY-DD-MM HH:MM:SS</span>
+                </label>
 
-                    <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy1">
-                        <input name="datetime-format-radio" type="radio" value="ddmmyyyy1">
-                        <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-ddmmyyyy1">
-                            <span class="item-radio-datetime-format-preview-item primary"
-                                  id="preview-datetime-format-ddmmyyyy1"></span>
-                        </span>
-                        <span class="item-radio-title item-radio-title-datetime-format"
-                              id="datetime-format-select-ddmmyyyy1">DD/MM/YYYY HH:MM:SS</span>
-                    </label>
+                <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy1">
+                    <input name="datetime-format-radio" type="radio" value="ddmmyyyy1">
+                    <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-ddmmyyyy1">
+                        <span class="item-radio-datetime-format-preview-item primary"
+                              id="preview-datetime-format-ddmmyyyy1"></span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-datetime-format"
+                          id="datetime-format-select-ddmmyyyy1">DD/MM/YYYY HH:MM:SS</span>
+                </label>
 
-                    <label class="item-radio-datetime-format" id="item-radio-datetime-format-mmddyyyy1">
-                        <input name="datetime-format-radio" type="radio" value="mmddyyyy1">
-                        <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-mmddyyyy1">
-                            <span class="item-radio-datetime-format-preview-item primary"
-                                  id="preview-datetime-format-mmddyyyy1"></span>
-                        </span>
-                        <span class="item-radio-title item-radio-title-datetime-format"
-                              id="datetime-format-select-mmddyyyy1">MM/DD/YYYY HH:MM:SS</span>
-                    </label>
+                <label class="item-radio-datetime-format" id="item-radio-datetime-format-mmddyyyy1">
+                    <input name="datetime-format-radio" type="radio" value="mmddyyyy1">
+                    <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-mmddyyyy1">
+                        <span class="item-radio-datetime-format-preview-item primary"
+                              id="preview-datetime-format-mmddyyyy1"></span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-datetime-format"
+                          id="datetime-format-select-mmddyyyy1">MM/DD/YYYY HH:MM:SS</span>
+                </label>
 
-                    <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy2">
-                        <input name="datetime-format-radio" type="radio" value="ddmmyyyy2">
-                        <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-ddmmyyyy2">
-                            <span class="item-radio-datetime-format-preview-item primary"
-                                  id="preview-datetime-format-ddmmyyyy2"></span>
-                        </span>
-                        <span class="item-radio-title item-radio-title-datetime-format"
-                              id="datetime-format-select-ddmmyyyy2">DD.MM.YYYY HH:MM:SS</span>
-                    </label>
+                <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy2">
+                    <input name="datetime-format-radio" type="radio" value="ddmmyyyy2">
+                    <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-ddmmyyyy2">
+                        <span class="item-radio-datetime-format-preview-item primary"
+                              id="preview-datetime-format-ddmmyyyy2"></span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-datetime-format"
+                          id="datetime-format-select-ddmmyyyy2">DD.MM.YYYY HH:MM:SS</span>
+                </label>
 
-                    <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy1-12h">
-                        <input name="datetime-format-radio" type="radio" value="ddmmyyyy1-12h">
-                        <span class="item-radio-datetime-format-preview-container"
-                              id="radio-datetime-format-ddmmyyyy1-12h">
-                            <span class="item-radio-datetime-format-preview-item primary"
-                                  id="preview-datetime-format-ddmmyyyy1-12h"></span>
-                        </span>
-                        <span class="item-radio-title item-radio-title-datetime-format"
-                              id="datetime-format-select-ddmmyyyy1-12h">DD/MM/YYYY 12H:MM:SS</span>
-                    </label>
-                </span>
+                <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy1-12h">
+                    <input name="datetime-format-radio" type="radio" value="ddmmyyyy1-12h">
+                    <span class="item-radio-datetime-format-preview-container"
+                          id="radio-datetime-format-ddmmyyyy1-12h">
+                        <span class="item-radio-datetime-format-preview-item primary"
+                              id="preview-datetime-format-ddmmyyyy1-12h"></span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-datetime-format"
+                          id="datetime-format-select-ddmmyyyy1-12h">DD/MM/YYYY 12H:MM:SS</span>
+                </label>
+            </span>
+        </div>
+
+        <!--Text size section-->
+        <div class="option-settings margin-top-20-px">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id="text-size-text"></span>
+                <span class="section-grid-item-select"></span>
+                <span class="description-option-settings" id="text-size-detailed-text"></span>
+            </span>
+            <span class="text-size-section-radio-container">
+                <label class="item-radio-text-size" id="item-radio-text-size-extra-small">
+                    <input name="text-size-radio" type="radio" value="extra-small">
+                    <span class="item-radio-text-size-preview-container" id="radio-text-size-extra-small">
+                        <span class="item-radio-text-size-preview-item primary"
+                              id="preview-text-size-extra-small">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-text-size"
+                          id="text-size-select-extra-small"></span>
+                </label>
+
+                <label class="item-radio-text-size" id="item-radio-text-size-small">
+                    <input name="text-size-radio" type="radio" value="small">
+                    <span class="item-radio-text-size-preview-container" id="radio-text-size-small">
+                        <span class="item-radio-text-size-preview-item primary"
+                              id="preview-text-size-small">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-text-size"
+                          id="text-size-select-small"></span>
+                </label>
+
+                <label class="item-radio-text-size" id="item-radio-text-size-standard">
+                    <input name="text-size-radio" type="radio" value="standard">
+                    <span class="item-radio-text-size-preview-container" id="radio-text-size-standard">
+                        <span class="item-radio-text-size-preview-item primary"
+                              id="preview-text-size-standard">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-text-size"
+                          id="text-size-select-standard"></span>
+                </label>
+
+                <label class="item-radio-text-size" id="item-radio-text-size-large">
+                    <input name="text-size-radio" type="radio" value="large">
+                    <span class="item-radio-text-size-preview-container" id="radio-text-size-large">
+                        <span class="item-radio-text-size-preview-item primary"
+                              id="preview-text-size-large">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-text-size"
+                          id="text-size-select-large"></span>
+                </label>
+
+                <label class="item-radio-text-size" id="item-radio-text-size-extra-large">
+                    <input name="text-size-radio" type="radio" value="extra-large">
+                    <span class="item-radio-text-size-preview-container" id="radio-text-size-extra-large">
+                        <span class="item-radio-text-size-preview-item primary"
+                              id="preview-text-size-extra-large">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-text-size"
+                          id="text-size-select-extra-large"></span>
+                </label>
+            </span>
         </div>
 
         <hr class="hr-big-space">

@@ -339,10 +339,24 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("allow-resize-popup-check").onchange = function () {
+        settings_json["allow-resize-popup"] = document.getElementById(
+            "allow-resize-popup-check"
+        ).checked;
+        sendTelemetry(
+            `allow-resize-popup-check-select`,
+            `settings.js`,
+            settings_json["allow-resize-popup"]
+        );
+
+        saveSettings();
+    }
+
     setThemeChooser();
     setStickyThemeChooser();
     setFontFamilyChooser();
     setDatetimeFormatChooser();
+    setTextSizeChooser();
 
     document.getElementById("check-green-icon-global-check").onchange =
         function () {
@@ -945,6 +959,50 @@ function setDatetimeFormatChooserByElement(element, set_variable = true) {
         );
 }
 
+function setTextSizeChooser() {
+    document
+        .querySelectorAll(
+            '.item-radio-text-size input[name="text-size-radio"]'
+        )
+        .forEach(function (input) {
+            input.addEventListener("change", function () {
+                setTextSizeChooserByElement(input);
+            });
+        });
+}
+
+function resetTextSizeChooser() {
+    document
+        .querySelectorAll(
+            '.item-radio-text-size input[name="text-size-radio"]'
+        )
+        .forEach(function (input) {
+            //input.closest(".item-radio-text-size").style.boxShadow = "none";
+            if (input.closest(".item-radio-text-size").classList.contains("sel")) {
+                input.closest(".item-radio-text-size").classList.remove("sel");
+            }
+        });
+}
+
+function setTextSizeChooserByElement(element, set_variable = true) {
+    resetTextSizeChooser();
+    /*element.closest(".item-radio-text-size").style.boxShadow =
+        "0px 0px 0px 5px var(--tertiary-transparent-2)";*/
+    element.closest(".item-radio-text-size").classList.add("sel");
+    if (set_variable) {
+        settings_json["text-size"] = element.value;
+
+        saveSettings();
+    }
+    sendMessageUpdateToBackground();
+    if (set_variable)
+        sendTelemetry(
+            `text-size-radio-select`,
+            "settings.js",
+            settings_json["text-size"]
+        );
+}
+
 function tabUpdated() {
     //checkTheme();
     browser.storage.local.get(["settings"]).then((result) => {
@@ -1022,6 +1080,10 @@ function setLanguageUI() {
         all_strings["disable-confirmation-popup"];
     document.getElementById("disable-confirmation-popup-detailed-text").innerHTML =
         all_strings["disable-confirmation-popup-detailed"];
+    document.getElementById("allow-resize-popup-text").innerText =
+        all_strings["allow-resize-popup"];
+    document.getElementById("allow-resize-popup-detailed-text").innerHTML =
+        all_strings["allow-resize-popup-detailed"];
     document.getElementById("check-green-icon-global-text").innerText =
         all_strings["check-green-icon-global"];
     document.getElementById("check-green-icon-global-detailed-text").innerHTML =
@@ -1080,6 +1142,20 @@ function setLanguageUI() {
         datetimeToDisplay(new Date(), "ddmmyyyy1-12h", true);
     document.getElementById("preview-datetime-format-mmddyyyy1").innerText =
         datetimeToDisplay(new Date(), "mmddyyyy1", true);
+    document.getElementById("text-size-text").innerHTML =
+        all_strings["text-size"];
+    document.getElementById("text-size-detailed-text").innerHTML =
+        all_strings["text-size-detailed"];
+    document.getElementById("text-size-select-extra-small").innerText =
+        all_strings["extra-small-text-size"];
+    document.getElementById("text-size-select-small").innerText =
+        all_strings["small-text-size"];
+    document.getElementById("text-size-select-standard").innerText =
+        all_strings["standard-text-size"];
+    document.getElementById("text-size-select-large").innerText =
+        all_strings["large-text-size"];
+    document.getElementById("text-size-select-extra-large").innerText =
+        all_strings["extra-large-text-size"];
     document.getElementById("theme-text").innerText = all_strings["theme-text"];
     document.getElementById("theme-select-lighter").innerText =
         all_strings["theme-choose-lighter-select"];
@@ -1429,6 +1505,8 @@ function loadSettings() {
                 settings_json["spellcheck-detection"] = false;
             if (settings_json["disable-confirmation-popup"] === undefined)
                 settings_json["disable-confirmation-popup"] = false;
+            if (settings_json["allow-resize-popup"] === undefined)
+                settings_json["allow-resize-popup"] = false;
             if (settings_json["theme"] === undefined)
                 settings_json["theme"] = "light";
             if (settings_json["sticky-theme"] === undefined)
@@ -1465,6 +1543,9 @@ function loadSettings() {
                 !supportedDatetimeFormat.includes(settings_json["datetime-format"])
             )
                 settings_json["datetime-format"] = "yyyymmdd1";
+            if (settings_json["text-size"] === undefined || !supportedTextSize.includes(settings_json["text-size"]))
+                settings_json["text-size"] = "standard";
+
             if (settings_json["sending-error-logs-automatically"] === undefined)
                 settings_json["sending-error-logs-automatically"] = false;
             if (settings_json["send-telemetry"] === undefined)
@@ -1526,6 +1607,9 @@ function loadSettings() {
             document.getElementById("disable-confirmation-popup-check").checked =
                 settings_json["disable-confirmation-popup"] === true ||
                 settings_json["disable-confirmation-popup"] === "yes";
+            document.getElementById("allow-resize-popup-check").checked =
+                settings_json["allow-resize-popup"] === true ||
+                settings_json["allow-resize-popup"] === "yes";
             document.getElementById("check-green-icon-global-check").checked =
                 settings_json["check-green-icon-global"] === true ||
                 settings_json["check-green-icon-global"] === "yes";
@@ -1572,7 +1656,7 @@ function loadSettings() {
                     .classList.add("hidden");
             }
 
-            //light, dark, lighter, darker, auto
+            //light, dark, lighter, darker, auto, ... (theme)
             if (settings_json["theme"] === "light")
                 setThemeChooserByElement(
                     document.getElementById("item-radio-theme-light"),
@@ -1702,6 +1786,15 @@ function loadSettings() {
                 setDatetimeFormatChooserByElement(
                     document.getElementById(
                         "item-radio-datetime-format-" + settings_json["datetime-format"]
+                    ),
+                    false
+                );
+            }
+
+            if (settings_json["text-size"] !== undefined) {
+                setTextSizeChooserByElement(
+                    document.getElementById(
+                        "item-radio-text-size-" + settings_json["text-size"]
                     ),
                     false
                 );

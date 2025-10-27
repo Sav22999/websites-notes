@@ -15,6 +15,8 @@ var stickyNotesSupported = true;
 const all_strings = strings[languageToUse];
 const linkAcceptPrivacy = "/privacy/index.html";
 
+var resize_popup_width = 336;
+
 //Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
     "red": all_strings["red-colour"],
@@ -102,6 +104,93 @@ function loaded() {
         }
     });
     browser.runtime.sendMessage({"check-user": true});
+}
+
+function setPopupResizable(resizable) {
+    try {
+        resize_popup_width = settings_json["allow-resize-popup--width"];
+        let resize_button = document.getElementById("resize-popup");
+        let popup = document.getElementById("popup-content");
+        if (resize_button !== undefined && popup !== undefined) {
+            let isResizing = false;
+            resize_button.addEventListener('mousedown', (e) => {
+                isResizing = onMouseDownResize(e, popup, isResizing);
+            });
+
+            if (resizable) {
+                if (resize_button.classList.contains("hidden")) {
+                    resize_button.classList.remove("hidden");
+                }
+
+                popup.style.setProperty('max-width', 'none');
+                if (resize_popup_width !== undefined && resize_popup_width !== null && resize_popup_width !== "") {
+                    //remove max-width and min-width to allow resizing
+                    popup.style.setProperty('width', resize_popup_width, 'important');
+                    //console.info("Popup resized to " + resize_popup_width);
+                }
+            } else {
+                if (!resize_button.classList.contains("hidden")) {
+                    resize_button.classList.add("hidden");
+                }
+            }
+        }
+    } catch (e) {
+        console.error("P1)) " + e);
+        onError("script.js::setPopupResizable", e.message, _pageUrl);
+    }
+}
+
+/**
+ * Make "resizable" the popup
+ */
+function onMouseDownResize(e, popup, isResizing) {
+    isResizing = true;
+    const initialWidth = popup.offsetWidth;
+    const initialHeight = popup.offsetHeight;
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+
+    function onMouseMove(e) {
+        if (!isResizing) return;
+
+        const deltaX = e.clientX - startX;
+
+        popup.style.setProperty('width', initialWidth + deltaX + 'px', 'important');
+        popup.style.setProperty('max-width', 'none');
+
+        if (popup.style.width.replace("px", "") < 336) popup.style.width = "336px"; //minimum width
+
+        if (popup.style.width.replace("px", "") > (screenWidth / 2)) popup.style.width = (screenWidth / 2) + "px";
+    }
+
+    function onMouseUp() {
+        isResizing = false;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+
+        if (popup.style.width.replace("px", "") < 336) popup.style.width = "336px"; //minimum width
+
+        if (popup.style.width.replace("px", "") > (screenWidth / 2)) popup.style.width = (screenWidth / 2) + "px";
+
+        browser.storage.local.get("settings", (result) => {
+            let settings = []
+            if (result["settings"] !== undefined) {
+                settings = result["settings"];
+            }
+            settings["allow-resize-popup--width"] = popup.style.width;
+            browser.storage.local.set({"settings": settings}).then(() => {
+                sendMessageUpdateToBackground();
+                //console.info("Popup resize saved: " + popup.style.width);
+            });
+        })
+    }
+
+    return isResizing;
 }
 
 function checkTimesOpened() {
@@ -247,6 +336,7 @@ function loadUI() {
     let notes = document.getElementById("notes");
     let title_notes = document.getElementById("title-notes");
     notes.style.fontFamily = `'${settings_json["font-family"]}'`;
+    notes.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
     if (settings_json !== undefined && settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true)) {
         document.getElementById("notes").style.whiteSpace = "none";
         document.getElementById("notes").style.maxWidth = "none";
@@ -255,6 +345,7 @@ function loadUI() {
         document.getElementById("notes").style.maxWidth = "100%";
     }
     title_notes.style.fontFamily = `'${settings_json["font-family"]}'`;
+    title_notes.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         let activeTab = tabs[0];
         let activeTabId = activeTab.id;
@@ -486,6 +577,8 @@ function loadUI() {
             document.getElementById("popup-content").classList.add("mobile");
         }
     }
+
+    setPopupResizable(settings_json["allow-resize-popup"]);
 }
 
 function changeTagColour(url, colour) {
@@ -623,6 +716,9 @@ function loadSettings(load_only = false) {
         if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
         if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
         if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
+        if (settings_json["text-size"] === undefined || !supportedTextSize.includes(settings_json["text-size"])) settings_json["text-size"] = "standard";
+        if (settings_json["allow-resize-popup"] === undefined) settings_json["allow-resize-popup"] = false;
+        if (settings_json["allow-resize-popup--width"] === undefined) settings_json["allow-resize-popup--width"] = 336;
 
         if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true; else advanced_managing = false;
 

@@ -110,8 +110,48 @@ body {
 }
 
 #popup-content.mobile {
-    min-width: 100%;
-    max-width: 100%;
+    min-width: 100% !important;
+    max-width: 100% !important;
+}
+
+#resize-popup {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    opacity: 1;
+    cursor: ew-resize;
+    z-index: 2;
+    margin: 0px !important;
+    padding: 0px !important;
+    box-sizing: border-box !important;
+    border-right-color: var(--primary-color) !important;
+    border-width: 0px !important;
+}
+
+#resize-popup::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-top: 20px solid transparent;
+    border-right-width: 20px;
+    border-right-style: solid;
+    border-right-color: inherit;
+    width: 0;
+    height: 0;
+    border-bottom-right-radius: 10px;
+    opacity: 0.6;
+}
+
+#resize-popup:hover::before {
+    opacity: 0.8;
+}
+
+#resize-popup:active::before {
+    opacity: 1;
 }
 
 #tabs-section {
@@ -499,6 +539,9 @@ textarea:active,
 #notes-section {
     padding: 2px;
     background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
 }
 
 .content-notes--container > .content-notes > *,
@@ -586,8 +629,6 @@ pre::placeholder,
     overflow: auto;
     background-color: var(--textbox-color);
     color: var(--on-textbox-color);
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
 }
 
 .no-border-radius-top {
@@ -664,7 +705,7 @@ pre::placeholder,
     top: 2px;
     right: 2px;
     left: 2px;
-    bottom: 2px;
+    bottom: -2px;
     /* box-shadow: 0px 0px 0px 1px var(--on-textbox-color); */
     z-index: 100;
     overflow: visible;
@@ -2129,7 +2170,8 @@ aside .external-link {
 .theme-section-radio-container,
 .sticky-theme-section-radio-container,
 .font-family-section-radio-container,
-.datetime-format-section-radio-container {
+.datetime-format-section-radio-container,
+.text-size-section-radio-container {
     display: grid;
     text-align: center;
     grid-template-areas: "auto auto auto auto auto";
@@ -2146,6 +2188,10 @@ aside .external-link {
 
 .datetime-format-section-radio-container {
     grid-template-areas: "auto auto auto auto";
+}
+
+.text-size-section-radio-container {
+    grid-template-areas: "auto auto auto auto auto";
 }
 
 #default-tag-colour-domain-select,
@@ -2318,6 +2364,48 @@ aside .external-link {
 
 /*end - datetime-format*/
 
+/*start - text-size*/
+
+.item-radio-text-size {
+    background-color: var(--primary-color);
+}
+
+.item-radio-title-text-size {
+    color: var(--on-primary-color);
+}
+
+.item-radio-text-size-preview-item {
+    background-color: var(--secondary-color);
+    color: var(--on-secondary-color);
+
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#preview-text-size-extra-small {
+    font-size: 0.7em;
+}
+
+#preview-text-size-small {
+    font-size: 0.85em;
+}
+
+#preview-text-size-standard {
+    font-size: 1em;
+}
+
+#preview-text-size-large {
+    font-size: 1.5em;
+}
+
+#preview-text-size-extra-large {
+    font-size: 2em;
+}
+
+/*end - text-size*/
+
 hr {
     border: 0px solid transparent;
     height: 1px;
@@ -2361,7 +2449,8 @@ hr.hr-domain:last-child {
 .theme-section-radio-container,
 .sticky-theme-section-radio-container,
 .font-family-section-radio-container,
-.datetime-format-section-radio-container {
+.datetime-format-section-radio-container,
+.text-size-section-radio-container {
     width: 60%;
 }
 
@@ -2372,6 +2461,7 @@ hr.hr-domain:last-child {
     .sticky-theme-section-radio-container,
     .font-family-section-radio-container,
     .datetime-format-section-radio-container,
+    .text-size-section-radio-container,
     hr {
         width: 70%;
     }
@@ -2384,6 +2474,7 @@ hr.hr-domain:last-child {
     .sticky-theme-section-radio-container,
     .font-family-section-radio-container,
     .datetime-format-section-radio-container,
+    .text-size-section-radio-container,
     hr {
         width: 80%;
     }
@@ -2396,6 +2487,7 @@ hr.hr-domain:last-child {
     .sticky-theme-section-radio-container,
     .font-family-section-radio-container,
     .datetime-format-section-radio-container,
+    .text-size-section-radio-container,
     hr {
         width: 90%;
     }
@@ -2408,6 +2500,7 @@ hr.hr-domain:last-child {
     .sticky-theme-section-radio-container,
     .font-family-section-radio-container,
     .datetime-format-section-radio-container,
+    .text-size-section-radio-container,
     hr {
         width: 100%;
     }
@@ -2430,14 +2523,16 @@ hr.hr-domain:last-child {
     .theme-section-radio-container,
     .sticky-theme-section-radio-container,
     .font-family-section-radio-container,
-    .datetime-format-section-radio-container {
+    .datetime-format-section-radio-container,
+    .text-size-section-radio-container {
         width: 100%;
     }
 
     .theme-section-radio-container,
     .sticky-theme-section-radio-container,
     .font-family-section-radio-container,
-    .datetime-format-section-radio-container {
+    .datetime-format-section-radio-container,
+    .text-size-section-radio-container {
         grid-template-areas: "auto";
     }
 }
@@ -2445,7 +2540,8 @@ hr.hr-domain:last-child {
 .item-radio-theme,
 .item-radio-sticky-theme,
 .item-radio-font-family,
-.item-radio-datetime-format {
+.item-radio-datetime-format,
+.item-radio-text-size {
     display: inline-block;
     position: relative;
     padding: 0px;
@@ -2462,21 +2558,24 @@ hr.hr-domain:last-child {
 .item-radio-theme:not(.sel):hover,
 .item-radio-sticky-theme:not(.sel):hover,
 .item-radio-font-family:not(.sel):hover,
-.item-radio-datetime-format:not(.sel):hover {
+.item-radio-datetime-format:not(.sel):hover,
+.item-radio-text-size:not(.sel):hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
 .item-radio-theme.sel,
 .item-radio-sticky-theme.sel,
 .item-radio-font-family.sel,
-.item-radio-datetime-format.sel {
+.item-radio-datetime-format.sel,
+.item-radio-text-size.sel {
     box-shadow: 0px 0px 0px 5px var(--tertiary-transparent-2)
 }
 
 .item-radio-theme input[type="radio"],
 .item-radio-sticky-theme input[type="radio"],
 .item-radio-font-family input[type="radio"],
-.item-radio-datetime-format input[type="radio"] {
+.item-radio-datetime-format input[type="radio"],
+.item-radio-text-size input[type="radio"] {
     position: absolute;
     opacity: 0;
     cursor: pointer;
@@ -2493,7 +2592,8 @@ hr.hr-domain:last-child {
 .item-radio-theme-preview-container,
 .item-radio-sticky-theme-preview-container,
 .item-radio-font-family-preview-container,
-.item-radio-datetime-format-preview-container {
+.item-radio-datetime-format-preview-container,
+.item-radio-text-size-preview-container {
     height: auto;
     width: 100%;
     background-color: transparent;
@@ -2505,14 +2605,16 @@ hr.hr-domain:last-child {
 
 .item-radio-sticky-theme-preview-container,
 .item-radio-font-family-preview-container,
-.item-radio-datetime-format-preview-container {
+.item-radio-datetime-format-preview-container,
+.item-radio-text-size-preview-container {
     grid-template-areas: "primary";
 }
 
 .item-radio-theme-preview-item,
 .item-radio-sticky-theme-item,
 .item-radio-font-family-preview-item,
-.item-radio-datetime-format-preview-item {
+.item-radio-datetime-format-preview-item,
+.item-radio-text-size-preview-item {
     padding: 15px;
     font-size: 2em;
     font-family: inherit;

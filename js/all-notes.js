@@ -432,12 +432,12 @@ function loadDataFromBrowser(generate_section = true) {
 function clearAllNotesDomain(url) {
     // Check if confirmation popup is disabled
     let shouldConfirm = !(settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes");
-    
+
     let confirmation = true;
     if (shouldConfirm) {
         confirmation = confirm(all_strings["clear-all-notes-domain-confirmation"]);
     }
-    
+
     if (confirmation) {
         for (let index in websites_json_by_domain[url]) {
             //delete all pages
@@ -460,15 +460,15 @@ function clearAllNotesPage(url, isDomain = false) {
     if (!isDomain) {
         messageToShow = all_strings["clear-all-notes-page-with-confirmation"].replaceAll("{{url}}", url);
     }
-    
+
     // Check if confirmation popup is disabled
     let shouldConfirm = !(settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes");
-    
+
     let confirmation = true;
     if (shouldConfirm) {
         confirmation = confirm(messageToShow);
     }
-    
+
     if (confirmation) {
         //delete the selected page
         delete websites_json[url];
@@ -1023,6 +1023,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
 
         textNotes.style.fontFamily = `'${settings_json["font-family"]}'`;
+        textNotes.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
 
         contentNotes.append(textNotes);
         contentNotesContainer.appendChild(contentNotes);
