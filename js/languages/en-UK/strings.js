@@ -304,7 +304,7 @@ strings[lang] = {
     "import-text": "Import data from a JSON file or text",
     "clear-all-notes-text": "Reset all data",
     "export-detailed-text": "Export all data, which includes notes, settings, and other data, to a JSON file or text. <b>Once started, the export process can't be stopped.</b>",
-    "import-detailed-text": "Import all data from a JSON file or text <b>Once started, the import process can't be stopped.</b>",
+    "import-detailed-text": "Import all data from a JSON file or text. <b>Once started, the import process can't be stopped.</b>",
     "clear-all-notes-detailed-text": "Clear all data saved by the add-on. <b>Once started, the process can't be stopped.</b>",
     "delete-account-confirmation": "Are you sure you want to delete your account?\nYou can't cancel this process once started.",
     "passwords-not-equal-alert": "The passwords don't match. Please, retype them with attention.\nYou won't be able to recover your data if you forget the password.",

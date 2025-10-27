@@ -579,6 +579,11 @@ function loadUI() {
     }
 
     setPopupResizable(settings_json["allow-resize-popup"]);
+
+    let splashScreen = document.getElementById("splash-screen-popup");
+    if (splashScreen !== undefined && splashScreen !== null) {
+        splashScreen.classList.add("splash-screen-hidden");
+    }
 }
 
 function changeTagColour(url, colour) {

@@ -95,6 +95,7 @@ var ctrl_alt_shift = ["default", "domain", "page"];
 const linkAcceptPrivacy = "/privacy/index.html";
 
 function loaded() {
+    console.time("settings-loaded");
     browser.storage.sync.get("privacy").then((result) => {
         if (result.privacy === undefined) {
             //not accepted privacy policy -> open 'privacy' page
@@ -743,6 +744,11 @@ function loaded() {
 
     loadAsideBar();
     loadDeveloperOptions();
+
+    let splashScreen = document.getElementById("splash-screen-settings");
+    if (splashScreen !== undefined && splashScreen !== null) {
+        splashScreen.classList.add("splash-screen-hidden");
+    }
 }
 
 function sendTelemetry(action, context = "settings.js", other = null) {

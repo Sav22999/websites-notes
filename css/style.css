@@ -4384,8 +4384,6 @@ option {
     gap: 20px;
 
     z-index: 150;
-
-    animation: splash-animation 0.3s linear forwards;
 }
 
 .splash-screen > img {
@@ -4399,19 +4397,20 @@ option {
     opacity: 0.7;
 }
 
-.splash-screen-popup {
-    animation-duration: 0s; /*check if use or not*/
+#splash-screen-settings {
+}
+
+#splash-screen-popup {
+    animation-duration: 0s;
+}
+
+.splash-screen-hidden {
+    animation: splash-animation 0.1s linear forwards;
 }
 
 @keyframes splash-animation {
     0% {
         opacity: 1;
-    }
-    50% {
-        opacity: 1;
-    }
-    99% {
-        opacity: 0;
     }
     100% {
         opacity: 0;

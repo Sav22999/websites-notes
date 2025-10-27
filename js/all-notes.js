@@ -159,6 +159,11 @@ function loaded() {
     versionNumber.textContent = browser.runtime.getManifest().version;
     versionNumber.id = "version";
     titleAllNotes.append(versionNumber);
+
+    let splashScreen = document.getElementById("splash-screen-all-notes");
+    if (splashScreen !== undefined && splashScreen !== null) {
+        splashScreen.classList.add("splash-screen-hidden");
+    }
 }
 
 function sendTelemetry(action, context = "all-notes.js", url = null, other = null) {
