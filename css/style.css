@@ -966,7 +966,7 @@ pre::placeholder,
 #filters {
     position: sticky;
     top: 54.5px;
-    margin-top: -5px;
+    margin-top: 0px;
     border-radius: 0px;
     margin-left: -20px;
     margin-right: -20px;
@@ -1082,7 +1082,8 @@ pre::placeholder,
 }
 
 #background-opacity {
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
     position: fixed !important;
     top: 0px;
     bottom: 0px;
@@ -1112,8 +1113,8 @@ pre::placeholder,
     right: 0px;
     z-index: 101;
     padding: 10px;
-    padding-left: 20%;
-    padding-right: 20%;
+    padding-left: calc(100px + 10%); /*100px aside, 20% padding*/
+    padding-right: 10%;
     overflow: auto;
     padding-top: 10%;
     padding-bottom: 10%;
@@ -1141,8 +1142,8 @@ pre::placeholder,
     #telemetry-added-section,
     .message-popup {
         padding-top: 5%;
-        padding-left: 10%;
-        padding-right: 10%;
+        padding-left: calc(100px + 30px); /*100px aside, 30px padding*/
+        padding-right: 30px;
         padding-bottom: 5%;
     }
 }
@@ -4257,25 +4258,74 @@ option {
         opacity: 0;
     }
 }
-.select-font-size-all-notes {
-    min-width: 70px;
-    padding: 5px 8px;
-    font-size: 0.9em;
+
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100vw;
+    height: 100vh;
+
+    border: 0px solid transparent;
+    border-radius: 0px;
+
+    color: #ff6200;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    flex-direction: column;
+    gap: 20px;
+
+    z-index: 150;
+
+    animation: splash-animation 0.3s linear forwards;
 }
 
-.font-size-button {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><text x="2" y="18" font-size="14" font-weight="bold">Aa</text></svg>');
-    background-repeat: no-repeat;
-    background-position: left 8px center;
-    background-size: 20px;
-    padding-left: 32px;
+.splash-screen > img {
+    height: 100%;
+    max-height: 60px;
+    border-radius: 0px;
+    opacity: 0.5;
 }
 
-.textarea-all-notes {
-    font-size: inherit !important;
+.splash-screen > #loading-splash-screen {
+    opacity: 0.7;
 }
 
-/* Or more specifically: */
-pre.textarea-all-notes {
-    font-size: inherit !important;
+.splash-screen-popup {
+    animation-duration: 0s; /*check if use or not*/
+}
+
+@keyframes splash-animation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+    }
+    99% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+        display: none;
+    }
+}
+
+/*initial color (based on web browser)*/
+@media (prefers-color-scheme: light) {
+    .splash-screen, body {
+        background-color: white;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .splash-screen, body {
+        background-color: black;
+    }
 }

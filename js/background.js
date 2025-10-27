@@ -74,6 +74,7 @@ function onError(context, text, url = undefined) {
                 anonymous_userid = generateSecureUUID();
                 browser.storage.sync.set({"anonymous-userid": anonymous_userid});
             }
+            //if(context !== undefined && (context.includes("NetworkError") || ))
             const error = {
                 "datetime": getDate(),
                 "context": context,
@@ -334,7 +335,9 @@ function actionResponse(response) {
                             sendLocalDataToServer();
                         } else {
                             console.error("[background.js::actionResponse] Error: ", data);
-                            onError("background.js::actionResponse::get-data", JSON.stringify(data), tab_url);
+                            if (data && data.message && !data.message.includes("NetworkError")) {
+                                onError("background.js::actionResponse::get-data", JSON.stringify(data), tab_url);
+                            }
                         }
                     }
                 }
@@ -350,7 +353,9 @@ function actionResponse(response) {
                             sync_local.set({"error-logs": []});
                         } else {
                             console.error("[background.js::actionResponse] Error: ", data);
-                            onError("background.js::actionResponse::listen-error-logs", JSON.stringify(data), tab_url);
+                            if (data && data.message && !data.message.includes("NetworkError")) {
+                                onError("background.js::actionResponse::listen-error-logs", JSON.stringify(data), tab_url);
+                            }
                         }
                     }
                 }
@@ -364,7 +369,9 @@ function actionResponse(response) {
                             sync_local.set({"telemetry": []});
                         } else {
                             console.error("[background.js::actionResponse] Error: ", data);
-                            onError("background.js::actionResponse::listen-telemetry-logs", JSON.stringify(data), tab_url);
+                            if (data && data.message && !data.message.includes("NetworkError")) {
+                                onError("background.js::actionResponse::listen-telemetry-logs", JSON.stringify(data), tab_url);
+                            }
                         }
                     }
                 }
@@ -449,7 +456,7 @@ function syncUpdateFromServer() {
             syncUpdateFromServer();
         }, 5 * 60 * 1000); //5 minutes if any issues
         console.error(`E-B2: ${e}`);
-        onError("background.js::syncUpdateFromServer", e.message, tab_url);
+        onError("background.js::syncUpdateFromServer", JSON.stringify(e), tab_url);
     });
 
     loaded();
@@ -546,6 +553,18 @@ function updateIcon(color, tabId, enabled = true) {
     browser.browserAction.setIcon({
         path: dataUrl, tabId: tabId
     });
+
+    //update badge if settings_json["show-icon-badge"] is true
+    if (enabled && settings_json["show-icon-badge"] !== undefined && settings_json["show-icon-badge"] === true) {
+        const numberOfNotes = getNumberOfNotes();
+        if (numberOfNotes > 0) {
+            browser.browserAction.setBadgeText({text: numberOfNotes.toString(), tabId: tabId});
+            browser.browserAction.setBadgeBackgroundColor({color: colorBackground, tabId: tabId});
+            browser.browserAction.setBadgeTextColor({color: colorText, tabId: tabId});
+        }
+    } else {
+        browser.browserAction.setBadgeText({text: "", tabId: tabId});
+    }
 }
 
 function getLuminance(hex) {
@@ -694,6 +713,7 @@ function checkStatus(update = false) {
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
+            if (settings_json["show-icon-badge"] === undefined) settings_json["show-icon-badge"] = false;
             //console.log(JSON.stringify(settings_json));
             //console.log("checkStatus");
             //console.log(value);
@@ -1458,6 +1478,42 @@ function getTheCorrectUrl(do_not_check_opened = false) {
     type_to_use = type;
 
     return url_to_use;
+}
+
+/**
+ * get number of notes for the given url
+ */
+function getNumberOfNotes() {
+    //todo-improve: check also if there are more than one note for each type (page, domain, global, subdomains)
+    let numberToReturn = 0;
+
+    const _getDomain = getDomainUrl(tab_url);
+    const _getPage = getPageUrl(tab_url);
+
+    let domain_url = getUrlWithSupportedProtocol(_getDomain, websites_json);
+    let page_url = getUrlWithSupportedProtocol(_getPage, websites_json);
+    let global_url = getGlobalUrl();
+    let check_domain = checkAllSupportedProtocols(_getDomain, websites_json) && checkAllSupportedProtocolsLastUpdate(_getDomain, websites_json) && checkAllSupportedProtocolsNotes(_getDomain, websites_json);
+    if (check_domain) numberToReturn += 1; //add at least one note for domain
+    //let check_tab_url = (settings_json["check-green-icon-domain"] === "yes" || settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-page"] === "yes" || settings_json["check-green-icon-page"] === true) && websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "";
+    //let check_tab_url = false;
+    let check_page = checkAllSupportedProtocols(_getPage, websites_json) && checkAllSupportedProtocolsLastUpdate(_getPage, websites_json) && checkAllSupportedProtocolsNotes(_getPage, websites_json);
+    if (check_page) numberToReturn += 1; //add at least one note for page
+    let check_global = websites_json[global_url] !== undefined && websites_json[global_url]["last-update"] !== undefined && websites_json[global_url]["last-update"] != null && websites_json[global_url]["notes"] !== undefined && websites_json[global_url]["notes"] !== "";
+    if (check_global) numberToReturn += 1; //add at least one note for global
+    let check_subdomains = false;
+    let subdomains = getAllOtherPossibleUrls(tab_url);
+    subdomains.forEach(subdomain => {
+        let subdomain_url = domain_url + subdomain;
+        let tmp_check = checkAllSupportedProtocols(subdomain_url, websites_json) && checkAllSupportedProtocolsLastUpdate(subdomain_url, websites_json) && checkAllSupportedProtocolsNotes(subdomain_url, websites_json);
+        if (tmp_check) {
+            check_subdomains = true;
+            numberToReturn += 1; //add at least one note for that subdomain
+        }
+        //console.log(url + " : " + tmp_check);
+    });
+
+    return numberToReturn;
 }
 
 /**

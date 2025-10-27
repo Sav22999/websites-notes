@@ -22,22 +22,28 @@ function onError(context, text, url = undefined) {
             anonymous_userid = generateSecureUUID();
             browser.storage.sync.set({"anonymous-userid": anonymous_userid});
         }
-        const error = {
-            "datetime": getDate(),
-            "context": context,
-            "error": text,
-            url: url,
-            "notefox-version": browser.runtime.getManifest().version,
-            "anonymous-userid": anonymous_userid
-        };
-        browser.storage.local.get("error-logs").then(result => {
-            let error_logs = [];
-            if (result["error-logs"] !== undefined) {
-                error_logs = result["error-logs"];
-            }
-            error_logs.push(error);
-            browser.storage.local.set({"error-logs": error_logs});
-        });
+
+        //if url !== "" and url starts with "about:", skip it
+        if (url !== undefined && url.startsWith("about:")) {
+            //do nothing
+        } else {
+            const error = {
+                "datetime": getDate(),
+                "context": context,
+                "error": text,
+                url: url,
+                "notefox-version": browser.runtime.getManifest().version,
+                "anonymous-userid": anonymous_userid
+            };
+            browser.storage.local.get("error-logs").then(result => {
+                let error_logs = [];
+                if (result["error-logs"] !== undefined) {
+                    error_logs = result["error-logs"];
+                }
+                error_logs.push(error);
+                browser.storage.local.set({"error-logs": error_logs});
+            });
+        }
     });
 }
 
@@ -137,9 +143,7 @@ async function api_request(message) {
 async function api_call(endpoint, body) {
     try {
         const response = await fetch(api_url + endpoint, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(body)
+            method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)
         });
         if (!response.ok) {
             console.error(`[api-service.js::api_call::${endpoint}] HTTP error! Status: ${response.status}`);
@@ -150,9 +154,13 @@ async function api_call(endpoint, body) {
         browser.storage.local.remove("notefox-server-error-shown");
         return await response.json();
     } catch (error) {
-        console.error(`[api-service.js::api_call::${endpoint}] API request failed:`, error);
-        onError("api-service.js::api_call", "API request failed: " + error.message);
-
+        if (error instanceof TypeError && error.includes("NetworkError")) {
+            console.error(`[api-service.js::api_call::${endpoint}] Network error:`, error);
+            //onError("api-service.js::api_call", "Network error: " + error.message);
+        } else {
+            console.error(`[api-service.js::api_call::${endpoint}] API request failed:`, error);
+            onError("api-service.js::api_call", "API request failed: " + error.message);
+        }
         return {error: true, message: error.message, details: error};
     }
 }
@@ -165,7 +173,9 @@ async function api_call(endpoint, body) {
 async function sendMessage(message) {
     //console.log("[sendMessage] message", message);
     // Used '(typeof browser !== 'undefined' ? browser : chrome)' instead 'browser' so it's compatible both with Firefox and Chrome
-    (typeof browser !== 'undefined' ? browser : chrome).runtime.sendMessage(message);
+    if (message !== undefined) {
+        (typeof browser !== 'undefined' ? browser : chrome).runtime.sendMessage(message);
+    }
 }
 
 async function signup(username, email, password) {
@@ -173,18 +183,13 @@ async function signup(username, email, password) {
     //console.log("[api-service.js::signup] data", data);
     if (data.error) {
         sendMessage({
-            api_response: true,
-            type: "signup",
-            data: {
-                error: true,
-                message: data.message
+            api_response: true, type: "signup", data: {
+                error: true, message: data.message
             }
         });
     } else {
         sendMessage({
-            api_response: true,
-            type: "signup",
-            data: data
+            api_response: true, type: "signup", data: data
         });
     }
 }
@@ -194,43 +199,31 @@ async function signup_new_code(email, password) {
     //console.log("[api-service.js::signup_new_code] data", data);
     if (data.error) {
         sendMessage({
-            api_response: true,
-            type: "signup-new-code",
-            data: {
-                error: true,
-                message: data.message
+            api_response: true, type: "signup-new-code", data: {
+                error: true, message: data.message
             }
         });
     } else {
         sendMessage({
-            api_response: true,
-            type: "signup-new-code",
-            data: data
+            api_response: true, type: "signup-new-code", data: data
         });
     }
 }
 
 async function signup_verify(email, password, verification_code) {
     const data = await api_call("/signup/verify/", {
-        "email": email,
-        "password": password,
-        "verification-code": verification_code
+        "email": email, "password": password, "verification-code": verification_code
     });
     //console.log("[api-service.js::signup_verify] data", data);
     if (data.error) {
         sendMessage({
-            api_response: true,
-            type: "signup-verify",
-            data: {
-                error: true,
-                message: data.message
+            api_response: true, type: "signup-verify", data: {
+                error: true, message: data.message
             }
         });
     } else {
         sendMessage({
-            api_response: true,
-            type: "signup-verify",
-            data: data
+            api_response: true, type: "signup-verify", data: data
         });
     }
 }
@@ -240,69 +233,49 @@ async function login(email, password) {
     //console.log("[api-service.js::login] data", data);
     if (data.error) {
         sendMessage({
-            api_response: true,
-            type: "get-data",
-            data: {
-                error: true,
-                message: data.message
+            api_response: true, type: "get-data", data: {
+                error: true, message: data.message
             }
         });
     } else {
         sendMessage({
-            api_response: true,
-            type: "login",
-            data: data
+            api_response: true, type: "login", data: data
         });
     }
 }
 
 async function login_new_code(email, password, login_id) {
     const data = await api_call("/login/verify/get-new-code/", {
-        "email": email,
-        "password": password,
-        "login-id": login_id
+        "email": email, "password": password, "login-id": login_id
     });
     //console.log("[api-service.js::login_new_code] data", data);
     if (data.error) {
         sendMessage({
-            api_response: true,
-            type: "login-new-code",
-            data: {
-                error: true,
-                message: data.message
+            api_response: true, type: "login-new-code", data: {
+                error: true, message: data.message
             }
         });
     } else {
         sendMessage({
-            api_response: true,
-            type: "login-new-code",
-            data: data
+            api_response: true, type: "login-new-code", data: data
         });
     }
 }
 
 async function login_verify(email, password, login_id, verification_code) {
     const data = await api_call("/login/verify/", {
-        "email": email,
-        "password": password,
-        "login-id": login_id,
-        "verification-code": verification_code
+        "email": email, "password": password, "login-id": login_id, "verification-code": verification_code
     });
     //console.log("[api-service.js::login_verify] data", data);
     if (data.error) {
         sendMessage({
-            api_response: true,
-            type: "login-verify",
-            data: {
-                error: true,
-                message: data.message
+            api_response: true, type: "login-verify", data: {
+                error: true, message: data.message
             }
         });
     } else {
         sendMessage({
-            api_response: true,
-            type: "login-verify",
-            data: data
+            api_response: true, type: "login-verify", data: data
         });
     }
 }
@@ -314,18 +287,13 @@ async function logout(login_id, all_devices = false, send_response = true) {
     if (send_response) {
         if (data.error) {
             sendMessage({
-                api_response: true,
-                type: "logout",
-                data: {
-                    error: true,
-                    message: data.message
+                api_response: true, type: "logout", data: {
+                    error: true, message: data.message
                 }
             });
         } else {
             sendMessage({
-                api_response: true,
-                type: "logout",
-                data: data
+                api_response: true, type: "logout", data: data
             });
         }
     }
@@ -342,18 +310,13 @@ async function get_data_after_check_id(login_id, token) {
     //console.log("[api-service.js::get_data_after_check_id] data", data);
     if (data.error) {
         actionResponse({
-            api_response: true,
-            type: "get-data",
-            data: {
-                error: true,
-                message: data.message
+            api_response: true, type: "get-data", data: {
+                error: true, message: data.message
             }
         });
     } else {
         actionResponse({
-            api_response: true,
-            type: "get-data",
-            data: data
+            api_response: true, type: "get-data", data: data
         })
     }
 }
@@ -368,57 +331,38 @@ async function get_data(login_id, token) {
     const data = await api_call("/data/get/", {"login-id": login_id, "token": token});
     //console.log("[api-service.js::get_data] data", data);
     api_request({
-        "api": true,
-        "type": "get-data-after-check-id",
-        "data": {
-            "login-id": login_id,
-            "token": token
+        "api": true, "type": "get-data-after-check-id", "data": {
+            "login-id": login_id, "token": token
         }
     });
 }
 
 async function send_data_after_check_id(login_id, token, updated_locally, data_value) {
     const data = await api_call("/data/insert/", {
-        "login-id": login_id,
-        "token": token,
-        "updated-locally": updated_locally,
-        "data": data_value
+        "login-id": login_id, "token": token, "updated-locally": updated_locally, "data": data_value
     });
     //console.log("[api-service.js::send_data_after_check_id] data", data);
     if (data.error) {
         actionResponse({
-            api_response: true,
-            type: "send-data",
-            data: {
-                error: true,
-                message: data.message
+            api_response: true, type: "send-data", data: {
+                error: true, message: data.message
             }
         });
     } else {
         actionResponse({
-            api_response: true,
-            type: "send-data",
-            data: data
+            api_response: true, type: "send-data", data: data
         });
     }
 }
 
 async function send_data(login_id, token, updated_locally, data_value) {
     const data = await api_call("/data/insert/", {
-        "login-id": login_id,
-        "token": token,
-        "updated-locally": updated_locally,
-        "data": data_value
+        "login-id": login_id, "token": token, "updated-locally": updated_locally, "data": data_value
     });
     //console.log("[api-service.js::send_data] data", data);
     api_request({
-        "api": true,
-        "type": "send-data-after-check-id",
-        "data": {
-            "login-id": login_id,
-            "token": token,
-            "updated-locally": updated_locally,
-            "data": data_value
+        "api": true, "type": "send-data-after-check-id", "data": {
+            "login-id": login_id, "token": token, "updated-locally": updated_locally, "data": data_value
         }
     })
 }
@@ -439,7 +383,7 @@ async function check_user(login_id, token) {
         });
     } else {
         console.error("[api-service.js::check_user::exception] User is not valid", data);
-        onError("api-service.js::check_user::exception", "User is not valid", data);
+        onError("api-service.js::check_user::exception", "User is not valid" + JSON.stringify(data));
         sendMessage({"check-user--exception": true}).then(response => {
             //logout(login_id, false, false);
             //browser.storage.sync.remove("notefox-account");
@@ -450,11 +394,9 @@ async function check_user(login_id, token) {
 async function change_password(login_id_value, token_value, old_password_value, new_password_value) {
     try {
         const response = await fetch(api_url + '/password/edit/', {
-            method: 'POST',
-            headers: {
+            method: 'POST', headers: {
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
+            }, body: JSON.stringify({
                 "login-id": login_id_value,
                 "token": token_value,
                 "password": old_password_value,
@@ -465,9 +407,7 @@ async function change_password(login_id_value, token_value, old_password_value, 
         const data = await response.json();
 
         sendMessage({
-            "api_response": true,
-            "type": "change-password",
-            "data": data
+            "api_response": true, "type": "change-password", "data": data
         });
 
     } catch (error) {
@@ -475,11 +415,8 @@ async function change_password(login_id_value, token_value, old_password_value, 
         onError("api-service.js::change_password", error.message);
 
         sendMessage({
-            "api_response": true,
-            "type": "change-password",
-            "data": {
-                "error": true,
-                "message": error.message
+            "api_response": true, "type": "change-password", "data": {
+                "error": true, "message": error.message
             }
         });
     }
@@ -488,24 +425,17 @@ async function change_password(login_id_value, token_value, old_password_value, 
 async function delete_account(login_id_value, token_value, email_value, password_value) {
     try {
         const response = await fetch(api_url + '/delete/', {
-            method: 'POST',
-            headers: {
+            method: 'POST', headers: {
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                "login-id": login_id_value,
-                "token": token_value,
-                "email": email_value,
-                "password": password_value
+            }, body: JSON.stringify({
+                "login-id": login_id_value, "token": token_value, "email": email_value, "password": password_value
             })
         });
 
         const data = await response.json();
 
         sendMessage({
-            "api_response": true,
-            "type": "delete-account",
-            "data": data
+            "api_response": true, "type": "delete-account", "data": data
         });
 
     } catch (error) {
@@ -513,11 +443,8 @@ async function delete_account(login_id_value, token_value, email_value, password
         onError("api-service.js::delete_account", error.message);
 
         sendMessage({
-            "api_response": true,
-            "type": "delete-account",
-            "data": {
-                "error": true,
-                "message": error.message
+            "api_response": true, "type": "delete-account", "data": {
+                "error": true, "message": error.message
             }
         });
     }
@@ -526,11 +453,9 @@ async function delete_account(login_id_value, token_value, email_value, password
 async function delete_account_verify(login_id_value, token_value, email_value, password_value, deleting_code_value) {
     try {
         const response = await fetch(api_url + '/delete/verify/', {
-            method: 'POST',
-            headers: {
+            method: 'POST', headers: {
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
+            }, body: JSON.stringify({
                 "login-id": login_id_value,
                 "token": token_value,
                 "email": email_value,
@@ -542,9 +467,7 @@ async function delete_account_verify(login_id_value, token_value, email_value, p
         const data = await response.json();
 
         sendMessage({
-            "api_response": true,
-            "type": "delete-verify",
-            "data": data
+            "api_response": true, "type": "delete-verify", "data": data
         });
 
     } catch (error) {
@@ -552,11 +475,8 @@ async function delete_account_verify(login_id_value, token_value, email_value, p
         onError("api-service.js::delete_account_verify", error.message);
 
         sendMessage({
-            "api_response": true,
-            "type": "delete-verify",
-            "data": {
-                "error": true,
-                "message": error.message
+            "api_response": true, "type": "delete-verify", "data": {
+                "error": true, "message": error.message
             }
         });
     }
@@ -565,22 +485,17 @@ async function delete_account_verify(login_id_value, token_value, email_value, p
 async function delete_account_verify_new_code(email_value, password_value) {
     try {
         const response = await fetch(api_url + '/delete/verify/get-new-code/', {
-            method: 'POST',
-            headers: {
+            method: 'POST', headers: {
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                "email": email_value,
-                "password": password_value
+            }, body: JSON.stringify({
+                "email": email_value, "password": password_value
             })
         });
 
         const data = await response.json();
 
         sendMessage({
-            "api_response": true,
-            "type": "delete-account-new-code",
-            "data": data
+            "api_response": true, "type": "delete-account-new-code", "data": data
         });
 
     } catch (error) {
@@ -588,11 +503,8 @@ async function delete_account_verify_new_code(email_value, password_value) {
         onError("api-service.js::delete_account_verify_new_code", error.message);
 
         sendMessage({
-            "api_response": true,
-            "type": "delete-account-new-code",
-            "data": {
-                "error": true,
-                "message": error.message
+            "api_response": true, "type": "delete-account-new-code", "data": {
+                "error": true, "message": error.message
             }
         });
     }
@@ -603,18 +515,13 @@ async function send_error_logs(error_logs) {
     //console.log("[api-service.js::send_error_logs] data", data);
     if (data.error) {
         actionResponse({
-            api_response: true,
-            type: "listen-error-logs",
-            data: {
-                error: true,
-                message: data.message
+            api_response: true, type: "listen-error-logs", data: {
+                error: true, message: data.message
             }
         });
     } else {
         actionResponse({
-            api_response: true,
-            type: "listen-error-logs",
-            data: data
+            api_response: true, type: "listen-error-logs", data: data
         });
     }
 }
@@ -624,18 +531,13 @@ async function send_telemetry(telemetry_logs) {
     //console.log("[api-service.js::send_telemetry] data", data);
     if (data.error) {
         actionResponse({
-            api_response: true,
-            type: "listen-telemetry-logs",
-            data: {
-                error: true,
-                message: data.message
+            api_response: true, type: "listen-telemetry-logs", data: {
+                error: true, message: data.message
             }
         });
     } else {
         actionResponse({
-            api_response: true,
-            type: "listen-telemetry-logs",
-            data: data
+            api_response: true, type: "listen-telemetry-logs", data: data
         });
     }
 }

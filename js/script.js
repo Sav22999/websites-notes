@@ -1745,6 +1745,8 @@ function notefoxServerError() {
     let section = document.getElementById("notefox-server-error-section");
     let background = document.getElementById("background-opacity");
 
+    hideTabSubDomains();
+
     section.style.display = "block";
     background.style.display = "block";
 
