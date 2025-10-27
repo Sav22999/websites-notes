@@ -343,7 +343,7 @@ function loaded() {
     setStickyThemeChooser();
     setFontFamilyChooser();
     setDatetimeFormatChooser();
-
+    setFontSizeChooser();
     document.getElementById("check-green-icon-global-check").onchange =
         function () {
             settings_json["check-green-icon-global"] = document.getElementById(
@@ -944,6 +944,41 @@ function setDatetimeFormatChooserByElement(element, set_variable = true) {
             settings_json["datetime-format"]
         );
 }
+function setFontSizeChooser() {
+    document
+        .querySelectorAll('.item-radio-font-size input[name="font-size-radio"]')
+        .forEach(function (input) {
+            input.addEventListener("change", function () {
+                setFontSizeChooserByElement(input);
+            });
+        });
+}
+
+function resetFontSizeChooser() {
+    document
+        .querySelectorAll('.item-radio-font-size input[name="font-size-radio"]')
+        .forEach(function (input) {
+            if (input.closest(".item-radio-font-size").classList.contains("sel")) {
+                input.closest(".item-radio-font-size").classList.remove("sel");
+            }
+        });
+}
+
+function setFontSizeChooserByElement(element, set_variable = true) {
+    resetFontSizeChooser();
+    element.closest(".item-radio-font-size").classList.add("sel");
+    if (set_variable) {
+        settings_json["font-size"] = parseInt(element.value);
+        saveSettings();
+    }
+    sendMessageUpdateToBackground();
+    if (set_variable)
+        sendTelemetry(
+            `font-size-radio-select`,
+            "settings.js",
+            settings_json["font-size"]
+        );
+}
 
 function tabUpdated() {
     //checkTheme();
@@ -1299,7 +1334,10 @@ function setLanguageUI() {
         all_strings["notefox-account-button-settings-signup"];
     document.getElementById("verify-signup").value =
         all_strings["notefox-account-button-verify-email"];
-
+    document.getElementById("font-size-text").innerHTML = 
+        all_strings["font-size"];
+    document.getElementById("font-size-detailed-text").innerHTML = 
+        all_strings["font-size-detailed"];
     document.getElementById("verify-signup-code").placeholder =
         all_strings["verification-code-textbox"];
     document.getElementById("verify-signup-submit").value =
@@ -1465,6 +1503,8 @@ function loadSettings() {
                 !supportedDatetimeFormat.includes(settings_json["datetime-format"])
             )
                 settings_json["datetime-format"] = "yyyymmdd1";
+            if (settings_json["font-size"] === undefined)
+                settings_json["font-size"] = 14;
             if (settings_json["sending-error-logs-automatically"] === undefined)
                 settings_json["sending-error-logs-automatically"] = false;
             if (settings_json["send-telemetry"] === undefined)
@@ -1704,6 +1744,13 @@ function loadSettings() {
                         "item-radio-datetime-format-" + settings_json["datetime-format"]
                     ),
                     false
+                );
+            }
+
+            if (settings_json["font-size"] !== undefined) {
+                setFontSizeChooserByElement(
+                document.getElementById("item-radio-font-size-" + settings_json["font-size"]),
+                false
                 );
             }
 

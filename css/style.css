@@ -4329,3 +4329,60 @@ option {
         background-color: black;
     }
 }
+/* Font size section similar to font-family and datetime */
+.font-size-section-radio-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.item-radio-font-size {
+    cursor: pointer;
+    border: 2px solid var(--tertiary-transparent);
+    border-radius: 8px;
+    padding: 10px;
+    transition: all 0.3s ease;
+    min-width: 80px;
+    text-align: center;
+}
+
+.item-radio-font-size:hover {
+    border-color: var(--secondary-color);
+    background-color: var(--tertiary-transparent);
+}
+
+.item-radio-font-size.sel {
+    border-color: var(--secondary-color);
+    background-color: var(--tertiary-transparent-2);
+}
+
+.item-radio-font-size input[type="radio"] {
+    display: none;
+}
+
+.item-radio-font-size-preview-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50px;
+    margin-bottom: 8px;
+}
+
+.item-radio-font-size-preview-item {
+    color: var(--primary-color);
+}
+
+#preview-font-size-10 { font-size: 10px; }
+#preview-font-size-12 { font-size: 12px; }
+#preview-font-size-14 { font-size: 14px; }
+#preview-font-size-16 { font-size: 16px; }
+#preview-font-size-18 { font-size: 18px; }
+#preview-font-size-20 { font-size: 20px; }
+#preview-font-size-22 { font-size: 22px; }
+#preview-font-size-24 { font-size: 24px; }
+
+.item-radio-title-font-size {
+    font-size: 0.9em;
+    color: var(--primary-color);
+}

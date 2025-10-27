@@ -415,7 +415,7 @@ function loadDataFromBrowser(generate_section = true) {
             if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
             if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
             if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
-
+            if (settings_json["font-size"] === undefined) settings_json["font-size"] = 14;
             //console.log(JSON.stringify(settings_json));
             if (generate_section) {
                 websites_json_by_domain = {};
@@ -1059,8 +1059,9 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
 
        textNotes.style.fontFamily = `'${settings_json["font-family"]}'`;
        
-       // Apply the note-specific font-size with setProperty
-       textNotes.style.setProperty('font-size', noteFontSize + 'px', 'important');
+       if (settings_json["font-size"] !== undefined) {
+        textNotes.style.setProperty('font-size', settings_json["font-size"] + 'px', 'important');
+        }
 
 
         contentNotes.append(textNotes);
