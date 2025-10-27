@@ -442,7 +442,7 @@ body {
     transition: 0.5s;
 }
 
-.button:hover {
+.button:hover, .search-all-notes-text:hover, .text-json:not(:active):not(:focus):hover, .textbox:not(:active):not(:focus):not(.textbox-error):hover {
     /*background-color: var(--primary-color);*/
     /*border-color: var(--primary-color);*/
     opacity: 1;
@@ -877,7 +877,7 @@ pre::placeholder,
 #show-error-logs-sub-sections,
 .message-popup .message-popup-content {
     background-color: var(--tertiary);
-    padding: 10px 20px;
+    padding: 10px;
 }
 
 #export-to-file-button,
@@ -1190,10 +1190,11 @@ pre::placeholder,
 .button-code {
     background-color: rgba(255, 87, 87, 0.27);
     border-radius: 15px;
-    padding: 5px;
-    padding-top: 3px;
+    padding: 8px;
+    padding-top: 2px;
     padding-bottom: 3px;
     font-size: 13px;
+    white-space: pre;
 }
 
 .small-button {
