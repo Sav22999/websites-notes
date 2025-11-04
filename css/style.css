@@ -3426,7 +3426,7 @@ hr.hr-domain:last-child {
 
 @media screen and (max-width: 800px) {
     #account-section--signup-grid {
-        display: block;
+        display: grid;
         grid-template-areas:
       "username"
       "email"
