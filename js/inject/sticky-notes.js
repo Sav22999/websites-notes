@@ -681,7 +681,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
             }
             #text--sticky-notes-notefox-addon b, #text--sticky-notes-notefox-addon strong {
                 font-family: inherit;
-                font-weight: bolder;
+                font-weight: 800;
             }
             
             #text--sticky-notes-notefox-addon i, #text--sticky-notes-notefox-addon em, #text--sticky-notes-notefox-addon cite, #text--sticky-notes-notefox-addon q, #text--sticky-notes-notefox-addon blockquote {
@@ -701,37 +701,37 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
             
             #text--sticky-notes-notefox-addon h1 {
                 font-family: inherit;
-                font-weight: bolder;
+                font-weight: 800;
                 font-size: 2em !important;
             }
             
             #text--sticky-notes-notefox-addon h2 {
                 font-family: inherit;
-                font-weight: bolder;
+                font-weight: 800;
                 font-size: 1.7em !important;
             }
             
             #text--sticky-notes-notefox-addon h3 {
                 font-family: inherit;
-                font-weight: bolder;
+                font-weight: 800;
                 font-size: 1.4em !important;
             }
             
             #text--sticky-notes-notefox-addon h4 {
                 font-family: inherit;
-                font-weight: bolder;
+                font-weight: 800;
                 font-size: 1.1em !important;
             }
             
             #text--sticky-notes-notefox-addon h5 {
                 font-family: inherit;
-                font-weight: bolder;
+                font-weight: 800;
                 font-size: 0.85em !important;
             }
             
             #text--sticky-notes-notefox-addon h6 {
                 font-family: inherit;
-                font-weight: bolder;
+                font-weight: 800;
                 font-size: 0.7em !important;
             }
             

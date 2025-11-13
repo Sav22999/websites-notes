@@ -1506,7 +1506,7 @@ function openAsStickyNotes() {
                                 opening_sticky = false;
                             }).catch(function (error) {
                                 console.error("E2: " + error);
-                                onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
+                                //onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
                                 opening_sticky = false;
                             });
                         }
