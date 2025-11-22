@@ -295,7 +295,7 @@ body {
     width: 30px !important;
     height: 30px !important;
     background-image: url("../img/sticky-open.svg");
-    background-size: auto 18px;
+    background-size: auto 80%;
     background-repeat: no-repeat;
     background-position: center center;
     background-color: #ff6200;
@@ -382,7 +382,7 @@ body {
 }
 
 .translate-button {
-    background-image: url("../img/globe.svg");
+    background-image: url("../img/translate.svg");
 }
 
 .settings-button {
@@ -1670,7 +1670,7 @@ div#format-buttons > div.button-group:focus-within {
 button.button-format {
     width: 30px !important;
     height: 30px !important;
-    background-size: auto 15px !important;
+    background-size: auto 80% !important;
     background-repeat: no-repeat;
     background-position: center center;
     border: 0px solid transparent;
@@ -1794,7 +1794,7 @@ aside .aside-button {
     text-align: left;
     padding-left: 35px;
     background-position: left 10px center;
-    background-size: auto 40% !important;
+    background-size: auto 50% !important;
     opacity: 0.7;
 }
 
@@ -1814,7 +1814,7 @@ aside .aside-button:hover {
 
 aside .external-link {
     background-position: left 10px center, top 5px right 5px;
-    background-size: auto 40%, 10px auto !important;
+    background-size: auto 50%, 10px auto !important;
 }
 
 @media screen and (max-width: 1700px) {
@@ -1827,13 +1827,13 @@ aside .external-link {
         padding: 10px;
         padding-top: 50px;
         background-position: center top 10px;
-        background-size: 30px auto !important;
+        background-size: auto 40px !important;
         font-size: 0.6em;
     }
 
     .aside-button.external-link {
         background-position: center top 10px, top 5px right 5px;
-        background-size: 30px auto, 15px auto !important;
+        background-size: auto 40px, 15px auto !important;
     }
 }
 
@@ -1938,7 +1938,7 @@ aside .external-link {
 }
 
 #translate-aside {
-    background-image: url("../img/globe.svg"), url("../img/external-link.svg");
+    background-image: url("../img/translate.svg"), url("../img/external-link.svg");
 }
 
 #version-aside {

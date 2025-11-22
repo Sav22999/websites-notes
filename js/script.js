@@ -1123,7 +1123,7 @@ function getPageUrl(url, with_protocol = true) {
         }
 
         //https://page.example/search#section1
-        if (settings_json["consider-sections"] === "no" || settings_json["consider-parameters"] === false) {
+        if (settings_json["consider-sections"] === "no" || settings_json["consider-sections"] === false) {
             if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
         }
 
