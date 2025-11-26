@@ -1473,6 +1473,11 @@ function loadFormatButtons(navigation = true, format = true) {
         if (settings_json["code-block"] === "yes" || settings_json["code-block"] === true) is_code = true; else is_code = false;
     }
 
+    let is_clear_formatting = false;
+    if (settings_json["clear-formatting"] !== undefined) {
+        if (settings_json["clear-formatting"] === "yes" || settings_json["clear-formatting"] === true) is_clear_formatting = true; else is_clear_formatting = false;
+    }
+
     let commands = [];
     if (navigation && html_text_formatting) {
         if (is_undo_redo) {
@@ -1765,6 +1770,24 @@ function loadFormatButtons(navigation = true, format = true) {
                         }]
             })
         }
+
+        if (is_clear_formatting) {
+            commands.push({
+                "clear_formatting_group":
+                    [{
+                        action: "clear-formatting",
+                        icon:
+                            `${url}clear-formatting.svg`,
+                        title:
+                            all_strings["label-title-clear-formatting"],
+                        function:
+                            function () {
+                                clearFormatting();
+                                sendTelemetry("button-format::clear-formatting");
+                            }
+                    }]
+            });
+        }
     }
 
     if (!format && !navigation || !html_text_formatting) {
@@ -1969,6 +1992,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let big_svg = window.btoa(getIconSvgEncoded("big", on_primary));
         let highlighter_svg = window.btoa(getIconSvgEncoded("highlighter", on_primary));
         let code_block_svg = window.btoa(getIconSvgEncoded("code-block", on_primary));
+        let clear_formatting_svg = window.btoa(getIconSvgEncoded("clear-formatting", on_primary));
 
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
@@ -2116,6 +2140,10 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 
                 #text-code-block {
                     background-image: url('data:image/svg+xml;base64,${code_block_svg}');
+                }
+                
+                #text-clear-formatting {
+                    background-image: url('data:image/svg+xml;base64,${clear_formatting_svg}');
                 }
                 
                 #text-link {

@@ -414,6 +414,13 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("show-clear-formatting-check").onchange = function () {
+        settings_json["clear-formatting"] = document.getElementById("show-clear-formatting-check").checked;
+        sendTelemetry(`show-clear-formatting-check-select`, `settings.js`, settings_json["clear-formatting"]);
+
+        saveSettings();
+    };
+
     document.getElementById("clear-all-notes-button").onclick = function () {
         clearAllNotes();
         sendTelemetry("clear-all-notes-button");
@@ -859,6 +866,7 @@ function setLanguageUI() {
     document.getElementById("show-small-big-text").innerText = all_strings["show-small-big-text"];
     document.getElementById("show-highlighter-text").innerText = all_strings["show-highlighter-text"];
     document.getElementById("show-code-block-text").innerText = all_strings["show-code-block-text"];
+    document.getElementById("show-clear-formatting-text").innerText = all_strings["show-clear-formatting-text"];
 
     document.getElementById("default-tag-colour-domain-text").innerText = all_strings["default-tag-colour-domain-text"];
     document.getElementById("default-tag-colour-domain-detailed-text").innerHTML = all_strings["default-tag-colour-domain-detailed-text"];
@@ -1115,6 +1123,7 @@ function loadSettings() {
             document.getElementById("show-small-big-check").checked = settings_json["small-big"] === true || settings_json["small-big"] === "yes";
             document.getElementById("show-highlighter-check").checked = settings_json["highlighter"] === true || settings_json["highlighter"] === "yes";
             document.getElementById("show-code-block-check").checked = settings_json["code-block"] === true || settings_json["code-block"] === "yes";
+            document.getElementById("show-clear-formatting-check").checked = settings_json["clear-formatting"] === true || settings_json["clear-formatting"] === "yes";
 
             let colourList = colourListDefault;
             colourList = Object.assign({}, {none: all_strings["none-colour"]}, colourList);
