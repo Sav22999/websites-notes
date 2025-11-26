@@ -258,9 +258,9 @@ body {
 .syncing-button,
 .synced-button,
 .show-content-button {
-    padding-left: 40px;
+    padding-left: 45px;
     padding-right: 10px;
-    background-size: auto 50%;
+    background-size: auto 70%;
     background-repeat: no-repeat;
     background-position: left 10px center;
     color: var(--on-primary-color);
@@ -284,7 +284,7 @@ body {
         max-width: 50px;
 
         min-height: 40px;
-        background-size: auto 60%;
+        background-size: auto 80%;
     }
 }
 
@@ -655,9 +655,9 @@ pre::placeholder,
     color: var(--on-textbox-color);
     opacity: 0.8;
 
-    background-size: auto 20px;
+    background-size: auto 25px;
     background-position: 8px;
-    padding-left: 35px;
+    padding-left: 40px;
     background-repeat: no-repeat;
 }
 
@@ -845,7 +845,7 @@ pre::placeholder,
     background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
     background-repeat: no-repeat;
     background-position: center left 10px, center right 10px;
-    background-size: auto 20px, auto 20px;
+    background-size: auto 60%, auto 60%;
     -webkit-appearance: none;
     -moz-appearance: none;
     text-indent: 0px;
@@ -1903,12 +1903,12 @@ aside .external-link {
     aside .aside-button {
         font-size: 0px;
         background-position: center center;
-        background-size: 35px auto !important;
+        background-size: 40px auto !important;
     }
 
     .aside-button.external-link {
         background-position: center center, top 5px right 5px;
-        background-size: 35px auto, 10px auto !important;
+        background-size: 40px auto, 15px auto !important;
     }
 }
 
@@ -4007,7 +4007,7 @@ hr.hr-domain:last-child {
     background-repeat: no-repeat;
     /*background-position: center left 8px, center right 8px;*/
     background-position: center left 10px, center right 10px;
-    background-size: auto 20px, auto 20px;
+    background-size: auto 70%, auto 60%;
     -webkit-appearance: none;
     -moz-appearance: none;
     text-indent: 0px;
@@ -4068,7 +4068,7 @@ option {
 
 @media screen and (max-width: 800px) {
     .buttons-grid > select {
-        background-size: auto 60%, auto 60%;
+        background-size: auto 80%, auto 60%;
     }
 
     .clear-button,
