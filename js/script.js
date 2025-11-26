@@ -436,6 +436,8 @@ function loadUI() {
 
     notes.oninput = function () {
         saveNotes();
+
+        checkNotesTitle(notes, title_notes);
     }
     title_notes.oninput = function () {
         saveNotes(title = true);
@@ -460,6 +462,8 @@ function loadUI() {
             document.execCommand("insertText", false, pastedText);
         }
         addAction();
+
+        checkNotesTitle(notes, title_notes);
     }
 
     notes.onkeydown = function (e) {
@@ -506,21 +510,14 @@ function loadUI() {
         notesLostFocus();
     }
 
+    checkNotesTitle(notes, title_notes)
+
     document.getElementById("all-notes-button-grid").onclick = function () {
         browser.tabs.create({url: "./all-notes/index.html"});
         sendTelemetry("open-all-notes");
 
         window.close();
     }
-
-    if (settings_json["show-title-textbox"]) {
-        if (title_notes.classList.contains("hidden")) title_notes.classList.remove("hidden");
-        notes.classList.add("no-border-radius-top");
-    } else {
-        title_notes.classList.add("hidden");
-        if (notes.classList.contains("no-border-radius-top")) notes.classList.remove("no-border-radius-top");
-    }
-
 
     let tagSelect = document.getElementById("tag-select-grid");
     tagSelect.innerText = "";
@@ -583,6 +580,16 @@ function loadUI() {
     let splashScreen = document.getElementById("splash-screen-popup");
     if (splashScreen !== undefined && splashScreen !== null) {
         splashScreen.classList.add("splash-screen-hidden");
+    }
+}
+
+function checkNotesTitle(notes, title_notes) {
+    if (settings_json["show-title-textbox"] && notes.innerHTML.length > 0 && notes.innerHTML !== "<br>") {
+        if (title_notes.classList.contains("hidden")) title_notes.classList.remove("hidden");
+        //notes.classList.add("no-border-radius-top");
+    } else {
+        title_notes.classList.add("hidden");
+        //if (notes.classList.contains("no-border-radius-top")) notes.classList.remove("no-border-radius-top");
     }
 }
 
