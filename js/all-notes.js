@@ -69,6 +69,15 @@ function loaded() {
             //console.log("User expired! Log in again | script");
             loginExpired();
         }
+        if (message["check-user--exception"] !== undefined && message["check-user--exception"]) {
+            //console.log("User not logged! Log in | script");
+            //console.log(message);
+            browser.storage.local.get("notefox-server-error-shown").then(result => {
+                if (result["notefox-server-error-shown"] === undefined || result["notefox-server-error-shown"] === false) {
+                    notefoxServerError();
+                }
+            });
+        }
     });
     browser.runtime.sendMessage({"check-user": true});
 
@@ -109,6 +118,12 @@ function loaded() {
                     document.getElementById("search-filter-sortby").classList.remove("filters-visibile");
             }
         }
+
+        document.onkeyup = function (e) {
+            if (e.key === "Escape") {
+                hideAllPopups();
+            }
+        };
 
         document.getElementById("filter-all-notes-button").onclick = function () {
             window.scrollTo({
@@ -159,6 +174,11 @@ function loaded() {
     versionNumber.textContent = browser.runtime.getManifest().version;
     versionNumber.id = "version";
     titleAllNotes.append(versionNumber);
+
+    let splashScreen = document.getElementById("splash-screen-all-notes");
+    if (splashScreen !== undefined && splashScreen !== null) {
+        splashScreen.classList.add("splash-screen-hidden");
+    }
 }
 
 function sendTelemetry(action, context = "all-notes.js", url = null, other = null) {
@@ -305,6 +325,25 @@ function loadAsideBar() {
     });
 }
 
+function hideAllPopups() {
+    let backgroundOpacity = document.getElementById("background-opacity");
+
+    if (document.getElementById("fullscreen-notes-viewer").style.display === "block") {
+        document.getElementById("fullscreen-notes-viewer").style.display = "none";
+    }
+
+    if (document.getElementById("notefox-server-error-section").style.display === "block") {
+        //nothing: notefox server error is NOT "skippable"
+    } else {
+        //hide background opacity only if no other popup is shown (account-section is excluded)
+        hideBackgroundOpacity();
+    }
+}
+
+function hideBackgroundOpacity() {
+    document.getElementById("background-opacity").style.display = "none";
+}
+
 function filterByColor(color, tagButton) {
     //console.log(color)
     if (filtersColors.indexOf(color) !== -1) {
@@ -432,12 +471,12 @@ function loadDataFromBrowser(generate_section = true) {
 function clearAllNotesDomain(url) {
     // Check if confirmation popup is disabled
     let shouldConfirm = !(settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes");
-    
+
     let confirmation = true;
     if (shouldConfirm) {
         confirmation = confirm(all_strings["clear-all-notes-domain-confirmation"]);
     }
-    
+
     if (confirmation) {
         for (let index in websites_json_by_domain[url]) {
             //delete all pages
@@ -460,15 +499,15 @@ function clearAllNotesPage(url, isDomain = false) {
     if (!isDomain) {
         messageToShow = all_strings["clear-all-notes-page-with-confirmation"].replaceAll("{{url}}", url);
     }
-    
+
     // Check if confirmation popup is disabled
     let shouldConfirm = !(settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes");
-    
+
     let confirmation = true;
     if (shouldConfirm) {
         confirmation = confirm(messageToShow);
     }
-    
+
     if (confirmation) {
         //delete the selected page
         delete websites_json[url];
@@ -1009,13 +1048,14 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             }
         }
         listenerLinks(textNotes);
+
         let disable_word_wrap = false;
         if (settings_json["disable-word-wrap"] !== undefined) {
             if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true;
             else disable_word_wrap = false;
         }
         if (disable_word_wrap) {
-            textNotes.whiteSpace = "none";
+            textNotes.style.whiteSpace = "none";
         } else {
             textNotes.style.whiteSpace = "pre-wrap";
         }
@@ -1023,9 +1063,21 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
 
         textNotes.style.fontFamily = `'${settings_json["font-family"]}'`;
+        textNotes.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
+
+        let openFullscreenNotesButton = document.createElement("button");
+        openFullscreenNotesButton.classList.add("button-format", "button");
+        openFullscreenNotesButton.id = "open-fullscreen-notes-button";
+        openFullscreenNotesButton.onclick = function () {
+            showFullscreenNotes(textNotes);
+            sendTelemetry(`open-fullscreen-notes`, "all-notes.js", fullUrl);
+        }
 
         contentNotes.append(textNotes);
         contentNotesContainer.appendChild(contentNotes);
+        if (settings_json["show-fullscreen-button-in-all-notes"]) {
+            contentNotesContainer.appendChild(openFullscreenNotesButton);
+        }
 
         pageContentRight.append(contentNotesContainer);
 
@@ -1247,6 +1299,85 @@ function loginExpired() {
     }
 }
 
+function showFullscreenNotes(notesText) {
+    let section = document.getElementById("fullscreen-notes-viewer");
+    let background = document.getElementById("background-opacity");
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    let notesContent = document.getElementById("fullscreen-notes-viewer-content");
+    notesContent.innerHTML = notesText.innerHTML;
+
+    if (notesContent) {
+        let disable_word_wrap = false;
+        if (settings_json["disable-word-wrap"] !== undefined) {
+            if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true;
+            else disable_word_wrap = false;
+        }
+        if (disable_word_wrap) {
+            notesContent.style.whiteSpace = "none";
+        } else {
+            notesContent.style.whiteSpace = "pre-wrap";
+        }
+
+        if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
+
+        notesContent.style.fontFamily = `'${settings_json["font-family"]}'`;
+        notesContent.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
+    }
+
+    sendTelemetry(`open-fullscreen-notes`);
+
+    let closeButton = document.getElementById("close-fullscreen-notes-button");
+    closeButton.onclick = function () {
+        section.style.display = "none";
+        background.style.display = "none";
+        sendTelemetry(`close-fullscreen-notes`);
+    }
+}
+
+function notefoxServerError() {
+    let section = document.getElementById("notefox-server-error-section");
+    let background = document.getElementById("background-opacity");
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    let title = document.getElementById("notefox-server-error-title");
+    title.textContent = all_strings["notefox-account-message-server-error-title"];
+    let text = document.getElementById("notefox-server-error-text");
+    text.innerHTML = all_strings["notefox-account-message-server-error-text"];
+    let text2 = document.getElementById("notefox-server-error-text2");
+    text2.innerHTML = all_strings["notefox-account-message-server-error-text2"];
+    let text3 = document.getElementById("notefox-server-error-text3");
+    text3.innerHTML = all_strings["notefox-account-message-server-error-text3"];
+    let button1 = document.getElementById("notefox-server-error-button1");
+    button1.value = all_strings["notefox-account-message-button1"];
+    button1.onclick = function () {
+        //log out
+        section.style.display = "none";
+        background.style.display = "none";
+
+        browser.storage.sync.remove("notefox-account");
+        browser.storage.local.set({"notefox-server-error-shown": true});
+        sendTelemetry("notefox-server-error-logout");
+        window.close();
+    }
+    let button2 = document.getElementById("notefox-server-error-button2");
+    button2.value = all_strings["notefox-account-message-button2"];
+    button2.onclick = function () {
+        //close the message
+        section.style.display = "none";
+        background.style.display = "none";
+
+        browser.storage.local.set({"notefox-server-error-shown": true}).then(() => {
+            //console.log("Notefox server error shown set to true");
+        });
+        sendTelemetry("notefox-server-error-continue");
+    }
+}
+
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
     if (background !== undefined && backgroundSection !== undefined && primary !== undefined && secondary !== undefined && on_primary !== undefined && on_secondary !== undefined) {
         document.body.style.backgroundColor = background;
@@ -1280,6 +1411,10 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         let search_svg = window.btoa(getIconSvgEncoded("search", primary));
+        let fullscreen_svg = window.btoa(getIconSvgEncoded("fullscreen", on_primary));
+        let close_svg = window.btoa(getIconSvgEncoded("close", on_primary));
+        let login_svg = window.btoa(getIconSvgEncoded("login", on_primary));
+        let logout_svg = window.btoa(getIconSvgEncoded("logout", on_primary));
 
         let primaryTransparent = primary;
         if (primaryTransparent.includes("rgb(")) {
@@ -1403,6 +1538,20 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .search-all-notes-text {
                     background-image: url('data:image/svg+xml;base64,${search_svg}');
+                }
+                
+                .login-button {
+                    background-image: url('data:image/svg+xml;base64,${login_svg}');
+                }
+                .logout-button {
+                    background-image: url('data:image/svg+xml;base64,${logout_svg}');
+                }
+                
+                #open-fullscreen-notes-button {
+                    background-image: url('data:image/svg+xml;base64,${fullscreen_svg}');
+                }
+                #close-fullscreen-notes-button {
+                    background-image: url('data:image/svg+xml;base64,${close_svg}');
                 }
                 
                 h2.domain, div.h2-container {

@@ -15,6 +15,8 @@ var stickyNotesSupported = true;
 const all_strings = strings[languageToUse];
 const linkAcceptPrivacy = "/privacy/index.html";
 
+var resize_popup_width = 336;
+
 //Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
     "red": all_strings["red-colour"],
@@ -102,6 +104,93 @@ function loaded() {
         }
     });
     browser.runtime.sendMessage({"check-user": true});
+}
+
+function setPopupResizable(resizable) {
+    try {
+        resize_popup_width = settings_json["allow-resize-popup--width"];
+        let resize_button = document.getElementById("resize-popup");
+        let popup = document.getElementById("popup-content");
+        if (resize_button !== undefined && popup !== undefined) {
+            let isResizing = false;
+            resize_button.addEventListener('mousedown', (e) => {
+                isResizing = onMouseDownResize(e, popup, isResizing);
+            });
+
+            if (resizable) {
+                if (resize_button.classList.contains("hidden")) {
+                    resize_button.classList.remove("hidden");
+                }
+
+                popup.style.setProperty('max-width', 'none');
+                if (resize_popup_width !== undefined && resize_popup_width !== null && resize_popup_width !== "") {
+                    //remove max-width and min-width to allow resizing
+                    popup.style.setProperty('width', resize_popup_width, 'important');
+                    //console.info("Popup resized to " + resize_popup_width);
+                }
+            } else {
+                if (!resize_button.classList.contains("hidden")) {
+                    resize_button.classList.add("hidden");
+                }
+            }
+        }
+    } catch (e) {
+        console.error("P1)) " + e);
+        onError("script.js::setPopupResizable", e.message, _pageUrl);
+    }
+}
+
+/**
+ * Make "resizable" the popup
+ */
+function onMouseDownResize(e, popup, isResizing) {
+    isResizing = true;
+    const initialWidth = popup.offsetWidth;
+    const initialHeight = popup.offsetHeight;
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+
+    function onMouseMove(e) {
+        if (!isResizing) return;
+
+        const deltaX = e.clientX - startX;
+
+        popup.style.setProperty('width', initialWidth + deltaX + 'px', 'important');
+        popup.style.setProperty('max-width', 'none');
+
+        if (popup.style.width.replace("px", "") < 336) popup.style.width = "336px"; //minimum width
+
+        if (popup.style.width.replace("px", "") > (screenWidth / 2)) popup.style.width = (screenWidth / 2) + "px";
+    }
+
+    function onMouseUp() {
+        isResizing = false;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+
+        if (popup.style.width.replace("px", "") < 336) popup.style.width = "336px"; //minimum width
+
+        if (popup.style.width.replace("px", "") > (screenWidth / 2)) popup.style.width = (screenWidth / 2) + "px";
+
+        browser.storage.local.get("settings", (result) => {
+            let settings = []
+            if (result["settings"] !== undefined) {
+                settings = result["settings"];
+            }
+            settings["allow-resize-popup--width"] = popup.style.width;
+            browser.storage.local.set({"settings": settings}).then(() => {
+                sendMessageUpdateToBackground();
+                //console.info("Popup resize saved: " + popup.style.width);
+            });
+        })
+    }
+
+    return isResizing;
 }
 
 function checkTimesOpened() {
@@ -247,6 +336,7 @@ function loadUI() {
     let notes = document.getElementById("notes");
     let title_notes = document.getElementById("title-notes");
     notes.style.fontFamily = `'${settings_json["font-family"]}'`;
+    notes.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
     if (settings_json !== undefined && settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true)) {
         document.getElementById("notes").style.whiteSpace = "none";
         document.getElementById("notes").style.maxWidth = "none";
@@ -255,6 +345,7 @@ function loadUI() {
         document.getElementById("notes").style.maxWidth = "100%";
     }
     title_notes.style.fontFamily = `'${settings_json["font-family"]}'`;
+    title_notes.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
         let activeTab = tabs[0];
         let activeTabId = activeTab.id;
@@ -345,6 +436,8 @@ function loadUI() {
 
     notes.oninput = function () {
         saveNotes();
+
+        checkNotesTitle(notes, title_notes);
     }
     title_notes.oninput = function () {
         saveNotes(title = true);
@@ -369,6 +462,8 @@ function loadUI() {
             document.execCommand("insertText", false, pastedText);
         }
         addAction();
+
+        checkNotesTitle(notes, title_notes);
     }
 
     notes.onkeydown = function (e) {
@@ -415,21 +510,14 @@ function loadUI() {
         notesLostFocus();
     }
 
+    checkNotesTitle(notes, title_notes)
+
     document.getElementById("all-notes-button-grid").onclick = function () {
         browser.tabs.create({url: "./all-notes/index.html"});
         sendTelemetry("open-all-notes");
 
         window.close();
     }
-
-    if (settings_json["show-title-textbox"]) {
-        if (title_notes.classList.contains("hidden")) title_notes.classList.remove("hidden");
-        notes.classList.add("no-border-radius-top");
-    } else {
-        title_notes.classList.add("hidden");
-        if (notes.classList.contains("no-border-radius-top")) notes.classList.remove("no-border-radius-top");
-    }
-
 
     let tagSelect = document.getElementById("tag-select-grid");
     tagSelect.innerText = "";
@@ -485,6 +573,23 @@ function loadUI() {
         if (document.getElementById("popup-content") && !document.getElementById("popup-content").classList.contains("mobile")) {
             document.getElementById("popup-content").classList.add("mobile");
         }
+    }
+
+    setPopupResizable(settings_json["allow-resize-popup"]);
+
+    let splashScreen = document.getElementById("splash-screen-popup");
+    if (splashScreen !== undefined && splashScreen !== null) {
+        splashScreen.classList.add("splash-screen-hidden");
+    }
+}
+
+function checkNotesTitle(notes, title_notes) {
+    if (settings_json["show-title-textbox"] && notes.innerHTML.length > 0 && notes.innerHTML !== "<br>") {
+        if (title_notes.classList.contains("hidden")) title_notes.classList.remove("hidden");
+        //notes.classList.add("no-border-radius-top");
+    } else {
+        title_notes.classList.add("hidden");
+        //if (notes.classList.contains("no-border-radius-top")) notes.classList.remove("no-border-radius-top");
     }
 }
 
@@ -623,6 +728,9 @@ function loadSettings(load_only = false) {
         if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
         if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
         if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
+        if (settings_json["text-size"] === undefined || !supportedTextSize.includes(settings_json["text-size"])) settings_json["text-size"] = "standard";
+        if (settings_json["allow-resize-popup"] === undefined) settings_json["allow-resize-popup"] = false;
+        if (settings_json["allow-resize-popup--width"] === undefined) settings_json["allow-resize-popup--width"] = 336;
 
         if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true; else advanced_managing = false;
 
@@ -1022,7 +1130,7 @@ function getPageUrl(url, with_protocol = true) {
         }
 
         //https://page.example/search#section1
-        if (settings_json["consider-sections"] === "no" || settings_json["consider-parameters"] === false) {
+        if (settings_json["consider-sections"] === "no" || settings_json["consider-sections"] === false) {
             if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
         }
 
@@ -1365,6 +1473,11 @@ function loadFormatButtons(navigation = true, format = true) {
         if (settings_json["code-block"] === "yes" || settings_json["code-block"] === true) is_code = true; else is_code = false;
     }
 
+    let is_clear_formatting = false;
+    if (settings_json["clear-formatting"] !== undefined) {
+        if (settings_json["clear-formatting"] === "yes" || settings_json["clear-formatting"] === true) is_clear_formatting = true; else is_clear_formatting = false;
+    }
+
     let commands = [];
     if (navigation && html_text_formatting) {
         if (is_undo_redo) {
@@ -1657,6 +1770,24 @@ function loadFormatButtons(navigation = true, format = true) {
                         }]
             })
         }
+
+        if (is_clear_formatting) {
+            commands.push({
+                "clear_formatting_group":
+                    [{
+                        action: "clear-formatting",
+                        icon:
+                            `${url}clear-formatting.svg`,
+                        title:
+                            all_strings["label-title-clear-formatting"],
+                        function:
+                            function () {
+                                clearFormatting();
+                                sendTelemetry("button-format::clear-formatting");
+                            }
+                    }]
+            });
+        }
     }
 
     if (!format && !navigation || !html_text_formatting) {
@@ -1744,6 +1875,8 @@ function loginExpired() {
 function notefoxServerError() {
     let section = document.getElementById("notefox-server-error-section");
     let background = document.getElementById("background-opacity");
+
+    hideTabSubDomains();
 
     section.style.display = "block";
     background.style.display = "block";
@@ -1859,6 +1992,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let big_svg = window.btoa(getIconSvgEncoded("big", on_primary));
         let highlighter_svg = window.btoa(getIconSvgEncoded("highlighter", on_primary));
         let code_block_svg = window.btoa(getIconSvgEncoded("code-block", on_primary));
+        let clear_formatting_svg = window.btoa(getIconSvgEncoded("clear-formatting", on_primary));
+        let login_svg = window.btoa(getIconSvgEncoded("login", on_primary));
+        let logout_svg = window.btoa(getIconSvgEncoded("logout", on_primary));
 
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
@@ -2008,6 +2144,10 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     background-image: url('data:image/svg+xml;base64,${code_block_svg}');
                 }
                 
+                #text-clear-formatting {
+                    background-image: url('data:image/svg+xml;base64,${clear_formatting_svg}');
+                }
+                
                 #text-link {
                     background-image: url('data:image/svg+xml;base64,${link_svg}');
                     background-size: 60% auto;
@@ -2027,6 +2167,14 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 
                 #all-notes-button-grid {
                     background-image: url('data:image/svg+xml;base64,${arrow_right_svg}');
+                }
+                
+                .login-button {
+                    background-image: url('data:image/svg+xml;base64,${login_svg}');
+                }
+                
+                .logout-button {
+                    background-image: url('data:image/svg+xml;base64,${logout_svg}');
                 }
             </style>`;
     }

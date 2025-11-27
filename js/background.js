@@ -74,6 +74,7 @@ function onError(context, text, url = undefined) {
                 anonymous_userid = generateSecureUUID();
                 browser.storage.sync.set({"anonymous-userid": anonymous_userid});
             }
+            //if(context !== undefined && (context.includes("NetworkError") || ))
             const error = {
                 "datetime": getDate(),
                 "context": context,
@@ -334,7 +335,9 @@ function actionResponse(response) {
                             sendLocalDataToServer();
                         } else {
                             console.error("[background.js::actionResponse] Error: ", data);
-                            onError("background.js::actionResponse::get-data", JSON.stringify(data), tab_url);
+                            if (data && data.message && !data.message.includes("NetworkError")) {
+                                onError("background.js::actionResponse::get-data", JSON.stringify(data), tab_url);
+                            }
                         }
                     }
                 }
@@ -350,7 +353,9 @@ function actionResponse(response) {
                             sync_local.set({"error-logs": []});
                         } else {
                             console.error("[background.js::actionResponse] Error: ", data);
-                            onError("background.js::actionResponse::listen-error-logs", JSON.stringify(data), tab_url);
+                            if (data && data.message && !data.message.includes("NetworkError")) {
+                                onError("background.js::actionResponse::listen-error-logs", JSON.stringify(data), tab_url);
+                            }
                         }
                     }
                 }
@@ -364,7 +369,9 @@ function actionResponse(response) {
                             sync_local.set({"telemetry": []});
                         } else {
                             console.error("[background.js::actionResponse] Error: ", data);
-                            onError("background.js::actionResponse::listen-telemetry-logs", JSON.stringify(data), tab_url);
+                            if (data && data.message && !data.message.includes("NetworkError")) {
+                                onError("background.js::actionResponse::listen-telemetry-logs", JSON.stringify(data), tab_url);
+                            }
                         }
                     }
                 }
@@ -449,7 +456,7 @@ function syncUpdateFromServer() {
             syncUpdateFromServer();
         }, 5 * 60 * 1000); //5 minutes if any issues
         console.error(`E-B2: ${e}`);
-        onError("background.js::syncUpdateFromServer", e.message, tab_url);
+        onError("background.js::syncUpdateFromServer", JSON.stringify(e), tab_url);
     });
 
     loaded();
@@ -491,61 +498,41 @@ function updateIcon(color, tabId, enabled = true) {
         colorBackground = `#${r}${g}${b}`;
     }
 
-    let colorBorder = "#ffffff"; // default border color
+    let colorBorder = "#ffffffb3"; // default border color, b3 is for 70% opacity
     //check readability of the color on the colorBackground (change from #fff to #000 if the color is too light)
     if (getContrastRatio(colorBorder, colorBackground) < 2.5) {
-        colorBorder = "#000000"; // Switch to black if contrast is too low
+        colorBorder = "#000000B3"; // Switch to black if contrast is too low (B3 is for 70% opacity)
     }
 
     if (colorPencil === "#FF6200") {
         colorBackground = "#FFB788";
-        colorBorder = "#ffffff";
+        colorBorder = "#ffffffb3"; //b3 is for 70% opacity
     } else if (colorPencil === "#00361C") {
         colorBackground = "#00A81C";
-        colorBorder = "#ffffff";
+        colorBorder = "#ffffffb3"; //b3 is for 70% opacity
     }
 
     const colorText = enabled ? colorBorder : colorBackground;
 
-    const svgString = `
-    <svg width="100%" height="100%" viewBox="0 0 36 36" version="1.1" xmlns="http://www.w3.org/2000/svg"
-     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
-        <g transform="matrix(0.833333,0,0,0.833333,-0.155476,3.47124)">
-            <g transform="matrix(0.00367347,-9.96139e-35,9.96139e-35,-0.00367347,-0.43707,7.79545)">
-                <g transform="matrix(1,1.09476e-47,-1.09476e-47,1,-736.712,51.3984)">
-                    <!--background-->
-                    <path d="M9707.7,2169.4C9707.7,2169.4 3617.54,2262.14 2522.17,2161.68C2423.83,2152.66 2356.55,2124.83 2321.45,2004.41C2284.75,1878.48 2249.8,659.559 2249.8,-117.4C2249.8,-1760.3 2249.9,-5589.6 2249.9,-6400.7C2249.9,-6922.52 2297.45,-7339.61 2317.54,-7459.99C2330.44,-7537.32 2421.3,-7529.4 2421.3,-7529.4L4586.8,-7529.4C6430.4,-7529.4 9035.57,-7617.26 9565.31,-7490.99C9727.52,-7452.32 9760.92,-7371.07 9783.87,-7221.07C9865.28,-6688.92 9900,-2838.8 9900,-1007.8L9900,1989.6C9901.78,2109.98 9834.17,2163.21 9707.7,2169.4Z"
-                          fill="${colorBackground}" style="fill-rule:nonzero;"/>
-                    <path d="M2421.3,-7856.08C2337.04,-7855.32 2045.43,-7814.06 1995.33,-7513.75C1974.22,-7387.24 1923.23,-6949.02 1923.23,-6400.7C1923.23,-5589.6 1923.13,-1760.3 1923.13,-117.4C1923.13,693.158 1969.55,1964.44 2007.83,2095.82C2052.26,2248.23 2127.65,2335.04 2212.45,2393.61C2288.81,2446.35 2380.25,2476.7 2492.33,2486.98C3593.01,2587.93 9712.67,2496.03 9712.67,2496.03C9716.34,2495.97 9720.01,2495.86 9723.67,2495.68C9877.86,2488.13 9990.79,2436.57 10070,2365.54C10164.1,2281.23 10228.2,2162.17 10226.7,1988.8L10226.7,-1007.8C10226.7,-2853.37 10188.8,-6734.09 10106.8,-7270.47C10079.9,-7446.01 10026.3,-7565.19 9934.93,-7655.21C9868.63,-7720.51 9778.76,-7775.93 9641.06,-7808.75C9103.25,-7936.95 6458.48,-7856.07 4586.8,-7856.07L2431.65,-7855.85C2428.28,-7855.95 2424.83,-7856.02 2421.3,-7856.08L2421.3,-7529.4L4586.8,-7529.4C6430.4,-7529.4 9035.57,-7617.26 9565.31,-7490.99C9727.52,-7452.32 9760.92,-7371.07 9783.87,-7221.07C9865.28,-6688.92 9900,-2838.8 9900,-1007.8L9900,1989.6C9901.78,2109.98 9834.17,2163.21 9707.7,2169.4C9707.7,2169.4 3617.54,2262.14 2522.17,2161.68C2423.83,2152.66 2356.55,2124.83 2321.45,2004.41C2284.75,1878.48 2249.8,659.559 2249.8,-117.4C2249.8,-1760.3 2249.9,-5589.6 2249.9,-6400.7C2249.9,-6740.28 2270.04,-7035.51 2289.64,-7233.48C2083.36,-7362.7 2421.3,-7856.08 2421.3,-7856.08Z"
-                          fill="${colorBorder}"/>
-                </g>
-                <g transform="matrix(-0.975524,-2.34562e-34,2.34562e-34,-0.984174,10684,-4202.33)">
-                    <!--pencil-->
-                    <path d="M2963.46,-2483.19C1504.46,-3386.19 130.4,-4038.7 117.8,-4051.2C105.3,-4059.6 96.9,-4201.7 101.1,-4364.7C105.3,-4883.1 360.3,-5280.2 836.9,-5518.5L1087.7,-5643.9C1087.7,-5643.9 2529.42,-4538.25 3827.77,-3740.84L6430.3,-2337.1C6430.3,-2337.1 7217.28,-934.507 7084.9,-815.068C6973.6,-714.648 5761.36,-818.125 5460.4,-848.9C5453,-849.656 4629.81,-1451.86 2963.46,-2483.19Z"
-                          fill="${colorPencil}" style="fill-rule:nonzero;"/>
-                    <path d="M-88.819,-3791.8C-67.834,-3776.39 -35.504,-3755.3 9.853,-3732.53C252.482,-3610.73 1485.26,-3006.76 2786.11,-2201.65C4276.37,-1279.3 5088.01,-702.39 5240.79,-595.677C5346.81,-521.622 5421.45,-519.202 5426.04,-518.733C5676.1,-493.162 6532.01,-420.966 6923.52,-445.831C7128.6,-458.855 7261.87,-525.903 7310.31,-569.61C7368.15,-621.796 7419.85,-699.629 7432.17,-814.867C7439.22,-880.781 7428.78,-987.776 7387.02,-1119.05C7247.21,-1558.5 6722.95,-2498.43 6722.95,-2498.43C6692.1,-2553.41 6646.11,-2598.58 6590.36,-2628.65C6590.36,-2628.65 3996.26,-4027.84 3993.97,-4029.24C2711.75,-4817.89 1292.61,-5906.42 1292.61,-5906.42C1190.52,-5984.71 1052.13,-5997.87 936.885,-5940.25L686.085,-5814.85C89.646,-5516.63 -227.56,-5018.52 -233.728,-4370.21C-238.644,-4169.58 -217.347,-3993.27 -203.058,-3951.36C-168.524,-3850.06 -107.34,-3801.49 -70.109,-3776.47L-88.819,-3791.8ZM2963.46,-2483.19C1504.46,-3386.19 130.4,-4038.7 117.8,-4051.2C105.3,-4059.6 96.9,-4201.7 101.1,-4364.7C105.3,-4883.1 360.3,-5280.2 836.9,-5518.5L1087.7,-5643.9C1087.7,-5643.9 2529.42,-4538.25 3827.77,-3740.84L6430.3,-2337.1C6430.3,-2337.1 7217.28,-934.507 7084.9,-815.068C6973.6,-714.648 5761.36,-818.125 5460.4,-848.9C5453,-849.656 4629.81,-1451.86 2963.46,-2483.19Z"
-                          fill="${colorBorder}"/>
-                </g>
-            </g>
-    
-            <!--text-->
-            <g transform="matrix(1.2,0,0,1.2,0.186572,-4.16549)">
-                <path d="M7.025,7.976C7.025,7.875 7.119,7.797 7.166,7.707C7.327,7.397 7.536,7.098 7.718,6.802C7.736,6.772 7.817,6.595 7.873,6.548C7.906,6.519 7.972,6.419 7.972,6.463C7.972,7.126 8.057,7.779 8.057,8.443L8.057,9.291C8.057,9.325 8.065,9.535 8.142,9.475C8.639,9.088 9.076,8.407 9.627,8.132C9.678,8.106 9.728,8.19 9.768,8.231C9.899,8.361 10.041,8.499 10.235,8.542C10.457,8.591 10.462,8.322 10.603,8.287C10.879,8.218 11.163,8.47 11.466,8.372C11.933,8.221 12.23,7.913 12.611,7.622C12.673,7.575 12.868,7.374 12.993,7.424C13.119,7.475 13.147,7.582 13.234,7.665C13.469,7.889 13.754,8.144 14.012,8.315C14.116,8.385 14.368,8.023 14.422,7.976C14.746,7.696 15.136,7.466 15.553,7.368C15.646,7.346 15.757,7.273 15.836,7.325C15.95,7.401 15.947,7.614 15.977,7.736C16.035,7.967 16.261,8.61 16.598,8.652C17.297,8.74 17.729,7.75 18.368,7.608C18.684,7.538 18.838,8.191 19.146,8.259C19.332,8.3 19.5,8.166 19.683,8.146C20,8.111 20.327,8.16 20.645,8.16"
-                      stroke="${colorText}" style="fill:none;stroke-width:1px;"/>
-            </g>
-            <g transform="matrix(1.2,0,0,1.2,0.186572,-4.16549)">
-                <path d="M6.756,14.921C6.833,14.869 6.794,14.768 6.798,14.68C6.81,14.463 6.82,14.246 6.841,14.029C6.878,13.629 6.97,13.205 7.197,12.865C7.254,12.779 7.401,12.586 7.52,12.573C8.276,12.485 8.278,13.345 8.679,13.747C8.779,13.846 9.32,13.589 9.387,13.577C9.58,13.542 9.638,13.835 9.839,13.902C10.161,14.01 10.846,13.963 11.126,13.888C11.341,13.83 11.652,13.722 11.805,13.549C11.871,13.474 11.878,13.239 11.961,13.294C12.355,13.557 13.193,13.83 13.587,13.633"
-                      stroke="${colorText}" style="fill:none;stroke-width:1px;"/>
-            </g>
-        </g>
-    </svg>
-    `;
+    const svgString = getIconSvg(enabled, colorBorder, colorBackground, colorPencil, colorText);
 
     const dataUrl = svgToDataUrl(svgString);
 
     browser.browserAction.setIcon({
         path: dataUrl, tabId: tabId
     });
+
+    //update badge if settings_json["show-icon-badge"] is true
+    if (enabled && settings_json["show-icon-badge"] !== undefined && settings_json["show-icon-badge"] === true) {
+        const numberOfNotes = getNumberOfNotes();
+        if (numberOfNotes > 0) {
+            browser.browserAction.setBadgeText({text: numberOfNotes.toString(), tabId: tabId});
+            browser.browserAction.setBadgeBackgroundColor({color: colorBackground, tabId: tabId});
+            browser.browserAction.setBadgeTextColor({color: colorText, tabId: tabId});
+        }
+    } else {
+        browser.browserAction.setBadgeText({text: "", tabId: tabId});
+    }
 }
 
 function getLuminance(hex) {
@@ -694,6 +681,7 @@ function checkStatus(update = false) {
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
+            if (settings_json["show-icon-badge"] === undefined) settings_json["show-icon-badge"] = false;
             //console.log(JSON.stringify(settings_json));
             //console.log("checkStatus");
             //console.log(value);
@@ -1080,7 +1068,7 @@ function getPageUrl(url, with_protocol = true) {
         }
 
         //https://page.example/search#section1
-        if (settings_json["consider-sections"] === "no" || settings_json["consider-parameters"] === false) {
+        if (settings_json["consider-sections"] === "no" || settings_json["consider-sections"] === false) {
             if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
         }
 
@@ -1461,6 +1449,42 @@ function getTheCorrectUrl(do_not_check_opened = false) {
 }
 
 /**
+ * get number of notes for the given url
+ */
+function getNumberOfNotes() {
+    //todo-improve: check also if there are more than one note for each type (page, domain, global, subdomains)
+    let numberToReturn = 0;
+
+    const _getDomain = getDomainUrl(tab_url);
+    const _getPage = getPageUrl(tab_url);
+
+    let domain_url = getUrlWithSupportedProtocol(_getDomain, websites_json);
+    let page_url = getUrlWithSupportedProtocol(_getPage, websites_json);
+    let global_url = getGlobalUrl();
+    let check_domain = checkAllSupportedProtocols(_getDomain, websites_json) && checkAllSupportedProtocolsLastUpdate(_getDomain, websites_json) && checkAllSupportedProtocolsNotes(_getDomain, websites_json);
+    if (check_domain) numberToReturn += 1; //add at least one note for domain
+    //let check_tab_url = (settings_json["check-green-icon-domain"] === "yes" || settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-page"] === "yes" || settings_json["check-green-icon-page"] === true) && websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "";
+    //let check_tab_url = false;
+    let check_page = checkAllSupportedProtocols(_getPage, websites_json) && checkAllSupportedProtocolsLastUpdate(_getPage, websites_json) && checkAllSupportedProtocolsNotes(_getPage, websites_json);
+    if (check_page) numberToReturn += 1; //add at least one note for page
+    let check_global = websites_json[global_url] !== undefined && websites_json[global_url]["last-update"] !== undefined && websites_json[global_url]["last-update"] != null && websites_json[global_url]["notes"] !== undefined && websites_json[global_url]["notes"] !== "";
+    if (check_global) numberToReturn += 1; //add at least one note for global
+    let check_subdomains = false;
+    let subdomains = getAllOtherPossibleUrls(tab_url);
+    subdomains.forEach(subdomain => {
+        let subdomain_url = domain_url + subdomain;
+        let tmp_check = checkAllSupportedProtocols(subdomain_url, websites_json) && checkAllSupportedProtocolsLastUpdate(subdomain_url, websites_json) && checkAllSupportedProtocolsNotes(subdomain_url, websites_json);
+        if (tmp_check) {
+            check_subdomains = true;
+            numberToReturn += 1; //add at least one note for that subdomain
+        }
+        //console.log(url + " : " + tmp_check);
+    });
+
+    return numberToReturn;
+}
+
+/**
  * open sticky notes
  */
 function openAsStickyNotes() {
@@ -1482,7 +1506,7 @@ function openAsStickyNotes() {
                                 opening_sticky = false;
                             }).catch(function (error) {
                                 console.error("E2: " + error);
-                                onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
+                                //onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
                                 opening_sticky = false;
                             });
                         }
@@ -1809,4 +1833,93 @@ function getDate() {
     if (second < 10) today = today + "0" + second; else today = today + "" + second
 
     return today;
+}
+
+/**
+ * Get the SVG icon for the extension icon
+ * @param enabled - true if the "extension is enabled", false otherwise
+ * @param {string} colorBorder - border color
+ * @param {string} colorBackground - background color
+ * @param {string} colorPencil - pencil color
+ * @param {string} colorText - text color
+ * @returns {string} - SVG string
+ */
+function getIconSvg(enabled = false, colorBorder, colorBackground, colorPencil, colorText) {
+    let svgToReturn = '';
+    if (enabled) {
+        svgToReturn = `
+            <svg width="100%" height="100%" viewBox="0 0 36 36" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                 style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+                <g transform="matrix(0.833333,0,0,0.833333,-0.0534745,3.47124)">
+                    <g transform="matrix(0.00367347,-9.96139e-35,9.96139e-35,-0.00367347,-0.377797,7.74807)">
+                        <g>
+                            <!--background-->
+                            <g transform="matrix(1,1.09476e-47,-1.09476e-47,1,-736.712,51.3984)">
+                                <path d="M9902,1717.33C9862.5,1951.56 9792.24,2109.66 9492.23,2169.47C9050.83,2257.48 3901.8,2277.56 2927.36,2162.12C2561.16,2118.74 2352.33,2037.45 2321.45,1769.86C2137.7,177.424 2120.97,-4700.85 2317.54,-6623.36C2384.5,-7278.28 2707.79,-7485.84 3102.39,-7529.4C4186.31,-7649.05 8108.14,-7655.12 9215.9,-7490.99C9572.98,-7438.08 9722.26,-7264.1 9788.66,-6841.08C10023.4,-5345.51 10159.3,191.648 9902,1717.33Z"
+                                      fill="${colorBackground}" style="fill-rule:nonzero;"/>
+                            </g>
+                            <g transform="matrix(1,5.47382e-48,-1.64215e-47,1,-736.712,51.3984)">
+                                <path d="M10224.1,1771.65C10484.6,227.261 10349,-5377.82 10111.4,-6891.73C10066,-7180.53 9980.19,-7379.51 9856.96,-7520.13C9720.23,-7676.14 9534.25,-7774.05 9263.78,-7814.12C8140.84,-7980.51 4165.31,-7975.38 3066.55,-7854.09C2792.99,-7823.9 2547.6,-7729.06 2355.54,-7536.06C2175.9,-7355.53 2035.99,-7081.29 1992.57,-6656.59C1794.34,-4717.89 1811.64,201.462 1996.94,1807.3C2044.9,2222.95 2320.12,2419.14 2888.93,2486.52C3878.56,2603.75 9107.83,2579.21 9556.1,2489.83C9749.06,2451.36 9879.49,2380.16 9974.71,2293.4C10115.2,2165.37 10186.6,1993.95 10224.1,1771.65ZM9902,1717.33C9862.5,1951.56 9792.24,2109.66 9492.23,2169.47C9050.83,2257.48 3901.8,2277.56 2927.36,2162.12C2561.16,2118.74 2352.33,2037.45 2321.45,1769.86C2137.7,177.424 2120.97,-4700.85 2317.54,-6623.36C2384.5,-7278.28 2707.79,-7485.84 3102.39,-7529.4C4186.31,-7649.05 8108.14,-7655.12 9215.9,-7490.99C9572.98,-7438.08 9722.26,-7264.1 9788.66,-6841.08C10023.4,-5345.51 10159.3,191.648 9902,1717.33Z"
+                                      fill="${colorBorder}"/>
+                            </g>
+                        </g>
+                        <g>
+                            <!--pencil-->
+                            <g transform="matrix(-0.975524,-2.34562e-34,2.34562e-34,-0.984174,10684,-4202.33)">
+                                <path d="M5460.4,-848.9C5460.4,-848.9 2731.14,-2829.86 311.464,-3908.33C110.077,-3998.09 86.573,-4171.24 176.962,-4377.36C307.743,-4675.6 670.875,-5266.86 918.113,-5483.08C1037.62,-5587.59 1214.17,-5664.81 1374.57,-5528.48C2978.61,-4165.18 6430.3,-2337.1 6430.3,-2337.1C6430.3,-2337.1 7262.79,-1115.02 7118.75,-903.027C6991.2,-715.281 5460.4,-848.9 5460.4,-848.9Z"
+                                      fill="${colorPencil}" style="fill-rule:nonzero;"/>
+                            </g>
+                            <g transform="matrix(-0.975524,-2.34562e-34,2.34562e-34,-0.984174,10684,-4202.33)">
+                                <path d="M5431.03,-518.26C5431.03,-518.26 6461.69,-431.303 6942.64,-496.44C7072.24,-513.993 7174.1,-545.512 7238.82,-579.715L7331.35,-643.479L7396.5,-717.621L7450.27,-830.662L7470.36,-972.736C7470.24,-1043.1 7454.78,-1133.82 7420.66,-1236.98C7272.01,-1686.42 6707.82,-2522.84 6707.82,-2522.84C6677.3,-2567.64 6636.21,-2604.38 6588.11,-2629.85C6588.11,-2629.85 3177.08,-4433.72 1592.54,-5780.45C1278.81,-6047.1 930.324,-5936.4 696.571,-5731.98C422.504,-5492.3 14.828,-4840.27 -130.143,-4509.68C-229.555,-4282.98 -229.024,-4076.61 -152.786,-3913.39L-93.19,-3813.54L-15.259,-3727.52C35.253,-3681.46 97.53,-3639.75 174.133,-3605.61C2565.59,-2539.71 5262.56,-581.101 5262.56,-581.101C5311.88,-545.307 5370.14,-523.575 5431.03,-518.26ZM5460.4,-848.9C5460.4,-848.9 2731.14,-2829.86 311.464,-3908.33C110.077,-3998.09 86.573,-4171.24 176.962,-4377.36C307.743,-4675.6 670.875,-5266.86 918.113,-5483.08C1037.62,-5587.59 1214.17,-5664.81 1374.57,-5528.48C2978.61,-4165.18 6430.3,-2337.1 6430.3,-2337.1C6430.3,-2337.1 7262.79,-1115.02 7118.75,-903.027C6991.2,-715.281 5460.4,-848.9 5460.4,-848.9Z"
+                                      fill="${colorBorder}"/>
+                            </g>
+                        </g>
+                    </g>
+                    
+                    <!--text-->
+                    <g transform="matrix(1.2,0,0,1.2,0.186572,-4.16549)">
+                        <path d="M7.025,7.976C7.025,7.875 7.119,7.797 7.166,7.707C7.327,7.397 7.536,7.098 7.718,6.802C7.736,6.772 7.817,6.595 7.873,6.548C7.906,6.519 7.972,6.419 7.972,6.463C7.972,7.126 8.057,7.779 8.057,8.443L8.057,9.291C8.057,9.325 8.065,9.535 8.142,9.475C8.639,9.088 9.076,8.407 9.627,8.132C9.678,8.106 9.728,8.19 9.768,8.231C9.899,8.361 10.041,8.499 10.235,8.542C10.457,8.591 10.462,8.322 10.603,8.287C10.879,8.218 11.163,8.47 11.466,8.372C11.933,8.221 12.23,7.913 12.611,7.622C12.673,7.575 12.868,7.374 12.993,7.424C13.119,7.475 13.147,7.582 13.234,7.665C13.469,7.889 13.754,8.144 14.012,8.315C14.116,8.385 14.368,8.023 14.422,7.976C14.746,7.696 15.136,7.466 15.553,7.368C15.646,7.346 15.757,7.273 15.836,7.325C15.95,7.401 15.947,7.614 15.977,7.736C16.035,7.967 16.261,8.61 16.598,8.652C17.297,8.74 17.729,7.75 18.368,7.608C18.684,7.538 18.838,8.191 19.146,8.259C19.332,8.3 19.5,8.166 19.683,8.146C20,8.111 20.327,8.16 20.645,8.16"
+                        stroke="${colorText}" style="fill:none;stroke-width:1px;"/>
+                    </g>
+                    <g transform="matrix(1.2,0,0,1.2,0.186572,-4.16549)">
+                        <path d="M6.756,14.921C6.833,14.869 6.794,14.768 6.798,14.68C6.81,14.463 6.82,14.246 6.841,14.029C6.878,13.629 6.97,13.205 7.197,12.865C7.254,12.779 7.401,12.586 7.52,12.573C8.276,12.485 8.278,13.345 8.679,13.747C8.779,13.846 9.32,13.589 9.387,13.577C9.58,13.542 9.638,13.835 9.839,13.902C10.161,14.01 10.846,13.963 11.126,13.888C11.341,13.83 11.652,13.722 11.805,13.549C11.871,13.474 11.878,13.239 11.961,13.294C12.355,13.557 13.193,13.83 13.587,13.633"
+                        stroke="${colorText}" style="fill:none;stroke-width:1px;"/>
+                    </g>
+                </g>
+            </svg>
+        `;
+    } else {
+        svgToReturn = `
+        <svg width="100%" height="100%" viewBox="0 0 36 36" version="1.1" xmlns="http://www.w3.org/2000/svg"
+             style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+            <g transform="matrix(0.00306123,-8.30116e-35,8.30116e-35,-0.00306123,-0.368305,9.92797)">
+                <g>
+                    <g>
+                        <!--background-->
+                        <g transform="matrix(1,1.09476e-47,-1.09476e-47,1,-736.712,51.3984)">
+                            <path d="M9902,1717.33C9862.5,1951.56 9792.24,2109.66 9492.23,2169.47C9050.83,2257.48 3901.8,2277.56 2927.36,2162.12C2561.16,2118.74 2352.33,2037.45 2321.45,1769.86C2137.7,177.424 2120.97,-4700.85 2317.54,-6623.36C2384.5,-7278.28 2707.79,-7485.84 3102.39,-7529.4C4186.31,-7649.05 8108.14,-7655.12 9215.9,-7490.99C9572.98,-7438.08 9722.26,-7264.1 9788.66,-6841.08C10023.4,-5345.51 10159.3,191.648 9902,1717.33Z"
+                                  fill="${colorBackground}" style="fill-rule:nonzero;" />
+                        </g>
+                        <g transform="matrix(1,5.47382e-48,-1.64215e-47,1,-736.712,51.3984)">
+                            <path d="M10224.1,1771.65C10484.6,227.261 10349,-5377.82 10111.4,-6891.73C10066,-7180.53 9980.19,-7379.51 9856.96,-7520.13C9720.23,-7676.14 9534.25,-7774.05 9263.78,-7814.12C8140.84,-7980.51 4165.31,-7975.38 3066.55,-7854.09C2792.99,-7823.9 2547.6,-7729.06 2355.54,-7536.06C2175.9,-7355.53 2035.99,-7081.29 1992.57,-6656.59C1794.34,-4717.89 1811.64,201.462 1996.94,1807.3C2044.9,2222.95 2320.12,2419.14 2888.93,2486.52C3878.56,2603.75 9107.83,2579.21 9556.1,2489.83C9749.06,2451.36 9879.49,2380.16 9974.71,2293.4C10115.2,2165.37 10186.6,1993.95 10224.1,1771.65ZM9902,1717.33C9862.5,1951.56 9792.24,2109.66 9492.23,2169.47C9050.83,2257.48 3901.8,2277.56 2927.36,2162.12C2561.16,2118.74 2352.33,2037.45 2321.45,1769.86C2137.7,177.424 2120.97,-4700.85 2317.54,-6623.36C2384.5,-7278.28 2707.79,-7485.84 3102.39,-7529.4C4186.31,-7649.05 8108.14,-7655.12 9215.9,-7490.99C9572.98,-7438.08 9722.26,-7264.1 9788.66,-6841.08C10023.4,-5345.51 10159.3,191.648 9902,1717.33Z"
+                                  fill="${colorBorder}"/>
+                        </g>
+                    </g>
+                    <g transform="matrix(0.836377,0.548155,-0.548155,0.836377,1628.43,-5055.66)">
+                        <!--pencil-->
+                        <g transform="matrix(-0.975524,-2.34562e-34,2.34562e-34,-0.984174,10684,-4202.33)">
+                            <path d="M5460.4,-848.9C5460.4,-848.9 2731.14,-2829.86 311.464,-3908.33C110.077,-3998.09 86.573,-4171.24 176.962,-4377.36C307.743,-4675.6 670.875,-5266.86 918.113,-5483.08C1037.62,-5587.59 1214.17,-5664.81 1374.57,-5528.48C2978.61,-4165.18 6430.3,-2337.1 6430.3,-2337.1C6430.3,-2337.1 7262.79,-1115.02 7118.75,-903.027C6991.2,-715.281 5460.4,-848.9 5460.4,-848.9Z"
+                                  fill="${colorPencil}" style="fill-rule:nonzero;"/>
+                        </g>
+                        <g transform="matrix(-0.975524,-2.34562e-34,2.34562e-34,-0.984174,10684,-4202.33)">
+                            <path d="M5431.03,-518.26C5431.03,-518.26 6461.69,-431.303 6942.64,-496.44C7072.24,-513.993 7174.1,-545.512 7238.82,-579.715L7331.35,-643.479L7396.5,-717.621L7450.27,-830.662L7470.36,-972.736C7470.24,-1043.1 7454.78,-1133.82 7420.66,-1236.98C7272.01,-1686.42 6707.82,-2522.84 6707.82,-2522.84C6677.3,-2567.64 6636.21,-2604.38 6588.11,-2629.85C6588.11,-2629.85 3177.08,-4433.72 1592.54,-5780.45C1278.81,-6047.1 930.324,-5936.4 696.571,-5731.98C422.504,-5492.3 14.828,-4840.27 -130.143,-4509.68C-229.555,-4282.98 -229.024,-4076.61 -152.786,-3913.39L-93.19,-3813.54L-15.259,-3727.52C35.253,-3681.46 97.53,-3639.75 174.133,-3605.61C2565.59,-2539.71 5262.56,-581.101 5262.56,-581.101C5311.88,-545.307 5370.14,-523.575 5431.03,-518.26ZM5460.4,-848.9C5460.4,-848.9 2731.14,-2829.86 311.464,-3908.33C110.077,-3998.09 86.573,-4171.24 176.962,-4377.36C307.743,-4675.6 670.875,-5266.86 918.113,-5483.08C1037.62,-5587.59 1214.17,-5664.81 1374.57,-5528.48C2978.61,-4165.18 6430.3,-2337.1 6430.3,-2337.1C6430.3,-2337.1 7262.79,-1115.02 7118.75,-903.027C6991.2,-715.281 5460.4,-848.9 5460.4,-848.9Z"
+                                  fill="${colorBorder}"/>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </svg>
+        `;
+    }
+    return svgToReturn;
 }
