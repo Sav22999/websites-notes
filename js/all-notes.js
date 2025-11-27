@@ -1388,6 +1388,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let search_svg = window.btoa(getIconSvgEncoded("search", primary));
         let fullscreen_svg = window.btoa(getIconSvgEncoded("fullscreen", on_primary));
         let close_svg = window.btoa(getIconSvgEncoded("close", on_primary));
+        let login_svg = window.btoa(getIconSvgEncoded("login", on_primary));
         let logout_svg = window.btoa(getIconSvgEncoded("logout", on_primary));
 
         let primaryTransparent = primary;
@@ -1514,6 +1515,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     background-image: url('data:image/svg+xml;base64,${search_svg}');
                 }
                 
+                .login-button {
+                    background-image: url('data:image/svg+xml;base64,${login_svg}');
+                }
                 .logout-button {
                     background-image: url('data:image/svg+xml;base64,${logout_svg}');
                 }
