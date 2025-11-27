@@ -1993,6 +1993,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let highlighter_svg = window.btoa(getIconSvgEncoded("highlighter", on_primary));
         let code_block_svg = window.btoa(getIconSvgEncoded("code-block", on_primary));
         let clear_formatting_svg = window.btoa(getIconSvgEncoded("clear-formatting", on_primary));
+        let login_svg = window.btoa(getIconSvgEncoded("login", on_primary));
+        let logout_svg = window.btoa(getIconSvgEncoded("logout", on_primary));
 
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
@@ -2165,6 +2167,14 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 
                 #all-notes-button-grid {
                     background-image: url('data:image/svg+xml;base64,${arrow_right_svg}');
+                }
+                
+                .login-button {
+                    background-image: url('data:image/svg+xml;base64,${login_svg}');
+                }
+                
+                .logout-button {
+                    background-image: url('data:image/svg+xml;base64,${logout_svg}');
                 }
             </style>`;
     }

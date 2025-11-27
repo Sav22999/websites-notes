@@ -62,7 +62,7 @@ Created by Saverio Morelli - saveriomorelli.com
 
     <div id="background-opacity"></div>
     <!--Import panel-->
-    <div id="import-section">
+    <div id="import-section" class="message-popup">
         <div class="section" id="import-sub-sections">
             <div class="padding-10">
                 <div id="text-import"></div>
@@ -100,7 +100,7 @@ Created by Saverio Morelli - saveriomorelli.com
     <!--<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>-->
 
     <!--Export panel-->
-    <div id="export-section">
+    <div id="export-section" class="message-popup">
         <div class="section" id="export-sub-sections">
             <div class="padding-10">
                 <div id="text-export"></div>
@@ -117,7 +117,7 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
 
     <!--Notefox account panel-->
-    <div id="account-section">
+    <div id="account-section" class="message-popup">
         <div class="section" id="account-sub-sections">
             <div class="padding-10">
                 <div id="title-account" class="user-select-none"></div>
@@ -421,7 +421,7 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
 
     <!--Show error logs panel-->
-    <div id="show-error-logs-section">
+    <div id="show-error-logs-section" class="message-popup">
         <div class="section" id="show-error-logs-sub-sections">
             <div class="padding-10">
                 <div id="text-show-error-logs"></div>
@@ -438,7 +438,7 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
 
     <!--Notefox server error panel-->
-    <div id="notefox-server-error-section">
+    <div id="notefox-server-error-section" class="message-popup">
         <div id="notefox-server-error-content" class="section">
             <div id="notefox-server-error-title" class="padding-10"></div>
             <div id="notefox-server-error-text" class="padding-10"></div>
@@ -1541,6 +1541,25 @@ Created by Saverio Morelli - saveriomorelli.com
             </label>
             <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                   id="send-telemetry-detailed-text"></span>
+        </div>
+
+        <!--====================-->
+        <!--Developer options section-->
+        <div class="section-title-settings" id="developer-options-title-settings"></div>
+        <div class="section-description-settings" id="developer-options-description-settings"></div>
+
+        <!--API endpoint section-->
+        <div class="option-settings">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id="api-endpoint-text"></span>
+                <span class="section-grid-item-select">
+                    <input type="button" value="" id="change-api-endpoint-settings-button"
+                           class="button warning-button"/>
+                    <input type="button" value="" id="reset-api-endpoint-settings-button"
+                           class="button warning-button"/>
+                </span>
+                <span class="description-option-settings" id="api-endpoint-detailed-text"></span>
+            </span>
         </div>
     </div>
 </div>

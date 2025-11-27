@@ -469,6 +469,14 @@ function loaded() {
         exportErrorLogs();
         sendTelemetry("show-error-logs-settings-button");
     };
+    document.getElementById("change-api-endpoint-settings-button").onclick = function () {
+        changeApiEndpoint();
+        sendTelemetry("change-api-endpoint-settings-button");
+    };
+    document.getElementById("reset-api-endpoint-settings-button").onclick = function () {
+        resetApiEndpoint();
+        sendTelemetry("reset-api-endpoint-settings-button");
+    };
     document.getElementById("show-error-logs-to-file-button").onclick = function () {
         const permissionsToRequest = {
             permissions: ["downloads"],
@@ -752,6 +760,8 @@ function setLanguageUI() {
 
     document.getElementById("general-title-settings").innerText = all_strings["general-title-settings"];
     document.getElementById("advanced-title-settings").innerText = all_strings["advanced-title-settings"];
+    document.getElementById("developer-options-title-settings").innerText = all_strings["developer-options-title-settings"];
+    document.getElementById("developer-options-description-settings").innerText = all_strings["developer-options-description-settings"];
     document.getElementById("appearance-title-settings").innerText = all_strings["appearance-title-settings"];
     document.getElementById("shortcuts-title-settings").innerText = all_strings["shortcuts-title-settings"];
     document.getElementById("icon-behaviour-title-settings").innerText = all_strings["icon-behaviour-title-settings"];
@@ -776,6 +786,10 @@ function setLanguageUI() {
     document.getElementById("search-page-content-detailed-text").innerHTML = all_strings["search-page-content-detailed"];
     document.getElementById("sending-error-logs-automatically-text").innerText = all_strings["sending-error-logs-automatically-text"];
     document.getElementById("sending-error-logs-automatically-detailed-text").innerHTML = all_strings["sending-error-logs-automatically-detailed-text"];
+    document.getElementById("api-endpoint-text").innerText = all_strings["change-api-endpoint-text"];
+    document.getElementById("api-endpoint-detailed-text").innerHTML = all_strings["change-api-endpoint-detailed-text"];
+    document.getElementById("change-api-endpoint-settings-button").value = all_strings["change-api-endpoint-button"];
+    document.getElementById("reset-api-endpoint-settings-button").value = all_strings["reset-api-endpoint-button"];
     document.getElementById("send-telemetry-text").innerText = all_strings["send-telemetry-text"];
     document.getElementById("send-telemetry-detailed-text").innerHTML = all_strings["send-telemetry-detailed-text"];
     document.getElementById("disable-word-wrap-text").innerText = all_strings["disable-word-wrap"];
@@ -1032,9 +1046,12 @@ function loadSettings() {
             if (settings_json["small-big"] === undefined) settings_json["small-big"] = false;
             if (settings_json["highlighter"] === undefined) settings_json["highlighter"] = false;
             if (settings_json["code-block"] === undefined) settings_json["code-block"] = false;
+            if (settings_json["clear-formatting"] === undefined) settings_json["clear-formatting"] = false;
 
             if (settings_json["default-tag-colour-domain"] === undefined) settings_json["default-tag-colour-domain"] = "none";
             if (settings_json["default-tag-colour-page"] === undefined) settings_json["default-tag-colour-page"] = "none";
+
+            if (settings_json["api-endpoint"] === undefined) settings_json["api-endpoint"] = "https://notefox.eu/api/v1"; //TODO!manually change if the default API endpoint changes
 
             let sync_or_local_settings = result["storage"];
             if (sync_or_local_settings === undefined) sync_or_local_settings = "local";
@@ -2043,6 +2060,76 @@ function deleteErrorLogs() {
             loaded();
         });
     }
+}
+
+function changeApiEndpoint() {
+    hideAllPopups();
+
+    //get current "api-endpoint" from "settings" storage
+    let default_value = settings_json["api-endpoint"];
+    if (default_value === undefined || default_value === null) {
+        default_value = "";
+    }
+
+    let change_api_text = all_strings["change-api-endpoint-message-dialog-text"];
+
+    let text;
+    let api_url = prompt(change_api_text, default_value);
+    api_url = safeLink(api_url);
+    if (api_url !== null) {
+        //set the new "api-endpoint" in "settings" storage
+        //settings_json["api-endpoint"] = api_url;
+        //console.info("New API endpoint set: ", api_url);
+        sync_local.get("settings").then((result) => {
+            let settings_json_temp = {}
+            if (result["settings"] !== undefined && result["settings"] !== null) {
+                settings_json_temp = result["settings"];
+            }
+            settings_json_temp["api-endpoint"] = api_url;
+            sync_local.set({"settings": settings_json_temp}).then(() => {
+                alert(all_strings["api-endpoint-changed-alert"].replaceAll("{{api_endpoint}}", api_url));
+                //settings_json["api-endpoint"] = api_url;
+                loadSettings();
+            });
+        });
+    } else {
+        //invalid url
+    }
+}
+
+function resetApiEndpoint() {
+    //set to undefined the "api-endpoint" in "settings" storage
+    if (confirm(all_strings["api-endpoint-reset-alert"])) {
+        sync_local.get("settings").then((result) => {
+            let settings_json_temp = {}
+            if (result["settings"] !== undefined && result["settings"] !== null) {
+                settings_json_temp = result["settings"];
+            }
+            delete settings_json_temp["api-endpoint"];
+            sync_local.set({"settings": settings_json_temp}).then(() => {
+                loadSettings();
+            });
+        });
+    }
+}
+
+function safeLink(link) {
+    //clear the link to get safe url
+    let urlToReturn = null;
+    if (link !== null) {
+        try {
+            let url = new URL(link);
+            urlToReturn = url.origin + url.pathname;
+
+            //check if the last character is a "/" and remove it
+            if (urlToReturn.endsWith("/")) {
+                urlToReturn = urlToReturn.slice(0, -1);
+            }
+        } catch (e) {
+            urlToReturn = null;
+        }
+    }
+    return urlToReturn;
 }
 
 function notefoxServerError() {
@@ -4031,6 +4118,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var synced_svg = window.btoa(getIconSvgEncoded("syncing", on_primary));
         var manage_svg = window.btoa(getIconSvgEncoded("account", on_primary));
         var edit_svg = window.btoa(getIconSvgEncoded("edit", on_primary));
+        var warning_svg = window.btoa(getIconSvgEncoded("warning", on_primary));
 
         var account_label_svg = window.btoa(getIconSvgEncoded("account", textbox_color));
         var email_label_svg = window.btoa(getIconSvgEncoded("email", textbox_color));
@@ -4195,6 +4283,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .edit-button {
                     background-image: url('data:image/svg+xml;base64,${edit_svg}');
+                }
+                .warning-button {
+                    background-image: url('data:image/svg+xml;base64,${warning_svg}');
                 }
             </style>`;
     }

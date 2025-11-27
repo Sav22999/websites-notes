@@ -69,6 +69,15 @@ function loaded() {
             //console.log("User expired! Log in again | script");
             loginExpired();
         }
+        if (message["check-user--exception"] !== undefined && message["check-user--exception"]) {
+            //console.log("User not logged! Log in | script");
+            //console.log(message);
+            browser.storage.local.get("notefox-server-error-shown").then(result => {
+                if (result["notefox-server-error-shown"] === undefined || result["notefox-server-error-shown"] === false) {
+                    notefoxServerError();
+                }
+            });
+        }
     });
     browser.runtime.sendMessage({"check-user": true});
 
@@ -1303,6 +1312,47 @@ function showFullscreenNotes(notesText) {
     }
 }
 
+function notefoxServerError() {
+    let section = document.getElementById("notefox-server-error-section");
+    let background = document.getElementById("background-opacity");
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    let title = document.getElementById("notefox-server-error-title");
+    title.textContent = all_strings["notefox-account-message-server-error-title"];
+    let text = document.getElementById("notefox-server-error-text");
+    text.innerHTML = all_strings["notefox-account-message-server-error-text"];
+    let text2 = document.getElementById("notefox-server-error-text2");
+    text2.innerHTML = all_strings["notefox-account-message-server-error-text2"];
+    let text3 = document.getElementById("notefox-server-error-text3");
+    text3.innerHTML = all_strings["notefox-account-message-server-error-text3"];
+    let button1 = document.getElementById("notefox-server-error-button1");
+    button1.value = all_strings["notefox-account-message-button1"];
+    button1.onclick = function () {
+        //log out
+        section.style.display = "none";
+        background.style.display = "none";
+
+        browser.storage.sync.remove("notefox-account");
+        browser.storage.local.set({"notefox-server-error-shown": true});
+        sendTelemetry("notefox-server-error-logout");
+        window.close();
+    }
+    let button2 = document.getElementById("notefox-server-error-button2");
+    button2.value = all_strings["notefox-account-message-button2"];
+    button2.onclick = function () {
+        //close the message
+        section.style.display = "none";
+        background.style.display = "none";
+
+        browser.storage.local.set({"notefox-server-error-shown": true}).then(() => {
+            //console.log("Notefox server error shown set to true");
+        });
+        sendTelemetry("notefox-server-error-continue");
+    }
+}
+
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
     if (background !== undefined && backgroundSection !== undefined && primary !== undefined && secondary !== undefined && on_primary !== undefined && on_secondary !== undefined) {
         document.body.style.backgroundColor = background;
@@ -1338,6 +1388,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let search_svg = window.btoa(getIconSvgEncoded("search", primary));
         let fullscreen_svg = window.btoa(getIconSvgEncoded("fullscreen", on_primary));
         let close_svg = window.btoa(getIconSvgEncoded("close", on_primary));
+        let logout_svg = window.btoa(getIconSvgEncoded("logout", on_primary));
 
         let primaryTransparent = primary;
         if (primaryTransparent.includes("rgb(")) {
@@ -1461,6 +1512,10 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .search-all-notes-text {
                     background-image: url('data:image/svg+xml;base64,${search_svg}');
+                }
+                
+                .logout-button {
+                    background-image: url('data:image/svg+xml;base64,${logout_svg}');
                 }
                 
                 #open-fullscreen-notes-button {

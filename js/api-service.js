@@ -1,4 +1,6 @@
-var api_url = "https://www.notefox.eu/api/v1"
+const API_ENDPOINT_DEFAULT = "https://www.notefox.eu/api/v1";
+
+let api_url = API_ENDPOINT_DEFAULT //default API URL
 
 try {
     loadAPI();
@@ -51,12 +53,30 @@ function onError(context, text, url = undefined) {
  * Load the API service
  */
 function loadAPI() {
-    // Listen for messages
-    (typeof browser !== 'undefined' ? browser : chrome).runtime.onMessage.addListener((message) => {
-        if (message["api"] !== undefined && message["api"]) {
-            api_request(message);
-        }
+    getCorrectAPIUrl().then(() => {
+        // Listen for messages
+        (typeof browser !== 'undefined' ? browser : chrome).runtime.onMessage.addListener((message) => {
+            if (message["api"] !== undefined && message["api"]) {
+                api_request(message);
+            }
+        });
     });
+}
+
+async function getCorrectAPIUrl() {
+    try {
+        const result = await browser.storage.local.get("settings");
+        if (result["settings"] !== undefined && result["settings"]["api-endpoint"] !== undefined && result["settings"]["api-endpoint"] !== "") {
+            api_url = result["settings"]["api-endpoint"];
+            return true;
+        } else {
+            api_url = API_ENDPOINT_DEFAULT;
+            return true;
+        }
+    } catch (error) {
+        onError("api-service.js::getCorrectAPIUrl", error.message);
+        return false;
+    }
 }
 
 /**
@@ -141,28 +161,30 @@ async function api_request(message) {
  * @returns {Promise<{error: boolean, message}|any>} - returns the response data or an error object
  */
 async function api_call(endpoint, body) {
-    try {
-        const response = await fetch(api_url + endpoint, {
-            method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)
-        });
-        if (!response.ok) {
-            console.error(`[api-service.js::api_call::${endpoint}] HTTP error! Status: ${response.status}`);
-            return {error: true, message: `HTTP error! Status: ${response.status}`, details: response};
-            //throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+    return getCorrectAPIUrl().then(async () => {
+        try {
+            const response = await fetch(api_url + endpoint, {
+                method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)
+            });
+            if (!response.ok) {
+                console.error(`[api-service.js::api_call::${endpoint}] HTTP error! Status: ${response.status}`);
+                return {error: true, message: `HTTP error! Status: ${response.status}`, details: response};
+                //throw new Error(`HTTP error! Status: ${response.status}`);
+            }
 
-        browser.storage.local.remove("notefox-server-error-shown");
-        return await response.json();
-    } catch (error) {
-        if (error instanceof TypeError && error.includes("NetworkError")) {
-            console.error(`[api-service.js::api_call::${endpoint}] Network error:`, error);
-            //onError("api-service.js::api_call", "Network error: " + error.message);
-        } else {
-            console.error(`[api-service.js::api_call::${endpoint}] API request failed:`, error);
-            onError("api-service.js::api_call", "API request failed: " + error.message);
+            browser.storage.local.remove("notefox-server-error-shown");
+            return await response.json();
+        } catch (error) {
+            if (error instanceof TypeError && error.includes("NetworkError")) {
+                console.error(`[api-service.js::api_call::${endpoint}] Network error:`, error);
+                //onError("api-service.js::api_call", "Network error: " + error.message);
+            } else {
+                console.error(`[api-service.js::api_call::${endpoint}] API request failed:`, error);
+                onError("api-service.js::api_call", "API request failed: " + error.message);
+            }
+            return {error: true, message: error.message, details: error};
         }
-        return {error: true, message: error.message, details: error};
-    }
+    });
 }
 
 /**
@@ -392,122 +414,130 @@ async function check_user(login_id, token) {
 }
 
 async function change_password(login_id_value, token_value, old_password_value, new_password_value) {
-    try {
-        const response = await fetch(api_url + '/password/edit/', {
-            method: 'POST', headers: {
-                'Content-Type': 'application/json'
-            }, body: JSON.stringify({
-                "login-id": login_id_value,
-                "token": token_value,
-                "password": old_password_value,
-                "new-password": new_password_value
-            })
-        });
+    return getCorrectAPIUrl().then(async () => {
+        try {
+            const response = await fetch(api_url + '/password/edit/', {
+                method: 'POST', headers: {
+                    'Content-Type': 'application/json'
+                }, body: JSON.stringify({
+                    "login-id": login_id_value,
+                    "token": token_value,
+                    "password": old_password_value,
+                    "new-password": new_password_value
+                })
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        sendMessage({
-            "api_response": true, "type": "change-password", "data": data
-        });
+            sendMessage({
+                "api_response": true, "type": "change-password", "data": data
+            });
 
-    } catch (error) {
-        console.error('Request failed:', error);
-        onError("api-service.js::change_password", error.message);
+        } catch (error) {
+            console.error('Request failed:', error);
+            onError("api-service.js::change_password", error.message);
 
-        sendMessage({
-            "api_response": true, "type": "change-password", "data": {
-                "error": true, "message": error.message
-            }
-        });
-    }
+            sendMessage({
+                "api_response": true, "type": "change-password", "data": {
+                    "error": true, "message": error.message
+                }
+            });
+        }
+    });
 }
 
 async function delete_account(login_id_value, token_value, email_value, password_value) {
-    try {
-        const response = await fetch(api_url + '/delete/', {
-            method: 'POST', headers: {
-                'Content-Type': 'application/json'
-            }, body: JSON.stringify({
-                "login-id": login_id_value, "token": token_value, "email": email_value, "password": password_value
-            })
-        });
+    return getCorrectAPIUrl().then(async () => {
+        try {
+            const response = await fetch(api_url + '/delete/', {
+                method: 'POST', headers: {
+                    'Content-Type': 'application/json'
+                }, body: JSON.stringify({
+                    "login-id": login_id_value, "token": token_value, "email": email_value, "password": password_value
+                })
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        sendMessage({
-            "api_response": true, "type": "delete-account", "data": data
-        });
+            sendMessage({
+                "api_response": true, "type": "delete-account", "data": data
+            });
 
-    } catch (error) {
-        console.error('Request failed:', error);
-        onError("api-service.js::delete_account", error.message);
+        } catch (error) {
+            console.error('Request failed:', error);
+            onError("api-service.js::delete_account", error.message);
 
-        sendMessage({
-            "api_response": true, "type": "delete-account", "data": {
-                "error": true, "message": error.message
-            }
-        });
-    }
+            sendMessage({
+                "api_response": true, "type": "delete-account", "data": {
+                    "error": true, "message": error.message
+                }
+            });
+        }
+    });
 }
 
 async function delete_account_verify(login_id_value, token_value, email_value, password_value, deleting_code_value) {
-    try {
-        const response = await fetch(api_url + '/delete/verify/', {
-            method: 'POST', headers: {
-                'Content-Type': 'application/json'
-            }, body: JSON.stringify({
-                "login-id": login_id_value,
-                "token": token_value,
-                "email": email_value,
-                "password": password_value,
-                "deleting-code": deleting_code_value
-            })
-        });
+    return getCorrectAPIUrl().then(async () => {
+        try {
+            const response = await fetch(api_url + '/delete/verify/', {
+                method: 'POST', headers: {
+                    'Content-Type': 'application/json'
+                }, body: JSON.stringify({
+                    "login-id": login_id_value,
+                    "token": token_value,
+                    "email": email_value,
+                    "password": password_value,
+                    "deleting-code": deleting_code_value
+                })
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        sendMessage({
-            "api_response": true, "type": "delete-verify", "data": data
-        });
+            sendMessage({
+                "api_response": true, "type": "delete-verify", "data": data
+            });
 
-    } catch (error) {
-        console.error('Request failed:', error);
-        onError("api-service.js::delete_account_verify", error.message);
+        } catch (error) {
+            console.error('Request failed:', error);
+            onError("api-service.js::delete_account_verify", error.message);
 
-        sendMessage({
-            "api_response": true, "type": "delete-verify", "data": {
-                "error": true, "message": error.message
-            }
-        });
-    }
+            sendMessage({
+                "api_response": true, "type": "delete-verify", "data": {
+                    "error": true, "message": error.message
+                }
+            });
+        }
+    });
 }
 
 async function delete_account_verify_new_code(email_value, password_value) {
-    try {
-        const response = await fetch(api_url + '/delete/verify/get-new-code/', {
-            method: 'POST', headers: {
-                'Content-Type': 'application/json'
-            }, body: JSON.stringify({
-                "email": email_value, "password": password_value
-            })
-        });
+    return getCorrectAPIUrl().then(async () => {
+        try {
+            const response = await fetch(api_url + '/delete/verify/get-new-code/', {
+                method: 'POST', headers: {
+                    'Content-Type': 'application/json'
+                }, body: JSON.stringify({
+                    "email": email_value, "password": password_value
+                })
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        sendMessage({
-            "api_response": true, "type": "delete-account-new-code", "data": data
-        });
+            sendMessage({
+                "api_response": true, "type": "delete-account-new-code", "data": data
+            });
 
-    } catch (error) {
-        console.error('Request failed:', error);
-        onError("api-service.js::delete_account_verify_new_code", error.message);
+        } catch (error) {
+            console.error('Request failed:', error);
+            onError("api-service.js::delete_account_verify_new_code", error.message);
 
-        sendMessage({
-            "api_response": true, "type": "delete-account-new-code", "data": {
-                "error": true, "message": error.message
-            }
-        });
-    }
+            sendMessage({
+                "api_response": true, "type": "delete-account-new-code", "data": {
+                    "error": true, "message": error.message
+                }
+            });
+        }
+    });
 }
 
 async function send_error_logs(error_logs) {

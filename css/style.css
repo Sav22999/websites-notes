@@ -257,7 +257,9 @@ body {
 .sync-error-button,
 .syncing-button,
 .synced-button,
-.show-content-button {
+.show-content-button,
+.save-button,
+.warning-button {
     padding-left: 45px;
     padding-right: 10px;
     background-size: auto 70%;
@@ -351,6 +353,14 @@ body {
 
 .show-content-button {
     background-image: url("../img/show-content.svg");
+}
+
+.save-button {
+    background-image: url("../img/save.svg");
+}
+
+.warning-button {
+    background-image: url("../img/warning.svg");
 }
 
 .edit-button {
@@ -1773,7 +1783,7 @@ aside {
             var(--tertiary-transparent)
     ),
     linear-gradient(to right, var(--background-color), var(--background-color));
-    z-index: 2;
+    z-index: 200;
     overflow: hidden;
     width: 200px;
     color: var(--primary-color);
@@ -1881,7 +1891,6 @@ aside .external-link {
         width: 100%;
         border-radius: 0px;
         background-color: var(--tertiary);
-        z-index: 2;
         overflow: hidden;
         /*padding: 0px;*/
         color: var(--primary-color);
@@ -2009,6 +2018,17 @@ aside .external-link {
     top: 0px;
     margin: 0px;
     z-index: 5;
+}
+
+.section-description-settings {
+    padding: 5px 10px;
+    font-size: 1em;
+    opacity: 0.7;
+    color: var(--primary-color);
+    display: block;
+    width: 100%;
+    padding-top: 0px;
+    font-weight: 450;
 }
 
 @media screen and (max-width: 1000px) {
