@@ -1014,13 +1014,14 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             }
         }
         listenerLinks(textNotes);
+
         let disable_word_wrap = false;
         if (settings_json["disable-word-wrap"] !== undefined) {
             if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true;
             else disable_word_wrap = false;
         }
         if (disable_word_wrap) {
-            textNotes.whiteSpace = "none";
+            textNotes.style.whiteSpace = "none";
         } else {
             textNotes.style.whiteSpace = "pre-wrap";
         }
@@ -1030,8 +1031,19 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         textNotes.style.fontFamily = `'${settings_json["font-family"]}'`;
         textNotes.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
 
+        let openFullscreenNotesButton = document.createElement("button");
+        openFullscreenNotesButton.classList.add("button-format", "button");
+        openFullscreenNotesButton.id = "open-fullscreen-notes-button";
+        openFullscreenNotesButton.onclick = function () {
+            showFullscreenNotes(textNotes);
+            sendTelemetry(`open-fullscreen-notes`, "all-notes.js", fullUrl);
+        }
+
         contentNotes.append(textNotes);
         contentNotesContainer.appendChild(contentNotes);
+        if (settings_json["show-fullscreen-button-in-all-notes"]) {
+            contentNotesContainer.appendChild(openFullscreenNotesButton);
+        }
 
         pageContentRight.append(contentNotesContainer);
 
@@ -1253,6 +1265,44 @@ function loginExpired() {
     }
 }
 
+function showFullscreenNotes(notesText) {
+    let section = document.getElementById("fullscreen-notes-viewer");
+    let background = document.getElementById("background-opacity");
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    let notesContent = document.getElementById("fullscreen-notes-viewer-content");
+    notesContent.innerHTML = notesText.innerHTML;
+
+    if (notesContent) {
+        let disable_word_wrap = false;
+        if (settings_json["disable-word-wrap"] !== undefined) {
+            if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true;
+            else disable_word_wrap = false;
+        }
+        if (disable_word_wrap) {
+            notesContent.style.whiteSpace = "none";
+        } else {
+            notesContent.style.whiteSpace = "pre-wrap";
+        }
+
+        if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
+
+        notesContent.style.fontFamily = `'${settings_json["font-family"]}'`;
+        notesContent.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
+    }
+
+    sendTelemetry(`open-fullscreen-notes`);
+
+    let closeButton = document.getElementById("close-fullscreen-notes-button");
+    closeButton.onclick = function () {
+        section.style.display = "none";
+        background.style.display = "none";
+        sendTelemetry(`close-fullscreen-notes`);
+    }
+}
+
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
     if (background !== undefined && backgroundSection !== undefined && primary !== undefined && secondary !== undefined && on_primary !== undefined && on_secondary !== undefined) {
         document.body.style.backgroundColor = background;
@@ -1286,6 +1336,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         let search_svg = window.btoa(getIconSvgEncoded("search", primary));
+        let fullscreen_svg = window.btoa(getIconSvgEncoded("fullscreen", on_primary));
+        let close_svg = window.btoa(getIconSvgEncoded("close", on_primary));
 
         let primaryTransparent = primary;
         if (primaryTransparent.includes("rgb(")) {
@@ -1409,6 +1461,13 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .search-all-notes-text {
                     background-image: url('data:image/svg+xml;base64,${search_svg}');
+                }
+                
+                #open-fullscreen-notes-button {
+                    background-image: url('data:image/svg+xml;base64,${fullscreen_svg}');
+                }
+                #close-fullscreen-notes-button {
+                    background-image: url('data:image/svg+xml;base64,${close_svg}');
                 }
                 
                 h2.domain, div.h2-container {

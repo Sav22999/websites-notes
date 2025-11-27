@@ -250,7 +250,7 @@ function clearFormatting() {
     addAction();
 }
 
-function insertHTMLFromTagName(tagName) {
+function insertHTMLFromTagName(tagName, properties = "") {
     let selectedText = "";
     if (window.getSelection) {
         selectedText = window.getSelection().toString();
@@ -279,8 +279,14 @@ function insertHTMLFromTagName(tagName) {
         }
         saveNotes();
     } else {
-        let html = "<" + tagName + ">" + selectedText + "</" + tagName + ">";
-        document.execCommand("insertHTML", false, html);
+        let openTag = "<" + tagName + " " + properties + ">";
+        let closeTag = "</" + tagName + ">";
+        //let html = "<" + tagName + ">" + selectedText + "</" + tagName + ">";
+        //document.execCommand("insertHTML", false, html);
+        document.execCommand("insertHTML", false, openTag);
+        document.execCommand("insertText", false, selectedText);
+        document.execCommand("insertHTML", false, closeTag);
+
     }
 }
 
@@ -294,34 +300,8 @@ function insertLink() {
         selectedText = document.selection.createRange().text;
     }
 
-    // Check if the selected text is already wrapped in a link (or one of its ancestors is a link)
-    let isLink = hasAncestorTagName(window.getSelection().anchorNode, "a");
-
-    // If it's already a link, remove the link; otherwise, add the link
-    if (isLink) {
-        // Remove the link
-        let elements = getTheAncestorTagName(window.getSelection().anchorNode, "a");
-        let anchorElement = elements[0];
-        let parentAnchor = elements[1];
-
-        if (anchorElement && parentAnchor) {
-            // Move children of the anchor element to its parent
-            while (anchorElement.firstChild) {
-                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
-            }
-            // Remove the anchor element itself
-            parentAnchor.removeChild(anchorElement);
-        }
-        saveNotes();
-    } else {
-        /*let url = prompt("Enter the URL:");
-            if (url) {
-                document.execCommand('createLink', false, url);
-            }*/
-        document.execCommand("createLink", false, selectedText);
-    }
+    insertHTMLFromTagName("a", selectedText);
     addAction();
-    //}
 }
 
 /*function insertLink() {
@@ -1750,6 +1730,24 @@ function getIconSvgEncoded(icon, color) {
                 '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">' +
                 '    <g transform="matrix(24.0385,0,0,24.0385,111.538,111.538)">' +
                 '        <path fill="' + color + '" d="M12,1.6C12.773,1.6 13.4,2.227 13.4,3C13.4,3.773 12.773,4.4 12,4.4C10.272,4.4 8.882,4.484 7.771,4.73C6.884,4.928 6.204,5.218 5.711,5.711C5.218,6.204 4.928,6.884 4.73,7.771C4.484,8.882 4.4,10.272 4.4,12C4.4,13.728 4.484,15.118 4.73,16.229C4.928,17.116 5.218,17.796 5.711,18.289C6.204,18.782 6.884,19.072 7.771,19.27C8.882,19.516 10.272,19.6 12,19.6C13.728,19.6 15.118,19.516 16.229,19.27C17.116,19.072 17.796,18.782 18.289,18.289C18.782,17.796 19.072,17.116 19.27,16.229C19.516,15.118 19.6,13.728 19.6,12C19.6,11.227 20.227,10.6 21,10.6C21.773,10.6 22.4,11.227 22.4,12C22.4,16.231 21.78,18.758 20.269,20.269C18.758,21.78 16.231,22.4 12,22.4C7.769,22.4 5.242,21.78 3.731,20.269C2.22,18.758 1.6,16.231 1.6,12C1.6,7.769 2.22,5.242 3.731,3.731C5.242,2.22 7.769,1.6 12,1.6ZM19.6,6.38L15.99,9.99C15.444,10.536 14.556,10.536 14.01,9.99C13.464,9.444 13.464,8.556 14.01,8.01L17.62,4.4L16,4.4C15.227,4.4 14.6,3.773 14.6,3C14.6,2.227 15.227,1.6 16,1.6L20.672,1.6C20.685,1.6 20.699,1.601 20.712,1.602L20.978,1.629C21.005,1.632 21.031,1.637 21.057,1.645L21.308,1.723C21.345,1.735 21.38,1.751 21.412,1.773L21.834,2.057C21.877,2.086 21.914,2.123 21.943,2.166L22.227,2.588C22.249,2.62 22.265,2.655 22.277,2.692L22.355,2.943C22.363,2.969 22.368,2.995 22.371,3.022L22.398,3.288C22.399,3.301 22.4,3.315 22.4,3.328L22.4,8C22.4,8.773 21.773,9.4 21,9.4C20.227,9.4 19.6,8.773 19.6,8L19.6,6.38Z"/>' +
+                '    </g>' +
+                '</svg>';
+            break;
+        case "fullscreen":
+            svgToReturn =
+                '<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"' +
+                '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">' +
+                '    <g transform="matrix(30.0481,0,0,30.0481,159.615,159.615)">' +
+                '        <path fill="' + color + '" d="M-0.32,3.5C-0.32,2.502 0.502,1.68 1.5,1.68L14.5,1.68C15.498,1.68 16.32,2.502 16.32,3.5L16.32,12.5C16.32,13.498 15.498,14.32 14.5,14.32L1.5,14.32C0.502,14.32 -0.32,13.498 -0.32,12.5L-0.32,3.5ZM1.5,3.32C1.401,3.32 1.32,3.401 1.32,3.5L1.32,12.5C1.32,12.599 1.401,12.68 1.5,12.68L14.5,12.68C14.599,12.68 14.68,12.599 14.68,12.5L14.68,3.5C14.68,3.401 14.599,3.32 14.5,3.32L1.5,3.32ZM1.68,4.5C1.68,4.05 2.05,3.68 2.5,3.68L5.5,3.68C5.95,3.68 6.32,4.05 6.32,4.5C6.32,4.95 5.95,5.32 5.5,5.32L3.32,5.32L3.32,7.5C3.32,7.95 2.95,8.32 2.5,8.32C2.05,8.32 1.68,7.95 1.68,7.5L1.68,4.5ZM14.32,11.5C14.32,11.95 13.95,12.32 13.5,12.32L10.5,12.32C10.05,12.32 9.68,11.95 9.68,11.5C9.68,11.05 10.05,10.68 10.5,10.68L12.68,10.68L12.68,8.5C12.68,8.05 13.05,7.68 13.5,7.68C13.95,7.68 14.32,8.05 14.32,8.5L14.32,11.5Z"/>' +
+                '    </g>' +
+                '</svg>';
+            break;
+        case "close":
+            svgToReturn =
+                '<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"' +
+                '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">' +
+                '    <g transform="matrix(26.705,0,0,26.705,78.5488,78.5492)">' +
+                '        <path fill="' + color + '" d="M21,3.074C21.531,3.605 21.531,4.466 21,4.997L13.961,12.037L21,19.077C21.531,19.608 21.531,20.469 21,21C20.469,21.531 19.608,21.531 19.077,21L12.037,13.961L4.997,21C4.466,21.531 3.605,21.531 3.074,21C2.543,20.469 2.543,19.608 3.074,19.077L10.114,12.037L3.074,4.997C2.543,4.466 2.543,3.605 3.074,3.074C3.605,2.543 4.466,2.543 4.997,3.074L12.037,10.114L19.077,3.074C19.608,2.543 20.469,2.543 21,3.074Z"/>' +
                 '    </g>' +
                 '</svg>';
             break;

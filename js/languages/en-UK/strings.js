@@ -121,6 +121,8 @@ strings[lang] = {
     "extra-large-text-size": "Extra Large",
     "open-links-only-with-ctrl": "Open links in the notes – only while pressing and holding the Ctrl/Command/Control keyboard button",
     "open-links-only-with-ctrl-detailed": "When enabled you'll be able to open links but <b>only</b> while you are pressing and holding <b>Ctrl/Command/Control</b> keyboard button. If disabled, you won't be able to open links at all.",
+    "show-fullscreen-button-in-all-notes": "Show fullscreen button in all notes",
+    "show-fullscreen-button-in-all-notes-detailed": "When enabled you'll see the fullscreen button in all notes.",
     "check-with-all-supported-protocols": "Check notes existence with all supported protocols",
     "check-with-all-supported-protocols-detailed": "When enabled there will be checked notes for all supported protocols. For example, if you are on a page with <b>https</b> protocol, the add-on will check notes for <b>http</b> and <b>https</b> protocols.",
     "font-family": "Font family: choose the font family to use for the notes text",

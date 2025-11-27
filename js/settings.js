@@ -323,6 +323,13 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("show-fullscreen-button-in-all-notes-check").onchange = function () {
+        settings_json["show-fullscreen-button-in-all-notes"] = document.getElementById("show-fullscreen-button-in-all-notes-check").checked;
+        sendTelemetry(`show-fullscreen-button-in-all-notes-check-select`, `settings.js`, settings_json["show-fullscreen-button-in-all-notes"]);
+
+        saveSettings();
+    };
+
     document.getElementById("check-with-all-supported-protocols-check").onchange = function () {
         settings_json["check-with-all-supported-protocols"] = document.getElementById("check-with-all-supported-protocols-check").checked;
         sendTelemetry(`check-with-all-supported-protocols-check-select`, `settings.js`, settings_json["check-with-all-supported-protocols"]);
@@ -791,6 +798,8 @@ function setLanguageUI() {
     document.getElementById("show-badge-with-number-of-notes-detailed-text").innerHTML = all_strings["show-badge-with-number-of-notes-detailed"];
     document.getElementById("open-links-only-with-ctrl-text").innerHTML = all_strings["open-links-only-with-ctrl"];
     document.getElementById("open-links-only-with-ctrl-detailed-text").innerHTML = all_strings["open-links-only-with-ctrl-detailed"];
+    document.getElementById("show-fullscreen-button-in-all-notes-text").innerHTML = all_strings["show-fullscreen-button-in-all-notes"];
+    document.getElementById("show-fullscreen-button-in-all-notes-detailed-text").innerHTML = all_strings["show-fullscreen-button-in-all-notes-detailed"];
     document.getElementById("check-with-all-supported-protocols-text").innerHTML = all_strings["check-with-all-supported-protocols"];
     document.getElementById("check-with-all-supported-protocols-detailed-text").innerHTML = all_strings["check-with-all-supported-protocols-detailed"];
     document.getElementById("font-family-text").innerHTML = all_strings["font-family"];
@@ -1002,6 +1011,7 @@ function loadSettings() {
             if (settings_json["change-icon-color-based-on-tag-colour"] === undefined) settings_json["change-icon-color-based-on-tag-colour"] = false;
             if (settings_json["show-icon-badge"] === undefined) settings_json["show-icon-badge"] = false;
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
+            if (settings_json["show-fullscreen-button-in-all-notes"] === undefined) settings_json["show-fullscreen-button-in-all-notes"] = false;
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
             if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
             if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
@@ -1096,6 +1106,7 @@ function loadSettings() {
             }
 
             document.getElementById("open-links-only-with-ctrl-check").checked = settings_json["open-links-only-with-ctrl"] === true || settings_json["open-links-only-with-ctrl"] === "yes";
+            document.getElementById("show-fullscreen-button-in-all-notes-check").checked = settings_json["show-fullscreen-button-in-all-notes"] === true || settings_json["show-fullscreen-button-in-all-notes"] === "yes";
             document.getElementById("check-with-all-supported-protocols-check").checked = settings_json["check-with-all-supported-protocols"] === true || settings_json["check-with-all-supported-protocols"] === "yes";
 
             document.getElementById("show-title-textbox-check").checked = settings_json["show-title-textbox"] === true || settings_json["show-title-textbox"] === "yes";

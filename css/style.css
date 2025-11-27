@@ -1161,6 +1161,22 @@ pre::placeholder,
     padding-bottom: 10%;
 }
 
+#fullscreen-notes-viewer {
+    position: fixed;
+    top: 10px;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    z-index: 101;
+    display: none;
+    overflow: auto;
+    color: var(--primary-color);
+}
+
+#fullscreen-notes-viewer-content {
+    padding: 10px !important;
+}
+
 #link-section {
     color: var(--primary-color);
 }
@@ -1688,6 +1704,22 @@ button.button-format {
     height: 20px;
     width: 20px;
     display: inline-block;
+}
+
+#open-fullscreen-notes-button {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 40px !important;
+    height: 40px !important;
+}
+
+#close-fullscreen-notes-button {
+    position: fixed;
+    top: 5px;
+    right: 5px;
+    width: 40px !important;
+    height: 40px !important;
 }
 
 @media screen and (max-width: 450px) {
