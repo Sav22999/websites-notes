@@ -1177,7 +1177,7 @@ pre::placeholder,
     bottom: 10px;
     left: 10px;
     right: 10px;
-    z-index: 101;
+    z-index: 250;
     display: none;
     overflow: auto;
     color: var(--primary-color);
