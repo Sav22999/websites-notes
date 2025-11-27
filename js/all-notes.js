@@ -119,6 +119,12 @@ function loaded() {
             }
         }
 
+        document.onkeyup = function (e) {
+            if (e.key === "Escape") {
+                hideAllPopups();
+            }
+        };
+
         document.getElementById("filter-all-notes-button").onclick = function () {
             window.scrollTo({
                 top: 0,
@@ -317,6 +323,25 @@ function loadAsideBar() {
             }
         }
     });
+}
+
+function hideAllPopups() {
+    let backgroundOpacity = document.getElementById("background-opacity");
+
+    if (document.getElementById("fullscreen-notes-viewer").style.display === "block") {
+        document.getElementById("fullscreen-notes-viewer").style.display = "none";
+    }
+
+    if (document.getElementById("notefox-server-error-section").style.display === "block") {
+        //nothing: notefox server error is NOT "skippable"
+    } else {
+        //hide background opacity only if no other popup is shown (account-section is excluded)
+        hideBackgroundOpacity();
+    }
+}
+
+function hideBackgroundOpacity() {
+    document.getElementById("background-opacity").style.display = "none";
 }
 
 function filterByColor(color, tagButton) {

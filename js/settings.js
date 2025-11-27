@@ -1051,7 +1051,7 @@ function loadSettings() {
             if (settings_json["default-tag-colour-domain"] === undefined) settings_json["default-tag-colour-domain"] = "none";
             if (settings_json["default-tag-colour-page"] === undefined) settings_json["default-tag-colour-page"] = "none";
 
-            if (settings_json["api-endpoint"] === undefined) settings_json["api-endpoint"] = "https://notefox.eu/api/v1"; //TODO!manually change if the default API endpoint changes
+            if (settings_json["api-endpoint"] === undefined) settings_json["api-endpoint"] = "https://www.notefox.eu/api/v1"; //TODO!manually change if the default API endpoint changes
 
             let sync_or_local_settings = result["storage"];
             if (sync_or_local_settings === undefined) sync_or_local_settings = "local";
@@ -2077,6 +2077,7 @@ function changeApiEndpoint() {
     let api_url = prompt(change_api_text, default_value);
     api_url = safeLink(api_url);
     if (api_url !== null) {
+        console.log("New API endpoint: ", api_url);
         //set the new "api-endpoint" in "settings" storage
         //settings_json["api-endpoint"] = api_url;
         //console.info("New API endpoint set: ", api_url);
