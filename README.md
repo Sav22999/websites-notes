@@ -5,11 +5,11 @@
     Notefox
     <br>
 </h1>
-Official repo of https://addons.mozilla.org/it/firefox/addon/websites-notes/.
+Official repo of https://addons.mozilla.org/firefox/addon/websites-notes/.
 
 [![GitHub release](https://img.shields.io/github/release/Sav22999/websites-notes.svg)](https://github.com/Sav22999/websites-notes/releases/) [![GitHub license](https://img.shields.io/github/license/Sav22999/websites-notes.svg)](https://github.com/Sav22999/websites-notes/blob/master/LICENSE) ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg) [![Github all releases](https://img.shields.io/github/downloads/Sav22999/websites-notes/total.svg)](https://GitHub.com/Sav22999/websites-notes/releases/)
 
-[<img src="img/firefoxAddons.png" height="50px">](https://addons.mozilla.org/it/firefox/addon/websites-notes/)
+[<img src="img/firefoxAddons.png" height="50px">](https://addons.mozilla.org/firefox/addon/websites-notes/)
 [<img src="img/chromeAddons.png" height="50px">](https://chromewebstore.google.com/detail/agcdffobijddcccbfnhfjmaohnljefpm)
 [<img src="img/microsoftAddons.png" height="50px">](https://microsoftedge.microsoft.com/addons/detail/lkahmkadpaibphpoiofpdinacjffddda)
 
@@ -50,7 +50,7 @@ You can contribute also translating the add-on on Crowdin.
 
 # Terms of Service and Privacy Policy
 
-You can find the Terms of Service and the Privacy Policy at this link:
+You can find the Terms of Service and the Privacy Policy at these links:
 
 https://www.notefox.eu/privacy/
 https://www.notefox.eu/terms/
