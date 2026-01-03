@@ -300,6 +300,9 @@ function insertLink() {
         selectedText = document.selection.createRange().text;
     }
 
+    let sanitizedURL = selectedText.replace(/"/g, '%22').replace(/'/g, '%27');
+    selectedText = "href=\"" + sanitizedURL + "\"";
+
     insertHTMLFromTagName("a", selectedText);
     addAction();
 }
