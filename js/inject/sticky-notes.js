@@ -900,8 +900,8 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                     left: 0px !important;
                     right: 0px !important;
                     bottom: 0px !important;
-                    width: 100% !important;
-                    height: 100% !important;
+                    width: 100vw !important;
+                    height: 100vh !important;
                 }
                 
                 #text--sticky-notes-notefox-addon, #text-container--sticky-notes-notefox-addon {
