@@ -584,6 +584,7 @@ function loaded() {
                 tabUpdated();
                 type_to_use = -1;
             });
+
             browser.tabs.onUpdated.addListener(tabUpdated);
             browser.windows.onFocusChanged.addListener(tabUpdated);
 

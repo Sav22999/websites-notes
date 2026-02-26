@@ -147,8 +147,8 @@ function loaded() {
     setLanguageUI();
     //checkTheme();
 
-    browser.tabs.onActivated.addListener(tabUpdated);
-    browser.tabs.onUpdated.addListener(tabUpdated);
+    //browser.tabs.onActivated.addListener(tabUpdated);
+    //browser.tabs.onUpdated.addListener(tabUpdated);
 
     //catch
 

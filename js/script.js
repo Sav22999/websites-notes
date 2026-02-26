@@ -71,7 +71,9 @@ function checkSyncLocal() {
     checkTheme();
 }
 
-function loaded() {
+function loaded(called_by = null) {
+    console.log("Popup loaded", called_by !== null ? "called by: " + called_by : "undefined");
+
     browser.storage.sync.get("privacy").then(result => {
         if (result.privacy === undefined) {
             //not accepted privacy policy -> open 'privacy' page
@@ -80,13 +82,13 @@ function loaded() {
         }
     });
     checkSyncLocal();
-    loadSettings();
+    loadSettings("A");
     //checkTheme();
     checkTimesOpened();
     //checkTelemetryAlert();
     browser.runtime.onMessage.addListener((message) => {
         if (message["sync_update"] !== undefined && message["sync_update"]) {
-            loaded();
+            loaded("A");
         }
         if (message["check-user--expired"] !== undefined && message["check-user--expired"]) {
             //console.log("User expired! Log in again | script");
@@ -215,13 +217,15 @@ function continueLoaded() {
         var activeTabId = activeTab.id;
         var activeTabUrl = activeTab.url;
 
+        console.log("activeTabUrl", activeTab);
+
         setUrl(activeTabUrl);
-        loadUI();
+        loadUI("A");
     });
 
 
-    browser.tabs.onActivated.addListener(tabUpdated);
-    browser.tabs.onUpdated.addListener(tabUpdated);
+    //browser.tabs.onActivated.addListener(tabUpdated);
+    //browser.tabs.onUpdated.addListener(tabUpdated);
 
     checkOpenedBy();
     document.getElementById("notes").focus();
@@ -238,13 +242,13 @@ function checkOpenedBy() {
         if (value["opened-by-shortcut"] !== undefined) {
             if (value["opened-by-shortcut"] === "domain") {
                 opened_by = 1;
-                loadUI();
+                loadUI("B");
             } else if (value["opened-by-shortcut"] === "page") {
                 opened_by = 2;
-                loadUI();
+                loadUI("C");
             } else if (value["opened-by-shortcut"] === "global") {
                 opened_by = 0;
-                loadUI();
+                loadUI("D");
             }
         }
         sync_local.set({"opened-by-shortcut": "default"});
@@ -257,15 +261,15 @@ function listenerShortcuts() {
         if (command === "opened-by-domain") {
             //domain
             opened_by = 1;
-            loadUI();
+            loadUI("E");
         } else if (command === "opened-by-page") {
             //page
             opened_by = 2;
-            loadUI();
+            loadUI("F");
         } else if (command === "opened-by-global") {
             //global
             opened_by = 0;
-            loadUI();
+            loadUI("G");
         }
         sync_local.set({"opened-by-shortcut": "default"});
     });
@@ -330,8 +334,9 @@ function setLanguageUI() {
     document.documentElement.style.setProperty('--placeholder-notes-text', `'${all_strings["notes-placeholder"]}'`);
 }
 
-function loadUI() {
+function loadUI(called_by = null) {
     //opened_by = {-1: default, 0: domain, 1: page}
+    console.log("Loading UI with opened_by: " + opened_by, called_by !== null ? "called by: " + called_by : "undefined");
     setLanguageUI();
     let notes = document.getElementById("notes");
     let title_notes = document.getElementById("title-notes");
@@ -605,7 +610,7 @@ function changeTagColour(url, colour) {
             websites_json_to_show = websites_json;
             //console.log("QAZ-8")
             sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
-                loadUI();
+                loadUI("H");
             });
         }
         saveNotes();
@@ -703,7 +708,9 @@ function addAction() {
     //console.log(actions)
 }
 
-function loadSettings(load_only = false) {
+function loadSettings(called_by = null, load_only = false) {
+    console.log('Loading settings...', called_by !== null ? "called by: " + called_by : "undefined");
+
     sync_local.get("settings", function (value) {
         if (value["settings"] !== undefined) settings_json = value["settings"];
         if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
@@ -836,7 +843,7 @@ function saveNotes(title_call = false) {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
         } else {
-            loadSettings(true);
+            loadSettings("B", true);
         }
 
         let url_to_use = getUrlWithSupportedProtocol(currentUrl[selected_tab], websites_json);
@@ -872,7 +879,10 @@ function saveNotes(title_call = false) {
         if (websites_json[url_to_use]["tag-colour"] === undefined) {
             let tabSelected = getCurrentTabNameTag(selected_tab);
             websites_json[url_to_use]["tag-colour"] = "none";
-            if (settings_json["default-tag-colour-" + tabSelected] !== undefined) websites_json[url_to_use]["tag-colour"] = settings_json["default-tag-colour-" + tabSelected];
+            if (settings_json["default-tag-colour-" + tabSelected] !== undefined) {
+                websites_json[url_to_use]["tag-colour"] = settings_json["default-tag-colour-" + tabSelected];
+                document.getElementById("tag-select-grid").value = websites_json[currentUrl[selected_tab]]["tag-colour"];
+            }
         }
         if (websites_json[url_to_use]["sticky"] === undefined) {
             websites_json[url_to_use]["sticky"] = false;
@@ -1014,7 +1024,7 @@ function tabUpdated() {
     this._globalUrl = undefined
     this._allPossibleUrls = undefined
 
-    loaded();
+    loaded("B");
 }
 
 function setUrl(url) {
@@ -2180,4 +2190,4 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
     }
 }
 
-loaded();
+loaded("C");
