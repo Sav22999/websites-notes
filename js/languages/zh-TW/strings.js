@@ -3,7 +3,7 @@ strings[lang] = {};
 strings[lang] = {
     'all-notes-title': '所有筆記',
     'all-notes-title-page': 'Notefox - 所有筆記',
-    'export-all-notes-button': 'Export data…',
+    'export-all-notes-button': '…',
     'export-notes-to-file-button': 'Export directly to file',
     'exported-notes-to-file-button': 'Exported to file',
     'import-notes-button': 'Import data…',

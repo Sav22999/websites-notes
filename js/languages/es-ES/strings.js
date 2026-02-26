@@ -3,10 +3,10 @@ strings[lang] = {};
 strings[lang] = {
     'all-notes-title': 'Todas las notas',
     'all-notes-title-page': 'Notefox - Todas las notas',
-    'export-all-notes-button': 'Export data…',
+    'export-all-notes-button': '',
     'export-notes-to-file-button': 'Exportar directamente al archivo',
     'exported-notes-to-file-button': 'Exportado al archivo',
-    'import-notes-button': 'Import data…',
+    'import-notes-button': '',
     'import-notes-from-file-button': 'Importar desde el archivo…',
     'refresh-data-button': 'Actualizar',
     'clear-all-notes-button': 'Borrar todos los datos',

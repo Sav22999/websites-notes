@@ -63,7 +63,7 @@ function loaded() {
             location.reload();
         }
         if (message["updated"] !== undefined && message["updated"]) {
-            loadDataFromBrowser(true);
+            loadDataFromBrowser("A", true);
         }
         if (message["check-user--expired"] !== undefined && message["check-user--expired"]) {
             //console.log("User expired! Log in again | script");
@@ -86,15 +86,15 @@ function loaded() {
     setLanguageUI();
     //checkTheme();
 
-    browser.tabs.onActivated.addListener(tabUpdated);
-    browser.tabs.onUpdated.addListener(tabUpdated);
+    //browser.tabs.onActivated.addListener(tabUpdated);
+    //browser.tabs.onUpdated.addListener(tabUpdated);
 
     loadAsideBar();
 
     try {
         document.getElementById("refresh-all-notes-button").onclick = function () {
             //location.reload();
-            loadDataFromBrowser(true);
+            loadDataFromBrowser("B", true);
             sendTelemetry("refresh-button");
         }
         document.getElementById("settings-all-notes-button").onclick = function () {
@@ -150,7 +150,7 @@ function loaded() {
         }
 
         setTimeout(function () {
-            loadDataFromBrowser(true);
+            loadDataFromBrowser("C", true);
         }, 10);
 
         document.getElementById("all-notes-dedication-section").onscroll = function () {
@@ -191,7 +191,7 @@ function tabUpdated() {
         "websites"
     ]).then(result => {
         if (result.websites !== undefined && result.websites !== websites_json) {
-            loadDataFromBrowser(true);
+            loadDataFromBrowser("D", true);
         }
     });
 }
@@ -423,7 +423,9 @@ function updateLastUpdate() {
     sync_local.set({"last-update": getDate()});
 }
 
-function loadDataFromBrowser(generate_section = true) {
+function loadDataFromBrowser(called_by = null, generate_section = true) {
+    console.log(`Loading data from browser | called by: ${called_by}`);
+
     try {
         sync_local.get(["websites", "settings"], function (value) {
             websites_json = {};
@@ -488,7 +490,7 @@ function clearAllNotesDomain(url) {
         websites_json_to_show = websites_json;
 
         sync_local.set({"websites": websites_json}, function () {
-            loadDataFromBrowser(true);
+            loadDataFromBrowser("E", true);
             updateLastUpdate();
         });
     }
@@ -514,7 +516,7 @@ function clearAllNotesPage(url, isDomain = false) {
         websites_json_to_show = websites_json;
 
         sync_local.set({"websites": websites_json}, function () {
-            loadDataFromBrowser(true);
+            loadDataFromBrowser("F", true);
             updateLastUpdate();
         });
     }
@@ -522,7 +524,7 @@ function clearAllNotesPage(url, isDomain = false) {
 
 function onCleared() {
     //all notes clear || successful
-    loadDataFromBrowser(true);
+    loadDataFromBrowser("G", true);
     //loadAllWebsites(true, true);
 }
 
@@ -958,7 +960,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 fullUrlToUse = fullUrlToUse.substring(0, fullUrlToUse.length - 1);
             }
             if (isUrlSupported(fullUrlToUse)) {
-                pageUrl.classList.add("link", "go-to-external");
+                pageUrl.classList.add("link", "go-to-external","url");
                 pageUrl.onclick = function () {
                     sendTelemetry(`go-to-page`, "all-notes.js", fullUrlToUse);
                     browser.tabs.create({url: fullUrlToUse});
@@ -1108,7 +1110,7 @@ function changeTagColour(url, colour) {
         websites_json[url]["last-update"] = getDate();
         websites_json_to_show = websites_json;
         sync_local.set({"websites": websites_json}, function () {
-            loadDataFromBrowser(true);
+            loadDataFromBrowser("H", true);
             updateLastUpdate();
             sendMessageUpdateToBackground();
         });

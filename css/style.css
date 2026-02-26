@@ -1378,6 +1378,10 @@ h3 {
     }
 }
 
+.url {
+    word-break: break-all;
+}
+
 .section-selected {
     background-color: var(--on-primary-color);
     opacity: 1;

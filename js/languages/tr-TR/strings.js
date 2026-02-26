@@ -109,7 +109,7 @@ strings[lang] = {
     'change-icon-color-based-on-tag-colour-detailed': 'When enabled the addon icon in the toolbar will be <b>colored</b> based on the tag colour of the notes saved for that page, domain or globally. If there are no notes saved, the icon will be <b>orange</b>. If there isn\'t a tag colour, the icon will be <b>green</b>.<br><b>Important:</b> this option works together with the previous \'green icon\' colour options, so the icon won\'t be anymore green but it will be colored based on the tag colour of the notes saved for that page, domain or globally.',
     'show-badge-with-number-of-notes': 'Show badge with number of notes saved',
     'show-badge-with-number-of-notes-detailed': 'When enabled the addon icon in the toolbar will show a badge with the number of notes saved for that page, domain, subdomains or globally.',
-    'allow-resize-popup': 'Allow to resize the popup window',
+    'allow-resize-popup': '',
     'allow-resize-popup-detailed': 'When enabled you\'ll be able to resize the popup window by dragging its bottom-right corner.',
     'text-size': 'Text size to display',
     'text-size-detailed': 'You can choose the text size to display in the notes.',
