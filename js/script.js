@@ -856,19 +856,21 @@ function saveNotes(title_call = false) {
         if (settings_json["save-page-content"]) {
             browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
                 let activeTab = tabs[0];
-                browser.tabs.executeScript(activeTab.id, {
-                    code: "document.body.innerText"
-                }).then(result => {
-                    if (result && result[0]) {
-                        websites_json[url_to_use]["content"] = result[0];
-                        // Save here because text extraction is asynchronous, and this function gets called AFTER the
-                        // "sync_local" call which is further below in the code.
-                        sync_local.set({"websites": websites_json, "last-update": getDate()});
-                    }
-                }).catch(error => {
-                    console.error("Error extracting visible text: " + error);
-                    onError("script.js::saveNotes", error.message, _pageUrl);
-                });
+                if (activeTab && !activeTab.url.startsWith("moz-extension://")) {
+                    browser.tabs.executeScript(activeTab.id, {
+                        code: "document.body.innerText"
+                    }).then(result => {
+                        if (result && result[0]) {
+                            websites_json[url_to_use]["content"] = result[0];
+                            // Save here because text extraction is asynchronous, and this function gets called AFTER the
+                            // "sync_local" call which is further below in the code.
+                            sync_local.set({"websites": websites_json, "last-update": getDate()});
+                        }
+                    }).catch(error => {
+                        console.error("Error extracting visible text: " + error);
+                        onError("script.js::saveNotes", error.message, _pageUrl);
+                    });
+                }
             });
         }
 

@@ -1502,14 +1502,16 @@ function openAsStickyNotes() {
                     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         if (tabs !== undefined && tabs.length > 0) {
                             const activeTab = tabs[0];
-                            browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
-                                //console.log("Sticky notes ('open')");
-                                opening_sticky = false;
-                            }).catch(function (error) {
-                                console.error("E2: " + error);
-                                //onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
-                                opening_sticky = false;
-                            });
+                            if (activeTab && !activeTab.url.startsWith("moz-extension://")) {
+                                browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
+                                    //console.log("Sticky notes ('open')");
+                                    opening_sticky = false;
+                                }).catch(function (error) {
+                                    console.error("E2: " + error);
+                                    //onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
+                                    opening_sticky = false;
+                                });
+                            }
                         }
                     });
                 }
@@ -1535,15 +1537,17 @@ function closeStickyNotes(update = true) {
                     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         if (tabs !== undefined && tabs.length > 0) {
                             const activeTab = tabs[0];
-                            browser.tabs.executeScript({
-                                code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
-                            }).then(function () {
-                                //console.log("Sticky notes ('close')");
-                                if (update) tabUpdated(false);
-                            }).catch(function (error) {
-                                console.error("E1: " + error + "\nin " + activeTab.url);
-                                //onError("background.js::closeStickyNotes::E1", error.message, tab_url);
-                            });
+                            if (activeTab && !activeTab.url.startsWith("moz-extension://")) {
+                                browser.tabs.executeScript({
+                                    code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
+                                }).then(function () {
+                                    //console.log("Sticky notes ('close')");
+                                    if (update) tabUpdated(false);
+                                }).catch(function (error) {
+                                    console.error("E1: " + error + "\nin " + activeTab.url);
+                                    //onError("background.js::closeStickyNotes::E1", error.message, tab_url);
+                                });
+                            }
                         }
                     });
                     opening_sticky = false;
