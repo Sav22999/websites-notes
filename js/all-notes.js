@@ -43,6 +43,8 @@ checkSyncLocal();
 let sort_by_selected = "name-az";
 let filtersColors = [];
 let filtersTypes = [];
+let filtersFolder = [];
+let filtersTagsText = [];
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;
@@ -210,6 +212,220 @@ function setLanguageUI() {
         document.getElementById("sort-by-date-09-select").textContent = all_strings["sort-by-edit-first-button"];
         document.getElementById("sort-by-date-90-select").textContent = all_strings["sort-by-edit-last-button"];
         document.title = all_strings["all-notes-title-page"];
+
+        document.getElementById("filter-folder-label-span").textContent = all_strings["filter-folder-label"];
+        document.getElementById("filter-tags-text-label-span").textContent = all_strings["filter-tags-text-label"];
+
+        let folderInput = document.getElementById("filter-folder-input");
+        folderInput.contentEditable = "false";
+        folderInput.onclick = function() {
+            let input = document.getElementById("filter-folder-inner-input");
+            if (input) input.focus();
+        };
+
+        function addFolderToFilterDiv(folder) {
+            folder = folder.trim();
+            // Permettiamo la stringa vuota solo se è intesa come "Nessuna cartella"
+            // Altrimenti, se non è "Nessuna cartella" e non è presente nelle cartelle globali, non aggiungiamo nulla.
+            let noFolderLabel = all_strings["no-folder-label"] || "No folder";
+            let folders = settings_json["folders"] || [];
+            
+            let finalFolder = folder;
+            if (folder === noFolderLabel) {
+                finalFolder = "";
+            }
+
+            if (finalFolder !== "" && !folders.includes(finalFolder)) {
+                return;
+            }
+
+            if (!filtersFolder.includes(finalFolder)) {
+                filtersFolder.push(finalFolder);
+                renderFilterFolders();
+                applyFilter();
+            }
+        }
+
+        function renderFilterFolders() {
+            let container = document.getElementById("filter-folder-input");
+            container.innerHTML = "";
+            container.className = "custom-tag-input-container filter-input-container";
+            
+            filtersFolder.forEach((folder, index) => {
+                let chip = document.createElement("span");
+                chip.className = "tag-chip filter-chip folder-chip";
+                chip.textContent = folder === "" ? all_strings["no-folder-label"] : folder;
+                
+                let remove = document.createElement("span");
+                remove.className = "tag-chip-remove";
+                remove.textContent = "×";
+                remove.onclick = function(e) {
+                    e.stopPropagation();
+                    filtersFolder.splice(index, 1);
+                    renderFilterFolders();
+                    applyFilter();
+                };
+                chip.appendChild(remove);
+                container.appendChild(chip);
+            });
+            
+            let input = document.createElement("input");
+            input.type = "text";
+            input.id = "filter-folder-inner-input";
+            input.className = "tag-inner-input";
+            input.placeholder = all_strings["filter-folder-label"] || "...";
+            
+            let dropdown = document.createElement("div");
+            dropdown.className = "autocomplete-dropdown hidden";
+            
+            function updateDropdown(text) {
+                dropdown.innerHTML = "";
+                let folders = settings_json["folders"] || [];
+                // L'utente ha chiesto di non visualizzare "No folder" e di permettere solo i valori esistenti
+                let matches = folders.filter(f => f.toLowerCase().includes(text.toLowerCase()) && !filtersFolder.includes(f));
+                
+                if (matches.length > 0) {
+                    matches.forEach(match => {
+                        let item = document.createElement("div");
+                        item.className = "autocomplete-item";
+                        item.textContent = match;
+                        item.onclick = function(e) {
+                            e.stopPropagation();
+                            addFolderToFilterDiv(match);
+                            input.value = "";
+                            dropdown.classList.add("hidden");
+                        };
+                        dropdown.appendChild(item);
+                    });
+                    dropdown.classList.remove("hidden");
+                    // Posiziona il dropdown sotto l'input
+                    dropdown.style.left = input.offsetLeft + "px";
+                    dropdown.style.top = (input.offsetTop + input.offsetHeight) + "px";
+                } else {
+                    dropdown.classList.add("hidden");
+                }
+            }
+
+            input.oninput = function() {
+                updateDropdown(this.value.trim());
+            };
+
+            input.onfocus = function() {
+                updateDropdown(this.value.trim());
+            };
+
+            input.onkeydown = function (e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    let text = this.value.trim();
+                    if (text) {
+                        // Se c'è un solo match nell'autocomplete, lo usiamo, altrimenti proviamo ad aggiungere il testo se valido
+                        let folders = settings_json["folders"] || [];
+                        let matches = folders.filter(f => f.toLowerCase().includes(text.toLowerCase()) && !filtersFolder.includes(f));
+                        if (matches.length > 0) {
+                            // Se c'è un match esatto tra i suggerimenti, lo preferiamo
+                            let exactMatch = matches.find(m => m.toLowerCase() === text.toLowerCase());
+                            addFolderToFilterDiv(exactMatch || matches[0]);
+                        } else {
+                            addFolderToFilterDiv(text);
+                        }
+                        this.value = "";
+                        dropdown.classList.add("hidden");
+                    }
+                } else if (e.key === "Backspace" && this.value === "" && filtersFolder.length > 0) {
+                    filtersFolder.pop();
+                    renderFilterFolders();
+                    applyFilter();
+                } else if (e.key === "Escape") {
+                    dropdown.classList.add("hidden");
+                }
+            };
+
+            // Chiudi il dropdown se si clicca fuori
+            document.addEventListener("click", function(e) {
+                if (!container.contains(e.target)) {
+                    dropdown.classList.add("hidden");
+                }
+            });
+
+            container.appendChild(input);
+            container.appendChild(dropdown);
+            
+            container.onclick = function() {
+                input.focus();
+            };
+        }
+        renderFilterFolders();
+
+        let tagsTextInput = document.getElementById("filter-tags-text-input");
+        tagsTextInput.contentEditable = "false"; // Lo gestiamo noi con un input interno
+        tagsTextInput.onclick = function() {
+            let input = document.getElementById("filter-tags-text-inner-input");
+            if (input) input.focus();
+        };
+
+        function addTagToFilterDiv(tag) {
+            tag = tag.trim().toLowerCase();
+            if (!tag) return;
+            let tags = filtersTagsText;
+            if (!tags.includes(tag)) {
+                filtersTagsText.push(tag);
+                renderFilterTags();
+                applyFilter();
+            }
+        }
+
+        function renderFilterTags() {
+            let container = document.getElementById("filter-tags-text-input");
+            container.innerHTML = "";
+            container.className = "custom-tag-input-container filter-input-container";
+            
+            filtersTagsText.forEach((tag, index) => {
+                let chip = document.createElement("span");
+                chip.className = "tag-chip filter-chip";
+                chip.textContent = tag;
+                
+                let remove = document.createElement("span");
+                remove.className = "tag-chip-remove";
+                remove.textContent = "×";
+                remove.onclick = function(e) {
+                    e.stopPropagation();
+                    filtersTagsText.splice(index, 1);
+                    renderFilterTags();
+                    applyFilter();
+                };
+                chip.appendChild(remove);
+                container.appendChild(chip);
+            });
+            
+            let input = document.createElement("input");
+            input.type = "text";
+            input.id = "filter-tags-text-inner-input";
+            input.className = "tag-inner-input";
+            input.placeholder = all_strings["add-tag-placeholder"] || "...";
+            input.onkeydown = function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    let text = this.value.trim().toLowerCase();
+                    if (text) {
+                        addTagToFilterDiv(text);
+                        this.value = "";
+                    }
+                } else if (e.key === "Backspace" && this.value === "" && filtersTagsText.length > 0) {
+                    filtersTagsText.pop();
+                    renderFilterTags();
+                    applyFilter();
+                    document.getElementById("filter-tags-text-inner-input").focus();
+                }
+            };
+            container.appendChild(input);
+            
+            container.onclick = function() {
+                input.focus();
+            };
+        }
+        renderFilterTags();
+        window.addTagToFilterDiv = addTagToFilterDiv; // Rendiamo disponibile globalmente per applyTagFilter
 
         document.getElementById("info-tooltip-search").onclick = function () {
             sendTelemetry("search-tooltip");
@@ -760,13 +976,28 @@ function search(value = "") {
             let current_website_json = websites_json[website];
             let condition_tag_color = filtersColors.indexOf(current_website_json["tag-colour"].toLowerCase()) !== -1 || filtersColors.length === 0;
             let condition_type = filtersTypes.indexOf(getType(websites_json[website], website)) !== -1 || filtersTypes.length === 0;
+
+            let condition_folder = true;
+            if (filtersFolder.length > 0) {
+                condition_folder = filtersFolder.includes(current_website_json["tag-folder"] || "");
+            }
+
+            let condition_tags_text = true;
+            if (filtersTagsText.length > 0) {
+                if (current_website_json["tags-text"] && Array.isArray(current_website_json["tags-text"])) {
+                    condition_tags_text = filtersTagsText.every(ft => current_website_json["tags-text"].some(t => t.toLowerCase() === ft.toLowerCase()));
+                } else {
+                    condition_tags_text = false;
+                }
+            }
+
             //if (condition_type) console.log(getType(websites_json[website], website) + "   " + JSON.stringify(websites_json[website]))
             let title_to_use = "";
             if (current_website_json["title"] !== undefined) title_to_use = current_website_json["title"].toLowerCase();
             valueToUse.forEach(key => {
                 if (valid_results > 0 && key.replaceAll(" ", "") !== "" || valid_results === 0) {
                     let contentMatch = settings_json["search-page-content"] && current_website_json["content"] && current_website_json["content"].toLowerCase().includes(key);
-                    if ((current_website_json["notes"].toLowerCase().includes(key) || contentMatch || current_website_json["domain"].toLowerCase().includes(key) || current_website_json["last-update"].toLowerCase().includes(key) || title_to_use.includes(key) || website.includes(key)) && condition_tag_color && condition_type) {
+                    if ((current_website_json["notes"].toLowerCase().includes(key) || contentMatch || current_website_json["domain"].toLowerCase().includes(key) || current_website_json["last-update"].toLowerCase().includes(key) || title_to_use.includes(key) || website.includes(key)) && condition_tag_color && condition_type && condition_folder && condition_tags_text) {
                         websites_json_to_show[website] = websites_json[website];
                     }
                 }
@@ -906,26 +1137,6 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             sendTelemetry(`copy-notes`, "all-notes.js", fullUrl);
         }
 
-        //Select "Tag colour"
-        let tagsColour = document.createElement("select");
-        let colourList = colourListDefault;
-        colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
-        for (let colour in colourList) {
-            let tagColour = document.createElement("option");
-            tagColour.value = colour;
-            if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] !== undefined && websites_json[fullUrl]["tag-colour"] === colour) {
-                tagColour.selected = true;
-                pageContentLeft.classList.add("tag-colour-" + colour + "-bg");
-            }
-            tagColour.textContent = colourList[colour];
-            //tagColour.classList.add(colour + "-background-tag");
-            tagsColour.classList.add("select-tag-all-notes", "button", "very-small-button", "tag-button", "select-grid-no-text");
-            tagsColour.append(tagColour);
-        }
-        tagsColour.onchange = function () {
-            changeTagColour(fullUrl, tagsColour.value, type_to_use);
-            sendTelemetry(`change-tag-colour::${tagsColour.value}`, "all-notes.js", fullUrl);
-        }
         page.id = fullUrl;
         page.classList.add("notes-pages");
         if (settings_json["notes-background-follow-tag-colour"]) page.classList.add("background-as-tag-colour");
@@ -945,7 +1156,6 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
 
             subrowButtons.append(inputShowContent);
         }
-        subrowButtons.append(tagsColour);
         subrowButtons.append(inputInlineEdit);
         subrowButtons.append(inputCopyNotes);
         subrowButtons.append(inputClearAllNotesPage);
@@ -1087,6 +1297,45 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(lastUpdate));
         pageContentRight.append(pageLastUpdate);
 
+        // --- NEW TAGS SECTION IN BOTTOM ---
+        let tagsBottomContainer = document.createElement("div");
+        tagsBottomContainer.className = "tags-bottom-container";
+
+        // 1. Tag Color
+        let tagsColour = document.createElement("select");
+        let colourList = colourListDefault;
+        colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
+        for (let colour in colourList) {
+            let tagColour = document.createElement("option");
+            tagColour.value = colour;
+            if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] !== undefined && websites_json[fullUrl]["tag-colour"] === colour) {
+                tagColour.selected = true;
+                pageContentLeft.classList.add("tag-colour-" + colour + "-bg");
+            }
+            tagColour.textContent = colourList[colour];
+            tagsColour.classList.add("select-tag-all-notes", "button", "very-small-button", "tag-button");
+            tagsColour.append(tagColour);
+        }
+        tagsColour.onchange = function () {
+            changeTagColour(fullUrl, tagsColour.value, type_to_use);
+            sendTelemetry(`change-tag-colour::${tagsColour.value}`, "all-notes.js", fullUrl);
+        }
+        tagsBottomContainer.append(tagsColour);
+
+        // 2. Folder View Component
+        let folderViewContainer = document.createElement("div");
+        folderViewContainer.className = "folder-view-container";
+        renderFolderView(folderViewContainer, fullUrl);
+        tagsBottomContainer.append(folderViewContainer);
+
+        // 3. Tags Text
+        let tagsTextContainerAll = document.createElement("div");
+        tagsTextContainerAll.className = "tags-text-container-all";
+        renderTagsAllNotes(tagsTextContainerAll, fullUrl);
+        tagsBottomContainer.append(tagsTextContainerAll);
+
+        pageContentRight.append(tagsBottomContainer);
+
         page.append(pageContentLeft);
         page.append(pageContentRight);
 
@@ -1099,19 +1348,308 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
     }
 }
 
+function renderTagsAllNotes(container, fullUrl) {
+    if (!container) return;
+    
+    // Aggiorna il timestamp nella UI risalendo al genitore
+    let pageContentRight = container.closest(".page-content-right");
+    if (pageContentRight) {
+        let lastUpdateElem = pageContentRight.querySelector(".sub-section-last-update");
+        if (lastUpdateElem && websites_json[fullUrl] && websites_json[fullUrl]["last-update"]) {
+            lastUpdateElem.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(websites_json[fullUrl]["last-update"]));
+        }
+    }
+
+    container.innerHTML = "";
+    container.className = "custom-tag-input-container";
+    
+    let tags = [];
+    if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tags-text"] !== undefined) {
+        tags = websites_json[fullUrl]["tags-text"];
+    }
+
+    if (Array.isArray(tags)) {
+        tags.forEach((tag, index) => {
+            let chip = document.createElement("div");
+            chip.className = "tag-chip tag-chip-interactive";
+
+            let tagText = document.createElement("span");
+            tagText.textContent = tag;
+            tagText.onclick = function (e) {
+                e.stopPropagation();
+                applyTagFilter(tag);
+            };
+            chip.appendChild(tagText);
+
+            let remove = document.createElement("span");
+            remove.className = "tag-chip-remove";
+            remove.textContent = "×";
+            remove.onclick = function (e) {
+                e.stopPropagation();
+                removeTagAllNotes(fullUrl, index, container);
+            };
+
+            chip.appendChild(remove);
+            container.appendChild(chip);
+        });
+    }
+
+    let input = document.createElement("input");
+    input.type = "text";
+    input.className = "tag-inner-input";
+    input.placeholder = all_strings["add-tag-placeholder"] || "...";
+    input.onkeydown = function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            addTagAllNotes(this, fullUrl, container);
+        } else if (e.key === "Backspace" && this.value === "" && tags.length > 0) {
+            removeTagAllNotes(fullUrl, tags.length - 1, container);
+        }
+    };
+    container.appendChild(input);
+
+    container.onclick = function() {
+        input.focus();
+    };
+}
+
+function applyTagFilter(tag) {
+    let filterInput = document.getElementById("filter-tags-text-input");
+    if (filterInput) {
+        // Se è il div editable (nuova versione)
+        if (filterInput.tagName === "DIV") {
+            addTagToFilterDiv(tag);
+        } else {
+            // Vecchia versione o fallback
+            let current = filterInput.value.trim();
+            let tags = current ? current.split(";").map(t => t.trim()) : [];
+            if (!tags.includes(tag)) {
+                tags.push(tag);
+                filterInput.value = tags.join(";");
+                // Trigger input event
+                filterInput.dispatchEvent(new Event('input'));
+            }
+        }
+        // Mostra la sezione filtri se nascosta
+        let filtersSection = document.getElementById("filters");
+        if (filtersSection && filtersSection.classList.contains("hidden")) {
+            document.getElementById("filter-all-notes-button").click();
+        }
+    }
+}
+
+function renderFolderView(container, fullUrl) {
+    if (!container) return;
+
+    // Aggiorna il timestamp nella UI risalendo al genitore
+    let pageContentRight = container.closest(".page-content-right");
+    if (pageContentRight) {
+        let lastUpdateElem = pageContentRight.querySelector(".sub-section-last-update");
+        if (lastUpdateElem && websites_json[fullUrl] && websites_json[fullUrl]["last-update"]) {
+            lastUpdateElem.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(websites_json[fullUrl]["last-update"]));
+        }
+    }
+
+    container.innerHTML = "";
+    
+    let currentFolder = (websites_json[fullUrl] && websites_json[fullUrl]["tag-folder"]) ? websites_json[fullUrl]["tag-folder"] : "";
+
+    let folderHeader = document.createElement("div");
+    folderHeader.className = "folder-view-header";
+    folderHeader.textContent = all_strings["folder-label"] + ": " + (currentFolder || all_strings["no-folder-label"]);
+    
+    // Toggle logic
+    let isExpanded = false;
+    folderHeader.onclick = function() {
+        isExpanded = !isExpanded;
+        folderList.classList.toggle("hidden", !isExpanded);
+        addFolderContainer.classList.toggle("hidden", !isExpanded);
+        folderHeader.classList.toggle("expanded", isExpanded);
+    };
+    container.appendChild(folderHeader);
+
+    let folderList = document.createElement("div");
+    folderList.className = "folder-view-list hidden";
+
+    // Opzione "Nessuna cartella"
+    let noFolderItem = document.createElement("div");
+    noFolderItem.className = "folder-view-item" + (currentFolder === "" ? " selected" : "");
+    noFolderItem.textContent = all_strings["no-folder-label"];
+    noFolderItem.onclick = function() {
+        changeFolderAllNotes(fullUrl, "");
+    };
+    folderList.appendChild(noFolderItem);
+
+    if (settings_json["folders"] && Array.isArray(settings_json["folders"])) {
+        settings_json["folders"].forEach(folder => {
+            let item = document.createElement("div");
+            item.className = "folder-view-item" + (currentFolder === folder ? " selected" : "");
+            item.onclick = function() {
+                changeFolderAllNotes(fullUrl, folder);
+            };
+            
+            let nameSpan = document.createElement("span");
+            nameSpan.textContent = folder;
+            item.appendChild(nameSpan);
+
+            let deleteBtn = document.createElement("input");
+            deleteBtn.type = "button";
+            deleteBtn.className = "folder-delete-btn delete-button-grid";
+            deleteBtn.title = all_strings["clear-notes-of-this-page-button"]; // Riutilizzo stringa per "Elimina"
+            deleteBtn.onclick = function(e) {
+                e.stopPropagation();
+                deleteFolderGlobal(folder);
+            };
+            item.appendChild(deleteBtn);
+
+            folderList.appendChild(item);
+        });
+    }
+
+    container.appendChild(folderList);
+
+    // Input per nuova cartella
+    let addFolderContainer = document.createElement("div");
+    addFolderContainer.className = "add-folder-container hidden";
+    
+    let addFolderInput = document.createElement("input");
+    addFolderInput.type = "text";
+    addFolderInput.placeholder = all_strings["new-folder-placeholder"];
+    addFolderInput.className = "add-folder-input textbox";
+    addFolderInput.onkeyup = function(e) {
+        if (e.key === "Enter") {
+            let newFolder = addFolderInput.value.trim();
+            if (newFolder) {
+                addNewFolderGlobal(newFolder, fullUrl);
+            }
+        }
+    };
+    
+    addFolderContainer.appendChild(addFolderInput);
+    container.appendChild(addFolderContainer);
+}
+
+function addNewFolderGlobal(folderName, fullUrl) {
+    if (!settings_json["folders"]) settings_json["folders"] = [];
+    if (!settings_json["folders"].includes(folderName)) {
+        settings_json["folders"].push(folderName);
+        sync_local.set({"settings": settings_json, "last-update": getDate()}, function () {
+            changeFolderAllNotes(fullUrl, folderName);
+        });
+    }
+}
+
+function deleteFolderGlobal(folderName) {
+    if (confirm(all_strings["delete-folder-confirmation"])) {
+        settings_json["folders"] = settings_json["folders"].filter(f => f !== folderName);
+        sync_local.set({"settings": settings_json}, function () {
+            // Rimuovi la cartella dalle note che la usano
+            sync_local.get("websites", function (value) {
+                let webs = value["websites"] || {};
+                let changed = false;
+                for (let url in webs) {
+                    if (webs[url]["tag-folder"] === folderName) {
+                        webs[url]["tag-folder"] = "";
+                        changed = true;
+                    }
+                }
+                if (changed) {
+                    sync_local.set({"websites": webs}, function() {
+                        loadDataFromBrowser("FOLDER-DEL", true);
+                    });
+                } else {
+                    loadDataFromBrowser("FOLDER-DEL", true);
+                }
+            });
+        });
+    }
+}
+
+function addTagAllNotes(input, fullUrl, container) {
+    let tag = input.value.trim().toLowerCase();
+    if (tag !== "") {
+        sync_local.get("websites", function (value) {
+            websites_json = value["websites"] || {};
+            if (websites_json[fullUrl] === undefined) {
+                websites_json[fullUrl] = {
+                    "notes": "",
+                    "title": "",
+                    "last-update": getDate(),
+                    "tag-colour": "none",
+                    "tags-text": [],
+                    "tag-folder": ""
+                };
+            }
+            if (websites_json[fullUrl]["tags-text"] === undefined) {
+                websites_json[fullUrl]["tags-text"] = [];
+            }
+            if (!websites_json[fullUrl]["tags-text"].includes(tag)) {
+                websites_json[fullUrl]["tags-text"].push(tag);
+                websites_json[fullUrl]["last-update"] = getDate();
+                input.value = "";
+                sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+                    renderTagsAllNotes(container, fullUrl);
+                    sendMessageUpdateToBackground();
+                });
+            }
+        });
+    }
+}
+
+function removeTagAllNotes(fullUrl, index, container) {
+    sync_local.get("websites", function (value) {
+        websites_json = value["websites"] || {};
+        if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tags-text"] !== undefined) {
+            websites_json[fullUrl]["tags-text"].splice(index, 1);
+            websites_json[fullUrl]["last-update"] = getDate();
+            sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+                renderTagsAllNotes(container, fullUrl);
+                sendMessageUpdateToBackground();
+            });
+        }
+    });
+}
+
+function changeFolderAllNotes(fullUrl, folder) {
+    sync_local.get("websites", function (value) {
+        websites_json = value["websites"] || {};
+        if (websites_json[fullUrl] === undefined) {
+            websites_json[fullUrl] = {
+                "notes": "",
+                "title": "",
+                "last-update": getDate(),
+                "tag-colour": "none",
+                "tags-text": [],
+                "tag-folder": ""
+            };
+        }
+        websites_json[fullUrl]["tag-folder"] = folder;
+        websites_json[fullUrl]["last-update"] = getDate();
+        sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+            loadDataFromBrowser("FOLDER-ALL", true);
+            sendMessageUpdateToBackground();
+        });
+    });
+}
+
 function changeTagColour(url, colour) {
     sync_local.get("websites", function (value) {
-        websites_json = {};
-        if (value["websites"] !== undefined) {
-            websites_json = value["websites"];
+        let websites_json = value["websites"] || {};
+        if (websites_json[url] === undefined) {
+            websites_json[url] = {
+                "notes": "",
+                "title": "",
+                "last-update": getDate(),
+                "tag-colour": colour,
+                "tags-text": [],
+                "tag-folder": ""
+            };
+        } else {
+            websites_json[url]["tag-colour"] = colour;
+            websites_json[url]["last-update"] = getDate();
         }
-        //console.log(`url ${url}`);
-        websites_json[url]["tag-colour"] = colour;
-        websites_json[url]["last-update"] = getDate();
-        websites_json_to_show = websites_json;
-        sync_local.set({"websites": websites_json}, function () {
+        sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
             loadDataFromBrowser("H", true);
-            updateLastUpdate();
             sendMessageUpdateToBackground();
         });
     });
