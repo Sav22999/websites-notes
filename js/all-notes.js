@@ -1574,7 +1574,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
     }
 }
 
-function renderTagsAllNotes(container, fullUrl) {
+function renderTagsAllNotes(container, fullUrl, shouldFocus = false) {
     if (!container) return;
 
     // Aggiorna il timestamp nella UI risalendo al genitore
@@ -1698,6 +1698,10 @@ function renderTagsAllNotes(container, fullUrl) {
     container.onclick = function () {
         input.focus();
     };
+
+    if (shouldFocus) {
+        input.focus();
+    }
 }
 
 function applyTagFilter(tag) {
@@ -1737,7 +1741,7 @@ function applyFolderFilter(folder) {
     }
 }
 
-function renderFolderView(container, fullUrl) {
+function renderFolderView(container, fullUrl, shouldFocus = false) {
     if (!container) return;
 
     // Aggiorna il timestamp nella UI risalendo al genitore
@@ -1773,7 +1777,7 @@ function renderFolderView(container, fullUrl) {
         remove.textContent = "×";
         remove.onclick = function (e) {
             e.stopPropagation();
-            changeFolderAllNotes(fullUrl, "");
+            changeFolderAllNotes(fullUrl, "", container);
         };
         chip.appendChild(remove);
         container.appendChild(chip);
@@ -1805,7 +1809,7 @@ function renderFolderView(container, fullUrl) {
                     item.textContent = match;
                     item.onmousedown = function (e) {
                         e.preventDefault();
-                        changeFolderAllNotes(fullUrl, match);
+                        changeFolderAllNotes(fullUrl, match, container);
                         dropdown.classList.add("hidden");
                     };
                     dropdown.appendChild(item);
@@ -1834,7 +1838,7 @@ function renderFolderView(container, fullUrl) {
                 e.preventDefault();
                 let val = this.value.trim();
                 if (val) {
-                    changeFolderAllNotes(fullUrl, val);
+                    changeFolderAllNotes(fullUrl, val, container);
                     dropdown.classList.add("hidden");
                 }
             } else if (e.key === "Escape") {
@@ -1846,6 +1850,10 @@ function renderFolderView(container, fullUrl) {
         container.onclick = function () {
             input.focus();
         };
+
+        if (shouldFocus) {
+            input.focus();
+        }
     }
 }
 
@@ -1873,7 +1881,7 @@ function addTagAllNotes(input, fullUrl, container) {
                 websites_json[fullUrl]["last-update"] = getDate();
                 input.value = "";
                 sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
-                    renderTagsAllNotes(container, fullUrl);
+                    renderTagsAllNotes(container, fullUrl, true);
                     sendMessageUpdateToBackground();
                 });
             }
@@ -1888,14 +1896,14 @@ function removeTagAllNotes(fullUrl, index, container) {
             websites_json[fullUrl]["tags-text"].splice(index, 1);
             websites_json[fullUrl]["last-update"] = getDate();
             sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
-                renderTagsAllNotes(container, fullUrl);
+                renderTagsAllNotes(container, fullUrl, true);
                 sendMessageUpdateToBackground();
             });
         }
     });
 }
 
-function changeFolderAllNotes(fullUrl, folder) {
+function changeFolderAllNotes(fullUrl, folder, container) {
     sync_local.get("websites", function (value) {
         websites_json = value["websites"] || {};
         if (websites_json[fullUrl] === undefined) {
@@ -1911,6 +1919,10 @@ function changeFolderAllNotes(fullUrl, folder) {
         websites_json[fullUrl]["tag-folder"] = folder;
         websites_json[fullUrl]["last-update"] = getDate();
         sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+            // Se avevamo passato un container per renderFolderView, ri-renderizziamo con focus
+            if (typeof container !== 'undefined') {
+                renderFolderView(container, fullUrl, true);
+            }
             loadDataFromBrowser("FOLDER-ALL", true);
             sendMessageUpdateToBackground();
         });
