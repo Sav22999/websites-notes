@@ -469,8 +469,13 @@ body {
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 10px;
-    max-width: 300px;
+    box-sizing: border-box;
+    width: 100%;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.folder-view-container.full-width {
+    grid-column: 1 / -1;
 }
 
 .folder-view-header {
@@ -482,16 +487,18 @@ body {
     letter-spacing: 0.5px;
     cursor: pointer;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     transition: all 0.2s;
+    flex-wrap: wrap;
+    gap: 5px;
 }
 
 .folder-view-header::after {
     content: "▼";
     font-size: 0.7em;
     transition: transform 0.3s;
-    margin-left: 10px;
+    margin-left: auto;
 }
 
 .folder-view-header.expanded {
@@ -549,6 +556,25 @@ body {
     color: #ff4444;
 }
 
+.folder-delete-icon {
+    width: 20px;
+    height: 20px;
+    background-image: url("../img/delete.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px;
+    border: none;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    background-color: transparent;
+    filter: invert(1);
+}
+
+.folder-delete-icon:hover {
+    opacity: 1;
+}
+
 .add-folder-container {
     margin-top: 10px;
     border-top: 1px solid #eee;
@@ -559,15 +585,18 @@ body {
     width: 100%;
     box-sizing: border-box;
     font-size: 0.85em;
-    padding: 6px 10px;
-    border-radius: 6px;
+    padding: 8px 12px;
+    border-radius: 15px;
     border: 1px solid #ddd;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: var(--textbox-color);
+    color: var(--on-textbox-color);
 }
 
 .add-folder-input:focus {
     border-color: var(--main-color-orange);
+    box-shadow: 0px 0px 0px 3px var(--tertiary-transparent-2) inset;
 }
 
 .custom-tag-input-container {
@@ -592,9 +621,14 @@ body {
     opacity: 1;
 }
 
-.custom-tag-input-container:focus-within {
-    box-shadow: 0px 0px 0px 3px var(--tertiary-transparent-2) inset;
-    z-index: 1001; /* Sopra ad altri elementi sticky se necessario */
+.custom-tag-input-container.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: var(--tertiary-transparent);
+}
+
+.custom-tag-input-container.disabled .tag-inner-input {
+    cursor: not-allowed;
 }
 
 .tag-inner-input {
@@ -627,6 +661,7 @@ body {
     transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
 }
 
+
 .tag-chip:hover {
     opacity: 1;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -637,16 +672,16 @@ body {
 }
 
 .autocomplete-dropdown {
-    position: absolute;
+    position: fixed;
     background: var(--textbox-color);
     border: 1px solid var(--tertiary-transparent-2);
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 10000;
+    z-index: 20000;
     max-height: 200px;
     overflow-y: auto;
     width: auto;
-    min-width: 180px;
+    margin-top: 5px;
 }
 
 .autocomplete-item {
@@ -684,8 +719,18 @@ body {
     color: #ffcccc;
 }
 
+.filter-input-container {
+    position: relative;
+    z-index: 1;
+}
+
+.filter-input-container:focus-within {
+    z-index: 10001;
+    position: relative;
+}
+
 .filter-chip {
-    background-color: #555;
+    background-color: var(--primary-color);
 }
 
 .tags-text-container-all {
@@ -756,7 +801,7 @@ body {
     border-color: var(--main-color-orange);
 }
 
-.button:hover, .search-all-notes-text:hover, .text-json:not(:active):not(:focus):hover, .textbox:not(:active):not(:focus):not(.textbox-error):hover {
+.button:hover, .text-json:not(:active):not(:focus):hover, .textbox:not(:active):not(:focus):not(.textbox-error):hover {
     /*background-color: var(--primary-color);*/
     /*border-color: var(--primary-color);*/
     opacity: 1;
@@ -921,39 +966,32 @@ pre::placeholder,
 }
 
 #search-all-notes-text {
-    width: 80%;
-    min-width: 200px;
+    width: auto;
     margin: 0px;
-    margin-right: 3px;
-    background-color: var(--textbox-color);
+    background-color: transparent !important;
     color: var(--on-textbox-color);
-    opacity: 0.8;
-
-    background-size: auto 25px;
-    background-position: 8px;
-    padding-left: 40px;
-    background-repeat: no-repeat;
+    padding-left: 10px !important;
+    background-image: none !important;
 }
 
 @media screen and (max-width: 800px) {
     #search-all-notes-text {
-        min-height: 50px;
-
-        padding-left: 45px;
-        background-size: auto 30px;
-
-        font-size: 1.2em;
+        min-height: 40px;
+        font-size: 1.1em;
+        padding-left: 10px !important;
     }
 }
 
 @media screen and (max-width: 1000px) {
     #search-all-notes-text {
-        width: 90%;
+        width: auto;
     }
 }
 
 #search-all-notes-text:focus {
     opacity: 1;
+    outline: none;
+    border: none;
 }
 
 #last-updated-section {
@@ -1113,6 +1151,12 @@ pre::placeholder,
     grid-column-gap: 5px;
     padding: 2px;
     background-color: transparent;
+}
+
+#popup-folder-section {
+    padding-top: 8px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .select-tag-all-notes {
@@ -1285,6 +1329,7 @@ pre::placeholder,
     border-radius: 0px;
     margin-left: -20px;
     margin-right: -20px;
+    z-index: 10000;
 }
 
 .filters-visibile {
@@ -4477,6 +4522,16 @@ option {
 
 .search-grid-area {
     grid-area: search; /*# This is the name of the area*/
+}
+
+#search-all-notes-container {
+    padding: 7px 10px;
+}
+
+#search-all-notes-text {
+    height: auto;
+    margin: 0;
+    padding: 4px;
 }
 
 @media screen and (max-width: 800px) {

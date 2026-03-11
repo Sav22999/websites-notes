@@ -112,6 +112,7 @@ strings[lang] = {
     "tags-text-label": "Tags",
     "add-tag-placeholder": "Add tag...",
     "delete-folder-confirmation": "Are you sure you want to delete this folder? All notes in this folder will be set to 'No folder'.",
+    "create-folder-confirmation": "The folder \"{{folder_name}}\" does not exist. Do you want to create it?",
     "folder-label": "Folder",
     "new-folder-placeholder": "Add new folder...",
     "add-folder-button": "Add folder",

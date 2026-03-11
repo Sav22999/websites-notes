@@ -1,6 +1,21 @@
 var websites_json = {};
 var settings_json = {};
 
+function getExistingFolders() {
+    let folders = new Set();
+    for (let url in websites_json) {
+        let folder = websites_json[url]["tag-folder"];
+        if (folder && folder !== "") {
+            folders.add(folder);
+        }
+    }
+    return Array.from(folders).sort();
+}
+
+function hideAllDropdowns() {
+    document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
+}
+
 var advanced_managing = true;
 
 var currentUrl = []; //[global, domain, page, other]
@@ -576,26 +591,6 @@ function loadUI(called_by = null) {
 
     renderTags();
 
-    if (document.getElementById("folder-select-grid")) {
-        document.getElementById("folder-select-grid").onchange = function () {
-            changeFolder(currentUrl[selected_tab], this.value);
-        };
-    }
-
-    if (document.getElementById("add-folder-button")) {
-        document.getElementById("add-folder-button").onclick = function () {
-            addNewFolder();
-        };
-    }
-
-    if (document.getElementById("new-folder-input")) {
-        document.getElementById("new-folder-input").onkeydown = function (e) {
-            if (e.key === 'Enter') {
-                addNewFolder();
-            }
-        };
-    }
-
     let details = navigator.userAgent;
     let regexp = /android|iphone|kindle|ipad/i;
     let isMobileDevice = regexp.test(details);
@@ -1115,60 +1110,43 @@ function checkAllSupportedProtocols(url, json) {
 
 function renderTags() {
     let container = document.getElementById("tags-text-container");
+    let section = document.getElementById("tags-text-section");
     if (!container) return;
+
+    // Remove any leftover autocomplete dropdown
+    let existingDd = document.getElementById("popup-tag-dropdown");
+    if (existingDd) existingDd.remove();
+
     container.innerHTML = "";
-    container.className = "custom-tag-input-container";
-    
+    container.className = "custom-tag-input-container disabled";
+    container.style.cursor = "default";
+
     let url = currentUrl[selected_tab];
     let tags = [];
     let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
     if (checkAllSupportedProtocols(url, websites_json) && websites_json[supportedUrl] !== undefined && websites_json[supportedUrl]["tags-text"] !== undefined) {
         tags = websites_json[supportedUrl]["tags-text"];
-        // Aggiorna anche il timestamp nella UI del popup
         if (websites_json[supportedUrl]["last-update"]) {
             document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(websites_json[supportedUrl]["last-update"]));
         }
     }
 
-    if (Array.isArray(tags)) {
-        tags.forEach((tag, index) => {
+    if (Array.isArray(tags) && tags.length > 0) {
+        if (section) section.classList.remove("hidden");
+        tags.forEach((tag) => {
             let chip = document.createElement("div");
             chip.className = "tag-chip";
+            chip.style.cursor = "default";
 
             let tagText = document.createElement("span");
             tagText.textContent = tag;
             chip.appendChild(tagText);
 
-            let remove = document.createElement("span");
-            remove.className = "tag-chip-remove";
-            remove.textContent = "×";
-            remove.onclick = function (e) {
-                e.stopPropagation();
-                removeTag(index);
-            };
-
-            chip.appendChild(remove);
             container.appendChild(chip);
         });
+    } else {
+        if (section) section.classList.add("hidden");
     }
-
-    let input = document.createElement("input");
-    input.type = "text";
-    input.className = "tag-inner-input";
-    input.placeholder = all_strings["add-tag-placeholder"] || "...";
-    input.onkeydown = function (e) {
-        if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            addTagFromInput(this);
-        } else if (e.key === "Backspace" && this.value === "" && tags.length > 0) {
-            removeTag(tags.length - 1);
-        }
-    };
-    container.appendChild(input);
-
-    container.onclick = function() {
-        input.focus();
-    };
 
     renderFolders();
 }
@@ -1205,137 +1183,80 @@ function addTagFromInput(input) {
 }
 
 function renderFolders() {
-    let container = document.getElementById("all-notes-section");
-    if (!container) return;
+    let section = document.getElementById("popup-folder-section");
+    if (!section) return;
+
+    // Remove any leftover autocomplete dropdown
+    let existingDd = document.getElementById("popup-folder-dropdown");
+    if (existingDd) existingDd.remove();
+
+    section.innerHTML = "";
 
     let url = currentUrl[selected_tab];
     let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
-    
-    // Aggiorna anche il timestamp nella UI del popup
+
     if (checkAllSupportedProtocols(url, websites_json) && websites_json[supportedUrl] !== undefined && websites_json[supportedUrl]["last-update"]) {
         document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(websites_json[supportedUrl]["last-update"]));
     }
 
-    // Cerchiamo se esiste già la folder view
-    let existingView = document.getElementById("folder-view-popup");
-    if (existingView) existingView.remove();
-    
-    let folderView = document.createElement("div");
-    folderView.id = "folder-view-popup";
-    folderView.className = "folder-view-container padding-top-10";
-    folderView.style.maxWidth = "100%";
-    folderView.style.marginTop = "10px";
-
     let currentFolder = (websites_json[supportedUrl] && websites_json[supportedUrl]["tag-folder"]) ? websites_json[supportedUrl]["tag-folder"] : "";
 
-    let folderHeader = document.createElement("div");
-    folderHeader.className = "folder-view-header";
-    folderHeader.textContent = all_strings["folder-label"] + ": " + (currentFolder || all_strings["no-folder-label"]);
-    
-    // Toggle logic
-    let isExpanded = false;
-    folderHeader.onclick = function() {
-        isExpanded = !isExpanded;
-        folderList.classList.toggle("hidden", !isExpanded);
-        addFolderContainer.classList.toggle("hidden", !isExpanded);
-        folderHeader.classList.toggle("expanded", isExpanded);
-    };
-    folderView.appendChild(folderHeader);
+    if (currentFolder) {
+        section.classList.remove("hidden");
 
-    let folderList = document.createElement("div");
-    folderList.className = "folder-view-list hidden";
+        let folderView = document.createElement("div");
+        folderView.className = "custom-tag-input-container disabled";
+        folderView.style.cursor = "default";
+        folderView.style.width = "100%";
+        folderView.style.boxSizing = "border-box";
 
-    // Nessuna cartella
-    let noFolderItem = document.createElement("div");
-    noFolderItem.className = "folder-view-item" + (currentFolder === "" ? " selected" : "");
-    noFolderItem.textContent = all_strings["no-folder-label"];
-    noFolderItem.onclick = function() {
-        changeFolder(url, "");
-    };
-    folderList.appendChild(noFolderItem);
+        let chip = document.createElement("div");
+        chip.className = "tag-chip";
+        chip.style.cursor = "default";
 
-    if (settings_json["folders"] && Array.isArray(settings_json["folders"])) {
-        settings_json["folders"].forEach(folder => {
-            let item = document.createElement("div");
-            item.className = "folder-view-item" + (currentFolder === folder ? " selected" : "");
-            item.onclick = function() {
-                changeFolder(url, folder);
-            };
-            
-            let nameSpan = document.createElement("span");
-            nameSpan.textContent = folder;
-            item.appendChild(nameSpan);
+        let tagText = document.createElement("span");
+        tagText.textContent = currentFolder;
+        chip.appendChild(tagText);
 
-            let deleteBtn = document.createElement("input");
-            deleteBtn.type = "button";
-            deleteBtn.className = "folder-delete-btn delete-button-grid";
-            deleteBtn.onclick = function(e) {
-                e.stopPropagation();
-                deleteFolderPopup(folder);
-            };
-            item.appendChild(deleteBtn);
-            folderList.appendChild(item);
-        });
+        folderView.appendChild(chip);
+        section.appendChild(folderView);
+    } else {
+        section.classList.add("hidden");
     }
-    folderView.appendChild(folderList);
 
-    // Input nuova cartella
-    let addFolderContainer = document.createElement("div");
-    addFolderContainer.className = "add-folder-container hidden";
-    let addFolderInput = document.createElement("input");
-    addFolderInput.type = "text";
-    addFolderInput.className = "add-folder-input textbox";
-    addFolderInput.placeholder = all_strings["new-folder-placeholder"];
-    addFolderInput.onkeydown = function(e) {
-        if (e.key === "Enter") {
-            let val = this.value.trim();
-            if (val) {
-                addNewFolderPopup(val, url);
-            }
-        }
-    };
-    addFolderContainer.appendChild(addFolderInput);
-    folderView.appendChild(addFolderContainer);
-
-    container.appendChild(folderView);
-    
-    // Nascondiamo il vecchio select
     let oldSelect = document.getElementById("folder-select-grid");
     if (oldSelect) oldSelect.style.display = "none";
+    let folderMgmt = document.getElementById("folder-management-section");
+    if (folderMgmt) folderMgmt.classList.add("hidden");
+    // Clean up old popup appended to all-notes-section if any
+    let oldView = document.getElementById("folder-view-popup");
+    if (oldView) oldView.remove();
 }
 
+
 function addNewFolderPopup(folderName, url) {
-    if (!settings_json["folders"]) settings_json["folders"] = [];
-    if (!settings_json["folders"].includes(folderName)) {
-        settings_json["folders"].push(folderName);
-        sync_local.set({"settings": settings_json, "last-update": getDate()}, function () {
-            changeFolder(url, folderName);
-        });
-    }
+    changeFolder(url, folderName);
 }
 
 function deleteFolderPopup(folderName) {
     if (confirm(all_strings["delete-folder-confirmation"])) {
-        settings_json["folders"] = settings_json["folders"].filter(f => f !== folderName);
-        sync_local.set({"settings": settings_json}, function () {
-            sync_local.get("websites", function (value) {
-                let webs = value["websites"] || {};
-                let changed = false;
-                for (let u in webs) {
-                    if (webs[u]["tag-folder"] === folderName) {
-                        webs[u]["tag-folder"] = "";
-                        changed = true;
-                    }
+        sync_local.get("websites", function (value) {
+            let webs = value["websites"] || {};
+            let changed = false;
+            for (let u in webs) {
+                if (webs[u]["tag-folder"] === folderName) {
+                    webs[u]["tag-folder"] = "";
+                    changed = true;
                 }
-                if (changed) {
-                    sync_local.set({"websites": webs}, function() {
-                        renderFolders();
-                        sendMessageUpdateToBackground();
-                    });
-                } else {
+            }
+            if (changed) {
+                sync_local.set({"websites": webs}, function() {
                     renderFolders();
-                }
-            });
+                    sendMessageUpdateToBackground();
+                });
+            } else {
+                renderFolders();
+            }
         });
     }
 }
@@ -1359,23 +1280,6 @@ function changeFolder(url, folder) {
         updateUITimestamp(url);
         sendMessageUpdateToBackground();
     });
-}
-
-function addNewFolder() {
-    let input = document.getElementById("new-folder-input");
-    let folderName = input.value.trim();
-    if (folderName !== "") {
-        if (!settings_json["folders"]) {
-            settings_json["folders"] = [];
-        }
-        if (!settings_json["folders"].includes(folderName)) {
-            settings_json["folders"].push(folderName);
-            sync_local.set({"settings": settings_json}, function () {
-                renderFolders();
-                input.value = "";
-            });
-        }
-    }
 }
 
 function addTag() {

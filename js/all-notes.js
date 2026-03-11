@@ -45,6 +45,22 @@ let filtersColors = [];
 let filtersTypes = [];
 let filtersFolder = [];
 let filtersTagsText = [];
+let filtersSearchTerms = [];
+
+function getExistingFolders() {
+    let folders = new Set();
+    for (let url in websites_json) {
+        let folder = websites_json[url]["tag-folder"];
+        if (folder && folder !== "") {
+            folders.add(folder);
+        }
+    }
+    return Array.from(folders).sort();
+}
+
+function hideAllDropdowns() {
+    document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
+}
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;
@@ -108,16 +124,17 @@ function loaded() {
             browser.tabs.create({url: links["donate"]});
         }
 
-        document.getElementById("search-all-notes-text").onkeyup = function () {
-            search(document.getElementById("search-all-notes-text").value);
-        }
+        // renderSearchChips() inizializza già l'input di ricerca internamente
+        // document.getElementById("search-all-notes-text").onkeyup = function () {
+        //     search(document.getElementById("search-all-notes-text").value);
+        // }
 
         window.onscroll = function () {
+            document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
             if (window.scrollY > 30) {
                 //hide because it's visible
                 document.getElementById("filters").classList.add("hidden");
-                if (document.getElementById("search-filter-sortby").classList.contains("filters-visibile"))
-                    document.getElementById("search-filter-sortby").classList.remove("filters-visibile");
+                if (document.getElementById("search-filter-sortby").classList.contains("filters-visibile")) document.getElementById("search-filter-sortby").classList.remove("filters-visibile");
             }
         }
 
@@ -138,8 +155,7 @@ function loaded() {
             } else {
                 //hide because it's visible
                 document.getElementById("filters").classList.add("hidden");
-                if (document.getElementById("search-filter-sortby").classList.contains("filters-visibile"))
-                    document.getElementById("search-filter-sortby").classList.remove("filters-visibile");
+                if (document.getElementById("search-filter-sortby").classList.contains("filters-visibile")) document.getElementById("search-filter-sortby").classList.remove("filters-visibile");
             }
             sendTelemetry("filter-button");
         }
@@ -148,14 +164,16 @@ function loaded() {
         document.getElementById("sort-by-all-notes-button").onchange = function () {
             sort_by_selected = document.getElementById("sort-by-all-notes-button").value;
             loadAllWebsites(true, sort_by_selected);
-            sendTelemetry(`sort-by`, "all-notes.js", null, sort_by_selected);
         }
+
+        renderSearchChips();
 
         setTimeout(function () {
             loadDataFromBrowser("C", true);
         }, 10);
 
         document.getElementById("all-notes-dedication-section").onscroll = function () {
+            document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
             if (document.getElementById("all-notes-dedication-section").scrollTop > 30) {
                 document.getElementById("actions").classList.add("section-selected");
             } else {
@@ -189,9 +207,7 @@ function sendTelemetry(action, context = "all-notes.js", url = null, other = nul
 
 function tabUpdated() {
     checkTheme();
-    browser.storage.local.get([
-        "websites"
-    ]).then(result => {
+    browser.storage.local.get(["websites"]).then(result => {
         if (result.websites !== undefined && result.websites !== websites_json) {
             loadDataFromBrowser("D", true);
         }
@@ -201,7 +217,10 @@ function tabUpdated() {
 function setLanguageUI() {
     try {
         document.getElementById("refresh-all-notes-button").value = all_strings["refresh-data-button"];
-        document.getElementById("search-all-notes-text").placeholder = all_strings["search-textbox"];
+        let searchInput = document.getElementById("search-all-notes-text");
+        if (searchInput) {
+            searchInput.placeholder = all_strings["search-textbox"];
+        }
         document.getElementById("settings-all-notes-button").value = all_strings["settings-button"];
         document.getElementById("buy-me-a-coffee-button").value = all_strings["donate-button"];
         //document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
@@ -218,18 +237,16 @@ function setLanguageUI() {
 
         let folderInput = document.getElementById("filter-folder-input");
         folderInput.contentEditable = "false";
-        folderInput.onclick = function() {
+        folderInput.onclick = function () {
             let input = document.getElementById("filter-folder-inner-input");
             if (input) input.focus();
         };
 
         function addFolderToFilterDiv(folder) {
             folder = folder.trim();
-            // Permettiamo la stringa vuota solo se è intesa come "Nessuna cartella"
-            // Altrimenti, se non è "Nessuna cartella" e non è presente nelle cartelle globali, non aggiungiamo nulla.
             let noFolderLabel = all_strings["no-folder-label"] || "No folder";
-            let folders = settings_json["folders"] || [];
-            
+            let folders = getExistingFolders();
+
             let finalFolder = folder;
             if (folder === noFolderLabel) {
                 finalFolder = "";
@@ -238,6 +255,9 @@ function setLanguageUI() {
             if (finalFolder !== "" && !folders.includes(finalFolder)) {
                 return;
             }
+
+            // Hide any open dropdowns
+            document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
 
             if (!filtersFolder.includes(finalFolder)) {
                 filtersFolder.push(finalFolder);
@@ -250,46 +270,50 @@ function setLanguageUI() {
             let container = document.getElementById("filter-folder-input");
             container.innerHTML = "";
             container.className = "custom-tag-input-container filter-input-container";
-            
+
             filtersFolder.forEach((folder, index) => {
                 let chip = document.createElement("span");
                 chip.className = "tag-chip filter-chip folder-chip";
                 chip.textContent = folder === "" ? all_strings["no-folder-label"] : folder;
-                
+
                 let remove = document.createElement("span");
                 remove.className = "tag-chip-remove";
                 remove.textContent = "×";
-                remove.onclick = function(e) {
+                remove.onclick = function (e) {
                     e.stopPropagation();
                     filtersFolder.splice(index, 1);
+                    // Hide any open dropdowns
+                    document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
                     renderFilterFolders();
                     applyFilter();
                 };
                 chip.appendChild(remove);
                 container.appendChild(chip);
             });
-            
+
             let input = document.createElement("input");
             input.type = "text";
             input.id = "filter-folder-inner-input";
             input.className = "tag-inner-input";
             input.placeholder = all_strings["filter-folder-label"] || "...";
-            
+
             let dropdown = document.createElement("div");
             dropdown.className = "autocomplete-dropdown hidden";
-            
+            dropdown.style.position = "fixed";
+            dropdown.style.zIndex = "20000";
+            document.body.appendChild(dropdown);
+
             function updateDropdown(text) {
                 dropdown.innerHTML = "";
-                let folders = settings_json["folders"] || [];
-                // L'utente ha chiesto di non visualizzare "No folder" e di permettere solo i valori esistenti
+                let folders = getExistingFolders();
                 let matches = folders.filter(f => f.toLowerCase().includes(text.toLowerCase()) && !filtersFolder.includes(f));
-                
+
                 if (matches.length > 0) {
                     matches.forEach(match => {
                         let item = document.createElement("div");
                         item.className = "autocomplete-item";
                         item.textContent = match;
-                        item.onclick = function(e) {
+                        item.onclick = function (e) {
                             e.stopPropagation();
                             addFolderToFilterDiv(match);
                             input.value = "";
@@ -297,30 +321,34 @@ function setLanguageUI() {
                         };
                         dropdown.appendChild(item);
                     });
+                    hideAllDropdowns();
                     dropdown.classList.remove("hidden");
-                    // Posiziona il dropdown sotto l'input
-                    dropdown.style.left = input.offsetLeft + "px";
-                    dropdown.style.top = (input.offsetTop + input.offsetHeight) + "px";
+                    let rect = input.getBoundingClientRect();
+                    dropdown.style.left = rect.left + "px";
+                    dropdown.style.top = rect.bottom + "px";
                 } else {
                     dropdown.classList.add("hidden");
                 }
             }
 
-            input.oninput = function() {
+            input.oninput = function () {
+                if (this.value.includes(" ")) {
+                    this.value = this.value.replace(/\s/g, "");
+                }
                 updateDropdown(this.value.trim());
             };
 
-            input.onfocus = function() {
+            input.onfocus = function () {
                 updateDropdown(this.value.trim());
             };
 
             input.onkeydown = function (e) {
-                if (e.key === "Enter") {
+                if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     let text = this.value.trim();
                     if (text) {
                         // Se c'è un solo match nell'autocomplete, lo usiamo, altrimenti proviamo ad aggiungere il testo se valido
-                        let folders = settings_json["folders"] || [];
+                        let folders = getExistingFolders();
                         let matches = folders.filter(f => f.toLowerCase().includes(text.toLowerCase()) && !filtersFolder.includes(f));
                         if (matches.length > 0) {
                             // Se c'è un match esatto tra i suggerimenti, lo preferiamo
@@ -342,24 +370,41 @@ function setLanguageUI() {
             };
 
             // Chiudi il dropdown se si clicca fuori
-            document.addEventListener("click", function(e) {
-                if (!container.contains(e.target)) {
+            document.addEventListener("click", function (e) {
+                if (!container.contains(e.target) && !dropdown.contains(e.target)) {
                     dropdown.classList.add("hidden");
                 }
             });
 
             container.appendChild(input);
-            container.appendChild(dropdown);
-            
-            container.onclick = function() {
+
+            let allFolders = getExistingFolders();
+            let availableFolders = allFolders.filter(f => !filtersFolder.includes(f));
+
+            if (allFolders.length === 0) {
+                input.disabled = true;
+                container.classList.add("disabled");
+                input.placeholder = all_strings["no-folders-available"] || "No folders available";
+            } else if (availableFolders.length === 0 && filtersFolder.length > 0) {
+                input.style.display = "none";
+            } else {
+                input.disabled = false;
+                container.classList.remove("disabled");
+                input.placeholder = all_strings["filter-folder-label"] || "...";
                 input.focus();
+            }
+
+            container.onclick = function () {
+                if (!input.disabled) input.focus();
             };
         }
+
         renderFilterFolders();
+        // renderSearchChips(); // Già chiamato sopra
 
         let tagsTextInput = document.getElementById("filter-tags-text-input");
         tagsTextInput.contentEditable = "false"; // Lo gestiamo noi con un input interno
-        tagsTextInput.onclick = function() {
+        tagsTextInput.onclick = function () {
             let input = document.getElementById("filter-tags-text-inner-input");
             if (input) input.focus();
         };
@@ -367,6 +412,10 @@ function setLanguageUI() {
         function addTagToFilterDiv(tag) {
             tag = tag.trim().toLowerCase();
             if (!tag) return;
+
+            // Hide any open dropdowns
+            document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
+
             let tags = filtersTagsText;
             if (!tags.includes(tag)) {
                 filtersTagsText.push(tag);
@@ -379,53 +428,146 @@ function setLanguageUI() {
             let container = document.getElementById("filter-tags-text-input");
             container.innerHTML = "";
             container.className = "custom-tag-input-container filter-input-container";
-            
+
             filtersTagsText.forEach((tag, index) => {
                 let chip = document.createElement("span");
                 chip.className = "tag-chip filter-chip";
                 chip.textContent = tag;
-                
+
                 let remove = document.createElement("span");
                 remove.className = "tag-chip-remove";
                 remove.textContent = "×";
-                remove.onclick = function(e) {
+                remove.onclick = function (e) {
                     e.stopPropagation();
                     filtersTagsText.splice(index, 1);
+                    // Hide any open dropdowns
+                    document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
                     renderFilterTags();
                     applyFilter();
                 };
                 chip.appendChild(remove);
                 container.appendChild(chip);
             });
-            
+
             let input = document.createElement("input");
             input.type = "text";
             input.id = "filter-tags-text-inner-input";
             input.className = "tag-inner-input";
             input.placeholder = all_strings["add-tag-placeholder"] || "...";
+
+            let dropdown = document.createElement("div");
+            dropdown.className = "autocomplete-dropdown hidden";
+            dropdown.style.position = "fixed";
+            dropdown.style.zIndex = "20000";
+            document.body.appendChild(dropdown);
+
+            function getAllTags() {
+                let tags = new Set();
+                for (let url in websites_json) {
+                    if (websites_json[url]["tags-text"]) {
+                        websites_json[url]["tags-text"].forEach(t => tags.add(t.toLowerCase()));
+                    }
+                }
+                return Array.from(tags).sort();
+            }
+
+            function updateDropdown(text) {
+                dropdown.innerHTML = "";
+                let allTags = getAllTags();
+                let matches = allTags.filter(t => t.includes(text.toLowerCase()) && !filtersTagsText.includes(t));
+
+                if (matches.length > 0) {
+                    matches.forEach(match => {
+                        let item = document.createElement("div");
+                        item.className = "autocomplete-item";
+                        item.textContent = match;
+                        item.onclick = function (e) {
+                            e.stopPropagation();
+                            addTagToFilterDiv(match);
+                            input.value = "";
+                            dropdown.classList.add("hidden");
+                        };
+                        dropdown.appendChild(item);
+                    });
+                    hideAllDropdowns();
+                    dropdown.classList.remove("hidden");
+                    let rect = input.getBoundingClientRect();
+                    dropdown.style.left = rect.left + "px";
+                    dropdown.style.top = rect.bottom + "px";
+                } else {
+                    dropdown.classList.add("hidden");
+                }
+            }
+
+            input.oninput = function () {
+                if (this.value.includes(" ")) {
+                    this.value = this.value.replace(/\s/g, "");
+                }
+                updateDropdown(this.value.trim());
+            };
+
+            input.onfocus = function () {
+                updateDropdown(this.value.trim());
+            };
+
             input.onkeydown = function (e) {
                 if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     let text = this.value.trim().toLowerCase();
                     if (text) {
-                        addTagToFilterDiv(text);
+                        let allTags = getAllTags();
+                        let matches = allTags.filter(t => t.includes(text) && !filtersTagsText.includes(t));
+                        if (matches.length > 0) {
+                            let exactMatch = matches.find(m => m === text);
+                            addTagToFilterDiv(exactMatch || matches[0]);
+                        }
                         this.value = "";
+                        dropdown.classList.add("hidden");
                     }
                 } else if (e.key === "Backspace" && this.value === "" && filtersTagsText.length > 0) {
                     filtersTagsText.pop();
                     renderFilterTags();
                     applyFilter();
                     document.getElementById("filter-tags-text-inner-input").focus();
+                } else if (e.key === "Escape") {
+                    dropdown.classList.add("hidden");
                 }
             };
+
+            document.addEventListener("click", function (e) {
+                if (!container.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add("hidden");
+                }
+            });
+
             container.appendChild(input);
-            
-            container.onclick = function() {
+
+            let allTags = getAllTags();
+            let availableTags = allTags.filter(t => !filtersTagsText.includes(t));
+
+            if (allTags.length === 0) {
+                input.disabled = true;
+                container.classList.add("disabled");
+                input.placeholder = all_strings["no-tags-available"] || "No tags available";
+            } else if (availableTags.length === 0 && filtersTagsText.length > 0) {
+                input.style.display = "none";
+            } else {
+                input.disabled = false;
+                container.classList.remove("disabled");
+                input.placeholder = all_strings["add-tag-placeholder"] || "...";
                 input.focus();
+            }
+
+            container.onclick = function () {
+                if (!input.disabled) input.focus();
             };
         }
+
         renderFilterTags();
-        window.addTagToFilterDiv = addTagToFilterDiv; // Rendiamo disponibile globalmente per applyTagFilter
+        window.addFolderToFilterDiv = addFolderToFilterDiv;
+        window.renderFilterFolders = renderFilterFolders;
+        window.addTagToFilterDiv = addTagToFilterDiv;
+        window.renderFilterTags = renderFilterTags;
 
         document.getElementById("info-tooltip-search").onclick = function () {
             sendTelemetry("search-tooltip");
@@ -621,8 +763,7 @@ function listenerLinks(element) {
                 if ((settings_json["open-links-only-with-ctrl"] === "yes" || settings_json["open-links-only-with-ctrl"] === true) && (event.ctrlKey || event.metaKey)) {
                     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         browser.tabs.create({
-                            url: link.href,
-                            index: tabs[0].index + 1
+                            url: link.href, index: tabs[0].index + 1
                         });
                     });
                 } else {
@@ -678,6 +819,10 @@ function loadDataFromBrowser(called_by = null, generate_section = true) {
                 websites_json_by_domain = {};
                 loadAllWebsites(true, sort_by_selected);
             }
+            // Aggiorna i filtri dopo il caricamento dei dati
+            renderFilterFolders();
+            renderFilterTags();
+            renderSearchChips();
         });
         applyFilter();
     } catch (e) {
@@ -950,15 +1095,92 @@ function isUrlSupported(url) {
 }
 
 function applyFilter() {
-    search(document.getElementById("search-all-notes-text").value);
+    let searchInput = document.getElementById("search-all-notes-text");
+    let searchValue = searchInput ? searchInput.value : "";
+    search(searchValue);
+}
+
+function renderSearchChips() {
+    let container = document.getElementById("search-all-notes-container");
+    if (!container) return;
+
+    // Preserve the input
+    let input = document.getElementById("search-all-notes-text");
+    if (!input) {
+        input = document.createElement("input");
+        input.type = "text";
+        input.id = "search-all-notes-text";
+        input.className = "tag-inner-input search-all-notes-text";
+        input.placeholder = all_strings["search-textbox"] || "Search...";
+    }
+
+    container.className = "custom-tag-input-container";
+    container.innerHTML = "";
+
+    filtersSearchTerms.forEach((term, index) => {
+        let chip = document.createElement("span");
+        chip.className = "tag-chip";
+
+        let termText = document.createElement("span");
+        termText.textContent = term;
+        chip.appendChild(termText);
+
+        let remove = document.createElement("span");
+        remove.className = "tag-chip-remove";
+        remove.textContent = "×";
+        remove.onclick = function (e) {
+            e.stopPropagation();
+            filtersSearchTerms.splice(index, 1);
+            renderSearchChips();
+            applyFilter();
+        };
+        chip.appendChild(remove);
+        container.appendChild(chip);
+    });
+
+    input.onkeydown = function (e) {
+        if (e.key === "Enter") {
+            let val = this.value.trim();
+            if (val && !filtersSearchTerms.includes(val.toLowerCase())) {
+                e.preventDefault();
+                filtersSearchTerms.push(val.toLowerCase());
+                this.value = "";
+                renderSearchChips();
+                applyFilter();
+                document.getElementById("search-all-notes-text").focus();
+            } else if (val) {
+                e.preventDefault();
+                this.value = "";
+            }
+        } else if (e.key === "Backspace" && this.value === "" && filtersSearchTerms.length > 0) {
+            filtersSearchTerms.pop();
+            renderSearchChips();
+            applyFilter();
+            document.getElementById("search-all-notes-text").focus();
+        }
+    };
+
+    input.oninput = function () {
+        applyFilter();
+    };
+
+    container.appendChild(input);
+
+    container.onclick = function () {
+        input.focus();
+    };
 }
 
 function search(value = "") {
     try {
         //console.log(JSON.stringify(websites_json_to_show))
         websites_json_to_show = {};
-        document.getElementById("search-all-notes-text").value = value.toString();
-        let valueToUse = value.toLowerCase().split(";");
+
+        let valueToUse = [...filtersSearchTerms];
+        if (value && value.trim() !== "") {
+            valueToUse.push(value.trim().toLowerCase());
+        }
+
         let results = document.getElementById("results-searching");
         let keywordsHTML = "";
         let valid_results = 0;
@@ -994,15 +1216,24 @@ function search(value = "") {
             //if (condition_type) console.log(getType(websites_json[website], website) + "   " + JSON.stringify(websites_json[website]))
             let title_to_use = "";
             if (current_website_json["title"] !== undefined) title_to_use = current_website_json["title"].toLowerCase();
-            valueToUse.forEach(key => {
-                if (valid_results > 0 && key.replaceAll(" ", "") !== "" || valid_results === 0) {
-                    let contentMatch = settings_json["search-page-content"] && current_website_json["content"] && current_website_json["content"].toLowerCase().includes(key);
-                    if ((current_website_json["notes"].toLowerCase().includes(key) || contentMatch || current_website_json["domain"].toLowerCase().includes(key) || current_website_json["last-update"].toLowerCase().includes(key) || title_to_use.includes(key) || website.includes(key)) && condition_tag_color && condition_type && condition_folder && condition_tags_text) {
-                        websites_json_to_show[website] = websites_json[website];
-                    }
+
+            if (valid_results === 0) {
+                if (condition_tag_color && condition_type && condition_folder && condition_tags_text) {
+                    websites_json_to_show[website] = websites_json[website];
                 }
-            });
-            //console.log(valueToUse)
+            } else {
+                let anyMatch = valueToUse.some(key => {
+                    key = key.toLowerCase();
+                    let contentMatch = settings_json["search-page-content"] && current_website_json["content"] && current_website_json["content"].toLowerCase().includes(key);
+                    let folderMatch = current_website_json["tag-folder"] && current_website_json["tag-folder"].toLowerCase().includes(key);
+                    let tagsMatch = current_website_json["tags-text"] && Array.isArray(current_website_json["tags-text"]) && current_website_json["tags-text"].some(t => t.toLowerCase().includes(key));
+                    return (current_website_json["notes"].toLowerCase().includes(key) || contentMatch || current_website_json["domain"].toLowerCase().includes(key) || current_website_json["last-update"].toLowerCase().includes(key) || title_to_use.includes(key) || website.includes(key) || folderMatch || tagsMatch);
+                });
+
+                if (anyMatch && condition_tag_color && condition_type && condition_folder && condition_tags_text) {
+                    websites_json_to_show[website] = websites_json[website];
+                }
+            }
         }
         loadAllWebsites(true, sort_by_selected, false);
     } catch (e) {
@@ -1014,9 +1245,7 @@ function search(value = "") {
 function getType(website, url) {
     let valueToReturn = "";
     if (website !== undefined && website["domain"] !== undefined && url !== undefined) {
-        if (url === "**global") valueToReturn = "global";
-        else if (website["domain"] !== "") valueToReturn = "page";
-        else valueToReturn = "domain";
+        if (url === "**global") valueToReturn = "global"; else if (website["domain"] !== "") valueToReturn = "page"; else valueToReturn = "domain";
     }
     return valueToReturn;
 }
@@ -1170,7 +1399,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 fullUrlToUse = fullUrlToUse.substring(0, fullUrlToUse.length - 1);
             }
             if (isUrlSupported(fullUrlToUse)) {
-                pageUrl.classList.add("link", "go-to-external","url");
+                pageUrl.classList.add("link", "go-to-external", "url");
                 pageUrl.onclick = function () {
                     sendTelemetry(`go-to-page`, "all-notes.js", fullUrlToUse);
                     browser.tabs.create({url: fullUrlToUse});
@@ -1197,8 +1426,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         pageTitleH3.textContent = title;
         pageTitleH3.oninput = function () {
             let data = {
-                title: pageTitleH3.textContent,
-                lastUpdate: getDate()
+                title: pageTitleH3.textContent, lastUpdate: getDate()
             }
             onInputText(fullUrl, data, pageLastUpdate);
         }
@@ -1223,8 +1451,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         textNotes.classList.add("textarea-all-notes");
         textNotes.oninput = function () {
             let data = {
-                notes: textNotes.innerHTML,
-                lastUpdate: getDate()
+                notes: textNotes.innerHTML, lastUpdate: getDate()
             }
             onInputText(fullUrl, data, pageLastUpdate);
         }
@@ -1263,8 +1490,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
 
         let disable_word_wrap = false;
         if (settings_json["disable-word-wrap"] !== undefined) {
-            if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true;
-            else disable_word_wrap = false;
+            if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true; else disable_word_wrap = false;
         }
         if (disable_word_wrap) {
             textNotes.style.whiteSpace = "none";
@@ -1350,7 +1576,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
 
 function renderTagsAllNotes(container, fullUrl) {
     if (!container) return;
-    
+
     // Aggiorna il timestamp nella UI risalendo al genitore
     let pageContentRight = container.closest(".page-content-right");
     if (pageContentRight) {
@@ -1362,7 +1588,7 @@ function renderTagsAllNotes(container, fullUrl) {
 
     container.innerHTML = "";
     container.className = "custom-tag-input-container";
-    
+
     let tags = [];
     if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tags-text"] !== undefined) {
         tags = websites_json[fullUrl]["tags-text"];
@@ -1388,7 +1614,6 @@ function renderTagsAllNotes(container, fullUrl) {
                 e.stopPropagation();
                 removeTagAllNotes(fullUrl, index, container);
             };
-
             chip.appendChild(remove);
             container.appendChild(chip);
         });
@@ -1398,17 +1623,79 @@ function renderTagsAllNotes(container, fullUrl) {
     input.type = "text";
     input.className = "tag-inner-input";
     input.placeholder = all_strings["add-tag-placeholder"] || "...";
+
+    // Custom autocomplete dropdown (non-binding): show tags used elsewhere, excluding those already on this note
+    let dropdownId = "note-tag-dropdown-" + btoa(unescape(encodeURIComponent(fullUrl))).replace(/[^a-z0-9]/gi, "").substring(0, 24);
+    let existingDd = document.getElementById(dropdownId);
+    if (existingDd) existingDd.remove();
+    let tagDropdown = document.createElement("div");
+    tagDropdown.id = dropdownId;
+    tagDropdown.className = "autocomplete-dropdown hidden";
+    tagDropdown.style.position = "fixed";
+    tagDropdown.style.zIndex = "20000";
+    document.body.appendChild(tagDropdown);
+
+    function getAvailableTags() {
+        let all = new Set();
+        for (let url in websites_json) {
+            if (websites_json[url]["tags-text"]) {
+                websites_json[url]["tags-text"].forEach(t => all.add(t.toLowerCase()));
+            }
+        }
+        let current = tags.map(t => t.toLowerCase());
+        return Array.from(all).filter(t => !current.includes(t)).sort();
+    }
+
+    function updateTagDropdown(text) {
+        tagDropdown.innerHTML = "";
+        let available = getAvailableTags();
+        let matches = available.filter(t => t.includes(text.toLowerCase()));
+        if (matches.length > 0) {
+            matches.forEach(match => {
+                let item = document.createElement("div");
+                item.className = "autocomplete-item";
+                item.textContent = match;
+                item.onmousedown = function (e) {
+                    e.preventDefault();
+                    input.value = match;
+                    addTagAllNotes(input, fullUrl, container);
+                    tagDropdown.classList.add("hidden");
+                };
+                tagDropdown.appendChild(item);
+            });
+            hideAllDropdowns();
+            tagDropdown.classList.remove("hidden");
+            let rect = input.getBoundingClientRect();
+            tagDropdown.style.left = rect.left + "px";
+            tagDropdown.style.top = rect.bottom + "px";
+        } else {
+            tagDropdown.classList.add("hidden");
+        }
+    }
+
+    input.oninput = function () {
+        updateTagDropdown(this.value.trim());
+    };
+    input.onfocus = function () {
+        updateTagDropdown(this.value.trim());
+    };
+    input.onblur = function () {
+        setTimeout(() => tagDropdown.classList.add("hidden"), 150);
+    };
     input.onkeydown = function (e) {
         if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             addTagAllNotes(this, fullUrl, container);
+            tagDropdown.classList.add("hidden");
         } else if (e.key === "Backspace" && this.value === "" && tags.length > 0) {
             removeTagAllNotes(fullUrl, tags.length - 1, container);
+        } else if (e.key === "Escape") {
+            tagDropdown.classList.add("hidden");
         }
     };
     container.appendChild(input);
 
-    container.onclick = function() {
+    container.onclick = function () {
         input.focus();
     };
 }
@@ -1438,6 +1725,18 @@ function applyTagFilter(tag) {
     }
 }
 
+function applyFolderFilter(folder) {
+    if (!filtersFolder.includes(folder)) {
+        filtersFolder.push(folder);
+        window.renderFilterFolders();
+        applyFilter();
+    }
+    let filtersSection = document.getElementById("filters");
+    if (filtersSection && filtersSection.classList.contains("hidden")) {
+        document.getElementById("filter-all-notes-button").click();
+    }
+}
+
 function renderFolderView(container, fullUrl) {
     if (!container) return;
 
@@ -1451,119 +1750,105 @@ function renderFolderView(container, fullUrl) {
     }
 
     container.innerHTML = "";
-    
+    container.className = "custom-tag-input-container";
+
     let currentFolder = (websites_json[fullUrl] && websites_json[fullUrl]["tag-folder"]) ? websites_json[fullUrl]["tag-folder"] : "";
 
-    let folderHeader = document.createElement("div");
-    folderHeader.className = "folder-view-header";
-    folderHeader.textContent = all_strings["folder-label"] + ": " + (currentFolder || all_strings["no-folder-label"]);
-    
-    // Toggle logic
-    let isExpanded = false;
-    folderHeader.onclick = function() {
-        isExpanded = !isExpanded;
-        folderList.classList.toggle("hidden", !isExpanded);
-        addFolderContainer.classList.toggle("hidden", !isExpanded);
-        folderHeader.classList.toggle("expanded", isExpanded);
-    };
-    container.appendChild(folderHeader);
+    if (currentFolder) {
+        let chip = document.createElement("div");
+        chip.className = "tag-chip tag-chip-interactive";
+        chip.style.margin = "0";
 
-    let folderList = document.createElement("div");
-    folderList.className = "folder-view-list hidden";
+        let tagText = document.createElement("span");
+        tagText.textContent = currentFolder;
+        tagText.title = all_strings["filter-folder-label"] || "Filter by folder";
+        tagText.onclick = function (e) {
+            e.stopPropagation();
+            applyFolderFilter(currentFolder);
+        };
+        chip.appendChild(tagText);
 
-    // Opzione "Nessuna cartella"
-    let noFolderItem = document.createElement("div");
-    noFolderItem.className = "folder-view-item" + (currentFolder === "" ? " selected" : "");
-    noFolderItem.textContent = all_strings["no-folder-label"];
-    noFolderItem.onclick = function() {
-        changeFolderAllNotes(fullUrl, "");
-    };
-    folderList.appendChild(noFolderItem);
+        let remove = document.createElement("span");
+        remove.className = "tag-chip-remove";
+        remove.textContent = "×";
+        remove.onclick = function (e) {
+            e.stopPropagation();
+            changeFolderAllNotes(fullUrl, "");
+        };
+        chip.appendChild(remove);
+        container.appendChild(chip);
+    } else {
+        let input = document.createElement("input");
+        input.type = "text";
+        input.className = "tag-inner-input";
+        input.placeholder = all_strings["new-folder-placeholder"] || "Folder...";
 
-    if (settings_json["folders"] && Array.isArray(settings_json["folders"])) {
-        settings_json["folders"].forEach(folder => {
-            let item = document.createElement("div");
-            item.className = "folder-view-item" + (currentFolder === folder ? " selected" : "");
-            item.onclick = function() {
-                changeFolderAllNotes(fullUrl, folder);
-            };
-            
-            let nameSpan = document.createElement("span");
-            nameSpan.textContent = folder;
-            item.appendChild(nameSpan);
+        // Custom autocomplete dropdown (non-binding)
+        let dropdownId = "note-folder-dropdown-" + btoa(unescape(encodeURIComponent(fullUrl))).replace(/[^a-z0-9]/gi, "").substring(0, 24);
+        let existingDd = document.getElementById(dropdownId);
+        if (existingDd) existingDd.remove();
+        let dropdown = document.createElement("div");
+        dropdown.id = dropdownId;
+        dropdown.className = "autocomplete-dropdown hidden";
+        dropdown.style.position = "fixed";
+        dropdown.style.zIndex = "20000";
+        document.body.appendChild(dropdown);
 
-            let deleteBtn = document.createElement("input");
-            deleteBtn.type = "button";
-            deleteBtn.className = "folder-delete-btn delete-button-grid";
-            deleteBtn.title = all_strings["clear-notes-of-this-page-button"]; // Riutilizzo stringa per "Elimina"
-            deleteBtn.onclick = function(e) {
-                e.stopPropagation();
-                deleteFolderGlobal(folder);
-            };
-            item.appendChild(deleteBtn);
-
-            folderList.appendChild(item);
-        });
-    }
-
-    container.appendChild(folderList);
-
-    // Input per nuova cartella
-    let addFolderContainer = document.createElement("div");
-    addFolderContainer.className = "add-folder-container hidden";
-    
-    let addFolderInput = document.createElement("input");
-    addFolderInput.type = "text";
-    addFolderInput.placeholder = all_strings["new-folder-placeholder"];
-    addFolderInput.className = "add-folder-input textbox";
-    addFolderInput.onkeyup = function(e) {
-        if (e.key === "Enter") {
-            let newFolder = addFolderInput.value.trim();
-            if (newFolder) {
-                addNewFolderGlobal(newFolder, fullUrl);
+        function updateFolderDropdown(text) {
+            dropdown.innerHTML = "";
+            let folders = getExistingFolders();
+            let matches = folders.filter(f => f.toLowerCase().includes(text.toLowerCase()));
+            if (matches.length > 0) {
+                matches.forEach(match => {
+                    let item = document.createElement("div");
+                    item.className = "autocomplete-item";
+                    item.textContent = match;
+                    item.onmousedown = function (e) {
+                        e.preventDefault();
+                        changeFolderAllNotes(fullUrl, match);
+                        dropdown.classList.add("hidden");
+                    };
+                    dropdown.appendChild(item);
+                });
+                hideAllDropdowns();
+                dropdown.classList.remove("hidden");
+                let rect = input.getBoundingClientRect();
+                dropdown.style.left = rect.left + "px";
+                dropdown.style.top = rect.bottom + "px";
+            } else {
+                dropdown.classList.add("hidden");
             }
         }
-    };
-    
-    addFolderContainer.appendChild(addFolderInput);
-    container.appendChild(addFolderContainer);
-}
 
-function addNewFolderGlobal(folderName, fullUrl) {
-    if (!settings_json["folders"]) settings_json["folders"] = [];
-    if (!settings_json["folders"].includes(folderName)) {
-        settings_json["folders"].push(folderName);
-        sync_local.set({"settings": settings_json, "last-update": getDate()}, function () {
-            changeFolderAllNotes(fullUrl, folderName);
-        });
+        input.oninput = function () {
+            updateFolderDropdown(this.value.trim());
+        };
+        input.onfocus = function () {
+            updateFolderDropdown(this.value.trim());
+        };
+        input.onblur = function () {
+            setTimeout(() => dropdown.classList.add("hidden"), 150);
+        };
+        input.onkeydown = function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                let val = this.value.trim();
+                if (val) {
+                    changeFolderAllNotes(fullUrl, val);
+                    dropdown.classList.add("hidden");
+                }
+            } else if (e.key === "Escape") {
+                dropdown.classList.add("hidden");
+            }
+        };
+
+        container.appendChild(input);
+        container.onclick = function () {
+            input.focus();
+        };
     }
 }
 
-function deleteFolderGlobal(folderName) {
-    if (confirm(all_strings["delete-folder-confirmation"])) {
-        settings_json["folders"] = settings_json["folders"].filter(f => f !== folderName);
-        sync_local.set({"settings": settings_json}, function () {
-            // Rimuovi la cartella dalle note che la usano
-            sync_local.get("websites", function (value) {
-                let webs = value["websites"] || {};
-                let changed = false;
-                for (let url in webs) {
-                    if (webs[url]["tag-folder"] === folderName) {
-                        webs[url]["tag-folder"] = "";
-                        changed = true;
-                    }
-                }
-                if (changed) {
-                    sync_local.set({"websites": webs}, function() {
-                        loadDataFromBrowser("FOLDER-DEL", true);
-                    });
-                } else {
-                    loadDataFromBrowser("FOLDER-DEL", true);
-                }
-            });
-        });
-    }
-}
 
 function addTagAllNotes(input, fullUrl, container) {
     let tag = input.value.trim().toLowerCase();
@@ -1852,8 +2137,7 @@ function showFullscreenNotes(notesText) {
     if (notesContent) {
         let disable_word_wrap = false;
         if (settings_json["disable-word-wrap"] !== undefined) {
-            if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true;
-            else disable_word_wrap = false;
+            if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true; else disable_word_wrap = false;
         }
         if (disable_word_wrap) {
             notesContent.style.whiteSpace = "none";
@@ -2102,3 +2386,4 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
 }
 
 loaded();
+

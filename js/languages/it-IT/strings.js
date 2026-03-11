@@ -110,6 +110,7 @@ strings[lang] = {
     'tags-text-label': 'Tag',
     'add-tag-placeholder': 'Aggiungi tag...',
     'delete-folder-confirmation': 'Sei sicuro di voler eliminare questa cartella? Tutte le note in questa cartella saranno impostate su \'Nessuna cartella\'.',
+    'create-folder-confirmation': 'La cartella "{{folder_name}}" non esiste. Vuoi crearla?',
     'folder-label': 'Cartella',
     'new-folder-placeholder': 'Aggiungi nuova cartella...',
     'add-folder-button': 'Aggiungi cartella',
