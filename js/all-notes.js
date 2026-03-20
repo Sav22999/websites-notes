@@ -58,9 +58,24 @@ function getExistingFolders() {
     return Array.from(folders).sort();
 }
 
-function hideAllDropdowns() {
-    document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
+function hideAllDropdowns(event) {
+    if (event && event.type === "scroll") {
+        const activeDropdown = document.querySelector(".autocomplete-dropdown:not(.hidden)");
+        if (activeDropdown && event.target && typeof event.target.contains === "function" && activeDropdown.contains(event.target)) {
+            return;
+        }
+    }
+    document.querySelectorAll(".autocomplete-dropdown").forEach(d => {
+        d.classList.add("hidden");
+        // Se è una select custom, la rimuoviamo proprio per coerenza con definitions.js
+        if (d.classList.contains("custom-select-dropdown")) {
+            d.remove();
+        }
+    });
 }
+
+// Chiudi tutte le dropdown allo scroll
+window.addEventListener("scroll", hideAllDropdowns, true);
 
 function checkSyncLocal() {
     sync_local = browser.storage.local;
@@ -129,8 +144,8 @@ function loaded() {
         //     search(document.getElementById("search-all-notes-text").value);
         // }
 
-        window.onscroll = function () {
-            document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
+        window.onscroll = function (e) {
+            hideAllDropdowns(e);
             if (window.scrollY > 30) {
                 //hide because it's visible
                 document.getElementById("filters").classList.add("hidden");
@@ -164,6 +179,7 @@ function loaded() {
         document.getElementById("sort-by-all-notes-button").onchange = function () {
             sort_by_selected = document.getElementById("sort-by-all-notes-button").value;
             loadAllWebsites(true, sort_by_selected);
+            initCustomSelects();
         }
 
         renderSearchChips();
@@ -172,8 +188,8 @@ function loaded() {
             loadDataFromBrowser("C", true);
         }, 10);
 
-        document.getElementById("all-notes-dedication-section").onscroll = function () {
-            document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
+        document.getElementById("all-notes-dedication-section").onscroll = function (e) {
+            hideAllDropdowns(e);
             if (document.getElementById("all-notes-dedication-section").scrollTop > 30) {
                 document.getElementById("actions").classList.add("section-selected");
             } else {
@@ -225,7 +241,7 @@ function setLanguageUI() {
         document.getElementById("buy-me-a-coffee-button").value = all_strings["donate-button"];
         //document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
         document.getElementById("filter-all-notes-button").value = all_strings["filter-button"];
-        document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
+        // document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
         document.getElementById("sort-by-name-az-select").textContent = all_strings["sort-by-az-button"];
         document.getElementById("sort-by-name-za-select").textContent = all_strings["sort-by-za-button"];
         document.getElementById("sort-by-date-09-select").textContent = all_strings["sort-by-edit-first-button"];
@@ -830,6 +846,7 @@ function loadDataFromBrowser(called_by = null, generate_section = true) {
             renderFilterFolders();
             renderFilterTags();
             renderSearchChips();
+            initCustomSelects();
         });
         applyFilter();
     } catch (e) {
@@ -1573,6 +1590,8 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         page.append(pageContentLeft);
         page.append(pageContentRight);
 
+        setTimeout(() => initCustomSelects(), 0);
+
         return page;
     } catch (e) {
         console.error(`E-G1: ${e}`);
@@ -1712,6 +1731,8 @@ function renderTagsAllNotes(container, fullUrl, shouldFocus = false) {
     if (shouldFocus) {
         input.focus();
     }
+
+    initCustomSelects();
 }
 
 function applyTagFilter(tag) {

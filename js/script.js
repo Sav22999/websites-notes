@@ -12,9 +12,22 @@ function getExistingFolders() {
     return Array.from(folders).sort();
 }
 
-function hideAllDropdowns() {
-    document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
+function hideAllDropdowns(event) {
+    if (event && event.type === "scroll") {
+        const activeDropdown = document.querySelector(".autocomplete-dropdown:not(.hidden)");
+        if (activeDropdown && event.target && typeof event.target.contains === "function" && activeDropdown.contains(event.target)) {
+            return;
+        }
+    }
+    document.querySelectorAll(".autocomplete-dropdown").forEach(d => {
+        d.classList.add("hidden");
+        if (d.classList.contains("custom-select-dropdown")) {
+            d.remove();
+        }
+    });
 }
+
+window.addEventListener("scroll", hideAllDropdowns, true);
 
 var advanced_managing = true;
 
@@ -591,6 +604,8 @@ function loadUI(called_by = null) {
 
     renderTags();
 
+    initCustomSelects();
+
     let details = navigator.userAgent;
     let regexp = /android|iphone|kindle|ipad/i;
     let isMobileDevice = regexp.test(details);
@@ -631,6 +646,7 @@ function changeTagColour(url, colour) {
             //console.log("QAZ-8")
             sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
                 loadUI("H");
+                initCustomSelects();
             });
         }
         saveNotes();

@@ -46,6 +46,23 @@ function checkSyncLocal() {
     checkTheme();
 }
 
+function hideAllDropdowns(event) {
+    if (event && event.type === "scroll") {
+        const activeDropdown = document.querySelector(".autocomplete-dropdown:not(.hidden)");
+        if (activeDropdown && event.target && typeof event.target.contains === "function" && activeDropdown.contains(event.target)) {
+            return;
+        }
+    }
+    document.querySelectorAll(".autocomplete-dropdown").forEach(d => {
+        d.classList.add("hidden");
+        if (d.classList.contains("custom-select-dropdown")) {
+            d.remove();
+        }
+    });
+}
+
+window.addEventListener("scroll", hideAllDropdowns, true);
+
 var letters_and_numbers = {
     A: "A",
     B: "B",
@@ -530,6 +547,8 @@ function loaded() {
     if (splashScreen !== undefined && splashScreen !== null) {
         splashScreen.classList.add("splash-screen-hidden");
     }
+
+    initCustomSelects();
 }
 
 function sendTelemetry(action, context = "settings.js", other = null) {

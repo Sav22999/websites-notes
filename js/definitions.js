@@ -80,6 +80,15 @@ function checkDropdownScrollbar(dropdown, input = null) {
     if (input) {
         let rect = input.getBoundingClientRect();
         dropdown.style.left = rect.left + "px";
+        // dropdown.style.width = rect.width + "px"; // Rimosso per permettere width: auto con min-width: 100%
+
+        // Se è una select custom, vogliamo che la larghezza minima sia quella del trigger
+        if (dropdown.classList.contains("custom-select-dropdown")) {
+            dropdown.style.minWidth = rect.width + "px";
+        } else {
+            dropdown.style.minWidth = "150px";
+        }
+        dropdown.style.width = "auto";
 
         // Determine vertical position
         let dropdownHeight = dropdown.offsetHeight;
@@ -96,6 +105,164 @@ function checkDropdownScrollbar(dropdown, input = null) {
             dropdown.style.marginTop = "5px";
         }
     }
+}
+
+function initCustomSelects() {
+    const selects = document.querySelectorAll("select.select-box, select.select-tag-all-notes, #tag-select-grid, #sort-by-all-notes-button");
+    selects.forEach(select => {
+        if (select.nextElementSibling && select.nextElementSibling.classList.contains("custom-select-trigger")) {
+            return;
+        }
+        createCustomSelect(select);
+    });
+}
+
+function createCustomSelect(select) {
+    const container = document.createElement("div");
+    container.className = "custom-select-container select-box";
+    if (select.id) container.id = "custom-select-container-" + select.id;
+
+    // Trasferimento proprietà di layout al container
+    const computedStyle = window.getComputedStyle(select);
+    if (computedStyle.gridArea !== 'none') container.style.gridArea = computedStyle.gridArea;
+    if (computedStyle.flex !== '0 1 auto') container.style.flex = computedStyle.flex;
+    if (computedStyle.margin !== '0px') container.style.margin = computedStyle.margin;
+    if (computedStyle.display !== 'none' && computedStyle.display !== 'inline-block') container.style.display = computedStyle.display;
+
+    const trigger = document.createElement("div");
+    trigger.className = select.className + " custom-select-trigger";
+    if (select.id) trigger.id = "custom-select-trigger-" + select.id;
+
+    const updateIconFilter = (trigger, select) => {
+        if (select.style.backgroundColor && select.style.backgroundColor !== "" && select.style.backgroundColor !== "transparent") {
+            trigger.style.setProperty("--icon-filter", "brightness(0) invert(1) !important");
+        } else if (window.location.pathname.includes("all-notes/index.html") || window.location.pathname.includes("all-notes")) {
+            trigger.style.setProperty("--icon-filter", "invert(48%) sepia(87%) saturate(1418%) hue-rotate(345deg) brightness(101%) contrast(104%) !important");
+        } else {
+            trigger.style.setProperty("--icon-filter", "brightness(0) invert(1) !important");
+        }
+    };
+
+    const updateTriggerText = () => {
+        const selectedOption = select.options[select.selectedIndex];
+        if (selectedOption) {
+            trigger.textContent = selectedOption.textContent;
+        } else {
+            trigger.textContent = "";
+        }
+        updateIconFilter(trigger, select);
+    };
+
+    updateTriggerText();
+
+    // Copia lo stile inline se presente (es. background-color per i colori dei tag)
+    // Inoltre osserva cambiamenti di selezione o testo delle opzioni
+    const observer = new MutationObserver(() => {
+        trigger.style.backgroundColor = select.style.backgroundColor;
+        updateTriggerText();
+    });
+    observer.observe(select, {attributes: true, attributeFilter: ["style", "class"], childList: true, subtree: true});
+
+    // Per gestire il cambio di selectedIndex via JS (che non triggera onchange né mutation)
+    // usiamo un trucco: ridefiniamo la proprietà selectedIndex se possibile, o usiamo un intervallo corto
+    // In questo caso, siccome vogliamo "live", un interval o un controllo all'occorrenza è meglio.
+    // Ma l'utente ha detto "ripristinata solo una volta premuto... invece dovrebbe essere ripristinata in live"
+    // Questo suggerisce che quando il codice cambia la select, il trigger non si aggiorna.
+
+    // Proviamo con un interval per la sincronizzazione live dello stato
+    const liveSyncInterval = setInterval(() => {
+        if (!container.parentElement && !document.contains(select)) {
+            clearInterval(liveSyncInterval);
+            return;
+        }
+        updateTriggerText();
+        trigger.style.backgroundColor = select.style.backgroundColor;
+    }, 500);
+    // Iniziale
+    trigger.style.backgroundColor = select.style.backgroundColor;
+    updateIconFilter(trigger, select);
+
+    // Nascondi la select originale ma mantienila nel DOM per i listener esistenti
+    select.style.display = "none";
+    // Assicuriamoci che non venga visualizzata accidentalmente e non occupi spazio
+    select.style.position = "absolute";
+    select.style.width = "0px";
+    select.style.height = "0px";
+    select.style.overflow = "hidden";
+    select.style.opacity = "0";
+    select.style.pointerEvents = "none";
+
+    select.parentNode.insertBefore(container, select);
+    container.appendChild(select);
+    container.appendChild(trigger);
+
+    let dropdown = null;
+
+    const closeDropdown = () => {
+        if (dropdown) {
+            dropdown.remove();
+            dropdown = null;
+            trigger.classList.remove("active");
+        }
+    };
+
+    trigger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (dropdown) {
+            closeDropdown();
+            return;
+        }
+
+        // Forza il ricalcolo del testo del trigger prima di aprire la dropdown
+        updateTriggerText();
+
+        // Chiudi altre dropdown aperte
+        document.querySelectorAll(".autocomplete-dropdown.custom-select-dropdown").forEach(d => d.remove());
+
+        dropdown = document.createElement("div");
+        dropdown.className = "autocomplete-dropdown custom-select-dropdown";
+
+        Array.from(select.options).forEach((option, index) => {
+            const item = document.createElement("div");
+            item.className = "autocomplete-item";
+            item.textContent = option.textContent;
+            if (index === select.selectedIndex) {
+                item.classList.add("selected");
+            }
+
+    item.addEventListener("click", () => {
+                if (index === select.selectedIndex) {
+                    closeDropdown();
+                    return;
+                }
+                select.selectedIndex = index;
+                select.dispatchEvent(new Event("change"));
+                updateTriggerText();
+                closeDropdown();
+            });
+            dropdown.appendChild(item);
+        });
+
+        document.body.appendChild(dropdown);
+        trigger.classList.add("active");
+        checkDropdownScrollbar(dropdown, trigger);
+
+        // Click fuori per chiudere
+        const outClick = (event) => {
+            if (!dropdown) {
+                document.removeEventListener("click", outClick);
+                return;
+            }
+            if (!container.contains(event.target) && !dropdown.contains(event.target)) {
+                closeDropdown();
+                document.removeEventListener("click", outClick);
+            }
+        };
+        document.addEventListener("click", outClick);
+    });
+
+    // Sincronizza se la select originale cambia (da JS)
+    select.addEventListener("change", updateTriggerText);
 }
 
 let links = {
