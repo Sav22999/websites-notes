@@ -68,12 +68,33 @@ if (!supportedLanguages.includes(languageToUse)) languageToUse = "en";
     if (supportedLanguages.includes(languageToUse.split("-")[0]))
     languageToUse = languageToUse.split("-")[0];
 
-function checkDropdownScrollbar(dropdown) {
+function checkDropdownScrollbar(dropdown, input = null) {
     if (!dropdown) return;
+
     if (dropdown.scrollHeight > dropdown.clientHeight) {
         dropdown.classList.add("has-scrollbar");
     } else {
         dropdown.classList.remove("has-scrollbar");
+    }
+
+    if (input) {
+        let rect = input.getBoundingClientRect();
+        dropdown.style.left = rect.left + "px";
+
+        // Determine vertical position
+        let dropdownHeight = dropdown.offsetHeight;
+        let spaceBelow = window.innerHeight - rect.bottom;
+        let spaceAbove = rect.top;
+
+        if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
+            // Show above
+            dropdown.style.top = (rect.top - dropdownHeight - 5) + "px";
+            dropdown.style.marginTop = "0px";
+        } else {
+            // Show below
+            dropdown.style.top = rect.bottom + "px";
+            dropdown.style.marginTop = "5px";
+        }
     }
 }
 

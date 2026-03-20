@@ -327,10 +327,7 @@ function setLanguageUI() {
                     });
                     hideAllDropdowns();
                     dropdown.classList.remove("hidden");
-                    checkDropdownScrollbar(dropdown);
-                    let rect = input.getBoundingClientRect();
-                    dropdown.style.left = rect.left + "px";
-                    dropdown.style.top = rect.bottom + "px";
+                    checkDropdownScrollbar(dropdown, input);
                 } else {
                     dropdown.classList.add("hidden");
                 }
@@ -504,10 +501,7 @@ function setLanguageUI() {
                     });
                     hideAllDropdowns();
                     dropdown.classList.remove("hidden");
-                    checkDropdownScrollbar(dropdown);
-                    let rect = input.getBoundingClientRect();
-                    dropdown.style.left = rect.left + "px";
-                    dropdown.style.top = rect.bottom + "px";
+                    checkDropdownScrollbar(dropdown, input);
                 } else {
                     dropdown.classList.add("hidden");
                 }
@@ -1680,10 +1674,7 @@ function renderTagsAllNotes(container, fullUrl, shouldFocus = false) {
             });
             hideAllDropdowns();
             tagDropdown.classList.remove("hidden");
-            checkDropdownScrollbar(tagDropdown);
-            let rect = input.getBoundingClientRect();
-            tagDropdown.style.left = rect.left + "px";
-            tagDropdown.style.top = rect.bottom + "px";
+            checkDropdownScrollbar(tagDropdown, input);
         } else {
             tagDropdown.classList.add("hidden");
         }
@@ -1836,10 +1827,7 @@ function renderFolderView(container, fullUrl, shouldFocus = false) {
                 });
                 hideAllDropdowns();
                 dropdown.classList.remove("hidden");
-                checkDropdownScrollbar(dropdown);
-                let rect = input.getBoundingClientRect();
-                dropdown.style.left = rect.left + "px";
-                dropdown.style.top = rect.bottom + "px";
+                checkDropdownScrollbar(dropdown, input);
             } else {
                 dropdown.classList.add("hidden");
             }
