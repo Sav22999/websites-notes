@@ -65,8 +65,17 @@ const textSizeValues = {
 const webBrowserUsed = "firefox"; //TODO:change manually
 let languageToUse = browser.i18n.getUILanguage().toString();
 if (!supportedLanguages.includes(languageToUse)) languageToUse = "en";
-if (supportedLanguages.includes(languageToUse.split("-")[0]))
+    if (supportedLanguages.includes(languageToUse.split("-")[0]))
     languageToUse = languageToUse.split("-")[0];
+
+function checkDropdownScrollbar(dropdown) {
+    if (!dropdown) return;
+    if (dropdown.scrollHeight > dropdown.clientHeight) {
+        dropdown.classList.add("has-scrollbar");
+    } else {
+        dropdown.classList.remove("has-scrollbar");
+    }
+}
 
 let links = {
     donate: "https://liberapay.com/Sav22999",

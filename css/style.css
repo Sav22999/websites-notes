@@ -707,6 +707,11 @@ body {
     margin-top: 5px;
 }
 
+.autocomplete-dropdown.has-scrollbar .autocomplete-item,
+.autocomplete-dropdown.has-scrollbar .no-results {
+    padding-right: 20px;
+}
+
 .autocomplete-item {
     padding: 10px 15px;
     cursor: pointer;
@@ -987,6 +992,7 @@ pre::placeholder,
 
 #search-all-notes-text {
     width: auto;
+    min-width: 150px;
     margin: 0px;
     background-color: transparent !important;
     color: var(--on-textbox-color);
@@ -4429,6 +4435,10 @@ option {
 }
 
 @media screen and (max-width: 1000px) {
+    #search-all-notes-container {
+        max-width: 400px;
+    }
+
     .buttons-grid > select {
         background-position: center left 10px, center right 10px;
         min-width: 80px;
@@ -4440,6 +4450,10 @@ option {
 }
 
 @media screen and (max-width: 800px) {
+    #search-all-notes-container {
+        max-width: 100%;
+    }
+
     .buttons-grid > select {
         background-size: auto 80%, auto 60%;
     }
@@ -4528,8 +4542,33 @@ option {
     grid-area: search; /*# This is the name of the area*/
 }
 
+#search-all-notes-container {
+    max-width: 600px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+#search-all-notes-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+#search-all-notes-container::-webkit-scrollbar-thumb {
+    background: var(--tertiary-transparent-2);
+    border-radius: 10px;
+}
+
+#search-all-notes-container.custom-tag-input-container {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+#search-all-notes-container .tag-chip {
+    flex-shrink: 0;
+}
+
 #search-all-notes-text {
     height: auto;
+    min-width: 150px;
     margin: 0;
     padding: 4px;
 }

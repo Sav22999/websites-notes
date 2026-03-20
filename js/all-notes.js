@@ -327,6 +327,7 @@ function setLanguageUI() {
                     });
                     hideAllDropdowns();
                     dropdown.classList.remove("hidden");
+                    checkDropdownScrollbar(dropdown);
                     let rect = input.getBoundingClientRect();
                     dropdown.style.left = rect.left + "px";
                     dropdown.style.top = rect.bottom + "px";
@@ -499,6 +500,7 @@ function setLanguageUI() {
                     });
                     hideAllDropdowns();
                     dropdown.classList.remove("hidden");
+                    checkDropdownScrollbar(dropdown);
                     let rect = input.getBoundingClientRect();
                     dropdown.style.left = rect.left + "px";
                     dropdown.style.top = rect.bottom + "px";
@@ -1670,6 +1672,7 @@ function renderTagsAllNotes(container, fullUrl, shouldFocus = false) {
             });
             hideAllDropdowns();
             tagDropdown.classList.remove("hidden");
+            checkDropdownScrollbar(tagDropdown);
             let rect = input.getBoundingClientRect();
             tagDropdown.style.left = rect.left + "px";
             tagDropdown.style.top = rect.bottom + "px";
@@ -1822,6 +1825,7 @@ function renderFolderView(container, fullUrl, shouldFocus = false) {
                 });
                 hideAllDropdowns();
                 dropdown.classList.remove("hidden");
+                checkDropdownScrollbar(dropdown);
                 let rect = input.getBoundingClientRect();
                 dropdown.style.left = rect.left + "px";
                 dropdown.style.top = rect.bottom + "px";
