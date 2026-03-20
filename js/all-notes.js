@@ -347,6 +347,10 @@ function setLanguageUI() {
                 updateDropdown(this.value.trim());
             };
 
+            input.onclick = function () {
+                updateDropdown(this.value.trim());
+            };
+
             input.onkeydown = function (e) {
                 if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
@@ -517,6 +521,10 @@ function setLanguageUI() {
             };
 
             input.onfocus = function () {
+                updateDropdown(this.value.trim());
+            };
+
+            input.onclick = function () {
                 updateDropdown(this.value.trim());
             };
 
@@ -1687,6 +1695,9 @@ function renderTagsAllNotes(container, fullUrl, shouldFocus = false) {
     input.onfocus = function () {
         updateTagDropdown(this.value.trim());
     };
+    input.onclick = function () {
+        updateTagDropdown(this.value.trim());
+    };
     input.onblur = function () {
         setTimeout(() => tagDropdown.classList.add("hidden"), 150);
     };
@@ -1838,6 +1849,9 @@ function renderFolderView(container, fullUrl, shouldFocus = false) {
             updateFolderDropdown(this.value.trim());
         };
         input.onfocus = function () {
+            updateFolderDropdown(this.value.trim());
+        };
+        input.onclick = function () {
             updateFolderDropdown(this.value.trim());
         };
         input.onblur = function () {
