@@ -1139,6 +1139,7 @@ function renderTags() {
             chip.style.cursor = "default";
 
             let tagText = document.createElement("span");
+            tagText.className = "tag-chip-text";
             tagText.textContent = tag;
             chip.appendChild(tagText);
 
@@ -1215,6 +1216,7 @@ function renderFolders() {
         chip.style.cursor = "default";
 
         let tagText = document.createElement("span");
+        tagText.className = "tag-chip-text";
         tagText.textContent = currentFolder;
         chip.appendChild(tagText);
 

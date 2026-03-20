@@ -274,7 +274,11 @@ function setLanguageUI() {
             filtersFolder.forEach((folder, index) => {
                 let chip = document.createElement("span");
                 chip.className = "tag-chip filter-chip folder-chip";
-                chip.textContent = folder === "" ? all_strings["no-folder-label"] : folder;
+
+                let text = document.createElement("span");
+                text.className = "tag-chip-text";
+                text.textContent = folder === "" ? all_strings["no-folder-label"] : folder;
+                chip.appendChild(text);
 
                 let remove = document.createElement("span");
                 remove.className = "tag-chip-remove";
@@ -432,7 +436,11 @@ function setLanguageUI() {
             filtersTagsText.forEach((tag, index) => {
                 let chip = document.createElement("span");
                 chip.className = "tag-chip filter-chip";
-                chip.textContent = tag;
+
+                let text = document.createElement("span");
+                text.className = "tag-chip-text";
+                text.textContent = tag;
+                chip.appendChild(text);
 
                 let remove = document.createElement("span");
                 remove.className = "tag-chip-remove";
@@ -568,11 +576,6 @@ function setLanguageUI() {
         window.renderFilterFolders = renderFilterFolders;
         window.addTagToFilterDiv = addTagToFilterDiv;
         window.renderFilterTags = renderFilterTags;
-
-        document.getElementById("info-tooltip-search").onclick = function () {
-            sendTelemetry("search-tooltip");
-            window.open(links["help-search"], "_blank");
-        }
 
         let globalFilterButton = document.getElementById("filter-type-global-button");
         let domainFilterButton = document.getElementById("filter-type-domain-button");
@@ -1122,6 +1125,7 @@ function renderSearchChips() {
         chip.className = "tag-chip";
 
         let termText = document.createElement("span");
+        termText.className = "tag-chip-text";
         termText.textContent = term;
         chip.appendChild(termText);
 
@@ -1600,6 +1604,7 @@ function renderTagsAllNotes(container, fullUrl, shouldFocus = false) {
             chip.className = "tag-chip tag-chip-interactive";
 
             let tagText = document.createElement("span");
+            tagText.className = "tag-chip-text";
             tagText.textContent = tag;
             tagText.onclick = function (e) {
                 e.stopPropagation();
@@ -1764,6 +1769,7 @@ function renderFolderView(container, fullUrl, shouldFocus = false) {
         chip.style.margin = "0";
 
         let tagText = document.createElement("span");
+        tagText.className = "tag-chip-text";
         tagText.textContent = currentFolder;
         tagText.title = all_strings["filter-folder-label"] || "Filter by folder";
         tagText.onclick = function (e) {
@@ -2244,7 +2250,6 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         let refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
         let sort_by_svg = window.btoa(getIconSvgEncoded("sort-by", on_primary));
-        let info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         let search_svg = window.btoa(getIconSvgEncoded("search", primary));
         let fullscreen_svg = window.btoa(getIconSvgEncoded("fullscreen", on_primary));
@@ -2365,9 +2370,6 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .sort-by-button {
                     background-image: url('data:image/svg+xml;base64,${sort_by_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
-                }
-                #info-tooltip-search {
-                    background-image: url('data:image/svg+xml;base64,${info_tooltip_svg}');
                 }
                 .select-tag-all-notes {
                     background-image: url('data:image/svg+xml;base64,${tag_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
