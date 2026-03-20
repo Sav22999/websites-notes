@@ -689,11 +689,12 @@ body {
     cursor: pointer;
     font-size: 0.95em;
     color: var(--on-textbox-color);
+    border-radius: 0px;
 }
 
 .autocomplete-item:hover {
-    background-color: var(--main-color-orange);
-    color: white;
+    background-color: var(--tertiary-transparent);
+    color: var(--on-textbox-color);
 }
 
 .autocomplete-item.no-results {
@@ -1017,7 +1018,7 @@ pre::placeholder,
     top: 2px;
     right: 2px;
     left: 2px;
-    bottom: -2px;
+    bottom: 2px;
     /* box-shadow: 0px 0px 0px 1px var(--on-textbox-color); */
     z-index: 100;
     overflow: visible;
