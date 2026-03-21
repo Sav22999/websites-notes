@@ -508,7 +508,7 @@ body {
 }
 
 .folder-view-header:hover {
-    opacity: 0.8;
+    /*opacity: 0.8;*/
 }
 
 .folder-view-list {
@@ -876,7 +876,7 @@ body {
 }
 
 .tag-chip-interactive:hover {
-    opacity: 0.8;
+    /*opacity: 0.8;*/
 }
 
 

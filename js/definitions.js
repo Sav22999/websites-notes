@@ -225,8 +225,15 @@ function createCustomSelect(select) {
     trigger.addEventListener("click", (e) => {
         e.stopPropagation();
         if (dropdown) {
-            closeDropdown();
-            return;
+            if (document.contains(dropdown)) {
+                // Dropdown is open and in the DOM → close it (toggle)
+                closeDropdown();
+                return;
+            } else {
+                // Dropdown was removed externally (e.g. scroll handler) → reset stale ref
+                dropdown = null;
+                trigger.classList.remove("active");
+            }
         }
 
         // Forza il ricalcolo del testo del trigger prima di aprire la dropdown

@@ -22,6 +22,7 @@ function hideAllDropdowns(event) {
     document.querySelectorAll(".autocomplete-dropdown").forEach(d => {
         d.classList.add("hidden");
         if (d.classList.contains("custom-select-dropdown")) {
+            document.querySelectorAll(".custom-select-trigger.active").forEach(t => t.classList.remove("active"));
             d.remove();
         }
     });

@@ -69,6 +69,7 @@ function hideAllDropdowns(event) {
         d.classList.add("hidden");
         // Se è una select custom, la rimuoviamo proprio per coerenza con definitions.js
         if (d.classList.contains("custom-select-dropdown")) {
+            document.querySelectorAll(".custom-select-trigger.active").forEach(t => t.classList.remove("active"));
             d.remove();
         }
     });
