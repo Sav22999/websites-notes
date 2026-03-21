@@ -4253,8 +4253,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 #translate-aside {
                     background-image: url('data:image/svg+xml;base64,${translate_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
-                .select-box {
-                    background-image: url('data:image/svg+xml;base64,${arrow_select_svg}');
+                .cst-arrow {
+                    background-image: url('data:image/svg+xml;base64,${arrow_select_svg}') !important;
                 }
                 .section-title-settings {
                     background-color: ${background};

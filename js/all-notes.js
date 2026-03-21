@@ -1564,7 +1564,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 pageContentLeft.classList.add("tag-colour-" + colour + "-bg");
             }
             tagColour.textContent = colourList[colour];
-            tagsColour.classList.add("select-tag-all-notes", "button", "very-small-button", "tag-button");
+            tagsColour.classList.add("select-tag-all-notes", "button", "very-small-button", "tag-button", "no-text");
             tagsColour.append(tagColour);
         }
         tagsColour.onchange = function () {
@@ -2395,14 +2395,14 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 .refresh-button {
                     background-image: url('data:image/svg+xml;base64,${refresh_svg}');
                 }
-                .sort-by-button {
-                    background-image: url('data:image/svg+xml;base64,${sort_by_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
+                .cst-arrow {
+                    background-image: url('data:image/svg+xml;base64,${arrow_select_svg}') !important;
                 }
-                #custom-select-trigger-sort-by-all-notes-button {
-                    background-image: url('data:image/svg+xml;base64,${sort_by_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}') !important;
+                #custom-select-trigger-sort-by-all-notes-button .cst-label {
+                    background-image: url('data:image/svg+xml;base64,${sort_by_svg}') !important;
                 }
-                .select-tag-all-notes {
-                    background-image: url('data:image/svg+xml;base64,${tag_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
+                .custom-select-trigger.select-tag-all-notes .cst-label {
+                    background-image: url('data:image/svg+xml;base64,${tag_svg}') !important;
                 }
                 .search-all-notes-text {
                     background-image: url('data:image/svg+xml;base64,${search_svg}');

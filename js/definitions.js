@@ -97,12 +97,12 @@ function checkDropdownScrollbar(dropdown, input = null) {
 
         if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
             // Show above
-            dropdown.style.top = (rect.top - dropdownHeight - 5) + "px";
+            dropdown.style.top = (rect.top - dropdownHeight - 0) + "px";
             dropdown.style.marginTop = "0px";
         } else {
             // Show below
             dropdown.style.top = rect.bottom + "px";
-            dropdown.style.marginTop = "5px";
+            dropdown.style.marginTop = "0px";
         }
     }
 }
@@ -133,58 +133,62 @@ function createCustomSelect(select) {
     trigger.className = select.className + " custom-select-trigger";
     if (select.id) trigger.id = "custom-select-trigger-" + select.id;
 
-    const updateIconFilter = (trigger, select) => {
-        if (select.style.backgroundColor && select.style.backgroundColor !== "" && select.style.backgroundColor !== "transparent") {
-            trigger.style.setProperty("--icon-filter", "brightness(0) invert(1) !important");
-        } else if (window.location.pathname.includes("all-notes/index.html") || window.location.pathname.includes("all-notes")) {
-            trigger.style.setProperty("--icon-filter", "invert(48%) sepia(87%) saturate(1418%) hue-rotate(345deg) brightness(101%) contrast(104%) !important");
-        } else {
-            trigger.style.setProperty("--icon-filter", "brightness(0) invert(1) !important");
-        }
-    };
+    // --- Chip inner structure ---
+    // Left section: optional pre-icon (via background-image) + text
+    const labelPart = document.createElement("span");
+    labelPart.className = "cst-label";
+
+    // Selects that have a pre-icon get the has-pre-icon class
+    const hasPreIcon = select.classList.contains("sort-by-button")
+        || select.classList.contains("select-tag-all-notes")
+        || select.id === "tag-select-grid";
+    if (hasPreIcon) labelPart.classList.add("has-pre-icon");
+
+    // Right section: arrow icon with left-border separator
+    const arrowPart = document.createElement("span");
+    arrowPart.className = "cst-arrow";
+
+    trigger.appendChild(labelPart);
+    trigger.appendChild(arrowPart);
 
     const updateTriggerText = () => {
         const selectedOption = select.options[select.selectedIndex];
-        if (selectedOption) {
-            trigger.textContent = selectedOption.textContent;
-        } else {
-            trigger.textContent = "";
+        if (!trigger.classList.contains("no-text")) {
+            labelPart.textContent = selectedOption ? selectedOption.textContent : "";
         }
-        updateIconFilter(trigger, select);
     };
 
     updateTriggerText();
 
+    // Sync inline background-color from the original select (e.g. tag-colour selects)
+    const syncBgColor = () => {
+        const bgColor = select.style.backgroundColor || "";
+        labelPart.style.backgroundColor = bgColor;
+        arrowPart.style.backgroundColor = bgColor;
+    };
+
     // Copia lo stile inline se presente (es. background-color per i colori dei tag)
     // Inoltre osserva cambiamenti di selezione o testo delle opzioni
     const observer = new MutationObserver(() => {
-        trigger.style.backgroundColor = select.style.backgroundColor;
+        syncBgColor();
         updateTriggerText();
     });
     observer.observe(select, {attributes: true, attributeFilter: ["style", "class"], childList: true, subtree: true});
 
-    // Per gestire il cambio di selectedIndex via JS (che non triggera onchange né mutation)
-    // usiamo un trucco: ridefiniamo la proprietà selectedIndex se possibile, o usiamo un intervallo corto
-    // In questo caso, siccome vogliamo "live", un interval o un controllo all'occorrenza è meglio.
-    // Ma l'utente ha detto "ripristinata solo una volta premuto... invece dovrebbe essere ripristinata in live"
-    // Questo suggerisce che quando il codice cambia la select, il trigger non si aggiorna.
-
-    // Proviamo con un interval per la sincronizzazione live dello stato
+    // Sincronizzazione live dello stato
     const liveSyncInterval = setInterval(() => {
         if (!container.parentElement && !document.contains(select)) {
             clearInterval(liveSyncInterval);
             return;
         }
         updateTriggerText();
-        trigger.style.backgroundColor = select.style.backgroundColor;
+        syncBgColor();
     }, 500);
-    // Iniziale
-    trigger.style.backgroundColor = select.style.backgroundColor;
-    updateIconFilter(trigger, select);
+
+    syncBgColor();
 
     // Nascondi la select originale ma mantienila nel DOM per i listener esistenti
     select.style.display = "none";
-    // Assicuriamoci che non venga visualizzata accidentalmente e non occupi spazio
     select.style.position = "absolute";
     select.style.width = "0px";
     select.style.height = "0px";
@@ -230,7 +234,7 @@ function createCustomSelect(select) {
                 item.classList.add("selected");
             }
 
-    item.addEventListener("click", () => {
+            item.addEventListener("click", () => {
                 if (index === select.selectedIndex) {
                     closeDropdown();
                     return;
