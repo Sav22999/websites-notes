@@ -2457,8 +2457,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     background-image: url('data:image/svg+xml;base64,${redo_svg}');
                 }
                 
-                #tag-select-grid {
-                    background-image: url('data:image/svg+xml;base64,${tag_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
+                #tag-select-grid,
+                #custom-select-trigger-tag-select-grid {
+                    background-image: url('data:image/svg+xml;base64,${tag_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}') !important;
                 }
                 
                 #all-notes-button-grid {

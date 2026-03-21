@@ -2398,6 +2398,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 .sort-by-button {
                     background-image: url('data:image/svg+xml;base64,${sort_by_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
                 }
+                #custom-select-trigger-sort-by-all-notes-button {
+                    background-image: url('data:image/svg+xml;base64,${sort_by_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}') !important;
+                }
                 .select-tag-all-notes {
                     background-image: url('data:image/svg+xml;base64,${tag_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
                 }
