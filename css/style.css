@@ -753,6 +753,11 @@ body {
     opacity: 1 !important;
     box-shadow: none !important;
     align-content: center;
+    min-height: 40px;
+}
+
+.custom-select-container:has(.select-tag-all-notes) {
+    height: 40px;
 }
 
 /* ── Chip-style custom select trigger ── */
@@ -775,7 +780,7 @@ body {
     border: none !important;
 
     width: 100% !important;
-    height: 100% !important;
+    height: auto !important;
 }
 
 .custom-select-trigger:hover {
@@ -829,6 +834,7 @@ body {
 /* Static fallback pre-icons (before JS theme injection) */
 #custom-select-trigger-sort-by-all-notes-button .cst-label.has-pre-icon {
     background-image: url("../img/sort-by.svg");
+    min-height: 42.5px;
 }
 
 #custom-select-trigger-tag-select-grid .cst-label.has-pre-icon,
@@ -848,6 +854,7 @@ body {
     padding-right: 0 !important;
     font-size: 0 !important;
     min-width: 40px;
+    min-height: 40px;
 }
 
 /* Both modifiers: hide left part entirely */

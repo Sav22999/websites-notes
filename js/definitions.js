@@ -167,10 +167,20 @@ function createCustomSelect(select) {
         arrowPart.style.backgroundColor = bgColor;
     };
 
+    // Sync visibility: propagate .hidden from the original select to the container
+    const syncVisibility = () => {
+        if (select.classList.contains("hidden")) {
+            container.classList.add("hidden");
+        } else {
+            container.classList.remove("hidden");
+        }
+    };
+
     // Copia lo stile inline se presente (es. background-color per i colori dei tag)
     // Inoltre osserva cambiamenti di selezione o testo delle opzioni
     const observer = new MutationObserver(() => {
         syncBgColor();
+        syncVisibility();
         updateTriggerText();
     });
     observer.observe(select, {attributes: true, attributeFilter: ["style", "class"], childList: true, subtree: true});
@@ -183,9 +193,11 @@ function createCustomSelect(select) {
         }
         updateTriggerText();
         syncBgColor();
+        syncVisibility();
     }, 500);
 
     syncBgColor();
+    syncVisibility();
 
     // Nascondi la select originale ma mantienila nel DOM per i listener esistenti
     select.style.display = "none";
