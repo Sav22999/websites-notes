@@ -20,6 +20,7 @@ var type_to_use = -1;
 var coords = {x: "20px", y: "20px"};
 var sizes = {w: "300px", h: "300px"};
 var opacity = {value: 0.8};
+var minimized_pos = {top: "15%", side: "left"};
 
 function getDefaultStickySizeFromSettings(settings) {
     let preset = settings && settings["default-sticky-size"] ? settings["default-sticky-size"] : "medium";
@@ -793,7 +794,7 @@ function checkStatus(update = false) {
             });
         })
         .then(() => {
-            sync_local.get(["websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"])
+            sync_local.get(["websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity", "sticky-notes-minimized-pos"])
                 .then(value => {
                     if (value["websites"] !== undefined) {
                         websites_json = value["websites"];
@@ -844,6 +845,20 @@ function checkStatus(update = false) {
                             } else {
                                 opacity = getDefaultStickyOpacityFromSettings(settings_json);
                             }
+                        }
+
+                        if (websites_json[url] !== undefined && websites_json[url]["minimized-pos"] !== undefined && websites_json[url]["minimized-pos"]["top"] !== undefined) {
+                            minimized_pos = {
+                                top: websites_json[url]["minimized-pos"]["top"],
+                                side: websites_json[url]["minimized-pos"]["side"] || "left"
+                            };
+                        } else if (value["sticky-notes-minimized-pos"] !== undefined && value["sticky-notes-minimized-pos"]["top"] !== undefined) {
+                            minimized_pos = {
+                                top: value["sticky-notes-minimized-pos"]["top"],
+                                side: value["sticky-notes-minimized-pos"]["side"] || "left"
+                            };
+                        } else {
+                            minimized_pos = {top: "15%", side: "left"};
                         }
 
                         // console.log("coords: " + JSON.stringify(coords));
@@ -1253,6 +1268,31 @@ function listenerStickyNotes() {
                     });
                 }
 
+                if (message.data.minimized_pos !== undefined) {
+                    //save position (top + side) of the minimized restore button
+                    minimized_pos = {
+                        top: message.data.minimized_pos.top,
+                        side: message.data.minimized_pos.side
+                    };
+
+                    sync_local.get("websites").then(result => {
+                        if (result !== undefined && result["websites"] !== undefined) {
+                            websites_json = result["websites"];
+                            let url = getTheCorrectUrl();
+                            if (websites_json[url] !== undefined) {
+                                websites_json[url]["minimized-pos"] = minimized_pos;
+                            }
+                            sync_local.set({
+                                "websites": websites_json,
+                                "sticky-notes-minimized-pos": minimized_pos,
+                                "last-update": getDate()
+                            });
+                        } else {
+                            sync_local.set({"sticky-notes-minimized-pos": minimized_pos});
+                        }
+                    });
+                }
+
                 /*
                 if (message.data.notes !== undefined) {
                     //save W (width) and H (height) sizes of the sticky
@@ -1323,7 +1363,8 @@ function listenerStickyNotes() {
                             settings_json: settings_json,
                             icons: icons_json,
                             theme_colours: theme_colours_json,
-                            supported_font_family: supportedFontFamily
+                            supported_font_family: supportedFontFamily,
+                            minimized_pos: minimized_pos
                         })
                     } else {
                         sendResponse({
@@ -1606,7 +1647,7 @@ function checkIcon() {
     let global_url = getGlobalUrl();
     let check_domain = (settings_json["check-green-icon-domain"] === "yes" || settings_json["check-green-icon-domain"] === true) && checkAllSupportedProtocols(_getDomain, websites_json) && checkAllSupportedProtocolsLastUpdate(_getDomain, websites_json) && checkAllSupportedProtocolsNotes(_getDomain, websites_json);
     //let check_tab_url = (settings_json["check-green-icon-domain"] === "yes" || settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-page"] === "yes" || settings_json["check-green-icon-page"] === true) && websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "";
-    let check_tab_url = false;
+    //let check_tab_url = false;
     let check_page = (settings_json["check-green-icon-page"] === "yes" || settings_json["check-green-icon-page"] === true) && checkAllSupportedProtocols(_getPage, websites_json) && checkAllSupportedProtocolsLastUpdate(_getPage, websites_json) && checkAllSupportedProtocolsNotes(_getPage, websites_json);
     let check_global = (settings_json["check-green-icon-global"] === "yes" || settings_json["check-green-icon-global"] === true) && websites_json[global_url] !== undefined && websites_json[global_url]["last-update"] !== undefined && websites_json[global_url]["last-update"] != null && websites_json[global_url]["notes"] !== undefined && websites_json[global_url]["notes"] !== "";
     let check_subdomains = false;
@@ -1938,22 +1979,22 @@ function getIconSvg(enabled = false, colorBorder, colorBackground, colorPencil, 
                         <!--background-->
                         <g transform="matrix(1,1.09476e-47,-1.09476e-47,1,-736.712,51.3984)">
                             <path d="M9902,1717.33C9862.5,1951.56 9792.24,2109.66 9492.23,2169.47C9050.83,2257.48 3901.8,2277.56 2927.36,2162.12C2561.16,2118.74 2352.33,2037.45 2321.45,1769.86C2137.7,177.424 2120.97,-4700.85 2317.54,-6623.36C2384.5,-7278.28 2707.79,-7485.84 3102.39,-7529.4C4186.31,-7649.05 8108.14,-7655.12 9215.9,-7490.99C9572.98,-7438.08 9722.26,-7264.1 9788.66,-6841.08C10023.4,-5345.51 10159.3,191.648 9902,1717.33Z"
-                                  fill="${colorBackground}" style="fill-rule:nonzero;" />
+                                      fill="${colorBackground}" style="fill-rule:nonzero;" />
                         </g>
                         <g transform="matrix(1,5.47382e-48,-1.64215e-47,1,-736.712,51.3984)">
                             <path d="M10224.1,1771.65C10484.6,227.261 10349,-5377.82 10111.4,-6891.73C10066,-7180.53 9980.19,-7379.51 9856.96,-7520.13C9720.23,-7676.14 9534.25,-7774.05 9263.78,-7814.12C8140.84,-7980.51 4165.31,-7975.38 3066.55,-7854.09C2792.99,-7823.9 2547.6,-7729.06 2355.54,-7536.06C2175.9,-7355.53 2035.99,-7081.29 1992.57,-6656.59C1794.34,-4717.89 1811.64,201.462 1996.94,1807.3C2044.9,2222.95 2320.12,2419.14 2888.93,2486.52C3878.56,2603.75 9107.83,2579.21 9556.1,2489.83C9749.06,2451.36 9879.49,2380.16 9974.71,2293.4C10115.2,2165.37 10186.6,1993.95 10224.1,1771.65ZM9902,1717.33C9862.5,1951.56 9792.24,2109.66 9492.23,2169.47C9050.83,2257.48 3901.8,2277.56 2927.36,2162.12C2561.16,2118.74 2352.33,2037.45 2321.45,1769.86C2137.7,177.424 2120.97,-4700.85 2317.54,-6623.36C2384.5,-7278.28 2707.79,-7485.84 3102.39,-7529.4C4186.31,-7649.05 8108.14,-7655.12 9215.9,-7490.99C9572.98,-7438.08 9722.26,-7264.1 9788.66,-6841.08C10023.4,-5345.51 10159.3,191.648 9902,1717.33Z"
-                                  fill="${colorBorder}"/>
+                                      fill="${colorBorder}"/>
                         </g>
                     </g>
                     <g transform="matrix(0.836377,0.548155,-0.548155,0.836377,1628.43,-5055.66)">
                         <!--pencil-->
                         <g transform="matrix(-0.975524,-2.34562e-34,2.34562e-34,-0.984174,10684,-4202.33)">
                             <path d="M5460.4,-848.9C5460.4,-848.9 2731.14,-2829.86 311.464,-3908.33C110.077,-3998.09 86.573,-4171.24 176.962,-4377.36C307.743,-4675.6 670.875,-5266.86 918.113,-5483.08C1037.62,-5587.59 1214.17,-5664.81 1374.57,-5528.48C2978.61,-4165.18 6430.3,-2337.1 6430.3,-2337.1C6430.3,-2337.1 7262.79,-1115.02 7118.75,-903.027C6991.2,-715.281 5460.4,-848.9 5460.4,-848.9Z"
-                                  fill="${colorPencil}" style="fill-rule:nonzero;"/>
+                                      fill="${colorPencil}" style="fill-rule:nonzero;"/>
                         </g>
                         <g transform="matrix(-0.975524,-2.34562e-34,2.34562e-34,-0.984174,10684,-4202.33)">
                             <path d="M5431.03,-518.26C5431.03,-518.26 6461.69,-431.303 6942.64,-496.44C7072.24,-513.993 7174.1,-545.512 7238.82,-579.715L7331.35,-643.479L7396.5,-717.621L7450.27,-830.662L7470.36,-972.736C7470.24,-1043.1 7454.78,-1133.82 7420.66,-1236.98C7272.01,-1686.42 6707.82,-2522.84 6707.82,-2522.84C6677.3,-2567.64 6636.21,-2604.38 6588.11,-2629.85C6588.11,-2629.85 3177.08,-4433.72 1592.54,-5780.45C1278.81,-6047.1 930.324,-5936.4 696.571,-5731.98C422.504,-5492.3 14.828,-4840.27 -130.143,-4509.68C-229.555,-4282.98 -229.024,-4076.61 -152.786,-3913.39L-93.19,-3813.54L-15.259,-3727.52C35.253,-3681.46 97.53,-3639.75 174.133,-3605.61C2565.59,-2539.71 5262.56,-581.101 5262.56,-581.101C5311.88,-545.307 5370.14,-523.575 5431.03,-518.26ZM5460.4,-848.9C5460.4,-848.9 2731.14,-2829.86 311.464,-3908.33C110.077,-3998.09 86.573,-4171.24 176.962,-4377.36C307.743,-4675.6 670.875,-5266.86 918.113,-5483.08C1037.62,-5587.59 1214.17,-5664.81 1374.57,-5528.48C2978.61,-4165.18 6430.3,-2337.1 6430.3,-2337.1C6430.3,-2337.1 7262.79,-1115.02 7118.75,-903.027C6991.2,-715.281 5460.4,-848.9 5460.4,-848.9Z"
-                                  fill="${colorBorder}"/>
+                                      fill="${colorBorder}"/>
                         </g>
                     </g>
                 </g>
@@ -1963,3 +2004,5 @@ function getIconSvg(enabled = false, colorBorder, colorBackground, colorPencil, 
     }
     return svgToReturn;
 }
+
+

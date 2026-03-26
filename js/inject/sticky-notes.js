@@ -44,7 +44,7 @@ function load() {
                 });
             } else {
                 //only when both "sticky" and "minimized" are selected!
-                openMinimized(responseRuntime.settings_json, responseRuntime.icons, responseRuntime.theme_colours, responseRuntime.tag_colour);
+                openMinimized(responseRuntime.settings_json, responseRuntime.icons, responseRuntime.theme_colours, responseRuntime.tag_colour, responseRuntime.minimized_pos);
             }
         });
     }
@@ -1328,7 +1328,115 @@ function setMinimizedTagColour(restoreElement, tag_colour) {
     restoreElement.style.setProperty("--sticky-note-tag-dot-colour", normalizeStickyTagColour(tag_colour));
 }
 
-function openMinimized(settings_json = {}, icons_json = {}, theme_colours_json = {}, tag_colour = undefined) {
+function makeStickyRestoreDraggable(restore) {
+    let isDragging = false;
+    let didDrag = false;
+    let startClientX = 0;
+    let startClientY = 0;
+    let startElemTop = 0;
+    let startElemLeft = 0;
+
+    function getClientPos(e) {
+        if (e.touches && e.touches.length > 0) return {x: e.touches[0].clientX, y: e.touches[0].clientY};
+        if (e.changedTouches && e.changedTouches.length > 0) return {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY};
+        return {x: e.clientX, y: e.clientY};
+    }
+
+    function onPointerDown(e) {
+        isDragging = true;
+        didDrag = false;
+        const pos = getClientPos(e);
+        startClientX = pos.x;
+        startClientY = pos.y;
+        const rect = restore.getBoundingClientRect();
+        startElemTop = rect.top;
+        startElemLeft = rect.left;
+        restore.style.transition = "none";
+    }
+
+    function onPointerMove(e) {
+        if (!isDragging || !document.body.contains(restore)) {
+            isDragging = false;
+            return;
+        }
+        const pos = getClientPos(e);
+        const dx = pos.x - startClientX;
+        const dy = pos.y - startClientY;
+
+        if (!didDrag && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+            didDrag = true;
+            restore.style.cursor = "grabbing";
+            document.body.style.userSelect = "none";
+            restore.dataset.dragging = "true";
+        }
+        if (!didDrag) return;
+
+        let newTop = startElemTop + dy;
+        let newLeft = startElemLeft + dx;
+        newTop = Math.max(0, Math.min(newTop, window.innerHeight - restore.offsetHeight));
+        newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - restore.offsetWidth));
+
+        // While dragging, flip icon/tag-bar side immediately based on nearest edge.
+        const dragCenterX = newLeft + (restore.offsetWidth / 2);
+        const nextSide = (dragCenterX <= window.innerWidth / 2) ? "left" : "right";
+        if (restore.dataset.side !== nextSide) restore.dataset.side = nextSide;
+
+        restore.style.top = newTop + "px";
+        restore.style.left = newLeft + "px";
+        restore.style.right = "auto";
+        e.preventDefault();
+    }
+
+    function onPointerUp() {
+        if (!isDragging) return;
+        isDragging = false;
+        restore.style.cursor = "";
+        document.body.style.userSelect = "";
+        restore.style.transition = "";
+
+        if (!didDrag) return;
+        delete restore.dataset.dragging;
+
+        const rect = restore.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        if (centerX <= window.innerWidth / 2) {
+            restore.style.left = "0px";
+            restore.style.right = "auto";
+            restore.dataset.side = "left";
+        } else {
+            restore.style.left = "auto";
+            restore.style.right = "0px";
+            restore.dataset.side = "right";
+        }
+
+        browser.runtime.sendMessage({
+            from: "sticky",
+            data: {
+                minimized_pos: {
+                    top: restore.style.top,
+                    side: restore.dataset.side
+                }
+            }
+        });
+    }
+
+    restore.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("mousemove", onPointerMove);
+    document.addEventListener("mouseup", onPointerUp);
+    restore.addEventListener("touchstart", onPointerDown, {passive: true});
+    document.addEventListener("touchmove", onPointerMove, {passive: false});
+    document.addEventListener("touchend", onPointerUp);
+
+    restore.addEventListener("click", function (e) {
+        if (didDrag) {
+            didDrag = false;
+            e.stopImmediatePropagation();
+            e.preventDefault();
+        }
+    }, true);
+}
+
+function openMinimized(settings_json = {}, icons_json = {}, theme_colours_json = {}, tag_colour = undefined, minimized_pos = undefined) {
     let restore;
     if (!document.getElementById("restore--sticky-notes-notefox-addon")) {
         restore = document.createElement("div");
@@ -1338,8 +1446,23 @@ function openMinimized(settings_json = {}, icons_json = {}, theme_colours_json =
         css.innerText = getCSSMinimized(settings_json, icons_json, theme_colours_json);
         document.body.appendChild(css);
         document.body.appendChild(restore);
+        restore.dataset.side = "left";
+        makeStickyRestoreDraggable(restore);
     } else {
         restore = document.getElementById("restore--sticky-notes-notefox-addon");
+    }
+
+    if (minimized_pos !== undefined && minimized_pos.top !== undefined) {
+        restore.style.top = minimized_pos.top;
+        const side = minimized_pos.side || "left";
+        restore.dataset.side = side;
+        if (side === "right") {
+            restore.style.left = "auto";
+            restore.style.right = "0px";
+        } else {
+            restore.style.left = "0px";
+            restore.style.right = "auto";
+        }
     }
 
     if (icons_json["restore"] === undefined || icons_json["restore"] === "") icons_json["restore"] = `PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+Cjxzdmcgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDMzNCAzMzQiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM6c2VyaWY9Imh0dHA6Ly93d3cuc2VyaWYuY29tLyIgc3R5bGU9ImZpbGwtcnVsZTpldmVub2RkO2NsaXAtcnVsZTpldmVub2RkO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDoyOyI+CiAgICA8ZyB0cmFuc2Zvcm09Im1hdHJpeCgwLjQxNjY2NywwLDAsMC40MTY2NjcsMCwwKSI+CiAgICAgICAgPHBhdGggZD0iTTU0LjE2Nyw0MDBDNTQuMTY3LDQxMy44MDcgNjUuMzYsNDI1IDc5LjE2Nyw0MjVMNDQ0LjkyLDQyNUwzNzkuNTYzLDQ4MS4wMkMzNjkuMDgsNDkwLjAwMyAzNjcuODY3LDUwNS43ODcgMzc2Ljg1Myw1MTYuMjdDMzg1LjgzNyw1MjYuNzUzIDQwMS42Miw1MjcuOTY3IDQxMi4xMDMsNTE4Ljk4TDUyOC43Nyw0MTguOThDNTM0LjMxLDQxNC4yMzMgNTM3LjUsNDA3LjI5NyA1MzcuNSw0MDBDNTM3LjUsMzkyLjcwMyA1MzQuMzEsMzg1Ljc2NyA1MjguNzcsMzgxLjAyTDQxMi4xMDMsMjgxLjAxOUM0MDEuNjIsMjcyLjAzMyAzODUuODM3LDI3My4yNDcgMzc2Ljg1MywyODMuNzNDMzY3Ljg2NywyOTQuMjEzIDM2OS4wOCwzMDkuOTk2IDM3OS41NjMsMzE4Ljk4MUw0NDQuOTIsMzc1TDc5LjE2NywzNzVDNjUuMzYsMzc1IDU0LjE2NywzODYuMTkzIDU0LjE2Nyw0MDBaIiBzdHlsZT0iZmlsbDp3aGl0ZTsiLz4KICAgICAgICA8cGF0aCBkPSJNMzEyLjUsMzI1LjAwMUwzMjUuMTA5LDMyNS4wMDFDMzE2LjQ5MSwzMDAuNTQ4IDMyMC44MDMsMjcyLjI5MiAzMzguODksMjUxLjE5MkMzNjUuODQ3LDIxOS43NDMgNDEzLjE5MywyMTYuMSA0NDQuNjQzLDI0My4wNTdMNTYxLjMxLDM0My4wNTdDNTc3LjkzMywzNTcuMzA3IDU4Ny41LDM3OC4xMDcgNTg3LjUsNDAwQzU4Ny41LDQyMS44OTcgNTc3LjkzMyw0NDIuNjk3IDU2MS4zMSw0NTYuOTQ3TDQ0NC42NDMsNTU2Ljk0N0M0MTMuMTkzLDU4My45MDMgMzY1Ljg0Nyw1ODAuMjYgMzM4Ljg5LDU0OC44MUMzMjAuODAzLDUyNy43MSAzMTYuNDkxLDQ5OS40NTMgMzI1LjEwOSw0NzVMMzEyLjUsNDc1TDMxMi41LDUzMy4zMzNDMzEyLjUsNjI3LjYxMyAzMTIuNSw2NzQuNzUzIDM0MS43OSw3MDQuMDQzQzM3MS4wOCw3MzMuMzMzIDQxOC4yMiw3MzMuMzMzIDUxMi41LDczMy4zMzNMNTQ1LjgzMyw3MzMuMzMzQzY0MC4xMTMsNzMzLjMzMyA2ODcuMjUzLDczMy4zMzMgNzE2LjU0Myw3MDQuMDQzQzc0NS44MzMsNjc0Ljc1MyA3NDUuODMzLDYyNy42MTMgNzQ1LjgzMyw1MzMuMzMzTDc0NS44MzMsMjY2LjY2N0M3NDUuODMzLDE3Mi4zODYgNzQ1LjgzMywxMjUuMjQ1IDcxNi41NDMsOTUuOTU2QzY4Ny4yNTMsNjYuNjY3IDY0MC4xMTMsNjYuNjY3IDU0NS44MzMsNjYuNjY3TDUxMi41LDY2LjY2N0M0MTguMjIsNjYuNjY3IDM3MS4wOCw2Ni42NjcgMzQxLjc5LDk1Ljk1NkMzMTIuNSwxMjUuMjQ1IDMxMi41LDE3Mi4zODYgMzEyLjUsMjY2LjY2N0wzMTIuNSwzMjUuMDAxWiIgc3R5bGU9ImZpbGw6d2hpdGU7ZmlsbC1ydWxlOm5vbnplcm87Ii8+CiAgICA8L2c+Cjwvc3ZnPgo=`;
@@ -1454,6 +1577,23 @@ function getCSSMinimized(settings_json, icons_json, theme_colours_json) {
                 /*height: 80px;*/
                 width: 30px;
                 box-shadow: 0px 0px 5px #fff;
+            }
+            #restore--sticky-notes-notefox-addon[data-side="right"] {
+                border-radius: 15px 0px 0px 15px;
+            }
+            #restore--sticky-notes-notefox-addon[data-side="right"]::before {
+                transform: scaleX(-1);
+                border-radius: 15px 0px 0px 15px;
+            }
+            #restore--sticky-notes-notefox-addon[data-side="right"]::after {
+                right: auto;
+                left: 5px;
+            }
+            #restore--sticky-notes-notefox-addon[data-dragging="true"] {
+                border-radius: 15px !important;
+            }
+            #restore--sticky-notes-notefox-addon[data-dragging="true"]::before {
+                border-radius: 15px !important;
             }
             @media screen and (max-width: 800px) {
                 /*Mobile*/
