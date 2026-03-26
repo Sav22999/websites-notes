@@ -1312,9 +1312,14 @@ function listenerStickyNotes() {
                     let url_to_use = getTheCorrectUrl();
                     //console.log(websites_json[url_to_use]);
                     if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["sticky"] !== undefined && websites_json[url_to_use]["minimized"] !== undefined) {
+                        let tag_colour = "none";
+                        if (websites_json[url_to_use]["tag-colour"] !== undefined) {
+                            tag_colour = websites_json[url_to_use]["tag-colour"];
+                        }
                         sendResponse({
                             sticky: websites_json[url_to_use]["sticky"],
                             minimized: websites_json[url_to_use]["minimized"],
+                            tag_colour: tag_colour,
                             settings_json: settings_json,
                             icons: icons_json,
                             theme_colours: theme_colours_json,

@@ -44,7 +44,7 @@ function load() {
                 });
             } else {
                 //only when both "sticky" and "minimized" are selected!
-                openMinimized(responseRuntime.settings_json, responseRuntime.icons, responseRuntime.theme_colours);
+                openMinimized(responseRuntime.settings_json, responseRuntime.icons, responseRuntime.theme_colours, responseRuntime.tag_colour);
             }
         });
     }
@@ -192,7 +192,7 @@ function updateStickyNotes() {
                 });
                 minimize.onclick = function () {
                     stickyNotes.remove();
-                    openMinimized(response.settings, response.icons, response.theme_colours);
+                    openMinimized(response.settings, response.icons, response.theme_colours, response.notes.tag_colour);
                 }
             }
             listenerLinks(text, response.settings);
@@ -264,7 +264,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         minimize.id = "minimize--sticky-notes-notefox-addon";
         minimize.onclick = function () {
             stickyNote.remove();
-            openMinimized(settings_json, icons_json, theme_colours_json);
+            openMinimized(settings_json, icons_json, theme_colours_json, notes.tag_colour);
         }
         //minimize.value = "≺";
         commandsContainer.appendChild(minimize);
@@ -1317,11 +1317,21 @@ function sanitize(element, allowedTags, allowedAttributes) {
     return sanitizedHTML;
 }
 
-function openMinimized(settings_json = {}, icons_json = {}, theme_colours_json = {}) {
+function normalizeStickyTagColour(tag_colour) {
+    if (tag_colour === undefined || tag_colour === null || tag_colour === "" || tag_colour === "none") {
+        return "transparent";
+    }
+    return tag_colour;
+}
+
+function setMinimizedTagColour(restoreElement, tag_colour) {
+    restoreElement.style.setProperty("--sticky-note-tag-dot-colour", normalizeStickyTagColour(tag_colour));
+}
+
+function openMinimized(settings_json = {}, icons_json = {}, theme_colours_json = {}, tag_colour = undefined) {
     let restore;
     if (!document.getElementById("restore--sticky-notes-notefox-addon")) {
-        restore = document.createElement("input");
-        restore.type = "button";
+        restore = document.createElement("div");
         restore.id = "restore--sticky-notes-notefox-addon";
         //restore.value = "≻";
         let css = document.createElement("style");
@@ -1347,9 +1357,20 @@ function openMinimized(settings_json = {}, icons_json = {}, theme_colours_json =
     }
 
 
-    restore.style.backgroundImage = `url("data:image/svg+xml;base64,${svg_image_restore}")`;
+    restore.style.setProperty("--restore-icon-url", `url("data:image/svg+xml;base64,${svg_image_restore}")`);
     restore.style.backgroundColor = secondary_color;
     restore.style.color = on_secondary_color;
+
+    if (tag_colour !== undefined) {
+        setMinimizedTagColour(restore, tag_colour);
+    } else {
+        // Fallback when minimized handle is reused without fresh payload.
+        browser.runtime.sendMessage({from: "sticky", ask: "notes"}, (response) => {
+            if (response && response.notes && response.notes.tag_colour !== undefined) {
+                setMinimizedTagColour(restore, response.notes.tag_colour);
+            }
+        });
+    }
 
     browser.runtime.sendMessage({from: "sticky", data: {sticky: true, minimized: true}});
     restore.onclick = function () {
@@ -1377,6 +1398,8 @@ function getCSSMinimized(settings_json, icons_json, theme_colours_json) {
 
     return `
             #restore--sticky-notes-notefox-addon {
+                --sticky-note-tag-dot-colour: transparent;
+                --restore-icon-url: none;
                 position: fixed;
                 height: 80px;
                 width: 20px;
@@ -1384,12 +1407,8 @@ function getCSSMinimized(settings_json, icons_json, theme_colours_json) {
                 top: 15%;
                 left: 0px;
                 right: auto;
-                background-image: url('data:image/svg+xml;base64,${svg_image_restore}');
-                background-size: 70% auto;
                 border-radius: 0px 15px 15px 0px;
                 opacity: 0.2;
-                background-repeat: no-repeat;
-                background-position: center center;
                 background-color: ${secondary_color};
                 border: 0px solid transparent;
                 color: ${on_secondary_color};
@@ -1399,11 +1418,33 @@ function getCSSMinimized(settings_json, icons_json, theme_colours_json) {
                 box-sizing: border-box !important;
                 box-shadow: 0px 0px 5px #fff;
                 transition: 0.5s;
-                font-size: 8px;
-                
-                min-width: 0px;
-                min-height: 0px;
-                line-height: normal;
+            }
+            #restore--sticky-notes-notefox-addon::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-image: var(--restore-icon-url);
+                background-size: 70% auto;
+                background-repeat: no-repeat;
+                background-position: center center;
+                border-radius: 0px 15px 15px 0px;
+                z-index: 2;
+                pointer-events: none;
+            }
+            #restore--sticky-notes-notefox-addon::after {
+                content: '';
+                position: absolute;
+                top: 10px;
+                right: 5px;
+                width: 8px;
+                height: calc(100% - 20px);
+                border-radius: 4px;
+                background-color: var(--sticky-note-tag-dot-colour);
+                pointer-events: none;
+                z-index: 1;
             }
             #restore--sticky-notes-notefox-addon:active, #restore--sticky-notes-notefox-addon:focus {
                 box-shadow: 0px 0px 0px 2px #ff6200, 0px 0px 0px 5px #ffb788;
@@ -1422,7 +1463,7 @@ function getCSSMinimized(settings_json, icons_json, theme_colours_json) {
                     width: 40px !important;
                     opacity: 0.7 !important;
                 }
-                
+
                 #restore--sticky-notes-notefox-addon:hover {
                     opacity: 1;
                     width: 50px;
