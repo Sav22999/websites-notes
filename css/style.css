@@ -1757,6 +1757,7 @@ pre::placeholder,
     display: flex;
     flex-wrap: wrap;
     gap: 2px;
+    min-width: 0;
 }
 
 #text-import {
@@ -1799,6 +1800,8 @@ h3 {
     padding-left: 20px;
     margin: 0px;
     display: inline-block;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 h2 {
@@ -1893,6 +1896,10 @@ h3 {
 
 .url {
     word-break: break-all;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .section-selected {
@@ -1916,6 +1923,13 @@ h3 {
     border: 0px solid var(--primary-color) !important;
     box-shadow: 0px 0px 0px 0px var(--primary-color) inset;
     background-color: var(--tertiary-transparent) !important;
+}
+
+.notes-pages h3 {
+    padding-left: 5px !important;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .notes-pages:hover {
@@ -4126,9 +4140,9 @@ hr.hr-domain:last-child {
     white-space: nowrap;
     overflow: hidden;
     height: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: block;
+    text-align: center;
+    text-overflow: ellipsis;
 }
 
 .single-line br {
@@ -4658,6 +4672,31 @@ option {
 
     flex: 50%;
     order: 2;
+    min-width: 0;
+}
+
+.notes-pages .subrow-url h3.url,
+.notes-pages .rows > h3.title.single-line {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.notes-pages .rows > h3.title.single-line {
+    text-align: left;
+}
+
+.notes-pages .subrow-url h3.url,
+.notes-pages .rows > h3.title.single-line {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+}
+
+.notes-pages .rows > h3.title.single-line * {
+    white-space: normal;
 }
 
 .subrow-buttons {
