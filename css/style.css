@@ -1888,6 +1888,14 @@ h3 {
     margin-left: 5px;
 }
 
+.go-to-external.link-editing:hover::after {
+    content: none !important;
+}
+
+.go-to-external.link-editing:hover {
+    cursor: text !important;
+}
+
 @media screen and (max-width: 1000px) {
     .go-to-external {
         font-size: 1.3em !important;

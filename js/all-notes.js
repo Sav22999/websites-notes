@@ -1510,6 +1510,96 @@ function onInputText(url, data, pageLastUpdate) {
     sendMessageUpdateToBackground();
 }
 
+function stripWildcardSuffix(url) {
+    if (typeof url !== "string") return "";
+    return url.endsWith("*") ? url.substring(0, url.length - 1) : url;
+}
+
+function getPageDisplayUrl(fullUrl) {
+    try {
+        let parsed = new URL(stripWildcardSuffix(fullUrl));
+        let relative = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+        return relative === "" ? "/" : relative;
+    } catch (e) {
+        return fullUrl;
+    }
+}
+
+function normalizeEditedLink(rawValue, currentFullUrl, typeToUse) {
+    let value = (rawValue || "").trim();
+    if (value === "") return null;
+
+    let normalizedType = (typeToUse || "").toLowerCase();
+    let candidate = value;
+
+    if (!candidate.includes("://")) {
+        if (normalizedType === "page") {
+            let currentDomain = websites_json[currentFullUrl] && websites_json[currentFullUrl]["domain"] ? websites_json[currentFullUrl]["domain"] : "";
+            if (currentDomain === "") return null;
+            candidate = candidate.startsWith("/") ? `${currentDomain}${candidate}` : `${currentDomain}/${candidate}`;
+        } else if (normalizedType === "domain") {
+            let protocol = getTheProtocol(currentFullUrl);
+            candidate = `${protocol}://${candidate.replace(/^\/+/, "")}`;
+        } else {
+            return null;
+        }
+    }
+
+    try {
+        let parsed = new URL(stripWildcardSuffix(candidate));
+        if (!isUrlSupported(parsed.href)) return null;
+        if (normalizedType === "domain") return parsed.origin;
+        return parsed.href;
+    } catch (e) {
+        return null;
+    }
+}
+
+function updateWebsiteLink(oldUrl, newUrl, typeToUse) {
+    return new Promise((resolve) => {
+        if (!oldUrl || !newUrl || oldUrl === newUrl) {
+            resolve(true);
+            return;
+        }
+
+        sync_local.get("websites", function (value) {
+            websites_json = value["websites"] || {};
+            if (websites_json[oldUrl] === undefined) {
+                resolve(false);
+                return;
+            }
+
+            if (websites_json[newUrl] !== undefined) {
+                alert("A note with this link already exists.");
+                resolve(false);
+                return;
+            }
+
+            websites_json[newUrl] = websites_json[oldUrl];
+            delete websites_json[oldUrl];
+
+            let normalizedType = (typeToUse || "").toLowerCase();
+            if (normalizedType === "domain") {
+                websites_json[newUrl]["domain"] = "";
+            } else if (normalizedType === "page") {
+                try {
+                    websites_json[newUrl]["domain"] = new URL(stripWildcardSuffix(newUrl)).origin;
+                } catch (e) {
+                    resolve(false);
+                    return;
+                }
+            }
+
+            websites_json[newUrl]["last-update"] = getDate();
+            websites_json_to_show = websites_json;
+
+            sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+                resolve(true);
+            });
+        });
+    });
+}
+
 function sendMessageUpdateToBackground() {
     browser.runtime.sendMessage({"updated": true});
 }
@@ -1556,8 +1646,13 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         inputInlineEdit.type = "button";
         inputInlineEdit.value = all_strings["edit-notes-button"];
         inputInlineEdit.classList.add("button", "very-small-button", "edit-button", "button-no-text-on-mobile");
-        inputInlineEdit.onclick = function () {
+        let pageUrl = null;
+        let openUrlOnClick = stripWildcardSuffix(fullUrl);
+
+        inputInlineEdit.onclick = async function () {
             if (textNotes.contentEditable === "true") {
+                let previousFullUrl = fullUrl;
+
                 textNotes.contentEditable = "false";
                 if (inputInlineEdit.classList.contains("finish-edit-button")) inputInlineEdit.classList.remove("finish-edit-button");
                 if (pageTitleH3.classList.contains("inline-edit-title")) pageTitleH3.classList.remove("inline-edit-title");
@@ -1566,12 +1661,41 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 pageTitleH3.contentEditable = "false";
                 textNotes.readOnly = true;
 
+                if (pageUrl !== null) {
+                    pageUrl.contentEditable = "false";
+                    if (pageUrl.classList.contains("inline-edit-title")) pageUrl.classList.remove("inline-edit-title");
+                    if (pageUrl.classList.contains("link-editing")) pageUrl.classList.remove("link-editing");
+
+                    let normalizedLink = normalizeEditedLink(pageUrl.textContent, previousFullUrl, type_to_use);
+                    if (normalizedLink === null) {
+                        alert("Invalid link. Please enter a valid URL.");
+                        pageUrl.textContent = (type_to_use.toLowerCase() === "page") ? getPageDisplayUrl(previousFullUrl) : previousFullUrl;
+                    } else if (normalizedLink !== previousFullUrl) {
+                        let changed = await updateWebsiteLink(previousFullUrl, normalizedLink, type_to_use);
+                        if (changed) {
+                            fullUrl = normalizedLink;
+                            page.id = fullUrl;
+                        }
+                    }
+
+                    openUrlOnClick = stripWildcardSuffix(fullUrl);
+                    if (type_to_use.toLowerCase() === "page") {
+                        pageUrl.textContent = getPageDisplayUrl(fullUrl);
+                    } else {
+                        pageUrl.textContent = fullUrl;
+                    }
+                }
+
                 if (pageTitleH3.textContent.replaceAll("<br>", "") !== "") {
                     if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
                 } else {
                     row2.classList.add("hidden");
                 }
                 sendTelemetry(`finish-edit-notes`, "all-notes.js", fullUrl);
+                if (previousFullUrl !== fullUrl) {
+                    loadDataFromBrowser("LNK-EDIT", true);
+                    return;
+                }
             } else {
                 textNotes.contentEditable = "true";
                 inputInlineEdit.classList.add("finish-edit-button");
@@ -1580,8 +1704,20 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 textNotes.readOnly = false;
                 pageTitleH3.classList.add("inline-edit-title");
                 textNotes.classList.add("inline-edit-notes");
+
+                if (pageUrl !== null) {
+                    pageUrl.contentEditable = "true";
+                    pageUrl.classList.add("inline-edit-title");
+                    pageUrl.classList.add("link-editing");
+                    pageUrl.textContent = fullUrl;
+                }
+
                 setTimeout(() => {
-                    pageTitleH3.focus();
+                    if (pageUrl !== null) {
+                        pageUrl.focus();
+                    } else {
+                        pageTitleH3.focus();
+                    }
                 }, 100);
 
                 if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
@@ -1661,20 +1797,21 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         subrowButtons.append(inputCopyNotes);
         subrowButtons.append(inputClearAllNotesPage);
 
-        if (type_to_use.toLowerCase() !== "domain" && type_to_use.toLowerCase() !== "global") {
-            //it's a page
-            let pageUrl = document.createElement("h3");
-            pageUrl.textContent = url;
+        if (type_to_use.toLowerCase() !== "global") {
+            pageUrl = document.createElement("h3");
+            pageUrl.classList.add("url");
+            pageUrl.textContent = (type_to_use.toLowerCase() === "page") ? getPageDisplayUrl(fullUrl) : fullUrl;
 
-            let fullUrlToUse = fullUrl;
-            if (fullUrlToUse.substring(fullUrlToUse.length - 1, fullUrlToUse.length) === "*") {
-                fullUrlToUse = fullUrlToUse.substring(0, fullUrlToUse.length - 1);
-            }
-            if (isUrlSupported(fullUrlToUse)) {
-                pageUrl.classList.add("link", "go-to-external", "url");
-                pageUrl.onclick = function () {
-                    sendTelemetry(`go-to-page`, "all-notes.js", fullUrlToUse);
-                    browser.tabs.create({url: fullUrlToUse});
+            if (isUrlSupported(openUrlOnClick)) {
+                pageUrl.classList.add("link", "go-to-external");
+                pageUrl.onclick = function (e) {
+                    if (textNotes.contentEditable === "true") {
+                        e.preventDefault();
+                        return;
+                    }
+                    let openAction = (type_to_use.toLowerCase() === "domain") ? "go-to-domain" : "go-to-page";
+                    sendTelemetry(openAction, "all-notes.js", openUrlOnClick);
+                    browser.tabs.create({url: openUrlOnClick});
                 }
             }
 
