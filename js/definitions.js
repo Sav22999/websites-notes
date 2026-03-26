@@ -559,20 +559,130 @@ function insertHTMLFromTagName(tagName, properties = "") {
 }
 
 function insertLink() {
-    //if (isValidURL(value)) {
     let selectedText = "";
-    if (window.getSelection) {
-        selectedText = window.getSelection().toString();
+    let selection = window.getSelection();
+    let range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
+    if (selection) {
+        selectedText = selection.toString();
     } else if (document.selection && document.selection.type !== "Control") {
-        // For older versions of Internet Explorer
         selectedText = document.selection.createRange().text;
     }
 
-    let sanitizedURL = selectedText.replace(/"/g, '%22').replace(/'/g, '%27');
-    selectedText = "href=\"" + sanitizedURL + "\"";
+    let section = document.getElementById("link-section");
+    let background = document.getElementById("background-opacity");
+    let linkUrlInput = document.getElementById("link-url-text");
+    let linkTextInput = document.getElementById("link-text-input");
+    let linkHeader = document.getElementById("link-text");
+    let linkButton = document.getElementById("link-button");
+    let linkButtonClose = document.getElementById("link-cancel-button");
+    let linkDeleteButton = document.getElementById("link-delete-button");
+    let linkTextToDisplayLabel = document.getElementById("link-text-to-display-label");
+    let linkUrlLabel = document.getElementById("link-url-label");
 
-    insertHTMLFromTagName("a", selectedText);
-    addAction();
+    let isLink = false;
+    let anchorElement = null;
+    let parentAnchor = null;
+
+    if (range) {
+        let node = range.startContainer;
+        let elements = getTheAncestorTagName(node, 'a');
+        anchorElement = elements[0];
+        parentAnchor = elements[1];
+        if (anchorElement) {
+            isLink = true;
+        }
+    }
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    if (isLink) {
+        linkHeader.innerHTML = all_strings["edit-link-text"];
+        linkUrlInput.value = anchorElement.href;
+        linkTextInput.value = anchorElement.textContent;
+        linkButton.value = all_strings["edit-link-button"];
+        linkDeleteButton.classList.remove("hidden");
+        linkDeleteButton.value = all_strings["delete-link-button"];
+    } else {
+        linkHeader.innerHTML = all_strings["insert-link-text"];
+        linkUrlInput.value = isValidURL(selectedText) ? selectedText : "";
+        linkTextInput.value = selectedText;
+        linkButton.value = all_strings["insert-link-button"];
+        linkDeleteButton.classList.add("hidden");
+    }
+
+    linkUrlInput.placeholder = all_strings["insert-link-placeholder"];
+    linkTextInput.placeholder = all_strings["insert-link-text-placeholder"];
+
+    linkTextToDisplayLabel.innerHTML = all_strings["link-text-to-display-label"];
+    linkUrlLabel.innerHTML = all_strings["link-url-label"];
+
+    let onEnterPress = function (event) {
+        if (event.key === "Enter") {
+            linkButton.click();
+        }
+    };
+
+    linkUrlInput.onkeydown = onEnterPress;
+    linkTextInput.onkeydown = onEnterPress;
+
+    linkButton.onclick = function () {
+        section.style.display = "none";
+        background.style.display = "none";
+        let url = linkUrlInput.value;
+        let text = linkTextInput.value;
+
+        // Restore focus and selection to ensure execCommand works on the right place
+        let notesElement = document.getElementById("notes");
+        notesElement.focus();
+        if (range) {
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+
+        if (isLink) {
+            anchorElement.href = url;
+            anchorElement.textContent = text || url;
+        } else if (url) {
+            if (!text) text = url;
+            let html = '<a href="' + url.replace(/"/g, '&quot;') + '">' + text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</a>';
+            document.execCommand('insertHTML', false, html);
+        }
+        saveNotes();
+        addAction();
+    }
+
+    linkDeleteButton.onclick = function () {
+        section.style.display = "none";
+        background.style.display = "none";
+        if (isLink && anchorElement && parentAnchor) {
+            // Restore focus
+            document.getElementById("notes").focus();
+
+            while (anchorElement.firstChild) {
+                parentAnchor.insertBefore(anchorElement.firstChild, anchorElement);
+            }
+            parentAnchor.removeChild(anchorElement);
+            saveNotes();
+            addAction();
+        }
+    }
+
+    linkButtonClose.value = all_strings["cancel-link-button"];
+    linkButtonClose.onclick = function () {
+        section.style.display = "none";
+        background.style.display = "none";
+        document.getElementById("notes").focus();
+    }
+
+    setTimeout(() => {
+        if (linkTextInput.value === "") {
+            linkTextInput.focus();
+        } else {
+            linkUrlInput.focus();
+        }
+    }, 100);
 }
 
 /*function insertLink() {

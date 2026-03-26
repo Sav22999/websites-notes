@@ -84,12 +84,20 @@ Created by Saverio Morelli - saveriomorelli.com
 <div id="link-section">
     <div id="link-content-section" class="section">
         <div id="link-text" class="padding-10"></div>
-        <div id="link-url" class="padding-10">
+        <div class="padding-10">
+            <label for="link-text-input" id="link-text-to-display-label" class="description-option-settings"></label>
+            <input type="text" id="link-text-input" class="textbox width-100-important" tabindex="1" value="">
+        </div>
+        <div class="padding-10">
+            <label for="link-url-text" id="link-url-label" class="description-option-settings"></label>
             <input type="text" id="link-url-text" class="textbox width-100-important" tabindex="1" value="">
         </div>
-        <div id="link-buttons" class="padding-10 text-align-right">
-            <input type="button" value="" id="link-button" class="button" tabindex="1"/>
-            <input type="button" value="" id="link-cancel-button" class="button" tabindex="2"/>
+        <div id="link-buttons" class="padding-10 display-flex align-items-center">
+            <input type="button" value="" id="link-delete-button" class="button button-red hidden" tabindex="1"/>
+            <div id="link-main-buttons" class="margin-left-auto">
+                <input type="button" value="" id="link-cancel-button" class="button" tabindex="1"/>
+                <input type="button" value="" id="link-button" class="button" tabindex="1"/>
+            </div>
         </div>
     </div>
 </div>

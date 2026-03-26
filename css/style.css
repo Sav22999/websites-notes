@@ -1440,6 +1440,14 @@ pre::placeholder,
     padding: 10px;
 }
 
+.padding-bottom-0 {
+    padding-bottom: 0px !important;
+}
+
+.padding-bottom-5 {
+    padding-bottom: 5px !important;
+}
+
 .section-warning {
     background-color: #cb0000 !important;
     color: #eeeeee;
@@ -1948,6 +1956,26 @@ strong {
 
 .text-align-left {
     text-align: left;
+}
+
+.display-flex {
+    display: flex;
+}
+
+.justify-content-space-between {
+    justify-content: space-between;
+}
+
+.justify-content-right {
+    justify-content: flex-end;
+}
+
+.margin-left-auto {
+    margin-left: auto !important;
+}
+
+.align-items-center {
+    align-items: center;
 }
 
 .float-left {

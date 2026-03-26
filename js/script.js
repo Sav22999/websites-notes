@@ -444,7 +444,8 @@ function loadUI(called_by = null) {
                 //console.log(JSON.stringify(websites_json));
             });
         } else {
-            //console.log("unsupported");
+            // Unsupported URL (e.g. about:blank, browser internal pages): treat as never-saved
+            checkNeverSaved(true);
         }
     });
 
@@ -1007,9 +1008,7 @@ function saveNotes(title_call = false) {
                 }
                 */
 
-                checkNeverSaved(never_saved)
-
-                //console.log(JSON.stringify(websites_json));
+                checkNeverSaved(never_saved, notes)
 
                 //send message to "background.js" to update the icon
                 sendMessageUpdateToBackground();
@@ -1023,7 +1022,8 @@ function getCurrentTabNameTag(tab) {
     if (tab === 0) return "global"; else if (tab === 1) return "domain"; else if (tab === 2) return "page"; else if (tab === 3) return "subdomain";
 }
 
-function checkNeverSaved(never_saved) {
+function checkNeverSaved(never_saved, notes_content = "") {
+    let notes_empty = (notes_content === "" || notes_content === "<br>");
     if (stickyNotesSupported) {
         if (never_saved) {
             document.getElementById("open-sticky-button").classList.add("hidden");
@@ -1037,7 +1037,11 @@ function checkNeverSaved(never_saved) {
             }
             document.getElementById("last-updated-section").classList.add("hidden");
         } else {
-            if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+            if (notes_empty) {
+                document.getElementById("open-sticky-button").classList.add("hidden");
+            } else {
+                if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+            }
             if (document.getElementById("tag-select-grid").classList.contains("hidden")) document.getElementById("tag-select-grid").classList.remove("hidden");
             document.getElementById("all-notes-section").style.gridTemplateAreas = "'tag all-notes all-notes all-notes all-notes'";
             if (document.getElementById("format-buttons").classList.contains("hidden")) {
@@ -1099,7 +1103,7 @@ function setUrl(url) {
         //document.getElementById("page-button").style.borderTopRightRadius = "5px";
     }
     if (document.getElementById("page-button").classList.contains("hidden")) document.getElementById("page-button").classList.remove("hidden");
-    if (stickyNotesSupported && document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+    // open-sticky-button visibility is managed by checkNeverSaved (which runs after note content is loaded)
     /*} else {
         currentUrl[0] = getGlobalUrl();
         currentUrl[1] = getDomainUrl(url);
@@ -1691,7 +1695,7 @@ function setTab(index, url) {
 
     document.getElementById("notes").focus();
 
-    checkNeverSaved(never_saved);
+    checkNeverSaved(never_saved, notes);
 }
 
 function openStickyNotes() {
