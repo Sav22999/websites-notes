@@ -46,6 +46,58 @@ function checkSyncLocal() {
     checkTheme();
 }
 
+function sanitizeDefaultStickyTransparency(value) {
+    let transparency = Number.parseInt(value, 10);
+    if (Number.isNaN(transparency)) transparency = 20;
+    return Math.max(0, Math.min(90, transparency));
+}
+
+function sanitizeDefaultStickyOpacity(value) {
+    let opacity = Number.parseInt(value, 10);
+    if (Number.isNaN(opacity)) opacity = 80;
+    return Math.max(10, Math.min(100, opacity));
+}
+
+function transparencyToOpacity(transparency) {
+    return sanitizeDefaultStickyOpacity(100 - sanitizeDefaultStickyTransparency(transparency));
+}
+
+function opacityToTransparency(opacity) {
+    return sanitizeDefaultStickyTransparency(100 - sanitizeDefaultStickyOpacity(opacity));
+}
+
+function getStickyThemeSecondaryColor(theme) {
+    switch (theme) {
+        case "cyan":
+            return "#00b5e2";
+        case "lime":
+            return "#a6e22e";
+        case "pink":
+            return "#ff00ff";
+        case "white":
+            return "#cccccc";
+        case "black":
+            return "#000000";
+        case "auto":
+        case "yellow":
+        default:
+            return "#ff6200";
+    }
+}
+
+function updateDefaultStickyTransparencyUi(value) {
+    const opacity = sanitizeDefaultStickyOpacity(value);
+    const transparency = opacityToTransparency(opacity);
+    const range = document.getElementById("default-sticky-transparency-range");
+    const stickyTheme = settings_json["sticky-theme"] || "yellow";
+    const sliderAccent = getStickyThemeSecondaryColor(stickyTheme);
+    range.value = opacity;
+    range.style.setProperty("--sticky-slider-secondary", sliderAccent);
+    range.style.background = `linear-gradient(to right, ${sliderAccent} 0%, ${sliderAccent} ${opacity}%, #eeeeee ${opacity}%, #eeeeee 100%)`;
+    document.getElementById("default-sticky-transparency-value").textContent = `${opacity}%`;
+    return transparency;
+}
+
 function hideAllDropdowns(event) {
     if (event && event.type === "scroll") {
         const activeDropdown = document.querySelector(".autocomplete-dropdown:not(.hidden)");
@@ -285,6 +337,24 @@ function loaded() {
 
         saveSettings();
     }
+
+    document.getElementById("default-sticky-size-select").onchange = function () {
+        settings_json["default-sticky-size"] = document.getElementById("default-sticky-size-select").value;
+        sendTelemetry(`default-sticky-size-select`, `settings.js`, settings_json["default-sticky-size"]);
+        saveSettings();
+    };
+
+    document.getElementById("default-sticky-transparency-range").oninput = function () {
+        let transparency = updateDefaultStickyTransparencyUi(document.getElementById("default-sticky-transparency-range").value);
+        settings_json["default-sticky-transparency"] = transparency;
+    };
+
+    document.getElementById("default-sticky-transparency-range").onchange = function () {
+        let transparency = updateDefaultStickyTransparencyUi(document.getElementById("default-sticky-transparency-range").value);
+        settings_json["default-sticky-transparency"] = transparency;
+        sendTelemetry(`default-sticky-transparency-range`, `settings.js`, document.getElementById("default-sticky-transparency-range").value);
+        saveSettings();
+    };
 
     setThemeChooser();
     setStickyThemeChooser();
@@ -657,6 +727,7 @@ function setStickyThemeChooserByElement(element, set_variable = true) {
 
         saveSettings();
     }
+    updateDefaultStickyTransparencyUi(document.getElementById("default-sticky-transparency-range").value);
     sendMessageUpdateToBackground();
     if (set_variable) sendTelemetry(`sticky-theme-radio-select`, "settings.js", settings_json["sticky-theme"]);
 }
@@ -783,6 +854,7 @@ function setLanguageUI() {
     document.getElementById("developer-options-title-settings").innerText = all_strings["developer-options-title-settings"];
     document.getElementById("developer-options-description-settings").innerText = all_strings["developer-options-description-settings"];
     document.getElementById("appearance-title-settings").innerText = all_strings["appearance-title-settings"];
+    document.getElementById("sticky-notes-title-settings").innerText = all_strings["sticky-notes-title-settings"] || "Sticky notes";
     document.getElementById("shortcuts-title-settings").innerText = all_strings["shortcuts-title-settings"];
     document.getElementById("icon-behaviour-title-settings").innerText = all_strings["icon-behaviour-title-settings"];
     document.getElementById("data-title-settings").innerText = all_strings["data-and-sync-title-settings"];
@@ -894,6 +966,14 @@ function setLanguageUI() {
     document.getElementById("sticky-theme-select-black").innerText = all_strings["sticky-theme-choose-black-select"];
     document.getElementById("sticky-theme-select-auto").innerText = all_strings["sticky-theme-choose-auto-select"];
     document.getElementById("sticky-theme-detailed-text").innerHTML = all_strings["sticky-theme-detailed-text"].replace("{{property1}}", `<span class="button-code very-small-button">` + all_strings["sticky-theme-choose-auto-select"] + `</span>`);
+    document.getElementById("default-sticky-size-text").innerText = all_strings["default-sticky-size-text"] || "Default sticky size";
+    document.getElementById("default-sticky-size-detailed-text").innerHTML = all_strings["default-sticky-size-detailed-text"] || "Applied when a sticky has no saved custom size.";
+    document.getElementById("default-sticky-size-select-small").innerText = all_strings["default-sticky-size-small"] || "Small";
+    document.getElementById("default-sticky-size-select-medium").innerText = all_strings["default-sticky-size-medium"] || "Medium";
+    document.getElementById("default-sticky-size-select-large").innerText = all_strings["default-sticky-size-large"] || "Large";
+    document.getElementById("default-sticky-size-select-very-large").innerText = all_strings["default-sticky-size-very-large"] || "Very large";
+    document.getElementById("default-sticky-transparency-text").innerText = all_strings["default-sticky-transparency-text"] || "Default sticky opacity";
+    document.getElementById("default-sticky-transparency-detailed-text").innerHTML = all_strings["default-sticky-transparency-detailed-text"] || "10% = very transparent, 100% = opaque.";
     document.getElementById("show-title-textbox-text").innerText = all_strings["show-title-textbox-text"];
     document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
     document.getElementById("immersive-sticky-notes-text").innerText = all_strings["immersive-sticky-notes-text"];
@@ -1036,6 +1116,8 @@ function loadSettings() {
             if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = false;
             if (settings_json["disable-confirmation-popup"] === undefined) settings_json["disable-confirmation-popup"] = false;
             if (settings_json["allow-resize-popup"] === undefined) settings_json["allow-resize-popup"] = false;
+            if (settings_json["default-sticky-size"] === undefined || !["small", "medium", "large", "very-large"].includes(settings_json["default-sticky-size"])) settings_json["default-sticky-size"] = "medium";
+            if (settings_json["default-sticky-transparency"] === undefined) settings_json["default-sticky-transparency"] = 20;
             if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
             if (settings_json["sticky-theme"] === undefined) settings_json["sticky-theme"] = "yellow";
             if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
@@ -1087,6 +1169,9 @@ function loadSettings() {
             document.getElementById("spellcheck-detection-check").checked = settings_json["spellcheck-detection"] === true || settings_json["spellcheck-detection"] === "yes";
             document.getElementById("disable-confirmation-popup-check").checked = settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes";
             document.getElementById("allow-resize-popup-check").checked = settings_json["allow-resize-popup"] === true || settings_json["allow-resize-popup"] === "yes";
+            document.getElementById("default-sticky-size-select").value = settings_json["default-sticky-size"];
+            let defaultTransparency = updateDefaultStickyTransparencyUi(transparencyToOpacity(settings_json["default-sticky-transparency"]));
+            settings_json["default-sticky-transparency"] = defaultTransparency;
             document.getElementById("check-green-icon-global-check").checked = settings_json["check-green-icon-global"] === true || settings_json["check-green-icon-global"] === "yes";
             document.getElementById("check-green-icon-domain-check").checked = settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-domain"] === "yes";
             document.getElementById("check-green-icon-page-check").checked = settings_json["check-green-icon-page"] === true || settings_json["check-green-icon-page"] === "yes";

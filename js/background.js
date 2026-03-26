@@ -21,6 +21,28 @@ var coords = {x: "20px", y: "20px"};
 var sizes = {w: "300px", h: "300px"};
 var opacity = {value: 0.8};
 
+function getDefaultStickySizeFromSettings(settings) {
+    let preset = settings && settings["default-sticky-size"] ? settings["default-sticky-size"] : "medium";
+    switch (preset) {
+        case "small":
+            return {w: "240px", h: "240px"};
+        case "large":
+            return {w: "360px", h: "360px"};
+        case "very-large":
+            return {w: "420px", h: "420px"};
+        case "medium":
+        default:
+            return {w: "300px", h: "300px"};
+    }
+}
+
+function getDefaultStickyOpacityFromSettings(settings) {
+    let transparency = Number.parseInt(settings && settings["default-sticky-transparency"] !== undefined ? settings["default-sticky-transparency"] : 20, 10);
+    if (Number.isNaN(transparency)) transparency = 20;
+    transparency = Math.max(0, Math.min(90, transparency));
+    return {value: Number((1 - (transparency / 100)).toFixed(2))};
+}
+
 let opening_sticky = false;
 
 const page_domain_global = {"page": "Page", "domain": "Domain", "global": "Global", "subdomain": "•••"};
@@ -670,10 +692,16 @@ function tabUpdated(update = false) {
 
 function checkStatus(update = false) {
     current_urls = [getGlobalUrl(), getDomainUrl(tab_url), getPageUrl(tab_url)];
+    let useLegacyStickySizeFallback = true;
+    let useLegacyStickyTransparencyFallback = true;
     sync_local.get("settings")
         .then(value => {
             settings_json = {};
             if (value["settings"] !== undefined) settings_json = value["settings"];
+            const hasExplicitValidDefaultStickySize = ["small", "medium", "large", "very-large"].includes(settings_json["default-sticky-size"]);
+            const hasExplicitDefaultStickyTransparency = settings_json["default-sticky-transparency"] !== undefined;
+            useLegacyStickySizeFallback = !hasExplicitValidDefaultStickySize;
+            useLegacyStickyTransparencyFallback = !hasExplicitDefaultStickyTransparency;
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
             if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
             if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
@@ -683,6 +711,8 @@ function checkStatus(update = false) {
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
             if (settings_json["show-icon-badge"] === undefined) settings_json["show-icon-badge"] = false;
+            if (settings_json["default-sticky-size"] === undefined || !["small", "medium", "large", "very-large"].includes(settings_json["default-sticky-size"])) settings_json["default-sticky-size"] = "medium";
+            if (settings_json["default-sticky-transparency"] === undefined) settings_json["default-sticky-transparency"] = 20;
             //console.log(JSON.stringify(settings_json));
             //console.log("checkStatus");
             //console.log(value);
@@ -800,19 +830,19 @@ function checkStatus(update = false) {
                         if (websites_json[url] !== undefined && websites_json[url]["sizes"] !== undefined && websites_json[url]["sizes"]["w"] !== undefined && websites_json[url]["sizes"]["h"] !== undefined) {
                             sizes = {w: websites_json[url]["sizes"]["w"], h: websites_json[url]["sizes"]["h"]};
                         } else {
-                            if (value["sticky-notes-sizes"] !== undefined && value["sticky-notes-sizes"]["w"] !== undefined && value["sticky-notes-sizes"]["h"] !== undefined) {
+                            if (useLegacyStickySizeFallback && value["sticky-notes-sizes"] !== undefined && value["sticky-notes-sizes"]["w"] !== undefined && value["sticky-notes-sizes"]["h"] !== undefined) {
                                 sizes = {w: value["sticky-notes-sizes"]["w"], h: value["sticky-notes-sizes"]["h"]};
                             } else {
-                                sizes = {w: "300px", h: "300px"};
+                                sizes = getDefaultStickySizeFromSettings(settings_json);
                             }
                         }
                         if (websites_json[url] !== undefined && websites_json[url]["opacity"] !== undefined && websites_json[url]["opacity"]["value"] !== undefined) {
                             opacity = {value: websites_json[url]["opacity"]["value"]};
                         } else {
-                            if (value["sticky-notes-opacity"] !== undefined && value["sticky-notes-opacity"]["value"] !== undefined) {
+                            if (useLegacyStickyTransparencyFallback && value["sticky-notes-opacity"] !== undefined && value["sticky-notes-opacity"]["value"] !== undefined) {
                                 opacity = {value: value["sticky-notes-opacity"]["value"]};
                             } else {
-                                opacity = {value: 0.8};
+                                opacity = getDefaultStickyOpacityFromSettings(settings_json);
                             }
                         }
 

@@ -2794,10 +2794,89 @@ aside .external-link {
     border-left-width: 10px !important;
 }
 
+.sticky-transparency-setting {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.slider--sticky-notes-notefox-addon,
+#default-sticky-transparency-range {
+    --sticky-slider-secondary: #ff6200;
+    width: 160px;
+    height: 5px;
+    appearance: none;
+    -webkit-appearance: none;
+    background: linear-gradient(to right, var(--sticky-slider-secondary) 0%, var(--sticky-slider-secondary) 80%, #eeeeee 80%, #eeeeee 100%);
+    border: 0px solid var(--sticky-slider-secondary);
+    outline: none;
+    border-radius: 15px;
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity .2s;
+}
+
+.slider--sticky-notes-notefox-addon:hover,
+#default-sticky-transparency-range:hover {
+    opacity: 1;
+}
+
+.slider--sticky-notes-notefox-addon:active,
+#default-sticky-transparency-range:active {
+    background: inherit;
+    cursor: grabbing;
+}
+
+.slider--sticky-notes-notefox-addon::-moz-range-thumb,
+#default-sticky-transparency-range::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    border-radius: 100%;
+    border: 0px;
+    background-color: var(--sticky-slider-secondary);
+    cursor: grab;
+}
+
+.slider--sticky-notes-notefox-addon::-moz-range-thumb:active,
+#default-sticky-transparency-range::-moz-range-thumb:active {
+    cursor: grabbing;
+    box-shadow: 0px 0px 0px 4px var(--sticky-slider-secondary);
+    transition: 0.5s;
+}
+
+.slider--sticky-notes-notefox-addon::-webkit-slider-thumb,
+#default-sticky-transparency-range::-webkit-slider-thumb {
+    width: 15px;
+    height: 15px;
+    border-radius: 100%;
+    border: 0px;
+    background-color: var(--sticky-slider-secondary);
+    cursor: grab;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.slider--sticky-notes-notefox-addon::-webkit-slider-thumb:active,
+#default-sticky-transparency-range::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    box-shadow: 0px 0px 0px 4px var(--sticky-slider-secondary);
+    transition: 0.5s;
+}
+
+#default-sticky-transparency-value {
+    min-width: 45px;
+    display: inline-block;
+    text-align: right;
+}
+
 @media screen and (max-width: 1000px) {
     #default-tag-colour-domain-select,
     #default-tag-colour-page-select {
         border-left-width: 20px !important;
+    }
+
+    #default-sticky-transparency-range {
+        width: 180px;
     }
 }
 

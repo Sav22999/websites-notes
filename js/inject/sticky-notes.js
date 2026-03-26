@@ -281,7 +281,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         let opacityRange = document.createElement("input");
         opacityRange.id = "slider--sticky-notes-notefox-addon";
         opacityRange.type = "range";
-        opacityRange.min = 1;
+        opacityRange.min = 0;
         opacityRange.max = 100;
         opacityRange.value = (opacity * 100);
         opacityRange.step = 1;
@@ -335,7 +335,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
 }
 
 function setSlider(opacityRange, stickyNote, value, update = true) {
-    if (value < 20) value = 20;
+    if (value < 0) value = 0;
     opacityRange.value = value;
     opacityRange.style.background = 'linear-gradient(to right, #ff6200 0%, #ff6200 ' + value + '%, #eeeeee ' + value + '%, #eeeeee 100%)';
     if (update) {
