@@ -523,16 +523,16 @@ function loaded() {
     };
 
     document.getElementById("default-tag-colour-domain-select").onchange = function () {
-        settings_json["default-tag-colour-domain"] = document.getElementById("default-tag-colour-domain-select").value;
-        sendTelemetry(`default-tag-colour-domain-select`, `settings.js`, settings_json["default-tag-colour-domain"]);
-
+        const val = this.value;
+        settings_json["default-tag-colour-domain"] = val;
+        sendTelemetry(`default-tag-colour-domain-select`, `settings.js`, val);
         saveSettings();
     };
 
     document.getElementById("default-tag-colour-page-select").onchange = function () {
-        settings_json["default-tag-colour-page"] = document.getElementById("default-tag-colour-page-select").value;
-        sendTelemetry(`default-tag-colour-page-select`, `settings.js`, settings_json["default-tag-colour-page"]);
-
+        const val = this.value;
+        settings_json["default-tag-colour-page"] = val;
+        sendTelemetry(`default-tag-colour-page-select`, `settings.js`, val);
         saveSettings();
     };
 
@@ -1190,10 +1190,15 @@ function loadSettings() {
                     .append(tagColourPage);
             }
 
-            document.getElementById("default-tag-colour-domain-select").value = settings_json["default-tag-colour-domain"];
-            document.getElementById("default-tag-colour-domain-select").classList = ["select-box tag-colour-" + settings_json["default-tag-colour-domain"],];
-            document.getElementById("default-tag-colour-page-select").value = settings_json["default-tag-colour-page"];
-            document.getElementById("default-tag-colour-page-select").classList = ["select-box tag-colour-" + settings_json["default-tag-colour-page"],];
+            const domainSel = document.getElementById("default-tag-colour-domain-select");
+            domainSel.value = settings_json["default-tag-colour-domain"];
+            domainSel.className = "select-box";
+            domainSel.dataset.colorValues = "true";
+
+            const pageSel = document.getElementById("default-tag-colour-page-select");
+            pageSel.value = settings_json["default-tag-colour-page"];
+            pageSel.className = "select-box";
+            pageSel.dataset.colorValues = "true";
 
             let keyboardShortcutCtrlAltShiftDefault = document.getElementById("key-shortcut-ctrl-alt-shift-default-selected");
             let keyboardShortcutLetterNumberDefault = document.getElementById("key-shortcut-default-selected");

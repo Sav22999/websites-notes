@@ -558,6 +558,7 @@ function loadUI(called_by = null) {
 
     let tagSelect = document.getElementById("tag-select-grid");
     tagSelect.innerText = "";
+    tagSelect.dataset.colorValues = "true";
     let colourList = colourListDefault;
     colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
     for (let colour in colourList) {

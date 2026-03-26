@@ -725,6 +725,21 @@ body {
     color: var(--on-textbox-color);
 }
 
+/* Color-value items keep their background; brightness shift provides hover feedback */
+.autocomplete-item.color-bg-item:hover {
+    background-color: unset; /* inline style wins; this prevents the override */
+    filter: brightness(0.82);
+    color: unset; /* keep WCAG colour from inline style */
+}
+
+.autocomplete-item.color-bg-item.selected {
+    background-color: unset; /* inline style wins */
+    font-weight: bold;
+    filter: none;
+    padding-top: 32px;
+    padding-bottom: 32px;
+}
+
 .autocomplete-item.no-results {
     color: #999;
     cursor: default;
@@ -899,8 +914,6 @@ body {
 }
 
 .tags-text-container-all {
-    display: flex;
-    flex-wrap: wrap;
     gap: 5px;
     margin: 5px 0;
 }
@@ -1605,6 +1618,16 @@ pre::placeholder,
     font-size: 12px;
     font-style: italic;
     color: var(--primary-color);
+}
+
+.tags-bottom-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 4px 0;
 }
 
 #background-opacity {
@@ -4687,6 +4710,41 @@ option {
 }
 
 #search-all-notes-container .tag-chip {
+    flex-shrink: 0;
+}
+
+/* Folder container: single row, horizontally scrollable */
+.custom-tag-input-container.folder-view-container {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+    scrollbar-width: thin;
+}
+
+/* Tag-text container: multi-line wrapping */
+.custom-tag-input-container.tags-text-container-all {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+}
+
+.custom-tag-input-container.folder-view-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.custom-tag-input-container.folder-view-container::-webkit-scrollbar-thumb {
+    background: var(--tertiary-transparent-2);
+    border-radius: 10px;
+}
+
+.custom-tag-input-container.folder-view-container .tag-chip {
     flex-shrink: 0;
 }
 

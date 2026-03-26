@@ -251,6 +251,8 @@ function setLanguageUI() {
 
         document.getElementById("filter-folder-label-span").textContent = all_strings["filter-folder-label"];
         document.getElementById("filter-tags-text-label-span").textContent = all_strings["filter-tags-text-label"];
+        document.getElementById("filter-colour-label-span").textContent = all_strings["filter-colour-label"] || "Filter by colour";
+        document.getElementById("filter-type-label-span").textContent = all_strings["filter-type-label"] || "Filter by type";
 
         let folderInput = document.getElementById("filter-folder-input");
         folderInput.contentEditable = "false";
@@ -598,51 +600,257 @@ function setLanguageUI() {
         window.addTagToFilterDiv = addTagToFilterDiv;
         window.renderFilterTags = renderFilterTags;
 
-        let globalFilterButton = document.getElementById("filter-type-global-button");
-        let domainFilterButton = document.getElementById("filter-type-domain-button");
-        let pageFilterButton = document.getElementById("filter-type-page-button");
+        // ── Filter by colour ──────────────────────────────────────────────
+        function renderFilterColours() {
+            let container = document.getElementById("filter-colour-input");
+            if (!container) return;
+            container.innerHTML = "";
+            container.className = "custom-tag-input-container filter-input-container";
 
-        // <input type="button" value="Tag: Red" id="filter-tag-red-button"
-        //                class="button filter-button-tag"/>
-        let containerColours = document.getElementById("filter-colours-container");
-        containerColours.innerHTML = ""
-        for (let colour in colourListDefault) {
-            let colourFilterButton = document.createElement("input");
-            colourFilterButton.type = "button";
-            colourFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", colourListDefault[colour]);
-            colourFilterButton.id = `filter-tag-${colour}-button`;
-            colourFilterButton.classList.add("button", "filter-button-tag", `tag-colour-${colour}`);
-            colourFilterButton.onclick = function () {
-                filterByColor(colour, colourFilterButton);
-                sendTelemetry(`filter-by-tag`, `all-notes.js`, null, colour);
+            filtersColors.forEach((colour, index) => {
+                let chip = document.createElement("span");
+                chip.className = "tag-chip filter-chip";
+
+                let bgColor = (colour !== "none") ? colour : "";
+                let fgColor = bgColor ? getWCAGTextColor(bgColor) : "";
+
+                let text = document.createElement("span");
+                text.className = "tag-chip-text";
+                let colourLabel = colour === "none" ? all_strings["none-colour"] : (colourListDefault[colour] || colour);
+                text.textContent = colourLabel;
+                if (bgColor) { text.style.backgroundColor = bgColor; text.style.color = fgColor; }
+                chip.appendChild(text);
+
+                let remove = document.createElement("span");
+                remove.className = "tag-chip-remove";
+                remove.textContent = "×";
+                if (bgColor) {
+                    remove.style.backgroundColor = bgColor;
+                    remove.style.color = fgColor;
+                    remove.style.borderLeftColor = fgColor === "#ffffff" ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.25)";
+                }
+                remove.onclick = function (e) {
+                    e.stopPropagation();
+                    filtersColors.splice(index, 1);
+                    document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
+                    renderFilterColours();
+                    applyFilter();
+                };
+                chip.appendChild(remove);
+                container.appendChild(chip);
+            });
+
+            let input = document.createElement("input");
+            input.type = "text";
+            input.id = "filter-colour-inner-input";
+            input.className = "tag-inner-input";
+            input.placeholder = all_strings["filter-colour-label"] || "Colour...";
+
+            let dropdown = document.createElement("div");
+            dropdown.className = "autocomplete-dropdown hidden";
+            dropdown.style.position = "fixed";
+            dropdown.style.zIndex = "20000";
+            document.body.appendChild(dropdown);
+
+            function getAllColourOptions() {
+                let list = Object.entries(colourListDefault).map(([k, v]) => ({key: k, label: v}));
+                list.push({key: "none", label: all_strings["none-colour"]});
+                return list;
             }
-            containerColours.appendChild(colourFilterButton);
+
+            function updateColourDropdown(text) {
+                dropdown.innerHTML = "";
+                let matches = getAllColourOptions().filter(c =>
+                    c.label.toLowerCase().includes(text.toLowerCase()) && !filtersColors.includes(c.key)
+                );
+                if (matches.length > 0) {
+                    matches.forEach(match => {
+                        let item = document.createElement("div");
+                        item.className = "autocomplete-item";
+                        item.textContent = match.label;
+                        if (match.key !== "none") {
+                            item.classList.add("color-bg-item");
+                            item.style.backgroundColor = match.key;
+                            item.style.color = getWCAGTextColor(match.key);
+                        }
+                        item.onmousedown = function (e) {
+                            e.preventDefault();
+                            if (!filtersColors.includes(match.key)) {
+                                filtersColors.push(match.key);
+                                renderFilterColours();
+                                applyFilter();
+                            }
+                            input.value = "";
+                            dropdown.classList.add("hidden");
+                        };
+                        dropdown.appendChild(item);
+                    });
+                    hideAllDropdowns();
+                    dropdown.classList.remove("hidden");
+                    checkDropdownScrollbar(dropdown, input);
+                } else {
+                    dropdown.classList.add("hidden");
+                }
+            }
+
+            input.oninput = function () { updateColourDropdown(this.value.trim()); };
+            input.onfocus = function () { updateColourDropdown(this.value.trim()); };
+            input.onclick = function () { updateColourDropdown(this.value.trim()); };
+
+            input.onkeydown = function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    let text = this.value.trim().toLowerCase();
+                    let matches = getAllColourOptions().filter(c =>
+                        c.label.toLowerCase().includes(text) && !filtersColors.includes(c.key)
+                    );
+                    if (matches.length > 0) {
+                        let exact = matches.find(m => m.label.toLowerCase() === text);
+                        let toAdd = (exact || matches[0]).key;
+                        if (!filtersColors.includes(toAdd)) { filtersColors.push(toAdd); renderFilterColours(); applyFilter(); }
+                    }
+                    this.value = "";
+                    dropdown.classList.add("hidden");
+                } else if (e.key === "Backspace" && this.value === "" && filtersColors.length > 0) {
+                    filtersColors.pop();
+                    renderFilterColours();
+                    applyFilter();
+                } else if (e.key === "Escape") {
+                    dropdown.classList.add("hidden");
+                }
+            };
+
+            document.addEventListener("click", function (e) {
+                if (!container.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.add("hidden");
+            });
+
+            container.appendChild(input);
+            let available = getAllColourOptions().filter(c => !filtersColors.includes(c.key));
+            if (available.length === 0 && filtersColors.length > 0) input.style.display = "none";
+            container.onclick = function () { input.focus(); };
         }
 
-        let noneFilterButton = document.createElement("input");
-        noneFilterButton.type = "button";
-        noneFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["none-colour"]);
-        noneFilterButton.id = `filter-tag-none-button`;
-        noneFilterButton.classList.add("button", "filter-button-tag");
-        noneFilterButton.onclick = function () {
-            filterByColor("none", noneFilterButton);
-            sendTelemetry(`filter-by-tag`, `all-notes.js`, null, "none");
+        renderFilterColours();
+        window.renderFilterColours = renderFilterColours;
+
+        // ── Filter by type ────────────────────────────────────────────────
+        const typeOptions = [
+            {key: "global",  label: () => all_strings["global-label"]},
+            {key: "domain",  label: () => all_strings["domain-label"]},
+            {key: "page",    label: () => all_strings["page-label"]},
+        ];
+
+        function renderFilterTypes() {
+            let container = document.getElementById("filter-type-input");
+            if (!container) return;
+            container.innerHTML = "";
+            container.className = "custom-tag-input-container filter-input-container";
+
+            filtersTypes.forEach((type, index) => {
+                let opt = typeOptions.find(o => o.key === type);
+                let chip = document.createElement("span");
+                chip.className = "tag-chip filter-chip";
+
+                let text = document.createElement("span");
+                text.className = "tag-chip-text";
+                text.textContent = opt ? opt.label() : type;
+                chip.appendChild(text);
+
+                let remove = document.createElement("span");
+                remove.className = "tag-chip-remove";
+                remove.textContent = "×";
+                remove.onclick = function (e) {
+                    e.stopPropagation();
+                    filtersTypes.splice(index, 1);
+                    document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
+                    renderFilterTypes();
+                    applyFilter();
+                };
+                chip.appendChild(remove);
+                container.appendChild(chip);
+            });
+
+            let input = document.createElement("input");
+            input.type = "text";
+            input.id = "filter-type-inner-input";
+            input.className = "tag-inner-input";
+            input.placeholder = all_strings["filter-type-label"] || "Type...";
+
+            let dropdown = document.createElement("div");
+            dropdown.className = "autocomplete-dropdown hidden";
+            dropdown.style.position = "fixed";
+            dropdown.style.zIndex = "20000";
+            document.body.appendChild(dropdown);
+
+            function updateTypeDropdown(text) {
+                dropdown.innerHTML = "";
+                let matches = typeOptions.filter(o =>
+                    o.label().toLowerCase().includes(text.toLowerCase()) && !filtersTypes.includes(o.key)
+                );
+                if (matches.length > 0) {
+                    matches.forEach(opt => {
+                        let item = document.createElement("div");
+                        item.className = "autocomplete-item";
+                        item.textContent = opt.label();
+                        item.onmousedown = function (e) {
+                            e.preventDefault();
+                            if (!filtersTypes.includes(opt.key)) {
+                                filtersTypes.push(opt.key);
+                                renderFilterTypes();
+                                applyFilter();
+                            }
+                            input.value = "";
+                            dropdown.classList.add("hidden");
+                        };
+                        dropdown.appendChild(item);
+                    });
+                    hideAllDropdowns();
+                    dropdown.classList.remove("hidden");
+                    checkDropdownScrollbar(dropdown, input);
+                } else {
+                    dropdown.classList.add("hidden");
+                }
+            }
+
+            input.oninput = function () { updateTypeDropdown(this.value.trim()); };
+            input.onfocus = function () { updateTypeDropdown(this.value.trim()); };
+            input.onclick = function () { updateTypeDropdown(this.value.trim()); };
+
+            input.onkeydown = function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    let text = this.value.trim().toLowerCase();
+                    let matches = typeOptions.filter(o =>
+                        o.label().toLowerCase().includes(text) && !filtersTypes.includes(o.key)
+                    );
+                    if (matches.length > 0) {
+                        let exact = matches.find(m => m.label().toLowerCase() === text);
+                        let toAdd = (exact || matches[0]).key;
+                        if (!filtersTypes.includes(toAdd)) { filtersTypes.push(toAdd); renderFilterTypes(); applyFilter(); }
+                    }
+                    this.value = "";
+                    dropdown.classList.add("hidden");
+                } else if (e.key === "Backspace" && this.value === "" && filtersTypes.length > 0) {
+                    filtersTypes.pop();
+                    renderFilterTypes();
+                    applyFilter();
+                } else if (e.key === "Escape") {
+                    dropdown.classList.add("hidden");
+                }
+            };
+
+            document.addEventListener("click", function (e) {
+                if (!container.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.add("hidden");
+            });
+
+            container.appendChild(input);
+            let available = typeOptions.filter(o => !filtersTypes.includes(o.key));
+            if (available.length === 0 && filtersTypes.length > 0) input.style.display = "none";
+            container.onclick = function () { input.focus(); };
         }
-        globalFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["global-label"]);
-        globalFilterButton.onclick = function () {
-            filterByType("global", globalFilterButton);
-            sendTelemetry(`filter-by-type`, "all-notes.js", null, "global");
-        };
-        domainFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["domain-label"]);
-        domainFilterButton.onclick = function () {
-            filterByType("domain", domainFilterButton);
-            sendTelemetry(`filter-by-type`, "all-notes.js", null, "domain");
-        };
-        pageFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["page-label"]);
-        pageFilterButton.onclick = function () {
-            filterByType("page", pageFilterButton);
-            sendTelemetry(`filter-by-type`, "all-notes.js", null, "page");
-        };
+
+        renderFilterTypes();
+        window.renderFilterTypes = renderFilterTypes;
     } catch (e) {
         console.error(`E-L2: ${e}`);
         onError("all-notes.js::setLanguageUI", e.message);
@@ -846,6 +1054,8 @@ function loadDataFromBrowser(called_by = null, generate_section = true) {
             // Aggiorna i filtri dopo il caricamento dei dati
             renderFilterFolders();
             renderFilterTags();
+            if (typeof renderFilterColours === "function") renderFilterColours();
+            if (typeof renderFilterTypes === "function") renderFilterTypes();
             renderSearchChips();
             initCustomSelects();
         });
@@ -1566,6 +1776,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             }
             tagColour.textContent = colourList[colour];
             tagsColour.classList.add("select-tag-all-notes", "button", "very-small-button", "tag-button", "no-text");
+            tagsColour.dataset.colorValues = "true";
             tagsColour.append(tagColour);
         }
         tagsColour.onchange = function () {
@@ -1615,7 +1826,7 @@ function renderTagsAllNotes(container, fullUrl, shouldFocus = false) {
     }
 
     container.innerHTML = "";
-    container.className = "custom-tag-input-container";
+    container.className = "custom-tag-input-container tags-text-container-all";
 
     let tags = [];
     if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tags-text"] !== undefined) {
@@ -1786,7 +1997,10 @@ function renderFolderView(container, fullUrl, shouldFocus = false) {
     }
 
     container.innerHTML = "";
-    container.className = "custom-tag-input-container";
+    container.className = "custom-tag-input-container folder-view-container";
+    container.style.flexWrap = "nowrap";
+    container.style.overflowX = "auto";
+    container.style.overflowY = "hidden";
 
     let currentFolder = (websites_json[fullUrl] && websites_json[fullUrl]["tag-folder"]) ? websites_json[fullUrl]["tag-folder"] : "";
 

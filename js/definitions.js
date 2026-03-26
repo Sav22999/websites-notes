@@ -107,6 +107,37 @@ function checkDropdownScrollbar(dropdown, input = null) {
     }
 }
 
+/**
+ * Parses any CSS color string to {r,g,b} using an offscreen canvas.
+ * @param {string} colorStr
+ * @returns {{r:number,g:number,b:number}}
+ */
+function parseColorToRGB(colorStr) {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 1;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = colorStr;
+    ctx.fillRect(0, 0, 1, 1);
+    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+    return {r, g, b};
+}
+
+/**
+ * Given a CSS color string, returns "#ffffff" or "#000000" for best WCAG contrast.
+ * @param {string} bgColor
+ * @returns {string}
+ */
+function getWCAGTextColor(bgColor) {
+    const {r, g, b} = parseColorToRGB(bgColor);
+    const sRGB = [r, g, b].map(c => {
+        c /= 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    const L = 0.2126 * sRGB[0] + 0.7152 * sRGB[1] + 0.0722 * sRGB[2];
+    // Contrast ratio with white: (1.05)/(L+0.05), with black: (L+0.05)/(0.05)
+    return (1.05 / (L + 0.05)) >= ((L + 0.05) / 0.05) ? "#ffffff" : "#000000";
+}
+
 function initCustomSelects() {
     const selects = document.querySelectorAll("select.select-box, select.select-tag-all-notes, #tag-select-grid, #sort-by-all-notes-button");
     selects.forEach(select => {
@@ -245,12 +276,21 @@ function createCustomSelect(select) {
         dropdown = document.createElement("div");
         dropdown.className = "autocomplete-dropdown custom-select-dropdown";
 
+        const isColorSelect = select.dataset.colorValues === "true";
+
         Array.from(select.options).forEach((option, index) => {
             const item = document.createElement("div");
             item.className = "autocomplete-item";
             item.textContent = option.textContent;
             if (index === select.selectedIndex) {
                 item.classList.add("selected");
+            }
+
+            // Color select: apply the option value as background colour with WCAG text colour
+            if (isColorSelect && option.value && option.value !== "none") {
+                item.classList.add("color-bg-item");
+                item.style.backgroundColor = option.value;
+                item.style.color = getWCAGTextColor(option.value);
             }
 
             item.addEventListener("click", () => {
@@ -269,6 +309,15 @@ function createCustomSelect(select) {
         document.body.appendChild(dropdown);
         trigger.classList.add("active");
         checkDropdownScrollbar(dropdown, trigger);
+
+        // Scroll the selected item to the center of the dropdown
+        const selectedItem = dropdown.querySelector(".autocomplete-item.selected");
+        if (selectedItem) {
+            const itemTop = selectedItem.offsetTop;
+            const itemHeight = selectedItem.offsetHeight;
+            const dropdownHeight = dropdown.clientHeight;
+            dropdown.scrollTop = itemTop - (dropdownHeight / 2) + (itemHeight / 2);
+        }
 
         // Click fuori per chiudere
         const outClick = (event) => {
