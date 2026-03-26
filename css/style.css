@@ -678,6 +678,7 @@ body {
     background-color: var(--primary-color);
     color: var(--on-primary-color);
     opacity: 0.9;
+    user-select: none;
 }
 
 
@@ -915,7 +916,7 @@ body {
 
 .tags-text-container-all {
     gap: 5px;
-    margin: 5px 0;
+    margin: 0;
 }
 
 .folder-display-all {
