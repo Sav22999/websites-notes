@@ -601,7 +601,7 @@ function setLanguageUI() {
         window.renderFilterTags = renderFilterTags;
 
         // ── Filter by colour ──────────────────────────────────────────────
-        function renderFilterColours() {
+        function renderFilterColours(shouldFocus = false) {
             let container = document.getElementById("filter-colour-input");
             if (!container) return;
             container.innerHTML = "";
@@ -632,8 +632,7 @@ function setLanguageUI() {
                 remove.onclick = function (e) {
                     e.stopPropagation();
                     filtersColors.splice(index, 1);
-                    document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
-                    renderFilterColours();
+                    renderFilterColours(true);
                     applyFilter();
                 };
                 chip.appendChild(remove);
@@ -673,15 +672,13 @@ function setLanguageUI() {
                             item.style.backgroundColor = match.key;
                             item.style.color = getWCAGTextColor(match.key);
                         }
-                        item.onmousedown = function (e) {
-                            e.preventDefault();
+                        item.onclick = function (e) {
+                            e.stopPropagation();
                             if (!filtersColors.includes(match.key)) {
                                 filtersColors.push(match.key);
-                                renderFilterColours();
+                                renderFilterColours(true);
                                 applyFilter();
                             }
-                            input.value = "";
-                            dropdown.classList.add("hidden");
                         };
                         dropdown.appendChild(item);
                     });
@@ -695,7 +692,7 @@ function setLanguageUI() {
 
             input.oninput = function () { updateColourDropdown(this.value.trim()); };
             input.onfocus = function () { updateColourDropdown(this.value.trim()); };
-            input.onclick = function () { updateColourDropdown(this.value.trim()); };
+            input.onclick = function (e) { e.stopPropagation(); updateColourDropdown(this.value.trim()); };
 
             input.onkeydown = function (e) {
                 if (e.key === "Enter" || e.key === " ") {
@@ -707,13 +704,17 @@ function setLanguageUI() {
                     if (matches.length > 0) {
                         let exact = matches.find(m => m.label.toLowerCase() === text);
                         let toAdd = (exact || matches[0]).key;
-                        if (!filtersColors.includes(toAdd)) { filtersColors.push(toAdd); renderFilterColours(); applyFilter(); }
+                        if (!filtersColors.includes(toAdd)) {
+                            filtersColors.push(toAdd);
+                            renderFilterColours(true);
+                            applyFilter();
+                        }
                     }
                     this.value = "";
                     dropdown.classList.add("hidden");
                 } else if (e.key === "Backspace" && this.value === "" && filtersColors.length > 0) {
                     filtersColors.pop();
-                    renderFilterColours();
+                    renderFilterColours(true);
                     applyFilter();
                 } else if (e.key === "Escape") {
                     dropdown.classList.add("hidden");
@@ -728,6 +729,8 @@ function setLanguageUI() {
             let available = getAllColourOptions().filter(c => !filtersColors.includes(c.key));
             if (available.length === 0 && filtersColors.length > 0) input.style.display = "none";
             container.onclick = function () { input.focus(); };
+
+            if (shouldFocus) input.focus();
         }
 
         renderFilterColours();
@@ -765,6 +768,10 @@ function setLanguageUI() {
                     document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
                     renderFilterTypes();
                     applyFilter();
+                    setTimeout(() => {
+                        let newInput = document.getElementById("filter-type-inner-input");
+                        if (newInput) newInput.focus();
+                    }, 0);
                 };
                 chip.appendChild(remove);
                 container.appendChild(chip);
@@ -798,6 +805,11 @@ function setLanguageUI() {
                                 filtersTypes.push(opt.key);
                                 renderFilterTypes();
                                 applyFilter();
+                                // Defer focus so the click event finishes before onfocus opens the dropdown
+                                setTimeout(() => {
+                                    let newInput = document.getElementById("filter-type-inner-input");
+                                    if (newInput) newInput.focus();
+                                }, 0);
                             }
                             input.value = "";
                             dropdown.classList.add("hidden");
@@ -826,7 +838,15 @@ function setLanguageUI() {
                     if (matches.length > 0) {
                         let exact = matches.find(m => m.label().toLowerCase() === text);
                         let toAdd = (exact || matches[0]).key;
-                        if (!filtersTypes.includes(toAdd)) { filtersTypes.push(toAdd); renderFilterTypes(); applyFilter(); }
+                        if (!filtersTypes.includes(toAdd)) {
+                            filtersTypes.push(toAdd);
+                            renderFilterTypes();
+                            applyFilter();
+                            setTimeout(() => {
+                                let newInput = document.getElementById("filter-type-inner-input");
+                                if (newInput) newInput.focus();
+                            }, 0);
+                        }
                     }
                     this.value = "";
                     dropdown.classList.add("hidden");
@@ -834,6 +854,10 @@ function setLanguageUI() {
                     filtersTypes.pop();
                     renderFilterTypes();
                     applyFilter();
+                    setTimeout(() => {
+                        let newInput = document.getElementById("filter-type-inner-input");
+                        if (newInput) newInput.focus();
+                    }, 0);
                 } else if (e.key === "Escape") {
                     dropdown.classList.add("hidden");
                 }
@@ -1608,6 +1632,30 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
 
         subrowUrl.append(pageType);
 
+        // Tag Color select — built here so it can be the leftmost element in subrowButtons
+        let tagsColour = document.createElement("select");
+        let colourList = colourListDefault;
+        colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
+        for (let colour in colourList) {
+            let tagColour = document.createElement("option");
+            tagColour.value = colour;
+            if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] !== undefined && websites_json[fullUrl]["tag-colour"] === colour) {
+                tagColour.selected = true;
+                pageContentLeft.classList.add("tag-colour-" + colour + "-bg");
+            }
+            tagColour.textContent = colourList[colour];
+            tagsColour.classList.add("select-tag-all-notes", "button", "very-small-button", "tag-button", "no-text");
+            tagsColour.dataset.colorValues = "true";
+            tagsColour.append(tagColour);
+        }
+        tagsColour.onchange = function () {
+            changeTagColour(fullUrl, tagsColour.value, type_to_use);
+            sendTelemetry(`change-tag-colour::${tagsColour.value}`, "all-notes.js", fullUrl);
+        }
+
+        // Tag color goes first (leftmost), then show-content, edit, copy, clear
+        subrowButtons.append(tagsColour);
+
         if (content !== undefined && content !== "") {
             //Button "Show content"
             let inputShowContent = document.createElement("input");
@@ -1759,39 +1807,17 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(lastUpdate));
         pageContentRight.append(pageLastUpdate);
 
-        // --- NEW TAGS SECTION IN BOTTOM ---
+        // --- TAGS SECTION IN BOTTOM (folder + tags-text only; tag-color is now in the action row) ---
         let tagsBottomContainer = document.createElement("div");
         tagsBottomContainer.className = "tags-bottom-container";
 
-        // 1. Tag Color
-        let tagsColour = document.createElement("select");
-        let colourList = colourListDefault;
-        colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
-        for (let colour in colourList) {
-            let tagColour = document.createElement("option");
-            tagColour.value = colour;
-            if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] !== undefined && websites_json[fullUrl]["tag-colour"] === colour) {
-                tagColour.selected = true;
-                pageContentLeft.classList.add("tag-colour-" + colour + "-bg");
-            }
-            tagColour.textContent = colourList[colour];
-            tagsColour.classList.add("select-tag-all-notes", "button", "very-small-button", "tag-button", "no-text");
-            tagsColour.dataset.colorValues = "true";
-            tagsColour.append(tagColour);
-        }
-        tagsColour.onchange = function () {
-            changeTagColour(fullUrl, tagsColour.value, type_to_use);
-            sendTelemetry(`change-tag-colour::${tagsColour.value}`, "all-notes.js", fullUrl);
-        }
-        tagsBottomContainer.append(tagsColour);
-
-        // 2. Folder View Component
+        // 1. Folder View Component
         let folderViewContainer = document.createElement("div");
         folderViewContainer.className = "folder-view-container";
         renderFolderView(folderViewContainer, fullUrl);
         tagsBottomContainer.append(folderViewContainer);
 
-        // 3. Tags Text
+        // 2. Tags Text
         let tagsTextContainerAll = document.createElement("div");
         tagsTextContainerAll.className = "tags-text-container-all";
         renderTagsAllNotes(tagsTextContainerAll, fullUrl);

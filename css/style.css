@@ -697,7 +697,7 @@ body {
 .autocomplete-dropdown {
     position: fixed;
     background: var(--textbox-color);
-    border: 1px solid var(--tertiary-transparent-2);
+    border: 0px solid var(--tertiary-transparent-2);
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     z-index: 20000;
@@ -1337,6 +1337,11 @@ pre::placeholder,
     padding-top: 8px;
     width: 100%;
     box-sizing: border-box;
+    display: none !important;
+}
+
+#tags-text-section {
+    display: none !important;
 }
 
 .select-tag-all-notes {
@@ -1488,6 +1493,7 @@ pre::placeholder,
     margin: 0px -20px;
     border-radius: 0px;
     padding: 10px;
+    margin-top: -5px;
 }
 
 @media screen and (max-width: 1700px) {
@@ -1504,7 +1510,7 @@ pre::placeholder,
 
 #filters {
     position: sticky;
-    top: 54.5px;
+    top: 0px;
     margin-top: 0px;
     border-radius: 0px;
     margin-left: -20px;
