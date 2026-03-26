@@ -121,6 +121,7 @@ strings[lang] = {
     "filter-tags-text-label": "Filter by tags",
     "filter-colour-label": "Filter by colour",
     "filter-type-label": "Filter by type",
+    "choose-placeholder": "Choose...",
     "show-badge-with-number-of-notes": "Show badge with number of notes saved",
     "show-badge-with-number-of-notes-detailed": "When enabled the addon icon in the toolbar will show a badge with the number of notes saved for that page, domain, subdomains or globally.",
     "allow-resize-popup": "Allow to resize the popup window",

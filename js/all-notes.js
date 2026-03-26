@@ -415,7 +415,7 @@ function setLanguageUI() {
             } else {
                 input.disabled = false;
                 container.classList.remove("disabled");
-                input.placeholder = all_strings["filter-folder-label"] || "...";
+                input.placeholder = all_strings["choose-placeholder"] || "Choose...";
                 input.focus();
             }
 
@@ -585,7 +585,7 @@ function setLanguageUI() {
             } else {
                 input.disabled = false;
                 container.classList.remove("disabled");
-                input.placeholder = all_strings["add-tag-placeholder"] || "...";
+                input.placeholder = all_strings["choose-placeholder"] || "Choose...";
                 input.focus();
             }
 
@@ -643,7 +643,7 @@ function setLanguageUI() {
             input.type = "text";
             input.id = "filter-colour-inner-input";
             input.className = "tag-inner-input";
-            input.placeholder = all_strings["filter-colour-label"] || "Colour...";
+            input.placeholder = all_strings["choose-placeholder"] || "Choose...";
 
             let dropdown = document.createElement("div");
             dropdown.className = "autocomplete-dropdown hidden";
@@ -652,8 +652,8 @@ function setLanguageUI() {
             document.body.appendChild(dropdown);
 
             function getAllColourOptions() {
-                let list = Object.entries(colourListDefault).map(([k, v]) => ({key: k, label: v}));
-                list.push({key: "none", label: all_strings["none-colour"]});
+                let list = [{key: "none", label: all_strings["none-colour"]}];
+                list = list.concat(Object.entries(colourListDefault).map(([k, v]) => ({key: k, label: v})));
                 return list;
             }
 
@@ -727,10 +727,13 @@ function setLanguageUI() {
 
             container.appendChild(input);
             let available = getAllColourOptions().filter(c => !filtersColors.includes(c.key));
-            if (available.length === 0 && filtersColors.length > 0) input.style.display = "none";
-            container.onclick = function () { input.focus(); };
-
-            if (shouldFocus) input.focus();
+            if (available.length === 0 && filtersColors.length > 0) {
+                input.style.display = "none";
+                hideAllDropdowns(); // hide any dropdown left open before this render
+            } else if (shouldFocus) {
+                input.focus({preventScroll: true});
+            }
+            container.onclick = function () { input.focus({preventScroll: true}); };
         }
 
         renderFilterColours();
@@ -743,7 +746,7 @@ function setLanguageUI() {
             {key: "page",    label: () => all_strings["page-label"]},
         ];
 
-        function renderFilterTypes() {
+        function renderFilterTypes(shouldFocus = false) {
             let container = document.getElementById("filter-type-input");
             if (!container) return;
             container.innerHTML = "";
@@ -765,13 +768,8 @@ function setLanguageUI() {
                 remove.onclick = function (e) {
                     e.stopPropagation();
                     filtersTypes.splice(index, 1);
-                    document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
-                    renderFilterTypes();
+                    renderFilterTypes(true);
                     applyFilter();
-                    setTimeout(() => {
-                        let newInput = document.getElementById("filter-type-inner-input");
-                        if (newInput) newInput.focus();
-                    }, 0);
                 };
                 chip.appendChild(remove);
                 container.appendChild(chip);
@@ -781,7 +779,7 @@ function setLanguageUI() {
             input.type = "text";
             input.id = "filter-type-inner-input";
             input.className = "tag-inner-input";
-            input.placeholder = all_strings["filter-type-label"] || "Type...";
+            input.placeholder = all_strings["choose-placeholder"] || "Choose...";
 
             let dropdown = document.createElement("div");
             dropdown.className = "autocomplete-dropdown hidden";
@@ -799,20 +797,13 @@ function setLanguageUI() {
                         let item = document.createElement("div");
                         item.className = "autocomplete-item";
                         item.textContent = opt.label();
-                        item.onmousedown = function (e) {
-                            e.preventDefault();
+                        item.onclick = function (e) {
+                            e.stopPropagation();
                             if (!filtersTypes.includes(opt.key)) {
                                 filtersTypes.push(opt.key);
-                                renderFilterTypes();
+                                renderFilterTypes(true);
                                 applyFilter();
-                                // Defer focus so the click event finishes before onfocus opens the dropdown
-                                setTimeout(() => {
-                                    let newInput = document.getElementById("filter-type-inner-input");
-                                    if (newInput) newInput.focus();
-                                }, 0);
                             }
-                            input.value = "";
-                            dropdown.classList.add("hidden");
                         };
                         dropdown.appendChild(item);
                     });
@@ -826,7 +817,7 @@ function setLanguageUI() {
 
             input.oninput = function () { updateTypeDropdown(this.value.trim()); };
             input.onfocus = function () { updateTypeDropdown(this.value.trim()); };
-            input.onclick = function () { updateTypeDropdown(this.value.trim()); };
+            input.onclick = function (e) { e.stopPropagation(); updateTypeDropdown(this.value.trim()); };
 
             input.onkeydown = function (e) {
                 if (e.key === "Enter" || e.key === " ") {
@@ -840,24 +831,16 @@ function setLanguageUI() {
                         let toAdd = (exact || matches[0]).key;
                         if (!filtersTypes.includes(toAdd)) {
                             filtersTypes.push(toAdd);
-                            renderFilterTypes();
+                            renderFilterTypes(true);
                             applyFilter();
-                            setTimeout(() => {
-                                let newInput = document.getElementById("filter-type-inner-input");
-                                if (newInput) newInput.focus();
-                            }, 0);
                         }
                     }
                     this.value = "";
                     dropdown.classList.add("hidden");
                 } else if (e.key === "Backspace" && this.value === "" && filtersTypes.length > 0) {
                     filtersTypes.pop();
-                    renderFilterTypes();
+                    renderFilterTypes(true);
                     applyFilter();
-                    setTimeout(() => {
-                        let newInput = document.getElementById("filter-type-inner-input");
-                        if (newInput) newInput.focus();
-                    }, 0);
                 } else if (e.key === "Escape") {
                     dropdown.classList.add("hidden");
                 }
@@ -869,8 +852,13 @@ function setLanguageUI() {
 
             container.appendChild(input);
             let available = typeOptions.filter(o => !filtersTypes.includes(o.key));
-            if (available.length === 0 && filtersTypes.length > 0) input.style.display = "none";
-            container.onclick = function () { input.focus(); };
+            if (available.length === 0 && filtersTypes.length > 0) {
+                input.style.display = "none";
+                hideAllDropdowns(); // hide any dropdown left open before this render
+            } else if (shouldFocus) {
+                input.focus({preventScroll: true});
+            }
+            container.onclick = function () { input.focus({preventScroll: true}); };
         }
 
         renderFilterTypes();
