@@ -498,6 +498,57 @@ function insertCode() {
     addAction();
 }
 
+function insertOrderedList() {
+    insertList("ol");
+}
+
+function insertUnorderedList() {
+    insertList("ul");
+}
+
+function insertList(type) {
+    let sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+
+    let selectedText = sel.toString();
+
+    // Check if cursor/selection is already inside this list type
+    let isInList = hasAncestorTagName(sel.anchorNode, type);
+
+    if (isInList) {
+        // Unwrap: extract li content and replace list with plain nodes
+        let elements = getTheAncestorTagName(sel.anchorNode, type);
+        let listEl = elements[0];
+        let parentEl = elements[1];
+
+        if (listEl && parentEl) {
+            let fragment = document.createDocumentFragment();
+            let liItems = Array.from(listEl.querySelectorAll("li"));
+            liItems.forEach((li, idx) => {
+                while (li.firstChild) {
+                    fragment.appendChild(li.firstChild);
+                }
+                if (idx < liItems.length - 1) {
+                    fragment.appendChild(document.createElement("br"));
+                }
+            });
+            parentEl.insertBefore(fragment, listEl);
+            parentEl.removeChild(listEl);
+        }
+        saveNotes();
+    } else {
+        // Build and insert a list wrapping the selected text (or a single empty item)
+        let lines = selectedText ? selectedText.split("\n") : [""];
+        let listHTML = "<" + type + ">";
+        lines.forEach(line => {
+            listHTML += "<li>" + line + "</li>";
+        });
+        listHTML += "</" + type + ">";
+        document.execCommand("insertHTML", false, listHTML);
+    }
+    addAction();
+}
+
 function insertHeader(header_size = "h1") {
     insertHTMLFromTagName(header_size);
     addAction();
@@ -514,7 +565,49 @@ function big() {
 }
 
 function clearFormatting() {
-    document.execCommand("removeFormat", false);
+    let sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+
+    if (!sel.isCollapsed) {
+        // Selection present: replace with plain text, stripping ALL formatting (inline + links + lists)
+        let selectedText = sel.toString();
+        document.execCommand("insertText", false, selectedText);
+    } else {
+        // No selection (cursor only): remove inline formatting
+        document.execCommand("removeFormat", false);
+
+        // Also unwrap link if cursor is inside one
+        let node = sel.anchorNode;
+        if (hasAncestorTagName(node, 'a')) {
+            let elements = getTheAncestorTagName(node, 'a');
+            let anchor = elements[0];
+            let parent = elements[1];
+            if (anchor && parent) {
+                while (anchor.firstChild) parent.insertBefore(anchor.firstChild, anchor);
+                parent.removeChild(anchor);
+            }
+        }
+
+        // Also unwrap list if cursor is inside one
+        ['ol', 'ul'].forEach(listType => {
+            let n = sel.anchorNode;
+            if (hasAncestorTagName(n, listType)) {
+                let elements = getTheAncestorTagName(n, listType);
+                let listEl = elements[0];
+                let parentEl = elements[1];
+                if (listEl && parentEl) {
+                    let fragment = document.createDocumentFragment();
+                    let liItems = Array.from(listEl.querySelectorAll("li"));
+                    liItems.forEach((li, idx) => {
+                        while (li.firstChild) fragment.appendChild(li.firstChild);
+                        if (idx < liItems.length - 1) fragment.appendChild(document.createElement("br"));
+                    });
+                    parentEl.insertBefore(fragment, listEl);
+                    parentEl.removeChild(listEl);
+                }
+            }
+        });
+    }
     addAction();
 }
 
@@ -1955,6 +2048,24 @@ function getIconSvgEncoded(icon, color) {
                 '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">' +
                 '    <g transform="matrix(33.0043,0,0,33.0043,135.982,125.639)">' +
                 '        <path fill="' + color + '" d="M7.944,2.348C7.926,2.33 7.911,2.308 7.901,2.284C7.87,2.209 7.887,2.123 7.945,2.066C8.798,1.212 10.202,1.212 11.055,2.066L14.934,5.945C15.788,6.798 15.788,8.202 14.934,9.055L9.434,14.555C9.022,14.968 8.462,15.2 7.879,15.2L5.12,15.2C4.537,15.2 3.977,14.968 3.565,14.555L1.065,12.055C0.211,11.202 0.211,9.798 1.065,8.945L7.944,2.066C7.886,2.123 7.869,2.209 7.9,2.284C7.91,2.308 7.925,2.33 7.944,2.348L7.944,2.348ZM10.066,3.055C9.755,2.745 9.245,2.745 8.934,3.055L4.443,7.547L9.453,12.557L13.945,8.066C14.255,7.755 14.255,7.245 13.945,6.934L10.066,3.055ZM8.464,13.548L3.453,8.537L2.055,9.934C1.745,10.245 1.745,10.755 2.055,11.066L4.555,13.566C4.705,13.716 4.909,13.8 5.121,13.8L7.88,13.8C8.092,13.8 8.296,13.716 8.446,13.566L8.464,13.548Z"/>' +
+                '    </g>' +
+                '</svg>';
+            break;
+        case "ol-list":
+            svgToReturn =
+                '<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"' +
+                '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">' +
+                '    <g transform="matrix(1,0,0,1,7.68448,112.395)">' +
+                '        <path fill="' + color + '" d="M646.196,140.884L646.196,175.884C646.196,185.542 638.355,193.384 628.696,193.384L400.793,193.384C391.135,193.384 383.293,185.542 383.293,175.884L383.293,140.884C383.293,131.225 391.135,123.384 400.793,123.384L628.696,123.384C638.355,123.384 646.196,131.225 646.196,140.884ZM261.995,271.695L221.546,271.695C217.476,271.695 214.176,268.395 214.176,264.325L214.176,127.637C201.53,137.045 187.343,144.353 171.605,149.549C169.36,150.29 166.894,149.909 164.978,148.523C163.061,147.138 161.926,144.916 161.926,142.551L161.926,105.844C161.926,102.658 163.974,99.832 167.003,98.842C176.883,95.608 187.58,89.411 199.168,80.383C210.345,71.677 218.078,61.567 222.237,49.958C223.287,47.027 226.064,45.073 229.175,45.073L261.995,45.073C266.064,45.073 269.364,48.373 269.364,52.443L269.364,264.325C269.364,268.395 266.064,271.695 261.995,271.695ZM646.196,400.849L646.196,435.849C646.196,445.507 638.355,453.349 628.696,453.349L400.793,453.349C391.135,453.349 383.293,445.507 383.293,435.849L383.293,400.849C383.293,391.19 391.135,383.348 400.793,383.348L628.696,383.348C638.355,383.348 646.196,391.19 646.196,400.849ZM220.877,478.531L285.584,478.531C289.599,478.531 292.855,481.786 292.855,485.802L292.855,522.865C292.855,526.88 289.599,530.136 285.584,530.136L145.706,530.136C143.641,530.136 141.675,529.259 140.295,527.722C138.917,526.187 138.255,524.136 138.477,522.085C140.105,507.027 144.976,492.754 153.115,479.274C160.916,466.354 176.248,449.149 199.26,427.794C216.605,411.637 227.322,400.74 231.289,394.945C235.858,388.074 238.266,381.324 238.266,374.61C238.266,367.983 236.784,362.791 233.224,359.231C229.705,355.712 224.76,354.189 218.556,354.189C212.428,354.189 207.486,355.847 203.865,359.536C199.881,363.598 198.024,370.486 197.41,379.91C197.282,381.878 196.36,383.71 194.855,384.984C193.351,386.259 191.393,386.869 189.431,386.672L149.669,382.697C147.74,382.503 145.969,381.549 144.748,380.044C143.526,378.539 142.956,376.609 143.164,374.683C145.789,350.317 154.406,333.007 168.269,322.399C181.955,311.927 199.021,306.56 219.549,306.56C242.246,306.56 259.995,312.92 272.965,325.157C286.209,337.654 292.855,353.184 292.855,371.77C292.855,382.081 290.998,391.897 287.3,401.218C283.714,410.262 278.065,419.753 270.285,429.654C265.303,436.003 256.342,445.161 243.353,457.078C232.084,467.413 224.585,474.557 220.877,478.531Z"/>' +
+                '    </g>' +
+                '</svg>';
+            break;
+        case "ul-list":
+            svgToReturn =
+                '<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"' +
+                '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">' +
+                '    <g transform="matrix(1,0,0,1,35.2542,32.6667)">' +
+                '        <path fill="' + color + '" d="M287.447,240.383C287.447,264.327 279.027,284.717 262.188,301.555C245.35,318.394 225.056,326.813 201.307,326.813C177.363,326.813 156.972,318.345 140.134,301.409C123.294,284.473 114.877,264.131 114.877,240.383C114.877,216.634 123.294,196.339 140.134,179.5C156.972,162.663 177.363,154.243 201.307,154.243C225.056,154.243 245.35,162.613 262.188,179.355C279.027,196.095 287.447,216.438 287.447,240.383ZM287.447,493.994C287.447,517.938 279.027,538.327 262.188,555.166C245.35,572.005 225.056,580.424 201.307,580.424C177.363,580.424 156.972,571.956 140.134,555.02C123.294,538.084 114.877,517.742 114.877,493.994C114.877,470.245 123.294,449.95 140.134,433.111C156.972,416.274 177.363,407.854 201.307,407.854C225.056,407.854 245.35,416.224 262.188,432.966C279.027,449.706 287.447,470.049 287.447,493.994ZM614.615,223.028L614.615,258.028C614.615,267.686 606.774,275.528 597.115,275.528L369.211,275.528C359.553,275.528 351.711,267.686 351.711,258.028L351.711,223.028C351.711,213.369 359.553,205.528 369.211,205.528L597.115,205.528C606.774,205.528 614.615,213.369 614.615,223.028ZM614.615,476.639L614.615,511.639C614.615,521.297 606.774,529.139 597.115,529.139L369.211,529.139C359.553,529.139 351.711,521.297 351.711,511.639L351.711,476.639C351.711,466.98 359.553,459.138 369.211,459.138L597.115,459.138C606.774,459.138 614.615,466.98 614.615,476.639Z"/>' +
                 '    </g>' +
                 '</svg>';
             break;

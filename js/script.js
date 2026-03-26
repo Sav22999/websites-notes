@@ -1780,6 +1780,11 @@ function loadFormatButtons(navigation = true, format = true) {
         if (settings_json["clear-formatting"] === "yes" || settings_json["clear-formatting"] === true) is_clear_formatting = true; else is_clear_formatting = false;
     }
 
+    let is_lists = false;
+    if (settings_json["lists"] !== undefined) {
+        if (settings_json["lists"] === "yes" || settings_json["lists"] === true) is_lists = true; else is_lists = false;
+    }
+
     let commands = [];
     if (navigation && html_text_formatting) {
         if (is_undo_redo) {
@@ -2090,6 +2095,30 @@ function loadFormatButtons(navigation = true, format = true) {
                     }]
             });
         }
+
+        if (is_lists) {
+            commands.push({
+                "lists_group":
+                    [{
+                        action: "ol-list",
+                        icon: `${url}ol_list.svg`,
+                        title: all_strings["label-title-ol-list"],
+                        function: function () {
+                            insertOrderedList();
+                            sendTelemetry("button-format::ol-list");
+                        }
+                    },
+                    {
+                        action: "ul-list",
+                        icon: `${url}ul_list.svg`,
+                        title: all_strings["label-title-ul-list"],
+                        function: function () {
+                            insertUnorderedList();
+                            sendTelemetry("button-format::ul-list");
+                        }
+                    }]
+            });
+        }
     }
 
     if (!format && !navigation || !html_text_formatting) {
@@ -2295,6 +2324,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let highlighter_svg = window.btoa(getIconSvgEncoded("highlighter", on_primary));
         let code_block_svg = window.btoa(getIconSvgEncoded("code-block", on_primary));
         let clear_formatting_svg = window.btoa(getIconSvgEncoded("clear-formatting", on_primary));
+        let ol_list_svg = window.btoa(getIconSvgEncoded("ol-list", on_primary));
+        let ul_list_svg = window.btoa(getIconSvgEncoded("ul-list", on_primary));
         let login_svg = window.btoa(getIconSvgEncoded("login", on_primary));
         let logout_svg = window.btoa(getIconSvgEncoded("logout", on_primary));
 
@@ -2448,6 +2479,14 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 
                 #text-clear-formatting {
                     background-image: url('data:image/svg+xml;base64,${clear_formatting_svg}');
+                }
+                
+                #text-ol-list {
+                    background-image: url('data:image/svg+xml;base64,${ol_list_svg}');
+                }
+                
+                #text-ul-list {
+                    background-image: url('data:image/svg+xml;base64,${ul_list_svg}');
                 }
                 
                 #text-link {

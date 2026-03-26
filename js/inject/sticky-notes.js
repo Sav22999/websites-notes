@@ -679,6 +679,27 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 font-size: inherit;
                 text-decoration-thickness: 2px;
             }
+            
+            #text--sticky-notes-notefox-addon ul,
+            #text--sticky-notes-notefox-addon ol {
+                padding-left: 2em !important;
+                margin: 0.3em 0 !important;
+                list-style-position: outside;
+            }
+            
+            #text--sticky-notes-notefox-addon ul {
+                list-style-type: disc !important;
+            }
+            
+            #text--sticky-notes-notefox-addon ol {
+                list-style-type: decimal !important;
+            }
+            
+            #text--sticky-notes-notefox-addon li {
+                display: list-item !important;
+                padding: 0px !important;
+                margin: 0px !important;
+            }
             #text--sticky-notes-notefox-addon b, #text--sticky-notes-notefox-addon strong {
                 font-family: inherit;
                 font-weight: 800;

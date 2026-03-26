@@ -1663,7 +1663,7 @@ function checkIcon() {
         });
     }
 
-    if (check_domain || check_page || check_tab_url || check_global || check_subdomains) {
+    if (check_domain || check_page || check_global || check_subdomains) {
         let tag_color = undefined
         if (check_domain) tag_color = getTagColor(_getDomain, websites_json);
         else if (check_page) tag_color = getTagColor(_getPage, websites_json);

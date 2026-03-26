@@ -516,6 +516,13 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("show-lists-check").onchange = function () {
+        settings_json["lists"] = document.getElementById("show-lists-check").checked;
+        sendTelemetry(`show-lists-check-select`, `settings.js`, settings_json["lists"]);
+
+        saveSettings();
+    };
+
     document.getElementById("clear-all-notes-button").onclick = function () {
         clearAllNotes();
         sendTelemetry("clear-all-notes-button");
@@ -990,6 +997,7 @@ function setLanguageUI() {
     document.getElementById("show-highlighter-text").innerText = all_strings["show-highlighter-text"];
     document.getElementById("show-code-block-text").innerText = all_strings["show-code-block-text"];
     document.getElementById("show-clear-formatting-text").innerText = all_strings["show-clear-formatting-text"];
+    document.getElementById("show-lists-text").innerText = all_strings["show-lists-text"];
 
     document.getElementById("default-tag-colour-domain-text").innerText = all_strings["default-tag-colour-domain-text"];
     document.getElementById("default-tag-colour-domain-detailed-text").innerHTML = all_strings["default-tag-colour-domain-detailed-text"];
@@ -1149,6 +1157,7 @@ function loadSettings() {
             if (settings_json["highlighter"] === undefined) settings_json["highlighter"] = false;
             if (settings_json["code-block"] === undefined) settings_json["code-block"] = false;
             if (settings_json["clear-formatting"] === undefined) settings_json["clear-formatting"] = false;
+            if (settings_json["lists"] === undefined) settings_json["lists"] = false;
 
             if (settings_json["default-tag-colour-domain"] === undefined) settings_json["default-tag-colour-domain"] = "none";
             if (settings_json["default-tag-colour-page"] === undefined) settings_json["default-tag-colour-page"] = "none";
@@ -1257,6 +1266,7 @@ function loadSettings() {
             document.getElementById("show-highlighter-check").checked = settings_json["highlighter"] === true || settings_json["highlighter"] === "yes";
             document.getElementById("show-code-block-check").checked = settings_json["code-block"] === true || settings_json["code-block"] === "yes";
             document.getElementById("show-clear-formatting-check").checked = settings_json["clear-formatting"] === true || settings_json["clear-formatting"] === "yes";
+            document.getElementById("show-lists-check").checked = settings_json["lists"] === true || settings_json["lists"] === "yes";
 
             let colourList = colourListDefault;
             colourList = Object.assign({}, {none: all_strings["none-colour"]}, colourList);
