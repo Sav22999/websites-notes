@@ -620,6 +620,7 @@ function insertLink() {
 
     let onEnterPress = function (event) {
         if (event.key === "Enter") {
+            event.preventDefault();
             linkButton.click();
         }
     };
