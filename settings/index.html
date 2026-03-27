@@ -734,6 +734,17 @@ Created by Saverio Morelli - saveriomorelli.com
                 <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                       id="show-clear-formatting-detailed-text"></span>
             </div>
+
+            <!--Show HTML text formatting section :: Lists (ol, ul)-->
+            <div class="option-settings option-indent-settings">
+                <label class="item-settings">
+                    <span class="title-option-settings yes-no-item" id="show-lists-text"></span>
+                    <input type="checkbox" id="show-lists-check"/>
+                    <span class="checkmark"></span>
+                </label>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-lists-detailed-text"></span>
+            </div>
         </div>
 
         <!--Show title textbox section-->
@@ -747,15 +758,15 @@ Created by Saverio Morelli - saveriomorelli.com
                   id="show-title-textbox-detailed-text"></span>
         </div>
 
-        <!--Immersive sticky notes section-->
+        <!--Allow popup resizing section-->
         <div class="option-settings">
             <label class="item-settings">
-                <span class="title-option-settings yes-no-item" id="immersive-sticky-notes-text"></span>
-                <input type="checkbox" id="immersive-sticky-notes-check"/>
+                <span class="title-option-settings yes-no-item" id="allow-resize-popup-text"></span>
+                <input type="checkbox" id="allow-resize-popup-check"/>
                 <span class="checkmark"></span>
             </label>
             <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                  id="immersive-sticky-notes-detailed-text"></span>
+                  id="allow-resize-popup-detailed-text"></span>
         </div>
 
         <!--Notes background follow the tag colour section-->
@@ -767,17 +778,6 @@ Created by Saverio Morelli - saveriomorelli.com
             </label>
             <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                   id="notes-background-follow-tag-colour-detailed-text"></span>
-        </div>
-
-        <!--Allow popup resizing section-->
-        <div class="option-settings">
-            <label class="item-settings">
-                <span class="title-option-settings yes-no-item" id="allow-resize-popup-text"></span>
-                <input type="checkbox" id="allow-resize-popup-check"/>
-                <span class="checkmark"></span>
-            </label>
-            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                  id="allow-resize-popup-detailed-text"></span>
         </div>
 
         <!--Notefox theme section-->
@@ -947,72 +947,6 @@ Created by Saverio Morelli - saveriomorelli.com
                             <span class="item-radio-theme-preview-item secondary">B</span>
                         </span>
                         <span class="item-radio-title" id="theme-select-retro-teal-dark"></span>
-                    </label>
-                </span>
-        </div>
-
-        <!--Sticky theme section-->
-        <div class="option-settings margin-top-20-px">
-                <span class="item-settings section-grid-container">
-                    <span class="title-option-settings section-grid-item-text" id="sticky-theme-text"></span>
-                    <span class="section-grid-item-select"></span>
-                    <span class="description-option-settings display-block" id="sticky-theme-detailed-text"></span>
-                </span>
-            <span class="sticky-theme-section-radio-container">
-                    <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-yellow">
-                        <input name="theme-radio-sticky" type="radio" value="yellow">
-                        <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-yellow">
-                            <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-yellow">A</span>
-                        </span>
-                        <span class="item-radio-title" id="sticky-theme-select-yellow"></span>
-                    </label>
-
-                    <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-cyan">
-                        <input name="theme-radio-sticky" type="radio" value="cyan">
-                        <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-cyan">
-                            <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-cyan">A</span>
-                        </span>
-                        <span class="item-radio-title" id="sticky-theme-select-cyan"></span>
-                    </label>
-
-                    <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-lime">
-                        <input name="theme-radio-sticky" type="radio" value="lime">
-                        <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-lime">
-                            <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-lime">A</span>
-                        </span>
-                        <span class="item-radio-title" id="sticky-theme-select-lime"></span>
-                    </label>
-
-                    <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-pink">
-                        <input name="theme-radio-sticky" type="radio" value="pink">
-                        <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-pink">
-                            <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-pink">A</span>
-                        </span>
-                        <span class="item-radio-title" id="sticky-theme-select-pink"></span>
-                    </label>
-
-                    <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-white">
-                        <input name="theme-radio-sticky" type="radio" value="white">
-                        <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-white">
-                            <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-white">A</span>
-                        </span>
-                        <span class="item-radio-title" id="sticky-theme-select-white"></span>
-                    </label>
-
-                    <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-black">
-                        <input name="theme-radio-sticky" type="radio" value="black">
-                        <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-black">
-                            <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-black">A</span>
-                        </span>
-                        <span class="item-radio-title" id="sticky-theme-select-black"></span>
-                    </label>
-
-                    <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-auto">
-                        <input name="theme-radio-sticky" type="radio" value="auto">
-                        <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-auto">
-                            <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-auto">A</span>
-                        </span>
-                        <span class="item-radio-title" id="sticky-theme-select-auto"></span>
                     </label>
                 </span>
         </div>
@@ -1270,6 +1204,127 @@ Created by Saverio Morelli - saveriomorelli.com
 
         <hr class="hr-big-space">
 
+        <div class="section-title-settings" id="sticky-notes-title-settings"></div>
+
+        <!--Immersive sticky notes section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="immersive-sticky-notes-text"></span>
+                <input type="checkbox" id="immersive-sticky-notes-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="immersive-sticky-notes-detailed-text"></span>
+        </div>
+
+        <!--Default sticky size section-->
+        <div class="option-settings">
+                    <span class="item-settings section-grid-container">
+                        <span class="title-option-settings section-grid-item-text" id="default-sticky-size-text"></span>
+                        <span class="section-grid-item-select">
+                            <select class="select-box" id="default-sticky-size-select">
+                                <option value="small" id="default-sticky-size-select-small">Small</option>
+                                <option value="medium" id="default-sticky-size-select-medium">Medium</option>
+                                <option value="large" id="default-sticky-size-select-large">Large</option>
+                                <option value="very-large"
+                                        id="default-sticky-size-select-very-large">Very large</option>
+                            </select>
+                        </span>
+                        <span class="description-option-settings" id="default-sticky-size-detailed-text"></span>
+                    </span>
+        </div>
+
+        <!--Default sticky transparency section-->
+        <div class="option-settings">
+                    <span class="item-settings section-grid-container">
+                        <span class="title-option-settings section-grid-item-text"
+                              id="default-sticky-transparency-text"></span>
+                        <span class="section-grid-item-select">
+                            <span class="sticky-transparency-setting">
+                                <input type="range" class="slider--sticky-notes-notefox-addon"
+                                       id="default-sticky-transparency-range" min="10" max="100" step="1" value="80">
+                                <span id="default-sticky-transparency-value">80%</span>
+                            </span>
+                        </span>
+                        <span class="description-option-settings" id="default-sticky-transparency-detailed-text"></span>
+                    </span>
+        </div>
+
+        <!--Sticky theme section-->
+        <div class="option-settings">
+                    <span class="item-settings section-grid-container">
+                        <span class="title-option-settings section-grid-item-text" id="sticky-theme-text"></span>
+                        <span class="section-grid-item-select"></span>
+                        <span class="description-option-settings display-block" id="sticky-theme-detailed-text"></span>
+                    </span>
+            <span class="sticky-theme-section-radio-container">
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-yellow">
+                            <input name="theme-radio-sticky" type="radio" value="yellow">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-yellow">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-yellow">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-yellow"></span>
+                        </label>
+
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-cyan">
+                            <input name="theme-radio-sticky" type="radio" value="cyan">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-cyan">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-cyan">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-cyan"></span>
+                        </label>
+
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-lime">
+                            <input name="theme-radio-sticky" type="radio" value="lime">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-lime">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-lime">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-lime"></span>
+                        </label>
+
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-pink">
+                            <input name="theme-radio-sticky" type="radio" value="pink">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-pink">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-pink">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-pink"></span>
+                        </label>
+
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-white">
+                            <input name="theme-radio-sticky" type="radio" value="white">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-white">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-white">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-white"></span>
+                        </label>
+
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-black">
+                            <input name="theme-radio-sticky" type="radio" value="black">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-black">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-black">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-black"></span>
+                        </label>
+
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-auto">
+                            <input name="theme-radio-sticky" type="radio" value="auto">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-auto">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-auto">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-auto"></span>
+                        </label>
+                    </span>
+        </div>
+
+        <hr class="hr-big-space">
+
         <!--====================-->
         <!--Icon Behaviour section-->
         <div class="section-title-settings" id="icon-behaviour-title-settings"></div>
@@ -1461,7 +1516,8 @@ Created by Saverio Morelli - saveriomorelli.com
                     <span class="title-option-settings section-grid-item-text"
                           id="default-tag-colour-domain-text"></span>
                     <span class="section-grid-item-select">
-                        <select class="select-box" id="default-tag-colour-domain-select"></select>
+                        <select class="select-box" data-color-values="true"
+                                id="default-tag-colour-domain-select"></select>
                     </span>
                     <span class="description-option-settings" id="default-tag-colour-domain-detailed-text"></span>
                 </span>
@@ -1472,7 +1528,8 @@ Created by Saverio Morelli - saveriomorelli.com
                 <span class="item-settings section-grid-container">
                     <span class="title-option-settings section-grid-item-text" id="default-tag-colour-page-text"></span>
                     <span class="section-grid-item-select">
-                        <select class="select-box" id="default-tag-colour-page-select"></select>
+                        <select class="select-box" data-color-values="true"
+                                id="default-tag-colour-page-select"></select>
                     </span>
                     <span class="description-option-settings" id="default-tag-colour-page-detailed-text"></span>
                 </span>
@@ -1542,6 +1599,8 @@ Created by Saverio Morelli - saveriomorelli.com
             <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                   id="send-telemetry-detailed-text"></span>
         </div>
+
+        <hr class="hr-big-space">
 
         <!--====================-->
         <!--Developer options section-->

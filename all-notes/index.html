@@ -55,15 +55,16 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
     <div class="section text-align-left sticky-section" id="search-filter-sortby">
         <div class="search-grid-area">
-            <input type="search" value="" placeholder="Search…" id="search-all-notes-text"
-                   class="textbox search-box search-all-notes-text"/><span
-                id="info-tooltip-search"></span>
+            <div id="search-all-notes-container" class="textbox custom-tag-input-container">
+                <input type="text" value="" placeholder="Search…" id="search-all-notes-text"
+                       class="tag-inner-input search-all-notes-text"/>
+            </div>
         </div>
         <!--<input type="button" value="Sort by…" id="sort-by-all-notes-button" class="button sort-by-button float-right"/>-->
         <div class="buttons-grid">
             <input type="button" value="Filter…" id="filter-all-notes-button"
                    class="button filter-button button-no-text-on-mobile"/>
-            <select name="theme" id="sort-by-all-notes-button" class="button select-grid-no-text sort-by-button">
+            <select name="theme" id="sort-by-all-notes-button" class="button sort-by-button no-text">
                 <option value="name-az" id="sort-by-name-az-select">Name: A-Z</option>
                 <option value="name-za" id="sort-by-name-za-select">Name: Z-A</option>
                 <option value="date-90" id="sort-by-date-90-select">Last update: Oldest-Newest</option>
@@ -72,14 +73,22 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
     </div>
     <div class="section text-align-left hidden sticky-section" id="filters">
-        <span id="filter-colours-container"></span>
-        <br>
-        <input type="button" value="Type: Global" id="filter-type-global-button"
-               class="button filter-button-type"/>
-        <input type="button" value="Type: Domain" id="filter-type-domain-button"
-               class="button filter-button-type"/>
-        <input type="button" value="Type: Page" id="filter-type-page-button"
-               class="button filter-button-type"/>
+        <div id="filter-folder-section" class="margin-bottom-10-px">
+            <span id="filter-folder-label-span"></span>:
+            <div id="filter-folder-input" class="textbox custom-tag-filter-input"></div>
+        </div>
+        <div id="filter-tags-text-section" class="margin-bottom-10-px">
+            <span id="filter-tags-text-label-span"></span>:
+            <div id="filter-tags-text-input" class="textbox custom-tag-filter-input"></div>
+        </div>
+        <div id="filter-colour-section" class="margin-bottom-10-px">
+            <span id="filter-colour-label-span"></span>:
+            <div id="filter-colour-input" class="textbox custom-tag-filter-input"></div>
+        </div>
+        <div id="filter-type-section" class="margin-bottom-10-px">
+            <span id="filter-type-label-span"></span>:
+            <div id="filter-type-input" class="textbox custom-tag-filter-input"></div>
+        </div>
     </div>
     <div class="section text-align-left hidden" id="results-searching"></div>
 

@@ -38,7 +38,7 @@ Created by Saverio Morelli - saveriomorelli.com
         <input type="text" id="title-notes" class="textbox width-100-important hidden" tabindex="2" value="">
         <div class="content-notes--container">
             <div class="content-notes">
-                <pre contenteditable="true" id="notes" spellcheck="true" tabindex="2" placeholder=""></pre>
+                <div contenteditable="true" id="notes" spellcheck="true" tabindex="2" placeholder=""></div>
             </div>
         </div>
         <div id="panel-other-tabs" class="hidden" tabindex="1">
@@ -52,10 +52,18 @@ Created by Saverio Morelli - saveriomorelli.com
         Last update: ----/--/-- --:--:--
     </div>
     <div id="all-notes-section">
-        <select id="tag-select-grid" class="button select-grid-no-text" tabindex="2"></select>
+        <select id="tag-select-grid" class="button no-text" tabindex="2"></select>
         <input type="button" value="See all notes" id="all-notes-button-grid" class="button" tabindex="2"/>
     </div>
+    <div id="popup-folder-section" class="hidden"></div>
     <div id="tag-colour-section"></div>
+    <div id="folder-management-section" class="hidden padding-top-10">
+        <input type="text" id="new-folder-input" class="textbox" tabindex="2" placeholder="">
+        <input type="button" id="add-folder-button" class="button" tabindex="2" value="">
+    </div>
+    <div id="tags-text-section" class="padding-top-10">
+        <div id="tags-text-container" class="custom-tag-input-container"></div>
+    </div>
     <div id="resize-popup" class="hidden"></div>
 </div>
 
@@ -76,12 +84,20 @@ Created by Saverio Morelli - saveriomorelli.com
 <div id="link-section">
     <div id="link-content-section" class="section">
         <div id="link-text" class="padding-10"></div>
-        <div id="link-url" class="padding-10">
+        <div class="padding-10">
+            <label for="link-text-input" id="link-text-to-display-label" class="description-option-settings"></label>
+            <input type="text" id="link-text-input" class="textbox width-100-important" tabindex="1" value="">
+        </div>
+        <div class="padding-10">
+            <label for="link-url-text" id="link-url-label" class="description-option-settings"></label>
             <input type="text" id="link-url-text" class="textbox width-100-important" tabindex="1" value="">
         </div>
-        <div id="link-buttons" class="padding-10 text-align-right">
-            <input type="button" value="" id="link-button" class="button" tabindex="1"/>
-            <input type="button" value="" id="link-cancel-button" class="button" tabindex="2"/>
+        <div id="link-buttons" class="padding-10 display-flex align-items-center">
+            <input type="button" value="" id="link-delete-button" class="button button-red hidden" tabindex="1"/>
+            <div id="link-main-buttons" class="margin-left-auto">
+                <input type="button" value="" id="link-cancel-button" class="button" tabindex="1"/>
+                <input type="button" value="" id="link-button" class="button" tabindex="1"/>
+            </div>
         </div>
     </div>
 </div>

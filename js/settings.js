@@ -46,6 +46,76 @@ function checkSyncLocal() {
     checkTheme();
 }
 
+function sanitizeDefaultStickyTransparency(value) {
+    let transparency = Number.parseInt(value, 10);
+    if (Number.isNaN(transparency)) transparency = 20;
+    return Math.max(0, Math.min(90, transparency));
+}
+
+function sanitizeDefaultStickyOpacity(value) {
+    let opacity = Number.parseInt(value, 10);
+    if (Number.isNaN(opacity)) opacity = 80;
+    return Math.max(10, Math.min(100, opacity));
+}
+
+function transparencyToOpacity(transparency) {
+    return sanitizeDefaultStickyOpacity(100 - sanitizeDefaultStickyTransparency(transparency));
+}
+
+function opacityToTransparency(opacity) {
+    return sanitizeDefaultStickyTransparency(100 - sanitizeDefaultStickyOpacity(opacity));
+}
+
+function getStickyThemeSecondaryColor(theme) {
+    switch (theme) {
+        case "cyan":
+            return "#00b5e2";
+        case "lime":
+            return "#a6e22e";
+        case "pink":
+            return "#ff00ff";
+        case "white":
+            return "#cccccc";
+        case "black":
+            return "#000000";
+        case "auto":
+        case "yellow":
+        default:
+            return "#ff6200";
+    }
+}
+
+function updateDefaultStickyTransparencyUi(value) {
+    const opacity = sanitizeDefaultStickyOpacity(value);
+    const transparency = opacityToTransparency(opacity);
+    const range = document.getElementById("default-sticky-transparency-range");
+    const stickyTheme = settings_json["sticky-theme"] || "yellow";
+    const sliderAccent = getStickyThemeSecondaryColor(stickyTheme);
+    range.value = opacity;
+    range.style.setProperty("--sticky-slider-secondary", sliderAccent);
+    range.style.background = `linear-gradient(to right, ${sliderAccent} 0%, ${sliderAccent} ${opacity}%, #eeeeee ${opacity}%, #eeeeee 100%)`;
+    document.getElementById("default-sticky-transparency-value").textContent = `${opacity}%`;
+    return transparency;
+}
+
+function hideAllDropdowns(event) {
+    if (event && event.type === "scroll") {
+        const activeDropdown = document.querySelector(".autocomplete-dropdown:not(.hidden)");
+        if (activeDropdown && event.target && typeof event.target.contains === "function" && activeDropdown.contains(event.target)) {
+            return;
+        }
+    }
+    document.querySelectorAll(".autocomplete-dropdown").forEach(d => {
+        d.classList.add("hidden");
+        if (d.classList.contains("custom-select-dropdown")) {
+            document.querySelectorAll(".custom-select-trigger.active").forEach(t => t.classList.remove("active"));
+            d.remove();
+        }
+    });
+}
+
+window.addEventListener("scroll", hideAllDropdowns, true);
+
 var letters_and_numbers = {
     A: "A",
     B: "B",
@@ -268,6 +338,24 @@ function loaded() {
         saveSettings();
     }
 
+    document.getElementById("default-sticky-size-select").onchange = function () {
+        settings_json["default-sticky-size"] = document.getElementById("default-sticky-size-select").value;
+        sendTelemetry(`default-sticky-size-select`, `settings.js`, settings_json["default-sticky-size"]);
+        saveSettings();
+    };
+
+    document.getElementById("default-sticky-transparency-range").oninput = function () {
+        let transparency = updateDefaultStickyTransparencyUi(document.getElementById("default-sticky-transparency-range").value);
+        settings_json["default-sticky-transparency"] = transparency;
+    };
+
+    document.getElementById("default-sticky-transparency-range").onchange = function () {
+        let transparency = updateDefaultStickyTransparencyUi(document.getElementById("default-sticky-transparency-range").value);
+        settings_json["default-sticky-transparency"] = transparency;
+        sendTelemetry(`default-sticky-transparency-range`, `settings.js`, document.getElementById("default-sticky-transparency-range").value);
+        saveSettings();
+    };
+
     setThemeChooser();
     setStickyThemeChooser();
     setFontFamilyChooser();
@@ -428,6 +516,13 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("show-lists-check").onchange = function () {
+        settings_json["lists"] = document.getElementById("show-lists-check").checked;
+        sendTelemetry(`show-lists-check-select`, `settings.js`, settings_json["lists"]);
+
+        saveSettings();
+    };
+
     document.getElementById("clear-all-notes-button").onclick = function () {
         clearAllNotes();
         sendTelemetry("clear-all-notes-button");
@@ -505,16 +600,16 @@ function loaded() {
     };
 
     document.getElementById("default-tag-colour-domain-select").onchange = function () {
-        settings_json["default-tag-colour-domain"] = document.getElementById("default-tag-colour-domain-select").value;
-        sendTelemetry(`default-tag-colour-domain-select`, `settings.js`, settings_json["default-tag-colour-domain"]);
-
+        const val = this.value;
+        settings_json["default-tag-colour-domain"] = val;
+        sendTelemetry(`default-tag-colour-domain-select`, `settings.js`, val);
         saveSettings();
     };
 
     document.getElementById("default-tag-colour-page-select").onchange = function () {
-        settings_json["default-tag-colour-page"] = document.getElementById("default-tag-colour-page-select").value;
-        sendTelemetry(`default-tag-colour-page-select`, `settings.js`, settings_json["default-tag-colour-page"]);
-
+        const val = this.value;
+        settings_json["default-tag-colour-page"] = val;
+        sendTelemetry(`default-tag-colour-page-select`, `settings.js`, val);
         saveSettings();
     };
 
@@ -530,6 +625,8 @@ function loaded() {
     if (splashScreen !== undefined && splashScreen !== null) {
         splashScreen.classList.add("splash-screen-hidden");
     }
+
+    initCustomSelects();
 }
 
 function sendTelemetry(action, context = "settings.js", other = null) {
@@ -637,6 +734,7 @@ function setStickyThemeChooserByElement(element, set_variable = true) {
 
         saveSettings();
     }
+    updateDefaultStickyTransparencyUi(document.getElementById("default-sticky-transparency-range").value);
     sendMessageUpdateToBackground();
     if (set_variable) sendTelemetry(`sticky-theme-radio-select`, "settings.js", settings_json["sticky-theme"]);
 }
@@ -763,6 +861,7 @@ function setLanguageUI() {
     document.getElementById("developer-options-title-settings").innerText = all_strings["developer-options-title-settings"];
     document.getElementById("developer-options-description-settings").innerText = all_strings["developer-options-description-settings"];
     document.getElementById("appearance-title-settings").innerText = all_strings["appearance-title-settings"];
+    document.getElementById("sticky-notes-title-settings").innerText = all_strings["sticky-notes-title-settings"] || "Sticky notes";
     document.getElementById("shortcuts-title-settings").innerText = all_strings["shortcuts-title-settings"];
     document.getElementById("icon-behaviour-title-settings").innerText = all_strings["icon-behaviour-title-settings"];
     document.getElementById("data-title-settings").innerText = all_strings["data-and-sync-title-settings"];
@@ -874,6 +973,14 @@ function setLanguageUI() {
     document.getElementById("sticky-theme-select-black").innerText = all_strings["sticky-theme-choose-black-select"];
     document.getElementById("sticky-theme-select-auto").innerText = all_strings["sticky-theme-choose-auto-select"];
     document.getElementById("sticky-theme-detailed-text").innerHTML = all_strings["sticky-theme-detailed-text"].replace("{{property1}}", `<span class="button-code very-small-button">` + all_strings["sticky-theme-choose-auto-select"] + `</span>`);
+    document.getElementById("default-sticky-size-text").innerText = all_strings["default-sticky-size-text"] || "Default sticky size";
+    document.getElementById("default-sticky-size-detailed-text").innerHTML = all_strings["default-sticky-size-detailed-text"] || "Applied when a sticky has no saved custom size.";
+    document.getElementById("default-sticky-size-select-small").innerText = all_strings["default-sticky-size-small"] || "Small";
+    document.getElementById("default-sticky-size-select-medium").innerText = all_strings["default-sticky-size-medium"] || "Medium";
+    document.getElementById("default-sticky-size-select-large").innerText = all_strings["default-sticky-size-large"] || "Large";
+    document.getElementById("default-sticky-size-select-very-large").innerText = all_strings["default-sticky-size-very-large"] || "Very large";
+    document.getElementById("default-sticky-transparency-text").innerText = all_strings["default-sticky-transparency-text"] || "Default sticky opacity";
+    document.getElementById("default-sticky-transparency-detailed-text").innerHTML = all_strings["default-sticky-transparency-detailed-text"] || "10% = very transparent, 100% = opaque.";
     document.getElementById("show-title-textbox-text").innerText = all_strings["show-title-textbox-text"];
     document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
     document.getElementById("immersive-sticky-notes-text").innerText = all_strings["immersive-sticky-notes-text"];
@@ -890,6 +997,7 @@ function setLanguageUI() {
     document.getElementById("show-highlighter-text").innerText = all_strings["show-highlighter-text"];
     document.getElementById("show-code-block-text").innerText = all_strings["show-code-block-text"];
     document.getElementById("show-clear-formatting-text").innerText = all_strings["show-clear-formatting-text"];
+    document.getElementById("show-lists-text").innerText = all_strings["show-lists-text"];
 
     document.getElementById("default-tag-colour-domain-text").innerText = all_strings["default-tag-colour-domain-text"];
     document.getElementById("default-tag-colour-domain-detailed-text").innerHTML = all_strings["default-tag-colour-domain-detailed-text"];
@@ -1016,6 +1124,8 @@ function loadSettings() {
             if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = false;
             if (settings_json["disable-confirmation-popup"] === undefined) settings_json["disable-confirmation-popup"] = false;
             if (settings_json["allow-resize-popup"] === undefined) settings_json["allow-resize-popup"] = false;
+            if (settings_json["default-sticky-size"] === undefined || !["small", "medium", "large", "very-large"].includes(settings_json["default-sticky-size"])) settings_json["default-sticky-size"] = "medium";
+            if (settings_json["default-sticky-transparency"] === undefined) settings_json["default-sticky-transparency"] = 20;
             if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
             if (settings_json["sticky-theme"] === undefined) settings_json["sticky-theme"] = "yellow";
             if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
@@ -1047,6 +1157,7 @@ function loadSettings() {
             if (settings_json["highlighter"] === undefined) settings_json["highlighter"] = false;
             if (settings_json["code-block"] === undefined) settings_json["code-block"] = false;
             if (settings_json["clear-formatting"] === undefined) settings_json["clear-formatting"] = false;
+            if (settings_json["lists"] === undefined) settings_json["lists"] = false;
 
             if (settings_json["default-tag-colour-domain"] === undefined) settings_json["default-tag-colour-domain"] = "none";
             if (settings_json["default-tag-colour-page"] === undefined) settings_json["default-tag-colour-page"] = "none";
@@ -1067,6 +1178,9 @@ function loadSettings() {
             document.getElementById("spellcheck-detection-check").checked = settings_json["spellcheck-detection"] === true || settings_json["spellcheck-detection"] === "yes";
             document.getElementById("disable-confirmation-popup-check").checked = settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes";
             document.getElementById("allow-resize-popup-check").checked = settings_json["allow-resize-popup"] === true || settings_json["allow-resize-popup"] === "yes";
+            document.getElementById("default-sticky-size-select").value = settings_json["default-sticky-size"];
+            let defaultTransparency = updateDefaultStickyTransparencyUi(transparencyToOpacity(settings_json["default-sticky-transparency"]));
+            settings_json["default-sticky-transparency"] = defaultTransparency;
             document.getElementById("check-green-icon-global-check").checked = settings_json["check-green-icon-global"] === true || settings_json["check-green-icon-global"] === "yes";
             document.getElementById("check-green-icon-domain-check").checked = settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-domain"] === "yes";
             document.getElementById("check-green-icon-page-check").checked = settings_json["check-green-icon-page"] === true || settings_json["check-green-icon-page"] === "yes";
@@ -1152,6 +1266,7 @@ function loadSettings() {
             document.getElementById("show-highlighter-check").checked = settings_json["highlighter"] === true || settings_json["highlighter"] === "yes";
             document.getElementById("show-code-block-check").checked = settings_json["code-block"] === true || settings_json["code-block"] === "yes";
             document.getElementById("show-clear-formatting-check").checked = settings_json["clear-formatting"] === true || settings_json["clear-formatting"] === "yes";
+            document.getElementById("show-lists-check").checked = settings_json["lists"] === true || settings_json["lists"] === "yes";
 
             let colourList = colourListDefault;
             colourList = Object.assign({}, {none: all_strings["none-colour"]}, colourList);
@@ -1170,10 +1285,15 @@ function loadSettings() {
                     .append(tagColourPage);
             }
 
-            document.getElementById("default-tag-colour-domain-select").value = settings_json["default-tag-colour-domain"];
-            document.getElementById("default-tag-colour-domain-select").classList = ["select-box tag-colour-" + settings_json["default-tag-colour-domain"],];
-            document.getElementById("default-tag-colour-page-select").value = settings_json["default-tag-colour-page"];
-            document.getElementById("default-tag-colour-page-select").classList = ["select-box tag-colour-" + settings_json["default-tag-colour-page"],];
+            const domainSel = document.getElementById("default-tag-colour-domain-select");
+            domainSel.value = settings_json["default-tag-colour-domain"];
+            domainSel.className = "select-box";
+            domainSel.dataset.colorValues = "true";
+
+            const pageSel = document.getElementById("default-tag-colour-page-select");
+            pageSel.value = settings_json["default-tag-colour-page"];
+            pageSel.className = "select-box";
+            pageSel.dataset.colorValues = "true";
 
             let keyboardShortcutCtrlAltShiftDefault = document.getElementById("key-shortcut-ctrl-alt-shift-default-selected");
             let keyboardShortcutLetterNumberDefault = document.getElementById("key-shortcut-default-selected");
@@ -4234,8 +4354,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 #translate-aside {
                     background-image: url('data:image/svg+xml;base64,${translate_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
-                .select-box {
-                    background-image: url('data:image/svg+xml;base64,${arrow_select_svg}');
+                .cst-arrow {
+                    background-image: url('data:image/svg+xml;base64,${arrow_select_svg}') !important;
                 }
                 .section-title-settings {
                     background-color: ${background};
