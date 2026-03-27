@@ -375,7 +375,7 @@ function loadUI(called_by = null) {
     notes.style.fontFamily = `'${settings_json["font-family"]}'`;
     notes.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
     if (settings_json !== undefined && settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true)) {
-        document.getElementById("notes").style.whiteSpace = "none";
+        document.getElementById("notes").style.whiteSpace = "normal";
         document.getElementById("notes").style.maxWidth = "none";
     } else {
         document.getElementById("notes").style.whiteSpace = "pre-wrap";

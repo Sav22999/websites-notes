@@ -1638,7 +1638,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             sendTelemetry(`clear-all-notes-page`, "all-notes.js", fullUrl);
         }
         let pageTitleH3 = document.createElement("h3");
-        let textNotes = document.createElement("pre");
+        let textNotes = document.createElement("div");
         let row2 = document.createElement("div");
 
         //Button "Edit notes"
@@ -1902,7 +1902,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true; else disable_word_wrap = false;
         }
         if (disable_word_wrap) {
-            textNotes.style.whiteSpace = "none";
+            textNotes.style.whiteSpace = "normal";
         } else {
             textNotes.style.whiteSpace = "pre-wrap";
         }
@@ -2551,7 +2551,7 @@ function showFullscreenNotes(notesText) {
             if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true; else disable_word_wrap = false;
         }
         if (disable_word_wrap) {
-            notesContent.style.whiteSpace = "none";
+            notesContent.style.whiteSpace = "normal";
         } else {
             notesContent.style.whiteSpace = "pre-wrap";
         }

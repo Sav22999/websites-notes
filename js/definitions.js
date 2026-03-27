@@ -398,6 +398,9 @@ function sanitize(element, allowedTags = -1, allowedAttributes = -1) {
             "blockquote",
             "q",
             "mark",
+            "ul",
+            "ol",
+            "li",
         ];
     if (allowedAttributes === -1)
         allowedAttributes = ["src", "alt", "title", "cite", "href"];

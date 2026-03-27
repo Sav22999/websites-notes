@@ -224,7 +224,7 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         textContainer.id = "text-container--sticky-notes-notefox-addon";
         listenerLinks(textContainer, settings_json);
 
-        let text = document.createElement("pre");
+        let text = document.createElement("div");
         text.id = "text--sticky-notes-notefox-addon";
         text.innerHTML = notes.description;
         text.contentEditable = true;
@@ -360,7 +360,7 @@ function checkDisableWordWrap(text, settings_json) {
         disable_word_wrap = false;
     }
     if (disable_word_wrap) {
-        text.style.whiteSpace = "none";
+        text.style.whiteSpace = "normal";
     } else {
         text.style.whiteSpace = "pre-wrap";
     }
@@ -683,7 +683,7 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
             #text--sticky-notes-notefox-addon ul,
             #text--sticky-notes-notefox-addon ol {
                 padding-left: 2em !important;
-                margin: 0.3em 0 !important;
+                margin: 0.2em 0 !important;
                 list-style-position: outside;
             }
             
@@ -1290,7 +1290,7 @@ function listenerLinks(element, settings_json) {
 }
 
 function sanitize(element, allowedTags, allowedAttributes) {
-    if (allowedTags === -1) allowedTags = ["b", "i", "u", "a", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q", "mark"];
+    if (allowedTags === -1) allowedTags = ["b", "i", "u", "a", "strike", "code", "span", "div", "img", "br", "h1", "h2", "h3", "h4", "h5", "h6", "p", "small", "big", "em", "strong", "s", "sub", "sup", "blockquote", "q", "mark", "ul", "ol", "li"];
     if (allowedAttributes === -1) allowedAttributes = ["src", "alt", "title", "cite", "href"];
 
     let sanitizedHTML = element;
