@@ -96,11 +96,34 @@ body {
     overflow: auto;
 }
 
+/* Sidebar */
+@media (min-width: 400px) {
+    #popup-content {
+        min-width: 100%;
+        width: 100%;
+        max-width: 100%; 
+        height: 100vh;
+    }
+    .content-notes--container, 
+    .content-notes, 
+    textarea {
+        height: 79vh !important;
+        max-height: none;
+        width: 100%;
+    }
+}
+
+/* Regular Popup  */
+@media (max-width: 399px) {
+    #popup-content {
+        min-width: 336px;
+        width: auto;
+        max-width: 336px;
+        height: auto;
+    }
+}
+
 #popup-content {
-    min-width: 336px;
-    width: auto;
-    max-width: 336px;
-    height: auto;
     margin: 0px;
     padding: 0px;
     border: 0px solid transparent;
