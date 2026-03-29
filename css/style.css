@@ -1733,6 +1733,7 @@ pre::placeholder,
     display: none;
     overflow: auto;
     color: var(--primary-color);
+    width: auto;
 }
 
 #fullscreen-notes-viewer-content {
