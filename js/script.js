@@ -758,6 +758,7 @@ function loadSettings(called_by = null, load_only = false) {
         if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
         if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
         if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
+        if (settings_json["open-popup-sidebar"] === undefined) settings_json["open-popup-sidebar"] = "Ctrl+Alt+S";
         if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
         if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
         if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;

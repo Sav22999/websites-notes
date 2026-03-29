@@ -160,7 +160,7 @@ var letters_and_numbers = {
     Left: "←",
     Right: "→",
 };
-var ctrl_alt_shift = ["default", "domain", "page"];
+var ctrl_alt_shift = ["default", "domain", "page", "sidebar"];
 
 const linkAcceptPrivacy = "/privacy/index.html";
 
@@ -875,6 +875,7 @@ function setLanguageUI() {
     document.getElementById("open-popup-default-shortcut-text").innerText = all_strings["open-popup-default-shortcut-text"];
     document.getElementById("open-popup-domain-shortcut-text").innerText = all_strings["open-popup-domain-shortcut-text"];
     document.getElementById("open-popup-page-shortcut-text").innerText = all_strings["open-popup-page-shortcut-text"];
+    document.getElementById("open-popup-sidebar-shortcut-text").innerText = all_strings["open-popup-sidebar-shortcut-text"];
     document.getElementById("advanced-managing-text").innerText = all_strings["advanced-managing"];
     document.getElementById("advanced-managing-detailed-text").innerHTML = all_strings["advanced-managing-detailed"];
     document.getElementById("html-text-formatting-text").innerText = all_strings["html-text-formatting"];
@@ -1035,6 +1036,7 @@ function setLanguageUI() {
         document.getElementById("key-shortcut-default-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-default'>" + letters_and_numbers[letterNumber] + "</option>";
         document.getElementById("key-shortcut-domain-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-domain'>" + letters_and_numbers[letterNumber] + "</option>";
         document.getElementById("key-shortcut-page-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-page'>" + letters_and_numbers[letterNumber] + "</option>";
+        document.getElementById("key-shortcut-sidebar-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-sidebar'>" + letters_and_numbers[letterNumber] + "</option>";
     }
 
     //notefox account
@@ -1116,6 +1118,7 @@ function loadSettings() {
             if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
             if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
             if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
+            if (settings_json["open-popup-sidebar"] === undefined) settings_json["open-popup-sidebar"] = "Ctrl+Alt+S";
             if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
             if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
             if (settings_json["save-page-content"] === undefined) settings_json["save-page-content"] = false;
@@ -1301,6 +1304,8 @@ function loadSettings() {
             let keyboardShortcutLetterNumberDomain = document.getElementById("key-shortcut-domain-selected");
             let keyboardShortcutCtrlAltShiftPage = document.getElementById("key-shortcut-ctrl-alt-shift-page-selected");
             let keyboardShortcutLetterNumberPage = document.getElementById("key-shortcut-page-selected");
+            let keyboardShortcutCtrlAltShiftSidebar = document.getElementById("key-shortcut-ctrl-alt-shift-sidebar-selected");
+            let keyboardShortcutLetterNumberSidebar = document.getElementById("key-shortcut-sidebar-selected");
 
             keyboardShortcutCtrlAltShiftDefault.value = "Ctrl+Alt";
             keyboardShortcutLetterNumberDefault.value = "O";
@@ -1308,6 +1313,8 @@ function loadSettings() {
             keyboardShortcutLetterNumberDomain.value = "D";
             keyboardShortcutCtrlAltShiftPage.value = "Ctrl+Alt";
             keyboardShortcutLetterNumberPage.value = "P";
+            keyboardShortcutCtrlAltShiftSidebar.value = "Ctrl+Alt";
+            keyboardShortcutLetterNumberSidebar.value = "S";
 
             ctrl_alt_shift.forEach((value) => {
                 let keyboardShortcutCtrlAltShift = document.getElementById("key-shortcut-ctrl-alt-shift-" + value + "-selected");
@@ -1334,7 +1341,7 @@ function loadSettings() {
                     keyboardShortcutCtrlAltShift.value = ctrlAltShiftShortcut;
 
                     let commandName = "_execute_browser_action";
-                    if (value === "domain") commandName = "opened-by-domain"; else if (value === "page") commandName = "opened-by-page"; else if (value === "global") commandName = "opened-by-global";
+                    if (value === "domain") commandName = "opened-by-domain"; else if (value === "page") commandName = "opened-by-page"; else if (value === "sidebar") commandName = "_execute_sidebar_action"; else if (value === "global") commandName = "opened-by-global";
 
                     onChangeShortcut(keyboardShortcutCtrlAltShift, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json);
                     onChangeShortcut(keyboardShortcutLetterNumber, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json);
@@ -1453,6 +1460,7 @@ function saveSettings(update_datetime = true) {
                     //updateShortcut("opened-by-global", settings_json["open-popup-global"]);
                     updateShortcut("opened-by-domain", settings_json["open-popup-domain"]);
                     updateShortcut("opened-by-page", settings_json["open-popup-page"]);
+                    updateShortcut("_execute_sidebar_action", settings_json["open-popup-sidebar"]);
 
                     sendMessageUpdateToBackground();
 
