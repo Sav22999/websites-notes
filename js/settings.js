@@ -866,6 +866,7 @@ function setLanguageUI() {
     document.getElementById("icon-behaviour-title-settings").innerText = all_strings["icon-behaviour-title-settings"];
     document.getElementById("data-title-settings").innerText = all_strings["data-and-sync-title-settings"];
     document.getElementById("open-by-default-text").innerText = all_strings["open-popup-by-default"];
+    document.getElementById("open-by-default-global-text").innerText = all_strings["global-label"];
     document.getElementById("open-by-default-domain-text").innerText = all_strings["domain-label"];
     document.getElementById("open-by-default-page-text").innerText = all_strings["page-label"];
     document.getElementById("consider-parameters-text").innerText = all_strings["consider-parameters"];
@@ -1112,7 +1113,7 @@ function loadSettings() {
         sync_local.get("settings", function (value) {
             settings_json = {};
             if (value["settings"] !== undefined) settings_json = value["settings"];
-            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
+            if (settings_json["open-default"] === undefined || !["global", "domain", "page"].includes(settings_json["open-default"])) settings_json["open-default"] = "page";
             if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
             if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
             if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
