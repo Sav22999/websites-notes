@@ -38,6 +38,7 @@ https://www.notefox.eu/docs/
 - You can customise the add-on via Options (in "Add-ons and themes" > "Extensions" > "Notefox")
 - Auto-saving
 - Notes as Sticky-notes (“Memo”/“Post-it")
+- Simple sidebar support on Firefox
 - Keyboard shortcuts (also customisable!)
 - Sync with Notefox Account
 
