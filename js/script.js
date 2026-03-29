@@ -178,6 +178,29 @@ function setPopupResizable(resizable) {
     }
 }
 
+function setSidebarClassIfNeeded() {
+    try {
+        let popup = document.getElementById("popup-content");
+        if (popup === undefined || popup === null) return;
+
+        const sidebarClass = "opened-as-sidebar";
+
+        if (browser.extension !== undefined && typeof browser.extension.getViews === "function") {
+            let sidebarViews = browser.extension.getViews({type: "sidebar"});
+            let isSidebar = Array.isArray(sidebarViews) && sidebarViews.includes(window);
+
+            if (isSidebar) {
+                if (!popup.classList.contains(sidebarClass)) popup.classList.add(sidebarClass);
+            } else {
+                popup.classList.remove(sidebarClass);
+            }
+        }
+    } catch (e) {
+        console.error("P4)) " + e);
+        onError("script.js::setSidebarClassIfNeeded", e.message, _pageUrl);
+    }
+}
+
 /**
  * Make "resizable" the popup
  */
@@ -624,6 +647,8 @@ function loadUI(called_by = null) {
             document.getElementById("popup-content").classList.add("mobile");
         }
     }
+
+    setSidebarClassIfNeeded();
 
     setPopupResizable(settings_json["allow-resize-popup"]);
 

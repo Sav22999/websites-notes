@@ -125,7 +125,8 @@ body {
 
 /* Sidebar */
 @media (min-width: 200px) {
-    #popup-content.popup-resizable-enabled {
+    #popup-content.popup-resizable-enabled,
+    #popup-content.opened-as-sidebar {
         min-width: 100% !important;
         /*width: 100% !important;*/
         max-width: 100% !important;
