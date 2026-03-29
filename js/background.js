@@ -545,6 +545,10 @@ function updateIcon(color, tabId, enabled = true) {
         path: dataUrl, tabId: tabId
     });
 
+    browser.sidebarAction.setIcon({
+        path: dataUrl, tabId: tabId
+    });
+
     //update badge if settings_json["show-icon-badge"] is true
     if (enabled && settings_json["show-icon-badge"] !== undefined && settings_json["show-icon-badge"] === true) {
         const numberOfNotes = getNumberOfNotes();
