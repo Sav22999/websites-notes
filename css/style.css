@@ -1668,7 +1668,7 @@ pre::placeholder,
 }
 
 .sub-section-last-update {
-    padding: 5px;
+    padding: 10px 5px;
     font-size: 12px;
     font-style: italic;
     color: var(--primary-color);
@@ -1681,7 +1681,7 @@ pre::placeholder,
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
-    padding: 4px 0;
+    padding: 0px;
 }
 
 #background-opacity {
