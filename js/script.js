@@ -143,12 +143,16 @@ function setPopupResizable(resizable) {
         let resize_button = document.getElementById("resize-popup");
         let popup = document.getElementById("popup-content");
         if (resize_button !== undefined && popup !== undefined) {
+            const popupResizableClass = "popup-resizable-enabled";
             let isResizing = false;
             resize_button.addEventListener('mousedown', (e) => {
                 isResizing = onMouseDownResize(e, popup, isResizing);
             });
 
             if (resizable) {
+                if (!popup.classList.contains(popupResizableClass)) {
+                    popup.classList.add(popupResizableClass);
+                }
                 if (resize_button.classList.contains("hidden")) {
                     resize_button.classList.remove("hidden");
                 }
@@ -160,6 +164,9 @@ function setPopupResizable(resizable) {
                     //console.info("Popup resized to " + resize_popup_width);
                 }
             } else {
+                if (popup.classList.contains(popupResizableClass)) {
+                    popup.classList.remove(popupResizableClass);
+                }
                 if (!resize_button.classList.contains("hidden")) {
                     resize_button.classList.add("hidden");
                 }
