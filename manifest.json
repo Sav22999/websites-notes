@@ -28,6 +28,12 @@
         "default": "Ctrl+Alt+P"
       },
       "description": "Open Notefox popup with the current page tab"
+    },
+    "_execute_sidebar_action": {
+      "suggested_key": {
+        "default": "Ctrl+Alt+S"
+      },
+      "description": "Open Notefox sidebar with the default tab"
     }
   },
   "browser_specific_settings": {
@@ -68,6 +74,16 @@
     ],
     "default_title": "Notefox: Websites notes",
     "default_popup": "./popup.html"
+  },
+  "sidebar_action": {
+    "default_title": "Notefox: Websites notes",
+    "default_panel": "./popup.html",
+    "default_icon": {
+      "16": "./img/icon.svg",
+      "24": "./img/icon.svg",
+      "48": "./img/icon.svg",
+      "96": "./img/icon.svg"
+    }
   },
   "permissions": [
     "storage",
