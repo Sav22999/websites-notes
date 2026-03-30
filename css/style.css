@@ -135,6 +135,10 @@ body {
         flex-direction: column;
     }
 
+    .opened-as-sidebar .content-notes {
+        height: 70vh !important;
+    }
+
     .content-notes--container,
     .content-notes {
         /*height: 70vh !important;*/
