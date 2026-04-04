@@ -13,6 +13,10 @@ var tab_url = "";
 var tab_title = "";
 var current_urls = []; //0: global, 1: domain, 2: page
 
+const POPUP_REFRESH_URL_CHANGED_DEBOUNCE_MS = 350;
+let previous_checked_tab_url = null;
+let popup_refresh_timeout = null;
+
 let all_urls = {} //"url":"value" //value as {0:global, 1:domain, 2:page, 3:subdomain}
 
 var type_to_use = -1;
@@ -695,7 +699,26 @@ function tabUpdated(update = false) {
     });
 }
 
+function schedulePopupInfoRefresh(reason = "url-changed") {
+    if (popup_refresh_timeout !== null) clearTimeout(popup_refresh_timeout);
+    popup_refresh_timeout = setTimeout(() => {
+        popup_refresh_timeout = null;
+        browser.runtime.sendMessage({
+            "popup-refresh-info": true,
+            "reason": reason,
+            "url": tab_url,
+            "tab-id": tab_id
+        }).catch(() => {
+        });
+    }, POPUP_REFRESH_URL_CHANGED_DEBOUNCE_MS);
+}
+
 function checkStatus(update = false) {
+    const hasPreviousUrl = previous_checked_tab_url !== null && previous_checked_tab_url !== "";
+    const hasUrlChanged = hasPreviousUrl && previous_checked_tab_url !== tab_url;
+    previous_checked_tab_url = tab_url;
+    if (hasUrlChanged) schedulePopupInfoRefresh();
+
     current_urls = [getGlobalUrl(), getDomainUrl(tab_url), getPageUrl(tab_url)];
     let useLegacyStickySizeFallback = true;
     let useLegacyStickyTransparencyFallback = true;

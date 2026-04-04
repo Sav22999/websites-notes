@@ -135,8 +135,20 @@ body {
         flex-direction: column;
     }
 
+    .opened-as-sidebar #notes-section {
+        min-height: 0;
+    }
+
+    .opened-as-sidebar .content-notes--container {
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
     .opened-as-sidebar .content-notes {
-        height: 70vh !important;
+        flex: 1;
+        min-height: 0;
+        height: auto !important;
     }
 
     .content-notes--container,

@@ -119,6 +119,10 @@ function loaded(called_by = null) {
         if (message["sync_update"] !== undefined && message["sync_update"]) {
             loaded("A");
         }
+        if (message["popup-refresh-info"] !== undefined && message["popup-refresh-info"]) {
+            checkSyncLocal();
+            loadSettings("popup-refresh-info");
+        }
         if (message["check-user--expired"] !== undefined && message["check-user--expired"]) {
             //console.log("User expired! Log in again | script");
             //console.log(message);
