@@ -119,6 +119,10 @@ function loaded(called_by = null) {
         if (message["sync_update"] !== undefined && message["sync_update"]) {
             loaded("A");
         }
+        if (message["popup-refresh-info"] !== undefined && message["popup-refresh-info"]) {
+            checkSyncLocal();
+            loadSettings("popup-refresh-info");
+        }
         if (message["check-user--expired"] !== undefined && message["check-user--expired"]) {
             //console.log("User expired! Log in again | script");
             //console.log(message);
@@ -143,12 +147,16 @@ function setPopupResizable(resizable) {
         let resize_button = document.getElementById("resize-popup");
         let popup = document.getElementById("popup-content");
         if (resize_button !== undefined && popup !== undefined) {
+            const popupResizableClass = "popup-resizable-enabled";
             let isResizing = false;
             resize_button.addEventListener('mousedown', (e) => {
                 isResizing = onMouseDownResize(e, popup, isResizing);
             });
 
             if (resizable) {
+                if (!popup.classList.contains(popupResizableClass)) {
+                    popup.classList.add(popupResizableClass);
+                }
                 if (resize_button.classList.contains("hidden")) {
                     resize_button.classList.remove("hidden");
                 }
@@ -160,6 +168,9 @@ function setPopupResizable(resizable) {
                     //console.info("Popup resized to " + resize_popup_width);
                 }
             } else {
+                if (popup.classList.contains(popupResizableClass)) {
+                    popup.classList.remove(popupResizableClass);
+                }
                 if (!resize_button.classList.contains("hidden")) {
                     resize_button.classList.add("hidden");
                 }
@@ -168,6 +179,29 @@ function setPopupResizable(resizable) {
     } catch (e) {
         console.error("P1)) " + e);
         onError("script.js::setPopupResizable", e.message, _pageUrl);
+    }
+}
+
+function setSidebarClassIfNeeded() {
+    try {
+        let popup = document.getElementById("popup-content");
+        if (popup === undefined || popup === null) return;
+
+        const sidebarClass = "opened-as-sidebar";
+
+        if (browser.extension !== undefined && typeof browser.extension.getViews === "function") {
+            let sidebarViews = browser.extension.getViews({type: "sidebar"});
+            let isSidebar = Array.isArray(sidebarViews) && sidebarViews.includes(window);
+
+            if (isSidebar) {
+                if (!popup.classList.contains(sidebarClass)) popup.classList.add(sidebarClass);
+            } else {
+                popup.classList.remove(sidebarClass);
+            }
+        }
+    } catch (e) {
+        console.error("P4)) " + e);
+        onError("script.js::setSidebarClassIfNeeded", e.message, _pageUrl);
     }
 }
 
@@ -618,6 +652,8 @@ function loadUI(called_by = null) {
         }
     }
 
+    setSidebarClassIfNeeded();
+
     setPopupResizable(settings_json["allow-resize-popup"]);
 
     let splashScreen = document.getElementById("splash-screen-popup");
@@ -758,6 +794,7 @@ function loadSettings(called_by = null, load_only = false) {
         if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
         if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
         if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
+        if (settings_json["open-popup-sidebar"] === undefined) settings_json["open-popup-sidebar"] = "Ctrl+Alt+S";
         if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
         if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
         if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
