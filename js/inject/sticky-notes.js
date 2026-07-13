@@ -104,7 +104,11 @@ function updateStickyNotes() {
             if (response !== undefined) {
                 let new_text = "";
                 if (response.notes !== undefined && response.notes.description !== undefined) new_text = response.notes.description;
-                text.innerHTML = new_text
+                // Do not overwrite innerHTML while the user is editing: it would
+                // abort IME composition (Korean/Japanese/Chinese) mid-typing.
+                if (document.activeElement !== text && text.innerHTML !== new_text) {
+                    text.innerHTML = new_text
+                }
 
                 let new_tag = "";
                 if (response.notes !== undefined && response.notes.tag_colour !== undefined) new_tag = response.notes.tag_colour;

@@ -1073,8 +1073,13 @@ function saveNotes(title_call = false) {
             document.getElementById("title-notes").disabled = false;
             let component = "notes";
             if (title_call) component = "title-notes";
-            document.getElementById(component).blur();
-            document.getElementById(component).focus();
+            let elem = document.getElementById(component);
+            // Do not blur/focus if the element already has focus: it aborts IME
+            // composition (Korean/Japanese/Chinese) mid-typing.
+            if (document.activeElement !== elem) {
+                elem.blur();
+                elem.focus();
+            }
         }
         if (currentUrl[1] !== "" && currentUrl[2] !== "") {
             //selected_tab : {0: global | 1:domain | 2:page}
