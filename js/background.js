@@ -207,11 +207,10 @@ function checkSyncData(just_once = false) {
     browser.storage.sync.get(["notefox-account"]).then(resultSync => {
         //console.log("Sync data: " + JSON.stringify(resultSync));
         if (resultSync["notefox-account"] !== undefined) {
-            api_request({
-                "api": true, "type": "get-data", "data": {
-                    "login-id": resultSync["notefox-account"]["login-id"],
-                    "token": resultSync["notefox-account"]["token"]
-                }
+            //the revision state machine decides everything (js/sync-service.js)
+            syncPull().catch((e) => {
+                console.error(`E-B3: ${e}`);
+                onError("background.js::checkSyncData", e.message, tab_url);
             });
 
             syncData(1 * 60 * 1000, just_once); //1 minute if the user is logged in
@@ -243,7 +242,7 @@ function syncData(force_time = 1 * 60 * 1000, just_once = false) {
  */
 function checkErrorLogs() {
     //console.log("Check error logs");
-    sync_local.get(["settings", "error-logs"]).then(result => {
+    sync_local.get(["settings", "error-logs"]).then(async result => {
         settings_json = {};
         if (result["settings"] !== undefined) settings_json = result["settings"];
         if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = false;
@@ -251,9 +250,17 @@ function checkErrorLogs() {
         if (settings_json["sending-error-logs-automatically"]) {
             if (result["error-logs"] !== undefined && result["error-logs"].length > 0) {
                 //console.error("Error logs: ", result["error-logs"]);
-                api_request({
+                const answer = await api_request({
                     "api": true, "type": "send-error-logs", "data": {"error-logs": result["error-logs"]}
                 });
+
+                if (answer !== undefined && answer !== null && answer.code === 200) {
+                    //sent: the queue can be emptied
+                    sync_local.set({"error-logs": []});
+                } else if (answer !== undefined && answer !== null && !isRateLimited(answer.code) && !isNetworkFailure(answer.code)) {
+                    //rate limited or unreachable: the logs stay queued for the next round
+                    console.error("[background.js::checkErrorLogs] Error: ", answer);
+                }
             }
         }
     })
@@ -270,7 +277,7 @@ function checkErrorLogs() {
  */
 function checkTelemetryLogs() {
     //console.log("Check error logs");
-    sync_local.get(["settings", "telemetry"]).then(result => {
+    sync_local.get(["settings", "telemetry"]).then(async result => {
         settings_json = {};
         if (result["settings"] !== undefined) settings_json = result["settings"];
         if (settings_json["send-telemetry"] === undefined) settings_json["send-telemetry"] = true
@@ -278,9 +285,17 @@ function checkTelemetryLogs() {
         if (settings_json["send-telemetry"]) {
             if (result["telemetry"] !== undefined && result["telemetry"].length > 0) {
                 //console.error("Telemetry: ", result["telemetry"]);
-                api_request({
+                const answer = await api_request({
                     "api": true, "type": "send-telemetry", "data": {"telemetry": result["telemetry"]}
                 });
+
+                if (answer !== undefined && answer !== null && answer.code === 200) {
+                    //sent: the queue can be emptied
+                    sync_local.set({"telemetry": []});
+                } else if (answer !== undefined && answer !== null && !isRateLimited(answer.code) && !isNetworkFailure(answer.code)) {
+                    //rate limited or unreachable: the logs stay queued for the next round
+                    console.error("[background.js::checkTelemetryLogs] Error: ", answer);
+                }
             }
         }
     })
@@ -292,185 +307,17 @@ function checkTelemetryLogs() {
     }, time); //10 minutes
 }
 
-function actionResponse(response) {
-    //console.log("[background.js::actionResponse] Response: ", response);
-    if (response["api_response"] !== undefined && response["api_response"] === true) {
-        if (response["type"] !== undefined) {
-            if (response["type"] === "get-data") {
-                if (response["data"] !== undefined) {
-                    let data = response["data"];
-                    if (data !== undefined) {
-                        if (data.code === 200) {
-                            //check if server data is newer than local data
-                            //console.log("Server data: " + JSON.stringify(data["data"]));
-                            sync_local.get(["last-update"]).then(result => {
-                                let latestUpdateServer = data["data"]["updated-locally"];
-                                let latestUpdateLocal = result["last-update"];
-
-                                //console.log("Latest update on server: " + latestUpdateServer);
-                                //console.log("Latest update on local: " + latestUpdateLocal);
-
-                                if (latestUpdateServer !== undefined && latestUpdateLocal !== undefined) {
-                                    let dateServer = new Date(latestUpdateServer);
-                                    let dateLocal = new Date(latestUpdateLocal);
-
-                                    if (dateLocal > dateServer) {
-                                        //console.log("Local data is newer than server one");
-
-                                        //send data to the server
-                                        sendLocalDataToServer();
-                                    } else if (dateLocal < dateServer) {
-                                        //update local data
-                                        //console.log("Server data is newer than local one");
-
-                                        let data_to_server = JSON.parse(data["data"]["data"]);
-
-                                        //console.log(JSON.stringify(data_to_server));
-
-                                        sync_local.set(data_to_server).then(result => {
-                                            //console.log("Data updated from server");
-
-                                            syncUpdateFromServer();
-                                        });
-                                    } else {
-                                        //console.log("Local data is the same as the server one");
-                                    }
-                                } else if (latestUpdateServer === undefined && latestUpdateLocal !== undefined) {
-                                    //No data on server
-                                    //console.log("No data on server");
-
-                                    //send data to the server
-                                    sendLocalDataToServer();
-                                } else if (latestUpdateServer !== undefined && latestUpdateLocal === undefined) {
-                                    //No data on local
-                                    //console.log("No data on local");
-
-                                    let data_to_server = JSON.parse(data["data"]["data"]);
-
-                                    sync_local.set(data_to_server).then(result => {
-                                        //console.log("Data updated from server");
-                                        syncUpdateFromServer();
-                                    });
-                                }
-                            });
-                        } else if (data.code === 201) {
-                            //No data on the server ==> never send data
-                            //send data to the server
-
-                            //console.log("Sending data to the server");
-
-                            sendLocalDataToServer();
-                        } else {
-                            console.error("[background.js::actionResponse] Error: ", data);
-                            if (data && data.message && !data.message.includes("NetworkError")) {
-                                onError("background.js::actionResponse::get-data", JSON.stringify(data), tab_url);
-                            }
-                        }
-                    }
-                }
-            } else if (response["type"] === "send-data") {
-                //console.log("Send data response: " + JSON.stringify(response));
-            } else if (response["type"] === "listen-error-logs") {
-                //console.log("Send error logs response: " + JSON.stringify(response));
-                if (response["data"] !== undefined) {
-                    let data = response["data"];
-                    if (data !== undefined) {
-                        if (data.code === 200) {
-                            //clear error logs
-                            sync_local.set({"error-logs": []});
-                        } else {
-                            console.error("[background.js::actionResponse] Error: ", data);
-                            if (data && data.message && !data.message.includes("NetworkError")) {
-                                onError("background.js::actionResponse::listen-error-logs", JSON.stringify(data), tab_url);
-                            }
-                        }
-                    }
-                }
-            } else if (response["type"] === "listen-telemetry-logs") {
-                //console.log("Send telemetry logs response: " + JSON.stringify(response));
-                if (response["data"] !== undefined) {
-                    let data = response["data"];
-                    if (data !== undefined) {
-                        if (data.code === 200) {
-                            //clear error logs
-                            sync_local.set({"telemetry": []});
-                        } else {
-                            console.error("[background.js::actionResponse] Error: ", data);
-                            if (data && data.message && !data.message.includes("NetworkError")) {
-                                onError("background.js::actionResponse::listen-telemetry-logs", JSON.stringify(data), tab_url);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    } else {
-        //console.error("[background.js::actionResponse] Error: ", response);
-        onError("background.js::actionResponse", JSON.stringify(response), tab_url);
-    }
-}
-
+/**
+ * Send the snapshot of this device to the server.
+ * The snapshot is built and the revision is handled by js/sync-service.js: the
+ * server decides with its own revision, never by comparing the dates, so a
+ * device whose clock is wrong is no longer able to win (or to lose) forever.
+ */
 function sendLocalDataToServer() {
     //console.log("Sending...")
-    let data_to_send = {};
-
-    browser.storage.local.get(["storage"]).then(getStorageTemp => {
-        sync_local.get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "last-update"]).then((result) => {
-            // Handle the result
-            let sticky_notes = {};
-            sticky_notes.coords = result["sticky-notes-coords"];
-            sticky_notes.sizes = result["sticky-notes-sizes"];
-            sticky_notes.opacity = result["sticky-notes-opacity"];
-
-            let websites_json = result["websites"];
-
-            if (sticky_notes.coords === undefined && sticky_notes.coords === null) {
-                sticky_notes.coords = {x: "20px", y: "20px"};
-            }
-            if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) {
-                sticky_notes.sizes = {w: "300px", h: "300px"};
-            }
-            if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) {
-                sticky_notes.opacity = {value: 0.7};
-            }
-            sticky_notes.opacity.value = Number.parseFloat(sticky_notes.opacity.value).toFixed(2);
-
-            //console.log(JSON.stringify(result));
-
-            for (setting in settings_json) {
-                if (settings_json[setting] === "yes") settings_json[setting] = true; else if (settings_json[setting] === "no") settings_json[setting] = false;
-            }
-            data_to_send = {
-                "notefox": notefox_json,
-                "settings": settings_json,
-                "websites": websites_json,
-                "sticky-notes": sticky_notes,
-                "storage": getStorageTemp["storage"],
-                "last-update": result["last-update"]
-            }
-
-
-            browser.storage.sync.get(["notefox-account"]).then(resultSync => {
-                if (resultSync["notefox-account"] !== undefined) {
-                    api_request({
-                        "api": true, "type": "send-data", "data": {
-                            "login-id": resultSync["notefox-account"]["login-id"],
-                            "token": resultSync["notefox-account"]["token"],
-                            "updated-locally": correctDatetime(result["last-update"]),
-                            "data": JSON.stringify(data_to_send)
-                        }
-                    });
-                } else {
-                }
-            });
-
-            sync_local.set(data_to_send).then(result => {
-                //console.log("Data sent to the server");
-            });
-        }).catch((e) => {
-            console.error(`E-B1: ${e}`);
-            onError("background.js::sendLocalDataToServer", e.message, tab_url);
-        });
+    syncPush().catch((e) => {
+        console.error(`E-B1: ${e}`);
+        onError("background.js::sendLocalDataToServer", e.message, tab_url);
     });
 }
 
@@ -1941,6 +1788,40 @@ function getDate() {
     if (second < 10) today = today + "0" + second; else today = today + "" + second
 
     return today;
+}
+
+/**
+ * Generate a v4 UUID (used for the anonymous-userid of error logs and telemetry)
+ * Defined also here (as getDate()) because js/definitions.js is not loaded in the background scripts
+ * @returns {string} - the generated UUID
+ */
+function generateSecureUUID() {
+    if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+        //cryptographically secure
+        const array = new Uint8Array(16);
+        crypto.getRandomValues(array);
+
+        array[6] = (array[6] & 0x0f) | 0x40; // Version 4
+        array[8] = (array[8] & 0x3f) | 0x80; // Variant
+
+        const hex = Array.from(array)
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+        return [
+            hex.substring(0, 8),
+            hex.substring(8, 12),
+            hex.substring(12, 16),
+            hex.substring(16, 20),
+            hex.substring(20, 32),
+        ].join("-");
+    }
+
+    //fallback
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
 }
 
 /**

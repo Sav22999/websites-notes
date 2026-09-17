@@ -2077,6 +2077,25 @@ strong {
     float: right;
 }
 
+/*row of buttons at the bottom of a section of the account popup: a flex row
+instead of floats, so a button (eg. "cancel") can never overflow its own box*/
+.account-section-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.margin-right-auto {
+    margin-right: auto !important;
+}
+
+#account-section--history-list {
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
 .margin-right-5-px {
     margin-right: 5px;
 }

@@ -123,6 +123,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <div id="title-account" class="user-select-none"></div>
                 <div id="text-account"></div>
                 <div id="message-from-api" class="hidden no-margin margin-top-10-px"></div>
+                <div id="account-server-status" class="section-warning hidden no-margin margin-top-10-px"></div>
             </div>
             <!-- sign up -->
             <div id="notefox-account-signup-section">
@@ -311,6 +312,29 @@ Created by Saverio Morelli - saveriomorelli.com
                             </span>
                     </div>
 
+                    <div class="option-settings" id="manage-otp-row">
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-otp-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-otp-button"
+                                           class="button width-100"/>
+                                    <div id="manage-otp-state" class="width-100-important"></div>
+                                </span>
+                            </span>
+                    </div>
+
+                    <div class="option-settings" id="manage-history-row">
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-history-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-history-button"
+                                           class="button width-100"/>
+                                </span>
+                            </span>
+                    </div>
+
                     <div class="option-settings">
                             <span class="item-settings section-grid-container width-100-important">
                                 <span class="title-option-settings section-grid-item-text no-bold"
@@ -349,6 +373,10 @@ Created by Saverio Morelli - saveriomorelli.com
                     <input class="textbox account-section--change-password--confirm-new-password width-100 label-with-image password-label account-text"
                            id="change-password-new-password-confirm" type="password">
                 </div>
+                <div class="padding-10 hidden" id="account-section--change-password-verify-grid">
+                    <input class="textbox account-section--change-password--code label-with-image code-label account-text"
+                           id="change-password-code" type="text">
+                </div>
                 <div class="padding-10 text-align-right">
                     <div class="lds-spinner hidden" id="loading-change-password">
                         <div></div>
@@ -368,6 +396,69 @@ Created by Saverio Morelli - saveriomorelli.com
                            class="button float-left button-close-notefox-account"/>
                     <input type="button" value="" id="change-password-submit"
                            class="button edit-button"/>
+
+                    <input class="button hidden" id="change-password-new-code" value="" type="button"/>
+                    <input class="button edit-button hidden" id="change-password-verify-submit" value=""
+                           type="button"/>
+                </div>
+            </div>
+
+            <!-- two-factor authentication -->
+            <div id="notefox-account-otp-section">
+                <div class="padding-10" id="account-section--otp-text"></div>
+                <div class="padding-10 hidden" id="account-section--otp-grid">
+                    <input class="textbox account-section--otp--password width-100 label-with-image password-label account-text"
+                           id="otp-password" type="password">
+                </div>
+                <div class="padding-10 hidden" id="account-section--otp-verify-grid">
+                    <input class="textbox account-section--otp--code label-with-image code-label account-text"
+                           id="otp-code" type="text">
+                </div>
+                <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-otp">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <input type="button" value="" id="otp-cancel"
+                           class="button float-left button-close-notefox-account"/>
+                    <input class="button hidden" id="otp-submit" value="" type="button"/>
+                    <input class="button hidden" id="otp-verify-submit" value="" type="button"/>
+                </div>
+            </div>
+
+            <!-- synchronisation history -->
+            <div id="notefox-account-history-section">
+                <div class="padding-10" id="account-section--history-text"></div>
+                <div class="padding-10" id="account-section--history-list"></div>
+                <div class="padding-10 account-section-buttons">
+                    <input type="button" value="" id="history-cancel"
+                           class="button margin-right-auto button-close-notefox-account"/>
+                    <div class="lds-spinner hidden" id="loading-history">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <input class="button hidden" id="history-how-to-get" value="" type="button"/>
+                    <input class="button hidden" id="history-restore" value="" type="button"/>
                 </div>
             </div>
 

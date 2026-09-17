@@ -68,6 +68,31 @@ if (!supportedLanguages.includes(languageToUse)) languageToUse = "en";
     if (supportedLanguages.includes(languageToUse.split("-")[0]))
     languageToUse = languageToUse.split("-")[0];
 
+/**
+ * Resolve a string of the catalogue, falling back to English when the selected
+ * language does not have that key yet (so it never renders "undefined")
+ * @param key {string} - the key of the string
+ * @param fallback {string} - the text to be used when no catalogue has the key
+ * @returns {string}
+ */
+function getString(key, fallback = "") {
+    if (typeof strings !== "undefined" && strings !== null) {
+        if (strings[languageToUse] !== undefined && strings[languageToUse][key] !== undefined) return strings[languageToUse][key];
+        if (strings["en"] !== undefined && strings["en"][key] !== undefined) return strings["en"][key];
+    }
+    return fallback;
+}
+
+/**
+ * Message of an error code of the API: an unknown code falls back to the
+ * generic one (499)
+ * @param code {number|string} - the code answered by the API
+ * @returns {string}
+ */
+function getAccountErrorString(code) {
+    return getString("notefox-account-message-error-" + code, getString("notefox-account-message-error-499", "Unknown error."));
+}
+
 function checkDropdownScrollbar(dropdown, input = null) {
     if (!dropdown) return;
 
@@ -347,6 +372,7 @@ let links = {
     review: "https://addons.mozilla.org/firefox/addon/websites-notes/",
     privacy: "https://www.notefox.eu/privacy/",
     terms: "https://www.notefox.eu/terms/",
+    history_sync_help: "https://notefox.eu/help/how-to-get-history-sync",
 };
 
 const links_aside_bar = {

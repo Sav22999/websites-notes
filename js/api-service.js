@@ -1,6 +1,10 @@
-const API_ENDPOINT_DEFAULT = "https://www.notefox.eu/api/v1";
-
-let api_url = API_ENDPOINT_DEFAULT //default API URL
+/**
+ * Bridge between the UI (settings, popup) and the API v2 layer.
+ *
+ * The listener *returns* the answer, so the caller can simply await it
+ * (see callApi() in js/settings.js). The transport lives in
+ * js/api/api-client.js and the endpoints in js/api/api-endpoints.js.
+ */
 
 try {
     loadAPI();
@@ -54,520 +58,133 @@ function onError(context, text, url = undefined) {
  */
 function loadAPI() {
     getCorrectAPIUrl().then(() => {
-        // Listen for messages
+        // Listen for messages: the promise returned is the answer of the API
         (typeof browser !== 'undefined' ? browser : chrome).runtime.onMessage.addListener((message) => {
             if (message["api"] !== undefined && message["api"]) {
-                api_request(message);
+                return api_request(message);
             }
         });
     });
 }
 
-async function getCorrectAPIUrl() {
-    try {
-        const result = await browser.storage.local.get("settings");
-        if (result["settings"] !== undefined && result["settings"]["api-endpoint"] !== undefined && result["settings"]["api-endpoint"] !== "") {
-            api_url = result["settings"]["api-endpoint"];
-            return true;
-        } else {
-            api_url = API_ENDPOINT_DEFAULT;
-            return true;
-        }
-    } catch (error) {
-        onError("api-service.js::getCorrectAPIUrl", error.message);
-        return false;
-    }
-}
-
 /**
- * Handle the API response
- * @param message - the response message (JSON object)
- * @returns {Promise<void>}
+ * Resolve a message type to its endpoint and return the answer of the API
+ * @param message - the request message ({api: true, type: "...", data: {...}})
+ * @returns {Promise<{ok: boolean, status: string, code: number, httpStatus: number, data: any, description: (string|undefined)}>}
  */
 async function api_request(message) {
-    //console.log("API request received");
-    //console.log(message);
-    let data = message["data"];
+    const data = message["data"] !== undefined && message["data"] !== null ? message["data"] : {};
+
     switch (message["type"]) {
+        case "api-status":
+            return await getStatus(data["force"] === true);
         case "login":
-            await login(data["email"], data["password"]);
-            break;
+            return await apiLogin(data["email"], data["password"]);
         case "login-new-code":
-            await login_new_code(data["email"], data["password"], data["login-id"]);
-            break;
+            return await apiLoginNewCode(data["login-id"], data["email"], data["password"]);
         case "login-verify":
-            await login_verify(data["email"], data["password"], data["login-id"], data["verification-code"]);
-            break;
+            return await apiLoginVerify(data["login-id"], data["email"], data["password"], data["verification-code"]);
         case "signup":
-            await signup(data["username"], data["email"], data["password"]);
-            break;
+            return await apiSignup(data["username"], data["email"], data["password"]);
         case "signup-new-code":
-            await signup_new_code(data["email"], data["password"]);
-            break;
+            return await apiSignupNewCode(data["email"], data["password"]);
         case "signup-verify":
-            await signup_verify(data["email"], data["password"], data["verification-code"]);
-            break;
+            return await apiSignupVerify(data["email"], data["password"], data["verification-code"]);
         case "logout":
-            await logout(data["login-id"], false);
-            break;
+            return await apiLogout(data["login-id"], data["token"], false);
         case "logout-all":
-            await logout(data["login-id"], true);
-            break;
+            return await apiLogout(data["login-id"], data["token"], true);
+        case "otp-status":
+            return await apiOtpStatus(data["login-id"], data["token"]);
+        case "otp-enable":
+            return await apiOtpEnable(data["login-id"], data["token"], data["password"], data["email"]);
+        case "otp-disable":
+            return await apiOtpDisable(data["login-id"], data["token"], data["password"], data["email"]);
+        case "otp-disable-verify":
+            return await apiOtpDisableVerify(data["login-id"], data["token"], data["password"], data["verification-code"], data["email"]);
         case "get-data":
-            await get_data(data["login-id"], data["token"]);
-            break;
-        case "get-data-after-check-id":
-            //do not call this function directly, it's called automatically by get-date
-            await get_data_after_check_id(data["login-id"], data["token"]);
-            break;
+            return await apiDataGet(data["login-id"], data["token"]);
         case "send-data":
-            await send_data(data["login-id"], data["token"], data["updated-locally"], data["data"]);
-            break;
-        case "send-data-after-check-id":
-            //do not call this function directly, it's called automatically by send-date
-            await send_data_after_check_id(data["login-id"], data["token"], data["updated-locally"], data["data"]);
-            break;
+            return await apiDataInsert(data["login-id"], data["token"], data["updated-locally"], data["data"], data["base-revision"]);
+        case "get-data-last-update":
+            return await apiDataLastUpdate(data["login-id"], data["token"]);
+        case "get-history":
+            return await apiDataHistory(data["login-id"], data["token"]);
+        case "get-history-download":
+            return await apiDataHistoryDownload(data["login-id"], data["token"], data["id"]);
+        case "get-services":
+            return await apiDataServices(data["login-id"], data["token"]);
         case "check-user":
-            await check_user(data["login-id"], data["token"]);
-            break;
+            return await check_user(data["login-id"], data["token"]);
         case "change-password":
-            await change_password(data["login-id"], data["token"], data["old-password"], data["new-password"]);
-            break;
+            return await apiPasswordEdit(data["login-id"], data["token"], data["password"], data["new-password"], data["email"]);
+        case "change-password-verify":
+            return await apiPasswordEditVerify(data["login-id"], data["token"], data["password"], data["new-password"], data["verification-code"], data["email"]);
+        case "change-password-new-code":
+            return await apiPasswordEditNewCode(data["login-id"], data["token"], data["password"], data["email"]);
         case "delete-account":
-            await delete_account(data["login-id"], data["token"], data["email"], data["password"]);
-            break;
+            return await apiDeleteAccount(data["email"], data["password"]);
         case "delete-account-verify":
-            await delete_account_verify(data["login-id"], data["token"], data["email"], data["password"], data["deleting-code"]);
-            break;
+            return await apiDeleteVerify(data["email"], data["password"], data["deleting-code"]);
         case "delete-account-new-code":
-            await delete_account_verify_new_code(data["email"], data["password"]);
-            break;
+            return await apiDeleteNewCode(data["email"], data["password"]);
         case "send-error-logs":
-            await send_error_logs(data["error-logs"]);
-            break;
+            return await apiErrorLogs(data["error-logs"]);
         case "send-telemetry":
-            await send_telemetry(data["telemetry"]);
-            break;
+            return await apiTelemetry(data["telemetry"]);
+        case "sync-pull":
+            return await syncPull();
+        case "sync-push":
+            return await syncPush();
+        case "sync-restore":
+            return await syncRestoreSnapshot(parseSnapshot(data["snapshot"]));
         default:
             console.error("Unknown API request type (" + message["type"] + ")");
             onError("api-service.js::api_request", "Unknown API request type (" + message["type"] + ")");
+            return apiResult(400, 0, null, "Unknown API request type (" + message["type"] + ")");
     }
 }
 
 /**
- * Make an API call
- * @param endpoint - the API endpoint (e.g. /login/)
- * @param body - the request body (JSON object)
- * @returns {Promise<{error: boolean, message}|any>} - returns the response data or an error object
- */
-async function api_call(endpoint, body) {
-    return getCorrectAPIUrl().then(async () => {
-        try {
-            const response = await fetch(api_url + endpoint, {
-                method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)
-            });
-            if (!response.ok) {
-                console.error(`[api-service.js::api_call::${endpoint}] HTTP error! Status: ${response.status}`);
-                return {error: true, message: `HTTP error! Status: ${response.status}`, details: response};
-                //throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            browser.storage.local.remove("notefox-server-error-shown");
-            return await response.json();
-        } catch (error) {
-            if (error instanceof TypeError && error.includes("NetworkError")) {
-                console.error(`[api-service.js::api_call::${endpoint}] Network error:`, error);
-                //onError("api-service.js::api_call", "Network error: " + error.message);
-            } else {
-                console.error(`[api-service.js::api_call::${endpoint}] API request failed:`, error);
-                onError("api-service.js::api_call", "API request failed: " + error.message);
-            }
-            return {error: true, message: error.message, details: error};
-        }
-    });
-}
-
-/**
- * Send a response to the background-service
- * @param message - the response message (JSON object)
+ * Send a message to the other parts of the extension (fire and forget)
+ * @param message - the message (JSON object)
  * @returns {Promise<void>} - returns nothing (void)
  */
 async function sendMessage(message) {
-    //console.log("[sendMessage] message", message);
     // Used '(typeof browser !== 'undefined' ? browser : chrome)' instead 'browser' so it's compatible both with Firefox and Chrome
     if (message !== undefined) {
-        (typeof browser !== 'undefined' ? browser : chrome).runtime.sendMessage(message);
-    }
-}
-
-async function signup(username, email, password) {
-    const data = await api_call("/signup/", {"username": username, "email": email, "password": password});
-    //console.log("[api-service.js::signup] data", data);
-    if (data.error) {
-        sendMessage({
-            api_response: true, type: "signup", data: {
-                error: true, message: data.message
-            }
-        });
-    } else {
-        sendMessage({
-            api_response: true, type: "signup", data: data
-        });
-    }
-}
-
-async function signup_new_code(email, password) {
-    const data = await api_call("/signup/verify/get-new-code/", {"email": email, "password": password});
-    //console.log("[api-service.js::signup_new_code] data", data);
-    if (data.error) {
-        sendMessage({
-            api_response: true, type: "signup-new-code", data: {
-                error: true, message: data.message
-            }
-        });
-    } else {
-        sendMessage({
-            api_response: true, type: "signup-new-code", data: data
-        });
-    }
-}
-
-async function signup_verify(email, password, verification_code) {
-    const data = await api_call("/signup/verify/", {
-        "email": email, "password": password, "verification-code": verification_code
-    });
-    //console.log("[api-service.js::signup_verify] data", data);
-    if (data.error) {
-        sendMessage({
-            api_response: true, type: "signup-verify", data: {
-                error: true, message: data.message
-            }
-        });
-    } else {
-        sendMessage({
-            api_response: true, type: "signup-verify", data: data
-        });
-    }
-}
-
-async function login(email, password) {
-    const data = await api_call("/login/", {"email": email, "password": password});
-    //console.log("[api-service.js::login] data", data);
-    if (data.error) {
-        sendMessage({
-            api_response: true, type: "get-data", data: {
-                error: true, message: data.message
-            }
-        });
-    } else {
-        sendMessage({
-            api_response: true, type: "login", data: data
-        });
-    }
-}
-
-async function login_new_code(email, password, login_id) {
-    const data = await api_call("/login/verify/get-new-code/", {
-        "email": email, "password": password, "login-id": login_id
-    });
-    //console.log("[api-service.js::login_new_code] data", data);
-    if (data.error) {
-        sendMessage({
-            api_response: true, type: "login-new-code", data: {
-                error: true, message: data.message
-            }
-        });
-    } else {
-        sendMessage({
-            api_response: true, type: "login-new-code", data: data
-        });
-    }
-}
-
-async function login_verify(email, password, login_id, verification_code) {
-    const data = await api_call("/login/verify/", {
-        "email": email, "password": password, "login-id": login_id, "verification-code": verification_code
-    });
-    //console.log("[api-service.js::login_verify] data", data);
-    if (data.error) {
-        sendMessage({
-            api_response: true, type: "login-verify", data: {
-                error: true, message: data.message
-            }
-        });
-    } else {
-        sendMessage({
-            api_response: true, type: "login-verify", data: data
-        });
-    }
-}
-
-async function logout(login_id, all_devices = false, send_response = true) {
-    let get_params = all_devices ? "?all-devices=true" : "";
-    const data = await api_call("/logout/" + get_params, {"login-id": login_id});
-    //console.log("[api-service.js::logout] data", data);
-    if (send_response) {
-        if (data.error) {
-            sendMessage({
-                api_response: true, type: "logout", data: {
-                    error: true, message: data.message
-                }
-            });
-        } else {
-            sendMessage({
-                api_response: true, type: "logout", data: data
-            });
+        try {
+            await (typeof browser !== 'undefined' ? browser : chrome).runtime.sendMessage(message);
+        } catch (e) {
+            //nobody is listening: it's not an error
         }
     }
 }
 
 /**
- * Get data from the API (need to check the login-id and token first: get_data function)
+ * Check the validity of the current session
  * @param login_id - the login-id
  * @param token - the token
- * @returns {Promise<void>}
+ * @returns {Promise<{ok: boolean, status: string, code: number, httpStatus: number, data: any, description: (string|undefined)}>}
  */
-async function get_data_after_check_id(login_id, token) {
-    const data = await api_call("/data/get/", {"login-id": login_id, "token": token});
-    //console.log("[api-service.js::get_data_after_check_id] data", data);
-    if (data.error) {
-        actionResponse({
-            api_response: true, type: "get-data", data: {
-                error: true, message: data.message
-            }
-        });
-    } else {
-        actionResponse({
-            api_response: true, type: "get-data", data: data
-        })
-    }
-}
-
-/**
- * Get data from the API (check only the login-id and token, after that call get_data_after_check_id function)
- * @param login_id - the login-id
- * @param token - the token
- * @returns {Promise<void>}
- */
-async function get_data(login_id, token) {
-    const data = await api_call("/data/get/", {"login-id": login_id, "token": token});
-    //console.log("[api-service.js::get_data] data", data);
-    api_request({
-        "api": true, "type": "get-data-after-check-id", "data": {
-            "login-id": login_id, "token": token
-        }
-    });
-}
-
-async function send_data_after_check_id(login_id, token, updated_locally, data_value) {
-    const data = await api_call("/data/insert/", {
-        "login-id": login_id, "token": token, "updated-locally": updated_locally, "data": data_value
-    });
-    //console.log("[api-service.js::send_data_after_check_id] data", data);
-    if (data.error) {
-        actionResponse({
-            api_response: true, type: "send-data", data: {
-                error: true, message: data.message
-            }
-        });
-    } else {
-        actionResponse({
-            api_response: true, type: "send-data", data: data
-        });
-    }
-}
-
-async function send_data(login_id, token, updated_locally, data_value) {
-    const data = await api_call("/data/insert/", {
-        "login-id": login_id, "token": token, "updated-locally": updated_locally, "data": data_value
-    });
-    //console.log("[api-service.js::send_data] data", data);
-    api_request({
-        "api": true, "type": "send-data-after-check-id", "data": {
-            "login-id": login_id, "token": token, "updated-locally": updated_locally, "data": data_value
-        }
-    })
-}
-
 async function check_user(login_id, token) {
-    const data = await api_call("/login/check-id/", {"login-id": login_id, "token": token});
-    //console.log("[api-service.js::check_user] data", data);
+    const result = await apiLoginCheckId(login_id, token);
 
-    if (data.code !== undefined && data.code === 200) {
+    if (result.code === 200) {
         //console.log("User is valid");
-    } else if (data.code !== undefined && data.code !== 200) {
-        //console.log("User is not valid: " + data.code);
-        console.error("[api-service.js::check_user] User is not valid: " + data.code);
-        onError("api-service.js::check_user", "User is not valid: " + data.code);
-        sendMessage({"check-user--expired": true}).then(response => {
-            //logout(login_id, false, false);
-            if (data.code && data.code !== 200) browser.storage.sync.remove("notefox-account");
-        });
+    } else if (isNetworkFailure(result.code)) {
+        //the server is unreachable: the session is not invalid, just unverifiable
+        console.error("[api-service.js::check_user] Server unreachable", result);
+    } else if (isAuthError(result.code) || result.code === 403) {
+        console.error("[api-service.js::check_user] User is not valid: " + result.code);
+        onError("api-service.js::check_user", "User is not valid: " + result.code);
+        await sendMessage({"check-user--expired": true});
+        browser.storage.sync.remove("notefox-account");
     } else {
-        console.error("[api-service.js::check_user::exception] User is not valid", data);
-        onError("api-service.js::check_user::exception", "User is not valid" + JSON.stringify(data));
-        sendMessage({"check-user--exception": true}).then(response => {
-            //logout(login_id, false, false);
-            //browser.storage.sync.remove("notefox-account");
-        });
+        console.error("[api-service.js::check_user::exception] User is not valid", result);
+        onError("api-service.js::check_user::exception", "User is not valid" + JSON.stringify(result));
+        await sendMessage({"check-user--exception": true});
     }
-}
 
-async function change_password(login_id_value, token_value, old_password_value, new_password_value) {
-    return getCorrectAPIUrl().then(async () => {
-        try {
-            const response = await fetch(api_url + '/password/edit/', {
-                method: 'POST', headers: {
-                    'Content-Type': 'application/json'
-                }, body: JSON.stringify({
-                    "login-id": login_id_value,
-                    "token": token_value,
-                    "password": old_password_value,
-                    "new-password": new_password_value
-                })
-            });
-
-            const data = await response.json();
-
-            sendMessage({
-                "api_response": true, "type": "change-password", "data": data
-            });
-
-        } catch (error) {
-            console.error('Request failed:', error);
-            onError("api-service.js::change_password", error.message);
-
-            sendMessage({
-                "api_response": true, "type": "change-password", "data": {
-                    "error": true, "message": error.message
-                }
-            });
-        }
-    });
-}
-
-async function delete_account(login_id_value, token_value, email_value, password_value) {
-    return getCorrectAPIUrl().then(async () => {
-        try {
-            const response = await fetch(api_url + '/delete/', {
-                method: 'POST', headers: {
-                    'Content-Type': 'application/json'
-                }, body: JSON.stringify({
-                    "login-id": login_id_value, "token": token_value, "email": email_value, "password": password_value
-                })
-            });
-
-            const data = await response.json();
-
-            sendMessage({
-                "api_response": true, "type": "delete-account", "data": data
-            });
-
-        } catch (error) {
-            console.error('Request failed:', error);
-            onError("api-service.js::delete_account", error.message);
-
-            sendMessage({
-                "api_response": true, "type": "delete-account", "data": {
-                    "error": true, "message": error.message
-                }
-            });
-        }
-    });
-}
-
-async function delete_account_verify(login_id_value, token_value, email_value, password_value, deleting_code_value) {
-    return getCorrectAPIUrl().then(async () => {
-        try {
-            const response = await fetch(api_url + '/delete/verify/', {
-                method: 'POST', headers: {
-                    'Content-Type': 'application/json'
-                }, body: JSON.stringify({
-                    "login-id": login_id_value,
-                    "token": token_value,
-                    "email": email_value,
-                    "password": password_value,
-                    "deleting-code": deleting_code_value
-                })
-            });
-
-            const data = await response.json();
-
-            sendMessage({
-                "api_response": true, "type": "delete-verify", "data": data
-            });
-
-        } catch (error) {
-            console.error('Request failed:', error);
-            onError("api-service.js::delete_account_verify", error.message);
-
-            sendMessage({
-                "api_response": true, "type": "delete-verify", "data": {
-                    "error": true, "message": error.message
-                }
-            });
-        }
-    });
-}
-
-async function delete_account_verify_new_code(email_value, password_value) {
-    return getCorrectAPIUrl().then(async () => {
-        try {
-            const response = await fetch(api_url + '/delete/verify/get-new-code/', {
-                method: 'POST', headers: {
-                    'Content-Type': 'application/json'
-                }, body: JSON.stringify({
-                    "email": email_value, "password": password_value
-                })
-            });
-
-            const data = await response.json();
-
-            sendMessage({
-                "api_response": true, "type": "delete-account-new-code", "data": data
-            });
-
-        } catch (error) {
-            console.error('Request failed:', error);
-            onError("api-service.js::delete_account_verify_new_code", error.message);
-
-            sendMessage({
-                "api_response": true, "type": "delete-account-new-code", "data": {
-                    "error": true, "message": error.message
-                }
-            });
-        }
-    });
-}
-
-async function send_error_logs(error_logs) {
-    const data = await api_call("/error-logs/insert/", {"error-logs": error_logs});
-    //console.log("[api-service.js::send_error_logs] data", data);
-    if (data.error) {
-        actionResponse({
-            api_response: true, type: "listen-error-logs", data: {
-                error: true, message: data.message
-            }
-        });
-    } else {
-        actionResponse({
-            api_response: true, type: "listen-error-logs", data: data
-        });
-    }
-}
-
-async function send_telemetry(telemetry_logs) {
-    const data = await api_call("/telemetry/insert/", {"telemetry": telemetry_logs});
-    //console.log("[api-service.js::send_telemetry] data", data);
-    if (data.error) {
-        actionResponse({
-            api_response: true, type: "listen-telemetry-logs", data: {
-                error: true, message: data.message
-            }
-        });
-    } else {
-        actionResponse({
-            api_response: true, type: "listen-telemetry-logs", data: data
-        });
-    }
+    return result;
 }

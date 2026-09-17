@@ -1093,7 +1093,6 @@ function setLanguageUI() {
     document.getElementById("export-text").innerText = all_strings["export-text"];
     document.getElementById("export-detailed-text").innerHTML = all_strings["export-detailed-text"];
     document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
-    listenerNotefoxAccount();
     setNotefoxAccountLoginSignupManageButton();
 
     document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
@@ -1163,6 +1162,20 @@ function setLanguageUI() {
 
     document.getElementById("change-password-cancel").value = all_strings["cancel-button"];
     document.getElementById("change-password-submit").value = all_strings["notefox-account-button-settings-change-password"];
+    document.getElementById("change-password-code").placeholder = all_strings["verification-code-textbox"];
+    document.getElementById("change-password-verify-submit").value = all_strings["notefox-account-button-settings-change-password"];
+    document.getElementById("change-password-new-code").value = all_strings["notefox-account-button-resend-email"];
+
+    document.getElementById("manage-otp-text").innerHTML = getString("notefox-account-settings-otp-text");
+    //an account without the sync history permission is invited to the help page instead
+    document.getElementById("manage-history-text").innerHTML = getString(sync_history_enabled === false ? "notefox-account-settings-history-not-enabled-text" : "notefox-account-settings-history-text");
+    document.getElementById("manage-history-button").value = getString(sync_history_enabled === false ? "notefox-account-button-settings-history-how-to-get" : "notefox-account-button-settings-history");
+    document.getElementById("history-cancel").value = all_strings["cancel-button"];
+    document.getElementById("history-restore").value = getString("notefox-account-button-history-restore");
+    document.getElementById("history-how-to-get").value = getString("notefox-account-button-settings-history-how-to-get");
+    document.getElementById("otp-cancel").value = all_strings["cancel-button"];
+    document.getElementById("otp-password").placeholder = all_strings["password-textbox"];
+    document.getElementById("otp-code").placeholder = all_strings["verification-code-textbox"];
 
     document.getElementById("show-error-logs-settings-text").innerText = all_strings["show-error-logs-text"];
     document.getElementById("show-error-logs-settings-detailed-text").innerHTML = all_strings["show-error-logs-detailed-text"];
@@ -1238,7 +1251,7 @@ function loadSettings() {
             if (settings_json["default-tag-colour-domain"] === undefined) settings_json["default-tag-colour-domain"] = "none";
             if (settings_json["default-tag-colour-page"] === undefined) settings_json["default-tag-colour-page"] = "none";
 
-            if (settings_json["api-endpoint"] === undefined) settings_json["api-endpoint"] = "https://www.notefox.eu/api/v1"; //TODO!manually change if the default API endpoint changes
+            if (settings_json["api-endpoint"] === undefined) settings_json["api-endpoint"] = "https://www.notefox.eu/api/v2"; //TODO!manually change if the default API endpoint changes
 
             let sync_or_local_settings = result["storage"];
             if (sync_or_local_settings === undefined) sync_or_local_settings = "local";
@@ -1459,30 +1472,22 @@ function loadSettings() {
 function setNotefoxAccountLoginSignupManageButton() {
     browser.storage.sync.get("notefox-account").then((result) => {
         //console.log(result["notefox-account"]);
-        if (result["notefox-account"] !== undefined && result["notefox-account"] !== {}) {
+        let account = result["notefox-account"];
+        let isLogged = account !== undefined && account !== null && typeof account === "object" && Object.keys(account).length > 0 && account["login-id"] !== undefined;
+        let button = document.getElementById("notefox-account-settings-button");
+        if (button === null) return;
+        if (isLogged) {
             //"Manage"
-            document.getElementById("notefox-account-settings-button").value = all_strings["notefox-account-button-settings-manage"];
-            if (document
-                .getElementById("notefox-account-settings-button")
-                .classList.contains("login-button")) document
-                .getElementById("notefox-account-settings-button")
-                .classList.remove("login-button");
-            document
-                .getElementById("notefox-account-settings-button")
-                .classList.add("manage-button");
+            button.value = all_strings["notefox-account-button-settings-manage"];
+            if (button.classList.contains("login-button")) button.classList.remove("login-button");
+            button.classList.add("manage-button");
         } else {
             //"Login or Sign up"
-            document.getElementById("notefox-account-settings-button").value = all_strings["notefox-account-button-settings-login-or-signup"];
-            if (document
-                .getElementById("notefox-account-settings-button")
-                .classList.contains("manage-button")) document
-                .getElementById("notefox-account-settings-button")
-                .classList.remove("manage-button");
-            document
-                .getElementById("notefox-account-settings-button")
-                .classList.add("login-button");
+            button.value = all_strings["notefox-account-button-settings-login-or-signup"];
+            if (button.classList.contains("manage-button")) button.classList.remove("manage-button");
+            button.classList.add("login-button");
         }
-        document.getElementById("notefox-account-settings-button").onclick = function () {
+        button.onclick = function () {
             browser.runtime.sendMessage({"check-user": true});
             notefoxAccountLoginSignupManage();
             sendTelemetry("notefox-account-settings-button-clicked", "settings.js::setNotefoxAccountLoginSignupManageButton");
@@ -2400,6 +2405,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
     browser.storage.sync.get(["notefox-account"]).then((savedData) => {
         document.getElementById("account-section").style.display = "block";
 
+        checkServerStatus();
+
         document
             .getElementById("notefox-account-signup-section")
             .classList.add("hidden");
@@ -2414,6 +2421,22 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
             .classList.add("hidden");
         document
             .getElementById("notefox-account-change-password-section")
+            .classList.add("hidden");
+        document
+            .getElementById("notefox-account-otp-section")
+            .classList.add("hidden");
+        document
+            .getElementById("notefox-account-history-section")
+            .classList.add("hidden");
+
+        document
+            .getElementById("account-section--change-password-verify-grid")
+            .classList.add("hidden");
+        document
+            .getElementById("account-section--otp-grid")
+            .classList.add("hidden");
+        document
+            .getElementById("account-section--otp-verify-grid")
             .classList.add("hidden");
 
         document
@@ -2449,25 +2472,27 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
             browser.runtime.sendMessage({"sync-now": true});
         }
 
-        let managing_account = false;
-        if ((action === null || action === "manage") && savedData["notefox-account"] !== undefined && savedData["notefox-account"] !== {}) {
-            if (savedData["notefox-account"] !== undefined && savedData["notefox-account"] !== {} && savedData["notefox-account"]["expiry"] !== undefined) {
-                if (savedData["notefox-account"]["expiry"] === "" || savedData["notefox-account"]["expiry"] === null) {
-                    //login, no expiry set
-                    managing_account = true;
-                } else {
-                    //get the current datetime and compare it with the expiry date
-                    let current_datetime = new Date();
-                    let expiry_datetime = new Date(savedData["notefox-account"]["expiry"]);
+        setNotefoxAccountLoginSignupManageButton();
 
-                    if (current_datetime > expiry_datetime) {
-                        //login expired
-                        action = "login-expired";
-                        data = {};
-                    } else {
-                        managing_account = true;
-                    }
+        let account = savedData["notefox-account"];
+        let has_account = account !== undefined && account !== null && typeof account === "object" && Object.keys(account).length > 0 && account["login-id"] !== undefined;
+        let managing_account = false;
+        if ((action === null || action === "manage") && has_account) {
+            if (account["expiry"] !== undefined && account["expiry"] !== "" && account["expiry"] !== null) {
+                //get the current datetime and compare it with the expiry date
+                let current_datetime = new Date();
+                let expiry_datetime = new Date(account["expiry"]);
+
+                if (current_datetime > expiry_datetime) {
+                    //login expired
+                    action = "login-expired";
+                    data = {};
+                } else {
+                    managing_account = true;
                 }
+            } else {
+                //login, no expiry set
+                managing_account = true;
             }
         }
 
@@ -2526,20 +2551,18 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
             };
 
             document.getElementById("manage-logout").onclick = function () {
-                browser.runtime.sendMessage({
-                    api: true, type: "logout", data: {
-                        "login-id": savedData["notefox-account"]["login-id"],
-                    },
+                callApiAndHandle("logout", {
+                    "login-id": savedData["notefox-account"]["login-id"],
+                    token: savedData["notefox-account"]["token"],
                 });
 
                 sendTelemetry("manage-logout-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
             };
 
             document.getElementById("manage-logout-all-devices").onclick = function () {
-                browser.runtime.sendMessage({
-                    api: true, type: "logout-all", data: {
-                        "login-id": savedData["notefox-account"]["login-id"],
-                    },
+                callApiAndHandle("logout-all", {
+                    "login-id": savedData["notefox-account"]["login-id"],
+                    token: savedData["notefox-account"]["token"],
                 });
 
                 sendTelemetry("manage-logout-all-devices-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
@@ -2555,6 +2578,34 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 notefoxAccountLoginSignupManage("change-password");
 
                 sendTelemetry("manage-change-password-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+            };
+
+            //two-factor authentication: the state is read from the server
+            loadOtpState(savedData["notefox-account"]);
+
+            document.getElementById("manage-otp-button").onclick = function () {
+                notefoxAccountLoginSignupManage(otp_enabled === false ? "otp-enable" : "otp-disable");
+
+                sendTelemetry("manage-otp-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+            };
+
+            //synchronisation history: hidden when the server keeps no mirror table
+            let history_row = document.getElementById("manage-history-row");
+            if (isSyncHistoryAvailable()) {
+                if (history_row.classList.contains("hidden")) history_row.classList.remove("hidden");
+            } else {
+                history_row.classList.add("hidden");
+            }
+
+            //the history is a permission of the account: it is read from the server
+            loadSyncHistoryPermission(savedData["notefox-account"]);
+
+            document.getElementById("manage-history-button").onclick = function () {
+                //the section is opened in both cases: an account without the
+                //permission finds there the button that opens the help page
+                notefoxAccountLoginSignupManage("history");
+
+                sendTelemetry(sync_history_enabled === false ? "manage-history-not-enabled-button-clicked" : "manage-history-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
             };
 
             //console.log(savedData["notefox-account"]);
@@ -2650,10 +2701,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         } else if (email === "" || password === "" || login_id === "") {
                             notefoxAccountLoginSignupManage("login");
                         } else {
-                            browser.runtime.sendMessage({
-                                api: true, type: "login-verify", data: {
-                                    email: email, password: password, "login-id": login_id, "verification-code": code,
-                                },
+                            callApiAndHandle("login-verify", {
+                                email: email, password: password, "login-id": login_id, "verification-code": code,
                             });
                             verify_login_submit_element.disabled = true;
                             if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
@@ -2686,10 +2735,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         if (email === "" || password === "" || login_id === "") {
                             notefoxAccountLoginSignupManage("login");
                         } else {
-                            browser.runtime.sendMessage({
-                                api: true,
-                                type: "login-new-code",
-                                data: {email: email, password: password, "login-id": login_id},
+                            callApiAndHandle("login-new-code", {
+                                email: email, password: password, "login-id": login_id,
                             });
 
                             verify_login_submit_element.disabled = true;
@@ -2843,9 +2890,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                             if (email === "") email_element.classList.add("textbox-error");
                             if (password === "") password_element.classList.add("textbox-error");
                         } else {
-                            browser.runtime.sendMessage({
-                                api: true, type: "signup-new-code", data: {email: email, password: password},
-                            });
+                            callApiAndHandle("signup-new-code", {email: email, password: password});
 
                             submit_element.disabled = true;
                             if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
@@ -2876,10 +2921,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                             submit_element.disabled = false;
                             spinner_loading.classList.add("hidden");
                         } else {
-                            browser.runtime.sendMessage({
-                                api: true, type: "signup-verify", data: {
-                                    email: email, password: password, "verification-code": code,
-                                },
+                            callApiAndHandle("signup-verify", {
+                                email: email, password: password, "verification-code": code,
                             });
 
                             submit_element.disabled = true;
@@ -2986,14 +3029,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                             delete_submit_element.disabled = false;
                             spinner_loading.classList.add("hidden");
                         } else {
-                            browser.runtime.sendMessage({
-                                api: true, type: "delete-account", data: {
-                                    email: email,
-                                    password: password,
-                                    "login-id": savedData["notefox-account"]["login-id"],
-                                    token: savedData["notefox-account"]["token"],
-                                },
-                            });
+                            callApiAndHandle("delete-account", {email: email, password: password});
 
                             email_element.disabled = true;
                             password_element.disabled = true;
@@ -3104,14 +3140,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         } else {
                             showMessageNotefoxAccount(all_strings["notefox-account-deleting-account-text"], false);
 
-                            browser.runtime.sendMessage({
-                                api: true, type: "delete-account-verify", data: {
-                                    email: email,
-                                    password: password,
-                                    "login-id": login_id,
-                                    token: token,
-                                    "deleting-code": code,
-                                },
+                            callApiAndHandle("delete-account-verify", {
+                                email: email, password: password, "deleting-code": code,
                             });
                             verify_delete_submit_element.disabled = true;
                             new_code_element.disabled = true;
@@ -3144,11 +3174,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                         if (email === "" || password === "" || login_id === "" || token === "") {
                             notefoxAccountLoginSignupManage("delete");
                         } else {
-                            browser.runtime.sendMessage({
-                                api: true, type: "delete-account-new-code", data: {
-                                    email: email, password: password, "login-id": login_id, token: token,
-                                },
-                            });
+                            callApiAndHandle("delete-account-new-code", {email: email, password: password});
 
                             verify_delete_submit_element.disabled = true;
                             new_code_element.disabled = true;
@@ -3172,6 +3198,22 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                     .classList.contains("hidden")) document
                     .getElementById("notefox-account-change-password-section")
                     .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--change-password-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--change-password-grid")
+                    .classList.remove("hidden");
+
+                document.getElementById("account-section--change-password-verify-grid").classList.add("hidden");
+                document.getElementById("change-password-verify-submit").classList.add("hidden");
+                document.getElementById("change-password-new-code").classList.add("hidden");
+                if (document
+                    .getElementById("change-password-submit")
+                    .classList.contains("hidden")) document
+                    .getElementById("change-password-submit")
+                    .classList.remove("hidden");
+
+                document.getElementById("text-account").innerHTML = getString("notefox-account-change-password-text");
 
                 let password = "";
                 let new_password = "";
@@ -3203,7 +3245,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                     password_element.onblur = function () {
                         if (password_element.value === "") password_element.classList.add("textbox-error");
                     };
-                    password_element.onkeyup(function (e) {
+                    password_element.onkeyup = function (e) {
                         if (e.key === "Enter") {
                             if (new_password_element.value === "") {
                                 new_password_element.focus();
@@ -3213,7 +3255,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                                 change_password_submit_element.click();
                             }
                         }
-                    })
+                    };
                 } catch (e) {
                     console.error(e);
                     onError("settings.js::notefoxAccountLoginSignupManage::password_element-events|change-password", e.message);
@@ -3273,13 +3315,12 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                             change_password_submit_element.disabled = false;
                             spinner_loading.classList.add("hidden");
                         } else {
-                            browser.runtime.sendMessage({
-                                api: true, type: "change-password", data: {
-                                    "login-id": savedData["notefox-account"]["login-id"],
-                                    token: savedData["notefox-account"]["token"],
-                                    "old-password": password,
-                                    "new-password": new_password,
-                                },
+                            callApiAndHandle("change-password", {
+                                "login-id": savedData["notefox-account"]["login-id"],
+                                token: savedData["notefox-account"]["token"],
+                                password: password,
+                                "new-password": new_password,
+                                email: getNotefoxAccountEmail(savedData["notefox-account"]),
                             });
 
                             change_password_submit_element.disabled = true;
@@ -3296,6 +3337,341 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 } catch (e) {
                     console.error(e);
                     onError("settings.js::notefoxAccountLoginSignupManage::change_password_submit_element-events|change-password", e.message);
+                }
+            } else if (action === "change-password-verify") {
+                //second step of the password change: the code emailed by the server (v2)
+                title.innerText = all_strings["notefox-account-button-settings-change-password"];
+
+                if (document
+                    .getElementById("notefox-account-change-password-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-change-password-section")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--change-password-verify-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--change-password-verify-grid")
+                    .classList.remove("hidden");
+
+                document.getElementById("account-section--change-password-grid").classList.add("hidden");
+                document.getElementById("change-password-submit").classList.add("hidden");
+
+                document.getElementById("text-account").innerHTML = all_strings["notefox-account-insert-verification-code-text"];
+                showMessageNotefoxAccount(getString("notefox-account-message-password-change-code-sent"));
+
+                let password = "";
+                let new_password = "";
+                if (data !== null) {
+                    if (data.password !== undefined) password = data.password;
+                    if (data["new-password"] !== undefined) new_password = data["new-password"];
+                }
+
+                let verify_submit_element = document.getElementById("change-password-verify-submit");
+                let new_code_element = document.getElementById("change-password-new-code");
+                let cancel_element = document.getElementById("change-password-cancel");
+                let code_element = document.getElementById("change-password-code");
+                let spinner_loading = document.getElementById("loading-change-password");
+
+                code_element.value = "";
+
+                if (verify_submit_element.classList.contains("hidden")) verify_submit_element.classList.remove("hidden");
+                if (new_code_element.classList.contains("hidden")) new_code_element.classList.remove("hidden");
+                if (code_element.classList.contains("hidden")) code_element.classList.remove("hidden");
+
+                verify_submit_element.disabled = false;
+                new_code_element.disabled = false;
+                cancel_element.disabled = false;
+                code_element.disabled = false;
+                spinner_loading.classList.add("hidden");
+
+                code_element.focus();
+
+                try {
+                    verify_submit_element.onclick = function () {
+                        let code = code_element.value;
+                        if (code === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            code_element.classList.add("textbox-error");
+
+                            verify_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (password === "" || new_password === "") {
+                            notefoxAccountLoginSignupManage("change-password");
+                        } else {
+                            callApiAndHandle("change-password-verify", {
+                                "login-id": savedData["notefox-account"]["login-id"],
+                                token: savedData["notefox-account"]["token"],
+                                password: password,
+                                "new-password": new_password,
+                                "verification-code": code,
+                                email: getNotefoxAccountEmail(savedData["notefox-account"]),
+                            });
+
+                            verify_submit_element.disabled = true;
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
+
+                        sendTelemetry("change-password-verify-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::verify_submit_element-events|change-password-verify", e.message);
+                }
+
+                try {
+                    code_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            verify_submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::code_element-events|change-password-verify", e.message);
+                }
+
+                try {
+                    new_code_element.onclick = function () {
+                        if (password === "") {
+                            notefoxAccountLoginSignupManage("change-password");
+                        } else {
+                            callApiAndHandle("change-password-new-code", {
+                                "login-id": savedData["notefox-account"]["login-id"],
+                                token: savedData["notefox-account"]["token"],
+                                password: password,
+                                email: getNotefoxAccountEmail(savedData["notefox-account"]),
+                            });
+
+                            verify_submit_element.disabled = true;
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
+
+                        sendTelemetry("change-password-new-code-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::new_code_element-events|change-password-verify", e.message);
+                }
+            } else if (action === "history") {
+                //synchronisation history (v2): the dated list of the previous versions
+                title.innerText = getString("notefox-account-history-title");
+
+                if (document
+                    .getElementById("notefox-account-history-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-history-section")
+                    .classList.remove("hidden");
+
+                document.getElementById("account-section--history-text").innerHTML = getString("notefox-account-history-text");
+
+                let list_element = document.getElementById("account-section--history-list");
+                let restore_element = document.getElementById("history-restore");
+                let cancel_element = document.getElementById("history-cancel");
+                let how_to_get_element = document.getElementById("history-how-to-get");
+                let spinner_loading = document.getElementById("loading-history");
+
+                list_element.innerHTML = "";
+                restore_element.classList.add("hidden");
+                restore_element.disabled = false;
+                cancel_element.disabled = false;
+                how_to_get_element.classList.add("hidden");
+                history_selected_snapshot = null;
+
+                how_to_get_element.onclick = function () {
+                    openSyncHistoryHelpPage();
+
+                    sendTelemetry("history-how-to-get-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                };
+
+                if (sync_history_enabled === false) {
+                    //the permission is already known to be missing: nothing is
+                    //asked to the server, only the way to obtain it is offered
+                    spinner_loading.classList.add("hidden");
+                    document.getElementById("account-section--history-text").innerHTML = getString("notefox-account-history-not-enabled");
+                    showSyncHistoryHelpButton();
+                } else {
+                    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+                    loadSyncHistory(savedData["notefox-account"]);
+                }
+            } else if (action === "otp-enable" || action === "otp-disable") {
+                //two-factor authentication (v2): the password is always required
+                let enabling = action === "otp-enable";
+
+                title.innerText = getString(enabling ? "notefox-account-otp-title-enable" : "notefox-account-otp-title-disable");
+
+                if (document
+                    .getElementById("notefox-account-otp-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-otp-section")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--otp-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--otp-grid")
+                    .classList.remove("hidden");
+
+                document.getElementById("account-section--otp-text").innerHTML = getString(enabling ? "notefox-account-otp-enable-text" : "notefox-account-otp-disable-text");
+
+                let submit_element = document.getElementById("otp-submit");
+                let verify_submit_element = document.getElementById("otp-verify-submit");
+                let cancel_element = document.getElementById("otp-cancel");
+                let password_element = document.getElementById("otp-password");
+                let spinner_loading = document.getElementById("loading-otp");
+
+                password_element.value = "";
+                document.getElementById("otp-code").value = "";
+
+                verify_submit_element.classList.add("hidden");
+                if (submit_element.classList.contains("hidden")) submit_element.classList.remove("hidden");
+                submit_element.value = getString(enabling ? "notefox-account-button-settings-otp-enable" : "notefox-account-button-settings-otp-disable");
+
+                submit_element.disabled = false;
+                cancel_element.disabled = false;
+                password_element.disabled = false;
+                spinner_loading.classList.add("hidden");
+                if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+
+                password_element.focus();
+
+                try {
+                    password_element.onfocus = function () {
+                        if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+                    };
+                    password_element.onblur = function () {
+                        if (password_element.value === "") password_element.classList.add("textbox-error");
+                    };
+                    password_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::password_element-events|otp", e.message);
+                }
+
+                try {
+                    submit_element.onclick = function () {
+                        let password = password_element.value;
+                        if (password === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            password_element.classList.add("textbox-error");
+
+                            submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else {
+                            callApiAndHandle(enabling ? "otp-enable" : "otp-disable", {
+                                "login-id": savedData["notefox-account"]["login-id"],
+                                token: savedData["notefox-account"]["token"],
+                                password: password,
+                                email: getNotefoxAccountEmail(savedData["notefox-account"]),
+                            });
+
+                            submit_element.disabled = true;
+                            cancel_element.disabled = true;
+                            password_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
+
+                        sendTelemetry("otp-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::submit_element-events|otp", e.message);
+                }
+            } else if (action === "otp-disable-verify") {
+                //second step: the code emailed by the server
+                title.innerText = getString("notefox-account-otp-title-disable");
+
+                if (document
+                    .getElementById("notefox-account-otp-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-otp-section")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--otp-verify-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--otp-verify-grid")
+                    .classList.remove("hidden");
+
+                document.getElementById("account-section--otp-grid").classList.add("hidden");
+                document.getElementById("account-section--otp-text").innerHTML = all_strings["notefox-account-insert-verification-code-text"];
+
+                let password = "";
+                if (data !== null && data.password !== undefined) password = data.password;
+
+                let submit_element = document.getElementById("otp-submit");
+                let verify_submit_element = document.getElementById("otp-verify-submit");
+                let cancel_element = document.getElementById("otp-cancel");
+                let code_element = document.getElementById("otp-code");
+                let spinner_loading = document.getElementById("loading-otp");
+
+                code_element.value = "";
+
+                submit_element.classList.add("hidden");
+                if (verify_submit_element.classList.contains("hidden")) verify_submit_element.classList.remove("hidden");
+                verify_submit_element.value = getString("notefox-account-button-settings-otp-disable");
+
+                verify_submit_element.disabled = false;
+                cancel_element.disabled = false;
+                code_element.disabled = false;
+                spinner_loading.classList.add("hidden");
+                if (code_element.classList.contains("textbox-error")) code_element.classList.remove("textbox-error");
+
+                code_element.focus();
+
+                try {
+                    verify_submit_element.onclick = function () {
+                        let code = code_element.value;
+                        if (code === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            code_element.classList.add("textbox-error");
+
+                            verify_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (password === "") {
+                            notefoxAccountLoginSignupManage("otp-disable");
+                        } else {
+                            callApiAndHandle("otp-disable-verify", {
+                                "login-id": savedData["notefox-account"]["login-id"],
+                                token: savedData["notefox-account"]["token"],
+                                password: password,
+                                "verification-code": code,
+                                email: getNotefoxAccountEmail(savedData["notefox-account"]),
+                            });
+
+                            verify_submit_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
+
+                        sendTelemetry("otp-verify-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::verify_submit_element-events|otp-disable-verify", e.message);
+                }
+
+                try {
+                    code_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            verify_submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::code_element-events|otp-disable-verify", e.message);
                 }
             } else if (action === "login") {
                 title.innerText = all_strings["notefox-account-button-settings-login"];
@@ -3421,9 +3797,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                             login_submit_element.disabled = false;
                             spinner_loading.classList.add("hidden");
                         } else {
-                            browser.runtime.sendMessage({
-                                api: true, type: "login", data: {email: email, password: password},
-                            });
+                            callApiAndHandle("login", {email: email, password: password});
 
                             login_submit_element.disabled = true;
                             cancel_element.disabled = true;
@@ -3599,9 +3973,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                             signup_submit_element.disabled = false;
                             spinner_loading.classList.add("hidden");
                         } else {
-                            browser.runtime.sendMessage({
-                                api: true, type: "signup", data: {username: username, password: password, email: email},
-                            });
+                            callApiAndHandle("signup", {username: username, password: password, email: email});
 
                             signup_submit_element.disabled = true;
                             cancel_element.disabled = true;
@@ -3625,6 +3997,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                     browser.storage.sync
                         .set({"notefox-account": data})
                         .then((result) => {
+                            setNotefoxAccountLoginSignupManageButton();
                             notefoxAccountLoginSignupManage("manage");
                         });
                 }
@@ -3643,61 +4016,430 @@ function updateSyncDatetime() {
     });
 }
 
-function listenerNotefoxAccount() {
-    browser.runtime.onMessage.addListener((message) => {
-        if (message["api_response"] !== undefined && message["api_response"]) {
-            let data = message["data"];
-            switch (message["type"]) {
-                case "signup":
-                    signUpResponse(data);
-                    break;
-                case "signup-new-code":
-                    signUpNewCodeResponse(data);
-                    break;
-                case "signup-verify":
-                    signUpVerifyResponse(data);
-                    break;
-                case "login":
-                    loginResponse(data);
-                    break;
-                case "login-new-code":
-                    loginNewCodeResponse(data);
-                    break;
-                case "login-verify":
-                    loginVerifyResponse(data);
-                    break;
-                case "logout":
-                    logoutResponse(data);
-                    break;
-                case "logout-all":
-                    logoutAllResponse(data);
-                    break;
-                case "delete-account":
-                    deleteResponse(data);
-                    break;
-                case "delete-verify":
-                    deleteVerifyResponse(data);
-                    break;
-                case "delete-account-new-code":
-                    deleteVerifyNewCodeResponse(data);
-                    break;
-                case "check-id-get":
-                    //nothing - error during check-id of get-data
-                    break;
-                case "check-id-send":
-                    //nothing - error during check-id of send-data
-                    break;
-                case "change-password":
-                    changePasswordResponse(data);
-                    break;
-                default:
-                    console.error("Error: " + message["type"] + " is not a valid type");
-                    onError("settings.js::listenerNotefoxAccount", "Error: " + message["type"] + " is not a valid type");
-            }
+let server_status = null;
 
-            disableAside = false;
-        }
+/**
+ * Read GET /status once and warn the user when a part of the server is not
+ * available (database, schema or mailer)
+ * @returns {Promise<void>}
+ */
+async function checkServerStatus() {
+    const warning_element = document.getElementById("account-server-status");
+    if (warning_element === null) return;
+
+    const result = await callApi("api-status", {});
+    if (!result.ok || result.data === null || result.data === undefined) {
+        //the server is unreachable: it is already reported by the other messages
+        server_status = null;
+        warning_element.classList.add("hidden");
+        return;
+    }
+
+    server_status = result.data;
+
+    let areas = [];
+    if (server_status["database"] === false) areas.push(getString("notefox-account-server-status-area-database", "database"));
+    if (server_status["schema"] === false) areas.push(getString("notefox-account-server-status-area-schema", "schema"));
+    if (server_status["mailer"] === false) areas.push(getString("notefox-account-server-status-area-mailer", "mailer"));
+
+    if (areas.length > 0) {
+        warning_element.innerHTML = getString("notefox-account-server-status-warning").replaceAll("{{areas}}", areas.join(", "));
+        if (warning_element.classList.contains("hidden")) warning_element.classList.remove("hidden");
+    } else {
+        warning_element.innerHTML = "";
+        warning_element.classList.add("hidden");
+    }
+}
+
+/**
+ * True when the server keeps the v1 mirror table, i.e. when a synchronisation
+ * history can exist at all
+ * @returns {boolean}
+ */
+function isSyncHistoryAvailable() {
+    if (server_status === null || server_status === undefined) return true;
+    const details = server_status["schema-details"];
+    if (details === undefined || details === null || details["legacy-mirror"] === undefined) return true;
+    return details["legacy-mirror"] !== false;
+}
+
+let history_selected_snapshot = null;
+
+/**
+ * Sync history permission of the account ("history-enabled" of
+ * POST /data/services): null when it has not been read yet
+ * @type {boolean|null}
+ */
+let sync_history_enabled = null;
+
+/**
+ * Open the page explaining how to obtain the sync history permission, in a new
+ * tab: it is never opened on its own, only when the user asks for it
+ */
+function openSyncHistoryHelpPage() {
+    browser.tabs.create({url: links.history_sync_help});
+}
+
+/**
+ * Show, in the history section, the button that opens the page explaining how
+ * to obtain the sync history permission
+ */
+function showSyncHistoryHelpButton() {
+    const how_to_get_element = document.getElementById("history-how-to-get");
+    if (how_to_get_element === null) return;
+
+    how_to_get_element.value = getString("notefox-account-button-settings-history-how-to-get");
+    if (how_to_get_element.classList.contains("hidden")) how_to_get_element.classList.remove("hidden");
+}
+
+/**
+ * Read the sync history permission of the account (data/services) and update
+ * the row in the manage section: the history is a permission, not a feature,
+ * so an account without it is offered the way to obtain it
+ * @param account - the stored "notefox-account" object
+ * @returns {Promise<void>}
+ */
+async function loadSyncHistoryPermission(account) {
+    const row = document.getElementById("manage-history-row");
+    const text_element = document.getElementById("manage-history-text");
+    const button = document.getElementById("manage-history-button");
+    if (row === null || text_element === null || button === null) return;
+
+    sync_history_enabled = null;
+
+    if (account === undefined || account === null || account["login-id"] === undefined) return;
+
+    const result = await callApi("get-services", {
+        "login-id": account["login-id"], token: account["token"],
     });
+
+    if (!result.ok || result.data === null || result.data === undefined || result.data["history-enabled"] === undefined) {
+        //the permission is unknown (old server, network error): the row stays
+        //as it is and the 433 is handled when the history is opened
+        return;
+    }
+
+    sync_history_enabled = result.data["history-enabled"] === true;
+
+    if (sync_history_enabled) {
+        text_element.innerHTML = getString("notefox-account-settings-history-text");
+        button.value = getString("notefox-account-button-settings-history");
+    } else {
+        text_element.innerHTML = getString("notefox-account-settings-history-not-enabled-text");
+        button.value = getString("notefox-account-button-settings-history-how-to-get");
+    }
+}
+
+/**
+ * Format a date of the synchronisation history, tolerating a missing value
+ * @param value {string|undefined|null}
+ * @returns {string}
+ */
+function syncHistoryDate(value) {
+    if (value === undefined || value === null || value === "") return all_strings["never-update"];
+    return correctDatetime(value);
+}
+
+/**
+ * Load the dated list of the previous synced versions (data/get/history)
+ * @param account - the stored "notefox-account" object
+ * @returns {Promise<void>}
+ */
+async function loadSyncHistory(account) {
+    const list_element = document.getElementById("account-section--history-list");
+    const text_element = document.getElementById("account-section--history-text");
+    const spinner_loading = document.getElementById("loading-history");
+    if (list_element === null) return;
+
+    const result = await callApi("get-history", {
+        "login-id": account["login-id"], token: account["token"],
+    });
+
+    spinner_loading.classList.add("hidden");
+    list_element.innerHTML = "";
+
+    if (result.code === 433) {
+        //the account has no sync history permission: the page explaining how to
+        //obtain it is offered with a button, never opened on its own
+        sync_history_enabled = false;
+        text_element.innerHTML = getString("notefox-account-history-not-enabled");
+        showSyncHistoryHelpButton();
+        return;
+    }
+
+    if (result.code === 432) {
+        //this service keeps no history at all: it is not an error
+        text_element.innerHTML = getString("notefox-account-history-not-available");
+        return;
+    }
+
+    let entries = [];
+    if (result.data !== null && result.data !== undefined && Array.isArray(result.data["entries"])) entries = result.data["entries"];
+
+    if (!result.ok && result.code !== 201) {
+        showMessageNotefoxAccount(getAccountErrorString(result.code), true);
+        return;
+    }
+
+    if (entries.length === 0) {
+        //an empty history is a normal state
+        let empty_element = document.createElement("div");
+        empty_element.innerHTML = getString("notefox-account-history-empty");
+        list_element.appendChild(empty_element);
+        return;
+    }
+
+    entries.forEach(function (entry) {
+        let entry_element = document.createElement("input");
+        entry_element.type = "button";
+        entry_element.className = "button width-100 margin-top-5-px";
+        entry_element.value = getString("notefox-account-history-entry")
+            .replaceAll("{{inserted-date}}", syncHistoryDate(entry["inserted-date"]))
+            .replaceAll("{{updated-locally-date}}", syncHistoryDate(entry["updated-locally-date"]));
+        entry_element.onclick = function () {
+            selectSyncHistoryEntry(account, entry);
+
+            sendTelemetry("history-entry-clicked", "settings.js::loadSyncHistory");
+        };
+        list_element.appendChild(entry_element);
+    });
+}
+
+/**
+ * Download the version chosen by the user and ask for a confirmation before
+ * applying it (data/get/history/download)
+ * @param account - the stored "notefox-account" object
+ * @param entry - the entry chosen in the list
+ * @returns {Promise<void>}
+ */
+async function selectSyncHistoryEntry(account, entry) {
+    const restore_element = document.getElementById("history-restore");
+    const spinner_loading = document.getElementById("loading-history");
+
+    history_selected_snapshot = null;
+    restore_element.classList.add("hidden");
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+    const result = await callApi("get-history-download", {
+        "login-id": account["login-id"], token: account["token"], id: entry["id"],
+    });
+
+    spinner_loading.classList.add("hidden");
+
+    if (result.code === 201) {
+        //the entry does not exist any more
+        showMessageNotefoxAccount(getString("notefox-account-history-entry-not-found"), true);
+        return;
+    }
+
+    if (result.code === 433) {
+        //the permission has been revoked in the meantime
+        sync_history_enabled = false;
+        showMessageNotefoxAccount(getString("notefox-account-history-not-enabled"), true);
+        showSyncHistoryHelpButton();
+        return;
+    }
+
+    if (!result.ok || result.data === null || result.data === undefined || result.data["data"] === undefined) {
+        showMessageNotefoxAccount(getAccountErrorString(result.code), true);
+        return;
+    }
+
+    history_selected_snapshot = result.data["data"];
+
+    showMessageNotefoxAccount(getString("notefox-account-history-selected")
+        .replaceAll("{{date}}", syncHistoryDate(result.data["inserted-date"])), true);
+
+    restore_element.disabled = false;
+    if (restore_element.classList.contains("hidden")) restore_element.classList.remove("hidden");
+    restore_element.onclick = function () {
+        restoreSyncHistory();
+
+        sendTelemetry("history-restore-button-clicked", "settings.js::selectSyncHistoryEntry");
+    };
+}
+
+/**
+ * Apply the downloaded version locally and let the sync service send it as a
+ * normal insert
+ * @returns {Promise<void>}
+ */
+async function restoreSyncHistory() {
+    const restore_element = document.getElementById("history-restore");
+    const cancel_element = document.getElementById("history-cancel");
+    const spinner_loading = document.getElementById("loading-history");
+
+    if (history_selected_snapshot === null) return;
+
+    restore_element.disabled = true;
+    cancel_element.disabled = true;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+    disableAside = true;
+
+    const result = await callApi("sync-restore", {snapshot: history_selected_snapshot});
+
+    spinner_loading.classList.add("hidden");
+    cancel_element.disabled = false;
+    disableAside = false;
+
+    if (result.ok) {
+        history_selected_snapshot = null;
+        restore_element.classList.add("hidden");
+        showMessageNotefoxAccount(getString("notefox-account-history-restored"));
+        loadSettings();
+    } else {
+        restore_element.disabled = false;
+        showMessageNotefoxAccount(getAccountErrorString(result.code), true);
+    }
+}
+
+let otp_enabled = null;
+
+/**
+ * Read the state of the two-factor authentication (otp/status) and update the
+ * row in the manage section
+ * @param account - the stored "notefox-account" object
+ * @returns {Promise<void>}
+ */
+async function loadOtpState(account) {
+    const row = document.getElementById("manage-otp-row");
+    const state_element = document.getElementById("manage-otp-state");
+    const button = document.getElementById("manage-otp-button");
+    if (row === null || state_element === null || button === null) return;
+
+    otp_enabled = null;
+    state_element.innerHTML = getString("notefox-account-otp-state-unknown");
+    button.value = getString("notefox-account-button-settings-otp-disable");
+    button.disabled = true;
+    if (row.classList.contains("hidden")) row.classList.remove("hidden");
+
+    if (account === undefined || account === null || account["login-id"] === undefined) return;
+
+    const result = await callApi("otp-status", {
+        "login-id": account["login-id"], token: account["token"],
+    });
+
+    if (result.code === 503) {
+        //the server schema is incomplete: the two-factor cannot be managed at all
+        row.classList.add("hidden");
+        return;
+    }
+
+    if (!result.ok || result.data === null || result.data === undefined || result.data["otp-enabled"] === undefined) {
+        //the state is unknown: the row stays visible but disabled
+        return;
+    }
+
+    otp_enabled = result.data["otp-enabled"] !== false;
+    state_element.innerHTML = getString(otp_enabled ? "notefox-account-otp-state-enabled" : "notefox-account-otp-state-disabled");
+    button.value = getString(otp_enabled ? "notefox-account-button-settings-otp-disable" : "notefox-account-button-settings-otp-enable");
+    button.disabled = false;
+}
+
+/**
+ * Email of the account, stored at login: it is needed by the endpoints that
+ * send a confirmation email (password change, two-factor)
+ * @param account - the stored "notefox-account" object
+ * @returns {string} - the email or an empty string when it is unknown
+ */
+function getNotefoxAccountEmail(account) {
+    if (account !== undefined && account !== null && account["email"] !== undefined && account["email"] !== null) return account["email"];
+    return "";
+}
+
+/**
+ * Call the API v2 through the background bridge and await its answer
+ * @param type {string} - the type of the request (see api_request in js/api-service.js)
+ * @param data {object} - the payload of the request
+ * @returns {Promise<{ok: boolean, status: string, code: number, data: any, description: (string|undefined)}>}
+ */
+async function callApi(type, data = {}) {
+    let result = undefined;
+    try {
+        result = await browser.runtime.sendMessage({api: true, type: type, data: data});
+    } catch (e) {
+        console.error("[settings.js::callApi] " + type, e);
+    }
+
+    if (result === undefined || result === null || result["code"] === undefined) {
+        //the background page did not answer: treated as a network failure
+        result = {ok: false, status: "Error", code: 499, data: null, description: "No answer from the API"};
+    }
+
+    return result;
+}
+
+/**
+ * Call the API v2 and dispatch the answer to the handler of that flow
+ * @param type {string} - the type of the request
+ * @param data {object} - the payload of the request
+ * @returns {Promise<{ok: boolean, status: string, code: number, data: any, description: (string|undefined)}>}
+ */
+async function callApiAndHandle(type, data = {}) {
+    const result = await callApi(type, data);
+    dispatchApiResponse(type, result);
+    return result;
+}
+
+function dispatchApiResponse(type, data) {
+    switch (type) {
+        case "signup":
+            signUpResponse(data);
+            break;
+        case "signup-new-code":
+            signUpNewCodeResponse(data);
+            break;
+        case "signup-verify":
+            signUpVerifyResponse(data);
+            break;
+        case "login":
+            loginResponse(data);
+            break;
+        case "login-new-code":
+            loginNewCodeResponse(data);
+            break;
+        case "login-verify":
+            loginVerifyResponse(data);
+            break;
+        case "logout":
+            logoutResponse(data);
+            break;
+        case "logout-all":
+            logoutAllResponse(data);
+            break;
+        case "delete-account":
+            deleteResponse(data);
+            break;
+        case "delete-account-verify":
+            deleteVerifyResponse(data);
+            break;
+        case "delete-account-new-code":
+            deleteVerifyNewCodeResponse(data);
+            break;
+        case "change-password":
+            changePasswordResponse(data);
+            break;
+        case "change-password-verify":
+            changePasswordVerifyResponse(data);
+            break;
+        case "change-password-new-code":
+            changePasswordNewCodeResponse(data);
+            break;
+        case "otp-enable":
+            otpEnableResponse(data);
+            break;
+        case "otp-disable":
+            otpDisableResponse(data);
+            break;
+        case "otp-disable-verify":
+            otpDisableVerifyResponse(data);
+            break;
+        default:
+            console.error("Error: " + type + " is not a valid type");
+            onError("settings.js::dispatchApiResponse", "Error: " + type + " is not a valid type");
+    }
+
+    disableAside = false;
 }
 
 function showMessageNotefoxAccount(message, warning = false) {
@@ -3746,27 +4488,10 @@ function signUpResponse(data) {
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
-        } else if (data.code === 416) {
-            //email already used
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
-            showMessageNotefoxAccount("Email already used", true);
-        } else if (data.code === 419) {
-            //email already used, need to verify it
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
-            submit_element.disabled = true;
-            submit_element.classList.add("hidden");
-            if (verify_signup_element.classList.contains("hidden")) verify_signup_element.classList.remove("hidden");
-            verify_signup_element.onclick = function () {
-                notefoxAccountLoginSignupManage("verify-signup", {
-                    email: email_element.value,
-                });
-
-                sendTelemetry("verify-signup-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
-            };
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             spinner_loading.classList.add("hidden");
         }
         spinner_loading.classList.add("hidden");
@@ -3798,12 +4523,12 @@ function signUpNewCodeResponse(data) {
             showMessageNotefoxAccount(all_strings["notefox-account-message-verification-code-sent"]);
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 412) {
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             spinner_loading.classList.add("hidden");
         }
         spinner_loading.classList.add("hidden");
@@ -3841,19 +4566,19 @@ function signUpVerifyResponse(data) {
             showMessageNotefoxAccount(`Verify: Error (${data.code})`, true);
         } else if (data.code === 410) {
             //Invalid credentials
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             notefoxAccountLoginSignupManage("verify-signup", {
                 email: email_element.value,
             });
         } else if (data.code === 413) {
             //invalid verification code
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 414) {
             //user already used
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             spinner_loading.classList.add("hidden");
         }
         spinner_loading.classList.add("hidden");
@@ -3876,20 +4601,25 @@ function loginResponse(data) {
     if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
-        if (data.code === 200 && data["data"] !== undefined) {
-            //Success
+        if (data.code === 200 && data["data"] !== undefined && data["data"]["otp-required"] === false) {
+            //Success: the two-factor authentication is disabled, the token is already there
+            let account = data["data"];
+            account["email"] = email_element.value;
+            notefoxAccountLoginSignupManage("manage", account, (firstTime = true));
+        } else if (data.code === 200 && data["data"] !== undefined) {
+            //Success: a verification code has been emailed
             notefoxAccountLoginSignupManage("verify-login", {
                 email: email_element.value, password: password_element.value, "login-id": data["data"]["login-id"],
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 410) {
             //Invalid credentials
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 411) {
             //Account not verified (need to verify email)
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             if (verify_email_element.classList.contains("hidden")) verify_email_element.classList.remove("hidden");
             login_submit_element.disabled = true;
             login_submit_element.classList.add("hidden");
@@ -3902,7 +4632,7 @@ function loginResponse(data) {
             };
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             spinner_loading.classList.add("hidden");
         }
         spinner_loading.classList.add("hidden");
@@ -3932,16 +4662,16 @@ function loginNewCodeResponse(data) {
             showMessageNotefoxAccount(all_strings["notefox-account-message-verification-code-sent"]);
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 410) {
             //Invalid credentials
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 415) {
             //Invalid login-id or already verified
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             spinner_loading.classList.add("hidden");
         }
         spinner_loading.classList.add("hidden");
@@ -3970,24 +4700,26 @@ function loginVerifyResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            notefoxAccountLoginSignupManage("manage", data["data"], (firstTime = true));
+            let account = data["data"];
+            if (account !== undefined && account !== null) account["email"] = email_element.value;
+            notefoxAccountLoginSignupManage("manage", account, (firstTime = true));
 
             //location.reload();
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 410 && data["data"] !== undefined && data["data"]["login-id"] !== undefined) {
             //Invalid credentials
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             notefoxAccountLoginSignupManage("verify-login", {
                 email: email_element.value, password: password_element.value, "login-id": data["data"]["login-id"],
             });
         } else if (data.code === 413) {
             //Invalid verification code
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             spinner_loading.classList.add("hidden");
         }
         spinner_loading.classList.add("hidden");
@@ -4002,18 +4734,19 @@ function logoutResponse(data) {
                 browser.storage.local
                     .remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites",])
                     .then((result) => {
+                        setNotefoxAccountLoginSignupManageButton();
                         notefoxAccountLoginSignupManage("login");
                         if (data.code === 451) {
-                            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+                            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
                         }
                     });
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         }
     }
 }
@@ -4026,19 +4759,23 @@ function logoutAllResponse(data) {
                 browser.storage.local
                     .remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites",])
                     .then((result) => {
+                        setNotefoxAccountLoginSignupManageButton();
                         notefoxAccountLoginSignupManage("login");
                     });
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 451) {
             //Login-id already disabled or expired
-            notefoxAccountLoginSignupManage("login");
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            browser.storage.sync.remove("notefox-account").then(() => {
+                setNotefoxAccountLoginSignupManageButton();
+                notefoxAccountLoginSignupManage("login");
+                showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            });
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         }
     }
 }
@@ -4061,30 +4798,222 @@ function changePasswordResponse(data) {
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
-            //Success
-            showMessageNotefoxAccount(all_strings["notefox-account-button-settings-password-changed"]);
-
-            change_password_submit_element.disabled = true;
-            cancel_element.disabled = false;
-            password_element.disabled = true;
-            new_password_element.disabled = true;
-            new_password_confirm_element.disabled = true;
-            disableAside = false;
+            //Success: nothing has been changed yet, a code has been emailed (v2)
+            notefoxAccountLoginSignupManage("change-password-verify", {
+                password: password_element.value, "new-password": new_password_element.value,
+            });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 402) {
             //Login-id not found, disabled, expired or invalid
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 405) {
             //Token not valid
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 410) {
             //Invalid credentials
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
+        }
+        spinner_loading.classList.add("hidden");
+    }
+}
+
+function changePasswordVerifyResponse(data) {
+    let verify_submit_element = document.getElementById("change-password-verify-submit");
+    let new_code_element = document.getElementById("change-password-new-code");
+    let cancel_element = document.getElementById("change-password-cancel");
+    let code_element = document.getElementById("change-password-code");
+    let spinner_loading = document.getElementById("loading-change-password");
+
+    verify_submit_element.disabled = false;
+    new_code_element.disabled = false;
+    cancel_element.disabled = false;
+    code_element.disabled = false;
+    disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success: the server returns a new session, the other devices are logged out
+            let new_session = data["data"];
+
+            browser.storage.sync.get(["notefox-account"]).then((savedData) => {
+                let account = savedData["notefox-account"] !== undefined && savedData["notefox-account"] !== null ? savedData["notefox-account"] : {};
+
+                if (new_session !== undefined && new_session !== null) {
+                    if (new_session["login-id"] !== undefined) account["login-id"] = new_session["login-id"];
+                    if (new_session["token"] !== undefined) account["token"] = new_session["token"];
+                    account["expiry"] = new_session["expiry"] !== undefined ? new_session["expiry"] : null;
+                }
+
+                browser.storage.sync.set({"notefox-account": account});
+            });
+
+            showMessageNotefoxAccount(all_strings["notefox-account-button-settings-password-changed"]);
+
+            //disable all textboxes and buttons: the change is done
+            verify_submit_element.disabled = true;
+            new_code_element.disabled = true;
+            code_element.disabled = true;
+            cancel_element.disabled = false;
+        } else if (data.code === 400 || data.code === 401) {
+            //Error
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+        } else if (data.code === 412 || data.code === 413 || data.code === 415 || data.code === 420) {
+            //Code expired, invalid, never requested or too many wrong attempts
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            code_element.classList.add("textbox-error");
+        } else if (data.code === 410) {
+            //Invalid credentials
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+        } else {
+            //Unknown
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
+        }
+        spinner_loading.classList.add("hidden");
+    }
+}
+
+function changePasswordNewCodeResponse(data) {
+    let verify_submit_element = document.getElementById("change-password-verify-submit");
+    let new_code_element = document.getElementById("change-password-new-code");
+    let cancel_element = document.getElementById("change-password-cancel");
+    let code_element = document.getElementById("change-password-code");
+    let spinner_loading = document.getElementById("loading-change-password");
+
+    verify_submit_element.disabled = false;
+    new_code_element.disabled = false;
+    cancel_element.disabled = false;
+    code_element.disabled = false;
+    disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success
+            showMessageNotefoxAccount(all_strings["notefox-account-message-verification-code-sent"]);
+        } else if (data.code === 400 || data.code === 401) {
+            //Error
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+        } else if (data.code === 415) {
+            //No password change has been requested
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+        } else {
+            //Unknown
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
+        }
+        spinner_loading.classList.add("hidden");
+    }
+}
+
+function otpEnableResponse(data) {
+    let submit_element = document.getElementById("otp-submit");
+    let cancel_element = document.getElementById("otp-cancel");
+    let password_element = document.getElementById("otp-password");
+    let spinner_loading = document.getElementById("loading-otp");
+
+    submit_element.disabled = false;
+    cancel_element.disabled = false;
+    password_element.disabled = false;
+    disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success: the two-factor authentication is enabled
+            otp_enabled = true;
+            showMessageNotefoxAccount(getString("notefox-account-message-otp-enabled"));
+
+            submit_element.disabled = true;
+            password_element.disabled = true;
+            password_element.value = "";
+        } else if (data.code === 431) {
+            //Already enabled
+            otp_enabled = true;
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            submit_element.disabled = true;
+            password_element.disabled = true;
+        } else {
+            //Error (410 invalid credentials, 503 incomplete schema, …)
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
+        }
+        spinner_loading.classList.add("hidden");
+    }
+}
+
+function otpDisableResponse(data) {
+    let submit_element = document.getElementById("otp-submit");
+    let cancel_element = document.getElementById("otp-cancel");
+    let password_element = document.getElementById("otp-password");
+    let spinner_loading = document.getElementById("loading-otp");
+
+    submit_element.disabled = false;
+    cancel_element.disabled = false;
+    password_element.disabled = false;
+    disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success: nothing has been changed yet, a code has been emailed
+            notefoxAccountLoginSignupManage("otp-disable-verify", {password: password_element.value});
+        } else if (data.code === 431) {
+            //Already disabled
+            otp_enabled = false;
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            submit_element.disabled = true;
+            password_element.disabled = true;
+        } else {
+            //Error (410 invalid credentials, 503 incomplete schema, …)
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
+        }
+        spinner_loading.classList.add("hidden");
+    }
+}
+
+function otpDisableVerifyResponse(data) {
+    let verify_submit_element = document.getElementById("otp-verify-submit");
+    let cancel_element = document.getElementById("otp-cancel");
+    let code_element = document.getElementById("otp-code");
+    let spinner_loading = document.getElementById("loading-otp");
+
+    verify_submit_element.disabled = false;
+    cancel_element.disabled = false;
+    code_element.disabled = false;
+    disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success: the two-factor authentication is disabled
+            otp_enabled = false;
+            showMessageNotefoxAccount(getString("notefox-account-message-otp-disabled"));
+
+            verify_submit_element.disabled = true;
+            code_element.disabled = true;
+            code_element.value = "";
+        } else if (data.code === 412 || data.code === 413 || data.code === 415 || data.code === 420) {
+            //Code expired, invalid, never requested or too many wrong attempts
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            code_element.classList.add("textbox-error");
+        } else if (data.code === 431) {
+            //Already disabled
+            otp_enabled = false;
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            verify_submit_element.disabled = true;
+            code_element.disabled = true;
+        } else {
+            //Error (410 invalid credentials, 503 incomplete schema, …)
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             spinner_loading.classList.add("hidden");
         }
         spinner_loading.classList.add("hidden");
@@ -4113,14 +5042,16 @@ function deleteResponse(data) {
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 452) {
+            //a deleting code has already been requested and is still valid
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             notefoxAccountLoginSignupManage("delete-verify", {
                 email: email_element.value, password: password_element.value,
             });
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             spinner_loading.classList.add("hidden");
         }
         spinner_loading.classList.add("hidden");
@@ -4149,18 +5080,11 @@ function deleteVerifyResponse(data) {
                 browser.storage.local
                     .remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites",])
                     .then((result) => {
+                        setNotefoxAccountLoginSignupManageButton();
                     });
             });
 
-            document.getElementById("notefox-account-settings-button").value = all_strings["notefox-account-button-settings-login-or-signup"];
-            if (document
-                .getElementById("notefox-account-settings-button")
-                .classList.contains("manage-button")) document
-                .getElementById("notefox-account-settings-button")
-                .classList.remove("manage-button");
-            document
-                .getElementById("notefox-account-settings-button")
-                .classList.add("login-button");
+            setNotefoxAccountLoginSignupManageButton();
 
             showMessageNotefoxAccount(all_strings["notefox-account-button-settings-account-deleted"]);
 
@@ -4170,10 +5094,10 @@ function deleteVerifyResponse(data) {
             code_element.disabled = true;
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             spinner_loading.classList.add("hidden");
         }
         spinner_loading.classList.add("hidden");
@@ -4200,13 +5124,13 @@ function deleteVerifyNewCodeResponse(data) {
             showMessageNotefoxAccount(all_strings["notefox-account-message-verification-code-sent"]);
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 412) {
             //Invalid login-id or already verified
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             spinner_loading.classList.add("hidden");
         }
         spinner_loading.classList.add("hidden");
