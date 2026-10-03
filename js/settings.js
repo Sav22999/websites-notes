@@ -759,8 +759,15 @@ function filterSettings(query) {
         children.forEach(c => {
             if (!c.classList.contains("option-settings-hidden")) anyVisible = true;
         });
-        if (!anyVisible) w.classList.add("option-settings-hidden");
-        else w.classList.remove("option-settings-hidden");
+        if (!anyVisible) {
+            w.classList.add("option-settings-hidden");
+        } else {
+            w.classList.remove("option-settings-hidden");
+            let parent = w.previousElementSibling;
+            if (parent && parent.classList.contains("option-settings")) {
+                parent.classList.remove("option-settings-hidden");
+            }
+        }
     });
 
     sectionTitles.forEach(st => {
