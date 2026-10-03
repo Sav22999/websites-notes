@@ -95,6 +95,8 @@ strings[lang] = {
     'save-page-content-detailed': 'عند التفعيل، سيقوم نوت فوكس بحفظ محتوى الصفحة مفيد للبحث في محتوى الصفحة أيضًا. <b>يمكن أن يزيد هذا من حجم الملاحظات المحفوظة.</b>',
     'search-page-content': 'البحث في محتوى الصفحة أيضا',
     'search-page-content-detailed': 'عند التمكين، سيقوم نوت فوكس بالبحث في محتوى الصفحة أيضًا. قد يؤدي هذا إلى زيادة وقت البحث.',
+    'context-menu-create-note': 'Create note from selected text',
+    'context-menu-create-note-detailed': 'When enabled, a <b>"Create note via Notefox"</b> option will appear in the right-click context menu when you select text on a page. The selected text will be added to the note for that page.',
     'disable-word-wrap': 'تعطيل نص ملاحظات الكلمات',
     'spellcheck-detection': 'تمكين الكشف عن تهجئة اللغة للملاحظات',
     'disable-confirmation-popup': 'تعطيل التأكيد المنبثق عند حذف الملاحظات',
@@ -144,6 +146,7 @@ strings[lang] = {
     'datetime-format': 'تنسيق التاريخ والوقت للعرض',
     'datetime-format-detailed': 'يمكنك اختيار تنسيق التاريخ والوقت لعرضه في الملاحظات. يمكنك رؤية معاينة تنسيق التاريخ والوقت الحالي.',
     'search-textbox': 'البحث…',
+    'search-settings-placeholder': 'Search settings…',
     'sort-by-button': 'فرز حسب…',
     'sort-by-az-button': 'الاسم: A-Z',
     //from website "a" to "z"

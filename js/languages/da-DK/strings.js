@@ -95,6 +95,8 @@ strings[lang] = {
     'save-page-content-detailed': 'Når aktiveret, gemmer Notefox også sidens indhold, så det kan bruges ved søgning i sideindholdet. <b>Dette kan øge størrelsen på de gemte noter.</b>',
     'search-page-content': 'Søg også i sideindhold',
     'search-page-content-detailed': 'Når aktiveret, søger Notefox også i sideindholdet. Dette kan øge søgetiden.',
+    'context-menu-create-note': 'Create note from selected text',
+    'context-menu-create-note-detailed': 'When enabled, a <b>"Create note via Notefox"</b> option will appear in the right-click context menu when you select text on a page. The selected text will be added to the note for that page.',
     'disable-word-wrap': 'Deaktiver tekst-wrap noter tekst',
     'spellcheck-detection': 'Aktiverede detektering af sprogstavekontrol for noter',
     'disable-confirmation-popup': 'Disable confirmation popup when deleting notes',
@@ -144,6 +146,7 @@ strings[lang] = {
     'datetime-format': 'Datoformat til visning',
     'datetime-format-detailed': 'Du kan vælge det datoformat, der skal vises i noterne. Du kan se et eksempel på formatet for den aktuelle dato/klokkeslæt.',
     'search-textbox': 'Søg…',
+    'search-settings-placeholder': 'Search settings…',
     'sort-by-button': 'Sorter efter…',
     'sort-by-az-button': 'Navn: A-Z',
     //from website "a" to "z"

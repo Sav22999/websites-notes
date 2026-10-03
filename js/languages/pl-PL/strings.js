@@ -95,6 +95,8 @@ strings[lang] = {
     'save-page-content-detailed': 'Po włączeniu Notefox zapisze zawartość strony użyteczną również dla wyszukiwania w treści strony. <b>To może zwiększyć rozmiar zapisanych notatek.</b>',
     'search-page-content': 'Szukaj również w treści strony',
     'search-page-content-detailed': 'Po włączeniu Notefox będzie przeszukiwał także zawartość strony. Może to zwiększyć czas wyszukiwania.',
+    'context-menu-create-note': 'Create note from selected text',
+    'context-menu-create-note-detailed': 'When enabled, a <b>"Create note via Notefox"</b> option will appear in the right-click context menu when you select text on a page. The selected text will be added to the note for that page.',
     'disable-word-wrap': 'Wyłącz tekst notatek na słowo',
     'spellcheck-detection': 'Włączone wykrywanie pisowni językowych dla notatek',
     'disable-confirmation-popup': 'Wyłącz okienko potwierdzenia podczas usuwania notatek',
@@ -144,6 +146,7 @@ strings[lang] = {
     'datetime-format': 'Datetime format to display',
     'datetime-format-detailed': 'You can choose the datetime format to display in the notes. You can see a preview of the format for the current datetime.',
     'search-textbox': 'Szukaj…',
+    'search-settings-placeholder': 'Search settings…',
     'sort-by-button': 'Sortuj wg…',
     'sort-by-az-button': 'Nazwa: A-Z',
     //from website "a" to "z"

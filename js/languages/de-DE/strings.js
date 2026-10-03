@@ -95,6 +95,8 @@ strings[lang] = {
     'save-page-content-detailed': 'Wenn aktiviert, speichert Notefox auch den Seiteninhalt, was nützlich ist, wenn man den Inhalt einer Seite durchsuchen möchte. <b>Dies könnte die Größe der gespeicherten Notizen erhöhen.</b>',
     'search-page-content': 'Seiteninhalt ebenfalls durchsuchen',
     'search-page-content-detailed': 'Wenn aktiviert, wird Notefox auch den Seiteninhalt durchsuchen. Dies kann die Zeit der Suche erhöhen.',
+    'context-menu-create-note': 'Create note from selected text',
+    'context-menu-create-note-detailed': 'When enabled, a <b>"Create note via Notefox"</b> option will appear in the right-click context menu when you select text on a page. The selected text will be added to the note for that page.',
     'disable-word-wrap': 'Automatischen Zeilenumbruch deaktivieren',
     'spellcheck-detection': 'Sprach- und Rechtschreibprüfung für Notizen aktivieren',
     'disable-confirmation-popup': 'Bestätigungs-Popup beim Löschen von Notizen deaktivieren',
@@ -144,6 +146,7 @@ strings[lang] = {
     'datetime-format': 'Angezeigtes Datumsformat',
     'datetime-format-detailed': 'Wähle das Datumsformat, das in den Notizen angezeigt wird. Du kannst eine Vorschau des Formats für die aktuelle Datumszeit sehen.',
     'search-textbox': 'Suche…',
+    'search-settings-placeholder': 'Search settings…',
     'sort-by-button': 'Sortieren nach…',
     'sort-by-az-button': 'Name: A-Z',
     //from website "a" to "z"

@@ -95,6 +95,8 @@ strings[lang] = {
     'save-page-content-detailed': '启用后，Notefox 还会将对搜索有用的页面内容保存在页面内容中。<b>这可能会增加保存的笔记的大小。</b>',
     'search-page-content': '也在页面内容中搜索',
     'search-page-content-detailed': '启用后，Notefox 也会在页面内容中进行搜索。这可能会增加搜索时间。',
+    'context-menu-create-note': 'Create note from selected text',
+    'context-menu-create-note-detailed': 'When enabled, a <b>"Create note via Notefox"</b> option will appear in the right-click context menu when you select text on a page. The selected text will be added to the note for that page.',
     'disable-word-wrap': '禁用笔记文本的自动换行',
     'spellcheck-detection': '启用笔记的语言拼写检查',
     'disable-confirmation-popup': '删除笔记时禁用确认弹出窗口',
@@ -144,6 +146,7 @@ strings[lang] = {
     'datetime-format': '显示的日期时间格式',
     'datetime-format-detailed': '您可以选择在笔记中显示的日期时间格式。您可以预览当前日期时间的格式。',
     'search-textbox': '搜索…',
+    'search-settings-placeholder': 'Search settings…',
     'sort-by-button': '排序方式…',
     'sort-by-az-button': '名称：A-Z',
     //from website "a" to "z"

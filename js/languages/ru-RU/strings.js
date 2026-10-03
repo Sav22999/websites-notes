@@ -95,6 +95,8 @@ strings[lang] = {
     'save-page-content-detailed': 'При включении Notefox будет сохранять содержимое страницы, что полезно для поиска по тексту страницы. <b>Это может увеличить размер сохраняемых заметок.</b>',
     'search-page-content': 'Искать также в содержимом страницы',
     'search-page-content-detailed': 'При включении Notefox будет искать заметки и в содержимом страницы. Это может увеличить время поиска.',
+    'context-menu-create-note': 'Create note from selected text',
+    'context-menu-create-note-detailed': 'When enabled, a <b>"Create note via Notefox"</b> option will appear in the right-click context menu when you select text on a page. The selected text will be added to the note for that page.',
     'disable-word-wrap': 'Отключить перенос текста заметок',
     'spellcheck-detection': 'Включено обнаружение проверки орфографии для заметок',
     'disable-confirmation-popup': 'Отключить подтверждение при удалении заметок',
@@ -144,6 +146,7 @@ strings[lang] = {
     'datetime-format': 'Формат даты и времени',
     'datetime-format-detailed': 'Вы можете выбрать формат даты и времени, отображаемый в заметках. Показан пример текущего времени.',
     'search-textbox': 'Поиск…',
+    'search-settings-placeholder': 'Search settings…',
     'sort-by-button': 'Сортировать по…',
     'sort-by-az-button': 'Название: А-Я',
     //from website "a" to "z"
