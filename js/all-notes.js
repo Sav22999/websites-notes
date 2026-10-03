@@ -1557,6 +1557,9 @@ function search(value = "") {
             }
         }
         loadAllWebsites(true, sort_by_selected, false);
+        if (valid_results > 0) {
+            highlightSearchResults(valueToUse);
+        }
     } catch (e) {
         console.error(`E-S1: ${e}`);
         onError("all-notes.js::search", e.message);
@@ -2866,6 +2869,62 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
             </style>`;
     }
+}
+
+function highlightSearchResults(terms) {
+    let noteElements = document.querySelectorAll("#all-website-sections .textarea-all-notes, #all-website-sections .title, #all-website-sections .url");
+    noteElements.forEach(el => {
+        if (el.contentEditable === "true") return;
+        highlightInElement(el, terms);
+    });
+}
+
+function highlightInElement(element, terms) {
+    let walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+    let textNodes = [];
+    while (walker.nextNode()) {
+        textNodes.push(walker.currentNode);
+    }
+    textNodes.forEach(node => {
+        let text = node.textContent;
+        let lower = text.toLowerCase();
+        let ranges = [];
+
+        terms.forEach(term => {
+            let t = term.toLowerCase();
+            let idx = lower.indexOf(t);
+            while (idx !== -1) {
+                ranges.push({start: idx, end: idx + t.length});
+                idx = lower.indexOf(t, idx + 1);
+            }
+        });
+
+        if (ranges.length === 0) return;
+
+        ranges.sort((a, b) => a.start - b.start);
+        let merged = [ranges[0]];
+        for (let i = 1; i < ranges.length; i++) {
+            let last = merged[merged.length - 1];
+            if (ranges[i].start <= last.end) {
+                last.end = Math.max(last.end, ranges[i].end);
+            } else {
+                merged.push(ranges[i]);
+            }
+        }
+
+        let frag = document.createDocumentFragment();
+        let lastIdx = 0;
+        merged.forEach(r => {
+            if (r.start > lastIdx) frag.appendChild(document.createTextNode(text.substring(lastIdx, r.start)));
+            let mark = document.createElement("mark");
+            mark.className = "search-highlight";
+            mark.textContent = text.substring(r.start, r.end);
+            frag.appendChild(mark);
+            lastIdx = r.end;
+        });
+        if (lastIdx < text.length) frag.appendChild(document.createTextNode(text.substring(lastIdx)));
+        node.parentNode.replaceChild(frag, node);
+    });
 }
 
 loaded();

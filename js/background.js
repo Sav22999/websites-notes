@@ -476,6 +476,8 @@ function loaded() {
             checkStatus();
         }
     });
+
+    initContextMenu();
 }
 
 function loadDataFromSync() {
@@ -491,6 +493,9 @@ function loadDataFromSync() {
         if (message["check-user"] !== undefined && message["check-user"]) {
             //console.log("Check user validity");
             checkUserPeriodically(0, true);
+        }
+        if (message["update-context-menu"] !== undefined) {
+            updateContextMenu(message["update-context-menu"]);
         }
     });
 
@@ -1912,5 +1917,98 @@ function getIconSvg(enabled = false, colorBorder, colorBackground, colorPencil, 
     }
     return svgToReturn;
 }
+
+const CONTEXT_MENU_ID = "notefox-create-note";
+
+function updateContextMenu(enabled) {
+    browser.menus.removeAll().then(() => {
+        if (enabled) {
+            browser.menus.create({
+                id: CONTEXT_MENU_ID,
+                title: "Create note via Notefox",
+                contexts: ["selection"]
+            });
+        }
+    });
+}
+
+function initContextMenu() {
+    browser.storage.local.get("storage").then(result => {
+        let storage = browser.storage.local;
+        if (result.storage === "sync") storage = browser.storage.sync;
+        storage.get("settings").then(value => {
+            let s = value["settings"] || {};
+            updateContextMenu(s["context-menu-create-note"] === true);
+        });
+    });
+}
+
+browser.menus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId !== CONTEXT_MENU_ID) return;
+    let selectedText = info.selectionText || "";
+    if (!selectedText) return;
+
+    let pageUrl = tab.url || "";
+    if (!pageUrl) return;
+
+    browser.storage.local.get("storage").then(result => {
+        let storage = browser.storage.local;
+        if (result.storage === "sync") storage = browser.storage.sync;
+
+        storage.get(["websites", "settings"]).then(value => {
+            let ws = value["websites"] || {};
+            let s = value["settings"] || {};
+
+            let openDefault = s["open-default"] || "page";
+            let urlKey;
+            if (openDefault === "global") {
+                urlKey = "**global";
+            } else if (openDefault === "domain") {
+                let protocol = "https";
+                if (pageUrl.startsWith("http:")) protocol = "http";
+                let parts = pageUrl.split(":");
+                let domain = parts[1] || "";
+                if (domain.includes("/")) {
+                    let domainParts = domain.split("/");
+                    if (domainParts[0] === "" && domainParts[1] === "") {
+                        domain = domainParts[2];
+                    }
+                }
+                urlKey = protocol + "://" + domain;
+            } else {
+                urlKey = pageUrl;
+                if (s["consider-sections"] === "no" || s["consider-sections"] === false) {
+                    if (urlKey.includes("#")) urlKey = urlKey.split("#")[0];
+                }
+                if (s["consider-parameters"] === "no" || s["consider-parameters"] === false) {
+                    if (urlKey.includes("?")) urlKey = urlKey.split("?")[0];
+                }
+            }
+
+            let now = getDate();
+            if (ws[urlKey] !== undefined && ws[urlKey]["notes"]) {
+                ws[urlKey]["notes"] += "<br>" + selectedText;
+            } else {
+                ws[urlKey] = {
+                    "notes": selectedText,
+                    "title": tab.title || "",
+                    "last-update": now,
+                    "tag-colour": "none",
+                    "sticky": false,
+                    "minimized": false,
+                    "coords": {x: "20px", y: "20px"},
+                    "sizes": {w: "300px", h: "300px"},
+                    "opacity": {value: 0.8},
+                    "content": ""
+                };
+            }
+            ws[urlKey]["last-update"] = now;
+
+            storage.set({"websites": ws, "last-update": now}).then(() => {
+                checkStatus(true);
+            });
+        });
+    });
+});
 
 

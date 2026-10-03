@@ -128,6 +128,10 @@ async function api_request(message) {
             return await apiDeleteVerify(data["email"], data["password"], data["deleting-code"]);
         case "delete-account-new-code":
             return await apiDeleteNewCode(data["email"], data["password"]);
+        case "get-sessions":
+            return await apiSessions(data["login-id"], data["token"]);
+        case "revoke-session":
+            return await apiSessionsRevoke(data["login-id"], data["token"], data["target"]);
         case "send-error-logs":
             return await apiErrorLogs(data["error-logs"]);
         case "send-telemetry":

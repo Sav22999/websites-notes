@@ -382,6 +382,14 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("context-menu-create-note-check").onchange = function () {
+        settings_json["context-menu-create-note"] = document.getElementById("context-menu-create-note-check").checked;
+        sendTelemetry(`context-menu-create-note-check-select`, `settings.js`, settings_json["context-menu-create-note"]);
+        browser.runtime.sendMessage({"update-context-menu": settings_json["context-menu-create-note"]});
+
+        saveSettings();
+    };
+
     document.getElementById("disable-word-wrap-check").onchange = function () {
         settings_json["disable-word-wrap"] = document.getElementById("disable-word-wrap-check").checked;
         sendTelemetry(`disable-word-wrap-check-select`, `settings.js`, settings_json["disable-word-wrap"]);
@@ -699,6 +707,143 @@ function loaded() {
     }
 
     initCustomSelects();
+    initSettingsSearch();
+}
+
+function initSettingsSearch() {
+    let searchInput = document.getElementById("settings-search-input");
+    if (!searchInput) return;
+    searchInput.placeholder = all_strings["search-settings-placeholder"] || "Search settings...";
+
+    searchInput.addEventListener("input", function () {
+        filterSettings(this.value);
+    });
+}
+
+function filterSettings(query) {
+    let allOptions = document.querySelectorAll("#settings-dedication-section .option-settings");
+    let options = Array.from(allOptions).filter(opt => !opt.closest(".message-popup") && !opt.closest("#account-section"));
+    let sectionTitles = document.querySelectorAll("#settings-sections > .section-title-settings");
+    let hrElements = document.querySelectorAll("#settings-sections > hr");
+    let descElements = document.querySelectorAll("#settings-sections > .section-description-settings");
+    let q = query.trim().toLowerCase();
+
+    options.forEach(opt => {
+        clearHighlights(opt);
+    });
+
+    if (!q) {
+        options.forEach(opt => opt.classList.remove("option-settings-hidden"));
+        sectionTitles.forEach(st => st.classList.remove("section-title-settings-hidden"));
+        hrElements.forEach(hr => hr.classList.remove("option-settings-hidden"));
+        descElements.forEach(d => d.classList.remove("option-settings-hidden"));
+        let wrappers = document.querySelectorAll("#save-content-subsection, #show-error-logs-subsection");
+        wrappers.forEach(w => w.classList.remove("option-settings-hidden"));
+        return;
+    }
+
+    options.forEach(opt => {
+        let text = opt.textContent.toLowerCase();
+        if (text.includes(q)) {
+            opt.classList.remove("option-settings-hidden");
+            highlightText(opt, q);
+        } else {
+            opt.classList.add("option-settings-hidden");
+        }
+    });
+
+    let wrappers = document.querySelectorAll("#save-content-subsection, #show-error-logs-subsection");
+    wrappers.forEach(w => {
+        let children = w.querySelectorAll(".option-settings");
+        let anyVisible = false;
+        children.forEach(c => {
+            if (!c.classList.contains("option-settings-hidden")) anyVisible = true;
+        });
+        if (!anyVisible) w.classList.add("option-settings-hidden");
+        else w.classList.remove("option-settings-hidden");
+    });
+
+    sectionTitles.forEach(st => {
+        let next = st.nextElementSibling;
+        let anyVisible = false;
+        while (next && !next.classList.contains("section-title-settings")) {
+            if (next.classList.contains("message-popup") || next.classList.contains("section")) {
+                next = next.nextElementSibling;
+                continue;
+            }
+            if (next.classList.contains("option-settings") && !next.classList.contains("option-settings-hidden")) {
+                anyVisible = true;
+                break;
+            }
+            let innerOpts = next.querySelectorAll(":scope > .option-settings:not(.option-settings-hidden)");
+            if (innerOpts.length > 0) {
+                anyVisible = true;
+                break;
+            }
+            next = next.nextElementSibling;
+        }
+        if (anyVisible) {
+            st.classList.remove("section-title-settings-hidden");
+        } else {
+            st.classList.add("section-title-settings-hidden");
+        }
+    });
+
+    hrElements.forEach(hr => {
+        let prev = hr.previousElementSibling;
+        let next = hr.nextElementSibling;
+        let prevHidden = prev && (prev.classList.contains("section-title-settings-hidden") || prev.classList.contains("option-settings-hidden"));
+        let nextHidden = next && (next.classList.contains("section-title-settings-hidden") || next.classList.contains("option-settings-hidden"));
+        if (prevHidden && nextHidden) hr.classList.add("option-settings-hidden");
+        else hr.classList.remove("option-settings-hidden");
+    });
+
+    descElements.forEach(d => {
+        let prev = d.previousElementSibling;
+        if (prev && prev.classList.contains("section-title-settings-hidden")) d.classList.add("option-settings-hidden");
+        else d.classList.remove("option-settings-hidden");
+    });
+}
+
+function highlightText(element, query) {
+    let walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+    let nodes = [];
+    while (walker.nextNode()) {
+        if (walker.currentNode.parentNode.tagName !== "INPUT" &&
+            walker.currentNode.parentNode.tagName !== "SELECT" &&
+            walker.currentNode.parentNode.tagName !== "OPTION") {
+            nodes.push(walker.currentNode);
+        }
+    }
+    nodes.forEach(node => {
+        let text = node.textContent;
+        let lower = text.toLowerCase();
+        let idx = lower.indexOf(query);
+        if (idx === -1) return;
+
+        let frag = document.createDocumentFragment();
+        let lastIdx = 0;
+        while (idx !== -1) {
+            frag.appendChild(document.createTextNode(text.substring(lastIdx, idx)));
+            let mark = document.createElement("mark");
+            mark.className = "search-highlight";
+            mark.textContent = text.substring(idx, idx + query.length);
+            frag.appendChild(mark);
+            lastIdx = idx + query.length;
+            idx = lower.indexOf(query, lastIdx);
+        }
+        frag.appendChild(document.createTextNode(text.substring(lastIdx)));
+        node.parentNode.replaceChild(frag, node);
+    });
+}
+
+function clearHighlights(element) {
+    let marks = element.querySelectorAll("mark.search-highlight");
+    marks.forEach(mark => {
+        let parent = mark.parentNode;
+        parent.replaceChild(document.createTextNode(mark.textContent), mark);
+        parent.normalize();
+    });
 }
 
 function sendTelemetry(action, context = "settings.js", other = null) {
@@ -957,6 +1102,8 @@ function setLanguageUI() {
     document.getElementById("save-page-content-detailed-text").innerHTML = all_strings["save-page-content-detailed"];
     document.getElementById("search-page-content").innerText = all_strings["search-page-content"];
     document.getElementById("search-page-content-detailed-text").innerHTML = all_strings["search-page-content-detailed"];
+    document.getElementById("context-menu-create-note-text").innerText = all_strings["context-menu-create-note"];
+    document.getElementById("context-menu-create-note-detailed-text").innerHTML = all_strings["context-menu-create-note-detailed"];
     document.getElementById("sending-error-logs-automatically-text").innerText = all_strings["sending-error-logs-automatically-text"];
     document.getElementById("sending-error-logs-automatically-detailed-text").innerHTML = all_strings["sending-error-logs-automatically-detailed-text"];
     document.getElementById("api-endpoint-text").innerText = all_strings["change-api-endpoint-text"];
@@ -1173,6 +1320,10 @@ function setLanguageUI() {
     document.getElementById("history-cancel").value = all_strings["cancel-button"];
     document.getElementById("history-restore").value = getString("notefox-account-button-history-restore");
     document.getElementById("history-how-to-get").value = getString("notefox-account-button-settings-history-how-to-get");
+    document.getElementById("manage-sessions-text").innerHTML = getString("notefox-account-settings-sessions-text");
+    document.getElementById("manage-sessions-button").value = getString("notefox-account-button-settings-sessions");
+    document.getElementById("sessions-cancel").value = all_strings["cancel-button"];
+
     document.getElementById("otp-cancel").value = all_strings["cancel-button"];
     document.getElementById("otp-password").placeholder = all_strings["password-textbox"];
     document.getElementById("otp-code").placeholder = all_strings["verification-code-textbox"];
@@ -1278,6 +1429,7 @@ function loadSettings() {
             document.getElementById("show-badge-with-number-of-notes-check").checked = settings_json["show-icon-badge"] === true || settings_json["show-icon-badge"] === "yes";
             document.getElementById("sending-error-logs-automatically-check").checked = settings_json["sending-error-logs-automatically"] === true || settings_json["sending-error-logs-automatically"] === "yes";
             document.getElementById("send-telemetry-check").checked = settings_json["send-telemetry"] === true || settings_json["send-telemetry"] === "yes";
+            document.getElementById("context-menu-create-note-check").checked = settings_json["context-menu-create-note"] === true || settings_json["context-menu-create-note"] === "yes";
 
             if (document.getElementById("save-page-content-check").checked) {
                 if (document
@@ -2428,6 +2580,9 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
         document
             .getElementById("notefox-account-history-section")
             .classList.add("hidden");
+        document
+            .getElementById("notefox-account-sessions-section")
+            .classList.add("hidden");
 
         document
             .getElementById("account-section--change-password-verify-grid")
@@ -2606,6 +2761,12 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 notefoxAccountLoginSignupManage("history");
 
                 sendTelemetry(sync_history_enabled === false ? "manage-history-not-enabled-button-clicked" : "manage-history-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+            };
+
+            document.getElementById("manage-sessions-button").onclick = function () {
+                notefoxAccountLoginSignupManage("sessions");
+
+                sendTelemetry("manage-sessions-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
             };
 
             //console.log(savedData["notefox-account"]);
@@ -3501,6 +3662,24 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
 
                     loadSyncHistory(savedData["notefox-account"]);
                 }
+            } else if (action === "sessions") {
+                title.innerText = getString("notefox-account-sessions-title");
+
+                if (document
+                    .getElementById("notefox-account-sessions-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-sessions-section")
+                    .classList.remove("hidden");
+
+                document.getElementById("account-section--sessions-text").innerHTML = getString("notefox-account-sessions-text");
+
+                let sessions_list_element = document.getElementById("account-section--sessions-list");
+                let sessions_spinner = document.getElementById("loading-sessions");
+
+                sessions_list_element.innerHTML = "";
+                if (sessions_spinner.classList.contains("hidden")) sessions_spinner.classList.remove("hidden");
+
+                loadActiveSessions(savedData["notefox-account"], sessions_list_element, sessions_spinner);
             } else if (action === "otp-enable" || action === "otp-disable") {
                 //two-factor authentication (v2): the password is always required
                 let enabling = action === "otp-enable";
@@ -4334,6 +4513,123 @@ async function loadOtpState(account) {
     state_element.innerHTML = getString(otp_enabled ? "notefox-account-otp-state-enabled" : "notefox-account-otp-state-disabled");
     button.value = getString(otp_enabled ? "notefox-account-button-settings-otp-disable" : "notefox-account-button-settings-otp-enable");
     button.disabled = false;
+}
+
+/**
+ * Load the active sessions list from the API and render them
+ */
+async function loadActiveSessions(account, list_element, spinner) {
+    if (account === undefined || account === null || account["login-id"] === undefined) {
+        spinner.classList.add("hidden");
+        return;
+    }
+
+    const result = await callApi("get-sessions", {
+        "login-id": account["login-id"], token: account["token"],
+    });
+
+    spinner.classList.add("hidden");
+
+    if (!result.ok || result.data === null || result.data === undefined || result.data["sessions"] === undefined) {
+        list_element.innerHTML = "<div class='session-empty'>" + getString("notefox-account-sessions-empty") + "</div>";
+        return;
+    }
+
+    const sessions = result.data["sessions"];
+    if (sessions.length === 0) {
+        list_element.innerHTML = "<div class='session-empty'>" + getString("notefox-account-sessions-empty") + "</div>";
+        return;
+    }
+
+    list_element.innerHTML = "";
+    sessions.forEach(function (entry) {
+        let item = document.createElement("div");
+        item.className = "session-item" + (entry["current"] ? " session-item--current" : "");
+
+        let info = document.createElement("div");
+        info.className = "session-item-info";
+
+        let id_line = document.createElement("div");
+        id_line.className = "session-item-id";
+        let id_code = document.createElement("code");
+        id_code.textContent = entry["login-id-short"];
+        id_line.appendChild(id_code);
+        if (entry["current"]) {
+            let badge = document.createElement("span");
+            badge.className = "session-badge";
+            badge.textContent = getString("notefox-account-sessions-current");
+            id_line.appendChild(badge);
+        }
+        info.appendChild(id_line);
+
+        let details = document.createElement("div");
+        details.className = "session-item-details";
+
+        if (entry["ip-address"]) {
+            let ip = document.createElement("span");
+            ip.textContent = entry["ip-address"];
+            details.appendChild(ip);
+        }
+
+        if (entry["verified"]) {
+            if (details.childNodes.length > 0) {
+                let sep = document.createElement("span");
+                sep.className = "session-item-sep";
+                sep.textContent = "·";
+                details.appendChild(sep);
+            }
+            let date_span = document.createElement("span");
+            let parsed = new Date(entry["verified"].replace(" ", "T"));
+            date_span.textContent = isNaN(parsed.getTime()) ? entry["verified"] : parsed.toLocaleString();
+            details.appendChild(date_span);
+        }
+
+        if (entry["expiry"]) {
+            if (details.childNodes.length > 0) {
+                let sep = document.createElement("span");
+                sep.className = "session-item-sep";
+                sep.textContent = "·";
+                details.appendChild(sep);
+            }
+            let expiry_span = document.createElement("span");
+            let parsed_expiry = new Date(entry["expiry"].replace(" ", "T"));
+            let expiry_text = isNaN(parsed_expiry.getTime()) ? entry["expiry"] : parsed_expiry.toLocaleString();
+            expiry_span.textContent = getString("notefox-account-sessions-expires").replace("{{date}}", expiry_text);
+            details.appendChild(expiry_span);
+        }
+
+        info.appendChild(details);
+        item.appendChild(info);
+
+        if (!entry["current"]) {
+            let revoke_btn = document.createElement("input");
+            revoke_btn.type = "button";
+            revoke_btn.className = "button button-red session-revoke-button";
+            revoke_btn.value = getString("notefox-account-sessions-revoke");
+            revoke_btn.onclick = function () {
+                if (!confirm(getString("notefox-account-sessions-revoke-confirm"))) return;
+                revoke_btn.disabled = true;
+                revokeSession(account, entry["login-id"], list_element, spinner);
+            };
+            item.appendChild(revoke_btn);
+        }
+
+        list_element.appendChild(item);
+    });
+}
+
+async function revokeSession(account, target_login_id, list_element, spinner) {
+    const result = await callApi("revoke-session", {
+        "login-id": account["login-id"], token: account["token"], target: target_login_id,
+    });
+
+    if (result.ok) {
+        showMessageNotefoxAccount(getString("notefox-account-sessions-revoked"), false);
+        if (spinner.classList.contains("hidden")) spinner.classList.remove("hidden");
+        loadActiveSessions(account, list_element, spinner);
+    } else {
+        showMessageNotefoxAccount(result.description || "Error", true);
+    }
 }
 
 /**

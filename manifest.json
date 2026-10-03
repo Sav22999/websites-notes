@@ -90,6 +90,7 @@
     "tabs",
     "unlimitedStorage",
     "activeTab",
+    "menus",
     "https://*.notefox.eu/*"
   ],
   "optional_permissions": [

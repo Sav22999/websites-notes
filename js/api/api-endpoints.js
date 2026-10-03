@@ -31,6 +31,8 @@ const API_V2 = {
     deleteAccount: {path: "/delete/"},
     deleteVerify: {path: "/delete/verify/"},
     deleteNewCode: {path: "/delete/verify/get-new-code/"},
+    sessions: {path: "/sessions/"},
+    sessionsRevoke: {path: "/sessions/revoke/"},
     errorLogs: {path: "/error-logs/insert/"},
     telemetry: {path: "/telemetry/insert/"}
 };
@@ -202,6 +204,16 @@ async function apiDeleteVerify(email, password, deleting_code) {
 
 async function apiDeleteNewCode(email, password) {
     return await apiEndpoint("deleteNewCode", {"email": email, "password": password});
+}
+
+/* Sessions */
+
+async function apiSessions(login_id, token) {
+    return await apiEndpoint("sessions", {"login-id": login_id, "token": token});
+}
+
+async function apiSessionsRevoke(login_id, token, target) {
+    return await apiEndpoint("sessionsRevoke", {"login-id": login_id, "token": token, "target": target});
 }
 
 /* Diagnostics */

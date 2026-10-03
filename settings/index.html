@@ -312,6 +312,8 @@ Created by Saverio Morelli - saveriomorelli.com
                             </span>
                     </div>
 
+                    <hr class="manage-group-divider"/>
+
                     <div class="option-settings" id="manage-otp-row">
                             <span class="item-settings section-grid-container width-100-important">
                                 <span class="title-option-settings section-grid-item-text no-bold"
@@ -320,17 +322,6 @@ Created by Saverio Morelli - saveriomorelli.com
                                     <input type="button" value="" id="manage-otp-button"
                                            class="button width-100"/>
                                     <div id="manage-otp-state" class="width-100-important"></div>
-                                </span>
-                            </span>
-                    </div>
-
-                    <div class="option-settings" id="manage-history-row">
-                            <span class="item-settings section-grid-container width-100-important">
-                                <span class="title-option-settings section-grid-item-text no-bold"
-                                      id="manage-history-text"></span>
-                                <span class="section-grid-item-select">
-                                    <input type="button" value="" id="manage-history-button"
-                                           class="button width-100"/>
                                 </span>
                             </span>
                     </div>
@@ -345,6 +336,32 @@ Created by Saverio Morelli - saveriomorelli.com
                                 </span>
                             </span>
                     </div>
+
+                    <hr class="manage-group-divider"/>
+
+                    <div class="option-settings" id="manage-history-row">
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-history-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-history-button"
+                                           class="button width-100"/>
+                                </span>
+                            </span>
+                    </div>
+
+                    <div class="option-settings" id="manage-sessions-row">
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-sessions-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-sessions-button"
+                                           class="button width-100"/>
+                                </span>
+                            </span>
+                    </div>
+
+                    <hr class="manage-group-divider"/>
 
                     <div class="option-settings">
                             <span class="item-settings section-grid-container width-100-important">
@@ -459,6 +476,30 @@ Created by Saverio Morelli - saveriomorelli.com
                     </div>
                     <input class="button hidden" id="history-how-to-get" value="" type="button"/>
                     <input class="button hidden" id="history-restore" value="" type="button"/>
+                </div>
+            </div>
+
+            <!-- active sessions -->
+            <div id="notefox-account-sessions-section">
+                <div class="padding-10" id="account-section--sessions-text"></div>
+                <div class="padding-10" id="account-section--sessions-list"></div>
+                <div class="padding-10 account-section-buttons">
+                    <input type="button" value="" id="sessions-cancel"
+                           class="button margin-right-auto button-close-notefox-account"/>
+                    <div class="lds-spinner hidden" id="loading-sessions">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                 </div>
             </div>
 
@@ -580,6 +621,13 @@ Created by Saverio Morelli - saveriomorelli.com
         </span>
     </div>-->
 
+        <!--Search settings-->
+        <div class="section sticky-section" id="settings-search-section">
+            <div id="settings-search-container" class="custom-tag-input-container">
+                <input type="text" id="settings-search-input" class="tag-inner-input" placeholder="" tabindex="1"/>
+            </div>
+        </div>
+
         <!--====================-->
         <!--General section-->
         <div class="section-title-settings" id="general-title-settings"></div>
@@ -636,6 +684,17 @@ Created by Saverio Morelli - saveriomorelli.com
             </label>
             <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                   id="show-fullscreen-button-in-all-notes-detailed-text"></span>
+        </div>
+
+        <!--Context menu create note section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="context-menu-create-note-text"></span>
+                <input type="checkbox" id="context-menu-create-note-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="context-menu-create-note-detailed-text"></span>
         </div>
 
         <hr class="hr-big-space">
