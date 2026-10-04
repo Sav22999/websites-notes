@@ -36,6 +36,7 @@ var currentUrl = []; //[global, domain, page, other]
 
 var selected_tab = 2; //{0: global | 1:domain | 2:page | 3:other}
 var opened_by = -1;
+var current_note_index = 0;
 
 //urls WITHOUT the protocol! e.g. addons.mozilla.org
 var urls_unsupported_by_sticky_notes = ["addons.mozilla.org"];//TODO!MANUAL change this manually in case of new unsupported urls
@@ -459,6 +460,8 @@ function setLanguageUI() {
     document.getElementById("page-button").value = all_strings["page-label"];
     document.getElementById("global-button").value = all_strings["global-label"];
     document.getElementById("all-notes-button-grid").value = all_strings["see-all-notes-button"];
+    document.getElementById("back-to-list-button-text").textContent = all_strings["back-to-list-button"] || "Back";
+    document.getElementById("delete-note-button-text").textContent = all_strings["delete-note-button"] || "Delete";
     document.getElementById("last-updated-section").value = all_strings["last-update-text"].replaceAll("{{date_time}}", "----/--/-- --:--:--");
 
     document.getElementById("title-notes").placeholder = all_strings["title-notes-placeholder"];
@@ -701,6 +704,19 @@ function loadUI(called_by = null) {
         sendTelemetry("open-sticky-notes");
     }
 
+    document.getElementById("new-note-button").onclick = function () {
+        createNewNote();
+    };
+    document.getElementById("new-note-button-list").onclick = function () {
+        createNewNote();
+    };
+    document.getElementById("back-to-list-button").onclick = function () {
+        showNotesList(currentUrl[selected_tab]);
+    };
+    document.getElementById("delete-note-button").onclick = function () {
+        deleteCurrentNote();
+    };
+
     loadFormatButtons(false, false);
     setTimeout(function () {
         document.getElementById("notes").blur();
@@ -747,10 +763,12 @@ function changeTagColour(url, colour) {
             websites_json = value["websites"];
         }
         if (websites_json[url] !== undefined) {
-            //console.log(`url ${url}`);
-            websites_json[url]["tag-colour"] = colour;
+            if (current_note_index > 0 && Array.isArray(websites_json[url]["notes-extra"]) && websites_json[url]["notes-extra"][current_note_index - 1]) {
+                websites_json[url]["notes-extra"][current_note_index - 1]["tag-colour"] = colour;
+            } else {
+                websites_json[url]["tag-colour"] = colour;
+            }
             websites_json_to_show = websites_json;
-            //console.log("QAZ-8")
             sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
                 loadUI("H");
                 initCustomSelects();
@@ -881,6 +899,7 @@ function loadSettings(called_by = null, load_only = false) {
         if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
         if (settings_json["text-size"] === undefined || !supportedTextSize.includes(settings_json["text-size"])) settings_json["text-size"] = "standard";
         if (settings_json["allow-resize-popup"] === undefined) settings_json["allow-resize-popup"] = false;
+        if (settings_json["multiple-notes-per-type"] === undefined) settings_json["multiple-notes-per-type"] = false;
         if (settings_json["allow-resize-popup--width"] === undefined) settings_json["allow-resize-popup--width"] = 336;
 
         if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true; else advanced_managing = false;
@@ -1018,9 +1037,15 @@ function saveNotes(title_call = false) {
             });
         }
 
-        websites_json[url_to_use]["notes"] = notes;
-        if (settings_json["show-title-textbox"]) websites_json[url_to_use]["title"] = title;
-        websites_json[url_to_use]["last-update"] = getDate();
+        if (current_note_index > 0 && Array.isArray(websites_json[url_to_use]["notes-extra"]) && websites_json[url_to_use]["notes-extra"][current_note_index - 1]) {
+            websites_json[url_to_use]["notes-extra"][current_note_index - 1]["notes"] = notes;
+            if (settings_json["show-title-textbox"]) websites_json[url_to_use]["notes-extra"][current_note_index - 1]["title"] = title;
+            websites_json[url_to_use]["notes-extra"][current_note_index - 1]["last-update"] = getDate();
+        } else {
+            websites_json[url_to_use]["notes"] = notes;
+            if (settings_json["show-title-textbox"]) websites_json[url_to_use]["title"] = title;
+            websites_json[url_to_use]["last-update"] = getDate();
+        }
 
         if (websites_json[url_to_use]["tag-colour"] === undefined) {
             let tabSelected = getCurrentTabNameTag(selected_tab);
@@ -1048,12 +1073,23 @@ function saveNotes(title_call = false) {
         }
         let currentPosition = getPosition();
         if (notes === "" || notes === "<br>") {
-            //if notes field is empty, I delete the element from the "dictionary" (notes list)
-            // check if there are tags before deleting
-            if (websites_json[url_to_use] && (websites_json[url_to_use]["tags-text"] === undefined || websites_json[url_to_use]["tags-text"].length === 0)) {
+            if (current_note_index > 0 && Array.isArray(websites_json[url_to_use]["notes-extra"])) {
+                websites_json[url_to_use]["notes-extra"].splice(current_note_index - 1, 1);
+                if (websites_json[url_to_use]["notes-extra"].length === 0) delete websites_json[url_to_use]["notes-extra"];
+                current_note_index = 0;
+                loadFormatButtons(true, false);
+                document.getElementById("title-notes").disabled = true;
+                document.getElementById("notes-editor-toolbar").classList.add("hidden");
+                let allNotes = getAllNotesForUrl(currentUrl[selected_tab]);
+                let _multiEnabled = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
+                if (_multiEnabled && allNotes.length > 1) {
+                    showNotesList(currentUrl[selected_tab]);
+                } else {
+                    setTab(selected_tab, currentUrl[selected_tab]);
+                }
+            } else if (websites_json[url_to_use] && (websites_json[url_to_use]["tags-text"] === undefined || websites_json[url_to_use]["tags-text"].length === 0) && (!Array.isArray(websites_json[url_to_use]["notes-extra"]) || websites_json[url_to_use]["notes-extra"].length === 0)) {
                 delete websites_json[currentUrl[selected_tab]];
                 loadFormatButtons(true, false);
-                //setPosition(document.getElementById("notes"), 1);
                 document.getElementById("title-notes").disabled = true;
                 let component = "notes";
                 if (title_call) component = "title-notes";
@@ -1062,7 +1098,6 @@ function saveNotes(title_call = false) {
                     document.getElementById("notes").focus();
                 }, 100);
             } else if (websites_json[url_to_use]) {
-                // Keep the entry but clear notes/title
                 websites_json[url_to_use]["notes"] = "";
                 websites_json[url_to_use]["title"] = "";
                 loadFormatButtons(true, false);
@@ -1102,13 +1137,21 @@ function saveNotes(title_call = false) {
 
                 let colour = "none";
                 document.getElementById("tag-colour-section").removeAttribute("class");
-                if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) colour = websites_json[url_to_use]["tag-colour"];
+                if (current_note_index > 0 && websites_json[url_to_use] !== undefined && Array.isArray(websites_json[url_to_use]["notes-extra"]) && websites_json[url_to_use]["notes-extra"][current_note_index - 1] && websites_json[url_to_use]["notes-extra"][current_note_index - 1]["tag-colour"] !== undefined) {
+                    colour = websites_json[url_to_use]["notes-extra"][current_note_index - 1]["tag-colour"];
+                } else if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) {
+                    colour = websites_json[url_to_use]["tag-colour"];
+                }
                 document.getElementById("tag-colour-section").classList.add("tag-colour-" + colour + "-bg");
 
                 if (settings_json["notes-background-follow-tag-colour"]) document.getElementById("popup-content").classList.add("background-as-tag-colour");
 
                 let title = "";
-                if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["title"] !== undefined) title = websites_json[url_to_use]["title"];
+                if (current_note_index > 0 && websites_json[url_to_use] !== undefined && Array.isArray(websites_json[url_to_use]["notes-extra"]) && websites_json[url_to_use]["notes-extra"][current_note_index - 1]) {
+                    title = websites_json[url_to_use]["notes-extra"][current_note_index - 1]["title"] || "";
+                } else if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["title"] !== undefined) {
+                    title = websites_json[url_to_use]["title"];
+                }
                 document.getElementById("title-notes").value = title;
 
                 /*
@@ -1122,6 +1165,7 @@ function saveNotes(title_call = false) {
 
                 //send message to "background.js" to update the icon
                 sendMessageUpdateToBackground();
+                updateNewNoteButton(currentUrl[selected_tab]);
             });
         }
         listenerLinks();
@@ -1747,14 +1791,23 @@ function setTab(index, url) {
 
     document.getElementsByClassName("tab")[index].classList.add("tab-sel");
 
-    //console.log("url", url)
-    //console.log("getPage(url)", getPageUrl(url));
+    current_note_index = 0;
+    document.getElementById("notes-editor-toolbar").classList.add("hidden");
+    document.getElementById("notes-list-section").classList.add("hidden");
+    document.getElementById("notes-section").classList.remove("hidden");
+
+    let multipleNotesEnabled = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
+    let noteCount = getNoteCount(url);
+    if (multipleNotesEnabled && noteCount > 1) {
+        showNotesList(url);
+        updateNewNoteButton(url);
+        return;
+    }
 
     let never_saved = true;
     let notes = "";
     let title = "";
     if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["notes"] !== undefined) {
-        //notes saved (also it's empty)
         notes = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["notes"];
         title = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["title"];
         listenerLinks();
@@ -1787,13 +1840,18 @@ function setTab(index, url) {
 
     let colour = "none";
     document.getElementById("tag-colour-section").removeAttribute("class");
-    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"] !== undefined) colour = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"];
+    if (current_note_index > 0 && checkAllSupportedProtocols(url, websites_json)) {
+        let _entry = websites_json[getUrlWithSupportedProtocol(url, websites_json)];
+        if (_entry && Array.isArray(_entry["notes-extra"]) && _entry["notes-extra"][current_note_index - 1] && _entry["notes-extra"][current_note_index - 1]["tag-colour"] !== undefined) {
+            colour = _entry["notes-extra"][current_note_index - 1]["tag-colour"];
+        }
+    } else if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"] !== undefined) {
+        colour = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"];
+    }
     document.getElementById("tag-colour-section").classList.add("tag-colour-" + colour + "-bg");
     if (settings_json["notes-background-follow-tag-colour"]) document.getElementById("popup-content").classList.add("background-as-tag-colour");
 
-    if (websites_json[currentUrl[selected_tab]] !== undefined) {
-        document.getElementById("tag-select-grid").value = websites_json[currentUrl[selected_tab]]["tag-colour"];
-    }
+    document.getElementById("tag-select-grid").value = colour;
 
     renderTags();
     renderFolders();
@@ -1806,32 +1864,36 @@ function setTab(index, url) {
     document.getElementById("notes").focus();
 
     checkNeverSaved(never_saved, notes);
+    updateNewNoteButton(url);
 }
 
 function openStickyNotes() {
-    //console.log("Opening...")
     if (stickyNotesSupported) {
-        //console.log("Opening... <1>")
         sync_local.get("websites", function (value) {
-            //console.log("Opening... <2>")
             if (value["websites"] !== undefined) {
-                //console.log("Opening... <3>")
                 websites_json = value["websites"];
 
                 if (websites_json[currentUrl[selected_tab]] !== undefined) {
-                    //console.log("Opening... <4>")
-                    websites_json[currentUrl[selected_tab]]["sticky"] = true;
-                    websites_json[currentUrl[selected_tab]]["minimized"] = false;
+                    let entry = websites_json[currentUrl[selected_tab]];
+                    let ni = current_note_index;
 
-                    //console.log("QAZ-10")
+                    if (ni === 0) {
+                        entry["sticky"] = true;
+                        entry["minimized"] = false;
+                    } else {
+                        if (Array.isArray(entry["notes-extra"]) && entry["notes-extra"][ni - 1]) {
+                            entry["notes-extra"][ni - 1]["sticky"] = true;
+                            entry["notes-extra"][ni - 1]["minimized"] = false;
+                        }
+                    }
+
                     sync_local.set({"websites": websites_json, "last-update": getDate()}).then(result => {
-                        //console.log("Opening... <5>")
                         browser.runtime.sendMessage({
                             "open-sticky": {
-                                open: true, type: selected_tab
+                                open: true, type: selected_tab, noteIndex: ni
                             }
                         }).then(() => {
-                            window.close();//TODO:chrome
+                            window.close();
                         });
                     });
                 }
@@ -2632,6 +2694,249 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     background-image: url('data:image/svg+xml;base64,${logout_svg}');
                 }
             </style>`;
+    }
+}
+
+function getAllNotesForUrl(url) {
+    let entry = websites_json[getUrlWithSupportedProtocol(url, websites_json)];
+    if (!entry) return [];
+    let primary = {
+        "notes": entry["notes"] || "",
+        "title": entry["title"] || "",
+        "last-update": entry["last-update"] || "",
+        "tag-colour": entry["tag-colour"] || "none",
+        "sticky": entry["sticky"] === true,
+        "minimized": entry["minimized"] === true
+    };
+    let list = [primary];
+    if (Array.isArray(entry["notes-extra"])) {
+        list = list.concat(entry["notes-extra"]);
+    }
+    return list;
+}
+
+function getNoteCount(url) {
+    return getAllNotesForUrl(url).length;
+}
+
+function showNotesList(url) {
+    let allNotes = getAllNotesForUrl(url);
+    document.getElementById("notes-section").classList.add("hidden");
+    document.getElementById("notes-list-section").classList.remove("hidden");
+    document.getElementById("floating-actions").classList.add("hidden");
+    document.getElementById("new-note-button-list").classList.remove("hidden");
+    document.getElementById("last-updated-section").classList.add("hidden");
+    document.getElementById("popup-content").classList.remove("background-as-tag-colour");
+    let container = document.getElementById("notes-list-container");
+    container.innerHTML = "";
+
+    let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
+    let entry = websites_json[supportedUrl];
+
+    allNotes.forEach((note, idx) => {
+        let item = document.createElement("div");
+        item.className = "notes-list-item";
+
+        let noteTagColour = null;
+        if (idx === 0) {
+            noteTagColour = (entry && entry["tag-colour"] && entry["tag-colour"] !== "none") ? entry["tag-colour"] : null;
+        } else {
+            noteTagColour = (note["tag-colour"] && note["tag-colour"] !== "none") ? note["tag-colour"] : null;
+        }
+
+        let colorBar = document.createElement("div");
+        colorBar.className = "notes-list-item-color-bar";
+        if (noteTagColour) {
+            item.classList.add("has-tag-colour");
+            colorBar.classList.add("tag-colour-" + noteTagColour + "-bg");
+        }
+        item.appendChild(colorBar);
+
+        let itemContent = document.createElement("div");
+        itemContent.className = "notes-list-item-content";
+
+        if (note["last-update"]) {
+            let date = document.createElement("div");
+            date.className = "notes-list-item-date";
+            date.textContent = datetimeToDisplay(note["last-update"]);
+            itemContent.appendChild(date);
+        }
+
+        let title = document.createElement("div");
+        title.className = "notes-list-item-title";
+        title.textContent = note["title"] || (all_strings["notes-list-empty"] || "Note") + " " + (idx + 1);
+        itemContent.appendChild(title);
+
+        let tempDiv = document.createElement("div");
+        tempDiv.innerHTML = note["notes"] || "";
+        let plainText = tempDiv.textContent || tempDiv.innerText || "";
+        if (plainText.trim()) {
+            let preview = document.createElement("div");
+            preview.className = "notes-list-item-preview";
+            preview.textContent = plainText.substring(0, 100) + (plainText.length > 100 ? "…" : "");
+            itemContent.appendChild(preview);
+        }
+
+        item.appendChild(itemContent);
+
+        item.onclick = function () {
+            openNoteAtIndex(idx);
+        };
+        container.appendChild(item);
+    });
+}
+
+function openNoteAtIndex(index) {
+    current_note_index = index;
+    let url = currentUrl[selected_tab];
+    let allNotes = getAllNotesForUrl(url);
+    let note = allNotes[index];
+    if (!note) return;
+
+    document.getElementById("notes-list-section").classList.add("hidden");
+    document.getElementById("notes-section").classList.remove("hidden");
+    document.getElementById("floating-actions").classList.remove("hidden");
+    document.getElementById("new-note-button-list").classList.add("hidden");
+    document.getElementById("last-updated-section").classList.remove("hidden");
+
+    document.getElementById("notes").innerHTML = note["notes"] || "";
+    document.getElementById("title-notes").value = note["title"] || "";
+
+    let _multiEnabled = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
+    if (_multiEnabled && allNotes.length > 1) {
+        document.getElementById("notes-editor-toolbar").classList.remove("hidden");
+    } else {
+        document.getElementById("notes-editor-toolbar").classList.add("hidden");
+    }
+
+    let notes_content = note["notes"] || "";
+    if (notes_content === "<br>" || notes_content === "") {
+        document.getElementById("title-notes").disabled = true;
+    } else {
+        document.getElementById("title-notes").disabled = false;
+    }
+
+    listenerLinks();
+    if (notes_content !== "<br>" && notes_content !== "") {
+        loadFormatButtons(true, true);
+    }
+
+    let last_update = all_strings["never-update"];
+    if (note["last-update"]) last_update = note["last-update"];
+    document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(last_update));
+
+    let noteColour = note["tag-colour"] || "none";
+    document.getElementById("tag-colour-section").removeAttribute("class");
+    document.getElementById("tag-colour-section").classList.add("tag-colour-" + noteColour + "-bg");
+    let tagSelectEl = document.getElementById("tag-select-grid");
+    if (tagSelectEl) tagSelectEl.value = noteColour;
+    if (settings_json["notes-background-follow-tag-colour"]) document.getElementById("popup-content").classList.add("background-as-tag-colour");
+
+    document.getElementById("notes").focus();
+    checkNeverSaved(false, notes_content);
+    updateNewNoteButton(url);
+}
+
+function createNewNote() {
+    let multipleNotesEnabled = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
+    if (!multipleNotesEnabled) return;
+    let url = currentUrl[selected_tab];
+    let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
+    if (!websites_json[supportedUrl]) {
+        websites_json[supportedUrl] = {
+            "notes": "",
+            "title": "",
+            "last-update": getDate(),
+            "tag-colour": "none",
+            "sticky": false,
+            "minimized": false
+        };
+    }
+    if (!Array.isArray(websites_json[supportedUrl]["notes-extra"])) {
+        websites_json[supportedUrl]["notes-extra"] = [];
+    }
+    websites_json[supportedUrl]["notes-extra"].push({
+        "notes": "",
+        "title": "",
+        "last-update": getDate(),
+        "tag-colour": "none",
+        "sticky": false,
+        "minimized": false
+    });
+    sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+        let allNotes = getAllNotesForUrl(url);
+        openNoteAtIndex(allNotes.length - 1);
+        sendMessageUpdateToBackground();
+    });
+}
+
+function deleteCurrentNote() {
+    if (!confirm(all_strings["delete-note-confirmation"] || "Are you sure you want to delete this note?")) return;
+    let url = currentUrl[selected_tab];
+    let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
+    if (!websites_json[supportedUrl]) return;
+
+    let allNotes = getAllNotesForUrl(url);
+    if (allNotes.length <= 1) return;
+
+    let deletedNoteIndex = current_note_index;
+
+    if (current_note_index === 0) {
+        let promoted = websites_json[supportedUrl]["notes-extra"].shift();
+        websites_json[supportedUrl]["notes"] = promoted["notes"];
+        websites_json[supportedUrl]["title"] = promoted["title"];
+        websites_json[supportedUrl]["last-update"] = promoted["last-update"];
+        if (promoted["tag-colour"] !== undefined) websites_json[supportedUrl]["tag-colour"] = promoted["tag-colour"];
+        if (promoted["sticky"] !== undefined) websites_json[supportedUrl]["sticky"] = promoted["sticky"];
+        if (promoted["minimized"] !== undefined) websites_json[supportedUrl]["minimized"] = promoted["minimized"];
+        if (promoted["coords"] !== undefined) websites_json[supportedUrl]["coords"] = promoted["coords"];
+        if (promoted["sizes"] !== undefined) websites_json[supportedUrl]["sizes"] = promoted["sizes"];
+        if (promoted["opacity"] !== undefined) websites_json[supportedUrl]["opacity"] = promoted["opacity"];
+        if (promoted["minimized-pos"] !== undefined) websites_json[supportedUrl]["minimized-pos"] = promoted["minimized-pos"];
+    } else {
+        websites_json[supportedUrl]["notes-extra"].splice(current_note_index - 1, 1);
+    }
+
+    if (websites_json[supportedUrl]["notes-extra"].length === 0) {
+        delete websites_json[supportedUrl]["notes-extra"];
+    }
+
+    try {
+        browser.runtime.sendMessage({
+            "close-single-sticky": { noteIndex: deletedNoteIndex, type: selected_tab }
+        });
+    } catch (e) {}
+
+    sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+        current_note_index = 0;
+        let allNotes = getAllNotesForUrl(url);
+        if (allNotes.length > 1) {
+            showNotesList(url);
+        } else {
+            document.getElementById("notes-editor-toolbar").classList.add("hidden");
+            document.getElementById("notes-list-section").classList.add("hidden");
+            document.getElementById("notes-section").classList.remove("hidden");
+            setTab(selected_tab, url);
+        }
+        sendMessageUpdateToBackground();
+    });
+}
+
+function updateNewNoteButton(url) {
+    let multipleNotesEnabled = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
+    let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
+    let entry = websites_json[supportedUrl];
+    let btn = document.getElementById("new-note-button");
+    let btnList = document.getElementById("new-note-button-list");
+    let hasContent = entry && entry["notes"] && entry["notes"] !== "" && entry["notes"] !== "<br>";
+    let isListView = !document.getElementById("notes-list-section").classList.contains("hidden");
+    if (multipleNotesEnabled && hasContent && !isListView) {
+        btn.classList.remove("hidden");
+    } else {
+        btn.classList.add("hidden");
+    }
+    if (!multipleNotesEnabled) {
+        btnList.classList.add("hidden");
     }
 }
 

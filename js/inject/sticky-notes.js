@@ -1,61 +1,38 @@
+function stickyId(ni) { return "sticky-notes-notefox-addon-" + ni; }
+function elId(suffix, ni) { return suffix + "--sticky-notes-notefox-addon-" + ni; }
+
 load();
 
 function load() {
-    if (document.getElementById("sticky-notes-notefox-addon") && !document.getElementById("restore--sticky-notes-notefox-addon")) {
-        //already exists || update elements
-        //console.log("**** Already exists");
-        alreadyExists();
-    } else if (document.getElementById("sticky-notes-notefox-addon") && document.getElementById("restore--sticky-notes-notefox-addon")) {
-        //it's exists as minimized
-        //console.log("**** Exists as minimized");
-        openMinimized();
-    } else {
-        //console.log("**** Create new");
-        //no sticky-noes no minimized are present, so it's necessary understand what function to call
-        browser.runtime.sendMessage({from: "sticky", ask: "sticky-minimized"}, (responseRuntime) => {
-            //console.log(responseRuntime);
-            if (responseRuntime === undefined || responseRuntime.sticky && !responseRuntime.minimized || !responseRuntime.sticky && !responseRuntime.minimized || !responseRuntime.sticky && responseRuntime.minimized) {
-                //create new
-                browser.runtime.sendMessage({from: "sticky", ask: "coords-sizes-opacity"}, (response) => {
-                    let x = "20px";
-                    let y = "20px";
-                    let w = "300px";
-                    let h = "300x";
-                    let opacity = 0.8;
+    browser.runtime.sendMessage({from: "sticky", ask: "all-sticky-notes"}, (response) => {
+        if (!response || !response.notes || response.notes.length === 0) return;
+        response.notes.forEach(noteData => {
+            let ni = noteData.noteIndex;
+            let existingEl = document.getElementById(stickyId(ni));
+            let existingRestore = document.getElementById(elId("restore", ni));
 
-                    if (response !== undefined) {
-                        if (response.coords !== undefined && response.coords.x !== undefined) {
-                            x = checkCorrectNumber(response.coords.x, "20px");
-                        }
-                        if (response.coords !== undefined && response.coords.y !== undefined) {
-                            y = checkCorrectNumber(response.coords.y, "20px");
-                        }
-                        if (response.sizes !== undefined && response.sizes.w !== undefined) {
-                            w = checkCorrectNumber(response.sizes.w, "300px");
-                        }
-                        if (response.sizes !== undefined && response.sizes.h !== undefined) {
-                            h = checkCorrectNumber(response.sizes.h, "300px");
-                        }
-                        if (response.opacity !== undefined && response.opacity.value !== undefined) {
-                            opacity = response.opacity.value;
-                        }
-                    }
-                    createNewDescription(x, y, w, h, opacity);
-                });
+            if (existingEl && !existingRestore) {
+                updateStickyNotes(ni);
+            } else if (existingEl && existingRestore) {
+                openMinimized(ni, response.settings, response.icons, response.theme_colours, noteData.tag_colour, noteData["minimized-pos"]);
+            } else if (noteData.minimized) {
+                openMinimized(ni, response.settings, response.icons, response.theme_colours, noteData.tag_colour, noteData["minimized-pos"]);
             } else {
-                //only when both "sticky" and "minimized" are selected!
-                openMinimized(responseRuntime.settings_json, responseRuntime.icons, responseRuntime.theme_colours, responseRuntime.tag_colour, responseRuntime.minimized_pos);
+                let x = checkCorrectNumber((noteData.coords || {}).x || "20px", "20px");
+                let y = checkCorrectNumber((noteData.coords || {}).y || "20px", "20px");
+                let w = checkCorrectNumber((noteData.sizes || {}).w || "300px", "300px");
+                let h = checkCorrectNumber((noteData.sizes || {}).h || "300px", "300px");
+                let op = (noteData.opacity || {}).value !== undefined ? noteData.opacity.value : 0.8;
+                createNewDescription(ni, x, y, w, h, op);
             }
         });
-    }
+    });
 }
 
-function createNewDescription(x, y, w, h, opacity) {
-    browser.runtime.sendMessage({from: "sticky", ask: "notes"}, (response) => {
+function createNewDescription(noteIndex, x, y, w, h, opacity) {
+    browser.runtime.sendMessage({from: "sticky", ask: "notes", noteIndex: noteIndex}, (response) => {
         if (response !== undefined) {
             let notes = {description: "", url: "", page_domain_global: "", tag_colour: "", website: {}, type: "page"};
-            //console.log("Response: ", response);
-            let description = "";
             if (response.notes !== undefined && response.notes.description !== undefined) {
                 notes.description = response.notes.description;
             }
@@ -74,7 +51,7 @@ function createNewDescription(x, y, w, h, opacity) {
             if (response.notes !== undefined && response.notes.page_domain_global !== undefined) {
                 notes.page_domain_global = response.notes.page_domain_global;
             }
-            createNew(notes, x, y, w, h, opacity, response.websites, response.settings, response.icons, response.theme_colours, response.supported_font_family);
+            createNew(noteIndex, notes, x, y, w, h, opacity, response.websites, response.settings, response.icons, response.theme_colours, response.supported_font_family);
         } else {
             console.error(`Response undefined!`);
         }
@@ -85,22 +62,21 @@ function createNewDescription(x, y, w, h, opacity) {
 /**
  * The sticky already exists, I need only to update it
  */
-function updateStickyNotes() {
-    if (document.getElementById("text--sticky-notes-notefox-addon")) {
-        //double check already exists
+function updateStickyNotes(noteIndex) {
+    if (document.getElementById(elId("text", noteIndex))) {
 
-        if (document.getElementById("restore--sticky-notes-notefox-addon")) document.getElementById("restore--sticky-notes-notefox-addon").remove();
+        if (document.getElementById(elId("restore", noteIndex))) document.getElementById(elId("restore", noteIndex)).remove();
 
-        let stickyNotes = document.getElementById("sticky-notes-notefox-addon");
-        let text = document.getElementById("text--sticky-notes-notefox-addon");
-        let tag = document.getElementById("tag--sticky-notes-notefox-addon");
-        let opacityRange = document.getElementById("slider--sticky-notes-notefox-addon");
-        let close = document.getElementById("close--sticky-notes-notefox-addon");
-        let resize = document.getElementById("resize--sticky-notes-notefox-addon");
-        let move = document.getElementById("move--sticky-notes-notefox-addon");
-        let minimize = document.getElementById("minimize--sticky-notes-notefox-addon");
+        let stickyNotes = document.getElementById(stickyId(noteIndex));
+        let text = document.getElementById(elId("text", noteIndex));
+        let tag = document.getElementById(elId("tag", noteIndex));
+        let opacityRange = document.getElementById(elId("slider", noteIndex));
+        let close = document.getElementById(elId("close", noteIndex));
+        let resize = document.getElementById(elId("resize", noteIndex));
+        let move = document.getElementById(elId("move", noteIndex));
+        let minimize = document.getElementById(elId("minimize", noteIndex));
 
-        browser.runtime.sendMessage({from: "sticky", ask: "notes"}, (response) => {
+        browser.runtime.sendMessage({from: "sticky", ask: "notes", noteIndex: noteIndex}, (response) => {
             if (response !== undefined) {
                 let new_text = "";
                 if (response.notes !== undefined && response.notes.description !== undefined) new_text = response.notes.description;
@@ -140,20 +116,10 @@ function updateStickyNotes() {
                 if (response.notes !== undefined && response.notes.sticky_params.opacity !== undefined) {
                     //stickyNotes.style.opacity = response.notes.sticky_params.opacity.value;
                     //slider.value = (response.notes.sticky_params.opacity.value * 100);
-                    setSlider(opacityRange, stickyNotes, response.notes.sticky_params.opacity.value * 100, false);
+                    setSlider(noteIndex, opacityRange, stickyNotes, response.notes.sticky_params.opacity.value * 100, false);
                 }
 
-                let pageOrDomain = document.getElementById("page-or-domain--sticky-notes-notefox-addon");
-                /*if (response.notes !== undefined && response.notes.url !== undefined && response.notes.url === "**global") {
-                    //the current url one is a "Global"
-                    pageOrDomain.innerText = "Global";
-                } else if (response.notes !== undefined && response.notes.url !== undefined && isAPage(response.notes.url)) {
-                    //the current url one is a "Page"
-                    pageOrDomain.innerText = "Page";
-                } else {
-                    //the current url one is a "Domain"
-                    pageOrDomain.innerText = "Domain";
-                }*/
+                let pageOrDomain = document.getElementById(elId("page-or-domain", noteIndex));
                 let pageDomainGlobalToUse = response.notes.page_domain_global;
                 if (pageDomainGlobalToUse === undefined) pageDomainGlobalToUse = "";
                 pageOrDomain.innerText = pageDomainGlobalToUse;
@@ -163,18 +129,18 @@ function updateStickyNotes() {
                 checkDisableWordWrap(text, response.settings);
                 checkLanguageSpellcheck(text, response.settings);
                 checkFontFamily(text, response.settings, response.supported_font_family);
-                checkThemeSticky(text, response.settings, response.icons, response.theme_colours, response.notes.sticky_params.opacity.value);
-                checkImmersiveMode(text, response.settings);
+                checkThemeSticky(noteIndex, text, response.settings, response.icons, response.theme_colours, response.notes.sticky_params.opacity.value);
+                checkImmersiveMode(noteIndex, text, response.settings);
 
                 //(re)set events
                 close.onclick = function () {
-                    onClickClose(false);
+                    onClickClose(noteIndex);
                 }
                 text.oninput = function () {
-                    onInputText(text, response.settings);
+                    onInputText(noteIndex, text, response.settings);
                 }
                 text.onchange = function () {
-                    onInputText(text, response.settings);
+                    onInputText(noteIndex, text, response.settings);
                 }
                 text.onkeydown = function (e) {
                     onKeyDownText(text, response.settings, e);
@@ -184,19 +150,19 @@ function updateStickyNotes() {
                 }
                 opacityRange.oninput = function () {
                     var value = (this.value - this.min) / (this.max - this.min) * 100;
-                    setSlider(opacityRange, stickyNotes, value, true);
+                    setSlider(noteIndex, opacityRange, stickyNotes, value, true);
                 }
                 let isDragging = false;
                 move.addEventListener('mousedown', (e) => {
-                    isDragging = onMouseDownMove(e, stickyNotes, isDragging)
+                    isDragging = onMouseDownMove(noteIndex, e, stickyNotes, isDragging)
                 });
                 let isResizing = false;
                 resize.addEventListener('mousedown', (e) => {
-                    isResizing = onMouseDownResize(e, stickyNotes, isResizing);
+                    isResizing = onMouseDownResize(noteIndex, e, stickyNotes, isResizing);
                 });
                 minimize.onclick = function () {
                     stickyNotes.remove();
-                    openMinimized(response.settings, response.icons, response.theme_colours, response.notes.tag_colour);
+                    openMinimized(noteIndex, response.settings, response.icons, response.theme_colours, response.notes.tag_colour);
                 }
             }
             listenerLinks(text, response.settings);
@@ -207,29 +173,31 @@ function updateStickyNotes() {
 /**
  * The sticky does NOT exist, so I need to create it totally
  */
-function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity = 0.8, websites_json, settings_json, icons_json, theme_colours_json, supported_languages) {
-    if (!document.getElementById("sticky-notes-notefox-addon")) {
+function createNew(noteIndex, notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity = 0.8, websites_json, settings_json, icons_json, theme_colours_json, supported_languages) {
+    if (!document.getElementById(stickyId(noteIndex))) {
         let css = document.createElement("style");
-        css.innerText = getCSS(notes, x, y, w, h, opacity, websites_json, settings_json, icons_json, theme_colours_json, supported_languages);
+        css.setAttribute("data-notefox-sticky", noteIndex);
+        let cssText = getCSS(notes, x, y, w, h, opacity, websites_json, settings_json, icons_json, theme_colours_json, supported_languages);
+        css.innerText = cssText.replaceAll('sticky-notes-notefox-addon', 'sticky-notes-notefox-addon-' + noteIndex);
         document.body.appendChild(css);
 
-        if (document.getElementById("restore--sticky-notes-notefox-addon")) document.getElementById("restore--sticky-notes-notefox-addon").remove();
+        if (document.getElementById(elId("restore", noteIndex))) document.getElementById(elId("restore", noteIndex)).remove();
 
         let commandsContainer = document.createElement("div");
-        commandsContainer.id = "commands-container--sticky-notes-notefox-addon";
+        commandsContainer.id = elId("commands-container", noteIndex);
 
         let move = document.createElement("div");
-        move.id = "move--sticky-notes-notefox-addon";
+        move.id = elId("move", noteIndex);
 
         let resize = document.createElement("div");
-        resize.id = "resize--sticky-notes-notefox-addon";
+        resize.id = elId("resize", noteIndex);
 
         let textContainer = document.createElement("div");
-        textContainer.id = "text-container--sticky-notes-notefox-addon";
+        textContainer.id = elId("text-container", noteIndex);
         listenerLinks(textContainer, settings_json);
 
         let text = document.createElement("div");
-        text.id = "text--sticky-notes-notefox-addon";
+        text.id = elId("text", noteIndex);
         text.innerHTML = notes.description;
         text.contentEditable = true;
 
@@ -237,10 +205,10 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         checkLanguageSpellcheck(text, settings_json);
 
         text.oninput = function () {
-            onInputText(text, settings_json);
+            onInputText(noteIndex, text, settings_json);
         }
         text.onchange = function () {
-            onInputText(text, settings_json);
+            onInputText(noteIndex, text, settings_json);
         }
         text.onkeydown = function (e) {
             onKeyDownText(text, settings_json, e);
@@ -252,38 +220,35 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         textContainer.appendChild(text);
 
         let stickyNote = document.createElement("div");
-        stickyNote.id = "sticky-notes-notefox-addon";
+        stickyNote.id = stickyId(noteIndex);
 
         let close = document.createElement("input");
         close.type = "button";
-        close.id = "close--sticky-notes-notefox-addon";
+        close.id = elId("close", noteIndex);
         close.onclick = function () {
-            onClickClose(false);
+            onClickClose(noteIndex);
         }
-        //close.value = "⋏";
         commandsContainer.appendChild(close);
 
         let minimize = document.createElement("input");
         minimize.type = "button";
-        minimize.id = "minimize--sticky-notes-notefox-addon";
+        minimize.id = elId("minimize", noteIndex);
         minimize.onclick = function () {
             stickyNote.remove();
-            openMinimized(settings_json, icons_json, theme_colours_json, notes.tag_colour);
+            openMinimized(noteIndex, settings_json, icons_json, theme_colours_json, notes.tag_colour);
         }
-        //minimize.value = "≺";
         commandsContainer.appendChild(minimize);
 
-        //notes.tag_colour
         let tag = document.createElement("div");
-        tag.id = "tag--sticky-notes-notefox-addon";
+        tag.id = elId("tag", noteIndex);
         tag.style.backgroundColor = notes.tag_colour;
         stickyNote.appendChild(tag);
 
         let opacityRangeContainer = document.createElement("div");
-        opacityRangeContainer.id = "slider-container--sticky-notes-notefox-addon";
+        opacityRangeContainer.id = elId("slider-container", noteIndex);
 
         let opacityRange = document.createElement("input");
-        opacityRange.id = "slider--sticky-notes-notefox-addon";
+        opacityRange.id = elId("slider", noteIndex);
         opacityRange.type = "range";
         opacityRange.min = 0;
         opacityRange.max = 100;
@@ -294,18 +259,8 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         commandsContainer.appendChild(opacityRangeContainer);
 
         let pageOrDomain = document.createElement("div");
-        pageOrDomain.id = "page-or-domain--sticky-notes-notefox-addon";
+        pageOrDomain.id = elId("page-or-domain", noteIndex);
 
-        /*if (notes.url === "**global") {
-            //the current url one is a "Global"
-            pageOrDomain.innerText = "Global";
-        } else if (isAPage(notes.url)) {
-            //the current url one is a "Page"
-            pageOrDomain.innerText = "Page";
-        } else {
-            //the current url one is a "Domain"
-            pageOrDomain.innerText = "Domain";
-        }*/
         let pageDomainGlobalToUse = notes.page_domain_global;
         if (pageDomainGlobalToUse === undefined) pageDomainGlobalToUse = "";
         pageOrDomain.innerText = pageDomainGlobalToUse;
@@ -314,15 +269,15 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
         let isDragging = false;
 
         move.addEventListener('mousedown', (e) => {
-            isDragging = onMouseDownMove(e, stickyNote, isDragging)
+            isDragging = onMouseDownMove(noteIndex, e, stickyNote, isDragging)
         });
         let isResizing = false;
         resize.addEventListener('mousedown', (e) => {
-            isResizing = onMouseDownResize(e, stickyNote, isResizing);
+            isResizing = onMouseDownResize(noteIndex, e, stickyNote, isResizing);
         });
         opacityRange.oninput = function () {
             var value = (this.value - this.min) / (this.max - this.min) * 100;
-            setSlider(opacityRange, stickyNote, value, true);
+            setSlider(noteIndex, opacityRange, stickyNote, value, true);
         };
         commandsContainer.appendChild(move);
 
@@ -332,28 +287,24 @@ function createNew(notes, x = "10px", y = "10px", w = "200px", h = "300px", opac
 
         document.body.appendChild(stickyNote);
 
-        browser.runtime.sendMessage({from: "sticky", data: {sticky: true, minimized: false}});
+        browser.runtime.sendMessage({from: "sticky", noteIndex: noteIndex, data: {sticky: true, minimized: false}});
     } else {
-        alreadyExists();
+        updateStickyNotes(noteIndex);
     }
 }
 
-function setSlider(opacityRange, stickyNote, value, update = true) {
+function setSlider(noteIndex, opacityRange, stickyNote, value, update = true) {
     if (value < 0) value = 0;
     opacityRange.value = value;
     opacityRange.style.background = 'linear-gradient(to right, #ff6200 0%, #ff6200 ' + value + '%, #eeeeee ' + value + '%, #eeeeee 100%)';
     if (update) {
         browser.runtime.sendMessage({
             from: "sticky",
+            noteIndex: noteIndex,
             data: {opacity: {value: (value / 100)}}
         });
     }
     stickyNote.style.opacity = (value / 100);
-    //console.log(value / 100);
-}
-
-function alreadyExists() {
-    updateStickyNotes();
 }
 
 function checkDisableWordWrap(text, settings_json) {
@@ -377,13 +328,13 @@ function checkLanguageSpellcheck(text, settings_json) {
     text.spellcheck = spellcheck;
 }
 
-function checkImmersiveMode(text, settings_json) {
+function checkImmersiveMode(noteIndex, text, settings_json) {
     let immersive_mode = true;
     if (settings_json !== undefined && (settings_json["immersive-sticky-notes"] === "no" || settings_json["immersive-sticky-notes"] === false)) immersive_mode = false;
     else immersive_mode = true;
 
     let visibility_immersive = immersive_mode ? "hidden" : "visible";
-    const commands_container = document.getElementById('commands-container--sticky-notes-notefox-addon');
+    const commands_container = document.getElementById(elId("commands-container", noteIndex));
     commands_container.style.visibility = visibility_immersive;
 }
 
@@ -393,7 +344,7 @@ function checkFontFamily(text, settings_json, supported_font_family) {
     text.style.fontFamily = font_family + ", sans-serif";
 }
 
-function checkThemeSticky(text, settings_json, icons_json, theme_colours_json, opacity = 0.8) {
+function checkThemeSticky(noteIndex, text, settings_json, icons_json, theme_colours_json, opacity = 0.8) {
     let primary_color = "#fffd7d";
     let secondary_color = "#ff6200";
     let on_primary_color = "#111111";
@@ -414,23 +365,23 @@ function checkThemeSticky(text, settings_json, icons_json, theme_colours_json, o
     if (icons_json["restore"] === undefined || icons_json["restore"] === "") icons_json["restore"] = `PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+Cjxzdmcgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDMzNCAzMzQiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM6c2VyaWY9Imh0dHA6Ly93d3cuc2VyaWYuY29tLyIgc3R5bGU9ImZpbGwtcnVsZTpldmVub2RkO2NsaXAtcnVsZTpldmVub2RkO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDoyOyI+CiAgICA8ZyB0cmFuc2Zvcm09Im1hdHJpeCgwLjQxNjY2NywwLDAsMC40MTY2NjcsMCwwKSI+CiAgICAgICAgPHBhdGggZD0iTTU0LjE2Nyw0MDBDNTQuMTY3LDQxMy44MDcgNjUuMzYsNDI1IDc5LjE2Nyw0MjVMNDQ0LjkyLDQyNUwzNzkuNTYzLDQ4MS4wMkMzNjkuMDgsNDkwLjAwMyAzNjcuODY3LDUwNS43ODcgMzc2Ljg1Myw1MTYuMjdDMzg1LjgzNyw1MjYuNzUzIDQwMS42Miw1MjcuOTY3IDQxMi4xMDMsNTE4Ljk4TDUyOC43Nyw0MTguOThDNTM0LjMxLDQxNC4yMzMgNTM3LjUsNDA3LjI5NyA1MzcuNSw0MDBDNTM3LjUsMzkyLjcwMyA1MzQuMzEsMzg1Ljc2NyA1MjguNzcsMzgxLjAyTDQxMi4xMDMsMjgxLjAxOUM0MDEuNjIsMjcyLjAzMyAzODUuODM3LDI3My4yNDcgMzc2Ljg1MywyODMuNzNDMzY3Ljg2NywyOTQuMjEzIDM2OS4wOCwzMDkuOTk2IDM3OS41NjMsMzE4Ljk4MUw0NDQuOTIsMzc1TDc5LjE2NywzNzVDNjUuMzYsMzc1IDU0LjE2NywzODYuMTkzIDU0LjE2Nyw0MDBaIiBzdHlsZT0iZmlsbDp3aGl0ZTsiLz4KICAgICAgICA8cGF0aCBkPSJNMzEyLjUsMzI1LjAwMUwzMjUuMTA5LDMyNS4wMDFDMzE2LjQ5MSwzMDAuNTQ4IDMyMC44MDMsMjcyLjI5MiAzMzguODksMjUxLjE5MkMzNjUuODQ3LDIxOS43NDMgNDEzLjE5MywyMTYuMSA0NDQuNjQzLDI0My4wNTdMNTYxLjMxLDM0My4wNTdDNTc3LjkzMywzNTcuMzA3IDU4Ny41LDM3OC4xMDcgNTg3LjUsNDAwQzU4Ny41LDQyMS44OTcgNTc3LjkzMyw0NDIuNjk3IDU2MS4zMSw0NTYuOTQ3TDQ0NC42NDMsNTU2Ljk0N0M0MTMuMTkzLDU4My45MDMgMzY1Ljg0Nyw1ODAuMjYgMzM4Ljg5LDU0OC44MUMzMjAuODAzLDUyNy43MSAzMTYuNDkxLDQ5OS40NTMgMzI1LjEwOSw0NzVMMzEyLjUsNDc1TDMxMi41LDUzMy4zMzNDMzEyLjUsNjI3LjYxMyAzMTIuNSw2NzQuNzUzIDM0MS43OSw3MDQuMDQzQzM3MS4wOCw3MzMuMzMzIDQxOC4yMiw3MzMuMzMzIDUxMi41LDczMy4zMzNMNTQ1LjgzMyw3MzMuMzMzQzY0MC4xMTMsNzMzLjMzMyA2ODcuMjUzLDczMy4zMzMgNzE2LjU0Myw3MDQuMDQzQzc0NS44MzMsNjc0Ljc1MyA3NDUuODMzLDYyNy42MTMgNzQ1LjgzMyw1MzMuMzMzTDc0NS44MzMsMjY2LjY2N0M3NDUuODMzLDE3Mi4zODYgNzQ1LjgzMywxMjUuMjQ1IDcxNi41NDMsOTUuOTU2QzY4Ny4yNTMsNjYuNjY3IDY0MC4xMTMsNjYuNjY3IDU0NS44MzMsNjYuNjY3TDUxMi41LDY2LjY2N0M0MTguMjIsNjYuNjY3IDM3MS4wOCw2Ni42NjcgMzQxLjc5LDk1Ljk1NkMzMTIuNSwxMjUuMjQ1IDMxMi41LDE3Mi4zODYgMzEyLjUsMjY2LjY2N0wzMTIuNSwzMjUuMDAxWiIgc3R5bGU9ImZpbGw6d2hpdGU7ZmlsbC1ydWxlOm5vbnplcm87Ii8+CiAgICA8L2c+Cjwvc3ZnPgo=`;
     let svg_image_restore = icons_json["restore"];
 
-    document.getElementById("sticky-notes-notefox-addon").style.backgroundColor = primary_color + "";
-    document.getElementById("sticky-notes-notefox-addon").style.color = on_primary_color + "";
-    document.getElementById("close--sticky-notes-notefox-addon").style.backgroundImage = `url("data:image/svg+xml;base64,${svg_image_close}")`;
-    document.getElementById("close--sticky-notes-notefox-addon").style.backgroundColor = secondary_color + "";
-    document.getElementById("close--sticky-notes-notefox-addon").style.color = on_secondary_color + "";
-    document.getElementById("minimize--sticky-notes-notefox-addon").style.backgroundImage = `url("data:image/svg+xml;base64,${svg_image_minimize}")`;
-    document.getElementById("minimize--sticky-notes-notefox-addon").style.backgroundColor = secondary_color + "";
-    document.getElementById("minimize--sticky-notes-notefox-addon").style.color = on_secondary_color + "";
-    document.getElementById("slider-container--sticky-notes-notefox-addon").style.borderColor = secondary_color + "";
-    document.getElementById("slider--sticky-notes-notefox-addon").style.background = `linear-gradient(to right, ${secondary_color} 0%, ${secondary_color} ${opacity * 100}%, #eeeeee ${opacity * 100}%, #eeeeee 100%)`;
-    document.getElementById("move--sticky-notes-notefox-addon").style.backgroundColor = secondary_color + "";
-    document.getElementById("move--sticky-notes-notefox-addon").style.color = on_secondary_color + "";
-    document.getElementById("page-or-domain--sticky-notes-notefox-addon").style.backgroundColor = secondary_color + "";
-    document.getElementById("page-or-domain--sticky-notes-notefox-addon").style.color = on_secondary_color + "";
-    document.getElementById("text-container--sticky-notes-notefox-addon").style.color = on_secondary_color + "";
-    document.getElementById("text--sticky-notes-notefox-addon").style.color = on_primary_color + "";
-    document.getElementById("resize--sticky-notes-notefox-addon").style.borderRightColor = secondary_color;
+    document.getElementById(stickyId(noteIndex)).style.backgroundColor = primary_color + "";
+    document.getElementById(stickyId(noteIndex)).style.color = on_primary_color + "";
+    document.getElementById(elId("close", noteIndex)).style.backgroundImage = `url("data:image/svg+xml;base64,${svg_image_close}")`;
+    document.getElementById(elId("close", noteIndex)).style.backgroundColor = secondary_color + "";
+    document.getElementById(elId("close", noteIndex)).style.color = on_secondary_color + "";
+    document.getElementById(elId("minimize", noteIndex)).style.backgroundImage = `url("data:image/svg+xml;base64,${svg_image_minimize}")`;
+    document.getElementById(elId("minimize", noteIndex)).style.backgroundColor = secondary_color + "";
+    document.getElementById(elId("minimize", noteIndex)).style.color = on_secondary_color + "";
+    document.getElementById(elId("slider-container", noteIndex)).style.borderColor = secondary_color + "";
+    document.getElementById(elId("slider", noteIndex)).style.background = `linear-gradient(to right, ${secondary_color} 0%, ${secondary_color} ${opacity * 100}%, #eeeeee ${opacity * 100}%, #eeeeee 100%)`;
+    document.getElementById(elId("move", noteIndex)).style.backgroundColor = secondary_color + "";
+    document.getElementById(elId("move", noteIndex)).style.color = on_secondary_color + "";
+    document.getElementById(elId("page-or-domain", noteIndex)).style.backgroundColor = secondary_color + "";
+    document.getElementById(elId("page-or-domain", noteIndex)).style.color = on_secondary_color + "";
+    document.getElementById(elId("text-container", noteIndex)).style.color = on_secondary_color + "";
+    document.getElementById(elId("text", noteIndex)).style.color = on_primary_color + "";
+    document.getElementById(elId("resize", noteIndex)).style.borderRightColor = secondary_color;
 }
 
 function isAPage(url) {
@@ -980,13 +931,15 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
  *
  * @param type 0: close totally, 1: minimised
  */
-function onClickClose(minimized = false) {
-    browser.runtime.sendMessage({from: "sticky", data: {sticky: false, minimized: false}});
-    document.getElementById("sticky-notes-notefox-addon").remove();
+function onClickClose(noteIndex) {
+    browser.runtime.sendMessage({from: "sticky", noteIndex: noteIndex, data: {sticky: false, minimized: false}});
+    let el = document.getElementById(stickyId(noteIndex));
+    if (el) el.remove();
+    document.querySelectorAll('style[data-notefox-sticky="' + noteIndex + '"]').forEach(function(s){s.remove();});
 }
 
-function onInputText(text, settings_json) {
-    browser.runtime.sendMessage({from: "sticky", data: {new_text: text.innerHTML}});
+function onInputText(noteIndex, text, settings_json) {
+    browser.runtime.sendMessage({from: "sticky", noteIndex: noteIndex, data: {new_text: text.innerHTML}});
     listenerLinks(text, settings_json);
 }
 
@@ -1026,7 +979,7 @@ function onPasteText(text, e) {
 /**
  * Make "movable" the sticky-notes
  */
-function onMouseDownMove(e, stickyNote, isDragging) {
+function onMouseDownMove(noteIndex, e, stickyNote, isDragging) {
     isDragging = true;
     const offsetX = e.clientX - stickyNote.getBoundingClientRect().left;
     const offsetY = e.clientY - stickyNote.getBoundingClientRect().top;
@@ -1062,6 +1015,7 @@ function onMouseDownMove(e, stickyNote, isDragging) {
 
         browser.runtime.sendMessage({
             from: "sticky",
+            noteIndex: noteIndex,
             data: {coords: {x: stickyNote.style.left, y: stickyNote.style.top}}
         });
     }
@@ -1072,7 +1026,7 @@ function onMouseDownMove(e, stickyNote, isDragging) {
 /**
  * Make "resizable" the sticky-notes
  */
-function onMouseDownResize(e, stickyNote, isResizing) {
+function onMouseDownResize(noteIndex, e, stickyNote, isResizing) {
     isResizing = true;
     const initialWidth = stickyNote.offsetWidth;
     const initialHeight = stickyNote.offsetHeight;
@@ -1113,6 +1067,7 @@ function onMouseDownResize(e, stickyNote, isResizing) {
 
         browser.runtime.sendMessage({
             from: "sticky",
+            noteIndex: noteIndex,
             data: {sizes: {w: stickyNote.style.width, h: stickyNote.style.height}}
         });
     }
@@ -1353,7 +1308,7 @@ function setMinimizedTagColour(restoreElement, tag_colour) {
     restoreElement.style.setProperty("--sticky-note-tag-dot-colour", normalizeStickyTagColour(tag_colour));
 }
 
-function makeStickyRestoreDraggable(restore) {
+function makeStickyRestoreDraggable(noteIndex, restore) {
     let isDragging = false;
     let didDrag = false;
     let startClientX = 0;
@@ -1439,6 +1394,7 @@ function makeStickyRestoreDraggable(restore) {
 
         browser.runtime.sendMessage({
             from: "sticky",
+            noteIndex: noteIndex,
             data: {
                 minimized_pos: {
                     top: restore.style.top,
@@ -1464,20 +1420,21 @@ function makeStickyRestoreDraggable(restore) {
     }, true);
 }
 
-function openMinimized(settings_json = {}, icons_json = {}, theme_colours_json = {}, tag_colour = undefined, minimized_pos = undefined) {
+function openMinimized(noteIndex, settings_json = {}, icons_json = {}, theme_colours_json = {}, tag_colour = undefined, minimized_pos = undefined) {
     let restore;
-    if (!document.getElementById("restore--sticky-notes-notefox-addon")) {
+    if (!document.getElementById(elId("restore", noteIndex))) {
         restore = document.createElement("div");
-        restore.id = "restore--sticky-notes-notefox-addon";
-        //restore.value = "≻";
+        restore.id = elId("restore", noteIndex);
         let css = document.createElement("style");
-        css.innerText = getCSSMinimized(settings_json, icons_json, theme_colours_json);
+        css.setAttribute("data-notefox-sticky", noteIndex);
+        let cssMin = getCSSMinimized(settings_json, icons_json, theme_colours_json);
+        css.innerText = cssMin.replaceAll('sticky-notes-notefox-addon', 'sticky-notes-notefox-addon-' + noteIndex);
         document.body.appendChild(css);
         document.body.appendChild(restore);
         restore.dataset.side = "left";
-        makeStickyRestoreDraggable(restore);
+        makeStickyRestoreDraggable(noteIndex, restore);
     } else {
-        restore = document.getElementById("restore--sticky-notes-notefox-addon");
+        restore = document.getElementById(elId("restore", noteIndex));
     }
 
     if (minimized_pos !== undefined && minimized_pos.top !== undefined) {
@@ -1515,18 +1472,18 @@ function openMinimized(settings_json = {}, icons_json = {}, theme_colours_json =
     if (tag_colour !== undefined) {
         setMinimizedTagColour(restore, tag_colour);
     } else {
-        // Fallback when minimized handle is reused without fresh payload.
-        browser.runtime.sendMessage({from: "sticky", ask: "notes"}, (response) => {
+        browser.runtime.sendMessage({from: "sticky", noteIndex: noteIndex, ask: "notes"}, (response) => {
             if (response && response.notes && response.notes.tag_colour !== undefined) {
                 setMinimizedTagColour(restore, response.notes.tag_colour);
             }
         });
     }
 
-    browser.runtime.sendMessage({from: "sticky", data: {sticky: true, minimized: true}});
+    browser.runtime.sendMessage({from: "sticky", noteIndex: noteIndex, data: {sticky: true, minimized: true}});
     restore.onclick = function () {
-        browser.runtime.sendMessage({from: "sticky", data: {sticky: true, minimized: false}}).then(result => {
+        browser.runtime.sendMessage({from: "sticky", noteIndex: noteIndex, data: {sticky: true, minimized: false}}).then(result => {
             restore.remove();
+            document.querySelectorAll('style[data-notefox-sticky="' + noteIndex + '"]').forEach(function(s){s.remove();});
             load();
         });
     }

@@ -1130,6 +1130,7 @@ function loadDataFromBrowser(called_by = null, generate_section = true) {
             if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
             if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
             if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
+            if (settings_json["expand-all-websites"] === undefined) settings_json["expand-all-websites"] = true;
 
             //console.log(JSON.stringify(settings_json));
             if (generate_section) {
@@ -1286,6 +1287,11 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                                 browser.tabs.create({url: domain});
                             }
                         }
+                        let toggleBtn = document.createElement("span");
+                        toggleBtn.className = "domain-toggle";
+                        toggleBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+                        h2_container.prepend(toggleBtn);
+
                         h2_container.append(h2);
 
                         section.append(input_clear_all_notes_domain);
@@ -1293,6 +1299,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                     }
 
                     let all_pages = document.createElement("div");
+                    all_pages.className = "domain-pages";
 
                     //console.log(JSON.stringify(websites_json_by_domain[domain]));
                     let pages_added = 0;
@@ -1318,6 +1325,18 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                             all_pages.append(page);
                             pages_added++;
                         }
+
+                        if (Array.isArray(websites_json_to_show[urlPageDomain]["notes-extra"])) {
+                            websites_json_to_show[urlPageDomain]["notes-extra"].forEach((extraNote, extraIdx) => {
+                                let extraPage = document.createElement("div");
+                                extraPage.classList.add("sub-section");
+                                extraPage = generateNotes(extraPage, urlPageDomain, extraNote["notes"], extraNote["title"], "", extraNote["last-update"], type_to_show + " (" + (extraIdx + 2) + ")", urlPageDomain, type_to_use, true);
+                                if (extraPage !== -1) {
+                                    all_pages.append(extraPage);
+                                    pages_added++;
+                                }
+                            });
+                        }
                     }
 
                     if (domain !== getGlobalUrl()) {
@@ -1342,11 +1361,46 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                                     all_pages.append(page);
                                     pages_added++;
                                 }
+
+                                if (Array.isArray(websites_json_to_show[urlPageDomain]["notes-extra"])) {
+                                    websites_json_to_show[urlPageDomain]["notes-extra"].forEach((extraNote, extraIdx) => {
+                                        let extraPage = document.createElement("div");
+                                        extraPage.classList.add("sub-section");
+                                        extraPage = generateNotes(extraPage, urlPage, extraNote["notes"], extraNote["title"], "", extraNote["last-update"], all_strings["page-label"] + " (" + (extraIdx + 2) + ")", urlPageDomain, "page", false);
+                                        if (extraPage !== -1) {
+                                            all_pages.append(extraPage);
+                                            pages_added++;
+                                        }
+                                    });
+                                }
                             }
                         }
                     }
 
-                    if (pages_added > 0) section.append(all_pages);
+                    if (pages_added > 0) {
+                        let shouldCollapse = !(settings_json["expand-all-websites"] === true || settings_json["expand-all-websites"] === "yes");
+                        if (shouldCollapse) {
+                            all_pages.classList.add("collapsed");
+                        }
+                        section.append(all_pages);
+                        let toggleBtn = section.querySelector(".domain-toggle");
+                        if (toggleBtn) {
+                            if (shouldCollapse) toggleBtn.classList.add("collapsed");
+                            toggleBtn.closest(".h2-container").style.cursor = "pointer";
+                            toggleBtn.closest(".h2-container").addEventListener("click", function (e) {
+                                if (e.target.closest(".go-to-external")) return;
+                                let pages = this.parentElement.querySelector(".domain-pages");
+                                let toggle = this.querySelector(".domain-toggle");
+                                if (pages.classList.contains("collapsed")) {
+                                    pages.classList.remove("collapsed");
+                                    toggle.classList.remove("collapsed");
+                                } else {
+                                    pages.classList.add("collapsed");
+                                    toggle.classList.add("collapsed");
+                                }
+                            });
+                        }
+                    }
 
                     document.getElementById("all-website-sections").append(section);
 
@@ -1559,6 +1613,11 @@ function search(value = "") {
         loadAllWebsites(true, sort_by_selected, false);
         if (valid_results > 0) {
             highlightSearchResults(valueToUse);
+            document.querySelectorAll(".domain-pages.collapsed").forEach(dp => {
+                dp.classList.remove("collapsed");
+                let toggle = dp.parentElement.querySelector(".domain-toggle");
+                if (toggle) toggle.classList.remove("collapsed");
+            });
         }
     } catch (e) {
         console.error(`E-S1: ${e}`);

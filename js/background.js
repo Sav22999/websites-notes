@@ -50,6 +50,112 @@ function getDefaultStickyOpacityFromSettings(settings) {
 
 let opening_sticky = false;
 
+function getStickyParamsForNote(url, noteIndex) {
+    let entry = websites_json[url];
+    if (!entry) return {sticky: false, minimized: false, coords: {x: "20px", y: "20px"}, sizes: getDefaultStickySizeFromSettings(settings_json), opacity: getDefaultStickyOpacityFromSettings(settings_json), "minimized-pos": {top: "15%", side: "left"}};
+    if (noteIndex === 0) {
+        return {
+            sticky: entry["sticky"] === true,
+            minimized: entry["minimized"] === true,
+            coords: entry["coords"] || {x: "20px", y: "20px"},
+            sizes: entry["sizes"] || getDefaultStickySizeFromSettings(settings_json),
+            opacity: entry["opacity"] || getDefaultStickyOpacityFromSettings(settings_json),
+            "minimized-pos": entry["minimized-pos"] || {top: "15%", side: "left"}
+        };
+    }
+    let extra = (entry["notes-extra"] || [])[noteIndex - 1];
+    if (!extra) return {sticky: false, minimized: false, coords: {x: (20 + noteIndex * 30) + "px", y: (20 + noteIndex * 30) + "px"}, sizes: getDefaultStickySizeFromSettings(settings_json), opacity: getDefaultStickyOpacityFromSettings(settings_json), "minimized-pos": {top: (15 + noteIndex * 5) + "%", side: "left"}};
+    return {
+        sticky: extra["sticky"] === true,
+        minimized: extra["minimized"] === true,
+        coords: extra["coords"] || {x: (20 + noteIndex * 30) + "px", y: (20 + noteIndex * 30) + "px"},
+        sizes: extra["sizes"] || getDefaultStickySizeFromSettings(settings_json),
+        opacity: extra["opacity"] || getDefaultStickyOpacityFromSettings(settings_json),
+        "minimized-pos": extra["minimized-pos"] || {top: (15 + noteIndex * 5) + "%", side: "left"}
+    };
+}
+
+function setStickyParamForNote(url, noteIndex, paramName, paramValue) {
+    if (!websites_json[url]) return;
+    if (noteIndex === 0) {
+        websites_json[url][paramName] = paramValue;
+    } else {
+        let extra = (websites_json[url]["notes-extra"] || [])[noteIndex - 1];
+        if (extra) extra[paramName] = paramValue;
+    }
+}
+
+function getAllStickyNotes(url) {
+    let entry = websites_json[url];
+    if (!entry) return [];
+    let result = [];
+    let p0 = getStickyParamsForNote(url, 0);
+    if (p0.sticky) {
+        result.push({
+            noteIndex: 0,
+            description: entry["notes"] || "",
+            tag_colour: entry["tag-colour"] || "none",
+            sticky: true,
+            minimized: p0.minimized,
+            coords: p0.coords,
+            sizes: p0.sizes,
+            opacity: p0.opacity,
+            "minimized-pos": p0["minimized-pos"]
+        });
+    }
+    let extras = entry["notes-extra"] || [];
+    for (let i = 0; i < extras.length; i++) {
+        let pi = getStickyParamsForNote(url, i + 1);
+        if (pi.sticky) {
+            result.push({
+                noteIndex: i + 1,
+                description: extras[i]["notes"] || "",
+                tag_colour: extras[i]["tag-colour"] || "none",
+                sticky: true,
+                minimized: pi.minimized,
+                coords: pi.coords,
+                sizes: pi.sizes,
+                opacity: pi.opacity,
+                "minimized-pos": pi["minimized-pos"]
+            });
+        }
+    }
+    return result;
+}
+
+function getNoteText(url, noteIndex) {
+    let entry = websites_json[url];
+    if (!entry) return "";
+    if (noteIndex === 0) return entry["notes"] || "";
+    let extra = (entry["notes-extra"] || [])[noteIndex - 1];
+    return extra ? (extra["notes"] || "") : "";
+}
+
+function setNoteText(url, noteIndex, text) {
+    if (!websites_json[url]) return;
+    if (noteIndex === 0) {
+        websites_json[url]["notes"] = text;
+        websites_json[url]["last-update"] = getDate();
+    } else {
+        let extra = (websites_json[url]["notes-extra"] || [])[noteIndex - 1];
+        if (extra) {
+            extra["notes"] = text;
+            extra["last-update"] = getDate();
+        }
+    }
+}
+
+function hasAnyStickyOpen(url) {
+    let entry = websites_json[url];
+    if (!entry) return false;
+    if (entry["sticky"] === true) return true;
+    let extras = entry["notes-extra"] || [];
+    for (let i = 0; i < extras.length; i++) {
+        if (extras[i]["sticky"] === true) return true;
+    }
+    return false;
+}
+
 const page_domain_global = {"page": "Page", "domain": "Domain", "global": "Global", "subdomain": "•••"};
 const linkFirstLaunch = "https://notefox.eu/help/first-run"
 const linkAcceptPrivacy = "/privacy/index.html";
@@ -745,7 +851,7 @@ function checkStatus(update = false) {
                         // console.log("opacity: " + JSON.stringify(opacity));
 
                         //console.log(url);
-                        if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"] === true) {
+                        if (hasAnyStickyOpen(url)) {
                             openAsStickyNotes();
                         } else {
                             closeStickyNotes(update);
@@ -1057,164 +1163,154 @@ function listenerStickyNotes() {
             tabUpdated();
         }
 
+        if (message["close-single-sticky"] !== undefined) {
+            let noteIndex = message["close-single-sticky"].noteIndex !== undefined ? message["close-single-sticky"].noteIndex : 0;
+            closeSingleSticky(noteIndex);
+            setOpenedSticky(false, false, noteIndex);
+        }
+
         if (message.from !== undefined && message.from === "sticky") {
             //from sticky-notes
+            let noteIndex = message.noteIndex !== undefined ? message.noteIndex : 0;
+
             if (message.data !== undefined) {
                 //communicate something
                 if (message.data.sticky !== undefined) {
-                    //if message.data.sticky = true -> it means the sticky is present
-                    //if message.data.minimized = true -> it means the sticky is minimized
-                    setOpenedSticky(message.data.sticky, message.data.minimized);
+                    setOpenedSticky(message.data.sticky, message.data.minimized, noteIndex);
                 }
 
                 if (message.data.new_text !== undefined) {
-                    setNewTextFromSticky(message.data.new_text);
+                    setNewTextFromSticky(message.data.new_text, noteIndex);
                 }
 
                 if (message.data.coords !== undefined) {
-                    //save X (left) and Y (top) coords of the sticky
-                    //these coords will be used to open in that position
-
                     sync_local.get("websites").then(result => {
                         if (result !== undefined && result["websites"] !== undefined) {
                             websites_json = result["websites"];
-
                             let url = getTheCorrectUrl();
-                            if (websites_json[url]["coords"] === undefined) websites_json[url]["coords"] = {};
-                            websites_json[url]["coords"]["x"] = message.data.coords.x;
-                            websites_json[url]["coords"]["y"] = message.data.coords.y;
-
-                            coords.x = message.data.coords.x;
-                            coords.y = message.data.coords.y;
-
-                            //console("QAZ-2")
-                            sync_local.set({
-                                "websites": websites_json, "last-update": getDate()
-                            }).then(result => {
-                                //console.log(websites_json[url]);
-                            });
+                            if (websites_json[url]) {
+                                setStickyParamForNote(url, noteIndex, "coords", {x: message.data.coords.x, y: message.data.coords.y});
+                                if (noteIndex === 0) {
+                                    coords.x = message.data.coords.x;
+                                    coords.y = message.data.coords.y;
+                                }
+                                sync_local.set({"websites": websites_json, "last-update": getDate()});
+                            }
                         }
                     });
                 }
 
                 if (message.data.sizes !== undefined) {
-                    //save W (width) and H (height) sizes of the sticky
-                    //these sizes will be used to open with that size
-
                     sync_local.get("websites").then(result => {
                         if (result !== undefined && result["websites"] !== undefined) {
                             websites_json = result["websites"];
-
                             let url = getTheCorrectUrl();
-                            //console.log(url)
-                            if (websites_json[url]["sizes"] === undefined) websites_json[url]["sizes"] = {};
-                            websites_json[url]["sizes"]["w"] = message.data.sizes.w;
-                            websites_json[url]["sizes"]["h"] = message.data.sizes.h;
-
-                            sizes.w = message.data.sizes.w;
-                            sizes.h = message.data.sizes.h;
-
-                            //console.log("QAZ-3")
-                            sync_local.set({
-                                "websites": websites_json, "last-update": getDate()
-                            }).then(result => {
-                                //console.log(websites_json[url]);
-                            });
+                            if (websites_json[url]) {
+                                setStickyParamForNote(url, noteIndex, "sizes", {w: message.data.sizes.w, h: message.data.sizes.h});
+                                if (noteIndex === 0) {
+                                    sizes.w = message.data.sizes.w;
+                                    sizes.h = message.data.sizes.h;
+                                }
+                                sync_local.set({"websites": websites_json, "last-update": getDate()});
+                            }
                         }
                     });
                 }
 
                 if (message.data.opacity !== undefined) {
-                    //save opacity of the sticky-notes
-
                     sync_local.get("websites").then(result => {
                         if (result !== undefined && result["websites"] !== undefined) {
                             websites_json = result["websites"];
-
                             let url = getTheCorrectUrl();
-                            if (websites_json[url]["opacity"] === undefined) websites_json[url]["opacity"] = {};
-                            websites_json[url]["opacity"]["value"] = message.data.opacity.value;
-
-                            opacity.value = message.data.opacity.value;
-
-                            //console.log("QAZ-4")
-                            sync_local.set({
-                                "websites": websites_json, "last-update": getDate()
-                            }).then(result => {
-                                //console.log(websites_json[url]);
-                            });
+                            if (websites_json[url]) {
+                                setStickyParamForNote(url, noteIndex, "opacity", {value: message.data.opacity.value});
+                                if (noteIndex === 0) {
+                                    opacity.value = message.data.opacity.value;
+                                }
+                                sync_local.set({"websites": websites_json, "last-update": getDate()});
+                            }
                         }
                     });
                 }
 
                 if (message.data.minimized_pos !== undefined) {
-                    //save position (top + side) of the minimized restore button
-                    minimized_pos = {
+                    let newPos = {
                         top: message.data.minimized_pos.top,
                         side: message.data.minimized_pos.side
                     };
+                    if (noteIndex === 0) minimized_pos = newPos;
 
                     sync_local.get("websites").then(result => {
                         if (result !== undefined && result["websites"] !== undefined) {
                             websites_json = result["websites"];
                             let url = getTheCorrectUrl();
                             if (websites_json[url] !== undefined) {
-                                websites_json[url]["minimized-pos"] = minimized_pos;
+                                setStickyParamForNote(url, noteIndex, "minimized-pos", newPos);
                             }
-                            sync_local.set({
-                                "websites": websites_json,
-                                "sticky-notes-minimized-pos": minimized_pos,
-                                "last-update": getDate()
-                            });
-                        } else {
-                            sync_local.set({"sticky-notes-minimized-pos": minimized_pos});
+                            let storageUpdate = {"websites": websites_json, "last-update": getDate()};
+                            if (noteIndex === 0) storageUpdate["sticky-notes-minimized-pos"] = newPos;
+                            sync_local.set(storageUpdate);
+                        } else if (noteIndex === 0) {
+                            sync_local.set({"sticky-notes-minimized-pos": newPos});
                         }
                     });
                 }
-
-                /*
-                if (message.data.notes !== undefined) {
-                    //save W (width) and H (height) sizes of the sticky
-                    //these sizes will be used to open with that size
-
-                    sync_local.set({
-                        "websites": {
-                            //set notes -- modified in sticky-notes
-                        }
-                    }).then(result => {
-                        //updated websites with new notes
-                    });
-                }
-                */
             } else if (message.ask !== undefined) {
-                //want something as response
-                if (message.ask === "coords-sizes-opacity") {
-                    sendResponse({
-                        coords: {x: coords.x, y: coords.y},
-                        sizes: {w: sizes.w, h: sizes.h},
-                        opacity: {value: opacity.value}
-                    });
-                }
-
                 //TODO!manually: update this list (using the same list of definitions.js)
                 const supportedFontFamily = ["Open Sans", "Shantell Sans", "Inter", "Lora", "Noto Sans", "Noto Serif", "Roboto", "Merienda", "Playfair Display", "Victor Mono", "Source Code Pro"];
+
+                if (message.ask === "all-sticky-notes") {
+                    let url_to_use = getTheCorrectUrl();
+                    let page_domain_global_to_use = getTypeToShow(type_to_use);
+                    let allSticky = getAllStickyNotes(url_to_use);
+                    sendResponse({
+                        notes: allSticky,
+                        url: url_to_use,
+                        page_domain_global: page_domain_global_to_use,
+                        tag_colour: (websites_json[url_to_use] || {})["tag-colour"] || "none",
+                        settings: settings_json,
+                        icons: icons_json,
+                        theme_colours: theme_colours_json,
+                        supported_font_family: supportedFontFamily
+                    });
+                }
+
+                if (message.ask === "coords-sizes-opacity") {
+                    let url_to_use = getTheCorrectUrl();
+                    let params = getStickyParamsForNote(url_to_use, noteIndex);
+                    sendResponse({
+                        coords: params.coords,
+                        sizes: params.sizes,
+                        opacity: params.opacity
+                    });
+                }
 
                 if (message.ask === "notes") {
                     let url_to_use = getTheCorrectUrl();
                     let page_domain_global_to_use = getTypeToShow(type_to_use);
-                    // console.log(url_to_use + " :: " + page_domain_global_to_use);
-                    if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["notes"] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) {
+                    if (websites_json !== undefined && websites_json[url_to_use] !== undefined) {
+                        let noteDescription = getNoteText(url_to_use, noteIndex);
+                        let params = getStickyParamsForNote(url_to_use, noteIndex);
+                        let noteTagColour = "none";
+                        if (noteIndex === 0) {
+                            noteTagColour = websites_json[url_to_use]["tag-colour"] || "none";
+                        } else {
+                            let extras = websites_json[url_to_use]["notes-extra"] || [];
+                            if (extras[noteIndex - 1] && extras[noteIndex - 1]["tag-colour"]) {
+                                noteTagColour = extras[noteIndex - 1]["tag-colour"];
+                            }
+                        }
                         sendResponse({
                             notes: {
-                                description: websites_json[url_to_use]["notes"],
+                                description: noteDescription,
                                 url: url_to_use,
-                                tag_colour: websites_json[url_to_use]["tag-colour"],
+                                tag_colour: noteTagColour,
                                 website: websites_json[url_to_use],
                                 page_domain_global: page_domain_global_to_use,
                                 sticky_params: {
-                                    coords: {x: coords.x, y: coords.y},
-                                    sizes: {w: sizes.w, h: sizes.h},
-                                    opacity: {value: opacity.value}
+                                    coords: params.coords,
+                                    sizes: params.sizes,
+                                    opacity: params.opacity
                                 }
                             },
                             websites: websites_json,
@@ -1223,27 +1319,30 @@ function listenerStickyNotes() {
                             theme_colours: theme_colours_json,
                             supported_font_family: supportedFontFamily
                         });
-                    } else {
-                        //console.error(JSON.stringify(websites_json[url_to_use]));
                     }
                 }
                 if (message.ask === "sticky-minimized") {
                     let url_to_use = getTheCorrectUrl();
-                    //console.log(websites_json[url_to_use]);
-                    if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["sticky"] !== undefined && websites_json[url_to_use]["minimized"] !== undefined) {
+                    if (websites_json !== undefined && websites_json[url_to_use] !== undefined) {
+                        let params = getStickyParamsForNote(url_to_use, noteIndex);
                         let tag_colour = "none";
-                        if (websites_json[url_to_use]["tag-colour"] !== undefined) {
-                            tag_colour = websites_json[url_to_use]["tag-colour"];
+                        if (noteIndex === 0) {
+                            tag_colour = websites_json[url_to_use]["tag-colour"] || "none";
+                        } else {
+                            let extras = websites_json[url_to_use]["notes-extra"] || [];
+                            if (extras[noteIndex - 1] && extras[noteIndex - 1]["tag-colour"]) {
+                                tag_colour = extras[noteIndex - 1]["tag-colour"];
+                            }
                         }
                         sendResponse({
-                            sticky: websites_json[url_to_use]["sticky"],
-                            minimized: websites_json[url_to_use]["minimized"],
+                            sticky: params.sticky,
+                            minimized: params.minimized,
                             tag_colour: tag_colour,
                             settings_json: settings_json,
                             icons: icons_json,
                             theme_colours: theme_colours_json,
                             supported_font_family: supportedFontFamily,
-                            minimized_pos: minimized_pos
+                            minimized_pos: params["minimized-pos"]
                         })
                     } else {
                         sendResponse({
@@ -1407,8 +1506,13 @@ function getTheCorrectUrl(do_not_check_opened = false) {
 /**
  * get number of notes for the given url
  */
+function countExtraNotes(url) {
+    let entry = websites_json[url];
+    if (!entry || !Array.isArray(entry["notes-extra"])) return 0;
+    return entry["notes-extra"].length;
+}
+
 function getNumberOfNotes() {
-    //todo-improve: check also if there are more than one note for each type (page, domain, global, subdomains)
     let numberToReturn = 0;
 
     const _getDomain = getDomainUrl(tab_url);
@@ -1418,13 +1522,20 @@ function getNumberOfNotes() {
     let page_url = getUrlWithSupportedProtocol(_getPage, websites_json);
     let global_url = getGlobalUrl();
     let check_domain = checkAllSupportedProtocols(_getDomain, websites_json) && checkAllSupportedProtocolsLastUpdate(_getDomain, websites_json) && checkAllSupportedProtocolsNotes(_getDomain, websites_json);
-    if (check_domain) numberToReturn += 1; //add at least one note for domain
-    //let check_tab_url = (settings_json["check-green-icon-domain"] === "yes" || settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-page"] === "yes" || settings_json["check-green-icon-page"] === true) && websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "";
-    //let check_tab_url = false;
+    if (check_domain) {
+        numberToReturn += 1;
+        numberToReturn += countExtraNotes(domain_url);
+    }
     let check_page = checkAllSupportedProtocols(_getPage, websites_json) && checkAllSupportedProtocolsLastUpdate(_getPage, websites_json) && checkAllSupportedProtocolsNotes(_getPage, websites_json);
-    if (check_page) numberToReturn += 1; //add at least one note for page
+    if (check_page) {
+        numberToReturn += 1;
+        numberToReturn += countExtraNotes(page_url);
+    }
     let check_global = websites_json[global_url] !== undefined && websites_json[global_url]["last-update"] !== undefined && websites_json[global_url]["last-update"] != null && websites_json[global_url]["notes"] !== undefined && websites_json[global_url]["notes"] !== "";
-    if (check_global) numberToReturn += 1; //add at least one note for global
+    if (check_global) {
+        numberToReturn += 1;
+        numberToReturn += countExtraNotes(global_url);
+    }
     let check_subdomains = false;
     let subdomains = getAllOtherPossibleUrls(tab_url);
     subdomains.forEach(subdomain => {
@@ -1432,9 +1543,9 @@ function getNumberOfNotes() {
         let tmp_check = checkAllSupportedProtocols(subdomain_url, websites_json) && checkAllSupportedProtocolsLastUpdate(subdomain_url, websites_json) && checkAllSupportedProtocolsNotes(subdomain_url, websites_json);
         if (tmp_check) {
             check_subdomains = true;
-            numberToReturn += 1; //add at least one note for that subdomain
+            numberToReturn += 1;
+            numberToReturn += countExtraNotes(subdomain_url);
         }
-        //console.log(url + " : " + tmp_check);
     });
 
     return numberToReturn;
@@ -1494,7 +1605,7 @@ function closeStickyNotes(update = true) {
                             const activeTab = tabs[0];
                             if (activeTab && !activeTab.url.startsWith("moz-extension://")) {
                                 browser.tabs.executeScript({
-                                    code: "if (document.getElementById(\"sticky-notes-notefox-addon\")){ document.getElementById(\"sticky-notes-notefox-addon\").remove(); } if (document.getElementById(\"restore--sticky-notes-notefox-addon\")) { document.getElementById(\"restore--sticky-notes-notefox-addon\").remove(); }"
+                                    code: "document.querySelectorAll('[id^=\"sticky-notes-notefox-addon-\"]').forEach(function(el){el.remove();}); document.querySelectorAll('[id^=\"restore--sticky-notes-notefox-addon-\"]').forEach(function(el){el.remove();}); document.querySelectorAll('style[data-notefox-sticky]').forEach(function(el){el.remove();});"
                                 }).then(function () {
                                     //console.log("Sticky notes ('close')");
                                     if (update) tabUpdated(false);
@@ -1694,30 +1805,25 @@ function getCombinations(array, n) {
     return result;
 }
 
-function setOpenedSticky(sticky, minimized) {
-    //console.log(`sticky: ${sticky} - minimized: ${minimized}`);
-
+function setOpenedSticky(sticky, minimized, noteIndex = 0) {
     sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
             let url = getTheCorrectUrl();
-            //url = tab_url;
             if (websites_json[url] !== undefined) {
-                websites_json[url]["sticky"] = sticky;
-                websites_json[url]["minimized"] = minimized;
+                setStickyParamForNote(url, noteIndex, "sticky", sticky);
+                setStickyParamForNote(url, noteIndex, "minimized", minimized);
 
                 sync_local.set({"websites": websites_json}).then(result => {
-                    //updated websites with new data
-                    //console.log("set || " + JSON.stringify(websites_json[tab_url]));
-                    //console.log("set || " + JSON.stringify(websites_json));
                     if (!sticky) {
-                        closeStickyNotes();
-                        if (all_urls[url] !== undefined) {
-                            delete all_urls[url];
-                            //console.log("::2:: deleted!")
+                        if (!hasAnyStickyOpen(url)) {
+                            closeStickyNotes();
+                            if (all_urls[url] !== undefined) {
+                                delete all_urls[url];
+                            }
                         } else {
-                            //console.log("::1::" + url)
+                            closeSingleSticky(noteIndex);
                         }
                     }
                 });
@@ -1728,31 +1834,56 @@ function setOpenedSticky(sticky, minimized) {
     });
 }
 
-function setNewTextFromSticky(text) {
+function closeSingleSticky(noteIndex) {
+    try {
+        browser.permissions.getAll().then((permissions) => {
+            if (permissions.origins.includes("<all_urls>")) {
+                browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                    if (tabs !== undefined && tabs.length > 0) {
+                        const activeTab = tabs[0];
+                        if (activeTab && !activeTab.url.startsWith("moz-extension://")) {
+                            let id = "sticky-notes-notefox-addon-" + noteIndex;
+                            let restoreId = "restore--sticky-notes-notefox-addon-" + noteIndex;
+                            browser.tabs.executeScript({
+                                code: `if(document.getElementById("${id}"))document.getElementById("${id}").remove();if(document.getElementById("${restoreId}"))document.getElementById("${restoreId}").remove();document.querySelectorAll('style[data-notefox-sticky="${noteIndex}"]').forEach(function(el){el.remove();});`
+                            }).catch(function (error) {
+                                console.error("E-closeSingle: " + error);
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    } catch (error) {
+        console.error("E-closeSingle2: " + error);
+    }
+}
+
+function setNewTextFromSticky(text, noteIndex = 0) {
     sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            //console.log(text)
-
             let url = getTheCorrectUrl();
 
             if (text === "" || text === "<br>") {
-                //if notes field is empty, I delete the element from the "dictionary" (notes list)
-                delete websites_json[url];
-                closeStickyNotes();
+                if (noteIndex === 0) {
+                    delete websites_json[url];
+                    closeStickyNotes();
+                } else {
+                    let extras = websites_json[url] ? websites_json[url]["notes-extra"] : null;
+                    if (extras && extras[noteIndex - 1]) {
+                        extras[noteIndex - 1]["notes"] = "";
+                    }
+                    closeSingleSticky(noteIndex);
+                }
             } else {
-                websites_json[url]["notes"] = text;
-                websites_json[url]["last-update"] = getDate();
+                setNoteText(url, noteIndex, text);
             }
 
-            //console.log("QAZ-6")
             sync_local.set({
                 "websites": websites_json, "last-update": getDate()
             }).then(function () {
-                //updated websites with new data
-                //console.log("set || " + JSON.stringify(websites_json[tab_url]));
-                //console.log("set || " + JSON.stringify(websites_json));
             }).catch(function (error) {
                 console.error("E3: " + error);
                 onError("background.js::setNewTextFromSticky", error.message, tab_url);
@@ -1766,11 +1897,8 @@ function checkStickyNotes() {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            let status = false;
             let url = getTheCorrectUrl();
-            if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined) status = websites_json[url]["sticky"];
-
-            if (status) {
+            if (hasAnyStickyOpen(url)) {
                 openAsStickyNotes();
             }
         }
@@ -1986,8 +2114,14 @@ browser.menus.onClicked.addListener((info, tab) => {
             }
 
             let now = getDate();
+            let multipleNotesEnabled = s["multiple-notes-per-type"] === true || s["multiple-notes-per-type"] === "yes";
             if (ws[urlKey] !== undefined && ws[urlKey]["notes"]) {
-                ws[urlKey]["notes"] += "<br>" + selectedText;
+                if (multipleNotesEnabled) {
+                    if (!Array.isArray(ws[urlKey]["notes-extra"])) ws[urlKey]["notes-extra"] = [];
+                    ws[urlKey]["notes-extra"].push({"notes": selectedText, "title": "", "last-update": now, "tag-colour": "none", "sticky": false, "minimized": false});
+                } else {
+                    ws[urlKey]["notes"] += "<br>" + selectedText;
+                }
             } else {
                 ws[urlKey] = {
                     "notes": selectedText,

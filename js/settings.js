@@ -418,6 +418,20 @@ function loaded() {
         saveSettings();
     }
 
+    document.getElementById("expand-all-websites-check").onchange = function () {
+        settings_json["expand-all-websites"] = document.getElementById("expand-all-websites-check").checked;
+        sendTelemetry(`expand-all-websites-check-select`, `settings.js`, settings_json["expand-all-websites"]);
+
+        saveSettings();
+    }
+
+    document.getElementById("multiple-notes-per-type-check").onchange = function () {
+        settings_json["multiple-notes-per-type"] = document.getElementById("multiple-notes-per-type-check").checked;
+        sendTelemetry(`multiple-notes-per-type-check-select`, `settings.js`, settings_json["multiple-notes-per-type"]);
+
+        saveSettings();
+    }
+
     document.getElementById("default-sticky-size-select").onchange = function () {
         settings_json["default-sticky-size"] = document.getElementById("default-sticky-size-select").value;
         sendTelemetry(`default-sticky-size-select`, `settings.js`, settings_json["default-sticky-size"]);
@@ -752,7 +766,7 @@ function filterSettings(query) {
         }
     });
 
-    let wrappers = document.querySelectorAll("#save-content-subsection, #show-error-logs-subsection");
+    let wrappers = document.querySelectorAll("#save-content-subsection, #show-error-logs-subsection, #html-text-formatting-buttons");
     wrappers.forEach(w => {
         let children = w.querySelectorAll(".option-settings");
         let anyVisible = false;
@@ -763,9 +777,13 @@ function filterSettings(query) {
             w.classList.add("option-settings-hidden");
         } else {
             w.classList.remove("option-settings-hidden");
-            let parent = w.previousElementSibling;
-            if (parent && parent.classList.contains("option-settings")) {
-                parent.classList.remove("option-settings-hidden");
+            let el = w.previousElementSibling;
+            while (el) {
+                if (el.classList.contains("option-settings")) {
+                    el.classList.remove("option-settings-hidden");
+                    break;
+                }
+                el = el.previousElementSibling;
             }
         }
     });
@@ -1125,6 +1143,10 @@ function setLanguageUI() {
     document.getElementById("disable-confirmation-popup-detailed-text").innerHTML = all_strings["disable-confirmation-popup-detailed"];
     document.getElementById("allow-resize-popup-text").innerText = all_strings["allow-resize-popup"];
     document.getElementById("allow-resize-popup-detailed-text").innerHTML = all_strings["allow-resize-popup-detailed"];
+    document.getElementById("expand-all-websites-text").innerText = all_strings["expand-all-websites"];
+    document.getElementById("expand-all-websites-detailed-text").innerHTML = all_strings["expand-all-websites-detailed"];
+    document.getElementById("multiple-notes-per-type-text").innerText = all_strings["multiple-notes-per-type"];
+    document.getElementById("multiple-notes-per-type-detailed-text").innerHTML = all_strings["multiple-notes-per-type-detailed"];
     document.getElementById("check-green-icon-global-text").innerText = all_strings["check-green-icon-global"];
     document.getElementById("check-green-icon-global-detailed-text").innerHTML = all_strings["check-green-icon-global-detailed"];
     document.getElementById("check-green-icon-domain-text").innerText = all_strings["check-green-icon-domain"];
@@ -1371,6 +1393,8 @@ function loadSettings() {
             if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = false;
             if (settings_json["disable-confirmation-popup"] === undefined) settings_json["disable-confirmation-popup"] = false;
             if (settings_json["allow-resize-popup"] === undefined) settings_json["allow-resize-popup"] = false;
+            if (settings_json["expand-all-websites"] === undefined) settings_json["expand-all-websites"] = true;
+            if (settings_json["multiple-notes-per-type"] === undefined) settings_json["multiple-notes-per-type"] = false;
             if (settings_json["default-sticky-size"] === undefined || !["small", "medium", "large", "very-large"].includes(settings_json["default-sticky-size"])) settings_json["default-sticky-size"] = "medium";
             if (settings_json["default-sticky-transparency"] === undefined) settings_json["default-sticky-transparency"] = 20;
             if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
@@ -1425,6 +1449,7 @@ function loadSettings() {
             document.getElementById("spellcheck-detection-check").checked = settings_json["spellcheck-detection"] === true || settings_json["spellcheck-detection"] === "yes";
             document.getElementById("disable-confirmation-popup-check").checked = settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes";
             document.getElementById("allow-resize-popup-check").checked = settings_json["allow-resize-popup"] === true || settings_json["allow-resize-popup"] === "yes";
+            document.getElementById("expand-all-websites-check").checked = settings_json["expand-all-websites"] === true || settings_json["expand-all-websites"] === "yes";
             document.getElementById("default-sticky-size-select").value = settings_json["default-sticky-size"];
             let defaultTransparency = updateDefaultStickyTransparencyUi(transparencyToOpacity(settings_json["default-sticky-transparency"]));
             settings_json["default-sticky-transparency"] = defaultTransparency;
@@ -1437,6 +1462,7 @@ function loadSettings() {
             document.getElementById("sending-error-logs-automatically-check").checked = settings_json["sending-error-logs-automatically"] === true || settings_json["sending-error-logs-automatically"] === "yes";
             document.getElementById("send-telemetry-check").checked = settings_json["send-telemetry"] === true || settings_json["send-telemetry"] === "yes";
             document.getElementById("context-menu-create-note-check").checked = settings_json["context-menu-create-note"] === true || settings_json["context-menu-create-note"] === "yes";
+            document.getElementById("multiple-notes-per-type-check").checked = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
 
             if (document.getElementById("save-page-content-check").checked) {
                 if (document
