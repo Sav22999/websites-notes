@@ -240,6 +240,8 @@ strings[lang] = {
     'label-results-for': 'Resultaten voor:  {{keywords}}',
     'immersive-sticky-notes-text': 'Immersive sticky notes',
     'immersive-sticky-notes-detailed-text': 'When enabled, the sticky notes will show controls only when you hover them with the mouse.',
+    'default-sticky-pinned-text': 'Pinned by default',
+    'default-sticky-pinned-detailed-text': 'When enabled, sticky notes open in a fixed position (they stay visible while scrolling). When disabled, they open at the current scroll position and scroll with the page.',
     'insert-link-text': 'Voer voor de geselecteerde tekst de koppeling in',
     'insert-link-placeholder': 'Plaats hier de koppeling…',
     'insert-link-text-placeholder': 'Text to display…',

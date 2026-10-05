@@ -240,6 +240,8 @@ strings[lang] = {
     'label-results-for': 'Tulokset:  {{keywords}}',
     'immersive-sticky-notes-text': 'Immersive sticky notes',
     'immersive-sticky-notes-detailed-text': 'Päällä ollessa tarralapuissa näkyy ohjausnappulat vain kun hiiri on niiden yläpuolella.',
+    'default-sticky-pinned-text': 'Pinned by default',
+    'default-sticky-pinned-detailed-text': 'When enabled, sticky notes open in a fixed position (they stay visible while scrolling). When disabled, they open at the current scroll position and scroll with the page.',
     'insert-link-text': 'Lisää kohdelinkki valitulle tekstille',
     'insert-link-placeholder': 'Digit the link here…',
     'insert-link-text-placeholder': 'Text to display…',

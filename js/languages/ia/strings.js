@@ -240,6 +240,8 @@ strings[lang] = {
     'label-results-for': 'Resultatos pro: {{keywords}}',
     'immersive-sticky-notes-text': 'Notas collose immersive',
     'immersive-sticky-notes-detailed-text': 'Si activate, le notas collose monstrara le controlos solo quando tu los survola con le mus.',
+    'default-sticky-pinned-text': 'Pinned by default',
+    'default-sticky-pinned-detailed-text': 'When enabled, sticky notes open in a fixed position (they stay visible while scrolling). When disabled, they open at the current scroll position and scroll with the page.',
     'insert-link-text': 'Insere le ligamine de destination pro le texto seligite',
     'insert-link-placeholder': 'Scribe le ligamine ci…',
     'insert-link-text-placeholder': 'Text to display…',

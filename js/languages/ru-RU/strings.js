@@ -240,6 +240,8 @@ strings[lang] = {
     'label-results-for': 'Результаты для:  {{keywords}}',
     'immersive-sticky-notes-text': 'Иммерсивные стикеры',
     'immersive-sticky-notes-detailed-text': 'При включении элементы управления стикерами будут отображаться только при наведении курсора мыши.',
+    'default-sticky-pinned-text': 'Pinned by default',
+    'default-sticky-pinned-detailed-text': 'When enabled, sticky notes open in a fixed position (they stay visible while scrolling). When disabled, they open at the current scroll position and scroll with the page.',
     'insert-link-text': 'Введите ссылку для выделенного текста',
     'insert-link-placeholder': 'Введите ссылку здесь…',
     'insert-link-text-placeholder': 'Текст для отображения…',

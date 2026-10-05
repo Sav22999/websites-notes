@@ -240,6 +240,8 @@ strings[lang] = {
     'label-results-for': 'Ergebnisse für:  {{keywords}}',
     'immersive-sticky-notes-text': 'Reduzierte Haftnotizen',
     'immersive-sticky-notes-detailed-text': 'Wenn aktiviert, werden die Kontrollelemente des Notizzettels nur angezeigt, wenn du ihn mit der Maus bewegst.',
+    'default-sticky-pinned-text': 'Pinned by default',
+    'default-sticky-pinned-detailed-text': 'When enabled, sticky notes open in a fixed position (they stay visible while scrolling). When disabled, they open at the current scroll position and scroll with the page.',
     'insert-link-text': 'Füge den Ziellink für den ausgewählten Text ein',
     'insert-link-placeholder': 'Den Link hier einfügen…',
     'insert-link-text-placeholder': 'Text to display…',

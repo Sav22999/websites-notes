@@ -240,6 +240,8 @@ strings[lang] = {
     'label-results-for': '搜索结果：{{keywords}}',
     'immersive-sticky-notes-text': '沉浸式便笺',
     'immersive-sticky-notes-detailed-text': '启用后，仅当您用鼠标悬停在便笺上时，便笺才会显示控件。',
+    'default-sticky-pinned-text': 'Pinned by default',
+    'default-sticky-pinned-detailed-text': 'When enabled, sticky notes open in a fixed position (they stay visible while scrolling). When disabled, they open at the current scroll position and scroll with the page.',
     'insert-link-text': '插入所选文本的目标链接',
     'insert-link-placeholder': '在此处输入链接…',
     'insert-link-text-placeholder': 'Text to display…',

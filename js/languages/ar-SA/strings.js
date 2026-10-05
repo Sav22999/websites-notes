@@ -240,6 +240,8 @@ strings[lang] = {
     'label-results-for': 'النتائج لـ:  {{keywords}}',
     'immersive-sticky-notes-text': 'ملاحظات ملصقة غامرة',
     'immersive-sticky-notes-detailed-text': 'عند التفعيل، سوف تظهر الملاحظات المثبتة التحكم فقط عندما تحملها بالفأرة.',
+    'default-sticky-pinned-text': 'Pinned by default',
+    'default-sticky-pinned-detailed-text': 'When enabled, sticky notes open in a fixed position (they stay visible while scrolling). When disabled, they open at the current scroll position and scroll with the page.',
     'insert-link-text': 'إدراج رابط الوجهة للنص المحدد',
     'insert-link-placeholder': 'رَقْم الرابط هنا…',
     'insert-link-text-placeholder': 'النص المراد عرضه',

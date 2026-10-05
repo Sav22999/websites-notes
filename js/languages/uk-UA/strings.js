@@ -240,6 +240,8 @@ strings[lang] = {
     'label-results-for': 'Результати по:  {{keywords}}',
     'immersive-sticky-notes-text': 'Повноекранні нотатки',
     'immersive-sticky-notes-detailed-text': 'Коли увімкнено, липкі нотатки з\'являтимуться лише тоді, коли ви наводите на них за допомогою мишки.',
+    'default-sticky-pinned-text': 'Pinned by default',
+    'default-sticky-pinned-detailed-text': 'When enabled, sticky notes open in a fixed position (they stay visible while scrolling). When disabled, they open at the current scroll position and scroll with the page.',
     'insert-link-text': 'Вставити цільове посилання для вибраного тексту',
     'insert-link-placeholder': 'Введіть посилання тут…',
     'insert-link-text-placeholder': 'Text to display…',

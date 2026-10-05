@@ -240,6 +240,8 @@ strings[lang] = {
     'label-results-for': 'Resultados para:  {{keywords}}',
     'immersive-sticky-notes-text': 'Notas fixas imersivas',
     'immersive-sticky-notes-detailed-text': 'Quando ativado, as notas fixas mostrarão os controles apenas quando você passar o mouse sobre elas.',
+    'default-sticky-pinned-text': 'Pinned by default',
+    'default-sticky-pinned-detailed-text': 'When enabled, sticky notes open in a fixed position (they stay visible while scrolling). When disabled, they open at the current scroll position and scroll with the page.',
     'insert-link-text': 'Inserir o hiperlink de destino no texto selecionado',
     'insert-link-placeholder': 'Digite o hiperlink aqui…',
     'insert-link-text-placeholder': 'Texto a exibir:',
