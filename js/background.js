@@ -50,25 +50,32 @@ function getDefaultStickyOpacityFromSettings(settings) {
 
 let opening_sticky = false;
 
+function getDefaultStickyPinned() {
+    return settings_json["default-sticky-pinned"] === true;
+}
+
 function getStickyParamsForNote(url, noteIndex) {
+    let defaultPinned = getDefaultStickyPinned();
     let entry = websites_json[url];
-    if (!entry) return {sticky: false, minimized: false, coords: {x: "20px", y: "20px"}, sizes: getDefaultStickySizeFromSettings(settings_json), opacity: getDefaultStickyOpacityFromSettings(settings_json), "minimized-pos": {top: "15%", side: "left"}};
+    if (!entry) return {sticky: false, minimized: false, pinned: defaultPinned, coords: null, sizes: getDefaultStickySizeFromSettings(settings_json), opacity: getDefaultStickyOpacityFromSettings(settings_json), "minimized-pos": {top: "15%", side: "left"}};
     if (noteIndex === 0) {
         return {
             sticky: entry["sticky"] === true,
             minimized: entry["minimized"] === true,
-            coords: entry["coords"] || {x: "20px", y: "20px"},
+            pinned: entry["pinned"] !== undefined ? entry["pinned"] === true : defaultPinned,
+            coords: entry["coords"] || null,
             sizes: entry["sizes"] || getDefaultStickySizeFromSettings(settings_json),
             opacity: entry["opacity"] || getDefaultStickyOpacityFromSettings(settings_json),
             "minimized-pos": entry["minimized-pos"] || {top: "15%", side: "left"}
         };
     }
     let extra = (entry["notes-extra"] || [])[noteIndex - 1];
-    if (!extra) return {sticky: false, minimized: false, coords: {x: (20 + noteIndex * 30) + "px", y: (20 + noteIndex * 30) + "px"}, sizes: getDefaultStickySizeFromSettings(settings_json), opacity: getDefaultStickyOpacityFromSettings(settings_json), "minimized-pos": {top: (15 + noteIndex * 5) + "%", side: "left"}};
+    if (!extra) return {sticky: false, minimized: false, pinned: defaultPinned, coords: null, sizes: getDefaultStickySizeFromSettings(settings_json), opacity: getDefaultStickyOpacityFromSettings(settings_json), "minimized-pos": {top: (15 + noteIndex * 5) + "%", side: "left"}};
     return {
         sticky: extra["sticky"] === true,
         minimized: extra["minimized"] === true,
-        coords: extra["coords"] || {x: (20 + noteIndex * 30) + "px", y: (20 + noteIndex * 30) + "px"},
+        pinned: extra["pinned"] !== undefined ? extra["pinned"] === true : defaultPinned,
+        coords: extra["coords"] || null,
         sizes: extra["sizes"] || getDefaultStickySizeFromSettings(settings_json),
         opacity: extra["opacity"] || getDefaultStickyOpacityFromSettings(settings_json),
         "minimized-pos": extra["minimized-pos"] || {top: (15 + noteIndex * 5) + "%", side: "left"}
@@ -85,6 +92,19 @@ function setStickyParamForNote(url, noteIndex, paramName, paramValue) {
     }
 }
 
+function clearStickyParamsForNote(url, noteIndex) {
+    if (!websites_json[url]) return;
+    let paramsToDelete = ["coords", "sizes", "opacity", "pinned", "minimized-pos"];
+    if (noteIndex === 0) {
+        for (let p of paramsToDelete) delete websites_json[url][p];
+    } else {
+        let extra = (websites_json[url]["notes-extra"] || [])[noteIndex - 1];
+        if (extra) {
+            for (let p of paramsToDelete) delete extra[p];
+        }
+    }
+}
+
 function getAllStickyNotes(url) {
     let entry = websites_json[url];
     if (!entry) return [];
@@ -97,6 +117,7 @@ function getAllStickyNotes(url) {
             tag_colour: entry["tag-colour"] || "none",
             sticky: true,
             minimized: p0.minimized,
+            pinned: p0.pinned,
             coords: p0.coords,
             sizes: p0.sizes,
             opacity: p0.opacity,
@@ -113,6 +134,7 @@ function getAllStickyNotes(url) {
                 tag_colour: extras[i]["tag-colour"] || "none",
                 sticky: true,
                 minimized: pi.minimized,
+                pinned: pi.pinned,
                 coords: pi.coords,
                 sizes: pi.sizes,
                 opacity: pi.opacity,
@@ -1176,7 +1198,7 @@ function listenerStickyNotes() {
             if (message.data !== undefined) {
                 //communicate something
                 if (message.data.sticky !== undefined) {
-                    setOpenedSticky(message.data.sticky, message.data.minimized, noteIndex);
+                    setOpenedSticky(message.data.sticky, message.data.minimized, noteIndex, message.data.initial_params);
                 }
 
                 if (message.data.new_text !== undefined) {
@@ -1226,6 +1248,26 @@ function listenerStickyNotes() {
                                 setStickyParamForNote(url, noteIndex, "opacity", {value: message.data.opacity.value});
                                 if (noteIndex === 0) {
                                     opacity.value = message.data.opacity.value;
+                                }
+                                sync_local.set({"websites": websites_json, "last-update": getDate()});
+                            }
+                        }
+                    });
+                }
+
+                if (message.data.pinned !== undefined) {
+                    sync_local.get("websites").then(result => {
+                        if (result !== undefined && result["websites"] !== undefined) {
+                            websites_json = result["websites"];
+                            let url = getTheCorrectUrl();
+                            if (websites_json[url]) {
+                                setStickyParamForNote(url, noteIndex, "pinned", message.data.pinned);
+                                if (message.data.coords !== undefined) {
+                                    setStickyParamForNote(url, noteIndex, "coords", {x: message.data.coords.x, y: message.data.coords.y});
+                                    if (noteIndex === 0) {
+                                        coords.x = message.data.coords.x;
+                                        coords.y = message.data.coords.y;
+                                    }
                                 }
                                 sync_local.set({"websites": websites_json, "last-update": getDate()});
                             }
@@ -1805,7 +1847,7 @@ function getCombinations(array, n) {
     return result;
 }
 
-function setOpenedSticky(sticky, minimized, noteIndex = 0) {
+function setOpenedSticky(sticky, minimized, noteIndex = 0, initialParams) {
     sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
@@ -1814,6 +1856,15 @@ function setOpenedSticky(sticky, minimized, noteIndex = 0) {
             if (websites_json[url] !== undefined) {
                 setStickyParamForNote(url, noteIndex, "sticky", sticky);
                 setStickyParamForNote(url, noteIndex, "minimized", minimized);
+                if (sticky && initialParams) {
+                    if (initialParams.coords) setStickyParamForNote(url, noteIndex, "coords", initialParams.coords);
+                    if (initialParams.sizes) setStickyParamForNote(url, noteIndex, "sizes", initialParams.sizes);
+                    if (initialParams.opacity) setStickyParamForNote(url, noteIndex, "opacity", initialParams.opacity);
+                    if (initialParams.pinned !== undefined) setStickyParamForNote(url, noteIndex, "pinned", initialParams.pinned);
+                }
+                if (!sticky) {
+                    clearStickyParamsForNote(url, noteIndex);
+                }
 
                 sync_local.set({"websites": websites_json}).then(result => {
                     if (!sticky) {
@@ -2118,7 +2169,7 @@ browser.menus.onClicked.addListener((info, tab) => {
             if (ws[urlKey] !== undefined && ws[urlKey]["notes"]) {
                 if (multipleNotesEnabled) {
                     if (!Array.isArray(ws[urlKey]["notes-extra"])) ws[urlKey]["notes-extra"] = [];
-                    ws[urlKey]["notes-extra"].push({"notes": selectedText, "title": "", "last-update": now, "tag-colour": "none", "sticky": false, "minimized": false});
+                    ws[urlKey]["notes-extra"].push({"notes": selectedText, "title": "", "last-update": now, "tag-colour": "none", "sticky": false, "minimized": false, "pinned": false});
                 } else {
                     ws[urlKey]["notes"] += "<br>" + selectedText;
                 }

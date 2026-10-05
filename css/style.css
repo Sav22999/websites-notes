@@ -1583,6 +1583,12 @@ pre::placeholder,
     background-color: transparent;
 }
 
+#all-notes-section.notes-list-mode {
+    border-top: 1px solid var(--tertiary-transparent-2);
+    margin-top: 4px;
+    padding-top: 6px;
+}
+
 #floating-actions {
     position: absolute;
     bottom: 8px;

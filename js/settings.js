@@ -533,6 +533,11 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("default-sticky-pinned-check").onchange = function () {
+        settings_json["default-sticky-pinned"] = document.getElementById("default-sticky-pinned-check").checked;
+        saveSettings();
+    };
+
     document.getElementById("notes-background-follow-tag-colour-check").onchange = function () {
         settings_json["notes-background-follow-tag-colour"] = document.getElementById("notes-background-follow-tag-colour-check").checked;
         sendTelemetry(`notes-background-follow-tag-colour-check-select`, `settings.js`, settings_json["notes-background-follow-tag-colour"]);
@@ -1235,6 +1240,8 @@ function setLanguageUI() {
     document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
     document.getElementById("immersive-sticky-notes-text").innerText = all_strings["immersive-sticky-notes-text"];
     document.getElementById("immersive-sticky-notes-detailed-text").innerHTML = all_strings["immersive-sticky-notes-detailed-text"];
+    document.getElementById("default-sticky-pinned-text").innerText = all_strings["default-sticky-pinned-text"];
+    document.getElementById("default-sticky-pinned-detailed-text").innerHTML = all_strings["default-sticky-pinned-detailed-text"];
     document.getElementById("notes-background-follow-tag-colour-text").innerText = all_strings["notes-background-follow-tag-colour-text"];
     document.getElementById("notes-background-follow-tag-colour-detailed-text").innerHTML = all_strings["notes-background-follow-tag-colour-detailed-text"];
     document.getElementById("show-undo-redo-text").innerText = all_strings["show-undo-redo-text"];
@@ -1516,6 +1523,7 @@ function loadSettings() {
 
             document.getElementById("show-title-textbox-check").checked = settings_json["show-title-textbox"] === true || settings_json["show-title-textbox"] === "yes";
             document.getElementById("immersive-sticky-notes-check").checked = settings_json["immersive-sticky-notes"] === true || settings_json["immersive-sticky-notes"] === "yes";
+            document.getElementById("default-sticky-pinned-check").checked = settings_json["default-sticky-pinned"] === true;
             document.getElementById("notes-background-follow-tag-colour-check").checked = settings_json["notes-background-follow-tag-colour"] === true || settings_json["notes-background-follow-tag-colour"] === "yes";
 
             if (document.getElementById("html-text-formatting-check").checked) {

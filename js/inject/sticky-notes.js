@@ -18,18 +18,26 @@ function load() {
             } else if (noteData.minimized) {
                 openMinimized(ni, response.settings, response.icons, response.theme_colours, noteData.tag_colour, noteData["minimized-pos"]);
             } else {
-                let x = checkCorrectNumber((noteData.coords || {}).x || "20px", "20px");
-                let y = checkCorrectNumber((noteData.coords || {}).y || "20px", "20px");
+                let pinned = noteData.pinned === true;
+                let hasCoords = noteData.coords && (noteData.coords.x || noteData.coords.y);
+                let defaultX = "20px";
+                let defaultY = "20px";
+                if (!hasCoords && !pinned) {
+                    defaultX = (window.scrollX + 20) + "px";
+                    defaultY = (window.scrollY + 20) + "px";
+                }
+                let x = checkCorrectNumber((noteData.coords || {}).x || defaultX, defaultX);
+                let y = checkCorrectNumber((noteData.coords || {}).y || defaultY, defaultY);
                 let w = checkCorrectNumber((noteData.sizes || {}).w || "300px", "300px");
                 let h = checkCorrectNumber((noteData.sizes || {}).h || "300px", "300px");
                 let op = (noteData.opacity || {}).value !== undefined ? noteData.opacity.value : 0.8;
-                createNewDescription(ni, x, y, w, h, op);
+                createNewDescription(ni, x, y, w, h, op, pinned);
             }
         });
     });
 }
 
-function createNewDescription(noteIndex, x, y, w, h, opacity) {
+function createNewDescription(noteIndex, x, y, w, h, opacity, pinned = false) {
     browser.runtime.sendMessage({from: "sticky", ask: "notes", noteIndex: noteIndex}, (response) => {
         if (response !== undefined) {
             let notes = {description: "", url: "", page_domain_global: "", tag_colour: "", website: {}, type: "page"};
@@ -51,7 +59,7 @@ function createNewDescription(noteIndex, x, y, w, h, opacity) {
             if (response.notes !== undefined && response.notes.page_domain_global !== undefined) {
                 notes.page_domain_global = response.notes.page_domain_global;
             }
-            createNew(noteIndex, notes, x, y, w, h, opacity, response.websites, response.settings, response.icons, response.theme_colours, response.supported_font_family);
+            createNew(noteIndex, notes, x, y, w, h, opacity, pinned, response.websites, response.settings, response.icons, response.theme_colours, response.supported_font_family);
         } else {
             console.error(`Response undefined!`);
         }
@@ -91,10 +99,10 @@ function updateStickyNotes(noteIndex) {
                 if (new_tag === "none") new_tag = "transparent";
                 tag.style.backgroundColor = new_tag;
 
-                let displayWidth = window.innerWidth;
-                let displayHeight = window.innerHeight;
-                let x = checkCorrectNumber(response.notes.sticky_params.coords.x, "20px");
-                let y = checkCorrectNumber(response.notes.sticky_params.coords.y, "20px");
+                let isFixed = stickyNotes.style.position === "fixed";
+                let stickyCoords = response.notes.sticky_params.coords || {};
+                let x = checkCorrectNumber(stickyCoords.x, "20px");
+                let y = checkCorrectNumber(stickyCoords.y, "20px");
                 let h = checkCorrectNumber(response.notes.sticky_params.sizes.h, "300px");
                 let w = checkCorrectNumber(response.notes.sticky_params.sizes.w, "300px");
                 let yAsInt = parseInt(y.replace("px", ""));
@@ -102,12 +110,16 @@ function updateStickyNotes(noteIndex) {
                 let xAsInt = parseInt(x.replace("px", ""));
                 let wAsInt = parseInt(w.replace("px", ""));
 
-                if (response.notes !== undefined && response.notes.sticky_params.coords !== undefined) {
-                    let safeTop = (((yAsInt + hAsInt) > displayHeight ? displayHeight - hAsInt : yAsInt)) + "px";
-                    let safeLeft = (((xAsInt + wAsInt) > displayWidth ? displayWidth - wAsInt : xAsInt)) + "px";
-
-                    stickyNotes.style.left = safeLeft;
-                    stickyNotes.style.top = safeTop;
+                if (response.notes !== undefined && response.notes.sticky_params.coords) {
+                    if (isFixed) {
+                        let displayWidth = window.innerWidth;
+                        let displayHeight = window.innerHeight;
+                        stickyNotes.style.top = (((yAsInt + hAsInt) > displayHeight ? displayHeight - hAsInt : yAsInt)) + "px";
+                        stickyNotes.style.left = (((xAsInt + wAsInt) > displayWidth ? displayWidth - wAsInt : xAsInt)) + "px";
+                    } else {
+                        stickyNotes.style.top = Math.max(0, yAsInt) + "px";
+                        stickyNotes.style.left = Math.max(0, xAsInt) + "px";
+                    }
                 }
                 if (response.notes !== undefined && response.notes.sticky_params.sizes !== undefined) {
                     stickyNotes.style.width = w;
@@ -173,11 +185,11 @@ function updateStickyNotes(noteIndex) {
 /**
  * The sticky does NOT exist, so I need to create it totally
  */
-function createNew(noteIndex, notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity = 0.8, websites_json, settings_json, icons_json, theme_colours_json, supported_languages) {
+function createNew(noteIndex, notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity = 0.8, pinned = false, websites_json, settings_json, icons_json, theme_colours_json, supported_languages) {
     if (!document.getElementById(stickyId(noteIndex))) {
         let css = document.createElement("style");
         css.setAttribute("data-notefox-sticky", noteIndex);
-        let cssText = getCSS(notes, x, y, w, h, opacity, websites_json, settings_json, icons_json, theme_colours_json, supported_languages);
+        let cssText = getCSS(notes, x, y, w, h, opacity, pinned, websites_json, settings_json, icons_json, theme_colours_json, supported_languages);
         css.innerText = cssText.replaceAll('sticky-notes-notefox-addon', 'sticky-notes-notefox-addon-' + noteIndex);
         document.body.appendChild(css);
 
@@ -239,6 +251,30 @@ function createNew(noteIndex, notes, x = "10px", y = "10px", w = "200px", h = "3
         }
         commandsContainer.appendChild(minimize);
 
+        let pin = document.createElement("input");
+        pin.type = "button";
+        pin.id = elId("pin", noteIndex);
+        if (pinned) pin.classList.add("pinned");
+        stickyNote.style.position = pinned ? "fixed" : "absolute";
+        pin.onclick = function () {
+            let isPinned = pin.classList.toggle("pinned");
+            let currentLeft = parseFloat(stickyNote.style.left) || 0;
+            let currentTop = parseFloat(stickyNote.style.top) || 0;
+            if (isPinned) {
+                stickyNote.style.left = (currentLeft - window.scrollX) + "px";
+                stickyNote.style.top = (currentTop - window.scrollY) + "px";
+            } else {
+                stickyNote.style.left = (currentLeft + window.scrollX) + "px";
+                stickyNote.style.top = (currentTop + window.scrollY) + "px";
+            }
+            stickyNote.style.position = isPinned ? "fixed" : "absolute";
+            pin.style.backgroundImage = "";
+            pin.style.backgroundColor = "";
+            pin.style.opacity = "";
+            browser.runtime.sendMessage({from: "sticky", noteIndex: noteIndex, data: {pinned: isPinned, coords: {x: stickyNote.style.left, y: stickyNote.style.top}}});
+        }
+        commandsContainer.appendChild(pin);
+
         let tag = document.createElement("div");
         tag.id = elId("tag", noteIndex);
         tag.style.backgroundColor = notes.tag_colour;
@@ -287,7 +323,7 @@ function createNew(noteIndex, notes, x = "10px", y = "10px", w = "200px", h = "3
 
         document.body.appendChild(stickyNote);
 
-        browser.runtime.sendMessage({from: "sticky", noteIndex: noteIndex, data: {sticky: true, minimized: false}});
+        browser.runtime.sendMessage({from: "sticky", noteIndex: noteIndex, data: {sticky: true, minimized: false, initial_params: {coords: {x: x, y: y}, sizes: {w: w, h: h}, opacity: {value: opacity}, pinned: pinned}}});
     } else {
         updateStickyNotes(noteIndex);
     }
@@ -382,6 +418,19 @@ function checkThemeSticky(noteIndex, text, settings_json, icons_json, theme_colo
     document.getElementById(elId("text-container", noteIndex)).style.color = on_secondary_color + "";
     document.getElementById(elId("text", noteIndex)).style.color = on_primary_color + "";
     document.getElementById(elId("resize", noteIndex)).style.borderRightColor = secondary_color;
+    let pinEl = document.getElementById(elId("pin", noteIndex));
+    if (pinEl) {
+        let _svg_pin = window.btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${on_secondary_color}" stroke="${on_secondary_color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>`);
+        let _svg_pin_off = window.btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${on_secondary_color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-45 12 12)"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></g></svg>`);
+        if (pinEl.classList.contains("pinned")) {
+            pinEl.style.backgroundImage = `url('data:image/svg+xml;base64,${_svg_pin}')`;
+            pinEl.style.backgroundColor = secondary_color;
+        } else {
+            pinEl.style.backgroundImage = `url('data:image/svg+xml;base64,${_svg_pin_off}')`;
+            pinEl.style.backgroundColor = secondary_color + "88";
+        }
+        pinEl.style.color = on_secondary_color;
+    }
 }
 
 function isAPage(url) {
@@ -453,7 +502,7 @@ function getLogoSvg() {
     `;
 }
 
-function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity = 0.8, websites_json, settings_json, icons_json, theme_colours_json, supported_font_family) {
+function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity = 0.8, pinned = false, websites_json, settings_json, icons_json, theme_colours_json, supported_font_family) {
     if (icons_json === undefined) icons_json = {};
 
     if (icons_json["close"] === undefined) icons_json["close"] = `PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj48c3ZnIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAxMTIgMTEyIiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zOnNlcmlmPSJodHRwOi8vd3d3LnNlcmlmLmNvbS8iIHN0eWxlPSJmaWxsLXJ1bGU6ZXZlbm9kZDtjbGlwLXJ1bGU6ZXZlbm9kZDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLW1pdGVybGltaXQ6MjsiPjxwYXRoIGQ9Ik05LjI1OSw4My4zMzNjMCwtOC43MjkgMCwtMTMuMDk0IDIuNzEyLC0xNS44MDdjMi43MTIsLTIuNzEyIDcuMDc3LC0yLjcxMiAxNS44MDcsLTIuNzEyYzguNzMsMCAxMy4wOTUsMCAxNS44MDcsMi43MTJjMi43MTIsMi43MTIgMi43MTIsNy4wNzcgMi43MTIsMTUuODA3YzAsOC43MyAwLDEzLjA5NSAtMi43MTIsMTUuODA3Yy0yLjcxMiwyLjcxMiAtNy4wNzcsMi43MTIgLTE1LjgwNywyLjcxMmMtOC43MywwIC0xMy4wOTQsMCAtMTUuODA3LC0yLjcxMmMtMi43MTIsLTIuNzEyIC0yLjcxMiwtNy4wNzcgLTIuNzEyLC0xNS44MDdaIiBzdHlsZT0iZmlsbDojZmZmO2ZpbGwtcnVsZTpub256ZXJvO3N0cm9rZTojZmZmO3N0cm9rZS13aWR0aDowLjE0cHg7Ii8+PHBhdGggZD0iTTE2LjAzOSwxNi4wMzljLTYuNzgsNi43OCAtNi43OCwxNy42OTIgLTYuNzgsMzkuNTE3YzAsMS44MzEgMCwzLjU4NiAwLjAwNCw1LjI2N2MyLjM1MiwtMS41NDIgNC45NDQsLTIuMjE3IDcuNDI5LC0yLjU1MmMyLjk4OSwtMC40MDIgNi42NjQsLTAuNDAxIDEwLjY3MSwtMC40MDFsMC44MjksMGM0LjAwNywtMCA3LjY4MiwtMC4wMDEgMTAuNjcxLDAuNDAxYzMuMjkxLDAuNDQzIDYuNzcsMS40ODQgOS42MzIsNC4zNDVjMi44NjEsMi44NjIgMy45MDIsNi4zNDEgNC4zNDUsOS42MzJjMC40MDEsMi45ODkgMC40MDEsNi42NjQgMC40LDEwLjY3MWwwLDAuODI5YzAuMDAxLDQuMDA4IDAuMDAxLDcuNjgyIC0wLjQsMTAuNjdjLTAuMzM1LDIuNDg2IC0xLjAxLDUuMDc3IC0yLjU1Miw3LjQzYzEuNjgyLDAuMDA0IDMuNDM2LDAuMDA0IDUuMjY3LDAuMDA0YzIxLjgyNCwtMCAzMi43MzYsLTAgMzkuNTE3LC02Ljc4YzYuNzgsLTYuNzggNi43OCwtMTcuNjkyIDYuNzgsLTM5LjUxN2MtMCwtMjEuODI1IC0wLC0zMi43MzYgLTYuNzgsLTM5LjUxN2MtNi43OCwtNi43NzkgLTE3LjY5MiwtNi43NzkgLTM5LjUxNywtNi43NzljLTIxLjgyNSwtMCAtMzIuNzM2LC0wIC0zOS41MTYsNi43NzlsLTAsMC4wMDFabTQ1LjMwMywxMi44OTZjLTEuOTE4LC0wIC0zLjQ3MywxLjU1NCAtMy40NzMsMy40NzJjMCwxLjkxOCAxLjU1NSwzLjQ3MiAzLjQ3MywzLjQ3Mmw4Ljk3OCwwbC0xNy4yMjEsMTcuMjIxYy0xLjM1NiwxLjM1NiAtMS4zNTYsMy41NTQgMCw0LjkxYzEuMzU2LDEuMzU2IDMuNTU0LDEuMzU2IDQuOTEsMGwxNy4yMjEsLTE3LjIybDAsOC45NzhjMCwxLjkxOCAxLjU1NSwzLjQ3MiAzLjQ3MiwzLjQ3MmMxLjkxOCwwIDMuNDczLC0xLjU1NCAzLjQ3MywtMy40NzJsLTAsLTE3LjM2MWMtMCwtMS45MTggLTEuNTU1LC0zLjQ3MiAtMy40NzMsLTMuNDcybC0xNy4zNjEsLTBsMC4wMDEsLTBaIiBzdHlsZT0iZmlsbDojZmZmO3N0cm9rZTojZmZmO3N0cm9rZS13aWR0aDowLjE0cHg7Ii8+PC9zdmc+`;
@@ -485,21 +534,30 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
         if (theme_colours_json["on-secondary"] !== undefined) on_secondary_color = theme_colours_json["on-secondary"];
     }
     let tertiary_transparent_color = secondary_color + "44";
-    let displayWidth = window.innerWidth;
-    let displayHeight = window.innerHeight;
+    let svg_pin = window.btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${on_secondary_color}" stroke="${on_secondary_color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>`);
+    let svg_pin_off = window.btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${on_secondary_color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-45 12 12)"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></g></svg>`);
     let yAsInt = parseInt(y.replace("px", ""));
     let hAsInt = parseInt(h.replace("px", ""));
     let xAsInt = parseInt(x.replace("px", ""));
     let wAsInt = parseInt(w.replace("px", ""));
 
-    let safeTop = (((yAsInt + hAsInt) > displayHeight ? displayHeight - hAsInt : yAsInt)) + "px";
-    let safeLeft = (((xAsInt + wAsInt) > displayWidth ? displayWidth - wAsInt : xAsInt)) + "px";
+    let safeTop, safeLeft;
+    if (pinned) {
+        let displayWidth = window.innerWidth;
+        let displayHeight = window.innerHeight;
+        safeTop = (((yAsInt + hAsInt) > displayHeight ? displayHeight - hAsInt : yAsInt)) + "px";
+        safeLeft = (((xAsInt + wAsInt) > displayWidth ? displayWidth - wAsInt : xAsInt)) + "px";
+    } else {
+        safeTop = Math.max(0, yAsInt) + "px";
+        safeLeft = Math.max(0, xAsInt) + "px";
+    }
+    let cssPosition = pinned ? "fixed" : "absolute";
 
     return `
             @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Merienda:wght@300..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Victor+Mono:ital,wght@0,100..700;1,100..700&display=swap');
-            
+
             #sticky-notes-notefox-addon {
-                position: fixed;
+                position: ${cssPosition};
                 top: ${safeTop};
                 left:  ${safeLeft};
                 width: ${w};
@@ -784,6 +842,43 @@ function getCSS(notes, x = "10px", y = "10px", w = "200px", h = "300px", opacity
                 right: auto;
                 background-image: url('data:image/svg+xml;base64,${svg_image_minimize}');
             }
+            #pin--sticky-notes-notefox-addon {
+                position: absolute;
+                top: 0px;
+                left: 35px;
+                right: auto;
+                width: 30px;
+                height: 30px;
+                background-image: url('data:image/svg+xml;base64,${svg_pin_off}');
+                background-size: auto 55%;
+                background-repeat: no-repeat;
+                background-position: center center;
+                background-color: ${secondary_color}88;
+                border: 0px solid transparent;
+                color: ${on_secondary_color};
+                z-index: 5;
+                border-radius: 15px;
+                cursor: pointer;
+                margin: 0px !important;
+                padding: 0px !important;
+                box-sizing: border-box !important;
+                font-size: 8px;
+                opacity: 0.7;
+                transition: opacity 0.2s, background-color 0.2s;
+            }
+            #pin--sticky-notes-notefox-addon:hover {
+                opacity: 1;
+            }
+            #pin--sticky-notes-notefox-addon:active, #pin--sticky-notes-notefox-addon:focus {
+                box-shadow: 0px 0px 0px 5px ${on_secondary_color};
+                z-index: 6;
+                transition: 0.5s;
+            }
+            #pin--sticky-notes-notefox-addon.pinned {
+                background-image: url('data:image/svg+xml;base64,${svg_pin}');
+                background-color: ${secondary_color};
+                opacity: 1;
+            }
             
             #slider-container--sticky-notes-notefox-addon {
                 position: absolute;
@@ -981,38 +1076,44 @@ function onPasteText(text, e) {
  */
 function onMouseDownMove(noteIndex, e, stickyNote, isDragging) {
     isDragging = true;
+    const isFixed = stickyNote.style.position === "fixed";
     const offsetX = e.clientX - stickyNote.getBoundingClientRect().left;
     const offsetY = e.clientY - stickyNote.getBoundingClientRect().top;
-    const screenWidth = window.screen.width;
-    const screenHeight = window.screen.height;
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
 
+    function clampPosition() {
+        let left = parseFloat(stickyNote.style.left) || 0;
+        let top = parseFloat(stickyNote.style.top) || 0;
+        if (isFixed) {
+            let maxW = window.innerWidth - stickyNote.offsetWidth;
+            let maxH = window.innerHeight - stickyNote.offsetHeight;
+            stickyNote.style.left = Math.max(0, Math.min(left, maxW)) + "px";
+            stickyNote.style.top = Math.max(0, Math.min(top, maxH)) + "px";
+        } else {
+            stickyNote.style.left = Math.max(0, left) + "px";
+            stickyNote.style.top = Math.max(0, top) + "px";
+        }
+    }
+
     function onMouseMove(e) {
         if (!isDragging) return;
-
-        stickyNote.style.left = e.clientX - offsetX + 'px';
-        stickyNote.style.top = e.clientY - offsetY + 'px';
-
-        if (stickyNote.style.left.replace("px", "") < 0) stickyNote.style.left = "0px";
-        if (stickyNote.style.top.replace("px", "") < 0) stickyNote.style.top = "0px";
-
-        if (stickyNote.style.left.replace("px", "") > (screenWidth - stickyNote.offsetWidth)) stickyNote.style.left = (screenWidth - stickyNote.offsetWidth) + "px";
-        if (stickyNote.style.top.replace("px", "") > (screenHeight - stickyNote.offsetHeight)) stickyNote.style.top = (screenHeight - stickyNote.offsetHeight) + "px";
+        if (isFixed) {
+            stickyNote.style.left = e.clientX - offsetX + "px";
+            stickyNote.style.top = e.clientY - offsetY + "px";
+        } else {
+            stickyNote.style.left = e.pageX - offsetX + "px";
+            stickyNote.style.top = e.pageY - offsetY + "px";
+        }
+        clampPosition();
     }
 
     function onMouseUp() {
         isDragging = false;
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
-
-        if (stickyNote.style.left.replace("px", "") < 0) stickyNote.style.left = "0px";
-        if (stickyNote.style.top.replace("px", "") < 0) stickyNote.style.top = "0px";
-
-        if (stickyNote.style.left.replace("px", "") > (screenWidth - stickyNote.offsetWidth)) stickyNote.style.left = (screenWidth - stickyNote.offsetWidth) + "px";
-        if (stickyNote.style.top.replace("px", "") > (screenHeight - stickyNote.offsetHeight)) stickyNote.style.top = (screenHeight - stickyNote.offsetHeight) + "px";
-
+        clampPosition();
         browser.runtime.sendMessage({
             from: "sticky",
             noteIndex: noteIndex,

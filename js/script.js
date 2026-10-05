@@ -2726,6 +2726,9 @@ function showNotesList(url) {
     document.getElementById("floating-actions").classList.add("hidden");
     document.getElementById("new-note-button-list").classList.remove("hidden");
     document.getElementById("last-updated-section").classList.add("hidden");
+    document.getElementById("tag-select-grid").classList.add("hidden");
+    document.getElementById("tag-colour-section").classList.add("hidden");
+    document.getElementById("all-notes-section").classList.add("notes-list-mode");
     document.getElementById("popup-content").classList.remove("background-as-tag-colour");
     let container = document.getElementById("notes-list-container");
     container.innerHTML = "";
@@ -2798,6 +2801,9 @@ function openNoteAtIndex(index) {
     document.getElementById("floating-actions").classList.remove("hidden");
     document.getElementById("new-note-button-list").classList.add("hidden");
     document.getElementById("last-updated-section").classList.remove("hidden");
+    document.getElementById("tag-select-grid").classList.remove("hidden");
+    document.getElementById("tag-colour-section").classList.remove("hidden");
+    document.getElementById("all-notes-section").classList.remove("notes-list-mode");
 
     document.getElementById("notes").innerHTML = note["notes"] || "";
     document.getElementById("title-notes").value = note["title"] || "";
@@ -2861,7 +2867,8 @@ function createNewNote() {
         "last-update": getDate(),
         "tag-colour": "none",
         "sticky": false,
-        "minimized": false
+        "minimized": false,
+        "pinned": false
     });
     sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
         let allNotes = getAllNotesForUrl(url);
@@ -2871,7 +2878,45 @@ function createNewNote() {
 }
 
 function deleteCurrentNote() {
-    if (!confirm(all_strings["delete-note-confirmation"] || "Are you sure you want to delete this note?")) return;
+    let section = document.getElementById("delete-note-confirm-section");
+    let background = document.getElementById("background-opacity");
+
+    document.getElementById("delete-note-confirm-title").textContent = all_strings["delete-note-button"] || "Delete";
+    document.getElementById("delete-note-confirm-text").textContent = all_strings["delete-note-confirmation"] || "Are you sure you want to delete this note?";
+
+    let cancelBtn = document.getElementById("delete-note-confirm-cancel-button");
+    cancelBtn.value = all_strings["cancel-button"] || "Cancel";
+
+    let deleteBtn = document.getElementById("delete-note-confirm-delete-button");
+    deleteBtn.value = all_strings["delete-note-button"] || "Delete";
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    function closeDialog() {
+        section.style.display = "none";
+        background.style.display = "none";
+        cancelBtn.onclick = null;
+        deleteBtn.onclick = null;
+        document.removeEventListener("keydown", onKeyDown);
+    }
+
+    function onKeyDown(e) {
+        if (e.key === "Escape") closeDialog();
+    }
+    document.addEventListener("keydown", onKeyDown);
+
+    cancelBtn.onclick = function () {
+        closeDialog();
+    };
+
+    deleteBtn.onclick = function () {
+        closeDialog();
+        performDeleteCurrentNote();
+    };
+}
+
+function performDeleteCurrentNote() {
     let url = currentUrl[selected_tab];
     let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
     if (!websites_json[supportedUrl]) return;
@@ -2893,6 +2938,7 @@ function deleteCurrentNote() {
         if (promoted["sizes"] !== undefined) websites_json[supportedUrl]["sizes"] = promoted["sizes"];
         if (promoted["opacity"] !== undefined) websites_json[supportedUrl]["opacity"] = promoted["opacity"];
         if (promoted["minimized-pos"] !== undefined) websites_json[supportedUrl]["minimized-pos"] = promoted["minimized-pos"];
+        if (promoted["pinned"] !== undefined) websites_json[supportedUrl]["pinned"] = promoted["pinned"];
     } else {
         websites_json[supportedUrl]["notes-extra"].splice(current_note_index - 1, 1);
     }
@@ -2928,7 +2974,15 @@ function updateNewNoteButton(url) {
     let entry = websites_json[supportedUrl];
     let btn = document.getElementById("new-note-button");
     let btnList = document.getElementById("new-note-button-list");
-    let hasContent = entry && entry["notes"] && entry["notes"] !== "" && entry["notes"] !== "<br>";
+    let currentNotes = "";
+    if (entry) {
+        if (current_note_index === 0) {
+            currentNotes = entry["notes"] || "";
+        } else if (Array.isArray(entry["notes-extra"]) && entry["notes-extra"][current_note_index - 1]) {
+            currentNotes = entry["notes-extra"][current_note_index - 1]["notes"] || "";
+        }
+    }
+    let hasContent = currentNotes !== "" && currentNotes !== "<br>";
     let isListView = !document.getElementById("notes-list-section").classList.contains("hidden");
     if (multipleNotesEnabled && hasContent && !isListView) {
         btn.classList.remove("hidden");
