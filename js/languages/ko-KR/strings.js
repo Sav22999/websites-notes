@@ -397,6 +397,7 @@ strings[lang] = {
     'passwords-not-equal-alert': 'The passwords don\'t match. Please, retype them with attention.\nYou won\'t be able to recover your data if you forget the password.',
     'password-not-strong-alert': 'The password is not strong enough. Please, choose a stronger password: at least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.\nYou won\'t be able to recover your data if you forget the password.',
     'empty-fields-alert': 'Please, fill all fields to continue.',
+    'notefox-account-permission-denied-alert': "Notefox 계정을 사용하려면 Notefox 서버(notefox.eu)에 대한 접근을 허용해야 합니다.",
     'show-undo-redo-text': 'Undo and redo buttons',
     'show-bold-italic-underline-strikethrough-text': 'Bold, italic, underline and strikethrough buttons',
     'show-link-text': 'Link button',

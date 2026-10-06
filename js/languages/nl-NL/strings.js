@@ -397,6 +397,7 @@ strings[lang] = {
     'passwords-not-equal-alert': 'De wachtwoorden komen niet overeen. Typ ze opnieuw met aandacht.\nU kunt uw gegevens niet herstellen als u het wachtwoord bent vergeten.',
     'password-not-strong-alert': 'The password is not strong enough. Please, choose a stronger password: at least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.\nYou won\'t be able to recover your data if you forget the password.',
     'empty-fields-alert': 'Vul alle velden in om door te gaan.',
+    'notefox-account-permission-denied-alert': "Om het Notefox-account te gebruiken, moet je toegang tot de Notefox-servers (notefox.eu) toestaan.",
     'show-undo-redo-text': 'Undo and redo buttons',
     'show-bold-italic-underline-strikethrough-text': 'Knoppen vet, cursief, onderstrepen en doorhalen',
     'show-link-text': 'Koppelingsknop',
