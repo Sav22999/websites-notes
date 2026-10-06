@@ -1392,6 +1392,7 @@ pre::placeholder,
     overflow: auto;
     background-color: var(--textbox-color);
     color: var(--on-textbox-color);
+    min-height: auto;
 }
 
 .no-border-radius-top {
