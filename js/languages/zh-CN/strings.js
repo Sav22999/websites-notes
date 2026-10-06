@@ -397,6 +397,7 @@ strings[lang] = {
     'passwords-not-equal-alert': '密码不匹配。请仔细重新输入。\n如果您忘记密码，将无法恢复数据。',
     'password-not-strong-alert': '密码强度不够。请选择一个强度更高的密码：至少 8 个字符，包含大写字母、小写字母、数字和特殊字符。\n如果您忘记密码，将无法恢复数据。',
     'empty-fields-alert': '请填写所有字段以继续。',
+    'notefox-account-permission-denied-alert': "要使用 Notefox 账户，你需要允许访问 Notefox 服务器（notefox.eu）。",
     'show-undo-redo-text': '撤消和重做按钮',
     'show-bold-italic-underline-strikethrough-text': '粗体、斜体、下划线和删除线按钮',
     'show-link-text': '链接按钮',

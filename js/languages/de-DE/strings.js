@@ -397,6 +397,7 @@ strings[lang] = {
     'passwords-not-equal-alert': 'Die Passwörter stimmen nicht überein. Bitte gib sie erneut ein.\nDu wirst deine Daten nicht wiederherstellen können, wenn du das Passwort vergisst.',
     'password-not-strong-alert': 'Das Passwort ist nicht stark genug. Bitte wähle ein stärkeres Passwort: mindestens 8 Zeichen, 1 Großbuchstabe, 1 Kleinbuchstabe, 1 Zahl und 1 Sonderzeichen.\nDu kannst deine Daten nicht wiederherstellen, wenn du das Passwort vergessen hast.',
     'empty-fields-alert': 'Bitte alle Felder ausfüllen, um fortzufahren.',
+    'notefox-account-permission-denied-alert': "Um das Notefox-Konto zu verwenden, musst du den Zugriff auf die Notefox-Server (notefox.eu) erlauben.",
     'show-undo-redo-text': 'Rückgängig und Wiederherstellen-Schaltfläche',
     'show-bold-italic-underline-strikethrough-text': 'Fett, Kursiv, Unterstreichen und Durchstreichen-Schaltflächen',
     'show-link-text': 'Link-Schaltfläche',

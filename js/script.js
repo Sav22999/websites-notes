@@ -2425,16 +2425,20 @@ function checkTelemetryAlert() {
             buttonEnable.onclick = function () {
                 section.style.display = "none";
                 background.style.display = "none";
-                browser.storage.local.get("settings", (result) => {
-                    let settings = []
-                    if (result["settings"] !== undefined) {
-                        settings = result["settings"];
-                    }
-                    settings["send-telemetry"] = true;
-                    browser.storage.local.set({"settings": settings}).then(() => {
-                        sendMessageUpdateToBackground();
-                    });
-                })
+                //the access to the Notefox servers is requested only when the telemetry is enabled
+                browser.permissions.request({origins: ["https://*.notefox.eu/*"]}).catch(() => false).then(granted => {
+                    if (!granted) return;
+                    browser.storage.local.get("settings", (result) => {
+                        let settings = []
+                        if (result["settings"] !== undefined) {
+                            settings = result["settings"];
+                        }
+                        settings["send-telemetry"] = true;
+                        browser.storage.local.set({"settings": settings}).then(() => {
+                            sendMessageUpdateToBackground();
+                        });
+                    })
+                });
                 browser.storage.sync.set({"telemetry-alert-displayed": true}).then(() => {
                     //console.log("Telemetry alert displayed set to true");
                 });

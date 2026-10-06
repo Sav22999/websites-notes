@@ -397,6 +397,7 @@ strings[lang] = {
     'passwords-not-equal-alert': 'Le contrasignos non concorda. Reinsere los con attention.',
     'password-not-strong-alert': 'Le contrasigno non es bastante forte. Per favor, selige un contrasigno plus forte: al minus 8 characteres, 1 littera majuscule, 1 littera minuscule, 1 numero, e 1 character special. Tu non potera recuperar tu datos si tu oblida le contrasigno.',
     'empty-fields-alert': 'Per favor, compila tote le campos pro continuar.',
+    'notefox-account-permission-denied-alert': "Pro usar le conto Notefox, tu debe permitter le accesso al servitores de Notefox (notefox.eu).",
     'show-undo-redo-text': 'Undo and redo buttons',
     'show-bold-italic-underline-strikethrough-text': 'Buttones de texto hardite, italic, sublineate e barrate',
     'show-link-text': 'Button de ligamine',

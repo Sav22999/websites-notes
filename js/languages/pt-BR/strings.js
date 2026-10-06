@@ -397,6 +397,7 @@ strings[lang] = {
     'passwords-not-equal-alert': 'As senhas não são iguais. Por favor, digite elas novamente com atenção.\nNão será possível recuperar seus dados se você esquecer a senha.',
     'password-not-strong-alert': 'A senha não é forte o suficiente. Por favor, escolha uma senha mais forte: pelo menos 8 caracteres, 1 letra maiúscula, 1 letra minúscula, 1 número e 1 caractere especial.\nNão será possível recuperar seus dados se você esquecer a senha.',
     'empty-fields-alert': 'Por favor, preencha todos os campos para continuar.',
+    'notefox-account-permission-denied-alert': "Para usar a conta Notefox, você precisa permitir o acesso aos servidores do Notefox (notefox.eu).",
     'show-undo-redo-text': 'Botões de desfazer e refazer',
     'show-bold-italic-underline-strikethrough-text': 'Botões de negrito, itálico, sublinhado e rasurado',
     'show-link-text': 'Botão de hiperlink',
