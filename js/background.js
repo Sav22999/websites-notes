@@ -470,6 +470,15 @@ function syncData(force_time = 1 * 60 * 1000, just_once = false) {
 }
 
 /**
+ * The access to the Notefox servers is an optional permission (requested when the Notefox account,
+ * the telemetry or the automatic sending of the error logs are enabled)
+ * @returns {Promise<boolean>}
+ */
+function hasNotefoxServerPermission() {
+    return browser.permissions.contains({origins: ["https://*.notefox.eu/*"]}).catch(() => false);
+}
+
+/**
  * Check if there are error logs in the local storage each 10 minutes
  */
 function checkErrorLogs() {
@@ -479,7 +488,8 @@ function checkErrorLogs() {
         if (result["settings"] !== undefined) settings_json = result["settings"];
         if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = false;
 
-        if (settings_json["sending-error-logs-automatically"]) {
+        //the error logs stay saved locally anyway (they can be exported from Settings)
+        if (settings_json["sending-error-logs-automatically"] && await hasNotefoxServerPermission()) {
             if (result["error-logs"] !== undefined && result["error-logs"].length > 0) {
                 //console.error("Error logs: ", result["error-logs"]);
                 const answer = await api_request({
@@ -514,7 +524,10 @@ function checkTelemetryLogs() {
         if (result["settings"] !== undefined) settings_json = result["settings"];
         if (settings_json["send-telemetry"] === undefined) settings_json["send-telemetry"] = true
 
-        if (settings_json["send-telemetry"]) {
+        if (settings_json["send-telemetry"] && !(await hasNotefoxServerPermission())) {
+            //without the access to the Notefox servers the telemetry can't be sent: don't keep it
+            if (result["telemetry"] !== undefined && result["telemetry"].length > 0) sync_local.set({"telemetry": []});
+        } else if (settings_json["send-telemetry"]) {
             if (result["telemetry"] !== undefined && result["telemetry"].length > 0) {
                 //console.error("Telemetry: ", result["telemetry"]);
                 const answer = await api_request({

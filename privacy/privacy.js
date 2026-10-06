@@ -11,26 +11,33 @@ function initConsent() {
     const uninstallBtn = document.getElementById("uninstall-button");
 
     // Get state from of the checkboxes
-    (typeof browser !== 'undefined' ? browser : chrome).storage.local.get("settings").then(data => {
+    Promise.all([(typeof browser !== 'undefined' ? browser : chrome).storage.local.get("settings"), hasNotefoxServerPermission()]).then(([data, granted]) => {
         const settings = data.settings || {};
-        telemetryCheckbox.checked = settings["send-telemetry"] || false;
-        errorlogsCheckbox.checked = settings["sending-error-logs-automatically"] || false;
+        // Without the access to the Notefox servers nothing is sent, so they are shown as disabled
+        telemetryCheckbox.checked = granted && (settings["send-telemetry"] || false);
+        errorlogsCheckbox.checked = granted && (settings["sending-error-logs-automatically"] || false);
     });
 
-    // Save state on change
+    // Save state on change (the access to the Notefox servers is requested only when it's enabled)
     telemetryCheckbox.addEventListener("change", () => {
-        (typeof browser !== 'undefined' ? browser : chrome).storage.local.get("settings").then(data => {
-            const settings = data.settings || {};
-            settings["send-telemetry"] = telemetryCheckbox.checked;
-            (typeof browser !== 'undefined' ? browser : chrome).storage.local.set({settings});
+        (telemetryCheckbox.checked ? requestNotefoxServerPermission() : Promise.resolve(true)).then(granted => {
+            if (!granted) telemetryCheckbox.checked = false;
+            (typeof browser !== 'undefined' ? browser : chrome).storage.local.get("settings").then(data => {
+                const settings = data.settings || {};
+                settings["send-telemetry"] = telemetryCheckbox.checked;
+                (typeof browser !== 'undefined' ? browser : chrome).storage.local.set({settings});
+            });
         });
     });
 
     errorlogsCheckbox.addEventListener("change", () => {
-        (typeof browser !== 'undefined' ? browser : chrome).storage.local.get("settings").then(data => {
-            const settings = data.settings || {};
-            settings["sending-error-logs-automatically"] = errorlogsCheckbox.checked;
-            (typeof browser !== 'undefined' ? browser : chrome).storage.local.set({settings});
+        (errorlogsCheckbox.checked ? requestNotefoxServerPermission() : Promise.resolve(true)).then(granted => {
+            if (!granted) errorlogsCheckbox.checked = false;
+            (typeof browser !== 'undefined' ? browser : chrome).storage.local.get("settings").then(data => {
+                const settings = data.settings || {};
+                settings["sending-error-logs-automatically"] = errorlogsCheckbox.checked;
+                (typeof browser !== 'undefined' ? browser : chrome).storage.local.set({settings});
+            });
         });
     });
 
@@ -49,6 +56,24 @@ function initConsent() {
             uninstallBtn.disabled = true;
         }
     });
+}
+
+/**
+ * The access to the Notefox servers is an optional permission: it's requested only when it's needed.
+ * NB: it must be called directly by a user action (e.g. onchange), otherwise Firefox rejects the request
+ * @returns {Promise<boolean>} - true if the permission is granted
+ */
+function requestNotefoxServerPermission() {
+    try {
+        return (typeof browser !== 'undefined' ? browser : chrome).permissions.request({origins: ["https://*.notefox.eu/*"]}).catch(() => false);
+    } catch (e) {
+        console.error("P-privacy)) " + e);
+        return Promise.resolve(false);
+    }
+}
+
+function hasNotefoxServerPermission() {
+    return (typeof browser !== 'undefined' ? browser : chrome).permissions.contains({origins: ["https://*.notefox.eu/*"]}).catch(() => false);
 }
 
 function toggleSection(sectionId, headerId) {

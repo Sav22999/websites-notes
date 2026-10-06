@@ -430,6 +430,7 @@ strings[lang] = {
     'passwords-not-equal-alert': 'Le password non coincidono. Digitale di nuovo con attenzione.\nNon potrai recuperare i dati se dimentichi la password.',
     'password-not-strong-alert': 'La password non è abbastanza forte. Scegli una password più forte: almeno 8 caratteri, di cui almeno 1 lettera maiuscola, 1 lettera minuscola, 1 numero e 1 carattere speciale.\nNon sarai in grado di recuperare i tuoi dati se dimentichi la password.',
     'empty-fields-alert': 'Per favore, compila tutti i campi per continuare.',
+    'notefox-account-permission-denied-alert': "Per usare l'account Notefox devi consentire l'accesso ai server di Notefox (notefox.eu).",
     'show-undo-redo-text': 'Pulsanti annulla e ripeti',
     'show-bold-italic-underline-strikethrough-text': 'Pulsanti testo in grassetto, corsivo, sottolineato e barrato',
     'show-link-text': 'Pulsante dei link',

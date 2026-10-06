@@ -368,18 +368,28 @@ function loaded() {
     };
 
     document.getElementById("sending-error-logs-automatically-check").onchange = function () {
-        settings_json["sending-error-logs-automatically"] = document.getElementById("sending-error-logs-automatically-check").checked;
-        sendTelemetry(`sending-error-logs-automatically-check-select`, `settings.js`, settings_json["sending-error-logs-automatically"]);
+        let check = document.getElementById("sending-error-logs-automatically-check");
+        //the access to the Notefox servers is requested only when it's enabled
+        (check.checked ? requestNotefoxServerPermission() : Promise.resolve(true)).then(granted => {
+            if (!granted) check.checked = false;
+            settings_json["sending-error-logs-automatically"] = check.checked;
+            sendTelemetry(`sending-error-logs-automatically-check-select`, `settings.js`, settings_json["sending-error-logs-automatically"]);
 
-        saveSettings();
+            saveSettings();
+        });
     };
 
     document.getElementById("send-telemetry-check").onchange = function () {
-        settings_json["send-telemetry"] = document.getElementById("send-telemetry-check").checked;
-        sendTelemetry(`send-telemetry-check-select`, `settings.js`, settings_json["send-telemetry"]);
-        sendMessageUpdateToBackground();
+        let check = document.getElementById("send-telemetry-check");
+        //the access to the Notefox servers is requested only when it's enabled
+        (check.checked ? requestNotefoxServerPermission() : Promise.resolve(true)).then(granted => {
+            if (!granted) check.checked = false;
+            settings_json["send-telemetry"] = check.checked;
+            sendTelemetry(`send-telemetry-check-select`, `settings.js`, settings_json["send-telemetry"]);
+            sendMessageUpdateToBackground();
 
-        saveSettings();
+            saveSettings();
+        });
     };
 
     document.getElementById("context-menu-create-note-check").onchange = function () {
@@ -1468,6 +1478,13 @@ function loadSettings() {
             document.getElementById("show-badge-with-number-of-notes-check").checked = settings_json["show-icon-badge"] === true || settings_json["show-icon-badge"] === "yes";
             document.getElementById("sending-error-logs-automatically-check").checked = settings_json["sending-error-logs-automatically"] === true || settings_json["sending-error-logs-automatically"] === "yes";
             document.getElementById("send-telemetry-check").checked = settings_json["send-telemetry"] === true || settings_json["send-telemetry"] === "yes";
+            hasNotefoxServerPermission().then(granted => {
+                //without the access to the Notefox servers nothing is sent, so they are shown as disabled
+                if (!granted) {
+                    document.getElementById("sending-error-logs-automatically-check").checked = false;
+                    document.getElementById("send-telemetry-check").checked = false;
+                }
+            });
             document.getElementById("context-menu-create-note-check").checked = settings_json["context-menu-create-note"] === true || settings_json["context-menu-create-note"] === "yes";
             document.getElementById("multiple-notes-per-type-check").checked = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
 
@@ -4020,14 +4037,20 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                             login_submit_element.disabled = false;
                             spinner_loading.classList.add("hidden");
                         } else {
-                            callApiAndHandle("login", {email: email, password: password});
+                            requestNotefoxServerPermission().then(granted => {
+                                if (!granted) {
+                                    showMessageNotefoxAccount(getString("notefox-account-permission-denied-alert"), true);
+                                    return;
+                                }
+                                callApiAndHandle("login", {email: email, password: password});
 
-                            login_submit_element.disabled = true;
-                            cancel_element.disabled = true;
-                            email_element.disabled = true;
-                            password_element.disabled = true;
-                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
-                            disableAside = true;
+                                login_submit_element.disabled = true;
+                                cancel_element.disabled = true;
+                                email_element.disabled = true;
+                                password_element.disabled = true;
+                                if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                                disableAside = true;
+                            });
                         }
 
                         sendTelemetry("login-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
@@ -4196,16 +4219,22 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                             signup_submit_element.disabled = false;
                             spinner_loading.classList.add("hidden");
                         } else {
-                            callApiAndHandle("signup", {username: username, password: password, email: email});
+                            requestNotefoxServerPermission().then(granted => {
+                                if (!granted) {
+                                    showMessageNotefoxAccount(getString("notefox-account-permission-denied-alert"), true);
+                                    return;
+                                }
+                                callApiAndHandle("signup", {username: username, password: password, email: email});
 
-                            signup_submit_element.disabled = true;
-                            cancel_element.disabled = true;
-                            email_element.disabled = true;
-                            username_element.disabled = true;
-                            password_element.disabled = true;
-                            confirm_password_element.disabled = true;
-                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
-                            disableAside = true;
+                                signup_submit_element.disabled = true;
+                                cancel_element.disabled = true;
+                                email_element.disabled = true;
+                                username_element.disabled = true;
+                                password_element.disabled = true;
+                                confirm_password_element.disabled = true;
+                                if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                                disableAside = true;
+                            });
                         }
 
                         sendTelemetry("signup-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
@@ -4685,6 +4714,37 @@ async function revokeSession(account, target_login_id, list_element, spinner) {
 function getNotefoxAccountEmail(account) {
     if (account !== undefined && account !== null && account["email"] !== undefined && account["email"] !== null) return account["email"];
     return "";
+}
+
+/**
+ * The access to the Notefox servers is an optional permission: it's requested only when the Notefox account,
+ * the telemetry or the automatic sending of the error logs are used.
+ * NB: it must be called directly by a user action (e.g. onclick), otherwise Firefox rejects the request
+ * @returns {Promise<boolean>} - true if the permission is granted
+ */
+function requestNotefoxServerPermission() {
+    const permissionsToRequest = {
+        origins: ["https://*.notefox.eu/*"]
+    };
+    try {
+        return browser.permissions.request(permissionsToRequest).catch(e => {
+            console.error("P11)) " + e);
+            onError("settings.js::requestNotefoxServerPermission::P11", e.message);
+            return false;
+        });
+    } catch (e) {
+        console.error("P12)) " + e);
+        onError("settings.js::requestNotefoxServerPermission::P12", e.message);
+        return Promise.resolve(false);
+    }
+}
+
+/**
+ * Check if the access to the Notefox servers is granted
+ * @returns {Promise<boolean>}
+ */
+function hasNotefoxServerPermission() {
+    return browser.permissions.contains({origins: ["https://*.notefox.eu/*"]}).catch(() => false);
 }
 
 /**
