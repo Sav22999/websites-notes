@@ -114,6 +114,13 @@ body {
     flex-direction: column;
 }
 
+#notes-content-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
 #notes-section {
     flex: 1;
 }
@@ -121,6 +128,10 @@ body {
 .content-notes--container,
 .content-notes {
     flex: 1;
+}
+
+.content-notes--container {
+    position: relative;
 }
 
 /* Sidebar */
@@ -135,6 +146,8 @@ body {
         flex-direction: column;
     }
 
+    .opened-as-sidebar #notes-content-wrapper,
+    .popup-resizable-enabled #notes-content-wrapper,
     .opened-as-sidebar #notes-section {
         min-height: 0;
     }
@@ -170,11 +183,11 @@ body {
 }
 
 #resize-popup {
-    position: absolute;
+    position: fixed;
     right: 0px;
     bottom: 0px;
-    width: 20px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
     background-color: transparent;
     opacity: 1;
     cursor: ew-resize;
@@ -191,13 +204,13 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    border-top: 20px solid transparent;
-    border-right-width: 20px;
+    border-top: 28px solid transparent;
+    border-right-width: 28px;
     border-right-style: solid;
     border-right-color: inherit;
     width: 0;
     height: 0;
-    border-bottom-right-radius: 10px;
+    border-bottom-right-radius: 14px;
     opacity: 0.6;
 }
 
@@ -346,25 +359,28 @@ body {
 }
 
 .button-trigger-sticky {
-    position: absolute;
-    bottom: -2px;
-    right: 2px;
-    width: 30px !important;
-    height: 30px !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-height: 34px;
     background-image: url("../img/sticky-open.svg");
     background-size: auto 80%;
     background-repeat: no-repeat;
     background-position: center center;
     background-color: #ff6200;
     color: #ffffff;
-    margin: 4px;
-    z-index: 5;
-    border-radius: 15px;
+    margin: 0;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    opacity: 0.6;
+    transition: opacity 0.15s;
+}
+
+.button-trigger-sticky:hover {
+    opacity: 0.85;
 }
 
 .button-trigger-sticky-no-format-buttons {
-    bottom: -2px;
-    right: -2px;
+    bottom: 4px;
 }
 
 .save-button {
@@ -1081,6 +1097,25 @@ textarea:active,
     border-color: var(--primary-color);
     color: var(--on-primary-color);
     max-height: 50px !important;
+    transition: opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+#cancel-import-all-notes-button,
+#cancel-export-all-notes-button,
+#cancel-show-error-logs-button,
+.button-close-notefox-account {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid rgba(128, 128, 128, 0.25);
+    opacity: 0.85;
+}
+
+#cancel-import-all-notes-button:hover,
+#cancel-export-all-notes-button:hover,
+#cancel-show-error-logs-button:hover,
+.button-close-notefox-account:hover {
+    background-color: rgba(128, 128, 128, 0.1);
+    opacity: 1;
 }
 
 #tabs-section > .tab-sel:hover {
@@ -1100,6 +1135,170 @@ textarea:active,
     display: flex;
     flex-direction: column;
     gap: 3px;
+}
+
+#notes-list-section {
+    padding: 4px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 300px;
+}
+
+.popup-resizable-enabled #notes-list-section,
+.opened-as-sidebar #notes-list-section {
+    min-height: 0;
+}
+
+#new-note-button-list {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    min-height: 34px;
+    border-radius: 50%;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    background-color: #ff6200;
+    color: #ffffff;
+    border: none;
+    z-index: 10;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+}
+
+#new-note-button-list:hover {
+    opacity: 0.85;
+}
+
+#notes-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.notes-list-item {
+    border-radius: 8px;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 6px auto;
+    align-content: stretch;
+    gap: 4px;
+    padding: 4px !important;
+    transition: box-shadow 0.15s, opacity 0.15s;
+    height: 56px;
+    min-height: 56px;
+    max-height: 56px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.notes-list-item:not(.has-tag-colour) {
+    grid-template-columns: 0px auto;
+    gap: 0px;
+}
+
+.notes-list-item:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.13);
+}
+
+.notes-list-item:active {
+    opacity: 0.75;
+}
+
+.notes-list-item-color-bar {
+    width: 100%;
+    height: 100%;
+    border: 0px;
+    border-radius: 3px;
+}
+
+.notes-list-item-content {
+    padding: 4px 8px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    justify-content: center;
+    gap: 1px;
+}
+
+.notes-list-item .notes-list-item-date {
+    font-size: 0.6em;
+    opacity: 0.4;
+    color: var(--primary-color);
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.notes-list-item .notes-list-item-title {
+    font-weight: 600;
+    font-size: 0.82em;
+    color: var(--primary-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+.notes-list-item .notes-list-item-preview {
+    font-size: 0.72em;
+    opacity: 0.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--primary-color);
+    line-height: 1.2;
+}
+
+#notes-editor-toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 3px;
+    padding: 0 0 3px 0;
+}
+
+#notes-editor-toolbar .toolbar-icon-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    border-radius: 14px;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s;
+}
+
+#notes-editor-toolbar .toolbar-icon-button svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+#notes-editor-toolbar .toolbar-icon-button span {
+    font-size: 13px !important;
+    font-weight: 600;
+    line-height: 1;
+}
+
+#notes-editor-toolbar .toolbar-icon-button:hover {
+    opacity: 0.8;
+}
+
+.toolbar-icon-button-orange {
+    background-color: #ff6200;
+    color: #ffffff;
+}
+
+.toolbar-icon-button-red {
+    background-color: #d32f2f;
+    color: #ffffff;
 }
 
 .content-notes--container > .content-notes > *,
@@ -1130,6 +1329,12 @@ textarea,
     height: 300px;
     resize: none;
     width: 100%;
+    border-radius: 0;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    padding: 12px;
+    font-size: 0.85em;
+    line-height: 1.5;
+    box-sizing: border-box;
 }
 
 .content-notes--container > .content-notes {
@@ -1187,6 +1392,7 @@ pre::placeholder,
     overflow: auto;
     background-color: var(--textbox-color);
     color: var(--on-textbox-color);
+    min-height: auto;
 }
 
 .no-border-radius-top {
@@ -1393,6 +1599,51 @@ pre::placeholder,
     background-color: transparent;
 }
 
+#all-notes-section:has(#custom-select-container-tag-select-grid.hidden),
+#all-notes-section:has(#tag-select-grid.hidden),
+#all-notes-section.notes-list-mode {
+    grid-template-areas: "all-notes" !important;
+}
+
+#all-notes-section.notes-list-mode {
+    border-top: 1px solid var(--tertiary-transparent-2);
+    margin-top: 4px;
+    padding-top: 6px;
+}
+
+#floating-actions {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    z-index: 10;
+}
+
+#new-note-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    min-height: 34px;
+    border-radius: 50%;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    background-color: #ff6200;
+    color: #ffffff;
+    border: none;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+}
+
+#new-note-button:hover {
+    opacity: 0.85;
+}
+
 #popup-folder-section {
     padding-top: 8px;
     width: 100%;
@@ -1492,6 +1743,49 @@ pre::placeholder,
     padding: 10px;
 }
 
+body:not(#popup-body) #import-sub-sections,
+body:not(#popup-body) #export-sub-sections,
+body:not(#popup-body) #account-sub-sections,
+body:not(#popup-body) #notefox-server-error-content,
+body:not(#popup-body) #show-error-logs-sub-sections,
+body:not(#popup-body) .message-popup .message-popup-content {
+    padding: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#import-sub-sections > .padding-10:last-child,
+#export-sub-sections > .padding-10:last-child,
+#show-error-logs-sub-sections > .padding-10:last-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    justify-content: flex-end;
+    padding-top: 12px;
+    border-top: 1px solid rgba(128, 128, 128, 0.15);
+    margin-top: 4px;
+}
+
+#import-sub-sections > .padding-10:last-child > .float-left,
+#export-sub-sections > .padding-10:last-child > .float-left,
+#show-error-logs-sub-sections > .padding-10:last-child > .float-left {
+    float: none;
+    margin-right: auto;
+}
+
+#import-sub-sections > .padding-10:first-child,
+#export-sub-sections > .padding-10:first-child,
+#show-error-logs-sub-sections > .padding-10:first-child {
+    font-size: 1.15em;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+    margin-bottom: 4px;
+}
+
 #export-to-file-button,
 #import-from-file-button,
 #show-error-logs-to-file-button {
@@ -1502,6 +1796,49 @@ pre::placeholder,
 #import-now-all-notes-button,
 #copy-now-show-error-logs-button {
     margin-right: 0px;
+}
+
+#account-sub-sections {
+    max-width: 640px;
+}
+
+#title-account {
+    font-size: 1.3em;
+    font-weight: 700;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+#text-account {
+    font-size: 0.92em;
+    opacity: 0.75;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+#notefox-account-manage-section .option-settings {
+    border-radius: 10px;
+    padding: 4px 8px;
+    margin: 2px 0;
+    transition: background-color 0.15s ease;
+}
+
+#notefox-account-manage-section .option-settings:hover {
+    background-color: rgba(128, 128, 128, 0.08);
+}
+
+#notefox-account-manage-section .section-grid-container {
+    width: 100%;
+}
+
+.manage-group-divider {
+    border: none;
+    height: 0;
+    border-top: 1px solid rgba(128, 128, 128, 0.12);
+    background: transparent;
+    width: 100%;
+    margin: 8px 0;
 }
 
 .padding-10 {
@@ -1897,7 +2234,8 @@ h2.domain {
 div.h2-container {
     position: sticky;
     top: 48.5px;
-    display: block;
+    display: flex;
+    align-items: center;
     background-color: transparent;
     color: var(--primary-color);
     padding: 5px;
@@ -1913,6 +2251,31 @@ div.h2-container {
 
 div.h2-container:hover {
     opacity: 1;
+}
+
+.domain-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    transition: transform 0.2s;
+    vertical-align: middle;
+    margin-right: 2px;
+    flex-shrink: 0;
+}
+
+.domain-toggle.collapsed {
+    transform: rotate(-90deg);
+}
+
+.domain-pages {
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+}
+
+.domain-pages.collapsed {
+    display: none;
 }
 
 .clear-button-float-right {
@@ -2075,6 +2438,116 @@ strong {
 
 .float-right {
     float: right;
+}
+
+.account-section-buttons,
+#notefox-account-signup-section > .padding-10.text-align-right,
+#notefox-account-login-section > .padding-10.text-align-right,
+#notefox-account-change-password-section > .padding-10.text-align-right,
+#notefox-account-otp-section > .padding-10.text-align-right,
+#notefox-account-delete-section > .padding-10.text-align-right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(128, 128, 128, 0.15);
+    margin-top: 4px;
+}
+
+#notefox-account-signup-section > .padding-10.text-align-right > .float-left,
+#notefox-account-login-section > .padding-10.text-align-right > .float-left,
+#notefox-account-change-password-section > .padding-10.text-align-right > .float-left,
+#notefox-account-otp-section > .padding-10.text-align-right > .float-left,
+#notefox-account-delete-section > .padding-10.text-align-right > .float-left {
+    float: none;
+    margin-right: auto;
+}
+
+.margin-right-auto {
+    margin-right: auto !important;
+}
+
+#account-section--history-list {
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+#account-section--sessions-list {
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+.session-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background-color: rgba(128, 128, 128, 0.08);
+    margin-bottom: 6px;
+}
+
+.session-item--current {
+    border-left: 3px solid var(--primary-color);
+}
+
+.session-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.session-item-id {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.session-item-id code {
+    font-size: 0.85em;
+    word-break: break-all;
+}
+
+.session-badge {
+    display: inline-block;
+    font-size: 0.7em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    background-color: var(--primary-color);
+    color: var(--on-primary-color);
+}
+
+.session-item-details {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 0.78em;
+    opacity: 0.7;
+    margin-top: 4px;
+}
+
+.session-item-sep {
+    opacity: 0.4;
+}
+
+.session-revoke-button {
+    flex-shrink: 0;
+    width: auto !important;
+    padding: 6px 14px;
+    font-size: 0.85em;
+}
+
+.session-empty {
+    text-align: center;
+    padding: 20px;
+    opacity: 0.7;
+    font-style: italic;
 }
 
 .margin-right-5-px {
@@ -2647,6 +3120,38 @@ aside .external-link {
     position: static;
 }
 
+#settings-search-section {
+    z-index: 6;
+    border-radius: 0;
+    margin: -20px -20px 0 -20px;
+    padding: 5px;
+    top: 0;
+}
+
+#settings-search-input {
+    padding-left: 10px !important;
+}
+
+mark.search-highlight,
+.textarea-all-notes mark.search-highlight,
+#notes mark.search-highlight {
+    background-color: rgba(255, 165, 0, 0.35) !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0;
+    line-height: inherit;
+    color: inherit !important;
+    font-size: inherit;
+}
+
+.option-settings-hidden {
+    display: none !important;
+}
+
+.section-title-settings-hidden {
+    display: none !important;
+}
+
 .section-title-settings {
     padding: 10px;
     font-size: 1.7em;
@@ -2659,13 +3164,13 @@ aside .external-link {
 }
 
 .section-description-settings {
-    padding: 5px 10px;
+    padding: 0 10px 5px 10px;
     font-size: 1em;
     opacity: 0.7;
     color: var(--primary-color);
     display: block;
+    box-sizing: border-box;
     width: 100%;
-    padding-top: 0px;
     font-weight: 450;
 }
 
@@ -2789,10 +3294,6 @@ aside .external-link {
 .option-indent-settings {
     padding-left: 50px;
     margin-top: -20px;
-}
-
-#notefox-account-manage-section .option-settings {
-    padding: 0px;
 }
 
 .description-option-settings {
@@ -4782,7 +5283,8 @@ option {
 }
 
 #tag-select-grid,
-.tag-select-grid {
+.tag-select-grid,
+#custom-select-container-tag-select-grid {
     background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
     grid-area: tag; /*# This is the name of the area*/
 }

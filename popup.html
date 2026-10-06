@@ -34,19 +34,42 @@ Created by Saverio Morelli - saveriomorelli.com
             type="button" value="" id="page-button" class="tab" tabindex="1"/><input
             type="button" value="•••" id="tab-other-button" class="tab" tabindex="1"/>
     </div>
-    <div id="notes-section">
-        <input type="text" id="title-notes" class="textbox width-100-important hidden" tabindex="2" value="">
-        <div class="content-notes--container">
-            <div class="content-notes">
-                <div contenteditable="true" id="notes" spellcheck="true" tabindex="2" placeholder=""></div>
+    <div id="notes-content-wrapper">
+        <div id="notes-list-section" class="hidden">
+            <div id="notes-list-container"></div>
+            <div id="new-note-button-list" class="hidden" tabindex="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </div>
+        </div>
+        <div id="notes-section">
+            <div id="notes-editor-toolbar" class="hidden">
+                <div id="back-to-list-button" class="toolbar-icon-button toolbar-icon-button-orange" tabindex="2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    <span id="back-to-list-button-text"></span>
+                </div>
+                <div id="delete-note-button" class="toolbar-icon-button toolbar-icon-button-red" tabindex="2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    <span id="delete-note-button-text"></span>
+                </div>
+            </div>
+            <input type="text" id="title-notes" class="textbox width-100-important hidden" tabindex="2" value="">
+            <div class="content-notes--container">
+                <div class="content-notes">
+                    <div contenteditable="true" id="notes" spellcheck="true" tabindex="2" placeholder=""></div>
+                </div>
+                <div id="floating-actions">
+                    <input type="button" value="" id="open-sticky-button" class="button button-trigger-sticky" tabindex="2"/>
+                    <div id="new-note-button" class="hidden" tabindex="2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </div>
+                </div>
+            </div>
+            <div id="format-buttons" tabindex="2"></div>
         </div>
         <div id="panel-other-tabs" class="hidden" tabindex="1">
             <div id="arrow-down"></div>
             <div id="subdomains-list"></div>
         </div>
-        <div id="format-buttons" tabindex="2"></div>
-        <input type="button" value="" id="open-sticky-button" class="button button-trigger-sticky" tabindex="2"/>
     </div>
     <div id="last-updated-section" class="padding-top-10">
         Last update: ----/--/-- --:--:--
@@ -139,6 +162,19 @@ Created by Saverio Morelli - saveriomorelli.com
                    class="button message-popup-content-buttons-button1" tabindex="2"/>
             <input type="button" value="" id="telemetry-added-ok-button"
                    class="button message-popup-content-buttons-button2" tabindex="1"/>
+        </div>
+    </div>
+</div>
+<!--delete note confirmation popup-->
+<div id="delete-note-confirm-section" class="message-popup">
+    <div id="delete-note-confirm-content" class="section message-popup-content">
+        <div id="delete-note-confirm-title" class="padding-10 message-popup-content-title"></div>
+        <div id="delete-note-confirm-text" class="padding-10 message-popup-content-description"></div>
+        <div id="delete-note-confirm-buttons" class="padding-10 text-align-right message-popup-content-buttons">
+            <input type="button" value="" id="delete-note-confirm-cancel-button"
+                   class="button" tabindex="1"/>
+            <input type="button" value="" id="delete-note-confirm-delete-button"
+                   class="button button-red" tabindex="2"/>
         </div>
     </div>
 </div>

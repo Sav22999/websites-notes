@@ -2,6 +2,82 @@ var lang = "";
 
 var strings = []; //strings[language_code] = {};
 
+// Per-note fields: everything that lives inside an all-notes[] entry.
+// Only "type" and "domain" stay at the entry level.
+const NOTE_FIELDS = ["notes", "title", "last-update", "content", "tag-colour", "tags-text", "tag-folder", "sticky", "minimized", "pinned", "coords", "sizes", "opacity", "minimized-pos"];
+
+/**
+ * Convert a single legacy entry (primary note at entry level + notes-extra[])
+ * into the unified model (type/domain at entry level + all-notes[]).
+ * Idempotent: an entry that already has all-notes is returned untouched.
+ */
+function migrateEntryToAllNotes(entry) {
+    if (!entry || typeof entry !== "object") return entry;
+    if (Array.isArray(entry["all-notes"])) return entry;
+
+    let primary = {};
+    for (let field of NOTE_FIELDS) {
+        if (entry[field] !== undefined) primary[field] = entry[field];
+    }
+    if (primary["tags-text"] === undefined) primary["tags-text"] = [];
+    if (primary["tag-folder"] === undefined) primary["tag-folder"] = "";
+
+    let allNotes = [primary];
+    if (Array.isArray(entry["notes-extra"])) {
+        for (let extra of entry["notes-extra"]) {
+            let note = Object.assign({}, extra);
+            if (note["tags-text"] === undefined) note["tags-text"] = [];
+            if (note["tag-folder"] === undefined) note["tag-folder"] = "";
+            allNotes.push(note);
+        }
+    }
+
+    for (let field of NOTE_FIELDS) delete entry[field];
+    delete entry["notes-extra"];
+    entry["all-notes"] = allNotes;
+    return entry;
+}
+
+/**
+ * Migrate every entry of a websites object in place (idempotent).
+ */
+function migrateWebsites(websites) {
+    if (!websites || typeof websites !== "object") return websites;
+    for (let url in websites) {
+        migrateEntryToAllNotes(websites[url]);
+    }
+    return websites;
+}
+
+function entryHasAnyNotes(entry) {
+    if (!entry || !Array.isArray(entry["all-notes"])) return false;
+    return entry["all-notes"].some(n => n["notes"] !== undefined && n["notes"] !== "");
+}
+
+function entryHasAnyLastUpdate(entry) {
+    if (!entry || !Array.isArray(entry["all-notes"])) return false;
+    return entry["all-notes"].some(n => n["last-update"] !== undefined && n["last-update"] !== null);
+}
+
+/**
+ * Newest last-update string among an entry's notes (or null), used for display/sort.
+ */
+function entryLastUpdateStr(entry) {
+    if (!entry || !Array.isArray(entry["all-notes"])) return null;
+    let newest = null;
+    let newestTime = -Infinity;
+    for (let note of entry["all-notes"]) {
+        if (note["last-update"]) {
+            let t = new Date(note["last-update"]).getTime();
+            if (!isNaN(t) && t > newestTime) {
+                newestTime = t;
+                newest = note["last-update"];
+            }
+        }
+    }
+    return newest;
+}
+
 //TODO!manually: add new languages here
 const supportedLanguages = [
     "en",
@@ -67,6 +143,31 @@ let languageToUse = browser.i18n.getUILanguage().toString();
 if (!supportedLanguages.includes(languageToUse)) languageToUse = "en";
     if (supportedLanguages.includes(languageToUse.split("-")[0]))
     languageToUse = languageToUse.split("-")[0];
+
+/**
+ * Resolve a string of the catalogue, falling back to English when the selected
+ * language does not have that key yet (so it never renders "undefined")
+ * @param key {string} - the key of the string
+ * @param fallback {string} - the text to be used when no catalogue has the key
+ * @returns {string}
+ */
+function getString(key, fallback = "") {
+    if (typeof strings !== "undefined" && strings !== null) {
+        if (strings[languageToUse] !== undefined && strings[languageToUse][key] !== undefined) return strings[languageToUse][key];
+        if (strings["en"] !== undefined && strings["en"][key] !== undefined) return strings["en"][key];
+    }
+    return fallback;
+}
+
+/**
+ * Message of an error code of the API: an unknown code falls back to the
+ * generic one (499)
+ * @param code {number|string} - the code answered by the API
+ * @returns {string}
+ */
+function getAccountErrorString(code) {
+    return getString("notefox-account-message-error-" + code, getString("notefox-account-message-error-499", "Unknown error."));
+}
 
 function checkDropdownScrollbar(dropdown, input = null) {
     if (!dropdown) return;
@@ -347,6 +448,7 @@ let links = {
     review: "https://addons.mozilla.org/firefox/addon/websites-notes/",
     privacy: "https://www.notefox.eu/privacy/",
     terms: "https://www.notefox.eu/terms/",
+    history_sync_help: "https://notefox.eu/help/how-to-get-history-sync",
 };
 
 const links_aside_bar = {

@@ -123,6 +123,7 @@ Created by Saverio Morelli - saveriomorelli.com
                 <div id="title-account" class="user-select-none"></div>
                 <div id="text-account"></div>
                 <div id="message-from-api" class="hidden no-margin margin-top-10-px"></div>
+                <div id="account-server-status" class="section-warning hidden no-margin margin-top-10-px"></div>
             </div>
             <!-- sign up -->
             <div id="notefox-account-signup-section">
@@ -311,6 +312,20 @@ Created by Saverio Morelli - saveriomorelli.com
                             </span>
                     </div>
 
+                    <hr class="manage-group-divider"/>
+
+                    <div class="option-settings" id="manage-otp-row">
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-otp-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-otp-button"
+                                           class="button width-100"/>
+                                    <div id="manage-otp-state" class="width-100-important"></div>
+                                </span>
+                            </span>
+                    </div>
+
                     <div class="option-settings">
                             <span class="item-settings section-grid-container width-100-important">
                                 <span class="title-option-settings section-grid-item-text no-bold"
@@ -321,6 +336,32 @@ Created by Saverio Morelli - saveriomorelli.com
                                 </span>
                             </span>
                     </div>
+
+                    <hr class="manage-group-divider"/>
+
+                    <div class="option-settings" id="manage-history-row">
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-history-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-history-button"
+                                           class="button width-100"/>
+                                </span>
+                            </span>
+                    </div>
+
+                    <div class="option-settings" id="manage-sessions-row">
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-sessions-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-sessions-button"
+                                           class="button width-100"/>
+                                </span>
+                            </span>
+                    </div>
+
+                    <hr class="manage-group-divider"/>
 
                     <div class="option-settings">
                             <span class="item-settings section-grid-container width-100-important">
@@ -349,6 +390,10 @@ Created by Saverio Morelli - saveriomorelli.com
                     <input class="textbox account-section--change-password--confirm-new-password width-100 label-with-image password-label account-text"
                            id="change-password-new-password-confirm" type="password">
                 </div>
+                <div class="padding-10 hidden" id="account-section--change-password-verify-grid">
+                    <input class="textbox account-section--change-password--code label-with-image code-label account-text"
+                           id="change-password-code" type="text">
+                </div>
                 <div class="padding-10 text-align-right">
                     <div class="lds-spinner hidden" id="loading-change-password">
                         <div></div>
@@ -368,6 +413,93 @@ Created by Saverio Morelli - saveriomorelli.com
                            class="button float-left button-close-notefox-account"/>
                     <input type="button" value="" id="change-password-submit"
                            class="button edit-button"/>
+
+                    <input class="button hidden" id="change-password-new-code" value="" type="button"/>
+                    <input class="button edit-button hidden" id="change-password-verify-submit" value=""
+                           type="button"/>
+                </div>
+            </div>
+
+            <!-- two-factor authentication -->
+            <div id="notefox-account-otp-section">
+                <div class="padding-10" id="account-section--otp-text"></div>
+                <div class="padding-10 hidden" id="account-section--otp-grid">
+                    <input class="textbox account-section--otp--password width-100 label-with-image password-label account-text"
+                           id="otp-password" type="password">
+                </div>
+                <div class="padding-10 hidden" id="account-section--otp-verify-grid">
+                    <input class="textbox account-section--otp--code label-with-image code-label account-text"
+                           id="otp-code" type="text">
+                </div>
+                <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-otp">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <input type="button" value="" id="otp-cancel"
+                           class="button float-left button-close-notefox-account"/>
+                    <input class="button hidden" id="otp-submit" value="" type="button"/>
+                    <input class="button hidden" id="otp-verify-submit" value="" type="button"/>
+                </div>
+            </div>
+
+            <!-- synchronisation history -->
+            <div id="notefox-account-history-section">
+                <div class="padding-10" id="account-section--history-text"></div>
+                <div class="padding-10" id="account-section--history-list"></div>
+                <div class="padding-10 account-section-buttons">
+                    <input type="button" value="" id="history-cancel"
+                           class="button margin-right-auto button-close-notefox-account"/>
+                    <div class="lds-spinner hidden" id="loading-history">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <input class="button hidden" id="history-how-to-get" value="" type="button"/>
+                    <input class="button hidden" id="history-restore" value="" type="button"/>
+                </div>
+            </div>
+
+            <!-- active sessions -->
+            <div id="notefox-account-sessions-section">
+                <div class="padding-10" id="account-section--sessions-text"></div>
+                <div class="padding-10" id="account-section--sessions-list"></div>
+                <div class="padding-10 account-section-buttons">
+                    <input type="button" value="" id="sessions-cancel"
+                           class="button margin-right-auto button-close-notefox-account"/>
+                    <div class="lds-spinner hidden" id="loading-sessions">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                 </div>
             </div>
 
@@ -489,6 +621,13 @@ Created by Saverio Morelli - saveriomorelli.com
         </span>
     </div>-->
 
+        <!--Search settings-->
+        <div class="section sticky-section" id="settings-search-section">
+            <div id="settings-search-container" class="custom-tag-input-container">
+                <input type="text" id="settings-search-input" class="tag-inner-input" placeholder="" tabindex="1"/>
+            </div>
+        </div>
+
         <!--====================-->
         <!--General section-->
         <div class="section-title-settings" id="general-title-settings"></div>
@@ -545,6 +684,28 @@ Created by Saverio Morelli - saveriomorelli.com
             </label>
             <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                   id="show-fullscreen-button-in-all-notes-detailed-text"></span>
+        </div>
+
+        <!--Context menu create note section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="context-menu-create-note-text"></span>
+                <input type="checkbox" id="context-menu-create-note-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="context-menu-create-note-detailed-text"></span>
+        </div>
+
+        <!--Enable multiple notes per type section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="multiple-notes-per-type-text"></span>
+                <input type="checkbox" id="multiple-notes-per-type-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="multiple-notes-per-type-detailed-text"></span>
         </div>
 
         <hr class="hr-big-space">
@@ -1241,6 +1402,17 @@ Created by Saverio Morelli - saveriomorelli.com
             </span>
         </div>
 
+        <!--Expand all websites by default in all notes-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="expand-all-websites-text"></span>
+                <input type="checkbox" id="expand-all-websites-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="expand-all-websites-detailed-text"></span>
+        </div>
+
         <hr class="hr-big-space">
 
         <div class="section-title-settings" id="sticky-notes-title-settings"></div>
@@ -1254,6 +1426,17 @@ Created by Saverio Morelli - saveriomorelli.com
             </label>
             <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                   id="immersive-sticky-notes-detailed-text"></span>
+        </div>
+
+        <!--Default sticky pinned section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="default-sticky-pinned-text"></span>
+                <input type="checkbox" id="default-sticky-pinned-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="default-sticky-pinned-detailed-text"></span>
         </div>
 
         <!--Default sticky size section-->

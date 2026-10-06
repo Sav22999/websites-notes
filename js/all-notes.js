@@ -50,9 +50,12 @@ let filtersSearchTerms = [];
 function getExistingFolders() {
     let folders = new Set();
     for (let url in websites_json) {
-        let folder = websites_json[url]["tag-folder"];
-        if (folder && folder !== "") {
-            folders.add(folder);
+        let entry = websites_json[url];
+        if (entry && Array.isArray(entry["all-notes"])) {
+            for (let note of entry["all-notes"]) {
+                let folder = note["tag-folder"];
+                if (folder && folder !== "") folders.add(folder);
+            }
         }
     }
     return Array.from(folders).sort();
@@ -565,8 +568,11 @@ function setLanguageUI() {
             function getAllTags() {
                 let tags = new Set();
                 for (let url in websites_json) {
-                    if (websites_json[url]["tags-text"]) {
-                        websites_json[url]["tags-text"].forEach(t => tags.add(t.toLowerCase()));
+                    let entry = websites_json[url];
+                    if (entry && Array.isArray(entry["all-notes"])) {
+                        for (let note of entry["all-notes"]) {
+                            if (Array.isArray(note["tags-text"])) note["tags-text"].forEach(t => tags.add(t.toLowerCase()));
+                        }
                     }
                 }
                 return Array.from(tags).sort();
@@ -1104,6 +1110,7 @@ function loadDataFromBrowser(called_by = null, generate_section = true) {
             websites_json = {};
             if (value["websites"] !== undefined) {
                 websites_json = value["websites"];
+                migrateWebsites(websites_json);
                 websites_json_to_show = websites_json;
             }
             //console.log(JSON.stringify(websites_json));
@@ -1130,6 +1137,7 @@ function loadDataFromBrowser(called_by = null, generate_section = true) {
             if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
             if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
             if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
+            if (settings_json["expand-all-websites"] === undefined) settings_json["expand-all-websites"] = true;
 
             //console.log(JSON.stringify(settings_json));
             if (generate_section) {
@@ -1177,7 +1185,7 @@ function clearAllNotesDomain(url) {
     }
 }
 
-function clearAllNotesPage(url, isDomain = false) {
+function clearAllNotesPage(url, isDomain = false, noteIndex = 0) {
     let messageToShow = all_strings["clear-all-notes-page-without-url-confirmation"];
     if (!isDomain) {
         messageToShow = all_strings["clear-all-notes-page-with-confirmation"].replaceAll("{{url}}", url);
@@ -1192,8 +1200,13 @@ function clearAllNotesPage(url, isDomain = false) {
     }
 
     if (confirmation) {
-        //delete the selected page
-        delete websites_json[url];
+        let entry = websites_json[url];
+        if (entry && Array.isArray(entry["all-notes"])) {
+            entry["all-notes"].splice(noteIndex, 1);
+            if (entry["all-notes"].length === 0) delete websites_json[url];
+        } else {
+            delete websites_json[url];
+        }
         websites_json_to_show = websites_json;
 
         sync_local.set({"websites": websites_json}, function () {
@@ -1286,6 +1299,11 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                                 browser.tabs.create({url: domain});
                             }
                         }
+                        let toggleBtn = document.createElement("span");
+                        toggleBtn.className = "domain-toggle";
+                        toggleBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+                        h2_container.prepend(toggleBtn);
+
                         h2_container.append(h2);
 
                         section.append(input_clear_all_notes_domain);
@@ -1293,6 +1311,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                     }
 
                     let all_pages = document.createElement("div");
+                    all_pages.className = "domain-pages";
 
                     //console.log(JSON.stringify(websites_json_by_domain[domain]));
                     let pages_added = 0;
@@ -1300,11 +1319,6 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                     if (websites_json_to_show[domain] !== undefined) {
                         //there is notes also for the domain
                         let urlPageDomain = domain;
-                        let page = document.createElement("div");
-                        page.classList.add("sub-section");
-                        let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
-                        let notes = websites_json_to_show[urlPageDomain]["notes"];
-                        let title = websites_json_to_show[urlPageDomain]["title"];
 
                         let type_to_show = all_strings["domain-label"];
                         let type_to_use = "domain";
@@ -1312,12 +1326,17 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                             type_to_show = all_strings["global-label"];
                             type_to_use = "global";
                         }
-                        page = generateNotes(page, urlPageDomain, notes, title, "", lastUpdate, type_to_show, urlPageDomain, type_to_use, true);
 
-                        if (page !== -1) {
-                            all_pages.append(page);
-                            pages_added++;
-                        }
+                        let allNotes = Array.isArray(websites_json_to_show[urlPageDomain]["all-notes"]) ? websites_json_to_show[urlPageDomain]["all-notes"] : [];
+                        allNotes.forEach((noteObj, noteIdx) => {
+                            let page = document.createElement("div");
+                            page.classList.add("sub-section");
+                            page = generateNotes(page, urlPageDomain, noteObj["notes"], noteObj["title"], noteObj["content"] || "", noteObj["last-update"], type_to_show, urlPageDomain, type_to_use, true, noteIdx);
+                            if (page !== -1) {
+                                all_pages.append(page);
+                                pages_added++;
+                            }
+                        });
                     }
 
                     if (domain !== getGlobalUrl()) {
@@ -1325,28 +1344,44 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                             let urlPage = websites_json_by_domain[domain][index];
                             let urlPageDomain = domain + websites_json_by_domain[domain][index];
                             if (websites_json_to_show[urlPageDomain] !== undefined) {
-                                let page = document.createElement("div");
-                                page.classList.add("sub-section");
-
-                                // console.log(urlPageDomain);
-                                // console.log(websites_json_by_domain);
-                                // console.log(websites_json_to_show);
-                                let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
-                                let title = websites_json_to_show[urlPageDomain]["title"];
-                                let notes = websites_json_to_show[urlPageDomain]["notes"];
-                                let content = websites_json_to_show[urlPageDomain]["content"] || "";
-
-                                page = generateNotes(page, urlPage, notes, title, content, lastUpdate, all_strings["page-label"], urlPageDomain, "page", false);
-
-                                if (page !== -1) {
-                                    all_pages.append(page);
-                                    pages_added++;
-                                }
+                                let allNotes = Array.isArray(websites_json_to_show[urlPageDomain]["all-notes"]) ? websites_json_to_show[urlPageDomain]["all-notes"] : [];
+                                allNotes.forEach((noteObj, noteIdx) => {
+                                    let page = document.createElement("div");
+                                    page.classList.add("sub-section");
+                                    page = generateNotes(page, urlPage, noteObj["notes"], noteObj["title"], noteObj["content"] || "", noteObj["last-update"], all_strings["page-label"], urlPageDomain, "page", false, noteIdx);
+                                    if (page !== -1) {
+                                        all_pages.append(page);
+                                        pages_added++;
+                                    }
+                                });
                             }
                         }
                     }
 
-                    if (pages_added > 0) section.append(all_pages);
+                    if (pages_added > 0) {
+                        let shouldCollapse = !(settings_json["expand-all-websites"] === true || settings_json["expand-all-websites"] === "yes");
+                        if (shouldCollapse) {
+                            all_pages.classList.add("collapsed");
+                        }
+                        section.append(all_pages);
+                        let toggleBtn = section.querySelector(".domain-toggle");
+                        if (toggleBtn) {
+                            if (shouldCollapse) toggleBtn.classList.add("collapsed");
+                            toggleBtn.closest(".h2-container").style.cursor = "pointer";
+                            toggleBtn.closest(".h2-container").addEventListener("click", function (e) {
+                                if (e.target.closest(".go-to-external")) return;
+                                let pages = this.parentElement.querySelector(".domain-pages");
+                                let toggle = this.querySelector(".domain-toggle");
+                                if (pages.classList.contains("collapsed")) {
+                                    pages.classList.remove("collapsed");
+                                    toggle.classList.remove("collapsed");
+                                } else {
+                                    pages.classList.add("collapsed");
+                                    toggle.classList.add("collapsed");
+                                }
+                            });
+                        }
+                    }
 
                     document.getElementById("all-website-sections").append(section);
 
@@ -1517,46 +1552,55 @@ function search(value = "") {
         } else results.classList.add("hidden");
         for (const website in websites_json) {
             let current_website_json = websites_json[website];
-            let condition_tag_color = filtersColors.indexOf(current_website_json["tag-colour"].toLowerCase()) !== -1 || filtersColors.length === 0;
+            let notesArr = Array.isArray(current_website_json["all-notes"]) ? current_website_json["all-notes"] : [];
             let condition_type = filtersTypes.indexOf(getType(websites_json[website], website)) !== -1 || filtersTypes.length === 0;
 
-            let condition_folder = true;
-            if (filtersFolder.length > 0) {
-                condition_folder = filtersFolder.includes(current_website_json["tag-folder"] || "");
-            }
+            // the entry is shown if ANY of its notes satisfies all active per-note conditions
+            let entryMatches = condition_type && notesArr.some(note => {
+                let noteColour = (note["tag-colour"] || "none").toLowerCase();
+                let cColor = filtersColors.length === 0 || filtersColors.indexOf(noteColour) !== -1;
 
-            let condition_tags_text = true;
-            if (filtersTagsText.length > 0) {
-                if (current_website_json["tags-text"] && Array.isArray(current_website_json["tags-text"])) {
-                    condition_tags_text = filtersTagsText.every(ft => current_website_json["tags-text"].some(t => t.toLowerCase() === ft.toLowerCase()));
-                } else {
-                    condition_tags_text = false;
+                let cFolder = true;
+                if (filtersFolder.length > 0) {
+                    cFolder = filtersFolder.includes(note["tag-folder"] || "");
                 }
-            }
 
-            //if (condition_type) console.log(getType(websites_json[website], website) + "   " + JSON.stringify(websites_json[website]))
-            let title_to_use = "";
-            if (current_website_json["title"] !== undefined) title_to_use = current_website_json["title"].toLowerCase();
-
-            if (valid_results === 0) {
-                if (condition_tag_color && condition_type && condition_folder && condition_tags_text) {
-                    websites_json_to_show[website] = websites_json[website];
+                let cTags = true;
+                if (filtersTagsText.length > 0) {
+                    cTags = Array.isArray(note["tags-text"]) && filtersTagsText.every(ft => note["tags-text"].some(t => t.toLowerCase() === ft.toLowerCase()));
                 }
-            } else {
-                let anyMatch = valueToUse.some(key => {
-                    key = key.toLowerCase();
-                    let contentMatch = settings_json["search-page-content"] && current_website_json["content"] && current_website_json["content"].toLowerCase().includes(key);
-                    let folderMatch = current_website_json["tag-folder"] && current_website_json["tag-folder"].toLowerCase().includes(key);
-                    let tagsMatch = current_website_json["tags-text"] && Array.isArray(current_website_json["tags-text"]) && current_website_json["tags-text"].some(t => t.toLowerCase().includes(key));
-                    return (current_website_json["notes"].toLowerCase().includes(key) || contentMatch || current_website_json["domain"].toLowerCase().includes(key) || current_website_json["last-update"].toLowerCase().includes(key) || title_to_use.includes(key) || website.includes(key) || folderMatch || tagsMatch);
-                });
 
-                if (anyMatch && condition_tag_color && condition_type && condition_folder && condition_tags_text) {
-                    websites_json_to_show[website] = websites_json[website];
+                let termOk = true;
+                if (valid_results > 0) {
+                    let title_to_use = (note["title"] || "").toLowerCase();
+                    termOk = valueToUse.some(key => {
+                        key = key.toLowerCase();
+                        let contentMatch = settings_json["search-page-content"] && note["content"] && note["content"].toLowerCase().includes(key);
+                        let folderMatch = note["tag-folder"] && note["tag-folder"].toLowerCase().includes(key);
+                        let tagsMatch = Array.isArray(note["tags-text"]) && note["tags-text"].some(t => t.toLowerCase().includes(key));
+                        let notesMatch = (note["notes"] || "").toLowerCase().includes(key);
+                        let domainMatch = (current_website_json["domain"] || "").toLowerCase().includes(key);
+                        let lastUpdateMatch = (note["last-update"] || "").toLowerCase().includes(key);
+                        return notesMatch || contentMatch || domainMatch || lastUpdateMatch || title_to_use.includes(key) || website.includes(key) || folderMatch || tagsMatch;
+                    });
                 }
+
+                return cColor && cFolder && cTags && termOk;
+            });
+
+            if (entryMatches) {
+                websites_json_to_show[website] = websites_json[website];
             }
         }
         loadAllWebsites(true, sort_by_selected, false);
+        if (valid_results > 0) {
+            highlightSearchResults(valueToUse);
+            document.querySelectorAll(".domain-pages.collapsed").forEach(dp => {
+                dp.classList.remove("collapsed");
+                let toggle = dp.parentElement.querySelector(".domain-toggle");
+                if (toggle) toggle.classList.remove("collapsed");
+            });
+        }
     } catch (e) {
         console.error(`E-S1: ${e}`);
         onError("all-notes.js::search", e.message);
@@ -1577,8 +1621,8 @@ function getType(website, url) {
  * @param data the new data to save: {notes, title}
  * @param pageLastUpdate the element to update the last update
  */
-function onInputText(url, data, pageLastUpdate) {
-    browser.runtime.sendMessage({from: "all-notes", type: "inline-edit", url: url, data: data});
+function onInputText(url, data, pageLastUpdate, noteIndex = 0) {
+    browser.runtime.sendMessage({from: "all-notes", type: "inline-edit", url: url, data: data, noteIndex: noteIndex});
     pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(data["lastUpdate"]));
     sendMessageUpdateToBackground();
 }
@@ -1637,6 +1681,7 @@ function updateWebsiteLink(oldUrl, newUrl, typeToUse) {
 
         sync_local.get("websites", function (value) {
             websites_json = value["websites"] || {};
+            migrateWebsites(websites_json);
             if (websites_json[oldUrl] === undefined) {
                 resolve(false);
                 return;
@@ -1663,7 +1708,6 @@ function updateWebsiteLink(oldUrl, newUrl, typeToUse) {
                 }
             }
 
-            websites_json[newUrl]["last-update"] = getDate();
             websites_json_to_show = websites_json;
 
             sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
@@ -1677,7 +1721,7 @@ function sendMessageUpdateToBackground() {
     browser.runtime.sendMessage({"updated": true});
 }
 
-function generateNotes(page, url, notes, title, content, lastUpdate, type, fullUrl, type_to_use, domain_again) {
+function generateNotes(page, url, notes, title, content, lastUpdate, type, fullUrl, type_to_use, domain_again, noteIndex = 0) {
     try {
         let pageContentLeft = document.createElement("div")
         pageContentLeft.classList.add("page-content-left")
@@ -1707,7 +1751,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             if (fullUrl === url) {
                 isDomain = true;
             }
-            clearAllNotesPage(fullUrl, isDomain);
+            clearAllNotesPage(fullUrl, isDomain, noteIndex);
             sendTelemetry(`clear-all-notes-page`, "all-notes.js", fullUrl);
         }
         let pageTitleH3 = document.createElement("h3");
@@ -1833,10 +1877,11 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         let tagsColour = document.createElement("select");
         let colourList = colourListDefault;
         colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
+        let noteForColour = (websites_json[fullUrl] !== undefined && Array.isArray(websites_json[fullUrl]["all-notes"])) ? websites_json[fullUrl]["all-notes"][noteIndex] : undefined;
         for (let colour in colourList) {
             let tagColour = document.createElement("option");
             tagColour.value = colour;
-            if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] !== undefined && websites_json[fullUrl]["tag-colour"] === colour) {
+            if (noteForColour !== undefined && noteForColour["tag-colour"] !== undefined && noteForColour["tag-colour"] === colour) {
                 tagColour.selected = true;
                 pageContentLeft.classList.add("tag-colour-" + colour + "-bg");
             }
@@ -1846,7 +1891,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             tagsColour.append(tagColour);
         }
         tagsColour.onchange = function () {
-            changeTagColour(fullUrl, tagsColour.value, type_to_use);
+            changeTagColour(fullUrl, tagsColour.value, type_to_use, noteIndex);
             sendTelemetry(`change-tag-colour::${tagsColour.value}`, "all-notes.js", fullUrl);
         }
 
@@ -1910,7 +1955,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             let data = {
                 title: pageTitleH3.textContent, lastUpdate: getDate()
             }
-            onInputText(fullUrl, data, pageLastUpdate);
+            onInputText(fullUrl, data, pageLastUpdate, noteIndex);
         }
         row2.classList.add("hidden");
         row2.append(pageTitle)
@@ -1935,7 +1980,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             let data = {
                 notes: textNotes.innerHTML, lastUpdate: getDate()
             }
-            onInputText(fullUrl, data, pageLastUpdate);
+            onInputText(fullUrl, data, pageLastUpdate, noteIndex);
         }
         textNotes.onpaste = function (e) {
             //Ctrl+V (or Cmd+V on Mac) to paste WITH HTML formatting, Ctrl+Shift+V (or Cmd+Shift+V on Mac) to paste WITHOUT HTML formatting
@@ -2012,13 +2057,13 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         // 1. Folder View Component
         let folderViewContainer = document.createElement("div");
         folderViewContainer.className = "folder-view-container";
-        renderFolderView(folderViewContainer, fullUrl);
+        renderFolderView(folderViewContainer, fullUrl, false, noteIndex);
         tagsBottomContainer.append(folderViewContainer);
 
         // 2. Tags Text
         let tagsTextContainerAll = document.createElement("div");
         tagsTextContainerAll.className = "tags-text-container-all";
-        renderTagsAllNotes(tagsTextContainerAll, fullUrl);
+        renderTagsAllNotes(tagsTextContainerAll, fullUrl, false, noteIndex);
         tagsBottomContainer.append(tagsTextContainerAll);
 
         pageContentRight.append(tagsBottomContainer);
@@ -2037,15 +2082,17 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
     }
 }
 
-function renderTagsAllNotes(container, fullUrl, shouldFocus = false) {
+function renderTagsAllNotes(container, fullUrl, shouldFocus = false, noteIndex = 0) {
     if (!container) return;
+
+    let noteObj = (websites_json[fullUrl] !== undefined && Array.isArray(websites_json[fullUrl]["all-notes"])) ? websites_json[fullUrl]["all-notes"][noteIndex] : undefined;
 
     // Aggiorna il timestamp nella UI risalendo al genitore
     let pageContentRight = container.closest(".page-content-right");
     if (pageContentRight) {
         let lastUpdateElem = pageContentRight.querySelector(".sub-section-last-update");
-        if (lastUpdateElem && websites_json[fullUrl] && websites_json[fullUrl]["last-update"]) {
-            lastUpdateElem.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(websites_json[fullUrl]["last-update"]));
+        if (lastUpdateElem && noteObj && noteObj["last-update"]) {
+            lastUpdateElem.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(noteObj["last-update"]));
         }
     }
 
@@ -2053,8 +2100,8 @@ function renderTagsAllNotes(container, fullUrl, shouldFocus = false) {
     container.className = "custom-tag-input-container tags-text-container-all";
 
     let tags = [];
-    if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tags-text"] !== undefined) {
-        tags = websites_json[fullUrl]["tags-text"];
+    if (noteObj !== undefined && noteObj["tags-text"] !== undefined) {
+        tags = noteObj["tags-text"];
     }
 
     if (Array.isArray(tags)) {
@@ -2076,7 +2123,7 @@ function renderTagsAllNotes(container, fullUrl, shouldFocus = false) {
             remove.textContent = "×";
             remove.onclick = function (e) {
                 e.stopPropagation();
-                removeTagAllNotes(fullUrl, index, container);
+                removeTagAllNotes(fullUrl, index, container, noteIndex);
             };
             chip.appendChild(remove);
             container.appendChild(chip);
@@ -2102,8 +2149,11 @@ function renderTagsAllNotes(container, fullUrl, shouldFocus = false) {
     function getAvailableTags() {
         let all = new Set();
         for (let url in websites_json) {
-            if (websites_json[url]["tags-text"]) {
-                websites_json[url]["tags-text"].forEach(t => all.add(t.toLowerCase()));
+            let e = websites_json[url];
+            if (e && Array.isArray(e["all-notes"])) {
+                for (let n of e["all-notes"]) {
+                    if (Array.isArray(n["tags-text"])) n["tags-text"].forEach(t => all.add(t.toLowerCase()));
+                }
             }
         }
         let current = tags.map(t => t.toLowerCase());
@@ -2122,7 +2172,7 @@ function renderTagsAllNotes(container, fullUrl, shouldFocus = false) {
                 item.onmousedown = function (e) {
                     e.preventDefault();
                     input.value = match;
-                    addTagAllNotes(input, fullUrl, container);
+                    addTagAllNotes(input, fullUrl, container, noteIndex);
                     tagDropdown.classList.add("hidden");
                 };
                 tagDropdown.appendChild(item);
@@ -2145,15 +2195,19 @@ function renderTagsAllNotes(container, fullUrl, shouldFocus = false) {
         updateTagDropdown(this.value.trim());
     };
     input.onblur = function () {
+        // committing on blur (not only on Enter) so a typed-but-unconfirmed tag is not lost
+        if (this.value.trim() !== "") {
+            addTagAllNotes(this, fullUrl, container, noteIndex);
+        }
         setTimeout(() => tagDropdown.classList.add("hidden"), 150);
     };
     input.onkeydown = function (e) {
         if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            addTagAllNotes(this, fullUrl, container);
+            addTagAllNotes(this, fullUrl, container, noteIndex);
             tagDropdown.classList.add("hidden");
         } else if (e.key === "Backspace" && this.value === "" && tags.length > 0) {
-            removeTagAllNotes(fullUrl, tags.length - 1, container);
+            removeTagAllNotes(fullUrl, tags.length - 1, container, noteIndex);
         } else if (e.key === "Escape") {
             tagDropdown.classList.add("hidden");
         }
@@ -2208,15 +2262,17 @@ function applyFolderFilter(folder) {
     }
 }
 
-function renderFolderView(container, fullUrl, shouldFocus = false) {
+function renderFolderView(container, fullUrl, shouldFocus = false, noteIndex = 0) {
     if (!container) return;
+
+    let noteObj = (websites_json[fullUrl] && Array.isArray(websites_json[fullUrl]["all-notes"])) ? websites_json[fullUrl]["all-notes"][noteIndex] : undefined;
 
     // Aggiorna il timestamp nella UI risalendo al genitore
     let pageContentRight = container.closest(".page-content-right");
     if (pageContentRight) {
         let lastUpdateElem = pageContentRight.querySelector(".sub-section-last-update");
-        if (lastUpdateElem && websites_json[fullUrl] && websites_json[fullUrl]["last-update"]) {
-            lastUpdateElem.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(websites_json[fullUrl]["last-update"]));
+        if (lastUpdateElem && noteObj && noteObj["last-update"]) {
+            lastUpdateElem.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(noteObj["last-update"]));
         }
     }
 
@@ -2226,7 +2282,7 @@ function renderFolderView(container, fullUrl, shouldFocus = false) {
     container.style.overflowX = "auto";
     container.style.overflowY = "hidden";
 
-    let currentFolder = (websites_json[fullUrl] && websites_json[fullUrl]["tag-folder"]) ? websites_json[fullUrl]["tag-folder"] : "";
+    let currentFolder = (noteObj && noteObj["tag-folder"]) ? noteObj["tag-folder"] : "";
 
     if (currentFolder) {
         let chip = document.createElement("div");
@@ -2248,7 +2304,7 @@ function renderFolderView(container, fullUrl, shouldFocus = false) {
         remove.textContent = "×";
         remove.onclick = function (e) {
             e.stopPropagation();
-            changeFolderAllNotes(fullUrl, "", container);
+            changeFolderAllNotes(fullUrl, "", container, noteIndex);
         };
         chip.appendChild(remove);
         container.appendChild(chip);
@@ -2280,7 +2336,7 @@ function renderFolderView(container, fullUrl, shouldFocus = false) {
                     item.textContent = match;
                     item.onmousedown = function (e) {
                         e.preventDefault();
-                        changeFolderAllNotes(fullUrl, match, container);
+                        changeFolderAllNotes(fullUrl, match, container, noteIndex);
                         dropdown.classList.add("hidden");
                     };
                     dropdown.appendChild(item);
@@ -2303,6 +2359,11 @@ function renderFolderView(container, fullUrl, shouldFocus = false) {
             updateFolderDropdown(this.value.trim());
         };
         input.onblur = function () {
+            // committing on blur (not only on Enter) so a typed-but-unconfirmed folder is not lost
+            let val = this.value.trim();
+            if (val !== "") {
+                changeFolderAllNotes(fullUrl, val, container, noteIndex);
+            }
             setTimeout(() => dropdown.classList.add("hidden"), 150);
         };
         input.onkeydown = function (e) {
@@ -2310,7 +2371,7 @@ function renderFolderView(container, fullUrl, shouldFocus = false) {
                 e.preventDefault();
                 let val = this.value.trim();
                 if (val) {
-                    changeFolderAllNotes(fullUrl, val, container);
+                    changeFolderAllNotes(fullUrl, val, container, noteIndex);
                     dropdown.classList.add("hidden");
                 }
             } else if (e.key === "Escape") {
@@ -2330,30 +2391,29 @@ function renderFolderView(container, fullUrl, shouldFocus = false) {
 }
 
 
-function addTagAllNotes(input, fullUrl, container) {
+function ensureNoteAt(entryUrl, noteIndex) {
+    if (websites_json[entryUrl] === undefined) websites_json[entryUrl] = {"all-notes": []};
+    migrateEntryToAllNotes(websites_json[entryUrl]);
+    if (!Array.isArray(websites_json[entryUrl]["all-notes"])) websites_json[entryUrl]["all-notes"] = [];
+    if (!websites_json[entryUrl]["all-notes"][noteIndex]) {
+        websites_json[entryUrl]["all-notes"][noteIndex] = {"notes": "", "title": "", "tags-text": [], "tag-folder": ""};
+    }
+    return websites_json[entryUrl]["all-notes"][noteIndex];
+}
+
+function addTagAllNotes(input, fullUrl, container, noteIndex = 0) {
     let tag = input.value.trim().toLowerCase();
     if (tag !== "") {
         sync_local.get("websites", function (value) {
             websites_json = value["websites"] || {};
-            if (websites_json[fullUrl] === undefined) {
-                websites_json[fullUrl] = {
-                    "notes": "",
-                    "title": "",
-                    "last-update": getDate(),
-                    "tag-colour": "none",
-                    "tags-text": [],
-                    "tag-folder": ""
-                };
-            }
-            if (websites_json[fullUrl]["tags-text"] === undefined) {
-                websites_json[fullUrl]["tags-text"] = [];
-            }
-            if (!websites_json[fullUrl]["tags-text"].includes(tag)) {
-                websites_json[fullUrl]["tags-text"].push(tag);
-                websites_json[fullUrl]["last-update"] = getDate();
+            let note = ensureNoteAt(fullUrl, noteIndex);
+            if (note["tags-text"] === undefined) note["tags-text"] = [];
+            if (!note["tags-text"].includes(tag)) {
+                note["tags-text"].push(tag);
+                note["last-update"] = getDate();
                 input.value = "";
                 sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
-                    renderTagsAllNotes(container, fullUrl, true);
+                    renderTagsAllNotes(container, fullUrl, true, noteIndex);
                     sendMessageUpdateToBackground();
                 });
             }
@@ -2361,39 +2421,32 @@ function addTagAllNotes(input, fullUrl, container) {
     }
 }
 
-function removeTagAllNotes(fullUrl, index, container) {
+function removeTagAllNotes(fullUrl, index, container, noteIndex = 0) {
     sync_local.get("websites", function (value) {
         websites_json = value["websites"] || {};
-        if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tags-text"] !== undefined) {
-            websites_json[fullUrl]["tags-text"].splice(index, 1);
-            websites_json[fullUrl]["last-update"] = getDate();
+        migrateWebsites(websites_json);
+        let note = (websites_json[fullUrl] !== undefined && Array.isArray(websites_json[fullUrl]["all-notes"])) ? websites_json[fullUrl]["all-notes"][noteIndex] : undefined;
+        if (note !== undefined && note["tags-text"] !== undefined) {
+            note["tags-text"].splice(index, 1);
+            note["last-update"] = getDate();
             sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
-                renderTagsAllNotes(container, fullUrl, true);
+                renderTagsAllNotes(container, fullUrl, true, noteIndex);
                 sendMessageUpdateToBackground();
             });
         }
     });
 }
 
-function changeFolderAllNotes(fullUrl, folder, container) {
+function changeFolderAllNotes(fullUrl, folder, container, noteIndex = 0) {
     sync_local.get("websites", function (value) {
         websites_json = value["websites"] || {};
-        if (websites_json[fullUrl] === undefined) {
-            websites_json[fullUrl] = {
-                "notes": "",
-                "title": "",
-                "last-update": getDate(),
-                "tag-colour": "none",
-                "tags-text": [],
-                "tag-folder": ""
-            };
-        }
-        websites_json[fullUrl]["tag-folder"] = folder;
-        websites_json[fullUrl]["last-update"] = getDate();
+        let note = ensureNoteAt(fullUrl, noteIndex);
+        note["tag-folder"] = folder;
+        note["last-update"] = getDate();
         sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
             // Se avevamo passato un container per renderFolderView, ri-renderizziamo con focus
             if (typeof container !== 'undefined') {
-                renderFolderView(container, fullUrl, true);
+                renderFolderView(container, fullUrl, true, noteIndex);
             }
             loadDataFromBrowser("FOLDER-ALL", true);
             sendMessageUpdateToBackground();
@@ -2401,22 +2454,19 @@ function changeFolderAllNotes(fullUrl, folder, container) {
     });
 }
 
-function changeTagColour(url, colour) {
+function changeTagColour(url, colour, type_to_use, noteIndex = 0) {
     sync_local.get("websites", function (value) {
         let websites_json = value["websites"] || {};
+        migrateWebsites(websites_json);
         if (websites_json[url] === undefined) {
-            websites_json[url] = {
-                "notes": "",
-                "title": "",
-                "last-update": getDate(),
-                "tag-colour": colour,
-                "tags-text": [],
-                "tag-folder": ""
-            };
-        } else {
-            websites_json[url]["tag-colour"] = colour;
-            websites_json[url]["last-update"] = getDate();
+            websites_json[url] = {"all-notes": []};
         }
+        if (!Array.isArray(websites_json[url]["all-notes"])) websites_json[url]["all-notes"] = [];
+        if (!websites_json[url]["all-notes"][noteIndex]) {
+            websites_json[url]["all-notes"][noteIndex] = {"notes": "", "title": "", "tags-text": [], "tag-folder": ""};
+        }
+        websites_json[url]["all-notes"][noteIndex]["tag-colour"] = colour;
+        websites_json[url]["all-notes"][noteIndex]["last-update"] = getDate();
         sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
             loadDataFromBrowser("H", true);
             sendMessageUpdateToBackground();
@@ -2491,12 +2541,13 @@ function sortOnKeys(dict, dict2, sort_by) {
                 dictToSortDate[domain] = {};
                 dictToSortDate[domain]["last-update"] = null;
                 dictToSortDate[domain]["pages"] = [];
-                if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = dict2[domain]["last-update"];
+                if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = entryLastUpdateStr(dict2[domain]);
                 for (let website in dict2) {
                     if (website.includes(domain)) {
-                        let date1 = new Date(dict2[website]["last-update"]);
+                        let websiteLU = entryLastUpdateStr(dict2[website]);
+                        let date1 = new Date(websiteLU);
                         let date2 = new Date(dictToSortDate[domain]["last-update"]);
-                        if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 < date2) dictToSortDate[domain]["last-update"] = dict2[website]["last-update"];
+                        if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 < date2) dictToSortDate[domain]["last-update"] = websiteLU;
                     }
                 }
             }
@@ -2532,12 +2583,13 @@ function sortOnKeys(dict, dict2, sort_by) {
                 dictToSortDate[domain] = {};
                 dictToSortDate[domain]["last-update"] = null;
                 dictToSortDate[domain]["pages"] = [];
-                if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = dict2[domain]["last-update"];
+                if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = entryLastUpdateStr(dict2[domain]);
                 for (let website in dict2) {
                     if (website.includes(domain)) {
-                        let date1 = new Date(dict2[website]["last-update"]);
+                        let websiteLU = entryLastUpdateStr(dict2[website]);
+                        let date1 = new Date(websiteLU);
                         let date2 = new Date(dictToSortDate[domain]["last-update"]);
-                        if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 > date2) dictToSortDate[domain]["last-update"] = dict2[website]["last-update"];
+                        if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 > date2) dictToSortDate[domain]["last-update"] = websiteLU;
                     }
                 }
             }
@@ -2866,6 +2918,62 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
             </style>`;
     }
+}
+
+function highlightSearchResults(terms) {
+    let noteElements = document.querySelectorAll("#all-website-sections .textarea-all-notes, #all-website-sections .title, #all-website-sections .url");
+    noteElements.forEach(el => {
+        if (el.contentEditable === "true") return;
+        highlightInElement(el, terms);
+    });
+}
+
+function highlightInElement(element, terms) {
+    let walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+    let textNodes = [];
+    while (walker.nextNode()) {
+        textNodes.push(walker.currentNode);
+    }
+    textNodes.forEach(node => {
+        let text = node.textContent;
+        let lower = text.toLowerCase();
+        let ranges = [];
+
+        terms.forEach(term => {
+            let t = term.toLowerCase();
+            let idx = lower.indexOf(t);
+            while (idx !== -1) {
+                ranges.push({start: idx, end: idx + t.length});
+                idx = lower.indexOf(t, idx + 1);
+            }
+        });
+
+        if (ranges.length === 0) return;
+
+        ranges.sort((a, b) => a.start - b.start);
+        let merged = [ranges[0]];
+        for (let i = 1; i < ranges.length; i++) {
+            let last = merged[merged.length - 1];
+            if (ranges[i].start <= last.end) {
+                last.end = Math.max(last.end, ranges[i].end);
+            } else {
+                merged.push(ranges[i]);
+            }
+        }
+
+        let frag = document.createDocumentFragment();
+        let lastIdx = 0;
+        merged.forEach(r => {
+            if (r.start > lastIdx) frag.appendChild(document.createTextNode(text.substring(lastIdx, r.start)));
+            let mark = document.createElement("mark");
+            mark.className = "search-highlight";
+            mark.textContent = text.substring(r.start, r.end);
+            frag.appendChild(mark);
+            lastIdx = r.end;
+        });
+        if (lastIdx < text.length) frag.appendChild(document.createTextNode(text.substring(lastIdx)));
+        node.parentNode.replaceChild(frag, node);
+    });
 }
 
 loaded();

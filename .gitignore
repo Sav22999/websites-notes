@@ -1,3 +1,4 @@
 *.zip
 .idea/*
 */.DS_Store
+/.junie
