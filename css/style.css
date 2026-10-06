@@ -114,6 +114,13 @@ body {
     flex-direction: column;
 }
 
+#notes-content-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
 #notes-section {
     flex: 1;
 }
@@ -139,6 +146,8 @@ body {
         flex-direction: column;
     }
 
+    .opened-as-sidebar #notes-content-wrapper,
+    .popup-resizable-enabled #notes-content-wrapper,
     .opened-as-sidebar #notes-section {
         min-height: 0;
     }
@@ -1134,6 +1143,12 @@ textarea:active,
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
+    min-height: 300px;
+}
+
+.popup-resizable-enabled #notes-list-section,
+.opened-as-sidebar #notes-list-section {
+    min-height: 0;
 }
 
 #new-note-button-list {

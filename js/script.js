@@ -1787,6 +1787,7 @@ function setTab(index, url) {
     current_note_index = 0;
     document.getElementById("notes-editor-toolbar").classList.add("hidden");
     document.getElementById("notes-list-section").classList.add("hidden");
+    document.getElementById("notes-list-container").innerHTML = "";
     document.getElementById("notes-section").classList.remove("hidden");
 
     let multipleNotesEnabled = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
@@ -2719,6 +2720,7 @@ function getOrCreateCurrentNoteObj(supportedUrl) {
 }
 
 function showNotesList(url) {
+    hideTabSubDomains();
     let allNotes = getAllNotesForUrl(url);
     document.getElementById("notes-section").classList.add("hidden");
     document.getElementById("notes-list-section").classList.remove("hidden");
@@ -2791,6 +2793,7 @@ function openNoteAtIndex(index) {
     if (!note) return;
 
     document.getElementById("notes-list-section").classList.add("hidden");
+    document.getElementById("notes-list-container").innerHTML = "";
     document.getElementById("notes-section").classList.remove("hidden");
     document.getElementById("floating-actions").classList.remove("hidden");
     document.getElementById("new-note-button-list").classList.add("hidden");
