@@ -144,6 +144,12 @@ function mergeSnapshots(local, server) {
     const local_websites = local["websites"] !== undefined && local["websites"] !== null ? local["websites"] : {};
     const server_websites = server["websites"] !== undefined && server["websites"] !== null ? server["websites"] : {};
 
+    // Normalize both sides to the all-notes[] model before comparing, so an
+    // old-format snapshot (from the server or a not-yet-updated client) merges
+    // homogeneously. Entry recency uses the newest last-update among its notes.
+    migrateWebsites(local_websites);
+    migrateWebsites(server_websites);
+
     let websites = {};
     for (let url in server_websites) {
         websites[url] = server_websites[url];
@@ -152,9 +158,9 @@ function mergeSnapshots(local, server) {
         if (websites[url] === undefined) {
             websites[url] = local_websites[url];
         } else {
-            const local_entry_time = syncDateToTime(local_websites[url] !== null && local_websites[url] !== undefined ? local_websites[url]["last-update"] : null);
-            const server_entry_time = syncDateToTime(websites[url] !== null && websites[url] !== undefined ? websites[url]["last-update"] : null);
-            if (local_entry_time >= server_entry_time) websites[url] = local_websites[url];
+            const local_entry_time = getEntryLastUpdate(local_websites[url]);
+            const server_entry_time = getEntryLastUpdate(websites[url]);
+            if ((local_entry_time === null ? -Infinity : local_entry_time) >= (server_entry_time === null ? -Infinity : server_entry_time)) websites[url] = local_websites[url];
         }
     }
 

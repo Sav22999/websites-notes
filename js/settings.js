@@ -2125,6 +2125,9 @@ function importAllNotes(from_file = false) {
 
                                                 if (json_to_import_temp["last-update"] !== undefined) result["last-update"] = json_to_import_temp["last-update"];
 
+                                                // convert imported (possibly old-format) notes to the all-notes[] model
+                                                migrateWebsites(websites_json);
+
                                                 //console.log("QAZ-14")
                                                 sync_local
                                                     .set({
