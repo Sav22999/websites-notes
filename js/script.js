@@ -1201,7 +1201,6 @@ function checkNeverSaved(never_saved, notes_content = "") {
         if (never_saved) {
             document.getElementById("open-sticky-button").classList.add("hidden");
             document.getElementById("tag-select-grid").classList.add("hidden");
-            document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
             if (document.getElementById("format-buttons").childNodes.length === 0) {
                 document.getElementById("format-buttons").classList.add("hidden");
                 if (document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
@@ -1216,7 +1215,6 @@ function checkNeverSaved(never_saved, notes_content = "") {
                 if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
             }
             if (document.getElementById("tag-select-grid").classList.contains("hidden")) document.getElementById("tag-select-grid").classList.remove("hidden");
-            document.getElementById("all-notes-section").style.gridTemplateAreas = "'tag all-notes all-notes all-notes all-notes'";
             if (document.getElementById("format-buttons").classList.contains("hidden")) {
                 document.getElementById("format-buttons").classList.remove("hidden");
                 if (!document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.add("padding-top-10");
@@ -1231,7 +1229,6 @@ function checkNeverSaved(never_saved, notes_content = "") {
     } else {
         document.getElementById("open-sticky-button").classList.add("hidden");
         document.getElementById("tag-select-grid").classList.add("hidden");
-        document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
         document.getElementById("format-buttons").classList.add("hidden");
         if (document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
         if (document.getElementById("all-notes-section").classList.contains("padding-top-5")) {

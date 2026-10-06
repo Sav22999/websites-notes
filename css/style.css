@@ -1599,6 +1599,12 @@ pre::placeholder,
     background-color: transparent;
 }
 
+#all-notes-section:has(#custom-select-container-tag-select-grid.hidden),
+#all-notes-section:has(#tag-select-grid.hidden),
+#all-notes-section.notes-list-mode {
+    grid-template-areas: "all-notes" !important;
+}
+
 #all-notes-section.notes-list-mode {
     border-top: 1px solid var(--tertiary-transparent-2);
     margin-top: 4px;
@@ -3120,6 +3126,10 @@ aside .external-link {
     margin: -20px -20px 0 -20px;
     padding: 5px;
     top: 0;
+}
+
+#settings-search-input {
+    padding-left: 10px !important;
 }
 
 mark.search-highlight,
@@ -5273,7 +5283,8 @@ option {
 }
 
 #tag-select-grid,
-.tag-select-grid {
+.tag-select-grid,
+#custom-select-container-tag-select-grid {
     background-image: url("../img/tag.svg"), url("../img/arrow-select.svg");
     grid-area: tag; /*# This is the name of the area*/
 }
