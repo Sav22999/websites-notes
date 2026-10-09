@@ -231,6 +231,28 @@ function anyStickyOpenAllTypes() {
     return getStickyUrlRefs().some(ref => hasAnyStickyOpen(ref.url));
 }
 
+// MV3: the service worker can be killed and restarted between messages, so the
+// module globals (websites_json, tab_url, current_urls) may be empty when a
+// content-script "ask" arrives. Reload them from storage / the sender tab first.
+function ensureStickyBackgroundState(sender) {
+    return new Promise((resolve) => {
+        if ((tab_url === undefined || tab_url === "") && sender && sender.tab && sender.tab.url) {
+            tab_id = sender.tab.id;
+            tab_url = sender.tab.url;
+            tab_title = sender.tab.title || "";
+            current_urls = [getGlobalUrl(), getDomainUrl(tab_url), getPageUrl(tab_url)];
+        }
+        let store = (typeof sync_local !== "undefined" && sync_local !== null) ? sync_local : chrome.storage.local;
+        store.get("websites").then((r) => {
+            if (r && r["websites"] !== undefined) {
+                websites_json = r["websites"];
+                migrateWebsites(websites_json);
+            }
+            resolve();
+        }).catch(() => resolve());
+    });
+}
+
 // Map a composite token back to {url, idx}. Falls back to parsing the token and,
 // as a last resort, to the legacy single-type behaviour (numeric index).
 function resolveStickyRef(token) {
@@ -1437,6 +1459,8 @@ function listenerStickyNotes() {
                 //TODO!manually: update this list (using the same list of definitions.js)
                 const supportedFontFamily = ["Open Sans", "Shantell Sans", "Inter", "Lora", "Noto Sans", "Noto Serif", "Roboto", "Merienda", "Playfair Display", "Victor Mono", "Source Code Pro"];
 
+                // MV3: make sure state is loaded (the service worker may have just woken up), then respond asynchronously
+                ensureStickyBackgroundState(sender).then(() => {
                 if (message.ask === "all-sticky-notes") {
                     let page_domain_global_to_use = getTypeToShow(type_to_use);
                     let allSticky = getAllStickyNotesAllTypes();
@@ -1516,6 +1540,8 @@ function listenerStickyNotes() {
                         })
                     }
                 }
+                });
+                return true;
             }
         }
     });
