@@ -43,6 +43,110 @@ checkSyncLocal();
 let sort_by_selected = "name-az";
 let filtersColors = [];
 let filtersTypes = [];
+let filtersFolder = [];
+let filtersTagsText = [];
+let filtersSearchTerms = [];
+
+function getExistingFolders() {
+    let folders = new Set();
+    for (let url in websites_json) {
+        let entry = websites_json[url];
+        if (entry && Array.isArray(entry["all-notes"])) {
+            for (let note of entry["all-notes"]) {
+                let folder = note["tag-folder"];
+                if (folder && folder !== "") folders.add(folder);
+            }
+        }
+    }
+    return Array.from(folders).sort();
+}
+
+function hideAllDropdowns(event) {
+    if (event && event.type === "scroll") {
+        const activeDropdown = document.querySelector(".autocomplete-dropdown:not(.hidden)");
+        if (activeDropdown && event.target && typeof event.target.contains === "function" && activeDropdown.contains(event.target)) {
+            return;
+        }
+    }
+    document.querySelectorAll(".autocomplete-dropdown").forEach(d => {
+        d.classList.add("hidden");
+        // Se è una select custom, la rimuoviamo proprio per coerenza con definitions.js
+        if (d.classList.contains("custom-select-dropdown")) {
+            document.querySelectorAll(".custom-select-trigger.active").forEach(t => t.classList.remove("active"));
+            d.remove();
+        }
+    });
+}
+
+// Chiudi tutte le dropdown allo scroll
+window.addEventListener("scroll", hideAllDropdowns, true);
+
+function checkDonationAlert(times) {
+    if (times >= 1000) {
+        chrome.storage.local.get(["donation-popup-choice", "donation-popup-remind-date"], function (result) {
+            let choice = result["donation-popup-choice"];
+            let remindDate = result["donation-popup-remind-date"];
+            let show = false;
+
+            if (choice === undefined) {
+                show = true;
+            } else if (choice === "remind") {
+                if (new Date().getTime() > remindDate) {
+                    show = true;
+                }
+            }
+
+            if (show) {
+                let section = document.getElementById("donation-alert-section");
+                let background = document.getElementById("background-opacity");
+
+                section.style.display = "block";
+                background.style.display = "block";
+
+                let title = document.getElementById("donation-title");
+                title.textContent = all_strings["donation-alert-title"];
+                let description = document.getElementById("donation-text");
+                description.innerHTML = all_strings["donation-alert-text-long"].replace("{{times}}", times);
+
+                let buttonBuy = document.getElementById("donation-buy-button");
+                buttonBuy.value = all_strings["donation-alert-button-1"];
+                buttonBuy.onclick = function () {
+                    section.style.display = "none";
+                    background.style.display = "none";
+                    chrome.tabs.create({url: "https://liberapay.com/Sav22999/donate"});
+                    chrome.storage.local.set({"donation-popup-choice": "never"});
+                }
+
+                let buttonRemind = document.getElementById("donation-remind-button");
+                buttonRemind.value = all_strings["donation-alert-button-2"];
+                buttonRemind.onclick = function () {
+                    section.style.display = "none";
+                    background.style.display = "none";
+                    let thirtyDays = new Date().getTime() + (30 * 24 * 60 * 60 * 1000);
+                    chrome.storage.local.set({
+                        "donation-popup-choice": "remind",
+                        "donation-popup-remind-date": thirtyDays
+                    });
+                }
+
+                let buttonNever = document.getElementById("donation-never-button");
+                buttonNever.value = all_strings["donation-alert-button-3"];
+                buttonNever.onclick = function () {
+                    section.style.display = "none";
+                    background.style.display = "none";
+                    chrome.storage.local.set({"donation-popup-choice": "never"});
+                }
+
+                window.addEventListener("keydown", function (e) {
+                    if (e.key === "Escape") {
+                        section.style.display = "none";
+                        background.style.display = "none";
+                    }
+                });
+            }
+        });
+    }
+}
 
 function checkSyncLocal() {
     sync_local = chrome.storage.local;
@@ -50,6 +154,11 @@ function checkSyncLocal() {
 }
 
 function loaded() {
+    sync_local.get("times-opened").then(result => {
+        if (result !== undefined && result["times-opened"] !== undefined) {
+            checkDonationAlert(result["times-opened"]);
+        }
+    });
     chrome.storage.sync.get("privacy").then(result => {
         if (result.privacy === undefined) {
             //not accepted privacy policy -> open 'privacy' page
@@ -63,11 +172,20 @@ function loaded() {
             location.reload();
         }
         if (message["updated"] !== undefined && message["updated"]) {
-            loadDataFromBrowser(true);
+            loadDataFromBrowser("A", true);
         }
         if (message["check-user--expired"] !== undefined && message["check-user--expired"]) {
             //console.log("User expired! Log in again | script");
             loginExpired();
+        }
+        if (message["check-user--exception"] !== undefined && message["check-user--exception"]) {
+            //console.log("User not logged! Log in | script");
+            //console.log(message);
+            chrome.storage.local.get("notefox-server-error-shown").then(result => {
+                if (result["notefox-server-error-shown"] === undefined || result["notefox-server-error-shown"] === false) {
+                    notefoxServerError();
+                }
+            });
         }
     });
     chrome.runtime.sendMessage({"check-user": true});
@@ -77,15 +195,15 @@ function loaded() {
     setLanguageUI();
     //checkTheme();
 
-    chrome.tabs.onActivated.addListener(tabActivated);
-    chrome.tabs.onUpdated.addListener(tabUpdated);
+    //chrome.tabs.onActivated.addListener(tabUpdated);
+    //chrome.tabs.onUpdated.addListener(tabUpdated);
 
     loadAsideBar();
 
     try {
         document.getElementById("refresh-all-notes-button").onclick = function () {
             //location.reload();
-            loadDataFromBrowser(true);
+            loadDataFromBrowser("B", true);
             sendTelemetry("refresh-button");
         }
         document.getElementById("settings-all-notes-button").onclick = function () {
@@ -97,18 +215,25 @@ function loaded() {
             chrome.tabs.create({url: links["donate"]});
         }
 
-        document.getElementById("search-all-notes-text").onkeyup = function () {
-            search(document.getElementById("search-all-notes-text").value);
-        }
+        // renderSearchChips() inizializza già l'input di ricerca internamente
+        // document.getElementById("search-all-notes-text").onkeyup = function () {
+        //     search(document.getElementById("search-all-notes-text").value);
+        // }
 
-        window.onscroll = function () {
+        window.onscroll = function (e) {
+            hideAllDropdowns(e);
             if (window.scrollY > 30) {
                 //hide because it's visible
                 document.getElementById("filters").classList.add("hidden");
-                if (document.getElementById("search-filter-sortby").classList.contains("filters-visibile"))
-                    document.getElementById("search-filter-sortby").classList.remove("filters-visibile");
+                if (document.getElementById("search-filter-sortby").classList.contains("filters-visibile")) document.getElementById("search-filter-sortby").classList.remove("filters-visibile");
             }
         }
+
+        document.onkeyup = function (e) {
+            if (e.key === "Escape") {
+                hideAllPopups();
+            }
+        };
 
         document.getElementById("filter-all-notes-button").onclick = function () {
             window.scrollTo({
@@ -121,8 +246,7 @@ function loaded() {
             } else {
                 //hide because it's visible
                 document.getElementById("filters").classList.add("hidden");
-                if (document.getElementById("search-filter-sortby").classList.contains("filters-visibile"))
-                    document.getElementById("search-filter-sortby").classList.remove("filters-visibile");
+                if (document.getElementById("search-filter-sortby").classList.contains("filters-visibile")) document.getElementById("search-filter-sortby").classList.remove("filters-visibile");
             }
             sendTelemetry("filter-button");
         }
@@ -131,14 +255,17 @@ function loaded() {
         document.getElementById("sort-by-all-notes-button").onchange = function () {
             sort_by_selected = document.getElementById("sort-by-all-notes-button").value;
             loadAllWebsites(true, sort_by_selected);
-            sendTelemetry(`sort-by`, "all-notes.js", null, sort_by_selected);
+            initCustomSelects();
         }
 
+        renderSearchChips();
+
         setTimeout(function () {
-            loadDataFromBrowser(true);
+            loadDataFromBrowser("C", true);
         }, 10);
 
-        document.getElementById("all-notes-dedication-section").onscroll = function () {
+        document.getElementById("all-notes-dedication-section").onscroll = function (e) {
+            hideAllDropdowns(e);
             if (document.getElementById("all-notes-dedication-section").scrollTop > 30) {
                 document.getElementById("actions").classList.add("section-selected");
             } else {
@@ -159,30 +286,22 @@ function loaded() {
     versionNumber.textContent = chrome.runtime.getManifest().version;
     versionNumber.id = "version";
     titleAllNotes.append(versionNumber);
+
+    let splashScreen = document.getElementById("splash-screen-all-notes");
+    if (splashScreen !== undefined && splashScreen !== null) {
+        splashScreen.classList.add("splash-screen-hidden");
+    }
 }
 
 function sendTelemetry(action, context = "all-notes.js", url = null, other = null) {
     onTelemetry(action, context, url, currentOS, other);
 }
 
-function tabActivated() {
-    checkTheme();
-    chrome.storage.local.get([
-        "websites"
-    ]).then(result => {
-        if (result.websites !== undefined && result.websites !== websites_json) {
-            loadDataFromBrowser(true);
-        }
-    });
-}
-
 function tabUpdated() {
-    //checkTheme();
-    chrome.storage.local.get([
-        "websites"
-    ]).then(result => {
+    checkTheme();
+    chrome.storage.local.get(["websites"]).then(result => {
         if (result.websites !== undefined && result.websites !== websites_json) {
-            loadDataFromBrowser(false);
+            loadDataFromBrowser("D", true);
         }
     });
 }
@@ -190,68 +309,638 @@ function tabUpdated() {
 function setLanguageUI() {
     try {
         document.getElementById("refresh-all-notes-button").value = all_strings["refresh-data-button"];
-        document.getElementById("search-all-notes-text").placeholder = all_strings["search-textbox"];
+        let searchInput = document.getElementById("search-all-notes-text");
+        if (searchInput) {
+            searchInput.placeholder = all_strings["search-textbox"];
+        }
         document.getElementById("settings-all-notes-button").value = all_strings["settings-button"];
         document.getElementById("buy-me-a-coffee-button").value = all_strings["donate-button"];
         //document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
         document.getElementById("filter-all-notes-button").value = all_strings["filter-button"];
-        document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
+        // document.getElementById("sort-by-all-notes-button").value = all_strings["sort-by-button"];
         document.getElementById("sort-by-name-az-select").textContent = all_strings["sort-by-az-button"];
         document.getElementById("sort-by-name-za-select").textContent = all_strings["sort-by-za-button"];
         document.getElementById("sort-by-date-09-select").textContent = all_strings["sort-by-edit-first-button"];
         document.getElementById("sort-by-date-90-select").textContent = all_strings["sort-by-edit-last-button"];
         document.title = all_strings["all-notes-title-page"];
 
-        document.getElementById("info-tooltip-search").onclick = function () {
-            sendTelemetry("search-tooltip");
-            window.open(links["help-search"], "_blank");
-        }
+        document.getElementById("filter-folder-label-span").textContent = all_strings["filter-folder-label"];
+        document.getElementById("filter-tags-text-label-span").textContent = all_strings["filter-tags-text-label"];
+        document.getElementById("filter-colour-label-span").textContent = all_strings["filter-colour-label"] || "Filter by colour";
+        document.getElementById("filter-type-label-span").textContent = all_strings["filter-type-label"] || "Filter by type";
 
-        let globalFilterButton = document.getElementById("filter-type-global-button");
-        let domainFilterButton = document.getElementById("filter-type-domain-button");
-        let pageFilterButton = document.getElementById("filter-type-page-button");
+        let folderInput = document.getElementById("filter-folder-input");
+        folderInput.contentEditable = "false";
+        folderInput.onclick = function () {
+            let input = document.getElementById("filter-folder-inner-input");
+            if (input) input.focus();
+        };
 
-        // <input type="button" value="Tag: Red" id="filter-tag-red-button"
-        //                class="button filter-button-tag"/>
-        let containerColours = document.getElementById("filter-colours-container");
-        containerColours.innerHTML = ""
-        for (let colour in colourListDefault) {
-            let colourFilterButton = document.createElement("input");
-            colourFilterButton.type = "button";
-            colourFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", colourListDefault[colour]);
-            colourFilterButton.id = `filter-tag-${colour}-button`;
-            colourFilterButton.classList.add("button", "filter-button-tag", `tag-colour-${colour}`);
-            colourFilterButton.onclick = function () {
-                filterByColor(colour, colourFilterButton);
-                sendTelemetry(`filter-by-tag`, `all-notes.js`, null, colour);
+        function addFolderToFilterDiv(folder) {
+            folder = folder.trim();
+            let noFolderLabel = all_strings["no-folder-label"] || "No folder";
+            let folders = getExistingFolders();
+
+            let finalFolder = folder;
+            if (folder === noFolderLabel) {
+                finalFolder = "";
             }
-            containerColours.appendChild(colourFilterButton);
+
+            if (finalFolder !== "" && !folders.includes(finalFolder)) {
+                return;
+            }
+
+            // Hide any open dropdowns
+            document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
+
+            if (!filtersFolder.includes(finalFolder)) {
+                filtersFolder.push(finalFolder);
+                renderFilterFolders();
+                applyFilter();
+            }
         }
 
-        let noneFilterButton = document.createElement("input");
-        noneFilterButton.type = "button";
-        noneFilterButton.value = (all_strings["filter-by-tag-button"] + "").replaceAll("{{color}}", all_strings["none-colour"]);
-        noneFilterButton.id = `filter-tag-none-button`;
-        noneFilterButton.classList.add("button", "filter-button-tag");
-        noneFilterButton.onclick = function () {
-            filterByColor("none", noneFilterButton);
-            sendTelemetry(`filter-by-tag`, `all-notes.js`, null, "none");
+        function renderFilterFolders() {
+            let container = document.getElementById("filter-folder-input");
+            container.innerHTML = "";
+            container.className = "custom-tag-input-container filter-input-container";
+
+            filtersFolder.forEach((folder, index) => {
+                let chip = document.createElement("span");
+                chip.className = "tag-chip filter-chip folder-chip";
+
+                let text = document.createElement("span");
+                text.className = "tag-chip-text";
+                text.textContent = folder === "" ? all_strings["no-folder-label"] : folder;
+                chip.appendChild(text);
+
+                let remove = document.createElement("span");
+                remove.className = "tag-chip-remove";
+                remove.textContent = "×";
+                remove.onclick = function (e) {
+                    e.stopPropagation();
+                    filtersFolder.splice(index, 1);
+                    // Hide any open dropdowns
+                    document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
+                    renderFilterFolders();
+                    applyFilter();
+                };
+                chip.appendChild(remove);
+                container.appendChild(chip);
+            });
+
+            let input = document.createElement("input");
+            input.type = "text";
+            input.id = "filter-folder-inner-input";
+            input.className = "tag-inner-input";
+            input.placeholder = all_strings["filter-folder-label"] || "...";
+
+            let dropdown = document.createElement("div");
+            dropdown.className = "autocomplete-dropdown hidden";
+            dropdown.style.position = "fixed";
+            dropdown.style.zIndex = "20000";
+            document.body.appendChild(dropdown);
+
+            function updateDropdown(text) {
+                dropdown.innerHTML = "";
+                let folders = getExistingFolders();
+                let matches = folders.filter(f => f.toLowerCase().includes(text.toLowerCase()) && !filtersFolder.includes(f));
+
+                if (matches.length > 0) {
+                    matches.forEach(match => {
+                        let item = document.createElement("div");
+                        item.className = "autocomplete-item";
+                        item.textContent = match;
+                        item.onclick = function (e) {
+                            e.stopPropagation();
+                            addFolderToFilterDiv(match);
+                            input.value = "";
+                            dropdown.classList.add("hidden");
+                        };
+                        dropdown.appendChild(item);
+                    });
+                    hideAllDropdowns();
+                    dropdown.classList.remove("hidden");
+                    checkDropdownScrollbar(dropdown, input);
+                } else {
+                    dropdown.classList.add("hidden");
+                }
+            }
+
+            input.oninput = function () {
+                if (this.value.includes(" ")) {
+                    this.value = this.value.replace(/\s/g, "");
+                }
+                updateDropdown(this.value.trim());
+            };
+
+            input.onfocus = function () {
+                updateDropdown(this.value.trim());
+            };
+
+            input.onclick = function () {
+                updateDropdown(this.value.trim());
+            };
+
+            input.onkeydown = function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    let text = this.value.trim();
+                    if (text) {
+                        // Se c'è un solo match nell'autocomplete, lo usiamo, altrimenti proviamo ad aggiungere il testo se valido
+                        let folders = getExistingFolders();
+                        let matches = folders.filter(f => f.toLowerCase().includes(text.toLowerCase()) && !filtersFolder.includes(f));
+                        if (matches.length > 0) {
+                            // Se c'è un match esatto tra i suggerimenti, lo preferiamo
+                            let exactMatch = matches.find(m => m.toLowerCase() === text.toLowerCase());
+                            addFolderToFilterDiv(exactMatch || matches[0]);
+                        } else {
+                            addFolderToFilterDiv(text);
+                        }
+                        this.value = "";
+                        dropdown.classList.add("hidden");
+                    }
+                } else if (e.key === "Backspace" && this.value === "" && filtersFolder.length > 0) {
+                    filtersFolder.pop();
+                    renderFilterFolders();
+                    applyFilter();
+                } else if (e.key === "Escape") {
+                    dropdown.classList.add("hidden");
+                }
+            };
+
+            // Chiudi il dropdown se si clicca fuori
+            document.addEventListener("click", function (e) {
+                if (!container.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add("hidden");
+                }
+            });
+
+            container.appendChild(input);
+
+            let allFolders = getExistingFolders();
+            let availableFolders = allFolders.filter(f => !filtersFolder.includes(f));
+
+            if (allFolders.length === 0) {
+                input.disabled = true;
+                container.classList.add("disabled");
+                input.placeholder = all_strings["no-folders-available"] || "No folders available";
+            } else if (availableFolders.length === 0 && filtersFolder.length > 0) {
+                input.style.display = "none";
+            } else {
+                input.disabled = false;
+                container.classList.remove("disabled");
+                input.placeholder = all_strings["choose-placeholder"] || "Choose...";
+                input.focus();
+            }
+
+            container.onclick = function () {
+                if (!input.disabled) input.focus();
+            };
         }
-        globalFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["global-label"]);
-        globalFilterButton.onclick = function () {
-            filterByType("global", globalFilterButton);
-            sendTelemetry(`filter-by-type`, "all-notes.js", null, "global");
+
+        renderFilterFolders();
+        // renderSearchChips(); // Già chiamato sopra
+
+        let tagsTextInput = document.getElementById("filter-tags-text-input");
+        tagsTextInput.contentEditable = "false"; // Lo gestiamo noi con un input interno
+        tagsTextInput.onclick = function () {
+            let input = document.getElementById("filter-tags-text-inner-input");
+            if (input) input.focus();
         };
-        domainFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["domain-label"]);
-        domainFilterButton.onclick = function () {
-            filterByType("domain", domainFilterButton);
-            sendTelemetry(`filter-by-type`, "all-notes.js", null, "domain");
-        };
-        pageFilterButton.value = (all_strings["filter-by-type-button"] + "").replaceAll("{{type}}", all_strings["page-label"]);
-        pageFilterButton.onclick = function () {
-            filterByType("page", pageFilterButton);
-            sendTelemetry(`filter-by-type`, "all-notes.js", null, "page");
-        };
+
+        function addTagToFilterDiv(tag) {
+            tag = tag.trim().toLowerCase();
+            if (!tag) return;
+
+            // Hide any open dropdowns
+            document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
+
+            let tags = filtersTagsText;
+            if (!tags.includes(tag)) {
+                filtersTagsText.push(tag);
+                renderFilterTags();
+                applyFilter();
+            }
+        }
+
+        function renderFilterTags() {
+            let container = document.getElementById("filter-tags-text-input");
+            container.innerHTML = "";
+            container.className = "custom-tag-input-container filter-input-container";
+
+            filtersTagsText.forEach((tag, index) => {
+                let chip = document.createElement("span");
+                chip.className = "tag-chip filter-chip";
+
+                let text = document.createElement("span");
+                text.className = "tag-chip-text";
+                text.textContent = tag;
+                chip.appendChild(text);
+
+                let remove = document.createElement("span");
+                remove.className = "tag-chip-remove";
+                remove.textContent = "×";
+                remove.onclick = function (e) {
+                    e.stopPropagation();
+                    filtersTagsText.splice(index, 1);
+                    // Hide any open dropdowns
+                    document.querySelectorAll(".autocomplete-dropdown").forEach(d => d.classList.add("hidden"));
+                    renderFilterTags();
+                    applyFilter();
+                };
+                chip.appendChild(remove);
+                container.appendChild(chip);
+            });
+
+            let input = document.createElement("input");
+            input.type = "text";
+            input.id = "filter-tags-text-inner-input";
+            input.className = "tag-inner-input";
+            input.placeholder = all_strings["add-tag-placeholder"] || "...";
+
+            let dropdown = document.createElement("div");
+            dropdown.className = "autocomplete-dropdown hidden";
+            dropdown.style.position = "fixed";
+            dropdown.style.zIndex = "20000";
+            document.body.appendChild(dropdown);
+
+            function getAllTags() {
+                let tags = new Set();
+                for (let url in websites_json) {
+                    let entry = websites_json[url];
+                    if (entry && Array.isArray(entry["all-notes"])) {
+                        for (let note of entry["all-notes"]) {
+                            if (Array.isArray(note["tags-text"])) note["tags-text"].forEach(t => tags.add(t.toLowerCase()));
+                        }
+                    }
+                }
+                return Array.from(tags).sort();
+            }
+
+            function updateDropdown(text) {
+                dropdown.innerHTML = "";
+                let allTags = getAllTags();
+                let matches = allTags.filter(t => t.includes(text.toLowerCase()) && !filtersTagsText.includes(t));
+
+                if (matches.length > 0) {
+                    matches.forEach(match => {
+                        let item = document.createElement("div");
+                        item.className = "autocomplete-item";
+                        item.textContent = match;
+                        item.onclick = function (e) {
+                            e.stopPropagation();
+                            addTagToFilterDiv(match);
+                            input.value = "";
+                            dropdown.classList.add("hidden");
+                        };
+                        dropdown.appendChild(item);
+                    });
+                    hideAllDropdowns();
+                    dropdown.classList.remove("hidden");
+                    checkDropdownScrollbar(dropdown, input);
+                } else {
+                    dropdown.classList.add("hidden");
+                }
+            }
+
+            input.oninput = function () {
+                if (this.value.includes(" ")) {
+                    this.value = this.value.replace(/\s/g, "");
+                }
+                updateDropdown(this.value.trim());
+            };
+
+            input.onfocus = function () {
+                updateDropdown(this.value.trim());
+            };
+
+            input.onclick = function () {
+                updateDropdown(this.value.trim());
+            };
+
+            input.onkeydown = function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    let text = this.value.trim().toLowerCase();
+                    if (text) {
+                        let allTags = getAllTags();
+                        let matches = allTags.filter(t => t.includes(text) && !filtersTagsText.includes(t));
+                        if (matches.length > 0) {
+                            let exactMatch = matches.find(m => m === text);
+                            addTagToFilterDiv(exactMatch || matches[0]);
+                        }
+                        this.value = "";
+                        dropdown.classList.add("hidden");
+                    }
+                } else if (e.key === "Backspace" && this.value === "" && filtersTagsText.length > 0) {
+                    filtersTagsText.pop();
+                    renderFilterTags();
+                    applyFilter();
+                    document.getElementById("filter-tags-text-inner-input").focus();
+                } else if (e.key === "Escape") {
+                    dropdown.classList.add("hidden");
+                }
+            };
+
+            document.addEventListener("click", function (e) {
+                if (!container.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add("hidden");
+                }
+            });
+
+            container.appendChild(input);
+
+            let allTags = getAllTags();
+            let availableTags = allTags.filter(t => !filtersTagsText.includes(t));
+
+            if (allTags.length === 0) {
+                input.disabled = true;
+                container.classList.add("disabled");
+                input.placeholder = all_strings["no-tags-available"] || "No tags available";
+            } else if (availableTags.length === 0 && filtersTagsText.length > 0) {
+                input.style.display = "none";
+            } else {
+                input.disabled = false;
+                container.classList.remove("disabled");
+                input.placeholder = all_strings["choose-placeholder"] || "Choose...";
+                input.focus();
+            }
+
+            container.onclick = function () {
+                if (!input.disabled) input.focus();
+            };
+        }
+
+        renderFilterTags();
+        window.addFolderToFilterDiv = addFolderToFilterDiv;
+        window.renderFilterFolders = renderFilterFolders;
+        window.addTagToFilterDiv = addTagToFilterDiv;
+        window.renderFilterTags = renderFilterTags;
+
+        // ── Filter by colour ──────────────────────────────────────────────
+        function renderFilterColours(shouldFocus = false) {
+            let container = document.getElementById("filter-colour-input");
+            if (!container) return;
+            container.innerHTML = "";
+            container.className = "custom-tag-input-container filter-input-container";
+
+            filtersColors.forEach((colour, index) => {
+                let chip = document.createElement("span");
+                chip.className = "tag-chip filter-chip";
+
+                let bgColor = (colour !== "none") ? colour : "";
+                let fgColor = bgColor ? getWCAGTextColor(bgColor) : "";
+
+                let text = document.createElement("span");
+                text.className = "tag-chip-text";
+                let colourLabel = colour === "none" ? all_strings["none-colour"] : (colourListDefault[colour] || colour);
+                text.textContent = colourLabel;
+                if (bgColor) { text.style.backgroundColor = bgColor; text.style.color = fgColor; }
+                chip.appendChild(text);
+
+                let remove = document.createElement("span");
+                remove.className = "tag-chip-remove";
+                remove.textContent = "×";
+                if (bgColor) {
+                    remove.style.backgroundColor = bgColor;
+                    remove.style.color = fgColor;
+                    remove.style.borderLeftColor = fgColor === "#ffffff" ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.25)";
+                }
+                remove.onclick = function (e) {
+                    e.stopPropagation();
+                    filtersColors.splice(index, 1);
+                    renderFilterColours(true);
+                    applyFilter();
+                };
+                chip.appendChild(remove);
+                container.appendChild(chip);
+            });
+
+            let input = document.createElement("input");
+            input.type = "text";
+            input.id = "filter-colour-inner-input";
+            input.className = "tag-inner-input";
+            input.placeholder = all_strings["choose-placeholder"] || "Choose...";
+
+            let dropdown = document.createElement("div");
+            dropdown.className = "autocomplete-dropdown hidden";
+            dropdown.style.position = "fixed";
+            dropdown.style.zIndex = "20000";
+            document.body.appendChild(dropdown);
+
+            function getAllColourOptions() {
+                let list = [{key: "none", label: all_strings["none-colour"]}];
+                list = list.concat(Object.entries(colourListDefault).map(([k, v]) => ({key: k, label: v})));
+                return list;
+            }
+
+            function updateColourDropdown(text) {
+                dropdown.innerHTML = "";
+                let matches = getAllColourOptions().filter(c =>
+                    c.label.toLowerCase().includes(text.toLowerCase()) && !filtersColors.includes(c.key)
+                );
+                if (matches.length > 0) {
+                    matches.forEach(match => {
+                        let item = document.createElement("div");
+                        item.className = "autocomplete-item";
+                        item.textContent = match.label;
+                        if (match.key !== "none") {
+                            item.classList.add("color-bg-item");
+                            item.style.backgroundColor = match.key;
+                            item.style.color = getWCAGTextColor(match.key);
+                        }
+                        item.onclick = function (e) {
+                            e.stopPropagation();
+                            if (!filtersColors.includes(match.key)) {
+                                filtersColors.push(match.key);
+                                renderFilterColours(true);
+                                applyFilter();
+                            }
+                        };
+                        dropdown.appendChild(item);
+                    });
+                    hideAllDropdowns();
+                    dropdown.classList.remove("hidden");
+                    checkDropdownScrollbar(dropdown, input);
+                } else {
+                    dropdown.classList.add("hidden");
+                }
+            }
+
+            input.oninput = function () { updateColourDropdown(this.value.trim()); };
+            input.onfocus = function () { updateColourDropdown(this.value.trim()); };
+            input.onclick = function (e) { e.stopPropagation(); updateColourDropdown(this.value.trim()); };
+
+            input.onkeydown = function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    let text = this.value.trim().toLowerCase();
+                    let matches = getAllColourOptions().filter(c =>
+                        c.label.toLowerCase().includes(text) && !filtersColors.includes(c.key)
+                    );
+                    if (matches.length > 0) {
+                        let exact = matches.find(m => m.label.toLowerCase() === text);
+                        let toAdd = (exact || matches[0]).key;
+                        if (!filtersColors.includes(toAdd)) {
+                            filtersColors.push(toAdd);
+                            renderFilterColours(true);
+                            applyFilter();
+                        }
+                    }
+                    this.value = "";
+                    dropdown.classList.add("hidden");
+                } else if (e.key === "Backspace" && this.value === "" && filtersColors.length > 0) {
+                    filtersColors.pop();
+                    renderFilterColours(true);
+                    applyFilter();
+                } else if (e.key === "Escape") {
+                    dropdown.classList.add("hidden");
+                }
+            };
+
+            document.addEventListener("click", function (e) {
+                if (!container.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.add("hidden");
+            });
+
+            container.appendChild(input);
+            let available = getAllColourOptions().filter(c => !filtersColors.includes(c.key));
+            if (available.length === 0 && filtersColors.length > 0) {
+                input.style.display = "none";
+                hideAllDropdowns(); // hide any dropdown left open before this render
+            } else if (shouldFocus) {
+                input.focus({preventScroll: true});
+            }
+            container.onclick = function () { input.focus({preventScroll: true}); };
+        }
+
+        renderFilterColours();
+        window.renderFilterColours = renderFilterColours;
+
+        // ── Filter by type ────────────────────────────────────────────────
+        const typeOptions = [
+            {key: "global",  label: () => all_strings["global-label"]},
+            {key: "domain",  label: () => all_strings["domain-label"]},
+            {key: "page",    label: () => all_strings["page-label"]},
+        ];
+
+        function renderFilterTypes(shouldFocus = false) {
+            let container = document.getElementById("filter-type-input");
+            if (!container) return;
+            container.innerHTML = "";
+            container.className = "custom-tag-input-container filter-input-container";
+
+            filtersTypes.forEach((type, index) => {
+                let opt = typeOptions.find(o => o.key === type);
+                let chip = document.createElement("span");
+                chip.className = "tag-chip filter-chip";
+
+                let text = document.createElement("span");
+                text.className = "tag-chip-text";
+                text.textContent = opt ? opt.label() : type;
+                chip.appendChild(text);
+
+                let remove = document.createElement("span");
+                remove.className = "tag-chip-remove";
+                remove.textContent = "×";
+                remove.onclick = function (e) {
+                    e.stopPropagation();
+                    filtersTypes.splice(index, 1);
+                    renderFilterTypes(true);
+                    applyFilter();
+                };
+                chip.appendChild(remove);
+                container.appendChild(chip);
+            });
+
+            let input = document.createElement("input");
+            input.type = "text";
+            input.id = "filter-type-inner-input";
+            input.className = "tag-inner-input";
+            input.placeholder = all_strings["choose-placeholder"] || "Choose...";
+
+            let dropdown = document.createElement("div");
+            dropdown.className = "autocomplete-dropdown hidden";
+            dropdown.style.position = "fixed";
+            dropdown.style.zIndex = "20000";
+            document.body.appendChild(dropdown);
+
+            function updateTypeDropdown(text) {
+                dropdown.innerHTML = "";
+                let matches = typeOptions.filter(o =>
+                    o.label().toLowerCase().includes(text.toLowerCase()) && !filtersTypes.includes(o.key)
+                );
+                if (matches.length > 0) {
+                    matches.forEach(opt => {
+                        let item = document.createElement("div");
+                        item.className = "autocomplete-item";
+                        item.textContent = opt.label();
+                        item.onclick = function (e) {
+                            e.stopPropagation();
+                            if (!filtersTypes.includes(opt.key)) {
+                                filtersTypes.push(opt.key);
+                                renderFilterTypes(true);
+                                applyFilter();
+                            }
+                        };
+                        dropdown.appendChild(item);
+                    });
+                    hideAllDropdowns();
+                    dropdown.classList.remove("hidden");
+                    checkDropdownScrollbar(dropdown, input);
+                } else {
+                    dropdown.classList.add("hidden");
+                }
+            }
+
+            input.oninput = function () { updateTypeDropdown(this.value.trim()); };
+            input.onfocus = function () { updateTypeDropdown(this.value.trim()); };
+            input.onclick = function (e) { e.stopPropagation(); updateTypeDropdown(this.value.trim()); };
+
+            input.onkeydown = function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    let text = this.value.trim().toLowerCase();
+                    let matches = typeOptions.filter(o =>
+                        o.label().toLowerCase().includes(text) && !filtersTypes.includes(o.key)
+                    );
+                    if (matches.length > 0) {
+                        let exact = matches.find(m => m.label().toLowerCase() === text);
+                        let toAdd = (exact || matches[0]).key;
+                        if (!filtersTypes.includes(toAdd)) {
+                            filtersTypes.push(toAdd);
+                            renderFilterTypes(true);
+                            applyFilter();
+                        }
+                    }
+                    this.value = "";
+                    dropdown.classList.add("hidden");
+                } else if (e.key === "Backspace" && this.value === "" && filtersTypes.length > 0) {
+                    filtersTypes.pop();
+                    renderFilterTypes(true);
+                    applyFilter();
+                } else if (e.key === "Escape") {
+                    dropdown.classList.add("hidden");
+                }
+            };
+
+            document.addEventListener("click", function (e) {
+                if (!container.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.add("hidden");
+            });
+
+            container.appendChild(input);
+            let available = typeOptions.filter(o => !filtersTypes.includes(o.key));
+            if (available.length === 0 && filtersTypes.length > 0) {
+                input.style.display = "none";
+                hideAllDropdowns(); // hide any dropdown left open before this render
+            } else if (shouldFocus) {
+                input.focus({preventScroll: true});
+            }
+            container.onclick = function () { input.focus({preventScroll: true}); };
+        }
+
+        renderFilterTypes();
+        window.renderFilterTypes = renderFilterTypes;
     } catch (e) {
         console.error(`E-L2: ${e}`);
         onError("all-notes.js::setLanguageUI", e.message);
@@ -299,6 +988,40 @@ function loadAsideBar() {
     }
 
     version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", chrome.runtime.getManifest().version);
+
+    //get the current tabUrl
+    chrome.tabs.query({active: true, currentWindow: true}).then(tabs => {
+        if (tabs.length > 0) {
+            let tabUrl = tabs[0].url;
+            //if it starts with "about:addons"
+            if (tabUrl.startsWith("about:addons")) {
+                document.getElementById("all-notes-dedication-section").classList.add("from-firefox-addons");
+            } else {
+                if (document.getElementById("all-notes-dedication-section").classList.contains("from-firefox-addons")) {
+                    document.getElementById("all-notes-dedication-section").classList.remove("from-firefox-addons");
+                }
+            }
+        }
+    });
+}
+
+function hideAllPopups() {
+    let backgroundOpacity = document.getElementById("background-opacity");
+
+    if (document.getElementById("fullscreen-notes-viewer").style.display === "block") {
+        document.getElementById("fullscreen-notes-viewer").style.display = "none";
+    }
+
+    if (document.getElementById("notefox-server-error-section").style.display === "block") {
+        //nothing: notefox server error is NOT "skippable"
+    } else {
+        //hide background opacity only if no other popup is shown (account-section is excluded)
+        hideBackgroundOpacity();
+    }
+}
+
+function hideBackgroundOpacity() {
+    document.getElementById("background-opacity").style.display = "none";
 }
 
 function filterByColor(color, tagButton) {
@@ -362,8 +1085,7 @@ function listenerLinks(element) {
                 if ((settings_json["open-links-only-with-ctrl"] === "yes" || settings_json["open-links-only-with-ctrl"] === true) && (event.ctrlKey || event.metaKey)) {
                     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         chrome.tabs.create({
-                            url: link.href,
-                            index: tabs[0].index + 1
+                            url: link.href, index: tabs[0].index + 1
                         });
                     });
                 } else {
@@ -380,12 +1102,15 @@ function updateLastUpdate() {
     sync_local.set({"last-update": getDate()});
 }
 
-function loadDataFromBrowser(generate_section = true) {
+function loadDataFromBrowser(called_by = null, generate_section = true) {
+    console.log(`Loading data from browser | called by: ${called_by}`);
+
     try {
         sync_local.get(["websites", "settings"], function (value) {
             websites_json = {};
             if (value["websites"] !== undefined) {
                 websites_json = value["websites"];
+                migrateWebsites(websites_json);
                 websites_json_to_show = websites_json;
             }
             //console.log(JSON.stringify(websites_json));
@@ -398,6 +1123,7 @@ function loadDataFromBrowser(generate_section = true) {
             if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
             if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
             if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
+            if (settings_json["open-popup-sidebar"] === undefined) settings_json["open-popup-sidebar"] = "Ctrl+Alt+S";
             if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
             if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
             if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
@@ -408,15 +1134,23 @@ function loadDataFromBrowser(generate_section = true) {
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
-            if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
+            if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
             if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
             if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
+            if (settings_json["expand-all-websites"] === undefined) settings_json["expand-all-websites"] = true;
 
             //console.log(JSON.stringify(settings_json));
             if (generate_section) {
                 websites_json_by_domain = {};
                 loadAllWebsites(true, sort_by_selected);
             }
+            // Aggiorna i filtri dopo il caricamento dei dati
+            renderFilterFolders();
+            renderFilterTags();
+            if (typeof renderFilterColours === "function") renderFilterColours();
+            if (typeof renderFilterTypes === "function") renderFilterTypes();
+            renderSearchChips();
+            initCustomSelects();
         });
         applyFilter();
     } catch (e) {
@@ -426,7 +1160,14 @@ function loadDataFromBrowser(generate_section = true) {
 }
 
 function clearAllNotesDomain(url) {
-    let confirmation = confirm(all_strings["clear-all-notes-domain-confirmation"]);
+    // Check if confirmation popup is disabled
+    let shouldConfirm = !(settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes");
+
+    let confirmation = true;
+    if (shouldConfirm) {
+        confirmation = confirm(all_strings["clear-all-notes-domain-confirmation"]);
+    }
+
     if (confirmation) {
         for (let index in websites_json_by_domain[url]) {
             //delete all pages
@@ -438,25 +1179,38 @@ function clearAllNotesDomain(url) {
         websites_json_to_show = websites_json;
 
         sync_local.set({"websites": websites_json}, function () {
-            loadDataFromBrowser(true);
+            loadDataFromBrowser("E", true);
             updateLastUpdate();
         });
     }
 }
 
-function clearAllNotesPage(url, isDomain = false) {
+function clearAllNotesPage(url, isDomain = false, noteIndex = 0) {
     let messageToShow = all_strings["clear-all-notes-page-without-url-confirmation"];
     if (!isDomain) {
         messageToShow = all_strings["clear-all-notes-page-with-confirmation"].replaceAll("{{url}}", url);
     }
-    let confirmation = confirm(messageToShow);
+
+    // Check if confirmation popup is disabled
+    let shouldConfirm = !(settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes");
+
+    let confirmation = true;
+    if (shouldConfirm) {
+        confirmation = confirm(messageToShow);
+    }
+
     if (confirmation) {
-        //delete the selected page
-        delete websites_json[url];
+        let entry = websites_json[url];
+        if (entry && Array.isArray(entry["all-notes"])) {
+            entry["all-notes"].splice(noteIndex, 1);
+            if (entry["all-notes"].length === 0) delete websites_json[url];
+        } else {
+            delete websites_json[url];
+        }
         websites_json_to_show = websites_json;
 
         sync_local.set({"websites": websites_json}, function () {
-            loadDataFromBrowser(true);
+            loadDataFromBrowser("F", true);
             updateLastUpdate();
         });
     }
@@ -464,7 +1218,7 @@ function clearAllNotesPage(url, isDomain = false) {
 
 function onCleared() {
     //all notes clear || successful
-    loadDataFromBrowser(true);
+    loadDataFromBrowser("G", true);
     //loadAllWebsites(true, true);
 }
 
@@ -527,7 +1281,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                     if (domain !== "**global") {
                         input_clear_all_notes_domain.type = "button";
                         input_clear_all_notes_domain.value = all_strings["clear-all-notes-of-this-domain-button"];
-                        input_clear_all_notes_domain.classList.add("button", "margin-top-5-px", "margin-right-5-px", "small-button", "clear-button", "clear-button-float-right");
+                        input_clear_all_notes_domain.classList.add("button", "small-button", "clear-button", "clear-button-float-right");
                         input_clear_all_notes_domain.onclick = function () {
                             clearAllNotesDomain(domain);
                             sendTelemetry(`clear-all-notes-domain`, "all-notes.js", domain);
@@ -545,6 +1299,11 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                                 chrome.tabs.create({url: domain});
                             }
                         }
+                        let toggleBtn = document.createElement("span");
+                        toggleBtn.className = "domain-toggle";
+                        toggleBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+                        h2_container.prepend(toggleBtn);
+
                         h2_container.append(h2);
 
                         section.append(input_clear_all_notes_domain);
@@ -552,6 +1311,7 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                     }
 
                     let all_pages = document.createElement("div");
+                    all_pages.className = "domain-pages";
 
                     //console.log(JSON.stringify(websites_json_by_domain[domain]));
                     let pages_added = 0;
@@ -559,11 +1319,6 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                     if (websites_json_to_show[domain] !== undefined) {
                         //there is notes also for the domain
                         let urlPageDomain = domain;
-                        let page = document.createElement("div");
-                        page.classList.add("sub-section");
-                        let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
-                        let notes = websites_json_to_show[urlPageDomain]["notes"];
-                        let title = websites_json_to_show[urlPageDomain]["title"];
 
                         let type_to_show = all_strings["domain-label"];
                         let type_to_use = "domain";
@@ -571,12 +1326,17 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                             type_to_show = all_strings["global-label"];
                             type_to_use = "global";
                         }
-                        page = generateNotes(page, urlPageDomain, notes, title, "", lastUpdate, type_to_show, urlPageDomain, type_to_use, true);
 
-                        if (page !== -1) {
-                            all_pages.append(page);
-                            pages_added++;
-                        }
+                        let allNotes = Array.isArray(websites_json_to_show[urlPageDomain]["all-notes"]) ? websites_json_to_show[urlPageDomain]["all-notes"] : [];
+                        allNotes.forEach((noteObj, noteIdx) => {
+                            let page = document.createElement("div");
+                            page.classList.add("sub-section");
+                            page = generateNotes(page, urlPageDomain, noteObj["notes"], noteObj["title"], noteObj["content"] || "", noteObj["last-update"], type_to_show, urlPageDomain, type_to_use, true, noteIdx);
+                            if (page !== -1) {
+                                all_pages.append(page);
+                                pages_added++;
+                            }
+                        });
                     }
 
                     if (domain !== getGlobalUrl()) {
@@ -584,28 +1344,44 @@ function loadAllWebsites(clear = false, sort_by = "name-az", apply_filter = true
                             let urlPage = websites_json_by_domain[domain][index];
                             let urlPageDomain = domain + websites_json_by_domain[domain][index];
                             if (websites_json_to_show[urlPageDomain] !== undefined) {
-                                let page = document.createElement("div");
-                                page.classList.add("sub-section");
-
-                                // console.log(urlPageDomain);
-                                // console.log(websites_json_by_domain);
-                                // console.log(websites_json_to_show);
-                                let lastUpdate = websites_json_to_show[urlPageDomain]["last-update"];
-                                let title = websites_json_to_show[urlPageDomain]["title"];
-                                let notes = websites_json_to_show[urlPageDomain]["notes"];
-                                let content = websites_json_to_show[urlPageDomain]["content"] || "";
-
-                                page = generateNotes(page, urlPage, notes, title, content, lastUpdate, all_strings["page-label"], urlPageDomain, "page", false);
-
-                                if (page !== -1) {
-                                    all_pages.append(page);
-                                    pages_added++;
-                                }
+                                let allNotes = Array.isArray(websites_json_to_show[urlPageDomain]["all-notes"]) ? websites_json_to_show[urlPageDomain]["all-notes"] : [];
+                                allNotes.forEach((noteObj, noteIdx) => {
+                                    let page = document.createElement("div");
+                                    page.classList.add("sub-section");
+                                    page = generateNotes(page, urlPage, noteObj["notes"], noteObj["title"], noteObj["content"] || "", noteObj["last-update"], all_strings["page-label"], urlPageDomain, "page", false, noteIdx);
+                                    if (page !== -1) {
+                                        all_pages.append(page);
+                                        pages_added++;
+                                    }
+                                });
                             }
                         }
                     }
 
-                    if (pages_added > 0) section.append(all_pages);
+                    if (pages_added > 0) {
+                        let shouldCollapse = !(settings_json["expand-all-websites"] === true || settings_json["expand-all-websites"] === "yes");
+                        if (shouldCollapse) {
+                            all_pages.classList.add("collapsed");
+                        }
+                        section.append(all_pages);
+                        let toggleBtn = section.querySelector(".domain-toggle");
+                        if (toggleBtn) {
+                            if (shouldCollapse) toggleBtn.classList.add("collapsed");
+                            toggleBtn.closest(".h2-container").style.cursor = "pointer";
+                            toggleBtn.closest(".h2-container").addEventListener("click", function (e) {
+                                if (e.target.closest(".go-to-external")) return;
+                                let pages = this.parentElement.querySelector(".domain-pages");
+                                let toggle = this.querySelector(".domain-toggle");
+                                if (pages.classList.contains("collapsed")) {
+                                    pages.classList.remove("collapsed");
+                                    toggle.classList.remove("collapsed");
+                                } else {
+                                    pages.classList.add("collapsed");
+                                    toggle.classList.add("collapsed");
+                                }
+                            });
+                        }
+                    }
 
                     document.getElementById("all-website-sections").append(section);
 
@@ -661,7 +1437,7 @@ function isUrlSupported(url) {
     switch (getTheProtocol(url)) {
         case "http":
         case "https":
-        case "extension":
+        case "moz-extension":
             //the URL is supported
             valueToReturn = true;
             break;
@@ -674,15 +1450,93 @@ function isUrlSupported(url) {
 }
 
 function applyFilter() {
-    search(document.getElementById("search-all-notes-text").value);
+    let searchInput = document.getElementById("search-all-notes-text");
+    let searchValue = searchInput ? searchInput.value : "";
+    search(searchValue);
+}
+
+function renderSearchChips() {
+    let container = document.getElementById("search-all-notes-container");
+    if (!container) return;
+
+    // Preserve the input
+    let input = document.getElementById("search-all-notes-text");
+    if (!input) {
+        input = document.createElement("input");
+        input.type = "text";
+        input.id = "search-all-notes-text";
+        input.className = "tag-inner-input search-all-notes-text";
+        input.placeholder = all_strings["search-textbox"] || "Search...";
+    }
+
+    container.className = "custom-tag-input-container";
+    container.innerHTML = "";
+
+    filtersSearchTerms.forEach((term, index) => {
+        let chip = document.createElement("span");
+        chip.className = "tag-chip";
+
+        let termText = document.createElement("span");
+        termText.className = "tag-chip-text";
+        termText.textContent = term;
+        chip.appendChild(termText);
+
+        let remove = document.createElement("span");
+        remove.className = "tag-chip-remove";
+        remove.textContent = "×";
+        remove.onclick = function (e) {
+            e.stopPropagation();
+            filtersSearchTerms.splice(index, 1);
+            renderSearchChips();
+            applyFilter();
+        };
+        chip.appendChild(remove);
+        container.appendChild(chip);
+    });
+
+    input.onkeydown = function (e) {
+        if (e.key === "Enter") {
+            let val = this.value.trim();
+            if (val && !filtersSearchTerms.includes(val.toLowerCase())) {
+                e.preventDefault();
+                filtersSearchTerms.push(val.toLowerCase());
+                this.value = "";
+                renderSearchChips();
+                applyFilter();
+                document.getElementById("search-all-notes-text").focus();
+            } else if (val) {
+                e.preventDefault();
+                this.value = "";
+            }
+        } else if (e.key === "Backspace" && this.value === "" && filtersSearchTerms.length > 0) {
+            filtersSearchTerms.pop();
+            renderSearchChips();
+            applyFilter();
+            document.getElementById("search-all-notes-text").focus();
+        }
+    };
+
+    input.oninput = function () {
+        applyFilter();
+    };
+
+    container.appendChild(input);
+
+    container.onclick = function () {
+        input.focus();
+    };
 }
 
 function search(value = "") {
     try {
         //console.log(JSON.stringify(websites_json_to_show))
         websites_json_to_show = {};
-        document.getElementById("search-all-notes-text").value = value.toString();
-        let valueToUse = value.toLowerCase().split(";");
+
+        let valueToUse = [...filtersSearchTerms];
+        if (value && value.trim() !== "") {
+            valueToUse.push(value.trim().toLowerCase());
+        }
+
         let results = document.getElementById("results-searching");
         let keywordsHTML = "";
         let valid_results = 0;
@@ -698,22 +1552,55 @@ function search(value = "") {
         } else results.classList.add("hidden");
         for (const website in websites_json) {
             let current_website_json = websites_json[website];
-            let condition_tag_color = filtersColors.indexOf(current_website_json["tag-colour"].toLowerCase()) !== -1 || filtersColors.length === 0;
+            let notesArr = Array.isArray(current_website_json["all-notes"]) ? current_website_json["all-notes"] : [];
             let condition_type = filtersTypes.indexOf(getType(websites_json[website], website)) !== -1 || filtersTypes.length === 0;
-            //if (condition_type) console.log(getType(websites_json[website], website) + "   " + JSON.stringify(websites_json[website]))
-            let title_to_use = "";
-            if (current_website_json["title"] !== undefined) title_to_use = current_website_json["title"].toLowerCase();
-            valueToUse.forEach(key => {
-                if (valid_results > 0 && key.replaceAll(" ", "") !== "" || valid_results === 0) {
-                    let contentMatch = settings_json["search-page-content"] && current_website_json["content"] && current_website_json["content"].toLowerCase().includes(key);
-                    if ((current_website_json["notes"].toLowerCase().includes(key) || contentMatch || current_website_json["domain"].toLowerCase().includes(key) || current_website_json["last-update"].toLowerCase().includes(key) || title_to_use.includes(key) || website.includes(key)) && condition_tag_color && condition_type) {
-                        websites_json_to_show[website] = websites_json[website];
-                    }
+
+            // the entry is shown if ANY of its notes satisfies all active per-note conditions
+            let entryMatches = condition_type && notesArr.some(note => {
+                let noteColour = (note["tag-colour"] || "none").toLowerCase();
+                let cColor = filtersColors.length === 0 || filtersColors.indexOf(noteColour) !== -1;
+
+                let cFolder = true;
+                if (filtersFolder.length > 0) {
+                    cFolder = filtersFolder.includes(note["tag-folder"] || "");
                 }
+
+                let cTags = true;
+                if (filtersTagsText.length > 0) {
+                    cTags = Array.isArray(note["tags-text"]) && filtersTagsText.every(ft => note["tags-text"].some(t => t.toLowerCase() === ft.toLowerCase()));
+                }
+
+                let termOk = true;
+                if (valid_results > 0) {
+                    let title_to_use = (note["title"] || "").toLowerCase();
+                    termOk = valueToUse.some(key => {
+                        key = key.toLowerCase();
+                        let contentMatch = settings_json["search-page-content"] && note["content"] && note["content"].toLowerCase().includes(key);
+                        let folderMatch = note["tag-folder"] && note["tag-folder"].toLowerCase().includes(key);
+                        let tagsMatch = Array.isArray(note["tags-text"]) && note["tags-text"].some(t => t.toLowerCase().includes(key));
+                        let notesMatch = (note["notes"] || "").toLowerCase().includes(key);
+                        let domainMatch = (current_website_json["domain"] || "").toLowerCase().includes(key);
+                        let lastUpdateMatch = (note["last-update"] || "").toLowerCase().includes(key);
+                        return notesMatch || contentMatch || domainMatch || lastUpdateMatch || title_to_use.includes(key) || website.includes(key) || folderMatch || tagsMatch;
+                    });
+                }
+
+                return cColor && cFolder && cTags && termOk;
             });
-            //console.log(valueToUse)
+
+            if (entryMatches) {
+                websites_json_to_show[website] = websites_json[website];
+            }
         }
         loadAllWebsites(true, sort_by_selected, false);
+        if (valid_results > 0) {
+            highlightSearchResults(valueToUse);
+            document.querySelectorAll(".domain-pages.collapsed").forEach(dp => {
+                dp.classList.remove("collapsed");
+                let toggle = dp.parentElement.querySelector(".domain-toggle");
+                if (toggle) toggle.classList.remove("collapsed");
+            });
+        }
     } catch (e) {
         console.error(`E-S1: ${e}`);
         onError("all-notes.js::search", e.message);
@@ -723,9 +1610,7 @@ function search(value = "") {
 function getType(website, url) {
     let valueToReturn = "";
     if (website !== undefined && website["domain"] !== undefined && url !== undefined) {
-        if (url === "**global") valueToReturn = "global";
-        else if (website["domain"] !== "") valueToReturn = "page";
-        else valueToReturn = "domain";
+        if (url === "**global") valueToReturn = "global"; else if (website["domain"] !== "") valueToReturn = "page"; else valueToReturn = "domain";
     }
     return valueToReturn;
 }
@@ -736,17 +1621,107 @@ function getType(website, url) {
  * @param data the new data to save: {notes, title}
  * @param pageLastUpdate the element to update the last update
  */
-function onInputText(url, data, pageLastUpdate) {
-    chrome.runtime.sendMessage({from: "all-notes", type: "inline-edit", url: url, data: data});
+function onInputText(url, data, pageLastUpdate, noteIndex = 0) {
+    chrome.runtime.sendMessage({from: "all-notes", type: "inline-edit", url: url, data: data, noteIndex: noteIndex});
     pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(data["lastUpdate"]));
     sendMessageUpdateToBackground();
+}
+
+function stripWildcardSuffix(url) {
+    if (typeof url !== "string") return "";
+    return url.endsWith("*") ? url.substring(0, url.length - 1) : url;
+}
+
+function getPageDisplayUrl(fullUrl) {
+    try {
+        let parsed = new URL(stripWildcardSuffix(fullUrl));
+        let relative = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+        return relative === "" ? "/" : relative;
+    } catch (e) {
+        return fullUrl;
+    }
+}
+
+function normalizeEditedLink(rawValue, currentFullUrl, typeToUse) {
+    let value = (rawValue || "").trim();
+    if (value === "") return null;
+
+    let normalizedType = (typeToUse || "").toLowerCase();
+    let candidate = value;
+
+    if (!candidate.includes("://")) {
+        if (normalizedType === "page") {
+            let currentDomain = websites_json[currentFullUrl] && websites_json[currentFullUrl]["domain"] ? websites_json[currentFullUrl]["domain"] : "";
+            if (currentDomain === "") return null;
+            candidate = candidate.startsWith("/") ? `${currentDomain}${candidate}` : `${currentDomain}/${candidate}`;
+        } else if (normalizedType === "domain") {
+            let protocol = getTheProtocol(currentFullUrl);
+            candidate = `${protocol}://${candidate.replace(/^\/+/, "")}`;
+        } else {
+            return null;
+        }
+    }
+
+    try {
+        let parsed = new URL(stripWildcardSuffix(candidate));
+        if (!isUrlSupported(parsed.href)) return null;
+        if (normalizedType === "domain") return parsed.origin;
+        return parsed.href;
+    } catch (e) {
+        return null;
+    }
+}
+
+function updateWebsiteLink(oldUrl, newUrl, typeToUse) {
+    return new Promise((resolve) => {
+        if (!oldUrl || !newUrl || oldUrl === newUrl) {
+            resolve(true);
+            return;
+        }
+
+        sync_local.get("websites", function (value) {
+            websites_json = value["websites"] || {};
+            migrateWebsites(websites_json);
+            if (websites_json[oldUrl] === undefined) {
+                resolve(false);
+                return;
+            }
+
+            if (websites_json[newUrl] !== undefined) {
+                alert("A note with this link already exists.");
+                resolve(false);
+                return;
+            }
+
+            websites_json[newUrl] = websites_json[oldUrl];
+            delete websites_json[oldUrl];
+
+            let normalizedType = (typeToUse || "").toLowerCase();
+            if (normalizedType === "domain") {
+                websites_json[newUrl]["domain"] = "";
+            } else if (normalizedType === "page") {
+                try {
+                    websites_json[newUrl]["domain"] = new URL(stripWildcardSuffix(newUrl)).origin;
+                } catch (e) {
+                    resolve(false);
+                    return;
+                }
+            }
+
+            websites_json_to_show = websites_json;
+
+            sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+                resolve(true);
+            });
+        });
+    });
 }
 
 function sendMessageUpdateToBackground() {
     chrome.runtime.sendMessage({"updated": true});
 }
 
-function generateNotes(page, url, notes, title, content, lastUpdate, type, fullUrl, type_to_use, domain_again) {
+function generateNotes(page, url, notes, title, content, lastUpdate, type, fullUrl, type_to_use, domain_again, noteIndex = 0) {
     try {
         let pageContentLeft = document.createElement("div")
         pageContentLeft.classList.add("page-content-left")
@@ -776,11 +1751,11 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             if (fullUrl === url) {
                 isDomain = true;
             }
-            clearAllNotesPage(fullUrl, isDomain);
+            clearAllNotesPage(fullUrl, isDomain, noteIndex);
             sendTelemetry(`clear-all-notes-page`, "all-notes.js", fullUrl);
         }
         let pageTitleH3 = document.createElement("h3");
-        let textNotes = document.createElement("pre");
+        let textNotes = document.createElement("div");
         let row2 = document.createElement("div");
 
         //Button "Edit notes"
@@ -788,8 +1763,13 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         inputInlineEdit.type = "button";
         inputInlineEdit.value = all_strings["edit-notes-button"];
         inputInlineEdit.classList.add("button", "very-small-button", "edit-button", "button-no-text-on-mobile");
-        inputInlineEdit.onclick = function () {
+        let pageUrl = null;
+        let openUrlOnClick = stripWildcardSuffix(fullUrl);
+
+        inputInlineEdit.onclick = async function () {
             if (textNotes.contentEditable === "true") {
+                let previousFullUrl = fullUrl;
+
                 textNotes.contentEditable = "false";
                 if (inputInlineEdit.classList.contains("finish-edit-button")) inputInlineEdit.classList.remove("finish-edit-button");
                 if (pageTitleH3.classList.contains("inline-edit-title")) pageTitleH3.classList.remove("inline-edit-title");
@@ -798,12 +1778,41 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 pageTitleH3.contentEditable = "false";
                 textNotes.readOnly = true;
 
+                if (pageUrl !== null) {
+                    pageUrl.contentEditable = "false";
+                    if (pageUrl.classList.contains("inline-edit-title")) pageUrl.classList.remove("inline-edit-title");
+                    if (pageUrl.classList.contains("link-editing")) pageUrl.classList.remove("link-editing");
+
+                    let normalizedLink = normalizeEditedLink(pageUrl.textContent, previousFullUrl, type_to_use);
+                    if (normalizedLink === null) {
+                        alert("Invalid link. Please enter a valid URL.");
+                        pageUrl.textContent = (type_to_use.toLowerCase() === "page") ? getPageDisplayUrl(previousFullUrl) : previousFullUrl;
+                    } else if (normalizedLink !== previousFullUrl) {
+                        let changed = await updateWebsiteLink(previousFullUrl, normalizedLink, type_to_use);
+                        if (changed) {
+                            fullUrl = normalizedLink;
+                            page.id = fullUrl;
+                        }
+                    }
+
+                    openUrlOnClick = stripWildcardSuffix(fullUrl);
+                    if (type_to_use.toLowerCase() === "page") {
+                        pageUrl.textContent = getPageDisplayUrl(fullUrl);
+                    } else {
+                        pageUrl.textContent = fullUrl;
+                    }
+                }
+
                 if (pageTitleH3.textContent.replaceAll("<br>", "") !== "") {
                     if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
                 } else {
                     row2.classList.add("hidden");
                 }
                 sendTelemetry(`finish-edit-notes`, "all-notes.js", fullUrl);
+                if (previousFullUrl !== fullUrl) {
+                    loadDataFromBrowser("LNK-EDIT", true);
+                    return;
+                }
             } else {
                 textNotes.contentEditable = "true";
                 inputInlineEdit.classList.add("finish-edit-button");
@@ -812,8 +1821,20 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
                 textNotes.readOnly = false;
                 pageTitleH3.classList.add("inline-edit-title");
                 textNotes.classList.add("inline-edit-notes");
+
+                if (pageUrl !== null) {
+                    pageUrl.contentEditable = "true";
+                    pageUrl.classList.add("inline-edit-title");
+                    pageUrl.classList.add("link-editing");
+                    pageUrl.textContent = fullUrl;
+                }
+
                 setTimeout(() => {
-                    pageTitleH3.focus();
+                    if (pageUrl !== null) {
+                        pageUrl.focus();
+                    } else {
+                        pageTitleH3.focus();
+                    }
                 }, 100);
 
                 if (row2.classList.contains("hidden")) row2.classList.remove("hidden");
@@ -822,7 +1843,7 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             }
 
         }
-        pageTitleH3.onkeypress = function (e) {
+        pageTitleH3.onkeyup = function (e) {
             if (e.key === "Enter") {
                 e.preventDefault();
                 inputInlineEdit.click();
@@ -846,31 +1867,36 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             sendTelemetry(`copy-notes`, "all-notes.js", fullUrl);
         }
 
-        //Select "Tag colour"
-        let tagsColour = document.createElement("select");
-        let colourList = colourListDefault;
-        colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
-        for (let colour in colourList) {
-            let tagColour = document.createElement("option");
-            tagColour.value = colour;
-            if (websites_json[fullUrl] !== undefined && websites_json[fullUrl]["tag-colour"] !== undefined && websites_json[fullUrl]["tag-colour"] === colour) {
-                tagColour.selected = true;
-                pageContentLeft.classList.add("tag-colour-" + colour + "-bg");
-            }
-            tagColour.textContent = colourList[colour];
-            //tagColour.classList.add(colour + "-background-tag");
-            tagsColour.classList.add("select-tag-all-notes", "button", "very-small-button", "tag-button", "select-grid-no-text");
-            tagsColour.append(tagColour);
-        }
-        tagsColour.onchange = function () {
-            changeTagColour(fullUrl, tagsColour.value, type_to_use);
-            sendTelemetry(`change-tag-colour::${tagsColour.value}`, "all-notes.js", fullUrl);
-        }
         page.id = fullUrl;
         page.classList.add("notes-pages");
         if (settings_json["notes-background-follow-tag-colour"]) page.classList.add("background-as-tag-colour");
 
         subrowUrl.append(pageType);
+
+        // Tag Color select — built here so it can be the leftmost element in subrowButtons
+        let tagsColour = document.createElement("select");
+        let colourList = colourListDefault;
+        colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
+        let noteForColour = (websites_json[fullUrl] !== undefined && Array.isArray(websites_json[fullUrl]["all-notes"])) ? websites_json[fullUrl]["all-notes"][noteIndex] : undefined;
+        for (let colour in colourList) {
+            let tagColour = document.createElement("option");
+            tagColour.value = colour;
+            if (noteForColour !== undefined && noteForColour["tag-colour"] !== undefined && noteForColour["tag-colour"] === colour) {
+                tagColour.selected = true;
+                pageContentLeft.classList.add("tag-colour-" + colour + "-bg");
+            }
+            tagColour.textContent = colourList[colour];
+            tagsColour.classList.add("select-tag-all-notes", "button", "very-small-button", "tag-button", "no-text");
+            tagsColour.dataset.colorValues = "true";
+            tagsColour.append(tagColour);
+        }
+        tagsColour.onchange = function () {
+            changeTagColour(fullUrl, tagsColour.value, type_to_use, noteIndex);
+            sendTelemetry(`change-tag-colour::${tagsColour.value}`, "all-notes.js", fullUrl);
+        }
+
+        // Tag color goes first (leftmost), then show-content, edit, copy, clear
+        subrowButtons.append(tagsColour);
 
         if (content !== undefined && content !== "") {
             //Button "Show content"
@@ -885,25 +1911,25 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
 
             subrowButtons.append(inputShowContent);
         }
-        subrowButtons.append(tagsColour);
         subrowButtons.append(inputInlineEdit);
         subrowButtons.append(inputCopyNotes);
         subrowButtons.append(inputClearAllNotesPage);
 
-        if (type_to_use.toLowerCase() !== "domain" && type_to_use.toLowerCase() !== "global") {
-            //it's a page
-            let pageUrl = document.createElement("h3");
-            pageUrl.textContent = url;
+        if (type_to_use.toLowerCase() !== "global") {
+            pageUrl = document.createElement("h3");
+            pageUrl.classList.add("url");
+            pageUrl.textContent = (type_to_use.toLowerCase() === "page") ? getPageDisplayUrl(fullUrl) : fullUrl;
 
-            let fullUrlToUse = fullUrl;
-            if (fullUrlToUse.substring(fullUrlToUse.length - 1, fullUrlToUse.length) === "*") {
-                fullUrlToUse = fullUrlToUse.substring(0, fullUrlToUse.length - 1);
-            }
-            if (isUrlSupported(fullUrlToUse)) {
+            if (isUrlSupported(openUrlOnClick)) {
                 pageUrl.classList.add("link", "go-to-external");
-                pageUrl.onclick = function () {
-                    sendTelemetry(`go-to-page`, "all-notes.js", fullUrlToUse);
-                    chrome.tabs.create({url: fullUrlToUse});
+                pageUrl.onclick = function (e) {
+                    if (textNotes.contentEditable === "true") {
+                        e.preventDefault();
+                        return;
+                    }
+                    let openAction = (type_to_use.toLowerCase() === "domain") ? "go-to-domain" : "go-to-page";
+                    sendTelemetry(openAction, "all-notes.js", openUrlOnClick);
+                    chrome.tabs.create({url: openUrlOnClick});
                 }
             }
 
@@ -927,10 +1953,9 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         pageTitleH3.textContent = title;
         pageTitleH3.oninput = function () {
             let data = {
-                title: pageTitleH3.textContent,
-                lastUpdate: getDate()
+                title: pageTitleH3.textContent, lastUpdate: getDate()
             }
-            onInputText(fullUrl, data, pageLastUpdate);
+            onInputText(fullUrl, data, pageLastUpdate, noteIndex);
         }
         row2.classList.add("hidden");
         row2.append(pageTitle)
@@ -953,10 +1978,9 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         textNotes.classList.add("textarea-all-notes");
         textNotes.oninput = function () {
             let data = {
-                notes: textNotes.innerHTML,
-                lastUpdate: getDate()
+                notes: textNotes.innerHTML, lastUpdate: getDate()
             }
-            onInputText(fullUrl, data, pageLastUpdate);
+            onInputText(fullUrl, data, pageLastUpdate, noteIndex);
         }
         textNotes.onpaste = function (e) {
             //Ctrl+V (or Cmd+V on Mac) to paste WITH HTML formatting, Ctrl+Shift+V (or Cmd+Shift+V on Mac) to paste WITHOUT HTML formatting
@@ -990,23 +2014,35 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
             }
         }
         listenerLinks(textNotes);
+
         let disable_word_wrap = false;
         if (settings_json["disable-word-wrap"] !== undefined) {
-            if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true;
-            else disable_word_wrap = false;
+            if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true; else disable_word_wrap = false;
         }
         if (disable_word_wrap) {
-            textNotes.whiteSpace = "none";
+            textNotes.style.whiteSpace = "normal";
         } else {
             textNotes.style.whiteSpace = "pre-wrap";
         }
 
-        if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
+        if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
 
         textNotes.style.fontFamily = `'${settings_json["font-family"]}'`;
+        textNotes.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
+
+        let openFullscreenNotesButton = document.createElement("button");
+        openFullscreenNotesButton.classList.add("button-format", "button");
+        openFullscreenNotesButton.id = "open-fullscreen-notes-button";
+        openFullscreenNotesButton.onclick = function () {
+            showFullscreenNotes(textNotes);
+            sendTelemetry(`open-fullscreen-notes`, "all-notes.js", fullUrl);
+        }
 
         contentNotes.append(textNotes);
         contentNotesContainer.appendChild(contentNotes);
+        if (settings_json["show-fullscreen-button-in-all-notes"]) {
+            contentNotesContainer.appendChild(openFullscreenNotesButton);
+        }
 
         pageContentRight.append(contentNotesContainer);
 
@@ -1014,8 +2050,28 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(lastUpdate));
         pageContentRight.append(pageLastUpdate);
 
+        // --- TAGS SECTION IN BOTTOM (folder + tags-text only; tag-color is now in the action row) ---
+        let tagsBottomContainer = document.createElement("div");
+        tagsBottomContainer.className = "tags-bottom-container";
+
+        // 1. Folder View Component
+        let folderViewContainer = document.createElement("div");
+        folderViewContainer.className = "folder-view-container";
+        renderFolderView(folderViewContainer, fullUrl, false, noteIndex);
+        tagsBottomContainer.append(folderViewContainer);
+
+        // 2. Tags Text
+        let tagsTextContainerAll = document.createElement("div");
+        tagsTextContainerAll.className = "tags-text-container-all";
+        renderTagsAllNotes(tagsTextContainerAll, fullUrl, false, noteIndex);
+        tagsBottomContainer.append(tagsTextContainerAll);
+
+        pageContentRight.append(tagsBottomContainer);
+
         page.append(pageContentLeft);
         page.append(pageContentRight);
+
+        setTimeout(() => initCustomSelects(), 0);
 
         return page;
     } catch (e) {
@@ -1026,19 +2082,393 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
     }
 }
 
-function changeTagColour(url, colour) {
-    sync_local.get("websites", function (value) {
-        websites_json = {};
-        if (value["websites"] !== undefined) {
-            websites_json = value["websites"];
+function renderTagsAllNotes(container, fullUrl, shouldFocus = false, noteIndex = 0) {
+    if (!container) return;
+
+    let noteObj = (websites_json[fullUrl] !== undefined && Array.isArray(websites_json[fullUrl]["all-notes"])) ? websites_json[fullUrl]["all-notes"][noteIndex] : undefined;
+
+    // Aggiorna il timestamp nella UI risalendo al genitore
+    let pageContentRight = container.closest(".page-content-right");
+    if (pageContentRight) {
+        let lastUpdateElem = pageContentRight.querySelector(".sub-section-last-update");
+        if (lastUpdateElem && noteObj && noteObj["last-update"]) {
+            lastUpdateElem.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(noteObj["last-update"]));
         }
-        //console.log(`url ${url}`);
-        websites_json[url]["tag-colour"] = colour;
-        websites_json[url]["last-update"] = getDate();
-        websites_json_to_show = websites_json;
-        sync_local.set({"websites": websites_json}, function () {
-            loadDataFromBrowser(true);
-            updateLastUpdate();
+    }
+
+    container.innerHTML = "";
+    container.className = "custom-tag-input-container tags-text-container-all";
+
+    let tags = [];
+    if (noteObj !== undefined && noteObj["tags-text"] !== undefined) {
+        tags = noteObj["tags-text"];
+    }
+
+    if (Array.isArray(tags)) {
+        tags.forEach((tag, index) => {
+            let chip = document.createElement("div");
+            chip.className = "tag-chip tag-chip-interactive";
+
+            let tagText = document.createElement("span");
+            tagText.className = "tag-chip-text";
+            tagText.textContent = tag;
+            tagText.onclick = function (e) {
+                e.stopPropagation();
+                applyTagFilter(tag);
+            };
+            chip.appendChild(tagText);
+
+            let remove = document.createElement("span");
+            remove.className = "tag-chip-remove";
+            remove.textContent = "×";
+            remove.onclick = function (e) {
+                e.stopPropagation();
+                removeTagAllNotes(fullUrl, index, container, noteIndex);
+            };
+            chip.appendChild(remove);
+            container.appendChild(chip);
+        });
+    }
+
+    let input = document.createElement("input");
+    input.type = "text";
+    input.className = "tag-inner-input";
+    input.placeholder = all_strings["add-tag-placeholder"] || "...";
+
+    // Custom autocomplete dropdown (non-binding): show tags used elsewhere, excluding those already on this note
+    let dropdownId = "note-tag-dropdown-" + btoa(unescape(encodeURIComponent(fullUrl))).replace(/[^a-z0-9]/gi, "").substring(0, 24);
+    let existingDd = document.getElementById(dropdownId);
+    if (existingDd) existingDd.remove();
+    let tagDropdown = document.createElement("div");
+    tagDropdown.id = dropdownId;
+    tagDropdown.className = "autocomplete-dropdown hidden";
+    tagDropdown.style.position = "fixed";
+    tagDropdown.style.zIndex = "20000";
+    document.body.appendChild(tagDropdown);
+
+    function getAvailableTags() {
+        let all = new Set();
+        for (let url in websites_json) {
+            let e = websites_json[url];
+            if (e && Array.isArray(e["all-notes"])) {
+                for (let n of e["all-notes"]) {
+                    if (Array.isArray(n["tags-text"])) n["tags-text"].forEach(t => all.add(t.toLowerCase()));
+                }
+            }
+        }
+        let current = tags.map(t => t.toLowerCase());
+        return Array.from(all).filter(t => !current.includes(t)).sort();
+    }
+
+    function updateTagDropdown(text) {
+        tagDropdown.innerHTML = "";
+        let available = getAvailableTags();
+        let matches = available.filter(t => t.includes(text.toLowerCase()));
+        if (matches.length > 0) {
+            matches.forEach(match => {
+                let item = document.createElement("div");
+                item.className = "autocomplete-item";
+                item.textContent = match;
+                item.onmousedown = function (e) {
+                    e.preventDefault();
+                    input.value = match;
+                    addTagAllNotes(input, fullUrl, container, noteIndex);
+                    tagDropdown.classList.add("hidden");
+                };
+                tagDropdown.appendChild(item);
+            });
+            hideAllDropdowns();
+            tagDropdown.classList.remove("hidden");
+            checkDropdownScrollbar(tagDropdown, input);
+        } else {
+            tagDropdown.classList.add("hidden");
+        }
+    }
+
+    input.oninput = function () {
+        updateTagDropdown(this.value.trim());
+    };
+    input.onfocus = function () {
+        updateTagDropdown(this.value.trim());
+    };
+    input.onclick = function () {
+        updateTagDropdown(this.value.trim());
+    };
+    input.onblur = function () {
+        // committing on blur (not only on Enter) so a typed-but-unconfirmed tag is not lost
+        if (this.value.trim() !== "") {
+            addTagAllNotes(this, fullUrl, container, noteIndex);
+        }
+        setTimeout(() => tagDropdown.classList.add("hidden"), 150);
+    };
+    input.onkeydown = function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            addTagAllNotes(this, fullUrl, container, noteIndex);
+            tagDropdown.classList.add("hidden");
+        } else if (e.key === "Backspace" && this.value === "" && tags.length > 0) {
+            removeTagAllNotes(fullUrl, tags.length - 1, container, noteIndex);
+        } else if (e.key === "Escape") {
+            tagDropdown.classList.add("hidden");
+        }
+    };
+    container.appendChild(input);
+
+    container.onclick = function () {
+        input.focus();
+    };
+
+    if (shouldFocus) {
+        input.focus();
+    }
+
+    initCustomSelects();
+}
+
+function applyTagFilter(tag) {
+    let filterInput = document.getElementById("filter-tags-text-input");
+    if (filterInput) {
+        // Se è il div editable (nuova versione)
+        if (filterInput.tagName === "DIV") {
+            addTagToFilterDiv(tag);
+        } else {
+            // Vecchia versione o fallback
+            let current = filterInput.value.trim();
+            let tags = current ? current.split(";").map(t => t.trim()) : [];
+            if (!tags.includes(tag)) {
+                tags.push(tag);
+                filterInput.value = tags.join(";");
+                // Trigger input event
+                filterInput.dispatchEvent(new Event('input'));
+            }
+        }
+        // Mostra la sezione filtri se nascosta
+        let filtersSection = document.getElementById("filters");
+        if (filtersSection && filtersSection.classList.contains("hidden")) {
+            document.getElementById("filter-all-notes-button").click();
+        }
+    }
+}
+
+function applyFolderFilter(folder) {
+    if (!filtersFolder.includes(folder)) {
+        filtersFolder.push(folder);
+        window.renderFilterFolders();
+        applyFilter();
+    }
+    let filtersSection = document.getElementById("filters");
+    if (filtersSection && filtersSection.classList.contains("hidden")) {
+        document.getElementById("filter-all-notes-button").click();
+    }
+}
+
+function renderFolderView(container, fullUrl, shouldFocus = false, noteIndex = 0) {
+    if (!container) return;
+
+    let noteObj = (websites_json[fullUrl] && Array.isArray(websites_json[fullUrl]["all-notes"])) ? websites_json[fullUrl]["all-notes"][noteIndex] : undefined;
+
+    // Aggiorna il timestamp nella UI risalendo al genitore
+    let pageContentRight = container.closest(".page-content-right");
+    if (pageContentRight) {
+        let lastUpdateElem = pageContentRight.querySelector(".sub-section-last-update");
+        if (lastUpdateElem && noteObj && noteObj["last-update"]) {
+            lastUpdateElem.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(noteObj["last-update"]));
+        }
+    }
+
+    container.innerHTML = "";
+    container.className = "custom-tag-input-container folder-view-container";
+    container.style.flexWrap = "nowrap";
+    container.style.overflowX = "auto";
+    container.style.overflowY = "hidden";
+
+    let currentFolder = (noteObj && noteObj["tag-folder"]) ? noteObj["tag-folder"] : "";
+
+    if (currentFolder) {
+        let chip = document.createElement("div");
+        chip.className = "tag-chip tag-chip-interactive";
+        chip.style.margin = "0";
+
+        let tagText = document.createElement("span");
+        tagText.className = "tag-chip-text";
+        tagText.textContent = currentFolder;
+        tagText.title = all_strings["filter-folder-label"] || "Filter by folder";
+        tagText.onclick = function (e) {
+            e.stopPropagation();
+            applyFolderFilter(currentFolder);
+        };
+        chip.appendChild(tagText);
+
+        let remove = document.createElement("span");
+        remove.className = "tag-chip-remove";
+        remove.textContent = "×";
+        remove.onclick = function (e) {
+            e.stopPropagation();
+            changeFolderAllNotes(fullUrl, "", container, noteIndex);
+        };
+        chip.appendChild(remove);
+        container.appendChild(chip);
+    } else {
+        let input = document.createElement("input");
+        input.type = "text";
+        input.className = "tag-inner-input";
+        input.placeholder = all_strings["new-folder-placeholder"] || "Folder...";
+
+        // Custom autocomplete dropdown (non-binding)
+        let dropdownId = "note-folder-dropdown-" + btoa(unescape(encodeURIComponent(fullUrl))).replace(/[^a-z0-9]/gi, "").substring(0, 24);
+        let existingDd = document.getElementById(dropdownId);
+        if (existingDd) existingDd.remove();
+        let dropdown = document.createElement("div");
+        dropdown.id = dropdownId;
+        dropdown.className = "autocomplete-dropdown hidden";
+        dropdown.style.position = "fixed";
+        dropdown.style.zIndex = "20000";
+        document.body.appendChild(dropdown);
+
+        function updateFolderDropdown(text) {
+            dropdown.innerHTML = "";
+            let folders = getExistingFolders();
+            let matches = folders.filter(f => f.toLowerCase().includes(text.toLowerCase()));
+            if (matches.length > 0) {
+                matches.forEach(match => {
+                    let item = document.createElement("div");
+                    item.className = "autocomplete-item";
+                    item.textContent = match;
+                    item.onmousedown = function (e) {
+                        e.preventDefault();
+                        changeFolderAllNotes(fullUrl, match, container, noteIndex);
+                        dropdown.classList.add("hidden");
+                    };
+                    dropdown.appendChild(item);
+                });
+                hideAllDropdowns();
+                dropdown.classList.remove("hidden");
+                checkDropdownScrollbar(dropdown, input);
+            } else {
+                dropdown.classList.add("hidden");
+            }
+        }
+
+        input.oninput = function () {
+            updateFolderDropdown(this.value.trim());
+        };
+        input.onfocus = function () {
+            updateFolderDropdown(this.value.trim());
+        };
+        input.onclick = function () {
+            updateFolderDropdown(this.value.trim());
+        };
+        input.onblur = function () {
+            // committing on blur (not only on Enter) so a typed-but-unconfirmed folder is not lost
+            let val = this.value.trim();
+            if (val !== "") {
+                changeFolderAllNotes(fullUrl, val, container, noteIndex);
+            }
+            setTimeout(() => dropdown.classList.add("hidden"), 150);
+        };
+        input.onkeydown = function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                let val = this.value.trim();
+                if (val) {
+                    changeFolderAllNotes(fullUrl, val, container, noteIndex);
+                    dropdown.classList.add("hidden");
+                }
+            } else if (e.key === "Escape") {
+                dropdown.classList.add("hidden");
+            }
+        };
+
+        container.appendChild(input);
+        container.onclick = function () {
+            input.focus();
+        };
+
+        if (shouldFocus) {
+            input.focus();
+        }
+    }
+}
+
+
+function ensureNoteAt(entryUrl, noteIndex) {
+    if (websites_json[entryUrl] === undefined) websites_json[entryUrl] = {"all-notes": []};
+    migrateEntryToAllNotes(websites_json[entryUrl]);
+    if (!Array.isArray(websites_json[entryUrl]["all-notes"])) websites_json[entryUrl]["all-notes"] = [];
+    if (!websites_json[entryUrl]["all-notes"][noteIndex]) {
+        websites_json[entryUrl]["all-notes"][noteIndex] = {"notes": "", "title": "", "tags-text": [], "tag-folder": ""};
+    }
+    return websites_json[entryUrl]["all-notes"][noteIndex];
+}
+
+function addTagAllNotes(input, fullUrl, container, noteIndex = 0) {
+    let tag = input.value.trim().toLowerCase();
+    if (tag !== "") {
+        sync_local.get("websites", function (value) {
+            websites_json = value["websites"] || {};
+            let note = ensureNoteAt(fullUrl, noteIndex);
+            if (note["tags-text"] === undefined) note["tags-text"] = [];
+            if (!note["tags-text"].includes(tag)) {
+                note["tags-text"].push(tag);
+                note["last-update"] = getDate();
+                input.value = "";
+                sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+                    renderTagsAllNotes(container, fullUrl, true, noteIndex);
+                    sendMessageUpdateToBackground();
+                });
+            }
+        });
+    }
+}
+
+function removeTagAllNotes(fullUrl, index, container, noteIndex = 0) {
+    sync_local.get("websites", function (value) {
+        websites_json = value["websites"] || {};
+        migrateWebsites(websites_json);
+        let note = (websites_json[fullUrl] !== undefined && Array.isArray(websites_json[fullUrl]["all-notes"])) ? websites_json[fullUrl]["all-notes"][noteIndex] : undefined;
+        if (note !== undefined && note["tags-text"] !== undefined) {
+            note["tags-text"].splice(index, 1);
+            note["last-update"] = getDate();
+            sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+                renderTagsAllNotes(container, fullUrl, true, noteIndex);
+                sendMessageUpdateToBackground();
+            });
+        }
+    });
+}
+
+function changeFolderAllNotes(fullUrl, folder, container, noteIndex = 0) {
+    sync_local.get("websites", function (value) {
+        websites_json = value["websites"] || {};
+        let note = ensureNoteAt(fullUrl, noteIndex);
+        note["tag-folder"] = folder;
+        note["last-update"] = getDate();
+        sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+            // Se avevamo passato un container per renderFolderView, ri-renderizziamo con focus
+            if (typeof container !== 'undefined') {
+                renderFolderView(container, fullUrl, true, noteIndex);
+            }
+            loadDataFromBrowser("FOLDER-ALL", true);
+            sendMessageUpdateToBackground();
+        });
+    });
+}
+
+function changeTagColour(url, colour, type_to_use, noteIndex = 0) {
+    sync_local.get("websites", function (value) {
+        let websites_json = value["websites"] || {};
+        migrateWebsites(websites_json);
+        if (websites_json[url] === undefined) {
+            websites_json[url] = {"all-notes": []};
+        }
+        if (!Array.isArray(websites_json[url]["all-notes"])) websites_json[url]["all-notes"] = [];
+        if (!websites_json[url]["all-notes"][noteIndex]) {
+            websites_json[url]["all-notes"][noteIndex] = {"notes": "", "title": "", "tags-text": [], "tag-folder": ""};
+        }
+        websites_json[url]["all-notes"][noteIndex]["tag-colour"] = colour;
+        websites_json[url]["all-notes"][noteIndex]["last-update"] = getDate();
+        sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+            loadDataFromBrowser("H", true);
             sendMessageUpdateToBackground();
         });
     });
@@ -1111,12 +2541,13 @@ function sortOnKeys(dict, dict2, sort_by) {
                 dictToSortDate[domain] = {};
                 dictToSortDate[domain]["last-update"] = null;
                 dictToSortDate[domain]["pages"] = [];
-                if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = dict2[domain]["last-update"];
+                if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = entryLastUpdateStr(dict2[domain]);
                 for (let website in dict2) {
                     if (website.includes(domain)) {
-                        let date1 = new Date(dict2[website]["last-update"]);
+                        let websiteLU = entryLastUpdateStr(dict2[website]);
+                        let date1 = new Date(websiteLU);
                         let date2 = new Date(dictToSortDate[domain]["last-update"]);
-                        if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 < date2) dictToSortDate[domain]["last-update"] = dict2[website]["last-update"];
+                        if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 < date2) dictToSortDate[domain]["last-update"] = websiteLU;
                     }
                 }
             }
@@ -1152,12 +2583,13 @@ function sortOnKeys(dict, dict2, sort_by) {
                 dictToSortDate[domain] = {};
                 dictToSortDate[domain]["last-update"] = null;
                 dictToSortDate[domain]["pages"] = [];
-                if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = dict2[domain]["last-update"];
+                if (dict2[domain] !== undefined) dictToSortDate[domain]["last-update"] = entryLastUpdateStr(dict2[domain]);
                 for (let website in dict2) {
                     if (website.includes(domain)) {
-                        let date1 = new Date(dict2[website]["last-update"]);
+                        let websiteLU = entryLastUpdateStr(dict2[website]);
+                        let date1 = new Date(websiteLU);
                         let date2 = new Date(dictToSortDate[domain]["last-update"]);
-                        if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 > date2) dictToSortDate[domain]["last-update"] = dict2[website]["last-update"];
+                        if (dictToSortDate[domain]["last-update"] === null || dictToSortDate[domain]["last-update"] !== null && date1 > date2) dictToSortDate[domain]["last-update"] = websiteLU;
                     }
                 }
             }
@@ -1228,6 +2660,84 @@ function loginExpired() {
     }
 }
 
+function showFullscreenNotes(notesText) {
+    let section = document.getElementById("fullscreen-notes-viewer");
+    let background = document.getElementById("background-opacity");
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    let notesContent = document.getElementById("fullscreen-notes-viewer-content");
+    notesContent.innerHTML = notesText.innerHTML;
+
+    if (notesContent) {
+        let disable_word_wrap = false;
+        if (settings_json["disable-word-wrap"] !== undefined) {
+            if (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true) disable_word_wrap = true; else disable_word_wrap = false;
+        }
+        if (disable_word_wrap) {
+            notesContent.style.whiteSpace = "normal";
+        } else {
+            notesContent.style.whiteSpace = "pre-wrap";
+        }
+
+        if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
+
+        notesContent.style.fontFamily = `'${settings_json["font-family"]}'`;
+        notesContent.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
+    }
+
+    sendTelemetry(`open-fullscreen-notes`);
+
+    let closeButton = document.getElementById("close-fullscreen-notes-button");
+    closeButton.onclick = function () {
+        section.style.display = "none";
+        background.style.display = "none";
+        sendTelemetry(`close-fullscreen-notes`);
+    }
+}
+
+function notefoxServerError() {
+    let section = document.getElementById("notefox-server-error-section");
+    let background = document.getElementById("background-opacity");
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    let title = document.getElementById("notefox-server-error-title");
+    title.textContent = all_strings["notefox-account-message-server-error-title"];
+    let text = document.getElementById("notefox-server-error-text");
+    text.innerHTML = all_strings["notefox-account-message-server-error-text"];
+    let text2 = document.getElementById("notefox-server-error-text2");
+    text2.innerHTML = all_strings["notefox-account-message-server-error-text2"];
+    let text3 = document.getElementById("notefox-server-error-text3");
+    text3.innerHTML = all_strings["notefox-account-message-server-error-text3"];
+    let button1 = document.getElementById("notefox-server-error-button1");
+    button1.value = all_strings["notefox-account-message-button1"];
+    button1.onclick = function () {
+        //log out
+        section.style.display = "none";
+        background.style.display = "none";
+
+        chrome.storage.sync.remove("notefox-account");
+        chrome.storage.local.set({"notefox-server-error-shown": true});
+        sendTelemetry("notefox-server-error-logout");
+        window.close();
+    }
+    let button2 = document.getElementById("notefox-server-error-button2");
+    button2.value = all_strings["notefox-account-message-button2"];
+    button2.onclick = function () {
+        //close the message
+        section.style.display = "none";
+        background.style.display = "none";
+
+        chrome.storage.local.set({"notefox-server-error-shown": true}).then(() => {
+            //console.log("Notefox server error shown set to true");
+        });
+        sendTelemetry("notefox-server-error-continue");
+    }
+}
+
 function setTheme(background, backgroundSection, primary, secondary, on_primary, on_secondary, textbox_background, textbox_color) {
     if (background !== undefined && backgroundSection !== undefined && primary !== undefined && secondary !== undefined && on_primary !== undefined && on_secondary !== undefined) {
         document.body.style.backgroundColor = background;
@@ -1258,10 +2768,26 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         let refresh_svg = window.btoa(getIconSvgEncoded("refresh", on_primary));
         let sort_by_svg = window.btoa(getIconSvgEncoded("sort-by", on_primary));
-        let info_tooltip_svg = window.btoa(getIconSvgEncoded("search-icon-tooltip", primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         let search_svg = window.btoa(getIconSvgEncoded("search", primary));
+        let fullscreen_svg = window.btoa(getIconSvgEncoded("fullscreen", on_primary));
+        let close_svg = window.btoa(getIconSvgEncoded("close", on_primary));
+        let login_svg = window.btoa(getIconSvgEncoded("login", on_primary));
+        let logout_svg = window.btoa(getIconSvgEncoded("logout", on_primary));
 
+        let primaryTransparent = primary;
+        if (primaryTransparent.includes("rgb(")) {
+            let rgb_temp = primaryTransparent.replace("rgb(", "");
+            let rgb_temp_arr = rgb_temp.split(",");
+            if (rgb_temp_arr.length >= 3) {
+                let red = rgb_temp_arr[0].replace(" ", "");
+                let green = rgb_temp_arr[1].replace(" ", "");
+                let blue = rgb_temp_arr[2].replace(")", "").replace(" ", "");
+                primaryTransparent = `rgba(${red}, ${green}, ${blue}, 0.8)`;
+            }
+        } else if (primaryTransparent.includes("#")) {
+            primaryTransparent += "88";
+        }
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
@@ -1287,6 +2813,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
             <style>
                 :root {
                     --primary-color: ${primary};
+                    --primary-color-transparent: ${primaryTransparent};
                     --secondary-color: ${secondary};
                     --on-primary-color: ${on_primary};
                     --on-secondary-color: ${on_secondary};
@@ -1359,17 +2886,31 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 .refresh-button {
                     background-image: url('data:image/svg+xml;base64,${refresh_svg}');
                 }
-                .sort-by-button {
-                    background-image: url('data:image/svg+xml;base64,${sort_by_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
+                .cst-arrow {
+                    background-image: url('data:image/svg+xml;base64,${arrow_select_svg}') !important;
                 }
-                #info-tooltip-search {
-                    background-image: url('data:image/svg+xml;base64,${info_tooltip_svg}');
+                #custom-select-trigger-sort-by-all-notes-button .cst-label {
+                    background-image: url('data:image/svg+xml;base64,${sort_by_svg}') !important;
                 }
-                .select-tag-all-notes {
-                    background-image: url('data:image/svg+xml;base64,${tag_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
+                .custom-select-trigger.select-tag-all-notes .cst-label {
+                    background-image: url('data:image/svg+xml;base64,${tag_svg}') !important;
                 }
                 .search-all-notes-text {
                     background-image: url('data:image/svg+xml;base64,${search_svg}');
+                }
+                
+                .login-button {
+                    background-image: url('data:image/svg+xml;base64,${login_svg}');
+                }
+                .logout-button {
+                    background-image: url('data:image/svg+xml;base64,${logout_svg}');
+                }
+                
+                #open-fullscreen-notes-button {
+                    background-image: url('data:image/svg+xml;base64,${fullscreen_svg}');
+                }
+                #close-fullscreen-notes-button {
+                    background-image: url('data:image/svg+xml;base64,${close_svg}');
                 }
                 
                 h2.domain, div.h2-container {
@@ -1379,4 +2920,61 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
     }
 }
 
+function highlightSearchResults(terms) {
+    let noteElements = document.querySelectorAll("#all-website-sections .textarea-all-notes, #all-website-sections .title, #all-website-sections .url");
+    noteElements.forEach(el => {
+        if (el.contentEditable === "true") return;
+        highlightInElement(el, terms);
+    });
+}
+
+function highlightInElement(element, terms) {
+    let walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+    let textNodes = [];
+    while (walker.nextNode()) {
+        textNodes.push(walker.currentNode);
+    }
+    textNodes.forEach(node => {
+        let text = node.textContent;
+        let lower = text.toLowerCase();
+        let ranges = [];
+
+        terms.forEach(term => {
+            let t = term.toLowerCase();
+            let idx = lower.indexOf(t);
+            while (idx !== -1) {
+                ranges.push({start: idx, end: idx + t.length});
+                idx = lower.indexOf(t, idx + 1);
+            }
+        });
+
+        if (ranges.length === 0) return;
+
+        ranges.sort((a, b) => a.start - b.start);
+        let merged = [ranges[0]];
+        for (let i = 1; i < ranges.length; i++) {
+            let last = merged[merged.length - 1];
+            if (ranges[i].start <= last.end) {
+                last.end = Math.max(last.end, ranges[i].end);
+            } else {
+                merged.push(ranges[i]);
+            }
+        }
+
+        let frag = document.createDocumentFragment();
+        let lastIdx = 0;
+        merged.forEach(r => {
+            if (r.start > lastIdx) frag.appendChild(document.createTextNode(text.substring(lastIdx, r.start)));
+            let mark = document.createElement("mark");
+            mark.className = "search-highlight";
+            mark.textContent = text.substring(r.start, r.end);
+            frag.appendChild(mark);
+            lastIdx = r.end;
+        });
+        if (lastIdx < text.length) frag.appendChild(document.createTextNode(text.substring(lastIdx)));
+        node.parentNode.replaceChild(frag, node);
+    });
+}
+
 loaded();
+

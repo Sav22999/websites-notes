@@ -8,101 +8,241 @@ checkSyncLocal();
 var disableAside = false;
 let show_conversion_message_attention = false;
 var notefox_json = {};
-//const webBrowserUsed = "chrome";//TODO:change manually
 var json_to_export = {};
-
-let activatedTab = false;
 
 //Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
-    "red": all_strings["red-colour"],
-    "yellow": all_strings["yellow-colour"],
-    "black": all_strings["black-colour"],
-    "orange": all_strings["orange-colour"],
-    "pink": all_strings["pink-colour"],
-    "purple": all_strings["purple-colour"],
-    "gray": all_strings["grey-colour"],
-    "green": all_strings["green-colour"],
-    "blue": all_strings["blue-colour"],
-    "white": all_strings["white-colour"],
-    "aquamarine": all_strings["aquamarine-colour"],
-    "turquoise": all_strings["turquoise-colour"],
-    "brown": all_strings["brown-colour"],
-    "coral": all_strings["coral-colour"],
-    "cyan": all_strings["cyan-colour"],
-    "darkgreen": all_strings["darkgreen-colour"],
-    "violet": all_strings["violet-colour"],
-    "lime": all_strings["lime-colour"],
-    "fuchsia": all_strings["fuchsia-colour"],
-    "indigo": all_strings["indigo-colour"],
-    "lavender": all_strings["lavender-colour"],
-    "teal": all_strings["teal-colour"],
-    "navy": all_strings["navy-colour"],
-    "olive": all_strings["olive-colour"],
-    "plum": all_strings["plum-colour"],
-    "salmon": all_strings["salmon-colour"],
-    "snow": all_strings["snow-colour"]
+    red: all_strings["red-colour"],
+    yellow: all_strings["yellow-colour"],
+    black: all_strings["black-colour"],
+    orange: all_strings["orange-colour"],
+    pink: all_strings["pink-colour"],
+    purple: all_strings["purple-colour"],
+    gray: all_strings["grey-colour"],
+    green: all_strings["green-colour"],
+    blue: all_strings["blue-colour"],
+    white: all_strings["white-colour"],
+    aquamarine: all_strings["aquamarine-colour"],
+    turquoise: all_strings["turquoise-colour"],
+    brown: all_strings["brown-colour"],
+    coral: all_strings["coral-colour"],
+    cyan: all_strings["cyan-colour"],
+    darkgreen: all_strings["darkgreen-colour"],
+    violet: all_strings["violet-colour"],
+    lime: all_strings["lime-colour"],
+    fuchsia: all_strings["fuchsia-colour"],
+    indigo: all_strings["indigo-colour"],
+    lavender: all_strings["lavender-colour"],
+    teal: all_strings["teal-colour"],
+    navy: all_strings["navy-colour"],
+    olive: all_strings["olive-colour"],
+    plum: all_strings["plum-colour"],
+    salmon: all_strings["salmon-colour"],
+    snow: all_strings["snow-colour"],
 });
+
+function checkDonationAlert(times) {
+    if (times >= 1000) {
+        chrome.storage.local.get(["donation-popup-choice", "donation-popup-remind-date"], function (result) {
+            let choice = result["donation-popup-choice"];
+            let remindDate = result["donation-popup-remind-date"];
+            let show = false;
+
+            if (choice === undefined) {
+                show = true;
+            } else if (choice === "remind") {
+                if (new Date().getTime() > remindDate) {
+                    show = true;
+                }
+            }
+
+            if (show) {
+                let section = document.getElementById("donation-alert-section");
+                let background = document.getElementById("background-opacity");
+
+                section.style.display = "block";
+                background.style.display = "block";
+
+                let title = document.getElementById("donation-title");
+                title.textContent = all_strings["donation-alert-title"];
+                let description = document.getElementById("donation-text");
+                description.innerHTML = all_strings["donation-alert-text-long"].replace("{{times}}", times);
+
+                let buttonBuy = document.getElementById("donation-buy-button");
+                buttonBuy.value = all_strings["donation-alert-button-1"];
+                buttonBuy.onclick = function () {
+                    section.style.display = "none";
+                    background.style.display = "none";
+                    chrome.tabs.create({url: "https://liberapay.com/Sav22999/donate"});
+                    chrome.storage.local.set({"donation-popup-choice": "never"});
+                }
+
+                let buttonRemind = document.getElementById("donation-remind-button");
+                buttonRemind.value = all_strings["donation-alert-button-2"];
+                buttonRemind.onclick = function () {
+                    section.style.display = "none";
+                    background.style.display = "none";
+                    let thirtyDays = new Date().getTime() + (30 * 24 * 60 * 60 * 1000);
+                    chrome.storage.local.set({
+                        "donation-popup-choice": "remind",
+                        "donation-popup-remind-date": thirtyDays
+                    });
+                }
+
+                let buttonNever = document.getElementById("donation-never-button");
+                buttonNever.value = all_strings["donation-alert-button-3"];
+                buttonNever.onclick = function () {
+                    section.style.display = "none";
+                    background.style.display = "none";
+                    chrome.storage.local.set({"donation-popup-choice": "never"});
+                }
+
+                window.addEventListener("keydown", function (e) {
+                    if (e.key === "Escape") {
+                        section.style.display = "none";
+                        background.style.display = "none";
+                    }
+                });
+            }
+        });
+    }
+}
 
 function checkSyncLocal() {
     sync_local = chrome.storage.local;
     checkTheme();
 }
 
+function sanitizeDefaultStickyTransparency(value) {
+    let transparency = Number.parseInt(value, 10);
+    if (Number.isNaN(transparency)) transparency = 20;
+    return Math.max(0, Math.min(90, transparency));
+}
+
+function sanitizeDefaultStickyOpacity(value) {
+    let opacity = Number.parseInt(value, 10);
+    if (Number.isNaN(opacity)) opacity = 80;
+    return Math.max(10, Math.min(100, opacity));
+}
+
+function transparencyToOpacity(transparency) {
+    return sanitizeDefaultStickyOpacity(100 - sanitizeDefaultStickyTransparency(transparency));
+}
+
+function opacityToTransparency(opacity) {
+    return sanitizeDefaultStickyTransparency(100 - sanitizeDefaultStickyOpacity(opacity));
+}
+
+function getStickyThemeSecondaryColor(theme) {
+    switch (theme) {
+        case "cyan":
+            return "#00b5e2";
+        case "lime":
+            return "#a6e22e";
+        case "pink":
+            return "#ff00ff";
+        case "white":
+            return "#cccccc";
+        case "black":
+            return "#000000";
+        case "auto":
+        case "yellow":
+        default:
+            return "#ff6200";
+    }
+}
+
+function updateDefaultStickyTransparencyUi(value) {
+    const opacity = sanitizeDefaultStickyOpacity(value);
+    const transparency = opacityToTransparency(opacity);
+    const range = document.getElementById("default-sticky-transparency-range");
+    const stickyTheme = settings_json["sticky-theme"] || "yellow";
+    const sliderAccent = getStickyThemeSecondaryColor(stickyTheme);
+    range.value = opacity;
+    range.style.setProperty("--sticky-slider-secondary", sliderAccent);
+    range.style.background = `linear-gradient(to right, ${sliderAccent} 0%, ${sliderAccent} ${opacity}%, #eeeeee ${opacity}%, #eeeeee 100%)`;
+    document.getElementById("default-sticky-transparency-value").textContent = `${opacity}%`;
+    return transparency;
+}
+
+function hideAllDropdowns(event) {
+    if (event && event.type === "scroll") {
+        const activeDropdown = document.querySelector(".autocomplete-dropdown:not(.hidden)");
+        if (activeDropdown && event.target && typeof event.target.contains === "function" && activeDropdown.contains(event.target)) {
+            return;
+        }
+    }
+    document.querySelectorAll(".autocomplete-dropdown").forEach(d => {
+        d.classList.add("hidden");
+        if (d.classList.contains("custom-select-dropdown")) {
+            document.querySelectorAll(".custom-select-trigger.active").forEach(t => t.classList.remove("active"));
+            d.remove();
+        }
+    });
+}
+
+window.addEventListener("scroll", hideAllDropdowns, true);
+
 var letters_and_numbers = {
-    "A": "A",
-    "B": "B",
-    "C": "C",
-    "D": "D",
-    "E": "E",
-    "F": "F",
-    "G": "G",
-    "H": "H",
-    "I": "I",
-    "J": "J",
-    "K": "K",
-    "L": "L",
-    "M": "M",
-    "N": "N",
-    "O": "O",
-    "P": "P",
-    "Q": "Q",
-    "R": "R",
-    "S": "S",
-    "T": "T",
-    "U": "U",
-    "V": "V",
-    "W": "W",
-    "X": "X",
-    "Y": "Y",
-    "Z": "Z",
-    "0": "0",
-    "1": "1",
-    "2": "2",
-    "3": "3",
-    "4": "4",
-    "5": "5",
-    "6": "6",
-    "7": "7",
-    "8": "8",
-    "9": "9",
-    "Comma": ",",
-    "Period": ".",
-    "Up": "↑",
-    "Down": "↓",
-    "Left": "←",
-    "Right": "→"
+    A: "A",
+    B: "B",
+    C: "C",
+    D: "D",
+    E: "E",
+    F: "F",
+    G: "G",
+    H: "H",
+    I: "I",
+    J: "J",
+    K: "K",
+    L: "L",
+    M: "M",
+    N: "N",
+    O: "O",
+    P: "P",
+    Q: "Q",
+    R: "R",
+    S: "S",
+    T: "T",
+    U: "U",
+    V: "V",
+    W: "W",
+    X: "X",
+    Y: "Y",
+    Z: "Z",
+    0: "0",
+    1: "1",
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5",
+    6: "6",
+    7: "7",
+    8: "8",
+    9: "9",
+    Comma: ",",
+    Period: ".",
+    Up: "↑",
+    Down: "↓",
+    Left: "←",
+    Right: "→",
 };
-var ctrl_alt_shift = ["default", "domain", "page"];
+var ctrl_alt_shift = ["default", "domain", "page", "sidebar"];
 
 const linkAcceptPrivacy = "/privacy/index.html";
 
 function loaded() {
-    chrome.storage.sync.get("privacy").then(result => {
+    chrome.storage.local.get("times-opened").then(result => {
+        if (result !== undefined && result["times-opened"] !== undefined) {
+            checkDonationAlert(result["times-opened"]);
+        }
+    });
+    console.time("settings-loaded");
+    chrome.storage.sync.get("privacy").then((result) => {
         if (result.privacy === undefined) {
             //not accepted privacy policy -> open 'privacy' page
             chrome.tabs.create({url: linkAcceptPrivacy});
-            window.close()
+            window.close();
         }
     });
 
@@ -114,74 +254,70 @@ function loaded() {
             //console.log("User expired! Log in again | script");
             notefoxAccountLoginSignupManage("login-expired");
         }
+        if (message["check-user--exception"] !== undefined && message["check-user--exception"]) {
+            //console.log("User not logged! Log in | script");
+            //console.log(message);
+            chrome.storage.local.get("notefox-server-error-shown").then(result => {
+                if (result["notefox-server-error-shown"] === undefined || result["notefox-server-error-shown"] === false) {
+                    notefoxServerError();
+                }
+            });
+        }
     });
     chrome.runtime.sendMessage({"check-user": true});
 
     notefox_json = {
-        "version": chrome.runtime.getManifest().version,
-        "author": chrome.runtime.getManifest().author,
-        "manifest_version": chrome.runtime.getManifest().manifest_version,
-        "os": "?",
-        "browser": webBrowserUsed,
+        version: chrome.runtime.getManifest().version,
+        author: chrome.runtime.getManifest().author,
+        manifest_version: chrome.runtime.getManifest().manifest_version,
+        os: "?",
+        browser: webBrowserUsed,
     };
     chrome.runtime.getPlatformInfo((platformInfo) => {
-        notefox_json["os"] = platformInfo.os
+        notefox_json["os"] = platformInfo.os;
     });
 
     document.onkeyup = function (e) {
         if (e.key === "Escape") {
-            if (document.getElementById("export-section").style.display === "block") {
-                document.getElementById("cancel-export-all-notes-button").click();
-            }
-            if (document.getElementById("import-section").style.display === "block") {
-                document.getElementById("cancel-import-all-notes-button").click();
-            }
-            if (document.getElementById("account-section").style.display === "block") {
-                hideBackgroundOpacity();
-                document.getElementById("account-section").style.display = "none";
-            }
-            if (document.getElementById("show-error-logs-section").style.display === "block") {
-                document.getElementById("cancel-show-error-logs-button").click();
-            }
+            hideAllPopups();
         }
-    }
+    };
 
-    checkSyncLocal()
+    checkSyncLocal();
     checkOperatingSystem();
-    checkShortcuts()
+    checkShortcuts();
     setLanguageUI();
     //checkTheme();
 
-    //TODO: chrome
-    chrome.tabs.onActivated.addListener(tabActivated);
+    //chrome.tabs.onActivated.addListener(tabUpdated);
     //chrome.tabs.onUpdated.addListener(tabUpdated);
 
     //catch
 
     document.getElementById("save-settings-button").onclick = function () {
         saveSettings();
-        sendTelemetry('save-settings-button', "settings.js::deprecated");
-    }
+        sendTelemetry("save-settings-button", "settings.js::deprecated");
+    };
     document.getElementById("translate-addon").onclick = function () {
         chrome.tabs.create({url: links.translate});
-        sendTelemetry('translate-addon-button', "settings.js::deprecated");
-    }
+        sendTelemetry("translate-addon-button", "settings.js::deprecated");
+    };
     document.getElementById("support-telegram-button").onclick = function () {
         chrome.tabs.create({url: links.support_telegram});
-        sendTelemetry('support-telegram-button', "settings.js::deprecated");
-    }
+        sendTelemetry("support-telegram-button", "settings.js::deprecated");
+    };
     document.getElementById("support-email-button").onclick = function () {
         chrome.tabs.create({url: links.support_email});
-        sendTelemetry('support-email-button', "settings.js::deprecated");
-    }
+        sendTelemetry("support-email-button", "settings.js::deprecated");
+    };
     document.getElementById("support-github-button").onclick = function () {
         chrome.tabs.create({url: links.support_github});
-        sendTelemetry('support-github-button', "settings.js::deprecated");
-    }
+        sendTelemetry("support-github-button", "settings.js::deprecated");
+    };
     document.getElementById("review-on-firefox-addons-button").onclick = function () {
         chrome.tabs.create({url: links.review});
-        sendTelemetry('review-on-firefox-addons-button', "settings.js::deprecated");
-    }
+        sendTelemetry("review-on-firefox-addons-button", "settings.js::deprecated");
+    };
 
     document.getElementById("open-by-default-select").onchange = function () {
         settings_json["open-default"] = document.getElementById("open-by-default-select").value;
@@ -232,20 +368,37 @@ function loaded() {
     };
 
     document.getElementById("sending-error-logs-automatically-check").onchange = function () {
-        settings_json["sending-error-logs-automatically"] = document.getElementById("sending-error-logs-automatically-check").checked;
-        sendTelemetry(`sending-error-logs-automatically-check-select`, `settings.js`, settings_json["sending-error-logs-automatically"]);
+        let check = document.getElementById("sending-error-logs-automatically-check");
+        //the access to the Notefox servers is requested only when it's enabled
+        (check.checked ? requestNotefoxServerPermission() : Promise.resolve(true)).then(granted => {
+            if (!granted) check.checked = false;
+            settings_json["sending-error-logs-automatically"] = check.checked;
+            sendTelemetry(`sending-error-logs-automatically-check-select`, `settings.js`, settings_json["sending-error-logs-automatically"]);
 
-        saveSettings();
+            saveSettings();
+        });
     };
 
     document.getElementById("send-telemetry-check").onchange = function () {
-        settings_json["send-telemetry"] = document.getElementById("send-telemetry-check").checked;
-        sendTelemetry(`send-telemetry-check-select`, `settings.js`, settings_json["send-telemetry"]);
-        sendMessageUpdateToBackground();
+        let check = document.getElementById("send-telemetry-check");
+        //the access to the Notefox servers is requested only when it's enabled
+        (check.checked ? requestNotefoxServerPermission() : Promise.resolve(true)).then(granted => {
+            if (!granted) check.checked = false;
+            settings_json["send-telemetry"] = check.checked;
+            sendTelemetry(`send-telemetry-check-select`, `settings.js`, settings_json["send-telemetry"]);
+            sendMessageUpdateToBackground();
+
+            saveSettings();
+        });
+    };
+
+    document.getElementById("context-menu-create-note-check").onchange = function () {
+        settings_json["context-menu-create-note"] = document.getElementById("context-menu-create-note-check").checked;
+        sendTelemetry(`context-menu-create-note-check-select`, `settings.js`, settings_json["context-menu-create-note"]);
+        chrome.runtime.sendMessage({"update-context-menu": settings_json["context-menu-create-note"]});
 
         saveSettings();
     };
-
 
     document.getElementById("disable-word-wrap-check").onchange = function () {
         settings_json["disable-word-wrap"] = document.getElementById("disable-word-wrap-check").checked;
@@ -261,10 +414,57 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("disable-confirmation-popup-check").onchange = function () {
+        settings_json["disable-confirmation-popup"] = document.getElementById("disable-confirmation-popup-check").checked;
+        sendTelemetry(`disable-confirmation-popup-check-select`, `settings.js`, settings_json["disable-confirmation-popup"]);
+
+        saveSettings();
+    };
+
+    document.getElementById("allow-resize-popup-check").onchange = function () {
+        settings_json["allow-resize-popup"] = document.getElementById("allow-resize-popup-check").checked;
+        sendTelemetry(`allow-resize-popup-check-select`, `settings.js`, settings_json["allow-resize-popup"]);
+
+        saveSettings();
+    }
+
+    document.getElementById("expand-all-websites-check").onchange = function () {
+        settings_json["expand-all-websites"] = document.getElementById("expand-all-websites-check").checked;
+        sendTelemetry(`expand-all-websites-check-select`, `settings.js`, settings_json["expand-all-websites"]);
+
+        saveSettings();
+    }
+
+    document.getElementById("multiple-notes-per-type-check").onchange = function () {
+        settings_json["multiple-notes-per-type"] = document.getElementById("multiple-notes-per-type-check").checked;
+        sendTelemetry(`multiple-notes-per-type-check-select`, `settings.js`, settings_json["multiple-notes-per-type"]);
+
+        saveSettings();
+    }
+
+    document.getElementById("default-sticky-size-select").onchange = function () {
+        settings_json["default-sticky-size"] = document.getElementById("default-sticky-size-select").value;
+        sendTelemetry(`default-sticky-size-select`, `settings.js`, settings_json["default-sticky-size"]);
+        saveSettings();
+    };
+
+    document.getElementById("default-sticky-transparency-range").oninput = function () {
+        let transparency = updateDefaultStickyTransparencyUi(document.getElementById("default-sticky-transparency-range").value);
+        settings_json["default-sticky-transparency"] = transparency;
+    };
+
+    document.getElementById("default-sticky-transparency-range").onchange = function () {
+        let transparency = updateDefaultStickyTransparencyUi(document.getElementById("default-sticky-transparency-range").value);
+        settings_json["default-sticky-transparency"] = transparency;
+        sendTelemetry(`default-sticky-transparency-range`, `settings.js`, document.getElementById("default-sticky-transparency-range").value);
+        saveSettings();
+    };
+
     setThemeChooser();
     setStickyThemeChooser();
     setFontFamilyChooser();
     setDatetimeFormatChooser();
+    setTextSizeChooser();
 
     document.getElementById("check-green-icon-global-check").onchange = function () {
         settings_json["check-green-icon-global"] = document.getElementById("check-green-icon-global-check").checked;
@@ -301,9 +501,23 @@ function loaded() {
         saveSettings();
     };
 
+    document.getElementById("show-badge-with-number-of-notes-check").onchange = function () {
+        settings_json["show-icon-badge"] = document.getElementById("show-badge-with-number-of-notes-check").checked;
+        sendTelemetry(`show-badge-with-number-of-notes-check-select`, `settings.js`, settings_json["show-icon-badge"]);
+
+        saveSettings();
+    };
+
     document.getElementById("open-links-only-with-ctrl-check").onchange = function () {
         settings_json["open-links-only-with-ctrl"] = document.getElementById("open-links-only-with-ctrl-check").checked;
         sendTelemetry(`open-links-only-with-ctrl-check-select`, `settings.js`, settings_json["open-links-only-with-ctrl"]);
+
+        saveSettings();
+    };
+
+    document.getElementById("show-fullscreen-button-in-all-notes-check").onchange = function () {
+        settings_json["show-fullscreen-button-in-all-notes"] = document.getElementById("show-fullscreen-button-in-all-notes-check").checked;
+        sendTelemetry(`show-fullscreen-button-in-all-notes-check-select`, `settings.js`, settings_json["show-fullscreen-button-in-all-notes"]);
 
         saveSettings();
     };
@@ -320,108 +534,126 @@ function loaded() {
         sendTelemetry(`show-title-textbox-check-select`, `settings.js`, settings_json["show-title-textbox"]);
 
         saveSettings();
-    }
+    };
 
     document.getElementById("immersive-sticky-notes-check").onchange = function () {
         settings_json["immersive-sticky-notes"] = document.getElementById("immersive-sticky-notes-check").checked;
         sendTelemetry(`immersive-sticky-notes-check-select`, `settings.js`, settings_json["immersive-sticky-notes"]);
 
         saveSettings();
-    }
+    };
+
+    document.getElementById("default-sticky-pinned-check").onchange = function () {
+        settings_json["default-sticky-pinned"] = document.getElementById("default-sticky-pinned-check").checked;
+        saveSettings();
+    };
 
     document.getElementById("notes-background-follow-tag-colour-check").onchange = function () {
         settings_json["notes-background-follow-tag-colour"] = document.getElementById("notes-background-follow-tag-colour-check").checked;
         sendTelemetry(`notes-background-follow-tag-colour-check-select`, `settings.js`, settings_json["notes-background-follow-tag-colour"]);
 
         saveSettings();
-    }
+    };
 
     document.getElementById("show-undo-redo-check").onchange = function () {
         settings_json["undo-redo"] = document.getElementById("show-undo-redo-check").checked;
         sendTelemetry(`show-undo-redo-check-select`, `settings.js`, settings_json["undo-redo"]);
 
         saveSettings();
-    }
+    };
 
     document.getElementById("show-bold-italic-underline-strikethrough-check").onchange = function () {
         settings_json["bold-italic-underline-strikethrough"] = document.getElementById("show-bold-italic-underline-strikethrough-check").checked;
         sendTelemetry(`show-bold-italic-underline-strikethrough-check-select`, `settings.js`, settings_json["bold-italic-underline-strikethrough"]);
 
         saveSettings();
-    }
+    };
 
     document.getElementById("show-link-check").onchange = function () {
         settings_json["link"] = document.getElementById("show-link-check").checked;
         sendTelemetry(`show-link-check-select`, `settings.js`, settings_json["link"]);
 
         saveSettings();
-    }
+    };
 
     document.getElementById("show-spellcheck-check").onchange = function () {
         settings_json["spellcheck"] = document.getElementById("show-spellcheck-check").checked;
         sendTelemetry(`show-spellcheck-check-select`, `settings.js`, settings_json["spellcheck"]);
 
         saveSettings();
-    }
+    };
 
     document.getElementById("show-superscript-subscript-check").onchange = function () {
         settings_json["superscript-subscript"] = document.getElementById("show-superscript-subscript-check").checked;
         sendTelemetry(`show-superscript-subscript-check-select`, `settings.js`, settings_json["superscript-subscript"]);
 
         saveSettings();
-    }
+    };
 
     document.getElementById("show-headers-check").onchange = function () {
         settings_json["headers"] = document.getElementById("show-headers-check").checked;
         sendTelemetry(`show-headers-check-select`, `settings.js`, settings_json["headers"]);
 
         saveSettings();
-    }
+    };
 
     document.getElementById("show-small-big-check").onchange = function () {
         settings_json["small-big"] = document.getElementById("show-small-big-check").checked;
         sendTelemetry(`show-small-big-check-select`, `settings.js`, settings_json["small-big"]);
 
         saveSettings();
-    }
+    };
 
     document.getElementById("show-highlighter-check").onchange = function () {
         settings_json["highlighter"] = document.getElementById("show-highlighter-check").checked;
         sendTelemetry(`show-highlighter-check-select`, `settings.js`, settings_json["highlighter"]);
 
         saveSettings();
-    }
+    };
 
     document.getElementById("show-code-block-check").onchange = function () {
         settings_json["code-block"] = document.getElementById("show-code-block-check").checked;
         sendTelemetry(`show-code-block-check-select`, `settings.js`, settings_json["code-block"]);
 
         saveSettings();
-    }
+    };
+
+    document.getElementById("show-clear-formatting-check").onchange = function () {
+        settings_json["clear-formatting"] = document.getElementById("show-clear-formatting-check").checked;
+        sendTelemetry(`show-clear-formatting-check-select`, `settings.js`, settings_json["clear-formatting"]);
+
+        saveSettings();
+    };
+
+    document.getElementById("show-lists-check").onchange = function () {
+        settings_json["lists"] = document.getElementById("show-lists-check").checked;
+        sendTelemetry(`show-lists-check-select`, `settings.js`, settings_json["lists"]);
+
+        saveSettings();
+    };
 
     document.getElementById("clear-all-notes-button").onclick = function () {
         clearAllNotes();
-        sendTelemetry('clear-all-notes-button');
-    }
+        sendTelemetry("clear-all-notes-button");
+    };
     document.getElementById("import-all-notes-button").onclick = function () {
         importAllNotes();
-        sendTelemetry('import-all-notes-button');
-    }
+        sendTelemetry("import-all-notes-button");
+    };
     document.getElementById("export-all-notes-button").onclick = function () {
         exportAllNotes();
-        sendTelemetry('export-all-notes-button');
-    }
+        sendTelemetry("export-all-notes-button");
+    };
     document.getElementById("export-to-file-button").onclick = function () {
         const permissionsToRequest = {
-            permissions: ["downloads"]
-        }
+            permissions: ["downloads"],
+        };
         try {
-            //TODO in chrome
-            chrome.permissions.request(permissionsToRequest).then(response => {
+            chrome.permissions.request(permissionsToRequest).then((response) => {
                 if (response) {
                     //granted / obtained
-                    exportAllNotes(to_file = true);
-                    sendTelemetry('export-all-notes-button');
+                    exportAllNotes((to_file = true));
+                    sendTelemetry("export-all-notes-button");
                     //console.log("Granted");
                 } else {
                     //rejected
@@ -432,25 +664,33 @@ function loaded() {
             console.error("P3)) " + e);
             onError("settings.js::loaded::P3", e.message);
         }
-    }
+    };
     document.getElementById("import-from-file-button").onclick = function () {
-        importAllNotes(from_file = true);
-        sendTelemetry('import-from-file-button');
-    }
+        importAllNotes((from_file = true));
+        sendTelemetry("import-from-file-button");
+    };
     document.getElementById("show-error-logs-settings-button").onclick = function () {
-        exportErrorLogs()
-        sendTelemetry('show-error-logs-settings-button');
-    }
+        exportErrorLogs();
+        sendTelemetry("show-error-logs-settings-button");
+    };
+    document.getElementById("change-api-endpoint-settings-button").onclick = function () {
+        changeApiEndpoint();
+        sendTelemetry("change-api-endpoint-settings-button");
+    };
+    document.getElementById("reset-api-endpoint-settings-button").onclick = function () {
+        resetApiEndpoint();
+        sendTelemetry("reset-api-endpoint-settings-button");
+    };
     document.getElementById("show-error-logs-to-file-button").onclick = function () {
         const permissionsToRequest = {
-            permissions: ["downloads"]
-        }
+            permissions: ["downloads"],
+        };
         try {
-            chrome.permissions.request(permissionsToRequest).then(response => {
+            chrome.permissions.request(permissionsToRequest).then((response) => {
                 if (response) {
                     //granted / obtained
-                    exportErrorLogs(to_file = true);
-                    sendTelemetry('show-error-logs-to-file-button');
+                    exportErrorLogs((to_file = true));
+                    sendTelemetry("show-error-logs-to-file-button");
                     //console.log("Granted");
                 } else {
                     //rejected
@@ -461,26 +701,26 @@ function loaded() {
             console.error("P10)) " + e);
             onError("settings.js::loaded::P10", e.message);
         }
-    }
+    };
 
     document.getElementById("delete-error-logs-settings-button").onclick = function () {
         deleteErrorLogs();
-        sendTelemetry('delete-error-logs-settings-button');
-    }
+        sendTelemetry("delete-error-logs-settings-button");
+    };
 
     document.getElementById("default-tag-colour-domain-select").onchange = function () {
-        settings_json["default-tag-colour-domain"] = document.getElementById("default-tag-colour-domain-select").value;
-        sendTelemetry(`default-tag-colour-domain-select`, `settings.js`, settings_json["default-tag-colour-domain"]);
-
+        const val = this.value;
+        settings_json["default-tag-colour-domain"] = val;
+        sendTelemetry(`default-tag-colour-domain-select`, `settings.js`, val);
         saveSettings();
-    }
+    };
 
     document.getElementById("default-tag-colour-page-select").onchange = function () {
-        settings_json["default-tag-colour-page"] = document.getElementById("default-tag-colour-page-select").value;
-        sendTelemetry(`default-tag-colour-page-select`, `settings.js`, settings_json["default-tag-colour-page"]);
-
+        const val = this.value;
+        settings_json["default-tag-colour-page"] = val;
+        sendTelemetry(`default-tag-colour-page-select`, `settings.js`, val);
         saveSettings();
-    }
+    };
 
     loadSettings();
 
@@ -489,14 +729,194 @@ function loaded() {
 
     loadAsideBar();
     loadDeveloperOptions();
+
+    let splashScreen = document.getElementById("splash-screen-settings");
+    if (splashScreen !== undefined && splashScreen !== null) {
+        splashScreen.classList.add("splash-screen-hidden");
+    }
+
+    initCustomSelects();
+    initSettingsSearch();
+}
+
+function initSettingsSearch() {
+    let searchInput = document.getElementById("settings-search-input");
+    if (!searchInput) return;
+    searchInput.placeholder = all_strings["search-settings-placeholder"] || "Search settings...";
+
+    searchInput.addEventListener("input", function () {
+        filterSettings(this.value);
+    });
+}
+
+function filterSettings(query) {
+    let allOptions = document.querySelectorAll("#settings-dedication-section .option-settings");
+    let options = Array.from(allOptions).filter(opt => !opt.closest(".message-popup") && !opt.closest("#account-section"));
+    let sectionTitles = document.querySelectorAll("#settings-sections > .section-title-settings");
+    let hrElements = document.querySelectorAll("#settings-sections > hr");
+    let descElements = document.querySelectorAll("#settings-sections > .section-description-settings");
+    let q = query.trim().toLowerCase();
+
+    options.forEach(opt => {
+        clearHighlights(opt);
+    });
+
+    if (!q) {
+        options.forEach(opt => opt.classList.remove("option-settings-hidden"));
+        sectionTitles.forEach(st => st.classList.remove("section-title-settings-hidden"));
+        hrElements.forEach(hr => hr.classList.remove("option-settings-hidden"));
+        descElements.forEach(d => d.classList.remove("option-settings-hidden"));
+        let wrappers = document.querySelectorAll("#save-content-subsection, #show-error-logs-subsection");
+        wrappers.forEach(w => w.classList.remove("option-settings-hidden"));
+        return;
+    }
+
+    options.forEach(opt => {
+        let text = opt.textContent.toLowerCase();
+        if (text.includes(q)) {
+            opt.classList.remove("option-settings-hidden");
+            highlightText(opt, q);
+        } else {
+            opt.classList.add("option-settings-hidden");
+        }
+    });
+
+    let wrappers = document.querySelectorAll("#save-content-subsection, #show-error-logs-subsection, #html-text-formatting-buttons");
+    wrappers.forEach(w => {
+        let children = w.querySelectorAll(".option-settings");
+        let anyVisible = false;
+        children.forEach(c => {
+            if (!c.classList.contains("option-settings-hidden")) anyVisible = true;
+        });
+        if (!anyVisible) {
+            w.classList.add("option-settings-hidden");
+        } else {
+            w.classList.remove("option-settings-hidden");
+            let el = w.previousElementSibling;
+            while (el) {
+                if (el.classList.contains("option-settings")) {
+                    el.classList.remove("option-settings-hidden");
+                    break;
+                }
+                el = el.previousElementSibling;
+            }
+        }
+    });
+
+    sectionTitles.forEach(st => {
+        let next = st.nextElementSibling;
+        let anyVisible = false;
+        while (next && !next.classList.contains("section-title-settings")) {
+            if (next.classList.contains("message-popup") || next.classList.contains("section")) {
+                next = next.nextElementSibling;
+                continue;
+            }
+            if (next.classList.contains("option-settings") && !next.classList.contains("option-settings-hidden")) {
+                anyVisible = true;
+                break;
+            }
+            let innerOpts = next.querySelectorAll(":scope > .option-settings:not(.option-settings-hidden)");
+            if (innerOpts.length > 0) {
+                anyVisible = true;
+                break;
+            }
+            next = next.nextElementSibling;
+        }
+        if (anyVisible) {
+            st.classList.remove("section-title-settings-hidden");
+        } else {
+            st.classList.add("section-title-settings-hidden");
+        }
+    });
+
+    hrElements.forEach(hr => {
+        let prev = hr.previousElementSibling;
+        let next = hr.nextElementSibling;
+        let prevHidden = prev && (prev.classList.contains("section-title-settings-hidden") || prev.classList.contains("option-settings-hidden"));
+        let nextHidden = next && (next.classList.contains("section-title-settings-hidden") || next.classList.contains("option-settings-hidden"));
+        if (prevHidden && nextHidden) hr.classList.add("option-settings-hidden");
+        else hr.classList.remove("option-settings-hidden");
+    });
+
+    descElements.forEach(d => {
+        let prev = d.previousElementSibling;
+        if (prev && prev.classList.contains("section-title-settings-hidden")) d.classList.add("option-settings-hidden");
+        else d.classList.remove("option-settings-hidden");
+    });
+}
+
+function highlightText(element, query) {
+    let walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+    let nodes = [];
+    while (walker.nextNode()) {
+        if (walker.currentNode.parentNode.tagName !== "INPUT" &&
+            walker.currentNode.parentNode.tagName !== "SELECT" &&
+            walker.currentNode.parentNode.tagName !== "OPTION") {
+            nodes.push(walker.currentNode);
+        }
+    }
+    nodes.forEach(node => {
+        let text = node.textContent;
+        let lower = text.toLowerCase();
+        let idx = lower.indexOf(query);
+        if (idx === -1) return;
+
+        let frag = document.createDocumentFragment();
+        let lastIdx = 0;
+        while (idx !== -1) {
+            frag.appendChild(document.createTextNode(text.substring(lastIdx, idx)));
+            let mark = document.createElement("mark");
+            mark.className = "search-highlight";
+            mark.textContent = text.substring(idx, idx + query.length);
+            frag.appendChild(mark);
+            lastIdx = idx + query.length;
+            idx = lower.indexOf(query, lastIdx);
+        }
+        frag.appendChild(document.createTextNode(text.substring(lastIdx)));
+        node.parentNode.replaceChild(frag, node);
+    });
+}
+
+function clearHighlights(element) {
+    let marks = element.querySelectorAll("mark.search-highlight");
+    marks.forEach(mark => {
+        let parent = mark.parentNode;
+        parent.replaceChild(document.createTextNode(mark.textContent), mark);
+        parent.normalize();
+    });
 }
 
 function sendTelemetry(action, context = "settings.js", other = null) {
     onTelemetry(action, context, null, currentOS, other);
 }
 
+function hideAllPopups() {
+    let backgroundOpacity = document.getElementById("background-opacity");
+
+    if (document.getElementById("export-section").style.display === "block") {
+        document.getElementById("export-section").style.display = "none";
+    }
+    if (document.getElementById("import-section").style.display === "block") {
+        document.getElementById("import-section").style.display = "none";
+    }
+    if (document.getElementById("account-section").style.display === "block") {
+        hideBackgroundOpacity();
+        document.getElementById("account-section").style.display = "none";
+    }
+    if (document.getElementById("show-error-logs-section").style.display === "block") {
+        document.getElementById("show-error-logs-section").style.display = "none";
+    }
+
+    if (document.getElementById("notefox-server-error-section").style.display === "block") {
+        //nothing: notefox server error is NOT "skippable"
+    } else {
+        //hide background opacity only if no other popup is shown (account-section is excluded)
+        hideBackgroundOpacity();
+    }
+}
+
 function checkShortcuts() {
-    ctrl_alt_shift.forEach(value => {
+    ctrl_alt_shift.forEach((value) => {
         document.getElementById("select-disable-shortcut-" + value).textContent = all_strings["label-disable-shortcut"];
         document.getElementById("select-ctrl-shortcut-" + value).textContent = all_strings["label-ctrl-" + currentOS];
         document.getElementById("select-alt-shortcut-" + value).textContent = all_strings["label-alt-" + currentOS];
@@ -507,23 +927,31 @@ function checkShortcuts() {
 }
 
 function setThemeChooser() {
-    document.querySelectorAll('.item-radio-theme input[name="theme-radio"]').forEach(function (input) {
-        input.addEventListener('change', function () {
-            setThemeChooserByElement(input);
+    document
+        .querySelectorAll('.item-radio-theme input[name="theme-radio"]')
+        .forEach(function (input) {
+            input.addEventListener("change", function () {
+                setThemeChooserByElement(input);
+            });
         });
-    });
 }
 
 function resetThemeChooser() {
-    document.querySelectorAll('.item-radio-theme input[name="theme-radio"]').forEach(function (input) {
-        input.closest('.item-radio-theme').style.boxShadow = 'none';
-    });
-
+    document
+        .querySelectorAll('.item-radio-theme input[name="theme-radio"]')
+        .forEach(function (input) {
+            //input.closest(".item-radio-theme").style.boxShadow = "none";
+            if (input.closest(".item-radio-theme").classList.contains("sel")) {
+                input.closest(".item-radio-theme").classList.remove("sel");
+            }
+        });
 }
 
 function setThemeChooserByElement(element, set_variable = true) {
     resetThemeChooser();
-    element.closest('.item-radio-theme').style.boxShadow = '0px 0px 0px 5px var(--tertiary-transparent-2)';
+    /*element.closest(".item-radio-theme").style.boxShadow =
+        "0px 0px 0px 5px var(--tertiary-transparent-2)";*/
+    element.closest(".item-radio-theme").classList.add("sel");
     if (set_variable) {
         settings_json["theme"] = element.value;
         saveSettings();
@@ -533,76 +961,67 @@ function setThemeChooserByElement(element, set_variable = true) {
 }
 
 function setStickyThemeChooser() {
-    document.querySelectorAll('.item-radio-sticky-theme input[name="theme-radio-sticky"]').forEach(function (input) {
-        input.addEventListener('change', function () {
-            setStickyThemeChooserByElement(input);
+    document
+        .querySelectorAll('.item-radio-sticky-theme input[name="theme-radio-sticky"]')
+        .forEach(function (input) {
+            input.addEventListener("change", function () {
+                setStickyThemeChooserByElement(input);
+            });
         });
-    });
 }
 
 function resetStickyThemeChooser() {
-    document.querySelectorAll('.item-radio-sticky-theme input[name="theme-radio-sticky"]').forEach(function (input) {
-        input.closest('.item-radio-sticky-theme').style.boxShadow = 'none';
-    });
-
+    document
+        .querySelectorAll('.item-radio-sticky-theme input[name="theme-radio-sticky"]')
+        .forEach(function (input) {
+            //input.closest(".item-radio-sticky-theme").style.boxShadow = "none";
+            if (input.closest(".item-radio-sticky-theme").classList.contains("sel")) {
+                input.closest(".item-radio-sticky-theme").classList.remove("sel");
+            }
+        });
 }
 
 function setStickyThemeChooserByElement(element, set_variable = true) {
     resetStickyThemeChooser();
-    element.closest('.item-radio-sticky-theme').style.boxShadow = '0px 0px 0px 5px var(--tertiary-transparent-2)';
+    /*element.closest(".item-radio-sticky-theme").style.boxShadow =
+        "0px 0px 0px 5px var(--tertiary-transparent-2)";*/
+    element.closest(".item-radio-sticky-theme").classList.add("sel");
     if (set_variable) {
         settings_json["sticky-theme"] = element.value;
 
         saveSettings();
     }
+    updateDefaultStickyTransparencyUi(document.getElementById("default-sticky-transparency-range").value);
     sendMessageUpdateToBackground();
     if (set_variable) sendTelemetry(`sticky-theme-radio-select`, "settings.js", settings_json["sticky-theme"]);
 }
 
-function tabActivated() {
-    //checkTheme();
-    if (!activatedTab) {
-        activatedTab = true;
-        chrome.storage.local.get(["settings"]).then(result => {
-            if (result.settings !== undefined && result.settings !== settings_json) {
-                loadSettings();
-            }
-            activatedTab = false;
-        }).catch(error => {
-            console.error("Error loading settings on tab activation:", error);
-            onError("settings.js::tabActivated", error.message);
-            activatedTab = false;
-        })
-    }
-}
-
-function tabUpdated() {
-    //checkTheme();
-    chrome.storage.local.get(["settings"]).then(result => {
-        if (result.settings !== undefined && result.settings !== settings_json) {
-            loadSettings();
-        }
-    });
-}
-
 function setFontFamilyChooser() {
-    document.querySelectorAll('.item-radio-font-family input[name="font-family-radio"]').forEach(function (input) {
-        input.addEventListener('change', function () {
-            setFontFamilyChooserByElement(input);
+    document
+        .querySelectorAll('.item-radio-font-family input[name="font-family-radio"]')
+        .forEach(function (input) {
+            input.addEventListener("change", function () {
+                setFontFamilyChooserByElement(input);
+            });
         });
-    });
 }
 
 function resetFontFamilyChooser() {
-    document.querySelectorAll('.item-radio-font-family input[name="font-family-radio"]').forEach(function (input) {
-        input.closest('.item-radio-font-family').style.boxShadow = 'none';
-    });
-
+    document
+        .querySelectorAll('.item-radio-font-family input[name="font-family-radio"]')
+        .forEach(function (input) {
+            //input.closest(".item-radio-font-family").style.boxShadow = "none";
+            if (input.closest(".item-radio-font-family").classList.contains("sel")) {
+                input.closest(".item-radio-font-family").classList.remove("sel");
+            }
+        });
 }
 
 function setFontFamilyChooserByElement(element, set_variable = true) {
     resetFontFamilyChooser();
-    element.closest('.item-radio-font-family').style.boxShadow = '0px 0px 0px 5px var(--tertiary-transparent-2)';
+    /*element.closest(".item-radio-font-family").style.boxShadow =
+        "0px 0px 0px 5px var(--tertiary-transparent-2)";*/
+    element.closest(".item-radio-font-family").classList.add("sel");
     if (set_variable) {
         settings_json["font-family"] = element.value;
 
@@ -613,23 +1032,31 @@ function setFontFamilyChooserByElement(element, set_variable = true) {
 }
 
 function setDatetimeFormatChooser() {
-    document.querySelectorAll('.item-radio-datetime-format input[name="datetime-format-radio"]').forEach(function (input) {
-        input.addEventListener('change', function () {
-            setDatetimeFormatChooserByElement(input);
+    document
+        .querySelectorAll('.item-radio-datetime-format input[name="datetime-format-radio"]')
+        .forEach(function (input) {
+            input.addEventListener("change", function () {
+                setDatetimeFormatChooserByElement(input);
+            });
         });
-    });
 }
 
 function resetDatetimeFormatChooser() {
-    document.querySelectorAll('.item-radio-datetime-format input[name="datetime-format-radio"]').forEach(function (input) {
-        input.closest('.item-radio-datetime-format').style.boxShadow = 'none';
-    });
-
+    document
+        .querySelectorAll('.item-radio-datetime-format input[name="datetime-format-radio"]')
+        .forEach(function (input) {
+            //input.closest(".item-radio-datetime-format").style.boxShadow = "none";
+            if (input.closest(".item-radio-datetime-format").classList.contains("sel")) {
+                input.closest(".item-radio-datetime-format").classList.remove("sel");
+            }
+        });
 }
 
 function setDatetimeFormatChooserByElement(element, set_variable = true) {
     resetDatetimeFormatChooser();
-    element.closest('.item-radio-datetime-format').style.boxShadow = '0px 0px 0px 5px var(--tertiary-transparent-2)';
+    /*element.closest(".item-radio-datetime-format").style.boxShadow =
+        "0px 0px 0px 5px var(--tertiary-transparent-2)";*/
+    element.closest(".item-radio-datetime-format").classList.add("sel");
     if (set_variable) {
         settings_json["datetime-format"] = element.value;
 
@@ -639,16 +1066,64 @@ function setDatetimeFormatChooserByElement(element, set_variable = true) {
     if (set_variable) sendTelemetry(`datetime-format-radio-select`, "settings.js", settings_json["datetime-format"]);
 }
 
+function setTextSizeChooser() {
+    document
+        .querySelectorAll('.item-radio-text-size input[name="text-size-radio"]')
+        .forEach(function (input) {
+            input.addEventListener("change", function () {
+                setTextSizeChooserByElement(input);
+            });
+        });
+}
+
+function resetTextSizeChooser() {
+    document
+        .querySelectorAll('.item-radio-text-size input[name="text-size-radio"]')
+        .forEach(function (input) {
+            //input.closest(".item-radio-text-size").style.boxShadow = "none";
+            if (input.closest(".item-radio-text-size").classList.contains("sel")) {
+                input.closest(".item-radio-text-size").classList.remove("sel");
+            }
+        });
+}
+
+function setTextSizeChooserByElement(element, set_variable = true) {
+    resetTextSizeChooser();
+    /*element.closest(".item-radio-text-size").style.boxShadow =
+        "0px 0px 0px 5px var(--tertiary-transparent-2)";*/
+    element.closest(".item-radio-text-size").classList.add("sel");
+    if (set_variable) {
+        settings_json["text-size"] = element.value;
+
+        saveSettings();
+    }
+    sendMessageUpdateToBackground();
+    if (set_variable) sendTelemetry(`text-size-radio-select`, "settings.js", settings_json["text-size"]);
+}
+
+function tabUpdated() {
+    //checkTheme();
+    chrome.storage.local.get(["settings"]).then((result) => {
+        if (result.settings !== undefined && result.settings !== settings_json) {
+            loadSettings();
+        }
+    });
+}
+
 function setLanguageUI() {
     document.title = all_strings["settings-title-page"];
 
     document.getElementById("general-title-settings").innerText = all_strings["general-title-settings"];
     document.getElementById("advanced-title-settings").innerText = all_strings["advanced-title-settings"];
+    document.getElementById("developer-options-title-settings").innerText = all_strings["developer-options-title-settings"];
+    document.getElementById("developer-options-description-settings").innerText = all_strings["developer-options-description-settings"];
     document.getElementById("appearance-title-settings").innerText = all_strings["appearance-title-settings"];
+    document.getElementById("sticky-notes-title-settings").innerText = all_strings["sticky-notes-title-settings"] || "Sticky notes";
     document.getElementById("shortcuts-title-settings").innerText = all_strings["shortcuts-title-settings"];
     document.getElementById("icon-behaviour-title-settings").innerText = all_strings["icon-behaviour-title-settings"];
     document.getElementById("data-title-settings").innerText = all_strings["data-and-sync-title-settings"];
     document.getElementById("open-by-default-text").innerText = all_strings["open-popup-by-default"];
+    document.getElementById("open-by-default-global-text").innerText = all_strings["global-label"];
     document.getElementById("open-by-default-domain-text").innerText = all_strings["domain-label"];
     document.getElementById("open-by-default-page-text").innerText = all_strings["page-label"];
     document.getElementById("consider-parameters-text").innerText = all_strings["consider-parameters"];
@@ -658,6 +1133,7 @@ function setLanguageUI() {
     document.getElementById("open-popup-default-shortcut-text").innerText = all_strings["open-popup-default-shortcut-text"];
     document.getElementById("open-popup-domain-shortcut-text").innerText = all_strings["open-popup-domain-shortcut-text"];
     document.getElementById("open-popup-page-shortcut-text").innerText = all_strings["open-popup-page-shortcut-text"];
+    document.getElementById("open-popup-sidebar-shortcut-text").innerText = all_strings["open-popup-sidebar-shortcut-text"];
     document.getElementById("advanced-managing-text").innerText = all_strings["advanced-managing"];
     document.getElementById("advanced-managing-detailed-text").innerHTML = all_strings["advanced-managing-detailed"];
     document.getElementById("html-text-formatting-text").innerText = all_strings["html-text-formatting"];
@@ -666,12 +1142,26 @@ function setLanguageUI() {
     document.getElementById("save-page-content-detailed-text").innerHTML = all_strings["save-page-content-detailed"];
     document.getElementById("search-page-content").innerText = all_strings["search-page-content"];
     document.getElementById("search-page-content-detailed-text").innerHTML = all_strings["search-page-content-detailed"];
+    document.getElementById("context-menu-create-note-text").innerText = all_strings["context-menu-create-note"];
+    document.getElementById("context-menu-create-note-detailed-text").innerHTML = all_strings["context-menu-create-note-detailed"];
     document.getElementById("sending-error-logs-automatically-text").innerText = all_strings["sending-error-logs-automatically-text"];
     document.getElementById("sending-error-logs-automatically-detailed-text").innerHTML = all_strings["sending-error-logs-automatically-detailed-text"];
+    document.getElementById("api-endpoint-text").innerText = all_strings["change-api-endpoint-text"];
+    document.getElementById("api-endpoint-detailed-text").innerHTML = all_strings["change-api-endpoint-detailed-text"];
+    document.getElementById("change-api-endpoint-settings-button").value = all_strings["change-api-endpoint-button"];
+    document.getElementById("reset-api-endpoint-settings-button").value = all_strings["reset-api-endpoint-button"];
     document.getElementById("send-telemetry-text").innerText = all_strings["send-telemetry-text"];
     document.getElementById("send-telemetry-detailed-text").innerHTML = all_strings["send-telemetry-detailed-text"];
     document.getElementById("disable-word-wrap-text").innerText = all_strings["disable-word-wrap"];
     document.getElementById("spellcheck-detection-text").innerText = all_strings["spellcheck-detection"];
+    document.getElementById("disable-confirmation-popup-text").innerText = all_strings["disable-confirmation-popup"];
+    document.getElementById("disable-confirmation-popup-detailed-text").innerHTML = all_strings["disable-confirmation-popup-detailed"];
+    document.getElementById("allow-resize-popup-text").innerText = all_strings["allow-resize-popup"];
+    document.getElementById("allow-resize-popup-detailed-text").innerHTML = all_strings["allow-resize-popup-detailed"];
+    document.getElementById("expand-all-websites-text").innerText = all_strings["expand-all-websites"];
+    document.getElementById("expand-all-websites-detailed-text").innerHTML = all_strings["expand-all-websites-detailed"];
+    document.getElementById("multiple-notes-per-type-text").innerText = all_strings["multiple-notes-per-type"];
+    document.getElementById("multiple-notes-per-type-detailed-text").innerHTML = all_strings["multiple-notes-per-type-detailed"];
     document.getElementById("check-green-icon-global-text").innerText = all_strings["check-green-icon-global"];
     document.getElementById("check-green-icon-global-detailed-text").innerHTML = all_strings["check-green-icon-global-detailed"];
     document.getElementById("check-green-icon-domain-text").innerText = all_strings["check-green-icon-domain"];
@@ -682,8 +1172,12 @@ function setLanguageUI() {
     document.getElementById("check-green-icon-subdomain-detailed-text").innerHTML = all_strings["check-green-icon-subdomain-detailed"];
     document.getElementById("change-icon-color-based-on-tag-colour-text").innerText = all_strings["change-icon-color-based-on-tag-colour"];
     document.getElementById("change-icon-color-based-on-tag-colour-detailed-text").innerHTML = all_strings["change-icon-color-based-on-tag-colour-detailed"];
+    document.getElementById("show-badge-with-number-of-notes-text").innerText = all_strings["show-badge-with-number-of-notes"];
+    document.getElementById("show-badge-with-number-of-notes-detailed-text").innerHTML = all_strings["show-badge-with-number-of-notes-detailed"];
     document.getElementById("open-links-only-with-ctrl-text").innerHTML = all_strings["open-links-only-with-ctrl"];
     document.getElementById("open-links-only-with-ctrl-detailed-text").innerHTML = all_strings["open-links-only-with-ctrl-detailed"];
+    document.getElementById("show-fullscreen-button-in-all-notes-text").innerHTML = all_strings["show-fullscreen-button-in-all-notes"];
+    document.getElementById("show-fullscreen-button-in-all-notes-detailed-text").innerHTML = all_strings["show-fullscreen-button-in-all-notes-detailed"];
     document.getElementById("check-with-all-supported-protocols-text").innerHTML = all_strings["check-with-all-supported-protocols"];
     document.getElementById("check-with-all-supported-protocols-detailed-text").innerHTML = all_strings["check-with-all-supported-protocols-detailed"];
     document.getElementById("font-family-text").innerHTML = all_strings["font-family"];
@@ -696,6 +1190,13 @@ function setLanguageUI() {
     document.getElementById("preview-datetime-format-ddmmyyyy2").innerText = datetimeToDisplay(new Date(), "ddmmyyyy2", true);
     document.getElementById("preview-datetime-format-ddmmyyyy1-12h").innerText = datetimeToDisplay(new Date(), "ddmmyyyy1-12h", true);
     document.getElementById("preview-datetime-format-mmddyyyy1").innerText = datetimeToDisplay(new Date(), "mmddyyyy1", true);
+    document.getElementById("text-size-text").innerHTML = all_strings["text-size"];
+    document.getElementById("text-size-detailed-text").innerHTML = all_strings["text-size-detailed"];
+    document.getElementById("text-size-select-extra-small").innerText = all_strings["extra-small-text-size"];
+    document.getElementById("text-size-select-small").innerText = all_strings["small-text-size"];
+    document.getElementById("text-size-select-standard").innerText = all_strings["standard-text-size"];
+    document.getElementById("text-size-select-large").innerText = all_strings["large-text-size"];
+    document.getElementById("text-size-select-extra-large").innerText = all_strings["extra-large-text-size"];
     document.getElementById("theme-text").innerText = all_strings["theme-text"];
     document.getElementById("theme-select-lighter").innerText = all_strings["theme-choose-lighter-select"];
     document.getElementById("theme-select-light").innerText = all_strings["theme-choose-light-select"];
@@ -703,6 +1204,31 @@ function setLanguageUI() {
     document.getElementById("theme-select-darker").innerText = all_strings["theme-choose-darker-select"];
     document.getElementById("theme-select-firefox").innerText = all_strings["theme-choose-firefox-select"];
     document.getElementById("theme-detailed-text").innerHTML = all_strings["theme-detailed-text"].replace("{{property1}}", `<span class="button-code very-small-button">` + all_strings["theme-choose-firefox-select"] + `</span>`);
+
+    // Blue Theme
+    document.getElementById("theme-select-blue-light").innerText = all_strings["theme-choose-blue-light-select"] || "Blue Light";
+    document.getElementById("theme-select-blue-dark").innerText = all_strings["theme-choose-blue-dark-select"] || "Blue Dark";
+
+    // Lavender Theme
+    document.getElementById("theme-select-lavender-light").innerText = all_strings["theme-choose-lavender-light-select"] || "Lavender Light";
+    document.getElementById("theme-select-lavender-dark").innerText = all_strings["theme-choose-lavender-dark-select"] || "Lavender Dark";
+
+    // Retro Pink Theme
+    document.getElementById("theme-select-retro-pink-light").innerText = all_strings["theme-choose-retro-pink-light-select"] || "Retro Pink Light";
+    document.getElementById("theme-select-retro-pink-dark").innerText = all_strings["theme-choose-retro-pink-dark-select"] || "Retro Pink Dark";
+
+    // Matcha Theme
+    document.getElementById("theme-select-matcha-light").innerText = all_strings["theme-choose-matcha-light-select"] || "Matcha Light";
+    document.getElementById("theme-select-matcha-dark").innerText = all_strings["theme-choose-matcha-dark-select"] || "Matcha Dark";
+
+    // Forest Theme
+    document.getElementById("theme-select-forest-light").innerText = all_strings["theme-choose-forest-light-select"] || "Forest Light";
+    document.getElementById("theme-select-forest-dark").innerText = all_strings["theme-choose-forest-dark-select"] || "Forest Dark";
+
+    // Retro Teal Theme
+    document.getElementById("theme-select-retro-teal-light").innerText = all_strings["theme-choose-retro-teal-light-select"] || "Retro Teal Light";
+    document.getElementById("theme-select-retro-teal-dark").innerText = all_strings["theme-choose-retro-teal-dark-select"] || "Retro Teal Dark";
+
     document.getElementById("sticky-theme-text").innerText = all_strings["sticky-theme-text"];
     document.getElementById("sticky-theme-select-yellow").innerText = all_strings["sticky-theme-choose-yellow-select"];
     document.getElementById("sticky-theme-select-lime").innerText = all_strings["sticky-theme-choose-lime-select"];
@@ -712,10 +1238,20 @@ function setLanguageUI() {
     document.getElementById("sticky-theme-select-black").innerText = all_strings["sticky-theme-choose-black-select"];
     document.getElementById("sticky-theme-select-auto").innerText = all_strings["sticky-theme-choose-auto-select"];
     document.getElementById("sticky-theme-detailed-text").innerHTML = all_strings["sticky-theme-detailed-text"].replace("{{property1}}", `<span class="button-code very-small-button">` + all_strings["sticky-theme-choose-auto-select"] + `</span>`);
+    document.getElementById("default-sticky-size-text").innerText = all_strings["default-sticky-size-text"] || "Default sticky size";
+    document.getElementById("default-sticky-size-detailed-text").innerHTML = all_strings["default-sticky-size-detailed-text"] || "Applied when a sticky has no saved custom size.";
+    document.getElementById("default-sticky-size-select-small").innerText = all_strings["default-sticky-size-small"] || "Small";
+    document.getElementById("default-sticky-size-select-medium").innerText = all_strings["default-sticky-size-medium"] || "Medium";
+    document.getElementById("default-sticky-size-select-large").innerText = all_strings["default-sticky-size-large"] || "Large";
+    document.getElementById("default-sticky-size-select-very-large").innerText = all_strings["default-sticky-size-very-large"] || "Very large";
+    document.getElementById("default-sticky-transparency-text").innerText = all_strings["default-sticky-transparency-text"] || "Default sticky opacity";
+    document.getElementById("default-sticky-transparency-detailed-text").innerHTML = all_strings["default-sticky-transparency-detailed-text"] || "10% = very transparent, 100% = opaque.";
     document.getElementById("show-title-textbox-text").innerText = all_strings["show-title-textbox-text"];
     document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
     document.getElementById("immersive-sticky-notes-text").innerText = all_strings["immersive-sticky-notes-text"];
     document.getElementById("immersive-sticky-notes-detailed-text").innerHTML = all_strings["immersive-sticky-notes-detailed-text"];
+    document.getElementById("default-sticky-pinned-text").innerText = all_strings["default-sticky-pinned-text"];
+    document.getElementById("default-sticky-pinned-detailed-text").innerHTML = all_strings["default-sticky-pinned-detailed-text"];
     document.getElementById("notes-background-follow-tag-colour-text").innerText = all_strings["notes-background-follow-tag-colour-text"];
     document.getElementById("notes-background-follow-tag-colour-detailed-text").innerHTML = all_strings["notes-background-follow-tag-colour-detailed-text"];
     document.getElementById("show-undo-redo-text").innerText = all_strings["show-undo-redo-text"];
@@ -727,6 +1263,8 @@ function setLanguageUI() {
     document.getElementById("show-small-big-text").innerText = all_strings["show-small-big-text"];
     document.getElementById("show-highlighter-text").innerText = all_strings["show-highlighter-text"];
     document.getElementById("show-code-block-text").innerText = all_strings["show-code-block-text"];
+    document.getElementById("show-clear-formatting-text").innerText = all_strings["show-clear-formatting-text"];
+    document.getElementById("show-lists-text").innerText = all_strings["show-lists-text"];
 
     document.getElementById("default-tag-colour-domain-text").innerText = all_strings["default-tag-colour-domain-text"];
     document.getElementById("default-tag-colour-domain-detailed-text").innerHTML = all_strings["default-tag-colour-domain-detailed-text"];
@@ -748,7 +1286,6 @@ function setLanguageUI() {
     document.getElementById("export-text").innerText = all_strings["export-text"];
     document.getElementById("export-detailed-text").innerHTML = all_strings["export-detailed-text"];
     document.getElementById("export-all-notes-button").value = all_strings["export-all-notes-button"];
-    listenerNotefoxAccount();
     setNotefoxAccountLoginSignupManageButton();
 
     document.getElementById("text-import").innerHTML = all_strings["import-json-message-dialog-text"].replaceAll("{{parameters}}", "class='button-code'");
@@ -764,6 +1301,7 @@ function setLanguageUI() {
         document.getElementById("key-shortcut-default-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-default'>" + letters_and_numbers[letterNumber] + "</option>";
         document.getElementById("key-shortcut-domain-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-domain'>" + letters_and_numbers[letterNumber] + "</option>";
         document.getElementById("key-shortcut-page-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-page'>" + letters_and_numbers[letterNumber] + "</option>";
+        document.getElementById("key-shortcut-sidebar-selected").innerHTML += "<option value='" + letterNumber + "' id='select-" + letterNumber.toLowerCase() + "-shortcut-sidebar'>" + letters_and_numbers[letterNumber] + "</option>";
     }
 
     //notefox account
@@ -790,6 +1328,7 @@ function setLanguageUI() {
     document.getElementById("verify-login-code").placeholder = all_strings["verification-code-textbox"];
     document.getElementById("verify-login-submit").value = all_strings["notefox-account-button-verify-email"];
     document.getElementById("verify-login-new-code").value = all_strings["notefox-account-button-resend-email"];
+    document.getElementById("verify-email-not-actived").value = all_strings["notefox-account-button-verify-email"];
 
     document.getElementById("change-password-old-password").placeholder = all_strings["old-password-textbox"];
     document.getElementById("change-password-new-password").placeholder = all_strings["new-password-textbox"];
@@ -816,6 +1355,24 @@ function setLanguageUI() {
 
     document.getElementById("change-password-cancel").value = all_strings["cancel-button"];
     document.getElementById("change-password-submit").value = all_strings["notefox-account-button-settings-change-password"];
+    document.getElementById("change-password-code").placeholder = all_strings["verification-code-textbox"];
+    document.getElementById("change-password-verify-submit").value = all_strings["notefox-account-button-settings-change-password"];
+    document.getElementById("change-password-new-code").value = all_strings["notefox-account-button-resend-email"];
+
+    document.getElementById("manage-otp-text").innerHTML = getString("notefox-account-settings-otp-text");
+    //an account without the sync history permission is invited to the help page instead
+    document.getElementById("manage-history-text").innerHTML = getString(sync_history_enabled === false ? "notefox-account-settings-history-not-enabled-text" : "notefox-account-settings-history-text");
+    document.getElementById("manage-history-button").value = getString(sync_history_enabled === false ? "notefox-account-button-settings-history-how-to-get" : "notefox-account-button-settings-history");
+    document.getElementById("history-cancel").value = all_strings["cancel-button"];
+    document.getElementById("history-restore").value = getString("notefox-account-button-history-restore");
+    document.getElementById("history-how-to-get").value = getString("notefox-account-button-settings-history-how-to-get");
+    document.getElementById("manage-sessions-text").innerHTML = getString("notefox-account-settings-sessions-text");
+    document.getElementById("manage-sessions-button").value = getString("notefox-account-button-settings-sessions");
+    document.getElementById("sessions-cancel").value = all_strings["cancel-button"];
+
+    document.getElementById("otp-cancel").value = all_strings["cancel-button"];
+    document.getElementById("otp-password").placeholder = all_strings["password-textbox"];
+    document.getElementById("otp-code").placeholder = all_strings["verification-code-textbox"];
 
     document.getElementById("show-error-logs-settings-text").innerText = all_strings["show-error-logs-text"];
     document.getElementById("show-error-logs-settings-detailed-text").innerHTML = all_strings["show-error-logs-detailed-text"];
@@ -824,32 +1381,39 @@ function setLanguageUI() {
 }
 
 function loadSettings() {
-    //try {
-    //if(chrome.commands !== undefined) {
-    //let shortcuts = chrome.commands.getAll();//TODO:chrome
-    //shortcuts.then(getCurrentShortcuts);//TODO:chrome
-    //}
-    //} catch (e) {
-    //    console.error("C-01)) " + e);
-    //    onError("settings.js::loadSettings", e.message);
-    //}
+    try {
+        if (chrome.commands !== undefined) {
+            let shortcuts = chrome.commands.getAll();
+            shortcuts.then(getCurrentShortcuts);
+        }
+    } catch (e) {
+        console.error("C-01)) " + e);
+        onError("settings.js::loadSettings", e.message);
+    }
 
-    chrome.storage.local.get(["storage"]).then(result => {
+    chrome.storage.local.get(["storage"]).then((result) => {
         sync_local.get("settings", function (value) {
             settings_json = {};
-            if (value["settings"] !== undefined && !Array.isArray(settings_json)) settings_json = value["settings"];
-            if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
+            if (value["settings"] !== undefined) settings_json = value["settings"];
+            if (settings_json["open-default"] === undefined || !["global", "domain", "page"].includes(settings_json["open-default"])) settings_json["open-default"] = "page";
             if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
             if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
             if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
             if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
             if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
+            if (settings_json["open-popup-sidebar"] === undefined) settings_json["open-popup-sidebar"] = "Ctrl+Alt+S";
             if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
             if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
             if (settings_json["save-page-content"] === undefined) settings_json["save-page-content"] = false;
             if (settings_json["search-page-content"] === undefined) settings_json["search-page-content"] = false;
             if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
             if (settings_json["spellcheck-detection"] === undefined) settings_json["spellcheck-detection"] = false;
+            if (settings_json["disable-confirmation-popup"] === undefined) settings_json["disable-confirmation-popup"] = false;
+            if (settings_json["allow-resize-popup"] === undefined) settings_json["allow-resize-popup"] = false;
+            if (settings_json["expand-all-websites"] === undefined) settings_json["expand-all-websites"] = true;
+            if (settings_json["multiple-notes-per-type"] === undefined) settings_json["multiple-notes-per-type"] = false;
+            if (settings_json["default-sticky-size"] === undefined || !["small", "medium", "large", "very-large"].includes(settings_json["default-sticky-size"])) settings_json["default-sticky-size"] = "medium";
+            if (settings_json["default-sticky-transparency"] === undefined) settings_json["default-sticky-transparency"] = 20;
             if (settings_json["theme"] === undefined) settings_json["theme"] = "light";
             if (settings_json["sticky-theme"] === undefined) settings_json["sticky-theme"] = "yellow";
             if (settings_json["check-green-icon-global"] === undefined) settings_json["check-green-icon-global"] = true;
@@ -857,14 +1421,18 @@ function loadSettings() {
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["change-icon-color-based-on-tag-colour"] === undefined) settings_json["change-icon-color-based-on-tag-colour"] = false;
+            if (settings_json["show-icon-badge"] === undefined) settings_json["show-icon-badge"] = false;
             if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
+            if (settings_json["show-fullscreen-button-in-all-notes"] === undefined) settings_json["show-fullscreen-button-in-all-notes"] = false;
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
-            if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
+            if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
             if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
             if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
             if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
             if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
-            if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = true;
+            if (settings_json["text-size"] === undefined || !supportedTextSize.includes(settings_json["text-size"])) settings_json["text-size"] = "standard";
+
+            if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = false;
             if (settings_json["send-telemetry"] === undefined) settings_json["send-telemetry"] = false;
 
             if (settings_json["undo-redo"] === undefined) settings_json["undo-redo"] = true;
@@ -876,9 +1444,13 @@ function loadSettings() {
             if (settings_json["small-big"] === undefined) settings_json["small-big"] = false;
             if (settings_json["highlighter"] === undefined) settings_json["highlighter"] = false;
             if (settings_json["code-block"] === undefined) settings_json["code-block"] = false;
+            if (settings_json["clear-formatting"] === undefined) settings_json["clear-formatting"] = false;
+            if (settings_json["lists"] === undefined) settings_json["lists"] = false;
 
             if (settings_json["default-tag-colour-domain"] === undefined) settings_json["default-tag-colour-domain"] = "none";
             if (settings_json["default-tag-colour-page"] === undefined) settings_json["default-tag-colour-page"] = "none";
+
+            if (settings_json["api-endpoint"] === undefined) settings_json["api-endpoint"] = "https://www.notefox.eu/api/v2"; //TODO!manually change if the default API endpoint changes
 
             let sync_or_local_settings = result["storage"];
             if (sync_or_local_settings === undefined) sync_or_local_settings = "local";
@@ -892,28 +1464,65 @@ function loadSettings() {
             document.getElementById("search-page-content-check").checked = settings_json["search-page-content"] === true || settings_json["search-page-content"] === "yes";
             document.getElementById("disable-word-wrap-check").checked = settings_json["disable-word-wrap"] === true || settings_json["disable-word-wrap"] === "yes";
             document.getElementById("spellcheck-detection-check").checked = settings_json["spellcheck-detection"] === true || settings_json["spellcheck-detection"] === "yes";
+            document.getElementById("disable-confirmation-popup-check").checked = settings_json["disable-confirmation-popup"] === true || settings_json["disable-confirmation-popup"] === "yes";
+            document.getElementById("allow-resize-popup-check").checked = settings_json["allow-resize-popup"] === true || settings_json["allow-resize-popup"] === "yes";
+            document.getElementById("expand-all-websites-check").checked = settings_json["expand-all-websites"] === true || settings_json["expand-all-websites"] === "yes";
+            document.getElementById("default-sticky-size-select").value = settings_json["default-sticky-size"];
+            let defaultTransparency = updateDefaultStickyTransparencyUi(transparencyToOpacity(settings_json["default-sticky-transparency"]));
+            settings_json["default-sticky-transparency"] = defaultTransparency;
             document.getElementById("check-green-icon-global-check").checked = settings_json["check-green-icon-global"] === true || settings_json["check-green-icon-global"] === "yes";
             document.getElementById("check-green-icon-domain-check").checked = settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-domain"] === "yes";
             document.getElementById("check-green-icon-page-check").checked = settings_json["check-green-icon-page"] === true || settings_json["check-green-icon-page"] === "yes";
             document.getElementById("check-green-icon-subdomain-check").checked = settings_json["check-green-icon-subdomain"] === true || settings_json["check-green-icon-subdomain"] === "yes";
             document.getElementById("change-icon-color-based-on-tag-colour-check").checked = settings_json["change-icon-color-based-on-tag-colour"] === true || settings_json["change-icon-color-based-on-tag-colour"] === "yes";
+            document.getElementById("show-badge-with-number-of-notes-check").checked = settings_json["show-icon-badge"] === true || settings_json["show-icon-badge"] === "yes";
             document.getElementById("sending-error-logs-automatically-check").checked = settings_json["sending-error-logs-automatically"] === true || settings_json["sending-error-logs-automatically"] === "yes";
             document.getElementById("send-telemetry-check").checked = settings_json["send-telemetry"] === true || settings_json["send-telemetry"] === "yes";
+            hasNotefoxServerPermission().then(granted => {
+                //without the access to the Notefox servers nothing is sent, so they are shown as disabled
+                if (!granted) {
+                    document.getElementById("sending-error-logs-automatically-check").checked = false;
+                    document.getElementById("send-telemetry-check").checked = false;
+                }
+            });
+            document.getElementById("context-menu-create-note-check").checked = settings_json["context-menu-create-note"] === true || settings_json["context-menu-create-note"] === "yes";
+            document.getElementById("multiple-notes-per-type-check").checked = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
 
             if (document.getElementById("save-page-content-check").checked) {
-                if (document.getElementById("save-content-subsection").classList.contains("hidden")) document.getElementById("save-content-subsection").classList.remove("hidden");
+                if (document
+                    .getElementById("save-content-subsection")
+                    .classList.contains("hidden")) document
+                    .getElementById("save-content-subsection")
+                    .classList.remove("hidden");
             } else {
-                document.getElementById("save-content-subsection").classList.add("hidden");
+                document
+                    .getElementById("save-content-subsection")
+                    .classList.add("hidden");
             }
 
-            //light, dark, lighter, darker, auto
+            //light, dark, lighter, darker, auto, ... (theme)
             if (settings_json["theme"] === "light") setThemeChooserByElement(document.getElementById("item-radio-theme-light"), false); else if (settings_json["theme"] === "dark") setThemeChooserByElement(document.getElementById("item-radio-theme-dark"), false); else if (settings_json["theme"] === "lighter") setThemeChooserByElement(document.getElementById("item-radio-theme-lighter"), false); else if (settings_json["theme"] === "darker") setThemeChooserByElement(document.getElementById("item-radio-theme-darker"), false); else if (settings_json["theme"] === "auto") setThemeChooserByElement(document.getElementById("item-radio-theme-auto"), false);
+            // Blue Theme
+            else if (settings_json["theme"] === "blue-light") setThemeChooserByElement(document.getElementById("item-radio-theme-blue-light"), false); else if (settings_json["theme"] === "blue-dark") setThemeChooserByElement(document.getElementById("item-radio-theme-blue-dark"), false);
+            // Lavender Theme
+            else if (settings_json["theme"] === "lavender-light") setThemeChooserByElement(document.getElementById("item-radio-theme-lavender-light"), false); else if (settings_json["theme"] === "lavender-dark") setThemeChooserByElement(document.getElementById("item-radio-theme-lavender-dark"), false);
+            // Retro Pink Theme
+            else if (settings_json["theme"] === "retro-pink-light") setThemeChooserByElement(document.getElementById("item-radio-theme-retro-pink-light"), false); else if (settings_json["theme"] === "retro-pink-dark") setThemeChooserByElement(document.getElementById("item-radio-theme-retro-pink-dark"), false);
+            // Matcha Theme
+            else if (settings_json["theme"] === "matcha-light") setThemeChooserByElement(document.getElementById("item-radio-theme-matcha-light"), false); else if (settings_json["theme"] === "matcha-dark") setThemeChooserByElement(document.getElementById("item-radio-theme-matcha-dark"), false);
+            // Forest Theme
+            else if (settings_json["theme"] === "forest-light") setThemeChooserByElement(document.getElementById("item-radio-theme-forest-light"), false); else if (settings_json["theme"] === "forest-dark") setThemeChooserByElement(document.getElementById("item-radio-theme-forest-dark"), false);
+            // Retro Teal Theme
+            else if (settings_json["theme"] === "retro-teal-light") setThemeChooserByElement(document.getElementById("item-radio-theme-retro-teal-light"), false); else if (settings_json["theme"] === "retro-teal-dark") setThemeChooserByElement(document.getElementById("item-radio-theme-retro-teal-dark"), false);
+
             //yellow, lime, cyan, pink, white, black, auto
             if (settings_json["sticky-theme"] === "yellow" || settings_json["sticky-theme"] === "lime" || settings_json["sticky-theme"] === "cyan" || settings_json["sticky-theme"] === "pink" || settings_json["sticky-theme"] === "white" || settings_json["sticky-theme"] === "black" || settings_json["sticky-theme"] === "auto") setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-" + settings_json["sticky-theme"]), false); else setStickyThemeChooserByElement(document.getElementById("item-radio-sticky-theme-yellow"), false); //default
 
             //font family (already checked the supported font family)
             if (settings_json["font-family"] !== undefined) {
-                let fontFamily = settings_json["font-family"].replaceAll(" ", "").toLowerCase();
+                let fontFamily = settings_json["font-family"]
+                    .replaceAll(" ", "")
+                    .toLowerCase();
                 setFontFamilyChooserByElement(document.getElementById("item-radio-font-family-" + fontFamily), false);
             }
 
@@ -921,17 +1530,29 @@ function loadSettings() {
                 setDatetimeFormatChooserByElement(document.getElementById("item-radio-datetime-format-" + settings_json["datetime-format"]), false);
             }
 
+            if (settings_json["text-size"] !== undefined) {
+                setTextSizeChooserByElement(document.getElementById("item-radio-text-size-" + settings_json["text-size"]), false);
+            }
+
             document.getElementById("open-links-only-with-ctrl-check").checked = settings_json["open-links-only-with-ctrl"] === true || settings_json["open-links-only-with-ctrl"] === "yes";
+            document.getElementById("show-fullscreen-button-in-all-notes-check").checked = settings_json["show-fullscreen-button-in-all-notes"] === true || settings_json["show-fullscreen-button-in-all-notes"] === "yes";
             document.getElementById("check-with-all-supported-protocols-check").checked = settings_json["check-with-all-supported-protocols"] === true || settings_json["check-with-all-supported-protocols"] === "yes";
 
             document.getElementById("show-title-textbox-check").checked = settings_json["show-title-textbox"] === true || settings_json["show-title-textbox"] === "yes";
             document.getElementById("immersive-sticky-notes-check").checked = settings_json["immersive-sticky-notes"] === true || settings_json["immersive-sticky-notes"] === "yes";
+            document.getElementById("default-sticky-pinned-check").checked = settings_json["default-sticky-pinned"] === true;
             document.getElementById("notes-background-follow-tag-colour-check").checked = settings_json["notes-background-follow-tag-colour"] === true || settings_json["notes-background-follow-tag-colour"] === "yes";
 
             if (document.getElementById("html-text-formatting-check").checked) {
-                if (document.getElementById("html-text-formatting-buttons").classList.contains("hidden")) document.getElementById("html-text-formatting-buttons").classList.remove("hidden");
+                if (document
+                    .getElementById("html-text-formatting-buttons")
+                    .classList.contains("hidden")) document
+                    .getElementById("html-text-formatting-buttons")
+                    .classList.remove("hidden");
             } else {
-                document.getElementById("html-text-formatting-buttons").classList.add("hidden");
+                document
+                    .getElementById("html-text-formatting-buttons")
+                    .classList.add("hidden");
             }
 
             document.getElementById("show-undo-redo-check").checked = settings_json["undo-redo"] === true || settings_json["undo-redo"] === "yes";
@@ -943,9 +1564,11 @@ function loadSettings() {
             document.getElementById("show-small-big-check").checked = settings_json["small-big"] === true || settings_json["small-big"] === "yes";
             document.getElementById("show-highlighter-check").checked = settings_json["highlighter"] === true || settings_json["highlighter"] === "yes";
             document.getElementById("show-code-block-check").checked = settings_json["code-block"] === true || settings_json["code-block"] === "yes";
+            document.getElementById("show-clear-formatting-check").checked = settings_json["clear-formatting"] === true || settings_json["clear-formatting"] === "yes";
+            document.getElementById("show-lists-check").checked = settings_json["lists"] === true || settings_json["lists"] === "yes";
 
             let colourList = colourListDefault;
-            colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
+            colourList = Object.assign({}, {none: all_strings["none-colour"]}, colourList);
             document.getElementById("default-tag-colour-domain-select").innerHTML = "";
             document.getElementById("default-tag-colour-page-select").innerHTML = "";
             for (let colour in colourList) {
@@ -953,29 +1576,32 @@ function loadSettings() {
                 tagColourDomain.value = colour;
                 tagColourDomain.textContent = colourList[colour];
                 let tagColourPage = tagColourDomain.cloneNode(true);
-                document.getElementById("default-tag-colour-domain-select").append(tagColourDomain);
-                document.getElementById("default-tag-colour-page-select").append(tagColourPage);
+                document
+                    .getElementById("default-tag-colour-domain-select")
+                    .append(tagColourDomain);
+                document
+                    .getElementById("default-tag-colour-page-select")
+                    .append(tagColourPage);
             }
 
-            document.getElementById("default-tag-colour-domain-select").value = settings_json["default-tag-colour-domain"];
-            document.getElementById("default-tag-colour-domain-select").classList = ["select-box tag-colour-" + settings_json["default-tag-colour-domain"]];
-            document.getElementById("default-tag-colour-page-select").value = settings_json["default-tag-colour-page"];
-            document.getElementById("default-tag-colour-page-select").classList = ["select-box tag-colour-" + settings_json["default-tag-colour-page"]];
+            const domainSel = document.getElementById("default-tag-colour-domain-select");
+            domainSel.value = settings_json["default-tag-colour-domain"];
+            domainSel.className = "select-box";
+            domainSel.dataset.colorValues = "true";
 
-            if (webBrowserUsed === "chrome") {
-                //all elements with the class "hide-on-chrome" should be added the "hidden" class
-                let hideOnChromeElements = document.getElementsByClassName("hide-on-chrome");
-                for (let i = 0; i < hideOnChromeElements.length; i++)
-                    hideOnChromeElements[i].classList.add("hidden");
-            }
+            const pageSel = document.getElementById("default-tag-colour-page-select");
+            pageSel.value = settings_json["default-tag-colour-page"];
+            pageSel.className = "select-box";
+            pageSel.dataset.colorValues = "true";
 
-            //TODO: on chrome it's disabled
-            /*let keyboardShortcutCtrlAltShiftDefault = document.getElementById("key-shortcut-ctrl-alt-shift-default-selected");
+            let keyboardShortcutCtrlAltShiftDefault = document.getElementById("key-shortcut-ctrl-alt-shift-default-selected");
             let keyboardShortcutLetterNumberDefault = document.getElementById("key-shortcut-default-selected");
             let keyboardShortcutCtrlAltShiftDomain = document.getElementById("key-shortcut-ctrl-alt-shift-domain-selected");
             let keyboardShortcutLetterNumberDomain = document.getElementById("key-shortcut-domain-selected");
             let keyboardShortcutCtrlAltShiftPage = document.getElementById("key-shortcut-ctrl-alt-shift-page-selected");
             let keyboardShortcutLetterNumberPage = document.getElementById("key-shortcut-page-selected");
+            let keyboardShortcutCtrlAltShiftSidebar = document.getElementById("key-shortcut-ctrl-alt-shift-sidebar-selected");
+            let keyboardShortcutLetterNumberSidebar = document.getElementById("key-shortcut-sidebar-selected");
 
             keyboardShortcutCtrlAltShiftDefault.value = "Ctrl+Alt";
             keyboardShortcutLetterNumberDefault.value = "O";
@@ -983,13 +1609,19 @@ function loadSettings() {
             keyboardShortcutLetterNumberDomain.value = "D";
             keyboardShortcutCtrlAltShiftPage.value = "Ctrl+Alt";
             keyboardShortcutLetterNumberPage.value = "P";
+            keyboardShortcutCtrlAltShiftSidebar.value = "Ctrl+Alt";
+            keyboardShortcutLetterNumberSidebar.value = "S";
 
-            ctrl_alt_shift.forEach(value => {
+            ctrl_alt_shift.forEach((value) => {
                 let keyboardShortcutCtrlAltShift = document.getElementById("key-shortcut-ctrl-alt-shift-" + value + "-selected");
                 let keyboardShortcutLetterNumber = document.getElementById("key-shortcut-" + value + "-selected");
                 if (settings_json["open-popup-" + value] !== undefined && settings_json["open-popup-" + value] !== "disabled") {
                     if (keyboardShortcutLetterNumber.classList.contains("hidden")) keyboardShortcutLetterNumber.classList.remove("hidden");
-                    if (document.getElementById("label-plus-shortcut-" + value).classList.contains("hidden")) document.getElementById("label-plus-shortcut-" + value).classList.remove("hidden");
+                    if (document
+                        .getElementById("label-plus-shortcut-" + value)
+                        .classList.contains("hidden")) document
+                        .getElementById("label-plus-shortcut-" + value)
+                        .classList.remove("hidden");
                     let splitKeyboardShortcut = settings_json["open-popup-" + value].split("+");
                     let letterNumberShortcut = splitKeyboardShortcut[splitKeyboardShortcut.length - 1];
                     let ctrlAltShiftShortcut = "";
@@ -1005,26 +1637,25 @@ function loadSettings() {
                     keyboardShortcutCtrlAltShift.value = ctrlAltShiftShortcut;
 
                     let commandName = "_execute_browser_action";
-                    if (value === "domain") commandName = "opened-by-domain"; else if (value === "page") commandName = "opened-by-page"; else if (value === "global") commandName = "opened-by-global";
+                    if (value === "domain") commandName = "opened-by-domain"; else if (value === "page") commandName = "opened-by-page"; else if (value === "sidebar") commandName = "_execute_sidebar_action"; else if (value === "global") commandName = "opened-by-global";
 
                     onChangeShortcut(keyboardShortcutCtrlAltShift, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json);
                     onChangeShortcut(keyboardShortcutLetterNumber, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json);
                 } else {
                     keyboardShortcutCtrlAltShift.value = settings_json["open-popup-" + value];
                     keyboardShortcutLetterNumber.classList.add("hidden");
-                    document.getElementById("label-plus-shortcut-" + value).classList.add("hidden");
+                    document
+                        .getElementById("label-plus-shortcut-" + value)
+                        .classList.add("hidden");
 
                     onChangeShortcut(keyboardShortcutCtrlAltShift, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json);
                     onChangeShortcut(keyboardShortcutLetterNumber, keyboardShortcutLetterNumber, keyboardShortcutCtrlAltShift, value, settings_json);
                 }
             });
-            */
             //console.log(JSON.stringify(settings_json));
         });
     });
 
-
-    /*
     checkTheme(false, "auto", function (params) {
         document.getElementById("item-radio-theme-auto").style.backgroundColor = params[1];
         document.getElementById("theme-select-firefox").style.color = params[2];
@@ -1038,34 +1669,39 @@ function loadSettings() {
         document.getElementById("item-radio-sticky-theme-auto").style.backgroundColor = params[2]; //secondary
         document.getElementById("sticky-theme-select-auto").style.color = params[4]; //on-secondary
 
-        //colours_auto["primary"] = params[3];
-        //colours_auto["on-primary"] = params[5];
-        //colours_auto["secondary"] = params[2];
-        //colours_auto["on-secondary"] = params[4];
-    });*/
+        /*
+        colours_auto["primary"] = params[3];
+        colours_auto["on-primary"] = params[5];
+        colours_auto["secondary"] = params[2];
+        colours_auto["on-secondary"] = params[4];*/
+    });
 }
 
 //if sync storage contains "notefox-account", and it's saved the variable ["login-id", "password" and "expiry"], then show the string relative to "Manage your Notefox account", otherwise
 //show the string relative to "Login or Sign up to Notefox". In addition, it's changed also the class of the button ("login-button", "manage-button")
 function setNotefoxAccountLoginSignupManageButton() {
-    chrome.storage.sync.get("notefox-account").then(result => {
+    chrome.storage.sync.get("notefox-account").then((result) => {
         //console.log(result["notefox-account"]);
-        if (result["notefox-account"] !== undefined && result["notefox-account"] !== {}) {
+        let account = result["notefox-account"];
+        let isLogged = account !== undefined && account !== null && typeof account === "object" && Object.keys(account).length > 0 && account["login-id"] !== undefined;
+        let button = document.getElementById("notefox-account-settings-button");
+        if (button === null) return;
+        if (isLogged) {
             //"Manage"
-            document.getElementById("notefox-account-settings-button").value = all_strings["notefox-account-button-settings-manage"];
-            if (document.getElementById("notefox-account-settings-button").classList.contains("login-button")) document.getElementById("notefox-account-settings-button").classList.remove("login-button");
-            document.getElementById("notefox-account-settings-button").classList.add("manage-button");
+            button.value = all_strings["notefox-account-button-settings-manage"];
+            if (button.classList.contains("login-button")) button.classList.remove("login-button");
+            button.classList.add("manage-button");
         } else {
             //"Login or Sign up"
-            document.getElementById("notefox-account-settings-button").value = all_strings["notefox-account-button-settings-login-or-signup"];
-            if (document.getElementById("notefox-account-settings-button").classList.contains("manage-button")) document.getElementById("notefox-account-settings-button").classList.remove("manage-button");
-            document.getElementById("notefox-account-settings-button").classList.add("login-button");
+            button.value = all_strings["notefox-account-button-settings-login-or-signup"];
+            if (button.classList.contains("manage-button")) button.classList.remove("manage-button");
+            button.classList.add("login-button");
         }
-        document.getElementById("notefox-account-settings-button").onclick = function () {
+        button.onclick = function () {
             chrome.runtime.sendMessage({"check-user": true});
             notefoxAccountLoginSignupManage();
             sendTelemetry("notefox-account-settings-button-clicked", "settings.js::setNotefoxAccountLoginSignupManageButton");
-        }
+        };
     });
 }
 
@@ -1073,48 +1709,59 @@ function onChangeShortcut(element, keyboardShortcutLetterNumber, keyboardShortcu
     element.onchange = function () {
         if (keyboardShortcutCtrlAltShift.value !== "disabled") {
             if (keyboardShortcutLetterNumber.classList.contains("hidden")) keyboardShortcutLetterNumber.classList.remove("hidden");
-            if (document.getElementById("label-plus-shortcut-" + value).classList.contains("hidden")) document.getElementById("label-plus-shortcut-" + value).classList.remove("hidden");
+            if (document
+                .getElementById("label-plus-shortcut-" + value)
+                .classList.contains("hidden")) document
+                .getElementById("label-plus-shortcut-" + value)
+                .classList.remove("hidden");
             settings_json["open-popup-" + value] = keyboardShortcutCtrlAltShift.value + "+" + keyboardShortcutLetterNumber.value;
         } else {
             keyboardShortcutLetterNumber.classList.add("hidden");
-            document.getElementById("label-plus-shortcut-" + value).classList.add("hidden");
+            document
+                .getElementById("label-plus-shortcut-" + value)
+                .classList.add("hidden");
             settings_json["open-popup-" + value] = "disabled";
         }
 
         saveSettings();
-    }
+    };
 }
 
 function sendMessageUpdateToBackground() {
-    chrome.runtime.sendMessage({"updated": true});
+    chrome.runtime.sendMessage({updated: true});
 }
 
 function saveSettings(update_datetime = true) {
-    chrome.storage.local.get(["storage"]).then(resultSyncLocalValue => {
-        sync_local.get(["settings", "last-update"]).then(rrr1 => {
+    chrome.storage.local.get(["storage"]).then((resultSyncLocalValue) => {
+        sync_local.get(["settings", "last-update"]).then((rrr1) => {
             let lastUpdateToUse = rrr1["last-update"];
             if (update_datetime) lastUpdateToUse = getDate();
             //console.log("QAZ-12")
-            if (settings_json !== undefined && Array.isArray(settings_json)) {
-                settings_json = {};
-            }
-            sync_local.set({"settings": settings_json, "last-update": lastUpdateToUse}).then(() => {
-                /*updateShortcut("_execute_browser_action", settings_json["open-popup-default"]);
-                //updateShortcut("opened-by-global", settings_json["open-popup-global"]);
-                updateShortcut("opened-by-domain", settings_json["open-popup-domain"]);
-                updateShortcut("opened-by-page", settings_json["open-popup-page"]);
-                */
+            sync_local
+                .set({settings: settings_json, "last-update": lastUpdateToUse})
+                .then((resultF) => {
+                    //Saved
+                    let buttonSave = document.getElementById("save-settings-button");
+                    buttonSave.value = all_strings["saved-button"];
 
-                sendMessageUpdateToBackground();
+                    updateShortcut("_execute_browser_action", settings_json["open-popup-default"]);
+                    //updateShortcut("opened-by-global", settings_json["open-popup-global"]);
+                    updateShortcut("opened-by-domain", settings_json["open-popup-domain"]);
+                    updateShortcut("opened-by-page", settings_json["open-popup-page"]);
+                    updateShortcut("_execute_sidebar_action", settings_json["open-popup-sidebar"]);
 
-                if (rrr1 !== undefined && rrr1["settings"] !== undefined && rrr1["settings"]["theme"] !== undefined && rrr1["settings"]["theme"] !== settings_json["theme"] || settings_json["theme"] === undefined) {
-                    checkTheme();
-                }
-                //loadSettings();
-            }).catch(error => {
-                console.error("C-02)) " + error);
-                onError("settings.js::saveSettings", error.message);
-            })
+                    sendMessageUpdateToBackground();
+
+                    setTimeout(function () {
+                        buttonSave.value = all_strings["save-settings-button"];
+                    }, 2000);
+                    //console.log(JSON.stringify(settings_json));
+
+                    if ((rrr1 !== undefined && rrr1["settings"] !== undefined && rrr1["settings"]["theme"] !== undefined && rrr1["settings"]["theme"] !== settings_json["theme"]) || settings_json["theme"] === undefined) {
+                        //checkTheme();
+                    }
+                    loadSettings();
+                });
         });
     });
 }
@@ -1134,44 +1781,59 @@ function loadAsideBar() {
             sendTelemetry("all-notes-aside-clicked", "settings.js::aside-bar");
             window.open(links_aside_bar["all-notes"], "_self");
         }
-    }
+    };
     settings.innerHTML = all_strings["settings-aside"];
     settings.onclick = function () {
         if (!disableAside) {
             sendTelemetry("settings-aside-clicked", "settings.js::aside-bar");
             window.open(links_aside_bar["settings"], "_self");
         }
-    }
+    };
     help.innerHTML = all_strings["help-aside"];
     help.onclick = function () {
         if (!disableAside) {
             sendTelemetry("help-aside-clicked", "settings.js::aside-bar");
             window.open(links_aside_bar["help"], "_self");
         }
-    }
+    };
     website.innerHTML = all_strings["website-aside"];
     website.onclick = function () {
         if (!disableAside) {
             sendTelemetry("website-aside-clicked", "settings.js::aside-bar");
-            window.open(links_aside_bar["website"], "_self")
+            window.open(links_aside_bar["website"], "_self");
         }
-    }
+    };
     donate.innerHTML = all_strings["donate-aside"];
     donate.onclick = function () {
         if (!disableAside) {
             sendTelemetry("donate-aside-clicked", "settings.js::aside-bar");
             window.open(links_aside_bar["donate"], "_self");
         }
-    }
+    };
     translate.innerHTML = all_strings["translate-aside"];
     translate.onclick = function () {
         if (!disableAside) {
             sendTelemetry("translate-aside-clicked", "settings.js::aside-bar");
             window.open(links_aside_bar["translate"], "_self");
         }
-    }
+    };
 
     version.innerHTML = all_strings["version-aside"].replaceAll("{{version}}", chrome.runtime.getManifest().version);
+
+    //get the current tabUrl
+    chrome.tabs.query({active: true, currentWindow: true}).then(tabs => {
+        if (tabs.length > 0) {
+            let tabUrl = tabs[0].url;
+            //if it starts with "about:addons"
+            if (tabUrl.startsWith("about:addons")) {
+                document.getElementById("settings-dedication-section").classList.add("from-firefox-addons");
+            } else {
+                if (document.getElementById("settings-dedication-section").classList.contains("from-firefox-addons")) {
+                    document.getElementById("settings-dedication-section").classList.remove("from-firefox-addons");
+                }
+            }
+        }
+    });
 }
 
 function loadDeveloperOptions() {
@@ -1179,9 +1841,8 @@ function loadDeveloperOptions() {
         document.getElementById("version-aside").onclick = function () {
             developerDetails(["general"], document.getElementById("version-aside"), 5, 5); // 5 clicks in 5 seconds
             sendTelemetry("version-aside-clicked", "settings.js::developer-options");
-        }
+        };
     }
-
 
     if (document.getElementById("notefox-account-settings-text")) {
         developerDetails(["notefox-account"], document.getElementById("notefox-account-settings-text"), 5, 5); // 5 clicks in 5 seconds
@@ -1209,55 +1870,61 @@ function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
         if (clickCount === times) {
             if (type.includes("general")) {
                 //GENERAL case
-                chrome.storage.local.get(["settings"]).then(localData => {
-                    chrome.storage.sync.get(["privacy", "installation"]).then(syncData => {
-                        //console.log("localData", syncData);
-                        //console.log("syncData", syncData);
-                        const details = {
-                            "notefox-version": chrome.runtime.getManifest().version ?? '??undefined??',
-                            "web-browser": webBrowserUsed ?? '??undefined??',
-                            "installation": syncData.installation ?? '??undefined??',
-                            "privacy-acceptance": syncData.privacy ?? '??undefined??',
-                            "settings": localData["settings"] ?? '??undefined??',
-                        }
-                        console.log(startMessageDeveloperDetails("=GENERAL="), '\n', JSON.stringify(details), '\n', endMessageDeveloperDetails());
-                    });
+                chrome.storage.local.get(["settings"]).then((localData) => {
+                    chrome.storage.sync
+                        .get(["privacy", "installation"])
+                        .then((syncData) => {
+                            //console.log("localData", syncData);
+                            //console.log("syncData", syncData);
+                            const details = {
+                                "notefox-version": chrome.runtime.getManifest().version ?? "??undefined??",
+                                "web-browser": webBrowserUsed ?? "??undefined??",
+                                installation: syncData.installation ?? "??undefined??",
+                                "privacy-acceptance": syncData.privacy ?? "??undefined??",
+                                settings: localData["settings"] ?? "??undefined??",
+                            };
+                            console.warn(startMessageDeveloperDetails("=GENERAL="), "\n", JSON.stringify(details), "\n", endMessageDeveloperDetails());
+                        });
                 });
             }
             if (type.includes("notefox-account")) {
                 //NOTEFOX-ACCOUNT case
-                chrome.storage.local.get(["last-update", "last-sync"]).then(localData => {
-                    chrome.storage.sync.get("notefox-account").then(notefoxAccount => {
-                        let notefoxAccountToUse = notefoxAccount["notefox-account"];
-                        if (notefoxAccountToUse !== undefined && notefoxAccountToUse["token"]) {
-                            //if it's present the token, remove it!
-                            notefoxAccountToUse["token"] = "===REMOVED-TO-PRESERVE-PRIVACY===";
-                        }
-                        const details = {
-                            "notefox-account": notefoxAccountToUse ?? '??undefined??',
-                            "last-update": localData["last-update"] ?? '??undefined??',
-                            "last-sync": localData["last-sync"] ?? '??undefined??',
-                        }
-                        console.log(startMessageDeveloperDetails("=NOTEFOX-ACCOUNT="), JSON.stringify(details), endMessageDeveloperDetails());
+                chrome.storage.local
+                    .get(["last-update", "last-sync"])
+                    .then((localData) => {
+                        chrome.storage.sync
+                            .get("notefox-account")
+                            .then((notefoxAccount) => {
+                                let notefoxAccountToUse = notefoxAccount["notefox-account"];
+                                if (notefoxAccountToUse !== undefined && notefoxAccountToUse["token"]) {
+                                    //if it's present the token, remove it!
+                                    notefoxAccountToUse["token"] = "===REMOVED-TO-PRESERVE-PRIVACY===";
+                                }
+                                const details = {
+                                    "notefox-account": notefoxAccountToUse ?? "??undefined??",
+                                    "last-update": localData["last-update"] ?? "??undefined??",
+                                    "last-sync": localData["last-sync"] ?? "??undefined??",
+                                };
+                                console.warn(startMessageDeveloperDetails("=NOTEFOX-ACCOUNT="), JSON.stringify(details), endMessageDeveloperDetails());
+                            });
                     });
-                });
             }
             if (type.includes("notefox-account-token")) {
                 //NOTEFOX-ACCOUNT-TOKEN case
-                chrome.storage.sync.get("notefox-account").then(notefoxAccount => {
-                    let token = "===NOT-FOUND==="
+                chrome.storage.sync.get("notefox-account").then((notefoxAccount) => {
+                    let token = "===NOT-FOUND===";
                     if (notefoxAccount["notefox-account"] !== undefined && notefoxAccount["notefox-account"]["token"]) {
                         //if it's present the token, remove it!
                         token = notefoxAccount["notefox-account"]["token"];
                     }
                     const details = {
-                        "notefox-account-token": token ?? '??undefined??'
-                    }
-                    console.log(startMessageDeveloperDetails("=NOTEFOX-ACCOUNT-TOKEN="), JSON.stringify(details), endMessageDeveloperDetails());
+                        "notefox-account-token": token ?? "??undefined??",
+                    };
+                    console.warn(startMessageDeveloperDetails("=NOTEFOX-ACCOUNT-TOKEN="), JSON.stringify(details), endMessageDeveloperDetails());
                 });
             }
             if (type.length === 0) {
-                console.error("DeveloperConsoleError: type is empty!")
+                console.error("DeveloperConsoleError: type is empty!");
                 onError("settings.js::developerDetails", "DeveloperConsoleError: type is empty!");
             }
             clickCount = 0;
@@ -1265,40 +1932,19 @@ function developerDetails(type = [], element, times = 5, maxSeconds = 5) {
         sendTelemetry("developer-details-clicked", "settings.js::developerDetails");
     };
 
-    function startMessageDeveloperDetails(additionalString = '') {
+    function startMessageDeveloperDetails(additionalString = "") {
         return `
 //∨∨∨∨∨∨∨∨∨∨∨∨${additionalString}∨∨∨∨∨∨∨∨∨∨∨∨//
 THIS IS AN ADVANCED FEATURE: DO NOT SHARE IT WITH ANYONE IF YOU DON'T KNOW WHAT YOU ARE DOING
 //∨∨∨∨∨∨∨∨∨∨∨∨${additionalString}∨∨∨∨∨∨∨∨∨∨∨∨//`;
     }
 
-    function endMessageDeveloperDetails(additionalString = '') {
+    function endMessageDeveloperDetails(additionalString = "") {
         return `
 //∧∧∧∧∧∧∧∧∧∧∧∧${additionalString}∧∧∧∧∧∧∧∧∧∧∧∧//
 THIS IS AN ADVANCED FEATURE: DO NOT SHARE IT WITH ANYONE IF YOU DON'T KNOW WHAT YOU ARE DOING",
 //∧∧∧∧∧∧∧∧∧∧∧∧${additionalString}∧∧∧∧∧∧∧∧∧∧∧∧//`;
     }
-}
-
-function checkOperatingSystem() {
-    chrome.runtime.getPlatformInfo((platformInfo) => {
-        getOperatingSystem(platformInfo.os);
-    });
-    //"mac", "win", "linux", "openbsd", "cros", ...
-    // Docs: (https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/PlatformOs)ˇ
-}
-
-function getOperatingSystem(info) {
-    if (info.os === "mac") currentOS = "mac"; else currentOS = "default";
-
-    ctrl_alt_shift.forEach(value => {
-        document.getElementById("select-disable-shortcut-" + value).textContent = all_strings["label-disable-shortcut"];
-        document.getElementById("select-ctrl-shortcut-" + value).textContent = all_strings["label-ctrl-" + currentOS];
-        document.getElementById("select-alt-shortcut-" + value).textContent = all_strings["label-alt-" + currentOS];
-        document.getElementById("select-ctrl-alt-shortcut-" + value).textContent = all_strings["label-ctrl-alt-" + currentOS];
-        document.getElementById("select-ctrl-shift-shortcut-" + value).textContent = all_strings["label-ctrl-shift-" + currentOS];
-        document.getElementById("select-alt-shift-shortcut-" + value).textContent = all_strings["label-alt-shift-" + currentOS];
-    });
 }
 
 function getCurrentShortcuts(commands) {
@@ -1317,11 +1963,11 @@ function updateShortcut(commandName, shortcut) {
     try {
         if (shortcut !== "disabled") {
             chrome.commands.update({
-                name: commandName, shortcut: shortcut
+                name: commandName, shortcut: shortcut,
             });
         } else {
             chrome.commands.update({
-                name: commandName, shortcut: ""
+                name: commandName, shortcut: "",
             });
         }
     } catch (e) {
@@ -1334,237 +1980,272 @@ function clearAllNotes() {
     let confirmationClearAllNotes = confirm(all_strings["clear-all-notes-confirmation"]);
     if (confirmationClearAllNotes) {
         //console.log("QAZ-13")
-        sync_local.set({
-            "websites": {},
-            "settings": {},
-            "sticky-notes-coords": {},
-            "sticky-notes-sizes": {},
-            "sticky-notes-opacity": {},
-            "sticky-notes": {},
-            "last-update": getDate()
-        }).then(result => {
-            loaded();
-        });
+        sync_local
+            .set({
+                websites: {},
+                settings: {},
+                "sticky-notes-coords": {},
+                "sticky-notes-sizes": {},
+                "sticky-notes-opacity": {},
+                "sticky-notes": {},
+                "last-update": getDate(),
+            })
+            .then((result) => {
+                loaded();
+            });
 
-        sync_local.remove(["sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result => {
-        });
+        sync_local
+            .remove(["sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity",])
+            .then((result) => {
+            });
     }
 }
 
 function importAllNotes(from_file = false) {
     document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
 
-    chrome.storage.local.get(["storage", "settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity", "last-update"]).then(result => {
-        let jsonImportElement = document.getElementById("json-import");
-        let json_old_version = {};
+    chrome.storage.local
+        .get(["storage", "settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity", "last-update",])
+        .then((result) => {
+            let jsonImportElement = document.getElementById("json-import");
+            let json_old_version = {};
 
-        document.getElementById("import-from-file-button").value = all_strings["import-notes-from-file-button"];
+            document.getElementById("import-from-file-button").value = all_strings["import-notes-from-file-button"];
 
-        //console.log(JSON.stringify(result));
-        if (show_conversion_message_attention) {
-            if (document.getElementById("import-now-all-notes-from-local-button")) {
-                document.getElementById("import-now-all-notes-from-local-button").onclick = function () {
-                    result["notefox"] = {};
-                    result["notefox"]["version"] = "3.2";
-                    result["storage"] = "sync";
-                    result["sticky-notes"] = {};
-                    result["sticky-notes"]["coords"] = result["sticky-notes-coords"];
-                    result["sticky-notes"]["sizes"] = result["sticky-notes-sizes"];
-                    result["sticky-notes"]["opacity"] = result["sticky-notes-opacity"];
-                    delete result["sticky-notes-coords"];
-                    delete result["sticky-notes-sizes"];
-                    delete result["sticky-notes-opacity"];
-                    jsonImportElement.value = JSON.stringify(result);
-                    json_old_version = result;
+            //console.log(JSON.stringify(result));
+            if (show_conversion_message_attention) {
+                if (document.getElementById("import-now-all-notes-from-local-button")) {
+                    document.getElementById("import-now-all-notes-from-local-button").onclick = function () {
+                        result["notefox"] = {};
+                        result["notefox"]["version"] = "3.2";
+                        result["storage"] = "sync";
+                        result["sticky-notes"] = {};
+                        result["sticky-notes"]["coords"] = result["sticky-notes-coords"];
+                        result["sticky-notes"]["sizes"] = result["sticky-notes-sizes"];
+                        result["sticky-notes"]["opacity"] = result["sticky-notes-opacity"];
+                        delete result["sticky-notes-coords"];
+                        delete result["sticky-notes-sizes"];
+                        delete result["sticky-notes-opacity"];
+                        jsonImportElement.value = JSON.stringify(result);
+                        json_old_version = result;
 
-                    sendTelemetry("import-now-all-notes-from-local-button-clicked", "settings.js::importAllNotes");
+                        sendTelemetry("import-now-all-notes-from-local-button-clicked", "settings.js::importAllNotes");
+                    };
                 }
+            } else {
+                if (document.getElementById("import-now-all-notes-from-local-button")) document
+                    .getElementById("import-now-all-notes-from-local-button")
+                    .remove();
             }
-        } else {
-            if (document.getElementById("import-now-all-notes-from-local-button")) document.getElementById("import-now-all-notes-from-local-button").remove();
-        }
 
-        if (result["last-update"] === undefined || result["last-update"] === null) result["last-update"] = getDate(); else result["last-update"] = correctDatetime(result["last-update"]);
+            if (result["last-update"] === undefined || result["last-update"] === null) result["last-update"] = getDate(); else result["last-update"] = correctDatetime(result["last-update"]);
 
-        let n_errors = 0;
-        showBackgroundOpacity();
-        document.getElementById("import-section").style.display = "block";
-        jsonImportElement.value = "";
-        jsonImportElement.focus();
+            let n_errors = 0;
+            showBackgroundOpacity();
+            document.getElementById("import-section").style.display = "block";
+            jsonImportElement.value = "";
+            jsonImportElement.focus();
 
-        document.getElementById("cancel-import-all-notes-button").onclick = function () {
-            hideBackgroundOpacity();
-            document.getElementById("import-section").style.display = "none";
-            sendTelemetry("cancel-import-all-notes-button-clicked", "settings.js::importAllNotes");
-        }
-        document.getElementById("import-now-all-notes-button").onclick = function () {
-            let value = jsonImportElement.value;
-            if (value.replaceAll(" ", "") !== "") {
-                let error = false;
-                let error_description = "";
-                try {
-                    //json_to_export = {"notefox": notefox_json, "websites": websites_json, "settings": settings_json, "sticky-notes": sticky_notes_json};
-                    let json_to_import_temp = JSON.parse(value);
-                    let continue_ok = false;
-                    let cancel = false;
-                    if (json_to_import_temp["notefox"] === undefined || (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["notefox"]["version"] === undefined)) {
-                        //version before 2.0 (export in a different way)
-                        cancel = !confirm(all_strings["notefox-version-too-old-try-to-import-data-anyway"]);
-                        if (!cancel) {
-                            websites_json = json_to_import_temp;
-                            websites_json_to_show = websites_json;
+            document.getElementById("cancel-import-all-notes-button").onclick = function () {
+                hideBackgroundOpacity();
+                document.getElementById("import-section").style.display = "none";
+                sendTelemetry("cancel-import-all-notes-button-clicked", "settings.js::importAllNotes");
+            };
+            document.getElementById("import-now-all-notes-button").onclick = function () {
+                let value = jsonImportElement.value;
+                if (value.replaceAll(" ", "") !== "") {
+                    let error = false;
+                    let error_description = "";
+                    try {
+                        //json_to_export = {"notefox": notefox_json, "websites": websites_json, "settings": settings_json, "sticky-notes": sticky_notes_json};
+                        let json_to_import_temp = JSON.parse(value);
+                        let continue_ok = false;
+                        let cancel = false;
+                        if (json_to_import_temp["notefox"] === undefined || (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["notefox"]["version"] === undefined)) {
+                            //version before 2.0 (export in a different way)
+                            cancel = !confirm(all_strings["notefox-version-too-old-try-to-import-data-anyway"]);
+                            if (!cancel) {
+                                websites_json = json_to_import_temp;
+                                websites_json_to_show = websites_json;
+                            }
                         }
-                    }
-                    if (json_to_import_temp["notefox"] !== undefined) {
-                        let check_version = checkTwoVersions(json_to_import_temp["notefox"]["version"], "3.3.1.8");
-                        if (check_version === "<") {
-                            cancel = !confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
-                            continue_ok = !cancel
+                        if (json_to_import_temp["notefox"] !== undefined) {
+                            let check_version = checkTwoVersions(json_to_import_temp["notefox"]["version"], "3.3.1.8");
+                            if (check_version === "<") {
+                                cancel = !confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
+                                continue_ok = !cancel;
+                            } else {
+                                continue_ok = true;
+                            }
                         } else {
-                            continue_ok = true;
+                            cancel = !confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
+                            continue_ok = !cancel;
                         }
-                    } else {
-                        cancel = !confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
-                        continue_ok = !cancel;
-                    }
 
-                    let sticky_notes = {};
-
-                    if (continue_ok) {
-                        if (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["websites"] !== undefined) {
-                            websites_json = json_to_import_temp["websites"];
-                            websites_json_to_show = websites_json;
-                        }
-                        if (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["settings"] !== undefined) settings_json = json_to_import_temp["settings"];
-                        for (setting in settings_json) {
-                            if (settings_json[setting] === "yes") settings_json[setting] = true; else if (settings_json[setting] === "no") settings_json[setting] = false;
-                        }
-                        if (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["sticky-notes"] !== undefined) {
-                            if (json_to_import_temp["sticky-notes"].coords !== undefined) sticky_notes.coords = json_to_import_temp["sticky-notes"].coords;
-
-                            if (json_to_import_temp["sticky-notes"].sizes !== undefined) sticky_notes.sizes = json_to_import_temp["sticky-notes"].sizes;
-
-                            if (json_to_import_temp["sticky-notes"].opacity !== undefined) sticky_notes.opacity = json_to_import_temp["sticky-notes"].opacity;
-
-                            if (sticky_notes.coords === undefined || sticky_notes.coords === null) sticky_notes.coords = {
-                                x: "20px", y: "20px"
-                            };
-                            if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) sticky_notes.sizes = {
-                                w: "300px", h: "300px"
-                            };
-                            if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) sticky_notes.opacity = {value: 0.7};
-                        }
-                    }
-
-                    //console.log(JSON.stringify(json_to_export_temp));
-
-                    chrome.storage.local.get(["storage"]).then(resultSyncOrLocalToUse => {
-                        let storageTemp;
-                        if (json_to_import_temp["storage"] !== undefined) storageTemp = json_to_import_temp["storage"];
-
-                        if (storageTemp === undefined && resultSyncOrLocalToUse["storage"] !== undefined) storageTemp = resultSyncOrLocalToUse["storage"]; else if ((storageTemp === "sync" || storageTemp === "local")) storageTemp = storageTemp; //do not do anything
-                        else storageTemp = "local";
+                        let sticky_notes = {};
 
                         if (continue_ok) {
-                            disableAside = true;
-                            document.getElementById("cancel-import-all-notes-button").style.display = "none";
-                            document.getElementById("import-from-file-button").style.display = "none";
+                            if (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["websites"] !== undefined) {
+                                websites_json = json_to_import_temp["websites"];
+                                websites_json_to_show = websites_json;
+                            }
+                            if (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["settings"] !== undefined) settings_json = json_to_import_temp["settings"];
+                            for (setting in settings_json) {
+                                if (settings_json[setting] === "yes") settings_json[setting] = true; else if (settings_json[setting] === "no") settings_json[setting] = false;
+                            }
+                            if (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["sticky-notes"] !== undefined) {
+                                if (json_to_import_temp["sticky-notes"].coords !== undefined) sticky_notes.coords = json_to_import_temp["sticky-notes"].coords;
 
-                            chrome.storage.local.set({"storage": storageTemp}).then(resultSyncLocal => {
-                                checkSyncLocal();
+                                if (json_to_import_temp["sticky-notes"].sizes !== undefined) sticky_notes.sizes = json_to_import_temp["sticky-notes"].sizes;
 
-                                document.getElementById("import-now-all-notes-button").disabled = true;
-                                document.getElementById("cancel-import-all-notes-button").disabled = true;
-                                document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
-                                setTimeout(function () {
-                                    document.getElementById("import-now-all-notes-button").disabled = false;
-                                    document.getElementById("cancel-import-all-notes-button").disabled = false;
-                                    document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
+                                if (json_to_import_temp["sticky-notes"].opacity !== undefined) sticky_notes.opacity = json_to_import_temp["sticky-notes"].opacity;
 
-                                    if (json_to_import_temp["last-update"] !== undefined) result["last-update"] = json_to_import_temp["last-update"];
-
-                                    //console.log("QAZ-14")
-                                    sync_local.set({
-                                        "websites": websites_json,
-                                        "settings": settings_json,
-                                        "sticky-notes-coords": sticky_notes.coords,
-                                        "sticky-notes-sizes": sticky_notes.sizes,
-                                        "sticky-notes-opacity": sticky_notes.opacity, //"last-update": result["last-update"]
-                                        "last-update": getDate() //set the current datetime, because of you're importing manually
-                                    }).then(function () {
-                                        //Imported all correctly
-                                        sync_local.get(["settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result => {
-                                            //console.log(JSON.stringify(storageTemp));
-                                            if (storageTemp === "sync") {
-                                                if (JSON.stringify(json_old_version) === jsonImportElement.value) {
-                                                    chrome.storage.local.clear().then(result1 => {
-                                                        chrome.storage.local.set({"storage": "sync"})
-                                                    });
-                                                } else chrome.storage.local.set({"storage": "sync"})
-                                            } else {
-                                                if (JSON.stringify(json_old_version) === jsonImportElement.value) {
-                                                    chrome.storage.local.clear().then(result1 => {
-                                                        chrome.storage.local.set({"storage": "local"})
-                                                    });
-                                                } else chrome.storage.local.set({"storage": "local"})
-                                            }
-                                        });
-
-                                        disableAside = false;
-                                        document.getElementById("cancel-import-all-notes-button").style.display = "inline-block";
-                                        document.getElementById("import-from-file-button").style.display = "inline-block";
-                                        document.getElementById("import-now-all-notes-button").disabled = false;
-                                        document.getElementById("cancel-import-all-notes-button").disabled = false;
-                                        document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
-
-                                        document.getElementById("import-section").style.display = "none";
-                                        hideBackgroundOpacity()
-
-                                        loaded();
-                                    }).catch(function (error) {
-                                        console.error("E10: " + error);
-                                        onError("settings.js::importAllNotes", error.message);
-                                    });
-                                }, 2000);
-                            });
+                                if (sticky_notes.coords === undefined || sticky_notes.coords === null) sticky_notes.coords = {
+                                    x: "20px", y: "20px",
+                                };
+                                if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) sticky_notes.sizes = {
+                                    w: "300px", h: "300px",
+                                };
+                                if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) sticky_notes.opacity = {value: 0.7};
+                            }
                         }
-                    });
 
+                        //console.log(JSON.stringify(json_to_export_temp));
 
-                    if (!continue_ok && !cancel) {
+                        chrome.storage.local
+                            .get(["storage"])
+                            .then((resultSyncOrLocalToUse) => {
+                                let storageTemp;
+                                if (json_to_import_temp["storage"] !== undefined) storageTemp = json_to_import_temp["storage"];
+
+                                if (storageTemp === undefined && resultSyncOrLocalToUse["storage"] !== undefined) storageTemp = resultSyncOrLocalToUse["storage"]; else if (storageTemp === "sync" || storageTemp === "local") storageTemp = storageTemp; //do not do anything
+                                else storageTemp = "local";
+
+                                if (continue_ok) {
+                                    disableAside = true;
+                                    document.getElementById("cancel-import-all-notes-button").style.display = "none";
+                                    document.getElementById("import-from-file-button").style.display = "none";
+
+                                    chrome.storage.local
+                                        .set({storage: storageTemp})
+                                        .then((resultSyncLocal) => {
+                                            checkSyncLocal();
+
+                                            document.getElementById("import-now-all-notes-button").disabled = true;
+                                            document.getElementById("cancel-import-all-notes-button").disabled = true;
+                                            document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
+                                            if (document.getElementById("loading-importing").classList.contains("hidden")) document.getElementById("loading-importing").classList.remove("hidden");
+                                            setTimeout(function () {
+                                                document.getElementById("import-now-all-notes-button").disabled = false;
+                                                document.getElementById("cancel-import-all-notes-button").disabled = false;
+                                                document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
+
+                                                if (json_to_import_temp["last-update"] !== undefined) result["last-update"] = json_to_import_temp["last-update"];
+
+                                                // convert imported (possibly old-format) notes to the all-notes[] model
+                                                migrateWebsites(websites_json);
+
+                                                //console.log("QAZ-14")
+                                                sync_local
+                                                    .set({
+                                                        websites: websites_json,
+                                                        settings: settings_json,
+                                                        "sticky-notes-coords": sticky_notes.coords,
+                                                        "sticky-notes-sizes": sticky_notes.sizes,
+                                                        "sticky-notes-opacity": sticky_notes.opacity, //"last-update": result["last-update"]
+                                                        "last-update": getDate(), //set the current datetime, because of you're importing manually
+                                                    })
+                                                    .then(function () {
+                                                        //Imported all correctly
+                                                        sync_local
+                                                            .get(["settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity",])
+                                                            .then((result) => {
+                                                                //console.log(JSON.stringify(storageTemp));
+                                                                if (storageTemp === "sync") {
+                                                                    if (JSON.stringify(json_old_version) === jsonImportElement.value) {
+                                                                        chrome.storage.local
+                                                                            .clear()
+                                                                            .then((result1) => {
+                                                                                chrome.storage.local.set({
+                                                                                    storage: "sync",
+                                                                                });
+                                                                            });
+                                                                    } else chrome.storage.local.set({
+                                                                        storage: "sync",
+                                                                    });
+                                                                } else {
+                                                                    if (JSON.stringify(json_old_version) === jsonImportElement.value) {
+                                                                        chrome.storage.local
+                                                                            .clear()
+                                                                            .then((result1) => {
+                                                                                chrome.storage.local.set({
+                                                                                    storage: "local",
+                                                                                });
+                                                                            });
+                                                                    } else chrome.storage.local.set({
+                                                                        storage: "local",
+                                                                    });
+                                                                }
+                                                            });
+
+                                                        disableAside = false;
+                                                        document.getElementById("cancel-import-all-notes-button").style.display = "inline-block";
+                                                        document.getElementById("import-from-file-button").style.display = "inline-block";
+                                                        document.getElementById("import-now-all-notes-button").disabled = false;
+                                                        document.getElementById("cancel-import-all-notes-button").disabled = false;
+                                                        document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
+
+                                                        document.getElementById("import-section").style.display = "none";
+                                                        document.getElementById("loading-importing").classList.add("hidden");
+                                                        hideBackgroundOpacity()
+
+                                                        loaded();
+                                                    })
+                                                    .catch(function (error) {
+                                                        console.error("E10: " + error);
+                                                        onError("settings.js::importAllNotes", error.message);
+                                                    });
+                                            }, 2000);
+                                        });
+                                }
+                            });
+
+                        if (!continue_ok && !cancel) {
+                            error = true;
+                            error_description = "One or more parameters are not correct and it's not possible import data.";
+                        }
+                        //console.log(JSON.stringify(json_to_export_temp));
+                    } catch (e) {
+                        //console.log("Error: " + e.toString());
                         error = true;
-                        error_description = "One or more parameters are not correct and it's not possible import data.";
+                        error_description = e.toString();
                     }
-                    //console.log(JSON.stringify(json_to_export_temp));
-                } catch (e) {
-                    //console.log("Error: " + e.toString());
-                    error = true;
-                    error_description = e.toString()
-                }
 
-                if (error) {
-                    let errorSubSection = document.createElement("div");
-                    errorSubSection.classList.add("sub-section", "background-light-red");
-                    errorSubSection.id = "error-message-" + n_errors;
-                    errorSubSection.textContent = "Error: " + error_description;
-                    setTimeout(function () {
-                        errorSubSection.remove();
-                    }, 10000);
-                    n_errors++;
+                    if (error) {
+                        let errorSubSection = document.createElement("div");
+                        errorSubSection.classList.add("sub-section", "background-light-red");
+                        errorSubSection.id = "error-message-" + n_errors;
+                        errorSubSection.textContent = "Error: " + error_description;
+                        setTimeout(function () {
+                            errorSubSection.remove();
+                        }, 10000);
+                        n_errors++;
 
-                    let mainSection = document.getElementById("import-sub-sections");
-                    mainSection.insertBefore(errorSubSection, mainSection.childNodes[0]);
+                        let mainSection = document.getElementById("import-sub-sections");
+                        mainSection.insertBefore(errorSubSection, mainSection.childNodes[0]);
+                    }
                 }
+            };
+
+            sync_local
+                .remove(["sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity",])
+                .then((result) => {
+                });
+
+            if (from_file) {
+                importFromFile();
             }
-        }
-
-        sync_local.remove(["sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]).then(result => {
         });
-
-        if (from_file) {
-            importFromFile();
-        }
-    });
 }
 
 function importFromFile() {
@@ -1574,10 +2255,10 @@ function importFromFile() {
         input.onchange = function (e) {
             const file = this.files[0];
             //console.log(file);
-            if (file === undefined || file.name === '') {
+            if (file === undefined || file.name === "") {
                 return;
             }
-            if (file.type === undefined || file.type !== undefined && file.type !== "application/json") {
+            if (file.type === undefined || (file.type !== undefined && file.type !== "application/json")) {
                 return;
             }
 
@@ -1592,7 +2273,7 @@ function importFromFile() {
                     document.getElementById("json-import").value = JSON.stringify(data);
                     document.getElementById("import-now-all-notes-button").click();
                 } catch (e) {
-                    console.error(`I-E2: ${e}`)
+                    console.error(`I-E2: ${e}`);
                     onError("settings.js::importFromFile::I-E2", e.message);
                 }
             };
@@ -1610,126 +2291,130 @@ function importFromFile() {
 
 function exportAllNotes(to_file = false) {
     showBackgroundOpacity();
-    chrome.storage.local.get(["storage"]).then(getStorageTemp => {
-        sync_local.get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "last-update"]).then((result) => {
-            // Handle the result
-            let sticky_notes = {};
-            sticky_notes.coords = result["sticky-notes-coords"];
-            sticky_notes.sizes = result["sticky-notes-sizes"];
-            sticky_notes.opacity = result["sticky-notes-opacity"];
+    chrome.storage.local.get(["storage"]).then((getStorageTemp) => {
+        sync_local
+            .get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "last-update",])
+            .then((result) => {
+                // Handle the result
+                let sticky_notes = {};
+                sticky_notes.coords = result["sticky-notes-coords"];
+                sticky_notes.sizes = result["sticky-notes-sizes"];
+                sticky_notes.opacity = result["sticky-notes-opacity"];
 
-            let websites_json = result["websites"];
+                let websites_json = result["websites"];
 
-            if (sticky_notes.coords === undefined && sticky_notes.coords === null) {
-                sticky_notes.coords = {x: "20px", y: "20px"};
-            }
-            if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) {
-                sticky_notes.sizes = {w: "300px", h: "300px"};
-            }
-            if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) {
-                sticky_notes.opacity = {value: 0.7};
-            }
-            sticky_notes.opacity.value = Number.parseFloat(sticky_notes.opacity.value).toFixed(2);
+                if (sticky_notes.coords === undefined && sticky_notes.coords === null) {
+                    sticky_notes.coords = {x: "20px", y: "20px"};
+                }
+                if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) {
+                    sticky_notes.sizes = {w: "300px", h: "300px"};
+                }
+                if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) {
+                    sticky_notes.opacity = {value: 0.7};
+                }
+                sticky_notes.opacity.value = Number.parseFloat(sticky_notes.opacity.value).toFixed(2);
 
-            //console.log(JSON.stringify(result));
+                //console.log(JSON.stringify(result));
 
-            let lastUpdateToExport = result["last-update"];
-            if (lastUpdateToExport === undefined || lastUpdateToExport === null) lastUpdateToExport = getDate(); else lastUpdateToExport = correctDatetime(lastUpdateToExport);
+                let lastUpdateToExport = result["last-update"];
+                if (lastUpdateToExport === undefined || lastUpdateToExport === null) lastUpdateToExport = getDate(); else lastUpdateToExport = correctDatetime(lastUpdateToExport);
 
-            json_to_export = {};
-            for (setting in settings_json) {
-                if (settings_json[setting] === "yes") settings_json[setting] = true; else if (settings_json[setting] === "no") settings_json[setting] = false;
-            }
+                json_to_export = {};
+                for (setting in settings_json) {
+                    if (settings_json[setting] === "yes") settings_json[setting] = true; else if (settings_json[setting] === "no") settings_json[setting] = false;
+                }
 
-            //console.log("QAZ-15")
-            json_to_export = {
-                "notefox": notefox_json,
-                "settings": settings_json,
-                "websites": websites_json,
-                "sticky-notes": sticky_notes,
-                "storage": getStorageTemp["storage"],
-                "last-update": lastUpdateToExport
-            };
-            document.getElementById("export-section").style.display = "block";
-            document.getElementById("json-export").value = JSON.stringify(json_to_export);
-
-            document.getElementById("cancel-export-all-notes-button").onclick = function () {
-                hideBackgroundOpacity();
-                document.getElementById("export-section").style.display = "none";
-
-                document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
-                document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
-
-                sendTelemetry("cancel-export-all-notes-button-clicked", "settings.js::exportAllNotes");
-            }
-            document.getElementById("copy-now-all-notes-button").onclick = function () {
-                document.getElementById("cancel-export-all-notes-button").value = all_strings["close-button"];
-                document.getElementById("copy-now-all-notes-button").value = all_strings["copied-button"];
-
+                //console.log("QAZ-15")
+                json_to_export = {
+                    notefox: notefox_json,
+                    settings: settings_json,
+                    websites: websites_json,
+                    "sticky-notes": sticky_notes,
+                    storage: getStorageTemp["storage"],
+                    "last-update": lastUpdateToExport,
+                };
+                document.getElementById("export-section").style.display = "block";
                 document.getElementById("json-export").value = JSON.stringify(json_to_export);
-                document.getElementById("json-export").select();
-                document.execCommand("copy");
 
-                sendTelemetry("copy-now-all-notes-button-clicked", "settings.js::exportAllNotes");
-            }
+                document.getElementById("cancel-export-all-notes-button").onclick = function () {
+                    hideBackgroundOpacity();
+                    document.getElementById("export-section").style.display = "none";
 
-            document.getElementById("export-to-file-button").value = all_strings["export-notes-to-file-button"];
-            if (to_file) {
-                exportToFile();
-            }
-        }).catch((e) => {
-            console.error(`E-E2: ${e}`);
-            onError("settings.js::exportAllNotes", e.message);
-        });
+                    document.getElementById("cancel-export-all-notes-button").value = all_strings["cancel-button"];
+                    document.getElementById("copy-now-all-notes-button").value = all_strings["copy-now-button"];
+
+                    sendTelemetry("cancel-export-all-notes-button-clicked", "settings.js::exportAllNotes");
+                };
+                document.getElementById("copy-now-all-notes-button").onclick = function () {
+                    document.getElementById("cancel-export-all-notes-button").value = all_strings["close-button"];
+                    document.getElementById("copy-now-all-notes-button").value = all_strings["copied-button"];
+
+                    document.getElementById("json-export").value = JSON.stringify(json_to_export);
+                    document.getElementById("json-export").select();
+                    document.execCommand("copy");
+
+                    sendTelemetry("copy-now-all-notes-button-clicked", "settings.js::exportAllNotes");
+                };
+
+                document.getElementById("export-to-file-button").value = all_strings["export-notes-to-file-button"];
+                if (to_file) {
+                    exportToFile();
+                }
+            })
+            .catch((e) => {
+                console.error(`E-E2: ${e}`);
+                onError("settings.js::exportAllNotes", e.message);
+            });
     });
 }
 
 function exportErrorLogs(to_file = false) {
     showBackgroundOpacity();
-    chrome.storage.local.get(["storage"]).then(getStorageTemp => {
-        chrome.storage.local.get("error-logs").then((result) => {
-            let error_logs = result["error-logs"];
-            if (error_logs === undefined || error_logs === null) {
-                error_logs = [];
-            }
+    chrome.storage.local.get(["storage"]).then((getStorageTemp) => {
+        chrome.storage.local
+            .get("error-logs")
+            .then((result) => {
+                let error_logs = result["error-logs"];
+                if (error_logs === undefined || error_logs === null) {
+                    error_logs = [];
+                }
 
-            //console.log("QAZ-15")
-            json_to_export = {
-                "notefox": notefox_json,
-                "settings": settings_json,
-                "errors": error_logs,
-            };
-            document.getElementById("show-error-logs-section").style.display = "block";
-            document.getElementById("json-show-error-logs").value = JSON.stringify(json_to_export);
-
-            document.getElementById("cancel-show-error-logs-button").onclick = function () {
-                hideBackgroundOpacity();
-                document.getElementById("show-error-logs-section").style.display = "none";
-
-                document.getElementById("cancel-show-error-logs-button").value = all_strings["cancel-button"];
-                document.getElementById("copy-now-show-error-logs-button").value = all_strings["copy-now-button"];
-
-                sendTelemetry("cancel-show-error-logs-button-clicked", "settings.js::exportErrorLogs");
-            }
-            document.getElementById("copy-now-show-error-logs-button").onclick = function () {
-                document.getElementById("cancel-show-error-logs-button").value = all_strings["close-button"];
-                document.getElementById("copy-now-show-error-logs-button").value = all_strings["copied-button"];
-
+                //console.log("QAZ-15")
+                json_to_export = {
+                    notefox: notefox_json, settings: settings_json, errors: error_logs,
+                };
+                document.getElementById("show-error-logs-section").style.display = "block";
                 document.getElementById("json-show-error-logs").value = JSON.stringify(json_to_export);
-                document.getElementById("json-show-error-logs").select();
-                document.execCommand("copy");
 
-                sendTelemetry("copy-now-show-error-logs-button-clicked", "settings.js::exportErrorLogs");
-            }
+                document.getElementById("cancel-show-error-logs-button").onclick = function () {
+                    hideBackgroundOpacity();
+                    document.getElementById("show-error-logs-section").style.display = "none";
 
-            document.getElementById("show-error-logs-to-file-button").value = all_strings["show-error-logs-to-file-button"];
-            if (to_file) {
-                exportToFileErrorLogs();
-            }
-        }).catch((e) => {
-            console.error(`E-E2: ${e}`);
-            onError("settings.js::exportErrorLogs", e.message);
-        });
+                    document.getElementById("cancel-show-error-logs-button").value = all_strings["cancel-button"];
+                    document.getElementById("copy-now-show-error-logs-button").value = all_strings["copy-now-button"];
+
+                    sendTelemetry("cancel-show-error-logs-button-clicked", "settings.js::exportErrorLogs");
+                };
+                document.getElementById("copy-now-show-error-logs-button").onclick = function () {
+                    document.getElementById("cancel-show-error-logs-button").value = all_strings["close-button"];
+                    document.getElementById("copy-now-show-error-logs-button").value = all_strings["copied-button"];
+
+                    document.getElementById("json-show-error-logs").value = JSON.stringify(json_to_export);
+                    document.getElementById("json-show-error-logs").select();
+                    document.execCommand("copy");
+
+                    sendTelemetry("copy-now-show-error-logs-button-clicked", "settings.js::exportErrorLogs");
+                };
+
+                document.getElementById("show-error-logs-to-file-button").value = all_strings["show-error-logs-to-file-button"];
+                if (to_file) {
+                    exportToFileErrorLogs();
+                }
+            })
+            .catch((e) => {
+                console.error(`E-E2: ${e}`);
+                onError("settings.js::exportErrorLogs", e.message);
+            });
     });
 }
 
@@ -1739,8 +2424,8 @@ function exportToFileErrorLogs() {
 
     const today = new Date();
     const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-based, so add 1
-    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // Month is 0-based, so add 1
+    const day = String(today.getDate()).padStart(2, "0");
 
     const formattedDate = `${year}_${month}_${day}`;
 
@@ -1766,8 +2451,8 @@ function exportToFile() {
 
     const today = new Date();
     const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-based, so add 1
-    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // Month is 0-based, so add 1
+    const day = String(today.getDate()).padStart(2, "0");
 
     const formattedDate = `${year}_${month}_${day}`;
 
@@ -1790,9 +2475,130 @@ function exportToFile() {
 function deleteErrorLogs() {
     let confirmationDeleteErrorLogs = confirm(all_strings["delete-error-logs-confirmation"]);
     if (confirmationDeleteErrorLogs) {
-        chrome.storage.local.remove("error-logs").then(result => {
+        chrome.storage.local.remove("error-logs").then((result) => {
             loaded();
         });
+    }
+}
+
+function changeApiEndpoint() {
+    hideAllPopups();
+
+    //get current "api-endpoint" from "settings" storage
+    let default_value = settings_json["api-endpoint"];
+    if (default_value === undefined || default_value === null) {
+        default_value = "";
+    }
+
+    let change_api_text = all_strings["change-api-endpoint-message-dialog-text"];
+
+    let text;
+    let api_url = prompt(change_api_text, default_value);
+    api_url = safeLink(api_url);
+    if (api_url !== null) {
+        console.log("New API endpoint: ", api_url);
+        //set the new "api-endpoint" in "settings" storage
+        //settings_json["api-endpoint"] = api_url;
+        //console.info("New API endpoint set: ", api_url);
+        sync_local.get("settings").then((result) => {
+            let settings_json_temp = {}
+            if (result["settings"] !== undefined && result["settings"] !== null) {
+                settings_json_temp = result["settings"];
+            }
+            settings_json_temp["api-endpoint"] = api_url;
+            sync_local.set({"settings": settings_json_temp}).then(() => {
+                alert(all_strings["api-endpoint-changed-alert"].replaceAll("{{api_endpoint}}", api_url));
+                //settings_json["api-endpoint"] = api_url;
+                loadSettings();
+            });
+        });
+    } else {
+        //invalid url
+    }
+}
+
+function resetApiEndpoint() {
+    //set to undefined the "api-endpoint" in "settings" storage
+    if (confirm(all_strings["api-endpoint-reset-alert"])) {
+        sync_local.get("settings").then((result) => {
+            let settings_json_temp = {}
+            if (result["settings"] !== undefined && result["settings"] !== null) {
+                settings_json_temp = result["settings"];
+            }
+            delete settings_json_temp["api-endpoint"];
+            sync_local.set({"settings": settings_json_temp}).then(() => {
+                loadSettings();
+            });
+        });
+    }
+}
+
+function safeLink(link) {
+    //clear the link to get safe url
+    let urlToReturn = null;
+    if (link !== null) {
+        try {
+            let url = new URL(link);
+            urlToReturn = url.origin + url.pathname;
+
+            //check if the last character is a "/" and remove it
+            if (urlToReturn.endsWith("/")) {
+                urlToReturn = urlToReturn.slice(0, -1);
+            }
+        } catch (e) {
+            urlToReturn = null;
+        }
+    }
+    return urlToReturn;
+}
+
+function notefoxServerError() {
+    let section = document.getElementById("notefox-server-error-section");
+    let background = document.getElementById("background-opacity");
+
+    if (document.getElementById("account-section").style.display === "block") {
+        hideBackgroundOpacity();
+        document.getElementById("account-section").style.display = "none";
+    }
+
+    if (document.getElementById("show-error-logs-section").style.display === "block") {
+        document.getElementById("show-error-logs-section").style.display = "none";
+    }
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    let title = document.getElementById("notefox-server-error-title");
+    title.textContent = all_strings["notefox-account-message-server-error-title"];
+    let text = document.getElementById("notefox-server-error-text");
+    text.innerHTML = all_strings["notefox-account-message-server-error-text"];
+    let text2 = document.getElementById("notefox-server-error-text2");
+    text2.innerHTML = all_strings["notefox-account-message-server-error-text2"];
+    let text3 = document.getElementById("notefox-server-error-text3");
+    text3.innerHTML = all_strings["notefox-account-message-server-error-text3"];
+    let button1 = document.getElementById("notefox-server-error-button1");
+    button1.value = all_strings["notefox-account-message-button1"];
+    button1.onclick = function () {
+        //log out
+        section.style.display = "none";
+        background.style.display = "none";
+
+        chrome.storage.sync.remove("notefox-account");
+        chrome.storage.local.set({"notefox-server-error-shown": true});
+        sendTelemetry("notefox-server-error-logout");
+        window.close();
+    }
+    let button2 = document.getElementById("notefox-server-error-button2");
+    button2.value = all_strings["notefox-account-message-button2"];
+    button2.onclick = function () {
+        //close the message
+        section.style.display = "none";
+        background.style.display = "none";
+
+        chrome.storage.local.set({"notefox-server-error-shown": true}).then(() => {
+            //console.log("Notefox server error shown set to true");
+        });
+        sendTelemetry("notefox-server-error-continue");
     }
 }
 
@@ -1807,23 +2613,66 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
             document.getElementById("account-section").style.display = "none";
 
             sendTelemetry("close-notefox-account-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
-        }
+        };
     }
-    chrome.storage.sync.get(["notefox-account"]).then(savedData => {
+    chrome.storage.sync.get(["notefox-account"]).then((savedData) => {
         document.getElementById("account-section").style.display = "block";
 
-        document.getElementById("notefox-account-signup-section").classList.add("hidden");
-        document.getElementById("notefox-account-login-section").classList.add("hidden");
-        document.getElementById("notefox-account-manage-section").classList.add("hidden");
-        document.getElementById("notefox-account-delete-section").classList.add("hidden");
-        document.getElementById("notefox-account-change-password-section").classList.add("hidden");
+        checkServerStatus();
 
-        document.getElementById("account-section--signup-grid").classList.add("hidden");
-        document.getElementById("account-section--verify-signup-grid").classList.add("hidden");
-        document.getElementById("account-section--login-grid").classList.add("hidden");
-        document.getElementById("account-section--verify-login-grid").classList.add("hidden");
-        document.getElementById("account-section--delete-grid").classList.add("hidden");
-        document.getElementById("account-section--verify-delete-grid").classList.add("hidden");
+        document
+            .getElementById("notefox-account-signup-section")
+            .classList.add("hidden");
+        document
+            .getElementById("notefox-account-login-section")
+            .classList.add("hidden");
+        document
+            .getElementById("notefox-account-manage-section")
+            .classList.add("hidden");
+        document
+            .getElementById("notefox-account-delete-section")
+            .classList.add("hidden");
+        document
+            .getElementById("notefox-account-change-password-section")
+            .classList.add("hidden");
+        document
+            .getElementById("notefox-account-otp-section")
+            .classList.add("hidden");
+        document
+            .getElementById("notefox-account-history-section")
+            .classList.add("hidden");
+        document
+            .getElementById("notefox-account-sessions-section")
+            .classList.add("hidden");
+
+        document
+            .getElementById("account-section--change-password-verify-grid")
+            .classList.add("hidden");
+        document
+            .getElementById("account-section--otp-grid")
+            .classList.add("hidden");
+        document
+            .getElementById("account-section--otp-verify-grid")
+            .classList.add("hidden");
+
+        document
+            .getElementById("account-section--signup-grid")
+            .classList.add("hidden");
+        document
+            .getElementById("account-section--verify-signup-grid")
+            .classList.add("hidden");
+        document
+            .getElementById("account-section--login-grid")
+            .classList.add("hidden");
+        document
+            .getElementById("account-section--verify-login-grid")
+            .classList.add("hidden");
+        document
+            .getElementById("account-section--delete-grid")
+            .classList.add("hidden");
+        document
+            .getElementById("account-section--verify-delete-grid")
+            .classList.add("hidden");
 
         document.getElementById("login-exprired-section").classList.add("hidden");
 
@@ -1839,32 +2688,38 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
             chrome.runtime.sendMessage({"sync-now": true});
         }
 
-        let managing_account = false;
-        if ((action === null || action === "manage") && savedData["notefox-account"] !== undefined && savedData["notefox-account"] !== {}) {
-            if (savedData["notefox-account"] !== undefined && savedData["notefox-account"] !== {} && savedData["notefox-account"]["expiry"] !== undefined) {
-                if (savedData["notefox-account"]["expiry"] === "" || savedData["notefox-account"]["expiry"] === null) {
-                    //login, no expiry set
-                    managing_account = true;
-                } else {
-                    //get the current datetime and compare it with the expiry date
-                    let current_datetime = new Date();
-                    let expiry_datetime = new Date(savedData["notefox-account"]["expiry"]);
+        setNotefoxAccountLoginSignupManageButton();
 
-                    if (current_datetime > expiry_datetime) {
-                        //login expired
-                        action = "login-expired";
-                        data = {};
-                    } else {
-                        managing_account = true;
-                    }
+        let account = savedData["notefox-account"];
+        let has_account = account !== undefined && account !== null && typeof account === "object" && Object.keys(account).length > 0 && account["login-id"] !== undefined;
+        let managing_account = false;
+        if ((action === null || action === "manage") && has_account) {
+            if (account["expiry"] !== undefined && account["expiry"] !== "" && account["expiry"] !== null) {
+                //get the current datetime and compare it with the expiry date
+                let current_datetime = new Date();
+                let expiry_datetime = new Date(account["expiry"]);
+
+                if (current_datetime > expiry_datetime) {
+                    //login expired
+                    action = "login-expired";
+                    data = {};
+                } else {
+                    managing_account = true;
                 }
+            } else {
+                //login, no expiry set
+                managing_account = true;
             }
         }
 
         if (managing_account) {
             //Manage account section
             title.innerText = all_strings["notefox-account-button-settings-manage"];
-            if (document.getElementById("notefox-account-manage-section").classList.contains("hidden")) document.getElementById("notefox-account-manage-section").classList.remove("hidden");
+            if (document
+                .getElementById("notefox-account-manage-section")
+                .classList.contains("hidden")) document
+                .getElementById("notefox-account-manage-section")
+                .classList.remove("hidden");
 
             updateSyncDatetime();
             setInterval(function () {
@@ -1883,60 +2738,97 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 if (sync_button.classList.contains("sync-button")) sync_button.classList.remove("sync-button");
                 sync_button.disabled = true;
                 sync_button.value = all_strings["notefox-account-button-settings-syncing"];
+                if (document.getElementById("loading-syncing").classList.contains("hidden")) document.getElementById("loading-syncing").classList.remove("hidden");
 
                 setTimeout(function () {
-                    sync_local.get("last-sync").then(result => {
+                    sync_local.get("last-sync").then((result) => {
                         let last_sync = correctDatetime(result["last-sync"]);
                         if (result["last-sync"] === undefined || result["last-sync"] === null) last_sync = all_strings["never-update"];
-                        document.getElementById("last-sync").innerHTML = all_strings["notefox-account-label-last-sync-text"].replaceAll("{{last-sync}}", last_sync).replaceAll("{{parameters}}", "class=''")
+                        document.getElementById("last-sync").innerHTML = all_strings["notefox-account-label-last-sync-text"]
+                            .replaceAll("{{last-sync}}", last_sync)
+                            .replaceAll("{{parameters}}", "class=''");
 
                         if (sync_button.classList.contains("syncing-button")) sync_button.classList.remove("syncing-button");
                         sync_button.disabled = false;
                         sync_button.classList.add("synced-button");
                         sync_button.value = all_strings["notefox-account-button-settings-synced"];
+                        document.getElementById("loading-syncing").classList.add("hidden");
 
                         setTimeout(function () {
                             if (sync_button.classList.contains("synced-button")) sync_button.classList.remove("synced-button");
                             sync_button.classList.add("sync-button");
                             sync_button.value = all_strings["notefox-account-button-settings-sync"];
+                            document.getElementById("loading-syncing").classList.add("hidden");
                         }, 1000);
                     });
                 }, 500);
 
                 sendTelemetry("sync-now-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
-            }
+            };
 
             document.getElementById("manage-logout").onclick = function () {
-                chrome.runtime.sendMessage({
-                    "api": true, "type": "logout", "data": {
-                        "login-id": savedData["notefox-account"]["login-id"]
-                    }
+                callApiAndHandle("logout", {
+                    "login-id": savedData["notefox-account"]["login-id"],
+                    token: savedData["notefox-account"]["token"],
                 });
 
                 sendTelemetry("manage-logout-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
-            }
+            };
 
             document.getElementById("manage-logout-all-devices").onclick = function () {
-                chrome.runtime.sendMessage({
-                    "api": true, "type": "logout-all", "data": {
-                        "login-id": savedData["notefox-account"]["login-id"]
-                    }
+                callApiAndHandle("logout-all", {
+                    "login-id": savedData["notefox-account"]["login-id"],
+                    token: savedData["notefox-account"]["token"],
                 });
 
                 sendTelemetry("manage-logout-all-devices-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
-            }
+            };
 
             document.getElementById("manage-delete-account-button").onclick = function () {
                 notefoxAccountLoginSignupManage("delete");
 
                 sendTelemetry("manage-delete-account-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
-            }
+            };
 
             document.getElementById("manage-change-password-button").onclick = function () {
                 notefoxAccountLoginSignupManage("change-password");
 
                 sendTelemetry("manage-change-password-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+            };
+
+            //two-factor authentication: the state is read from the server
+            loadOtpState(savedData["notefox-account"]);
+
+            document.getElementById("manage-otp-button").onclick = function () {
+                notefoxAccountLoginSignupManage(otp_enabled === false ? "otp-enable" : "otp-disable");
+
+                sendTelemetry("manage-otp-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+            };
+
+            //synchronisation history: hidden when the server keeps no mirror table
+            let history_row = document.getElementById("manage-history-row");
+            if (isSyncHistoryAvailable()) {
+                if (history_row.classList.contains("hidden")) history_row.classList.remove("hidden");
+            } else {
+                history_row.classList.add("hidden");
             }
+
+            //the history is a permission of the account: it is read from the server
+            loadSyncHistoryPermission(savedData["notefox-account"]);
+
+            document.getElementById("manage-history-button").onclick = function () {
+                //the section is opened in both cases: an account without the
+                //permission finds there the button that opens the help page
+                notefoxAccountLoginSignupManage("history");
+
+                sendTelemetry(sync_history_enabled === false ? "manage-history-not-enabled-button-clicked" : "manage-history-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+            };
+
+            document.getElementById("manage-sessions-button").onclick = function () {
+                notefoxAccountLoginSignupManage("sessions");
+
+                sendTelemetry("manage-sessions-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+            };
 
             //console.log(savedData["notefox-account"]);
         }
@@ -1955,7 +2847,11 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 setNotefoxAccountLoginSignupManageButton();
 
                 document.getElementById("login-exprired-section").innerHTML = all_strings["notefox-account-login-expired-text"];
-                if (document.getElementById("login-exprired-section").classList.contains("hidden")) document.getElementById("login-exprired-section").classList.remove("hidden");
+                if (document
+                    .getElementById("login-exprired-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("login-exprired-section")
+                    .classList.remove("hidden");
 
                 action = "login";
             }
@@ -1963,14 +2859,29 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
             if (action === "verify-login") {
                 title.innerText = all_strings["notefox-account-button-settings-login"];
                 //console.log(data);
-                if (document.getElementById("notefox-account-login-section").classList.contains("hidden")) document.getElementById("notefox-account-login-section").classList.remove("hidden");
-                if (document.getElementById("account-section--verify-login-grid").classList.contains("hidden")) document.getElementById("account-section--verify-login-grid").classList.remove("hidden");
+                if (document
+                    .getElementById("notefox-account-login-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-login-section")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--verify-login-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--verify-login-grid")
+                    .classList.remove("hidden");
                 document.getElementById("text-account").innerHTML = all_strings["notefox-account-insert-verification-code-text"];
 
                 document.getElementById("login-submit").classList.add("hidden");
-                if (document.getElementById("verify-login-new-code").classList.contains("hidden")) document.getElementById("verify-login-new-code").classList.remove("hidden");
-                if (document.getElementById("verify-login-submit").classList.contains("hidden")) document.getElementById("verify-login-submit").classList.remove("hidden");
-
+                if (document
+                    .getElementById("verify-login-new-code")
+                    .classList.contains("hidden")) document
+                    .getElementById("verify-login-new-code")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("verify-login-submit")
+                    .classList.contains("hidden")) document
+                    .getElementById("verify-login-submit")
+                    .classList.remove("hidden");
 
                 let email = "";
                 let password = "";
@@ -1985,6 +2896,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 let new_code_element = document.getElementById("verify-login-new-code");
                 let cancel_element = document.getElementById("login-cancel");
                 let code_element = document.getElementById("verify-login-code");
+                let spinner_loading = document.getElementById("loading-login");
 
                 code_element.value = "";
 
@@ -1993,67 +2905,88 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 if (code_element.classList.contains("hidden")) code_element.classList.remove("hidden");
 
                 verify_login_submit_element.disabled = false;
+                spinner_loading.classList.add("hidden");
                 new_code_element.disabled = false;
                 cancel_element.disabled = false;
                 code_element.disabled = false;
 
                 code_element.focus();
 
-                verify_login_submit_element.onclick = function () {
-                    let code = code_element.value;
-                    if (code === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
-                        code_element.classList.add("textbox-error");
-                    } else if (email === "" || password === "" || login_id === "") {
-                        notefoxAccountLoginSignupManage("login");
-                    } else {
-                        chrome.runtime.sendMessage({
-                            "api": true, "type": "login-verify", "data": {
-                                "email": email,
-                                "password": password,
-                                "login-id": login_id,
-                                "verification-code": code
-                            }
-                        });
-                        verify_login_submit_element.disabled = true;
-                        new_code_element.disabled = true;
-                        cancel_element.disabled = true;
-                        code_element.disabled = true;
-                        disableAside = true;
-                    }
+                try {
+                    verify_login_submit_element.onclick = function () {
+                        let code = code_element.value;
+                        if (code === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            code_element.classList.add("textbox-error");
+                            code_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (email === "" || password === "" || login_id === "") {
+                            notefoxAccountLoginSignupManage("login");
+                        } else {
+                            callApiAndHandle("login-verify", {
+                                email: email, password: password, "login-id": login_id, "verification-code": code,
+                            });
+                            verify_login_submit_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            disableAside = true;
+                        }
 
-                    sendTelemetry("verify-login-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                        sendTelemetry("verify-login-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::verify_login_submit_element-events|verify-login", e.message);
                 }
 
-                code_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        verify_login_submit_element.click();
-                    }
+                try {
+                    code_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            verify_login_submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::code_element-events|verify-login", e.message);
                 }
 
-                new_code_element.onclick = function () {
-                    if (email === "" || password === "" || login_id === "") {
-                        notefoxAccountLoginSignupManage("login");
-                    } else {
-                        chrome.runtime.sendMessage({
-                            "api": true,
-                            "type": "login-new-code",
-                            "data": {"email": email, "password": password, "login-id": login_id}
-                        });
+                try {
+                    new_code_element.onclick = function () {
+                        if (email === "" || password === "" || login_id === "") {
+                            notefoxAccountLoginSignupManage("login");
+                        } else {
+                            callApiAndHandle("login-new-code", {
+                                email: email, password: password, "login-id": login_id,
+                            });
 
-                        verify_login_submit_element.disabled = true;
-                        new_code_element.disabled = true;
-                        cancel_element.disabled = true;
-                        code_element.disabled = true;
-                        disableAside = true;
-                    }
+                            verify_login_submit_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            disableAside = true;
+                        }
 
-                    sendTelemetry("verify-login-new-code-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                        sendTelemetry("verify-login-new-code-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::new_code_element-events|verify-login", e.message);
                 }
             } else if (action === "verify-signup") {
                 title.innerText = all_strings["notefox-account-button-settings-signup"];
-                if (document.getElementById("notefox-account-signup-section").classList.contains("hidden")) document.getElementById("notefox-account-signup-section").classList.remove("hidden");
-                if (document.getElementById("account-section--verify-signup-grid").classList.contains("hidden")) document.getElementById("account-section--verify-signup-grid").classList.remove("hidden");
+                if (document
+                    .getElementById("notefox-account-signup-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-signup-section")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--verify-signup-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--verify-signup-grid")
+                    .classList.remove("hidden");
                 document.getElementById("text-account").innerHTML = all_strings["notefox-account-insert-verification-code-text"];
 
                 let email = "";
@@ -2075,6 +3008,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 let code_element = document.getElementById("verify-signup-code");
                 let email_element = document.getElementById("verify-signup-email");
                 let password_element = document.getElementById("verify-signup-password");
+                let spinner_loading = document.getElementById("loading-signup");
 
                 if (submit_element.classList.contains("hidden")) submit_element.classList.remove("hidden");
                 if (code_element.classList.contains("hidden")) code_element.classList.remove("hidden");
@@ -2085,6 +3019,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 code_element.disabled = false;
                 email_element.disabled = true;
                 password_element.disabled = true;
+                spinner_loading.classList.add("hidden");
 
                 email_element.value = email;
                 password_element.value = password;
@@ -2103,102 +3038,157 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                     if (email === "") email_element.focus();
                 }
 
-                email_element.onfocus = function () {
-                    if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
-                }
-                email_element.onblur = function () {
-                    if (email_element.value === "") email_element.classList.add("textbox-error");
-                }
-                password_element.onfocus = function () {
-                    if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
-                }
-                password_element.onblur = function () {
-                    if (password_element.value === "") password_element.classList.add("textbox-error");
-                }
-
-                code_element.onfocus = function () {
-                    if (code_element.classList.contains("textbox-error")) code_element.classList.remove("textbox-error");
-                }
-                code_element.onblur = function () {
-                    if (code_element.value === "") code_element.classList.add("textbox-error");
-                }
-                code_element.oninput = function () {
-                    if (code_element.value === "" && code_element.classList.contains("monospace")) code_element.classList.remove("monospace"); else code_element.classList.add("monospace");
-                }
-
-                code_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        submit_element.click();
+                try {
+                    email_element.disabled = true;
+                    email_element.onfocus = function () {
+                        if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
                     }
+                    email_element.onblur = function () {
+                        if (email_element.value === "") email_element.classList.add("textbox-error");
+                    }
+                    email_element.onkeyup(function (e) {
+                        if (e.key === "Enter") {
+                            if (password_element.value === "") {
+                                password_element.focus();
+                            } else {
+                                submit_element.click();
+                            }
+                        }
+                    })
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::email_element-events|verify-signup", e.message);
+                }
+                try {
+                    password_element.onfocus = function () {
+                        if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+                    }
+                    password_element.onblur = function () {
+                        if (password_element.value === "") password_element.classList.add("textbox-error");
+                    }
+                    password_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            if (code_element.value === "") {
+                                code_element.focus();
+                            } else {
+                                submit_element.click();
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::password_element-events|verify-signup", e.message);
                 }
 
-                new_code_element.onclick = function () {
-                    let email = email_element.value;
-                    let password = password_element.value;
+                try {
+                    code_element.onfocus = function () {
+                        if (code_element.classList.contains("textbox-error")) code_element.classList.remove("textbox-error");
+                    };
+                    code_element.onblur = function () {
+                        if (code_element.value === "") code_element.classList.add("textbox-error");
+                    };
+                    code_element.oninput = function () {
+                        if (code_element.value === "" && code_element.classList.contains("monospace")) code_element.classList.remove("monospace"); else code_element.classList.add("monospace");
+                    };
 
-                    if (email === "" || password === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
-
-                        if (email === "") email_element.classList.add("textbox-error");
-                        if (password === "") password_element.classList.add("textbox-error");
-                    } else {
-                        chrome.runtime.sendMessage({
-                            "api": true, "type": "signup-new-code", "data": {"email": email, "password": password}
-                        });
-
-                        submit_element.disabled = true;
-                        new_code_element.disabled = true;
-                        cancel_element.disabled = true;
-                        code_element.disabled = true;
-                        email_element.disabled = true;
-                        password_element.disabled = true;
-                        disableAside = true;
-                    }
-
-                    sendTelemetry("verify-signup-new-code-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    code_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::code_element-events|verify-signup", e.message);
                 }
 
-                submit_element.onclick = function () {
-                    let email = email_element.value;
-                    let password = password_element.value;
-                    let code = code_element.value;
+                try {
+                    new_code_element.onclick = function () {
+                        let email = email_element.value;
+                        let password = password_element.value;
 
-                    if (code === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
-                        code_element.classList.add("textbox-error");
-                    } else {
-                        chrome.runtime.sendMessage({
-                            "api": true,
-                            "type": "signup-verify",
-                            "data": {"email": email, "password": password, "verification-code": code}
-                        });
+                        if (email === "" || password === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
 
-                        submit_element.disabled = true;
-                        new_code_element.disabled = true;
-                        cancel_element.disabled = true;
-                        code_element.disabled = true;
-                        email_element.disabled = true;
-                        password_element.disabled = true;
-                        disableAside = true;
-                    }
+                            if (email === "") email_element.classList.add("textbox-error");
+                            if (password === "") password_element.classList.add("textbox-error");
+                        } else {
+                            callApiAndHandle("signup-new-code", {email: email, password: password});
 
-                    sendTelemetry("verify-signup-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                            submit_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            email_element.disabled = true;
+                            password_element.disabled = true;
+                            disableAside = true;
+                        }
+
+                        sendTelemetry("verify-signup-new-code-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::new_code_element-events|verify-signup", e.message);
+                }
+
+                try {
+                    submit_element.onclick = function () {
+                        let email = email_element.value;
+                        let password = password_element.value;
+                        let code = code_element.value;
+
+                        if (code === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            code_element.classList.add("textbox-error");
+                            submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else {
+                            callApiAndHandle("signup-verify", {
+                                email: email, password: password, "verification-code": code,
+                            });
+
+                            submit_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            email_element.disabled = true;
+                            password_element.disabled = true;
+                            disableAside = true;
+                        }
+
+                        sendTelemetry("verify-signup-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::submit_element-events|verify-signup", e.message);
                 }
             } else if (action === "delete") {
                 title.innerText = all_strings["notefox-account-button-settings-delete"];
 
                 document.getElementById("text-account").innerHTML = all_strings["notefox-account-settings-delete-text"];
-                if (document.getElementById("notefox-account-delete-section").classList.contains("hidden")) document.getElementById("notefox-account-delete-section").classList.remove("hidden");
-                if (document.getElementById("account-section--delete-grid").classList.contains("hidden")) document.getElementById("account-section--delete-grid").classList.remove("hidden");
+                if (document
+                    .getElementById("notefox-account-delete-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-delete-section")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--delete-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--delete-grid")
+                    .classList.remove("hidden");
                 if (document.getElementById("delete-submit").classList.contains("hidden")) document.getElementById("delete-submit").classList.remove("hidden");
                 if (document.getElementById("delete-cancel").classList.contains("hidden")) document.getElementById("delete-cancel").classList.remove("hidden");
                 document.getElementById("verify-delete-submit").classList.add("hidden");
-                document.getElementById("verify-delete-new-code").classList.add("hidden");
+                document
+                    .getElementById("verify-delete-new-code")
+                    .classList.add("hidden");
 
                 let email_element = document.getElementById("delete-email");
                 let password_element = document.getElementById("delete-password");
                 let delete_submit_element = document.getElementById("delete-submit");
                 let cancel_element = document.getElementById("delete-cancel");
+                let spinner_loading = document.getElementById("loading-delete");
 
                 email_element.value = "";
                 password_element.value = "";
@@ -2207,69 +3197,119 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 password_element.disabled = false;
                 delete_submit_element.disabled = false;
                 cancel_element.disabled = false;
+                spinner_loading.classList.add("hidden");
 
-                email_element.onfocus = function () {
-                    if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
-                }
-                email_element.onblur = function () {
-                    if (email_element.value === "") email_element.classList.add("textbox-error");
-                }
-                password_element.onfocus = function () {
-                    if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
-                }
-                password_element.onblur = function () {
-                    if (password_element.value === "") password_element.classList.add("textbox-error");
-                }
-
-                password_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        delete_submit_element.click();
+                try {
+                    email_element.onfocus = function () {
+                        if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
                     }
-                }
-
-                delete_submit_element.onclick = function () {
-                    let email = email_element.value;
-                    let password = password_element.value;
-
-                    if (email === "" || password === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
-
-                        if (email === "") email_element.classList.add("textbox-error");
-                        if (password === "") password_element.classList.add("textbox-error");
-                    } else {
-                        chrome.runtime.sendMessage({
-                            "api": true, "type": "delete-account", "data": {
-                                "email": email,
-                                "password": password,
-                                "login-id": savedData["notefox-account"]["login-id"],
-                                "token": savedData["notefox-account"]["token"]
+                    email_element.onblur = function () {
+                        if (email_element.value === "") email_element.classList.add("textbox-error");
+                    }
+                    email_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            if (password_element.value === "") {
+                                password_element.focus();
+                            } else {
+                                delete_submit_element.click();
                             }
-                        });
-
-                        email_element.disabled = true;
-                        password_element.disabled = true;
-                        delete_submit_element.disabled = true;
-                        cancel_element.disabled = true;
-                        disableAside = true;
-
-                        //TODO: check for chrome
-                        chrome.storage.sync.remove("notefox-account").then(result => {
-                            chrome.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
-                                notefoxAccountLoginSignupManage();
-                            });
-                        });
+                        }
                     }
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::email_element-events|delete", e.message);
+                }
 
-                    sendTelemetry("delete-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                try {
+                    password_element.onfocus = function () {
+                        if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+                    }
+                    password_element.onblur = function () {
+                        if (password_element.value === "") password_element.classList.add("textbox-error");
+                    }
+                    password_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            delete_submit_element.click();
+                        }
+                    }
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::password_element-events|delete", e.message);
+                }
+
+                try {
+                    delete_submit_element.onclick = function () {
+                        let email = email_element.value;
+                        let password = password_element.value;
+
+                        if (email === "" || password === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+
+                            if (email === "") email_element.classList.add("textbox-error");
+                            if (password === "") password_element.classList.add("textbox-error");
+
+                            delete_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else {
+                            callApiAndHandle("delete-account", {email: email, password: password});
+
+                            email_element.disabled = true;
+                            password_element.disabled = true;
+                            delete_submit_element.disabled = true;
+                            cancel_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+
+                            /*chrome.storage.sync.remove("notefox-account").then((result) => {
+                                chrome.storage.local
+                                    .remove([
+                                        "last-sync",
+                                        "last-update",
+                                        "opened-by-shortcut",
+                                        "settings",
+                                        "sticky-notes",
+                                        "websites",
+                                    ])
+                                    .then((result) => {
+                                        notefoxAccountLoginSignupManage();
+                                    });
+                            });*/
+                        }
+
+                        sendTelemetry("delete-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::delete_submit_element-events|delete", e.message);
                 }
             } else if (action === "delete-verify") {
                 title.innerText = all_strings["notefox-account-button-settings-delete"];
 
-                if (document.getElementById("notefox-account-delete-section").classList.contains("hidden")) document.getElementById("notefox-account-delete-section").classList.remove("hidden");
-                if (document.getElementById("account-section--verify-delete-grid").classList.contains("hidden")) document.getElementById("account-section--verify-delete-grid").classList.remove("hidden");
-                if (document.getElementById("verify-delete-submit").classList.contains("hidden")) document.getElementById("verify-delete-submit").classList.remove("hidden");
-                if (document.getElementById("verify-delete-new-code").classList.contains("hidden")) document.getElementById("verify-delete-new-code").classList.remove("hidden");
-                if (document.getElementById("verify-delete-code").classList.contains("hidden")) document.getElementById("verify-delete-code").classList.remove("hidden");
+                if (document
+                    .getElementById("notefox-account-delete-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-delete-section")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--verify-delete-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--verify-delete-grid")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("verify-delete-submit")
+                    .classList.contains("hidden")) document
+                    .getElementById("verify-delete-submit")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("verify-delete-new-code")
+                    .classList.contains("hidden")) document
+                    .getElementById("verify-delete-new-code")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("verify-delete-code")
+                    .classList.contains("hidden")) document
+                    .getElementById("verify-delete-code")
+                    .classList.remove("hidden");
                 if (document.getElementById("delete-cancel").classList.contains("hidden")) document.getElementById("delete-cancel").classList.remove("hidden");
                 document.getElementById("delete-submit").classList.add("hidden");
 
@@ -2287,6 +3327,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 let new_code_element = document.getElementById("verify-delete-new-code");
                 let cancel_element = document.getElementById("delete-cancel");
                 let code_element = document.getElementById("verify-delete-code");
+                let spinner_loading = document.getElementById("loading-delete");
 
                 code_element.value = "";
 
@@ -2298,73 +3339,103 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 new_code_element.disabled = false;
                 cancel_element.disabled = false;
                 code_element.disabled = false;
+                spinner_loading.classList.add("hidden");
 
                 code_element.focus();
 
-                verify_delete_submit_element.onclick = function () {
-                    let code = code_element.value;
-                    if (code === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
-                        code_element.classList.add("textbox-error");
-                    } else if (email === "" || password === "" || login_id === "" || token === "") {
+                try {
+                    verify_delete_submit_element.onclick = function () {
+                        let code = code_element.value;
+                        if (code === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            code_element.classList.add("textbox-error");
 
-                        if (email === "") console.log("email is empty");
-                        if (password === "") console.log("password is empty");
-                        if (login_id === "") console.log("login_id is empty");
-                        if (token === "") console.log("token is empty");
+                            verify_delete_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (email === "" || password === "" || login_id === "" || token === "") {
+                            /*if (email === "") console.log("email is empty");
+                            if (password === "") console.log("password is empty");
+                            if (login_id === "") console.log("login_id is empty");
+                            if (token === "") console.log("token is empty");*/
 
-                        notefoxAccountLoginSignupManage("delete");
-                    } else {
-                        showMessageNotefoxAccount(all_strings["notefox-account-deleting-account-text"], false);
+                            //notefoxAccountLoginSignupManage("delete");
+                        } else {
+                            showMessageNotefoxAccount(all_strings["notefox-account-deleting-account-text"], false);
 
-                        chrome.runtime.sendMessage({
-                            "api": true, "type": "delete-account-verify", "data": {
-                                "email": email,
-                                "password": password,
-                                "login-id": login_id,
-                                "token": token,
-                                "deleting-code": code
-                            }
-                        });
-                        verify_delete_submit_element.disabled = true;
-                        new_code_element.disabled = true;
-                        cancel_element.disabled = true;
-                        code_element.disabled = true;
-                        disableAside = true;
-                    }
+                            callApiAndHandle("delete-account-verify", {
+                                email: email, password: password, "deleting-code": code,
+                            });
+                            verify_delete_submit_element.disabled = true;
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
 
-                    sendTelemetry("verify-delete-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                        sendTelemetry("verify-delete-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::verify_delete_submit_element-events|delete-verify", e.message);
                 }
 
-                code_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        verify_delete_submit_element.click();
-                    }
+                try {
+                    code_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            verify_delete_submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::code_element-events|delete-verify", e.message);
                 }
 
-                new_code_element.onclick = function () {
-                    if (email === "" || password === "" || login_id === "" || token === "") {
-                        notefoxAccountLoginSignupManage("delete");
-                    } else {
-                        chrome.runtime.sendMessage({
-                            "api": true,
-                            "type": "delete-account-new-code",
-                            "data": {"email": email, "password": password, "login-id": login_id, "token": token}
-                        });
+                try {
+                    new_code_element.onclick = function () {
+                        if (email === "" || password === "" || login_id === "" || token === "") {
+                            notefoxAccountLoginSignupManage("delete");
+                        } else {
+                            callApiAndHandle("delete-account-new-code", {email: email, password: password});
 
-                        verify_delete_submit_element.disabled = true;
-                        new_code_element.disabled = true;
-                        cancel_element.disabled = true;
-                        code_element.disabled = true;
-                        disableAside = true;
-                    }
+                            verify_delete_submit_element.disabled = true;
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
 
-                    sendTelemetry("verify-delete-new-code-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                        sendTelemetry("verify-delete-new-code-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::new_code_element-events|delete-verify", e.message);
                 }
             } else if (action === "change-password") {
                 title.innerText = all_strings["notefox-account-button-settings-change-password"];
 
-                if (document.getElementById("notefox-account-change-password-section").classList.contains("hidden")) document.getElementById("notefox-account-change-password-section").classList.remove("hidden");
+                if (document
+                    .getElementById("notefox-account-change-password-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-change-password-section")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--change-password-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--change-password-grid")
+                    .classList.remove("hidden");
+
+                document.getElementById("account-section--change-password-verify-grid").classList.add("hidden");
+                document.getElementById("change-password-verify-submit").classList.add("hidden");
+                document.getElementById("change-password-new-code").classList.add("hidden");
+                if (document
+                    .getElementById("change-password-submit")
+                    .classList.contains("hidden")) document
+                    .getElementById("change-password-submit")
+                    .classList.remove("hidden");
+
+                document.getElementById("text-account").innerHTML = getString("notefox-account-change-password-text");
 
                 let password = "";
                 let new_password = "";
@@ -2373,6 +3444,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 let password_element = document.getElementById("change-password-old-password");
                 let new_password_element = document.getElementById("change-password-new-password");
                 let new_password_confirm_element = document.getElementById("change-password-new-password-confirm");
+                let spinner_loading = document.getElementById("loading-change-password");
 
                 password_element.value = "";
                 new_password_element.value = "";
@@ -2386,86 +3458,489 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 password_element.disabled = false;
                 new_password_element.disabled = false;
                 new_password_confirm_element.disabled = false;
+                spinner_loading.classList.add("hidden");
 
-                password_element.onfocus = function () {
-                    if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
-                }
-                password_element.onblur = function () {
-                    if (password_element.value === "") password_element.classList.add("textbox-error");
-                }
-                new_password_element.onfocus = function () {
-                    if (new_password_element.classList.contains("textbox-error")) new_password_element.classList.remove("textbox-error");
-                }
-                new_password_element.onblur = function () {
-                    if (new_password_element.value === "") new_password_element.classList.add("textbox-error");
-                }
-                new_password_confirm_element.onfocus = function () {
-                    if (new_password_confirm_element.classList.contains("textbox-error")) new_password_confirm_element.classList.remove("textbox-error");
-                }
-                new_password_confirm_element.onblur = function () {
-                    if (new_password_confirm_element.value === "") new_password_confirm_element.classList.add("textbox-error");
-                }
-
-                new_password_confirm_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        change_password_submit_element.click();
-                    }
-                }
-
-                change_password_submit_element.onclick = function () {
-                    password = password_element.value;
-                    new_password = new_password_element.value;
-                    new_password_confirm = new_password_confirm_element.value;
-
-                    if (password === "" || new_password === "" || new_password_confirm === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
-
-                        if (password === "") password_element.classList.add("textbox-error");
-                        if (new_password === "") new_password_element.classList.add("textbox-error");
-                        if (new_password_confirm === "") new_password_confirm_element.classList.add("textbox-error");
-                    } else if (new_password !== new_password_confirm) {
-                        showMessageNotefoxAccount(all_strings["passwords-not-equal-alert"], true);
-
-                        new_password_element.classList.add("textbox-error");
-                        new_password_confirm_element.classList.add("textbox-error");
-                    } else if (!isStrongPassword(new_password)) {
-                        showMessageNotefoxAccount(all_strings["password-not-strong-alert"], true);
-
-                        new_password_element.classList.add("textbox-error");
-                        new_password_confirm_element.classList.add("textbox-error");
-                    } else {
-                        chrome.runtime.sendMessage({
-                            "api": true, "type": "change-password", "data": {
-                                "login-id": savedData["notefox-account"]["login-id"],
-                                "token": savedData["notefox-account"]["token"],
-                                "old-password": password,
-                                "new-password": new_password
+                try {
+                    password_element.onfocus = function () {
+                        if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+                    };
+                    password_element.onblur = function () {
+                        if (password_element.value === "") password_element.classList.add("textbox-error");
+                    };
+                    password_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            if (new_password_element.value === "") {
+                                new_password_element.focus();
+                            } else if (new_password_confirm_element.value === "") {
+                                new_password_confirm_element.focus();
+                            } else {
+                                change_password_submit_element.click();
                             }
-                        });
-
-                        change_password_submit_element.disabled = true;
-                        cancel_element.disabled = true;
-                        password_element.disabled = true;
-                        new_password_element.disabled = true;
-                        new_password_confirm_element.disabled = true;
-                        disableAside = true;
-                    }
-
-                    sendTelemetry("change-password-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::password_element-events|change-password", e.message);
                 }
 
+                try {
+                    new_password_element.onfocus = function () {
+                        if (new_password_element.classList.contains("textbox-error")) new_password_element.classList.remove("textbox-error");
+                    };
+                    new_password_element.onblur = function () {
+                        if (new_password_element.value === "") new_password_element.classList.add("textbox-error");
+                    };
+                    new_password_confirm_element.onfocus = function () {
+                        if (new_password_confirm_element.classList.contains("textbox-error")) new_password_confirm_element.classList.remove("textbox-error");
+                    };
+                    new_password_confirm_element.onblur = function () {
+                        if (new_password_confirm_element.value === "") new_password_confirm_element.classList.add("textbox-error");
+                    };
+
+                    new_password_confirm_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            change_password_submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::new_password_elements-events|change-password", e.message);
+                }
+
+                try {
+                    change_password_submit_element.onclick = function () {
+                        password = password_element.value;
+                        new_password = new_password_element.value;
+                        new_password_confirm = new_password_confirm_element.value;
+
+                        if (password === "" || new_password === "" || new_password_confirm === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+
+                            if (password === "") password_element.classList.add("textbox-error");
+                            if (new_password === "") new_password_element.classList.add("textbox-error");
+                            if (new_password_confirm === "") new_password_confirm_element.classList.add("textbox-error");
+
+                            change_password_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (new_password !== new_password_confirm) {
+                            showMessageNotefoxAccount(all_strings["passwords-not-equal-alert"], true);
+
+                            new_password_element.classList.add("textbox-error");
+                            new_password_confirm_element.classList.add("textbox-error");
+                            change_password_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (!isStrongPassword(new_password)) {
+                            showMessageNotefoxAccount(all_strings["password-not-strong-alert"], true);
+
+                            new_password_element.classList.add("textbox-error");
+                            new_password_confirm_element.classList.add("textbox-error");
+                            change_password_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else {
+                            callApiAndHandle("change-password", {
+                                "login-id": savedData["notefox-account"]["login-id"],
+                                token: savedData["notefox-account"]["token"],
+                                password: password,
+                                "new-password": new_password,
+                                email: getNotefoxAccountEmail(savedData["notefox-account"]),
+                            });
+
+                            change_password_submit_element.disabled = true;
+                            cancel_element.disabled = true;
+                            password_element.disabled = true;
+                            new_password_element.disabled = true;
+                            new_password_confirm_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
+
+                        sendTelemetry("change-password-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::change_password_submit_element-events|change-password", e.message);
+                }
+            } else if (action === "change-password-verify") {
+                //second step of the password change: the code emailed by the server (v2)
+                title.innerText = all_strings["notefox-account-button-settings-change-password"];
+
+                if (document
+                    .getElementById("notefox-account-change-password-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-change-password-section")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--change-password-verify-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--change-password-verify-grid")
+                    .classList.remove("hidden");
+
+                document.getElementById("account-section--change-password-grid").classList.add("hidden");
+                document.getElementById("change-password-submit").classList.add("hidden");
+
+                document.getElementById("text-account").innerHTML = all_strings["notefox-account-insert-verification-code-text"];
+                showMessageNotefoxAccount(getString("notefox-account-message-password-change-code-sent"));
+
+                let password = "";
+                let new_password = "";
+                if (data !== null) {
+                    if (data.password !== undefined) password = data.password;
+                    if (data["new-password"] !== undefined) new_password = data["new-password"];
+                }
+
+                let verify_submit_element = document.getElementById("change-password-verify-submit");
+                let new_code_element = document.getElementById("change-password-new-code");
+                let cancel_element = document.getElementById("change-password-cancel");
+                let code_element = document.getElementById("change-password-code");
+                let spinner_loading = document.getElementById("loading-change-password");
+
+                code_element.value = "";
+
+                if (verify_submit_element.classList.contains("hidden")) verify_submit_element.classList.remove("hidden");
+                if (new_code_element.classList.contains("hidden")) new_code_element.classList.remove("hidden");
+                if (code_element.classList.contains("hidden")) code_element.classList.remove("hidden");
+
+                verify_submit_element.disabled = false;
+                new_code_element.disabled = false;
+                cancel_element.disabled = false;
+                code_element.disabled = false;
+                spinner_loading.classList.add("hidden");
+
+                code_element.focus();
+
+                try {
+                    verify_submit_element.onclick = function () {
+                        let code = code_element.value;
+                        if (code === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            code_element.classList.add("textbox-error");
+
+                            verify_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (password === "" || new_password === "") {
+                            notefoxAccountLoginSignupManage("change-password");
+                        } else {
+                            callApiAndHandle("change-password-verify", {
+                                "login-id": savedData["notefox-account"]["login-id"],
+                                token: savedData["notefox-account"]["token"],
+                                password: password,
+                                "new-password": new_password,
+                                "verification-code": code,
+                                email: getNotefoxAccountEmail(savedData["notefox-account"]),
+                            });
+
+                            verify_submit_element.disabled = true;
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
+
+                        sendTelemetry("change-password-verify-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::verify_submit_element-events|change-password-verify", e.message);
+                }
+
+                try {
+                    code_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            verify_submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::code_element-events|change-password-verify", e.message);
+                }
+
+                try {
+                    new_code_element.onclick = function () {
+                        if (password === "") {
+                            notefoxAccountLoginSignupManage("change-password");
+                        } else {
+                            callApiAndHandle("change-password-new-code", {
+                                "login-id": savedData["notefox-account"]["login-id"],
+                                token: savedData["notefox-account"]["token"],
+                                password: password,
+                                email: getNotefoxAccountEmail(savedData["notefox-account"]),
+                            });
+
+                            verify_submit_element.disabled = true;
+                            new_code_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
+
+                        sendTelemetry("change-password-new-code-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::new_code_element-events|change-password-verify", e.message);
+                }
+            } else if (action === "history") {
+                //synchronisation history (v2): the dated list of the previous versions
+                title.innerText = getString("notefox-account-history-title");
+
+                if (document
+                    .getElementById("notefox-account-history-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-history-section")
+                    .classList.remove("hidden");
+
+                document.getElementById("account-section--history-text").innerHTML = getString("notefox-account-history-text");
+
+                let list_element = document.getElementById("account-section--history-list");
+                let restore_element = document.getElementById("history-restore");
+                let cancel_element = document.getElementById("history-cancel");
+                let how_to_get_element = document.getElementById("history-how-to-get");
+                let spinner_loading = document.getElementById("loading-history");
+
+                list_element.innerHTML = "";
+                restore_element.classList.add("hidden");
+                restore_element.disabled = false;
+                cancel_element.disabled = false;
+                how_to_get_element.classList.add("hidden");
+                history_selected_snapshot = null;
+
+                how_to_get_element.onclick = function () {
+                    openSyncHistoryHelpPage();
+
+                    sendTelemetry("history-how-to-get-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                };
+
+                if (sync_history_enabled === false) {
+                    //the permission is already known to be missing: nothing is
+                    //asked to the server, only the way to obtain it is offered
+                    spinner_loading.classList.add("hidden");
+                    document.getElementById("account-section--history-text").innerHTML = getString("notefox-account-history-not-enabled");
+                    showSyncHistoryHelpButton();
+                } else {
+                    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+                    loadSyncHistory(savedData["notefox-account"]);
+                }
+            } else if (action === "sessions") {
+                title.innerText = getString("notefox-account-sessions-title");
+
+                if (document
+                    .getElementById("notefox-account-sessions-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-sessions-section")
+                    .classList.remove("hidden");
+
+                document.getElementById("account-section--sessions-text").innerHTML = getString("notefox-account-sessions-text");
+
+                let sessions_list_element = document.getElementById("account-section--sessions-list");
+                let sessions_spinner = document.getElementById("loading-sessions");
+
+                sessions_list_element.innerHTML = "";
+                if (sessions_spinner.classList.contains("hidden")) sessions_spinner.classList.remove("hidden");
+
+                loadActiveSessions(savedData["notefox-account"], sessions_list_element, sessions_spinner);
+            } else if (action === "otp-enable" || action === "otp-disable") {
+                //two-factor authentication (v2): the password is always required
+                let enabling = action === "otp-enable";
+
+                title.innerText = getString(enabling ? "notefox-account-otp-title-enable" : "notefox-account-otp-title-disable");
+
+                if (document
+                    .getElementById("notefox-account-otp-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-otp-section")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--otp-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--otp-grid")
+                    .classList.remove("hidden");
+
+                document.getElementById("account-section--otp-text").innerHTML = getString(enabling ? "notefox-account-otp-enable-text" : "notefox-account-otp-disable-text");
+
+                let submit_element = document.getElementById("otp-submit");
+                let verify_submit_element = document.getElementById("otp-verify-submit");
+                let cancel_element = document.getElementById("otp-cancel");
+                let password_element = document.getElementById("otp-password");
+                let spinner_loading = document.getElementById("loading-otp");
+
+                password_element.value = "";
+                document.getElementById("otp-code").value = "";
+
+                verify_submit_element.classList.add("hidden");
+                if (submit_element.classList.contains("hidden")) submit_element.classList.remove("hidden");
+                submit_element.value = getString(enabling ? "notefox-account-button-settings-otp-enable" : "notefox-account-button-settings-otp-disable");
+
+                submit_element.disabled = false;
+                cancel_element.disabled = false;
+                password_element.disabled = false;
+                spinner_loading.classList.add("hidden");
+                if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+
+                password_element.focus();
+
+                try {
+                    password_element.onfocus = function () {
+                        if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+                    };
+                    password_element.onblur = function () {
+                        if (password_element.value === "") password_element.classList.add("textbox-error");
+                    };
+                    password_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::password_element-events|otp", e.message);
+                }
+
+                try {
+                    submit_element.onclick = function () {
+                        let password = password_element.value;
+                        if (password === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            password_element.classList.add("textbox-error");
+
+                            submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else {
+                            callApiAndHandle(enabling ? "otp-enable" : "otp-disable", {
+                                "login-id": savedData["notefox-account"]["login-id"],
+                                token: savedData["notefox-account"]["token"],
+                                password: password,
+                                email: getNotefoxAccountEmail(savedData["notefox-account"]),
+                            });
+
+                            submit_element.disabled = true;
+                            cancel_element.disabled = true;
+                            password_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
+
+                        sendTelemetry("otp-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::submit_element-events|otp", e.message);
+                }
+            } else if (action === "otp-disable-verify") {
+                //second step: the code emailed by the server
+                title.innerText = getString("notefox-account-otp-title-disable");
+
+                if (document
+                    .getElementById("notefox-account-otp-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-otp-section")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--otp-verify-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--otp-verify-grid")
+                    .classList.remove("hidden");
+
+                document.getElementById("account-section--otp-grid").classList.add("hidden");
+                document.getElementById("account-section--otp-text").innerHTML = all_strings["notefox-account-insert-verification-code-text"];
+
+                let password = "";
+                if (data !== null && data.password !== undefined) password = data.password;
+
+                let submit_element = document.getElementById("otp-submit");
+                let verify_submit_element = document.getElementById("otp-verify-submit");
+                let cancel_element = document.getElementById("otp-cancel");
+                let code_element = document.getElementById("otp-code");
+                let spinner_loading = document.getElementById("loading-otp");
+
+                code_element.value = "";
+
+                submit_element.classList.add("hidden");
+                if (verify_submit_element.classList.contains("hidden")) verify_submit_element.classList.remove("hidden");
+                verify_submit_element.value = getString("notefox-account-button-settings-otp-disable");
+
+                verify_submit_element.disabled = false;
+                cancel_element.disabled = false;
+                code_element.disabled = false;
+                spinner_loading.classList.add("hidden");
+                if (code_element.classList.contains("textbox-error")) code_element.classList.remove("textbox-error");
+
+                code_element.focus();
+
+                try {
+                    verify_submit_element.onclick = function () {
+                        let code = code_element.value;
+                        if (code === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                            code_element.classList.add("textbox-error");
+
+                            verify_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (password === "") {
+                            notefoxAccountLoginSignupManage("otp-disable");
+                        } else {
+                            callApiAndHandle("otp-disable-verify", {
+                                "login-id": savedData["notefox-account"]["login-id"],
+                                token: savedData["notefox-account"]["token"],
+                                password: password,
+                                "verification-code": code,
+                                email: getNotefoxAccountEmail(savedData["notefox-account"]),
+                            });
+
+                            verify_submit_element.disabled = true;
+                            cancel_element.disabled = true;
+                            code_element.disabled = true;
+                            if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                            disableAside = true;
+                        }
+
+                        sendTelemetry("otp-verify-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::verify_submit_element-events|otp-disable-verify", e.message);
+                }
+
+                try {
+                    code_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            verify_submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::code_element-events|otp-disable-verify", e.message);
+                }
             } else if (action === "login") {
                 title.innerText = all_strings["notefox-account-button-settings-login"];
-                if (document.getElementById("notefox-account-login-section").classList.contains("hidden")) document.getElementById("notefox-account-login-section").classList.remove("hidden");
-                if (document.getElementById("account-section--login-grid").classList.contains("hidden")) document.getElementById("account-section--login-grid").classList.remove("hidden");
+                if (document
+                    .getElementById("notefox-account-login-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-login-section")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--login-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--login-grid")
+                    .classList.remove("hidden");
                 document.getElementById("text-account").innerHTML = all_strings["notefox-account-logging-in-text"];
 
                 document.getElementById("login-not-yet-account-text").innerHTML = all_strings["notefox-account-not-yet-an-account"];
                 document.getElementById("login-not-yet-account-button").innerText = all_strings["notefox-account-button-settings-signup"];
-                document.getElementById("login-not-yet-account-button").onclick = function () {
-                    notefoxAccountLoginSignupManage("signup");
 
-                    sendTelemetry("login-not-yet-account-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                document.getElementById("verify-email-not-actived").classList.add("hidden");
+
+                try {
+                    document.getElementById("login-not-yet-account-button").onclick = function () {
+                        notefoxAccountLoginSignupManage("signup");
+
+                        sendTelemetry("login-not-yet-account-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::login-not-yet-account-button-events|login", e.message);
                 }
 
                 let email = "";
@@ -2476,17 +3951,21 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 }
 
                 document.getElementById("verify-login-submit").classList.add("hidden");
-                document.getElementById("verify-login-new-code").classList.add("hidden");
+                document
+                    .getElementById("verify-login-new-code")
+                    .classList.add("hidden");
 
                 let login_submit_element = document.getElementById("login-submit");
                 let cancel_element = document.getElementById("login-cancel");
                 let email_element = document.getElementById("login-email");
                 let password_element = document.getElementById("login-password");
+                let spinner_loading = document.getElementById("loading-login");
 
                 login_submit_element.disabled = false;
                 cancel_element.disabled = false;
                 email_element.disabled = false;
                 password_element.disabled = false;
+                spinner_loading.classList.add("hidden");
 
                 if (login_submit_element.classList.contains("hidden")) login_submit_element.classList.remove("hidden");
 
@@ -2496,55 +3975,110 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 email_element.value = email;
                 password_element.value = password;
 
-                email_element.onfocus = function () {
-                    if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
-                }
-                email_element.onblur = function () {
-                    if (email_element.value === "") email_element.classList.add("textbox-error");
-                }
-                password_element.onfocus = function () {
-                    if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
-                }
-                password_element.onblur = function () {
-                    if (password_element.value === "") password_element.classList.add("textbox-error");
-                }
-                password_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        login_submit_element.click();
+                try {
+                    email_element.disabled = false;
+                    email_element.onfocus = function () {
+                        if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
+                    };
+                    email_element.onblur = function () {
+                        if (email_element.value === "") email_element.classList.add("textbox-error");
+                    };
+                    email_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            if (password_element.value === "") {
+                                password_element.focus();
+                            } else {
+                                login_submit_element.click();
+                            }
+                        }
                     }
-                }
-
-                login_submit_element.onclick = function () {
-                    let email = email_element.value;
-                    let password = password_element.value;
-
-                    if (email === "" || password === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
-
-                        if (email === "") email_element.classList.add("textbox-error");
-                        if (password === "") password_element.classList.add("textbox-error");
-                    } else {
-                        chrome.runtime.sendMessage({
-                            "api": true, "type": "login", "data": {"email": email, "password": password}
-                        });
-
-                        login_submit_element.disabled = true;
-                        cancel_element.disabled = true;
-                        email_element.disabled = true;
-                        password_element.disabled = true;
-                        disableAside = true;
+                    email_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            if (password_element.value === "") {
+                                password_element.focus();
+                            } else {
+                                login_submit_element.click();
+                            }
+                        }
                     }
-
-                    sendTelemetry("login-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::email_element-events|login", e.message);
                 }
-            } else if ((action === "signup" || action === null)) {
+
+                try {
+                    password_element.onfocus = function () {
+                        if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+                    };
+                    password_element.onblur = function () {
+                        if (password_element.value === "") password_element.classList.add("textbox-error");
+                    };
+                    password_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            login_submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::password_element-events|login", e.message);
+                }
+
+                try {
+                    login_submit_element.onclick = function () {
+                        let email = email_element.value;
+                        let password = password_element.value;
+
+                        if (email === "" || password === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+
+                            if (email === "") email_element.classList.add("textbox-error");
+                            if (password === "") password_element.classList.add("textbox-error");
+
+                            login_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else {
+                            requestNotefoxServerPermission().then(granted => {
+                                if (!granted) {
+                                    showMessageNotefoxAccount(getString("notefox-account-permission-denied-alert"), true);
+                                    return;
+                                }
+                                callApiAndHandle("login", {email: email, password: password});
+
+                                login_submit_element.disabled = true;
+                                cancel_element.disabled = true;
+                                email_element.disabled = true;
+                                password_element.disabled = true;
+                                if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                                disableAside = true;
+                            });
+                        }
+
+                        sendTelemetry("login-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::login_submit_element-events|login", e.message);
+                }
+            } else if (action === "signup" || action === null) {
                 title.innerText = all_strings["notefox-account-button-settings-signup"];
-                if (document.getElementById("notefox-account-signup-section").classList.contains("hidden")) document.getElementById("notefox-account-signup-section").classList.remove("hidden");
-                if (document.getElementById("account-section--signup-grid").classList.contains("hidden")) document.getElementById("account-section--signup-grid").classList.remove("hidden");
-                document.getElementById("text-account").innerHTML = all_strings["notefox-account-signing-up-text"].replaceAll("{{parameters1}}", "href='" + links.terms + "'").replace("{{parameters2}}", "href='" + links.privacy + "'");
+                if (document
+                    .getElementById("notefox-account-signup-section")
+                    .classList.contains("hidden")) document
+                    .getElementById("notefox-account-signup-section")
+                    .classList.remove("hidden");
+                if (document
+                    .getElementById("account-section--signup-grid")
+                    .classList.contains("hidden")) document
+                    .getElementById("account-section--signup-grid")
+                    .classList.remove("hidden");
+                document.getElementById("text-account").innerHTML = all_strings["notefox-account-signing-up-text"]
+                    .replaceAll("{{parameters1}}", "href='" + links.terms + "'")
+                    .replace("{{parameters2}}", "href='" + links.privacy + "'");
 
                 document.getElementById("verify-signup-submit").classList.add("hidden");
-                document.getElementById("verify-signup-new-code").classList.add("hidden");
+                document
+                    .getElementById("verify-signup-new-code")
+                    .classList.add("hidden");
 
                 document.getElementById("signup-username").value = "";
                 document.getElementById("signup-email").value = "";
@@ -2557,7 +4091,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                     notefoxAccountLoginSignupManage("login");
 
                     sendTelemetry("signup-already-account-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
-                }
+                };
 
                 let signup_submit_element = document.getElementById("signup-submit");
                 if (signup_submit_element.classList.contains("hidden")) signup_submit_element.classList.remove("hidden");
@@ -2567,6 +4101,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 let username_element = document.getElementById("signup-username");
                 let password_element = document.getElementById("signup-password");
                 let confirm_password_element = document.getElementById("signup-confirm-password");
+                let spinner_loading = document.getElementById("loading-signup");
 
                 signup_submit_element.disabled = false;
                 cancel_element.disabled = false;
@@ -2574,89 +4109,149 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 username_element.disabled = false;
                 password_element.disabled = false;
                 confirm_password_element.disabled = false;
+                spinner_loading.classList.add("hidden");
 
                 if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
                 if (username_element.classList.contains("textbox-error")) username_element.classList.remove("textbox-error");
                 if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
                 if (confirm_password_element.classList.contains("textbox-error")) confirm_password_element.classList.remove("textbox-error");
 
-                email_element.onfocus = function () {
-                    if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
-                }
-                username_element.onfocus = function () {
-                    if (username_element.classList.contains("textbox-error")) username_element.classList.remove("textbox-error");
-                }
-                password_element.onfocus = function () {
-                    if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
-                }
-                confirm_password_element.onfocus = function () {
-                    if (confirm_password_element.classList.contains("textbox-error")) confirm_password_element.classList.remove("textbox-error");
-                }
-                email_element.onblur = function () {
-                    if (email_element.value === "") email_element.classList.add("textbox-error");
-                }
-                username_element.onblur = function () {
-                    if (username_element.value === "") username_element.classList.add("textbox-error");
-                }
-                password_element.onblur = function () {
-                    if (password_element.value === "") password_element.classList.add("textbox-error");
-                }
-                confirm_password_element.onblur = function () {
-                    if (confirm_password_element.value === "") confirm_password_element.classList.add("textbox-error");
-                }
-                //if press enter
-                confirm_password_element.onkeypress = function (e) {
-                    if (e.key === "Enter") {
-                        signup_submit_element.click();
+                try {
+                    email_element.onfocus = function () {
+                        if (email_element.classList.contains("textbox-error")) email_element.classList.remove("textbox-error");
+                    };
+                    email_element.onblur = function () {
+                        if (email_element.value === "") email_element.classList.add("textbox-error");
+                    };
+                    email_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            password_element.focus();
+                        }
                     }
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::email_element-events|signup", e.message);
                 }
-                signup_submit_element.onclick = function () {
-                    let username = document.getElementById("signup-username").value;
-                    let password = document.getElementById("signup-password").value;
-                    let password2 = document.getElementById("signup-confirm-password").value;
-                    let email = document.getElementById("signup-email").value;
 
-                    if (username === "" || password === "" || password2 === "" || email === "") {
-                        showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+                try {
+                    username_element.onfocus = function () {
+                        if (username_element.classList.contains("textbox-error")) username_element.classList.remove("textbox-error");
+                    };
+                    username_element.onblur = function () {
+                        if (username_element.value === "") username_element.classList.add("textbox-error");
+                    };
 
-                        if (username === "") username_element.classList.add("textbox-error");
-                        if (password === "") password_element.classList.add("textbox-error");
-                        if (password2 === "") confirm_password_element.classList.add("textbox-error");
-                        if (email === "") email_element.classList.add("textbox-error");
-                    } else if (password !== password2) {
-                        showMessageNotefoxAccount(all_strings["passwords-not-equal-alert"], true);
-
-                        password_element.classList.add("textbox-error");
-                        confirm_password_element.classList.add("textbox-error");
-                    } else if (!isStrongPassword(password)) {
-                        showMessageNotefoxAccount(all_strings["password-not-strong-alert"], true);
-
-                        password_element.classList.add("textbox-error");
-                        confirm_password_element.classList.add("textbox-error");
-                    } else {
-                        chrome.runtime.sendMessage({
-                            "api": true,
-                            "type": "signup",
-                            "data": {"username": username, "password": password, "email": email}
-                        });
-
-                        signup_submit_element.disabled = true;
-                        cancel_element.disabled = true;
-                        email_element.disabled = true;
-                        username_element.disabled = true;
-                        password_element.disabled = true;
-                        confirm_password_element.disabled = true;
-                        disableAside = true;
+                    //if press enter
+                    username_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            email_element.focus();
+                        }
                     }
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::username_element-events|signup", e.message);
+                }
 
-                    sendTelemetry("signup-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                try {
+                    password_element.onfocus = function () {
+                        if (password_element.classList.contains("textbox-error")) password_element.classList.remove("textbox-error");
+                    };
+                    password_element.onblur = function () {
+                        if (password_element.value === "") password_element.classList.add("textbox-error");
+                    };
+
+                    password_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            confirm_password_element.focus();
+                        }
+                    }
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::password_element-events|signup", e.message);
+                }
+
+                try {
+                    confirm_password_element.onfocus = function () {
+                        if (confirm_password_element.classList.contains("textbox-error")) confirm_password_element.classList.remove("textbox-error");
+                    };
+                    confirm_password_element.onblur = function () {
+                        if (confirm_password_element.value === "") confirm_password_element.classList.add("textbox-error");
+                    };
+
+                    confirm_password_element.onkeyup = function (e) {
+                        if (e.key === "Enter") {
+                            signup_submit_element.click();
+                        }
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::confirm_password_element-events|signup", e.message);
+                }
+
+                try {
+                    signup_submit_element.onclick = function () {
+                        let username = document.getElementById("signup-username").value;
+                        let password = document.getElementById("signup-password").value;
+                        let password2 = document.getElementById("signup-confirm-password").value;
+                        let email = document.getElementById("signup-email").value;
+
+                        if (username === "" || password === "" || password2 === "" || email === "") {
+                            showMessageNotefoxAccount(all_strings["empty-fields-alert"], true);
+
+                            if (username === "") username_element.classList.add("textbox-error");
+                            if (password === "") password_element.classList.add("textbox-error");
+                            if (password2 === "") confirm_password_element.classList.add("textbox-error");
+                            if (email === "") email_element.classList.add("textbox-error");
+                            signup_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (password !== password2) {
+                            showMessageNotefoxAccount(all_strings["passwords-not-equal-alert"], true);
+
+                            password_element.classList.add("textbox-error");
+                            confirm_password_element.classList.add("textbox-error");
+                            signup_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else if (!isStrongPassword(password)) {
+                            showMessageNotefoxAccount(all_strings["password-not-strong-alert"], true);
+
+                            password_element.classList.add("textbox-error");
+                            confirm_password_element.classList.add("textbox-error");
+                            signup_submit_element.disabled = false;
+                            spinner_loading.classList.add("hidden");
+                        } else {
+                            requestNotefoxServerPermission().then(granted => {
+                                if (!granted) {
+                                    showMessageNotefoxAccount(getString("notefox-account-permission-denied-alert"), true);
+                                    return;
+                                }
+                                callApiAndHandle("signup", {username: username, password: password, email: email});
+
+                                signup_submit_element.disabled = true;
+                                cancel_element.disabled = true;
+                                email_element.disabled = true;
+                                username_element.disabled = true;
+                                password_element.disabled = true;
+                                confirm_password_element.disabled = true;
+                                if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+                                disableAside = true;
+                            });
+                        }
+
+                        sendTelemetry("signup-submit-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+                    };
+                } catch (e) {
+                    console.error(e);
+                    onError("settings.js::notefoxAccountLoginSignupManage::signup_submit_element-events|signup", e.message);
                 }
             } else if (action === "manage") {
                 //console.log(`Data: ${JSON.stringify(data)}`);
                 if (data !== null) {
-                    chrome.storage.sync.set({"notefox-account": data}).then(result => {
-                        notefoxAccountLoginSignupManage("manage");
-                    });
+                    chrome.storage.sync
+                        .set({"notefox-account": data})
+                        .then((result) => {
+                            setNotefoxAccountLoginSignupManageButton();
+                            notefoxAccountLoginSignupManage("manage");
+                        });
                 }
             }
         }
@@ -2664,70 +4259,587 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
 }
 
 function updateSyncDatetime() {
-    sync_local.get("last-sync").then(result => {
+    sync_local.get("last-sync").then((result) => {
         let last_sync = correctDatetime(result["last-sync"]);
         if (result["last-sync"] === undefined || result["last-sync"] === null) last_sync = all_strings["never-update"];
-        document.getElementById("last-sync").innerHTML = all_strings["notefox-account-label-last-sync-text"].replaceAll("{{last-sync}}", last_sync).replaceAll("{{parameters}}", "class=''")
+        document.getElementById("last-sync").innerHTML = all_strings["notefox-account-label-last-sync-text"]
+            .replaceAll("{{last-sync}}", last_sync)
+            .replaceAll("{{parameters}}", "class=''");
     });
 }
 
-function listenerNotefoxAccount() {
-    chrome.runtime.onMessage.addListener((message) => {
-        //console.log("**** [settings.js] Message received", message);
-        if (message["api_response"] !== undefined && message["api_response"]) {
+let server_status = null;
 
-            let data = message["data"];
-            switch (message["type"]) {
-                case "signup":
-                    signUpResponse(data);
-                    break;
-                case "signup-new-code":
-                    signUpNewCodeResponse(data);
-                    break;
-                case "signup-verify":
-                    signUpVerifyResponse(data);
-                    break;
-                case "login":
-                    loginResponse(data);
-                    break;
-                case "login-new-code":
-                    loginNewCodeResponse(data);
-                    break;
-                case "login-verify":
-                    loginVerifyResponse(data);
-                    break;
-                case "logout":
-                    logoutResponse(data);
-                    break;
-                case "logout-all":
-                    logoutAllResponse(data);
-                    break;
-                case "delete-account":
-                    deleteResponse(data);
-                    break;
-                case "delete-verify":
-                    deleteVerifyResponse(data);
-                    break;
-                case "delete-account-new-code":
-                    deleteVerifyNewCodeResponse(data);
-                    break;
-                case "check-id-get":
-                    //nothing - error during check-id of get-data
-                    break;
-                case "check-id-send":
-                    //nothing - error during check-id of send-data
-                    break;
-                case "change-password":
-                    changePasswordResponse(data);
-                    break;
-                default:
-                    console.error("Error: " + message["type"] + " is not a valid type");
-                    onError("settings.js::listenerNotefoxAccount", "Error: " + message["type"] + " is not a valid type");
-            }
+/**
+ * Read GET /status once and warn the user when a part of the server is not
+ * available (database, schema or mailer)
+ * @returns {Promise<void>}
+ */
+async function checkServerStatus() {
+    const warning_element = document.getElementById("account-server-status");
+    if (warning_element === null) return;
 
-            disableAside = false;
-        }
+    const result = await callApi("api-status", {});
+    if (!result.ok || result.data === null || result.data === undefined) {
+        //the server is unreachable: it is already reported by the other messages
+        server_status = null;
+        warning_element.classList.add("hidden");
+        return;
+    }
+
+    server_status = result.data;
+
+    let areas = [];
+    if (server_status["database"] === false) areas.push(getString("notefox-account-server-status-area-database", "database"));
+    if (server_status["schema"] === false) areas.push(getString("notefox-account-server-status-area-schema", "schema"));
+    if (server_status["mailer"] === false) areas.push(getString("notefox-account-server-status-area-mailer", "mailer"));
+
+    if (areas.length > 0) {
+        warning_element.innerHTML = getString("notefox-account-server-status-warning").replaceAll("{{areas}}", areas.join(", "));
+        if (warning_element.classList.contains("hidden")) warning_element.classList.remove("hidden");
+    } else {
+        warning_element.innerHTML = "";
+        warning_element.classList.add("hidden");
+    }
+}
+
+/**
+ * True when the server keeps the v1 mirror table, i.e. when a synchronisation
+ * history can exist at all
+ * @returns {boolean}
+ */
+function isSyncHistoryAvailable() {
+    if (server_status === null || server_status === undefined) return true;
+    const details = server_status["schema-details"];
+    if (details === undefined || details === null || details["legacy-mirror"] === undefined) return true;
+    return details["legacy-mirror"] !== false;
+}
+
+let history_selected_snapshot = null;
+
+/**
+ * Sync history permission of the account ("history-enabled" of
+ * POST /data/services): null when it has not been read yet
+ * @type {boolean|null}
+ */
+let sync_history_enabled = null;
+
+/**
+ * Open the page explaining how to obtain the sync history permission, in a new
+ * tab: it is never opened on its own, only when the user asks for it
+ */
+function openSyncHistoryHelpPage() {
+    chrome.tabs.create({url: links.history_sync_help});
+}
+
+/**
+ * Show, in the history section, the button that opens the page explaining how
+ * to obtain the sync history permission
+ */
+function showSyncHistoryHelpButton() {
+    const how_to_get_element = document.getElementById("history-how-to-get");
+    if (how_to_get_element === null) return;
+
+    how_to_get_element.value = getString("notefox-account-button-settings-history-how-to-get");
+    if (how_to_get_element.classList.contains("hidden")) how_to_get_element.classList.remove("hidden");
+}
+
+/**
+ * Read the sync history permission of the account (data/services) and update
+ * the row in the manage section: the history is a permission, not a feature,
+ * so an account without it is offered the way to obtain it
+ * @param account - the stored "notefox-account" object
+ * @returns {Promise<void>}
+ */
+async function loadSyncHistoryPermission(account) {
+    const row = document.getElementById("manage-history-row");
+    const text_element = document.getElementById("manage-history-text");
+    const button = document.getElementById("manage-history-button");
+    if (row === null || text_element === null || button === null) return;
+
+    sync_history_enabled = null;
+
+    if (account === undefined || account === null || account["login-id"] === undefined) return;
+
+    const result = await callApi("get-services", {
+        "login-id": account["login-id"], token: account["token"],
     });
+
+    if (!result.ok || result.data === null || result.data === undefined || result.data["history-enabled"] === undefined) {
+        //the permission is unknown (old server, network error): the row stays
+        //as it is and the 433 is handled when the history is opened
+        return;
+    }
+
+    sync_history_enabled = result.data["history-enabled"] === true;
+
+    if (sync_history_enabled) {
+        text_element.innerHTML = getString("notefox-account-settings-history-text");
+        button.value = getString("notefox-account-button-settings-history");
+    } else {
+        text_element.innerHTML = getString("notefox-account-settings-history-not-enabled-text");
+        button.value = getString("notefox-account-button-settings-history-how-to-get");
+    }
+}
+
+/**
+ * Format a date of the synchronisation history, tolerating a missing value
+ * @param value {string|undefined|null}
+ * @returns {string}
+ */
+function syncHistoryDate(value) {
+    if (value === undefined || value === null || value === "") return all_strings["never-update"];
+    return correctDatetime(value);
+}
+
+/**
+ * Load the dated list of the previous synced versions (data/get/history)
+ * @param account - the stored "notefox-account" object
+ * @returns {Promise<void>}
+ */
+async function loadSyncHistory(account) {
+    const list_element = document.getElementById("account-section--history-list");
+    const text_element = document.getElementById("account-section--history-text");
+    const spinner_loading = document.getElementById("loading-history");
+    if (list_element === null) return;
+
+    const result = await callApi("get-history", {
+        "login-id": account["login-id"], token: account["token"],
+    });
+
+    spinner_loading.classList.add("hidden");
+    list_element.innerHTML = "";
+
+    if (result.code === 433) {
+        //the account has no sync history permission: the page explaining how to
+        //obtain it is offered with a button, never opened on its own
+        sync_history_enabled = false;
+        text_element.innerHTML = getString("notefox-account-history-not-enabled");
+        showSyncHistoryHelpButton();
+        return;
+    }
+
+    if (result.code === 432) {
+        //this service keeps no history at all: it is not an error
+        text_element.innerHTML = getString("notefox-account-history-not-available");
+        return;
+    }
+
+    let entries = [];
+    if (result.data !== null && result.data !== undefined && Array.isArray(result.data["entries"])) entries = result.data["entries"];
+
+    if (!result.ok && result.code !== 201) {
+        showMessageNotefoxAccount(getAccountErrorString(result.code), true);
+        return;
+    }
+
+    if (entries.length === 0) {
+        //an empty history is a normal state
+        let empty_element = document.createElement("div");
+        empty_element.innerHTML = getString("notefox-account-history-empty");
+        list_element.appendChild(empty_element);
+        return;
+    }
+
+    entries.forEach(function (entry) {
+        let entry_element = document.createElement("input");
+        entry_element.type = "button";
+        entry_element.className = "button width-100 margin-top-5-px";
+        entry_element.value = getString("notefox-account-history-entry")
+            .replaceAll("{{inserted-date}}", syncHistoryDate(entry["inserted-date"]))
+            .replaceAll("{{updated-locally-date}}", syncHistoryDate(entry["updated-locally-date"]));
+        entry_element.onclick = function () {
+            selectSyncHistoryEntry(account, entry);
+
+            sendTelemetry("history-entry-clicked", "settings.js::loadSyncHistory");
+        };
+        list_element.appendChild(entry_element);
+    });
+}
+
+/**
+ * Download the version chosen by the user and ask for a confirmation before
+ * applying it (data/get/history/download)
+ * @param account - the stored "notefox-account" object
+ * @param entry - the entry chosen in the list
+ * @returns {Promise<void>}
+ */
+async function selectSyncHistoryEntry(account, entry) {
+    const restore_element = document.getElementById("history-restore");
+    const spinner_loading = document.getElementById("loading-history");
+
+    history_selected_snapshot = null;
+    restore_element.classList.add("hidden");
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+    const result = await callApi("get-history-download", {
+        "login-id": account["login-id"], token: account["token"], id: entry["id"],
+    });
+
+    spinner_loading.classList.add("hidden");
+
+    if (result.code === 201) {
+        //the entry does not exist any more
+        showMessageNotefoxAccount(getString("notefox-account-history-entry-not-found"), true);
+        return;
+    }
+
+    if (result.code === 433) {
+        //the permission has been revoked in the meantime
+        sync_history_enabled = false;
+        showMessageNotefoxAccount(getString("notefox-account-history-not-enabled"), true);
+        showSyncHistoryHelpButton();
+        return;
+    }
+
+    if (!result.ok || result.data === null || result.data === undefined || result.data["data"] === undefined) {
+        showMessageNotefoxAccount(getAccountErrorString(result.code), true);
+        return;
+    }
+
+    history_selected_snapshot = result.data["data"];
+
+    showMessageNotefoxAccount(getString("notefox-account-history-selected")
+        .replaceAll("{{date}}", syncHistoryDate(result.data["inserted-date"])), true);
+
+    restore_element.disabled = false;
+    if (restore_element.classList.contains("hidden")) restore_element.classList.remove("hidden");
+    restore_element.onclick = function () {
+        restoreSyncHistory();
+
+        sendTelemetry("history-restore-button-clicked", "settings.js::selectSyncHistoryEntry");
+    };
+}
+
+/**
+ * Apply the downloaded version locally and let the sync service send it as a
+ * normal insert
+ * @returns {Promise<void>}
+ */
+async function restoreSyncHistory() {
+    const restore_element = document.getElementById("history-restore");
+    const cancel_element = document.getElementById("history-cancel");
+    const spinner_loading = document.getElementById("loading-history");
+
+    if (history_selected_snapshot === null) return;
+
+    restore_element.disabled = true;
+    cancel_element.disabled = true;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+    disableAside = true;
+
+    const result = await callApi("sync-restore", {snapshot: history_selected_snapshot});
+
+    spinner_loading.classList.add("hidden");
+    cancel_element.disabled = false;
+    disableAside = false;
+
+    if (result.ok) {
+        history_selected_snapshot = null;
+        restore_element.classList.add("hidden");
+        showMessageNotefoxAccount(getString("notefox-account-history-restored"));
+        loadSettings();
+    } else {
+        restore_element.disabled = false;
+        showMessageNotefoxAccount(getAccountErrorString(result.code), true);
+    }
+}
+
+let otp_enabled = null;
+
+/**
+ * Read the state of the two-factor authentication (otp/status) and update the
+ * row in the manage section
+ * @param account - the stored "notefox-account" object
+ * @returns {Promise<void>}
+ */
+async function loadOtpState(account) {
+    const row = document.getElementById("manage-otp-row");
+    const state_element = document.getElementById("manage-otp-state");
+    const button = document.getElementById("manage-otp-button");
+    if (row === null || state_element === null || button === null) return;
+
+    otp_enabled = null;
+    state_element.innerHTML = getString("notefox-account-otp-state-unknown");
+    button.value = getString("notefox-account-button-settings-otp-disable");
+    button.disabled = true;
+    if (row.classList.contains("hidden")) row.classList.remove("hidden");
+
+    if (account === undefined || account === null || account["login-id"] === undefined) return;
+
+    const result = await callApi("otp-status", {
+        "login-id": account["login-id"], token: account["token"],
+    });
+
+    if (result.code === 503) {
+        //the server schema is incomplete: the two-factor cannot be managed at all
+        row.classList.add("hidden");
+        return;
+    }
+
+    if (!result.ok || result.data === null || result.data === undefined || result.data["otp-enabled"] === undefined) {
+        //the state is unknown: the row stays visible but disabled
+        return;
+    }
+
+    otp_enabled = result.data["otp-enabled"] !== false;
+    state_element.innerHTML = getString(otp_enabled ? "notefox-account-otp-state-enabled" : "notefox-account-otp-state-disabled");
+    button.value = getString(otp_enabled ? "notefox-account-button-settings-otp-disable" : "notefox-account-button-settings-otp-enable");
+    button.disabled = false;
+}
+
+/**
+ * Load the active sessions list from the API and render them
+ */
+async function loadActiveSessions(account, list_element, spinner) {
+    if (account === undefined || account === null || account["login-id"] === undefined) {
+        spinner.classList.add("hidden");
+        return;
+    }
+
+    const result = await callApi("get-sessions", {
+        "login-id": account["login-id"], token: account["token"],
+    });
+
+    spinner.classList.add("hidden");
+
+    if (!result.ok || result.data === null || result.data === undefined || result.data["sessions"] === undefined) {
+        list_element.innerHTML = "<div class='session-empty'>" + getString("notefox-account-sessions-empty") + "</div>";
+        return;
+    }
+
+    const sessions = result.data["sessions"];
+    if (sessions.length === 0) {
+        list_element.innerHTML = "<div class='session-empty'>" + getString("notefox-account-sessions-empty") + "</div>";
+        return;
+    }
+
+    list_element.innerHTML = "";
+    sessions.forEach(function (entry) {
+        let item = document.createElement("div");
+        item.className = "session-item" + (entry["current"] ? " session-item--current" : "");
+
+        let info = document.createElement("div");
+        info.className = "session-item-info";
+
+        let id_line = document.createElement("div");
+        id_line.className = "session-item-id";
+        let id_code = document.createElement("code");
+        id_code.textContent = entry["login-id-short"];
+        id_line.appendChild(id_code);
+        if (entry["current"]) {
+            let badge = document.createElement("span");
+            badge.className = "session-badge";
+            badge.textContent = getString("notefox-account-sessions-current");
+            id_line.appendChild(badge);
+        }
+        info.appendChild(id_line);
+
+        let details = document.createElement("div");
+        details.className = "session-item-details";
+
+        if (entry["ip-address"]) {
+            let ip = document.createElement("span");
+            ip.textContent = entry["ip-address"];
+            details.appendChild(ip);
+        }
+
+        if (entry["verified"]) {
+            if (details.childNodes.length > 0) {
+                let sep = document.createElement("span");
+                sep.className = "session-item-sep";
+                sep.textContent = "·";
+                details.appendChild(sep);
+            }
+            let date_span = document.createElement("span");
+            let parsed = new Date(entry["verified"].replace(" ", "T"));
+            date_span.textContent = isNaN(parsed.getTime()) ? entry["verified"] : parsed.toLocaleString();
+            details.appendChild(date_span);
+        }
+
+        if (entry["expiry"]) {
+            if (details.childNodes.length > 0) {
+                let sep = document.createElement("span");
+                sep.className = "session-item-sep";
+                sep.textContent = "·";
+                details.appendChild(sep);
+            }
+            let expiry_span = document.createElement("span");
+            let parsed_expiry = new Date(entry["expiry"].replace(" ", "T"));
+            let expiry_text = isNaN(parsed_expiry.getTime()) ? entry["expiry"] : parsed_expiry.toLocaleString();
+            expiry_span.textContent = getString("notefox-account-sessions-expires").replace("{{date}}", expiry_text);
+            details.appendChild(expiry_span);
+        }
+
+        info.appendChild(details);
+        item.appendChild(info);
+
+        if (!entry["current"]) {
+            let revoke_btn = document.createElement("input");
+            revoke_btn.type = "button";
+            revoke_btn.className = "button button-red session-revoke-button";
+            revoke_btn.value = getString("notefox-account-sessions-revoke");
+            revoke_btn.onclick = function () {
+                if (!confirm(getString("notefox-account-sessions-revoke-confirm"))) return;
+                revoke_btn.disabled = true;
+                revokeSession(account, entry["login-id"], list_element, spinner);
+            };
+            item.appendChild(revoke_btn);
+        }
+
+        list_element.appendChild(item);
+    });
+}
+
+async function revokeSession(account, target_login_id, list_element, spinner) {
+    const result = await callApi("revoke-session", {
+        "login-id": account["login-id"], token: account["token"], target: target_login_id,
+    });
+
+    if (result.ok) {
+        showMessageNotefoxAccount(getString("notefox-account-sessions-revoked"), false);
+        if (spinner.classList.contains("hidden")) spinner.classList.remove("hidden");
+        loadActiveSessions(account, list_element, spinner);
+    } else {
+        showMessageNotefoxAccount(result.description || "Error", true);
+    }
+}
+
+/**
+ * Email of the account, stored at login: it is needed by the endpoints that
+ * send a confirmation email (password change, two-factor)
+ * @param account - the stored "notefox-account" object
+ * @returns {string} - the email or an empty string when it is unknown
+ */
+function getNotefoxAccountEmail(account) {
+    if (account !== undefined && account !== null && account["email"] !== undefined && account["email"] !== null) return account["email"];
+    return "";
+}
+
+/**
+ * The access to the Notefox servers is an optional permission: it's requested only when the Notefox account,
+ * the telemetry or the automatic sending of the error logs are used.
+ * NB: it must be called directly by a user action (e.g. onclick), otherwise Firefox rejects the request
+ * @returns {Promise<boolean>} - true if the permission is granted
+ */
+function requestNotefoxServerPermission() {
+    const permissionsToRequest = {
+        origins: ["https://*.notefox.eu/*"]
+    };
+    try {
+        return chrome.permissions.request(permissionsToRequest).catch(e => {
+            console.error("P11)) " + e);
+            onError("settings.js::requestNotefoxServerPermission::P11", e.message);
+            return false;
+        });
+    } catch (e) {
+        console.error("P12)) " + e);
+        onError("settings.js::requestNotefoxServerPermission::P12", e.message);
+        return Promise.resolve(false);
+    }
+}
+
+/**
+ * Check if the access to the Notefox servers is granted
+ * @returns {Promise<boolean>}
+ */
+function hasNotefoxServerPermission() {
+    return chrome.permissions.contains({origins: ["https://*.notefox.eu/*"]}).catch(() => false);
+}
+
+/**
+ * Call the API v2 through the background bridge and await its answer
+ * @param type {string} - the type of the request (see api_request in js/api-service.js)
+ * @param data {object} - the payload of the request
+ * @returns {Promise<{ok: boolean, status: string, code: number, data: any, description: (string|undefined)}>}
+ */
+async function callApi(type, data = {}) {
+    let result = undefined;
+    try {
+        result = await chrome.runtime.sendMessage({api: true, type: type, data: data});
+    } catch (e) {
+        console.error("[settings.js::callApi] " + type, e);
+    }
+
+    if (result === undefined || result === null || result["code"] === undefined) {
+        //the background page did not answer: treated as a network failure
+        result = {ok: false, status: "Error", code: 499, data: null, description: "No answer from the API"};
+    }
+
+    return result;
+}
+
+/**
+ * Call the API v2 and dispatch the answer to the handler of that flow
+ * @param type {string} - the type of the request
+ * @param data {object} - the payload of the request
+ * @returns {Promise<{ok: boolean, status: string, code: number, data: any, description: (string|undefined)}>}
+ */
+async function callApiAndHandle(type, data = {}) {
+    const result = await callApi(type, data);
+    dispatchApiResponse(type, result);
+    return result;
+}
+
+function dispatchApiResponse(type, data) {
+    switch (type) {
+        case "signup":
+            signUpResponse(data);
+            break;
+        case "signup-new-code":
+            signUpNewCodeResponse(data);
+            break;
+        case "signup-verify":
+            signUpVerifyResponse(data);
+            break;
+        case "login":
+            loginResponse(data);
+            break;
+        case "login-new-code":
+            loginNewCodeResponse(data);
+            break;
+        case "login-verify":
+            loginVerifyResponse(data);
+            break;
+        case "logout":
+            logoutResponse(data);
+            break;
+        case "logout-all":
+            logoutAllResponse(data);
+            break;
+        case "delete-account":
+            deleteResponse(data);
+            break;
+        case "delete-account-verify":
+            deleteVerifyResponse(data);
+            break;
+        case "delete-account-new-code":
+            deleteVerifyNewCodeResponse(data);
+            break;
+        case "change-password":
+            changePasswordResponse(data);
+            break;
+        case "change-password-verify":
+            changePasswordVerifyResponse(data);
+            break;
+        case "change-password-new-code":
+            changePasswordNewCodeResponse(data);
+            break;
+        case "otp-enable":
+            otpEnableResponse(data);
+            break;
+        case "otp-disable":
+            otpDisableResponse(data);
+            break;
+        case "otp-disable-verify":
+            otpDisableVerifyResponse(data);
+            break;
+        default:
+            console.error("Error: " + type + " is not a valid type");
+            onError("settings.js::dispatchApiResponse", "Error: " + type + " is not a valid type");
+    }
+
+    disableAside = false;
 }
 
 function showMessageNotefoxAccount(message, warning = false) {
@@ -2747,6 +4859,8 @@ function signUpResponse(data) {
     document.getElementById("signup-cancel").disabled = false;
     //data should be defined as {code: X, status: Y, data: Z}
 
+    console.info(data);
+
     let submit_element = document.getElementById("signup-submit");
     let cancel_element = document.getElementById("signup-cancel");
     let email_element = document.getElementById("signup-email");
@@ -2754,6 +4868,7 @@ function signUpResponse(data) {
     let password_element = document.getElementById("signup-password");
     let confirm_password_element = document.getElementById("signup-confirm-password");
     let verify_signup_element = document.getElementById("verify-signup");
+    let spinner_loading = document.getElementById("loading-signup");
 
     submit_element.disabled = false;
     cancel_element.disabled = false;
@@ -2763,33 +4878,23 @@ function signUpResponse(data) {
     confirm_password_element.disabled = false;
     verify_signup_element.classList.add("hidden");
     disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
             notefoxAccountLoginSignupManage("verify-signup", {
-                "email": email_element.value, "password": password_element.value
+                email: email_element.value, password: password_element.value,
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
-        } else if (data.code === 416) {
-            //email already used
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
-            showMessageNotefoxAccount("Email already used", true);
-        } else if (data.code === 419) {
-            //email already used, need to verify it
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
-            if (verify_signup_element.classList.contains("hidden")) verify_signup_element.classList.remove("hidden");
-            verify_signup_element.onclick = function () {
-                notefoxAccountLoginSignupManage("verify-signup", {"email": email_element.value});
-
-                sendTelemetry("verify-signup-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
-            }
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -2803,12 +4908,14 @@ function signUpNewCodeResponse(data) {
     let code_element = document.getElementById("verify-signup-code");
     let email_element = document.getElementById("verify-signup-email");
     let password_element = document.getElementById("verify-signup-password");
+    let spinner_loading = document.getElementById("loading-signup");
 
     submit_element.disabled = false;
     new_code_element.disabled = false;
     cancel_element.disabled = false;
     code_element.disabled = false;
     disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
@@ -2816,13 +4923,15 @@ function signUpNewCodeResponse(data) {
             showMessageNotefoxAccount(all_strings["notefox-account-message-verification-code-sent"]);
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 412) {
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -2836,39 +4945,43 @@ function signUpVerifyResponse(data) {
     let code_element = document.getElementById("verify-signup-code");
     let email_element = document.getElementById("verify-signup-email");
     let password_element = document.getElementById("verify-signup-password");
+    let spinner_loading = document.getElementById("loading-signup");
 
     submit_element.disabled = false;
     new_code_element.disabled = false;
     cancel_element.disabled = false;
     code_element.disabled = false;
     disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
             showMessageNotefoxAccount("Verify: OK");
             notefoxAccountLoginSignupManage("login", {
-                "email": email_element.value
+                email: email_element.value,
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
             showMessageNotefoxAccount(`Verify: Error (${data.code})`, true);
         } else if (data.code === 410) {
             //Invalid credentials
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             notefoxAccountLoginSignupManage("verify-signup", {
-                "email": email_element.value
+                email: email_element.value,
             });
         } else if (data.code === 413) {
             //invalid verification code
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 414) {
             //user already used
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -2877,31 +4990,52 @@ function loginResponse(data) {
     let cancel_element = document.getElementById("login-cancel");
     let email_element = document.getElementById("login-email");
     let password_element = document.getElementById("login-password");
+    let spinner_loading = document.getElementById("loading-login");
+    let verify_email_element = document.getElementById("verify-email-not-actived");
 
     login_submit_element.disabled = false;
     cancel_element.disabled = false;
     email_element.disabled = false;
     password_element.disabled = false;
     disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
-        if (data.code === 200 && data["data"] !== undefined) {
-            //Success
+        if (data.code === 200 && data["data"] !== undefined && data["data"]["otp-required"] === false) {
+            //Success: the two-factor authentication is disabled, the token is already there
+            let account = data["data"];
+            account["email"] = email_element.value;
+            notefoxAccountLoginSignupManage("manage", account, (firstTime = true));
+        } else if (data.code === 200 && data["data"] !== undefined) {
+            //Success: a verification code has been emailed
             notefoxAccountLoginSignupManage("verify-login", {
-                "email": email_element.value,
-                "password": password_element.value,
-                "login-id": data["data"]["login-id"]
+                email: email_element.value, password: password_element.value, "login-id": data["data"]["login-id"],
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 410) {
             //Invalid credentials
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+        } else if (data.code === 411) {
+            //Account not verified (need to verify email)
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            if (verify_email_element.classList.contains("hidden")) verify_email_element.classList.remove("hidden");
+            login_submit_element.disabled = true;
+            login_submit_element.classList.add("hidden");
+            verify_email_element.onclick = function () {
+                notefoxAccountLoginSignupManage("verify-signup", {
+                    email: email_element.value,
+                });
+
+                sendTelemetry("verify-email-not-actived-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
+            };
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -2913,12 +5047,14 @@ function loginNewCodeResponse(data) {
 
     let cancel_element = document.getElementById("login-cancel");
     let code_element = document.getElementById("verify-login-code");
+    let spinner_loading = document.getElementById("loading-login");
 
     submit_element.disabled = false;
     new_code_element.disabled = false;
     cancel_element.disabled = false;
     code_element.disabled = false;
     disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
@@ -2926,17 +5062,19 @@ function loginNewCodeResponse(data) {
             showMessageNotefoxAccount(all_strings["notefox-account-message-verification-code-sent"]);
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 410) {
             //Invalid credentials
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 415) {
             //Invalid login-id or already verified
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -2950,83 +5088,94 @@ function loginVerifyResponse(data) {
     let code_element = document.getElementById("verify-login-code");
     let email_element = document.getElementById("login-email");
     let password_element = document.getElementById("login-password");
+    let spinner_loading = document.getElementById("loading-login");
 
     submit_element.disabled = false;
     new_code_element.disabled = false;
     cancel_element.disabled = false;
     code_element.disabled = false;
     disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            notefoxAccountLoginSignupManage("manage", data["data"], firstTime = true);
+            let account = data["data"];
+            if (account !== undefined && account !== null) account["email"] = email_element.value;
+            notefoxAccountLoginSignupManage("manage", account, (firstTime = true));
 
             //location.reload();
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 410 && data["data"] !== undefined && data["data"]["login-id"] !== undefined) {
             //Invalid credentials
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             notefoxAccountLoginSignupManage("verify-login", {
-                "email": email_element.value,
-                "password": password_element.value,
-                "login-id": data["data"]["login-id"]
+                email: email_element.value, password: password_element.value, "login-id": data["data"]["login-id"],
             });
         } else if (data.code === 413) {
             //Invalid verification code
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
 function logoutResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
-        if (data.code === 200) {
+        if (data.code === 200 || data.code === 451) {
             //Success
-            chrome.storage.sync.remove("notefox-account").then(result => {
-                chrome.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
-                    notefoxAccountLoginSignupManage("login");
-                });
+            chrome.storage.sync.remove("notefox-account").then((result) => {
+                chrome.storage.local
+                    .remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites",])
+                    .then((result) => {
+                        setNotefoxAccountLoginSignupManageButton();
+                        notefoxAccountLoginSignupManage("login");
+                        if (data.code === 451) {
+                            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+                        }
+                    });
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
-        } else if (data.code === 451) {
-            //Login-id already disabled or expired
-            notefoxAccountLoginSignupManage("login");
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         }
     }
-
 }
 
 function logoutAllResponse(data) {
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            chrome.storage.sync.remove("notefox-account").then(result => {
-                chrome.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
-                    notefoxAccountLoginSignupManage("login");
-                });
+            chrome.storage.sync.remove("notefox-account").then((result) => {
+                chrome.storage.local
+                    .remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites",])
+                    .then((result) => {
+                        setNotefoxAccountLoginSignupManageButton();
+                        notefoxAccountLoginSignupManage("login");
+                    });
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 451) {
             //Login-id already disabled or expired
-            notefoxAccountLoginSignupManage("login");
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            chrome.storage.sync.remove("notefox-account").then(() => {
+                setNotefoxAccountLoginSignupManageButton();
+                notefoxAccountLoginSignupManage("login");
+                showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            });
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         }
     }
 }
@@ -3037,6 +5186,7 @@ function changePasswordResponse(data) {
     let password_element = document.getElementById("change-password-old-password");
     let new_password_element = document.getElementById("change-password-new-password");
     let new_password_confirm_element = document.getElementById("change-password-new-password-confirm");
+    let spinner_loading = document.getElementById("loading-change-password");
 
     change_password_submit_element.disabled = false;
     cancel_element.disabled = false;
@@ -3044,34 +5194,229 @@ function changePasswordResponse(data) {
     new_password_element.disabled = false;
     new_password_confirm_element.disabled = false;
     disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success: nothing has been changed yet, a code has been emailed (v2)
+            notefoxAccountLoginSignupManage("change-password-verify", {
+                password: password_element.value, "new-password": new_password_element.value,
+            });
+        } else if (data.code === 400 || data.code === 401) {
+            //Error
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+        } else if (data.code === 402) {
+            //Login-id not found, disabled, expired or invalid
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+        } else if (data.code === 405) {
+            //Token not valid
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+        } else if (data.code === 410) {
+            //Invalid credentials
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+        } else {
+            //Unknown
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
+        }
+        spinner_loading.classList.add("hidden");
+    }
+}
+
+function changePasswordVerifyResponse(data) {
+    let verify_submit_element = document.getElementById("change-password-verify-submit");
+    let new_code_element = document.getElementById("change-password-new-code");
+    let cancel_element = document.getElementById("change-password-cancel");
+    let code_element = document.getElementById("change-password-code");
+    let spinner_loading = document.getElementById("loading-change-password");
+
+    verify_submit_element.disabled = false;
+    new_code_element.disabled = false;
+    cancel_element.disabled = false;
+    code_element.disabled = false;
+    disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success: the server returns a new session, the other devices are logged out
+            let new_session = data["data"];
+
+            chrome.storage.sync.get(["notefox-account"]).then((savedData) => {
+                let account = savedData["notefox-account"] !== undefined && savedData["notefox-account"] !== null ? savedData["notefox-account"] : {};
+
+                if (new_session !== undefined && new_session !== null) {
+                    if (new_session["login-id"] !== undefined) account["login-id"] = new_session["login-id"];
+                    if (new_session["token"] !== undefined) account["token"] = new_session["token"];
+                    account["expiry"] = new_session["expiry"] !== undefined ? new_session["expiry"] : null;
+                }
+
+                chrome.storage.sync.set({"notefox-account": account});
+            });
+
+            showMessageNotefoxAccount(all_strings["notefox-account-button-settings-password-changed"]);
+
+            //disable all textboxes and buttons: the change is done
+            verify_submit_element.disabled = true;
+            new_code_element.disabled = true;
+            code_element.disabled = true;
+            cancel_element.disabled = false;
+        } else if (data.code === 400 || data.code === 401) {
+            //Error
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+        } else if (data.code === 412 || data.code === 413 || data.code === 415 || data.code === 420) {
+            //Code expired, invalid, never requested or too many wrong attempts
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            code_element.classList.add("textbox-error");
+        } else if (data.code === 410) {
+            //Invalid credentials
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+        } else {
+            //Unknown
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
+        }
+        spinner_loading.classList.add("hidden");
+    }
+}
+
+function changePasswordNewCodeResponse(data) {
+    let verify_submit_element = document.getElementById("change-password-verify-submit");
+    let new_code_element = document.getElementById("change-password-new-code");
+    let cancel_element = document.getElementById("change-password-cancel");
+    let code_element = document.getElementById("change-password-code");
+    let spinner_loading = document.getElementById("loading-change-password");
+
+    verify_submit_element.disabled = false;
+    new_code_element.disabled = false;
+    cancel_element.disabled = false;
+    code_element.disabled = false;
+    disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
-            showMessageNotefoxAccount(all_strings["notefox-account-button-settings-password-changed"]);
-
-            change_password_submit_element.disabled = true;
-            cancel_element.disabled = false;
-            password_element.disabled = true;
-            new_password_element.disabled = true;
-            new_password_confirm_element.disabled = true;
-            disableAside = false;
+            showMessageNotefoxAccount(all_strings["notefox-account-message-verification-code-sent"]);
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
-        } else if (data.code === 402) {
-            //Login-id not found, disabled, expired or invalid
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
-        } else if (data.code === 405) {
-            //Token not valid
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
-        } else if (data.code === 410) {
-            //Invalid credentials
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+        } else if (data.code === 415) {
+            //No password change has been requested
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
+    }
+}
+
+function otpEnableResponse(data) {
+    let submit_element = document.getElementById("otp-submit");
+    let cancel_element = document.getElementById("otp-cancel");
+    let password_element = document.getElementById("otp-password");
+    let spinner_loading = document.getElementById("loading-otp");
+
+    submit_element.disabled = false;
+    cancel_element.disabled = false;
+    password_element.disabled = false;
+    disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success: the two-factor authentication is enabled
+            otp_enabled = true;
+            showMessageNotefoxAccount(getString("notefox-account-message-otp-enabled"));
+
+            submit_element.disabled = true;
+            password_element.disabled = true;
+            password_element.value = "";
+        } else if (data.code === 431) {
+            //Already enabled
+            otp_enabled = true;
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            submit_element.disabled = true;
+            password_element.disabled = true;
+        } else {
+            //Error (410 invalid credentials, 503 incomplete schema, …)
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
+        }
+        spinner_loading.classList.add("hidden");
+    }
+}
+
+function otpDisableResponse(data) {
+    let submit_element = document.getElementById("otp-submit");
+    let cancel_element = document.getElementById("otp-cancel");
+    let password_element = document.getElementById("otp-password");
+    let spinner_loading = document.getElementById("loading-otp");
+
+    submit_element.disabled = false;
+    cancel_element.disabled = false;
+    password_element.disabled = false;
+    disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success: nothing has been changed yet, a code has been emailed
+            notefoxAccountLoginSignupManage("otp-disable-verify", {password: password_element.value});
+        } else if (data.code === 431) {
+            //Already disabled
+            otp_enabled = false;
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            submit_element.disabled = true;
+            password_element.disabled = true;
+        } else {
+            //Error (410 invalid credentials, 503 incomplete schema, …)
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
+        }
+        spinner_loading.classList.add("hidden");
+    }
+}
+
+function otpDisableVerifyResponse(data) {
+    let verify_submit_element = document.getElementById("otp-verify-submit");
+    let cancel_element = document.getElementById("otp-cancel");
+    let code_element = document.getElementById("otp-code");
+    let spinner_loading = document.getElementById("loading-otp");
+
+    verify_submit_element.disabled = false;
+    cancel_element.disabled = false;
+    code_element.disabled = false;
+    disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
+
+    if (data !== undefined && data.code !== undefined && data.status !== undefined) {
+        if (data.code === 200) {
+            //Success: the two-factor authentication is disabled
+            otp_enabled = false;
+            showMessageNotefoxAccount(getString("notefox-account-message-otp-disabled"));
+
+            verify_submit_element.disabled = true;
+            code_element.disabled = true;
+            code_element.value = "";
+        } else if (data.code === 412 || data.code === 413 || data.code === 415 || data.code === 420) {
+            //Code expired, invalid, never requested or too many wrong attempts
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            code_element.classList.add("textbox-error");
+        } else if (data.code === 431) {
+            //Already disabled
+            otp_enabled = false;
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            verify_submit_element.disabled = true;
+            code_element.disabled = true;
+        } else {
+            //Error (410 invalid credentials, 503 incomplete schema, …)
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
+        }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -3080,30 +5425,36 @@ function deleteResponse(data) {
     let cancel_element = document.getElementById("delete-cancel");
     let email_element = document.getElementById("delete-email");
     let password_element = document.getElementById("delete-password");
+    let spinner_loading = document.getElementById("loading-delete");
 
     submit_element.disabled = false;
     cancel_element.disabled = false;
     email_element.disabled = false;
     password_element.disabled = false;
     disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
             notefoxAccountLoginSignupManage("delete-verify", {
-                "email": email_element.value, "password": password_element.value
+                email: email_element.value, password: password_element.value,
             });
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 452) {
+            //a deleting code has already been requested and is still valid
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
             notefoxAccountLoginSignupManage("delete-verify", {
-                "email": email_element.value, "password": password_element.value
+                email: email_element.value, password: password_element.value,
             });
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -3112,34 +5463,44 @@ function deleteVerifyResponse(data) {
     let new_code_element = document.getElementById("verify-delete-new-code");
     let cancel_element = document.getElementById("delete-cancel");
     let code_element = document.getElementById("verify-delete-code");
+    let spinner_loading = document.getElementById("loading-delete");
 
     submit_element.disabled = false;
     new_code_element.disabled = false;
     cancel_element.disabled = false;
     code_element.disabled = false;
     disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
             //Success
 
-            chrome.storage.sync.remove("notefox-account").then(result => {
-                chrome.storage.local.remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites"]).then(result => {
-                });
+            chrome.storage.sync.remove("notefox-account").then((result) => {
+                chrome.storage.local
+                    .remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites",])
+                    .then((result) => {
+                        setNotefoxAccountLoginSignupManageButton();
+                    });
             });
 
-            document.getElementById("notefox-account-settings-button").value = all_strings["notefox-account-button-settings-login-or-signup"];
-            if (document.getElementById("notefox-account-settings-button").classList.contains("manage-button")) document.getElementById("notefox-account-settings-button").classList.remove("manage-button");
-            document.getElementById("notefox-account-settings-button").classList.add("login-button");
+            setNotefoxAccountLoginSignupManageButton();
 
             showMessageNotefoxAccount(all_strings["notefox-account-button-settings-account-deleted"]);
+
+            //disable all textboxes and buttons
+            submit_element.disabled = true;
+            new_code_element.disabled = true;
+            code_element.disabled = true;
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -3148,12 +5509,14 @@ function deleteVerifyNewCodeResponse(data) {
     let new_code_element = document.getElementById("verify-delete-new-code");
     let cancel_element = document.getElementById("delete-cancel");
     let code_element = document.getElementById("verify-delete-code");
+    let spinner_loading = document.getElementById("loading-delete");
 
     submit_element.disabled = false;
     new_code_element.disabled = false;
     cancel_element.disabled = false;
     code_element.disabled = false;
     disableAside = false;
+    if (spinner_loading.classList.contains("hidden")) spinner_loading.classList.remove("hidden");
 
     if (data !== undefined && data.code !== undefined && data.status !== undefined) {
         if (data.code === 200) {
@@ -3161,14 +5524,16 @@ function deleteVerifyNewCodeResponse(data) {
             showMessageNotefoxAccount(all_strings["notefox-account-message-verification-code-sent"]);
         } else if (data.code === 400 || data.code === 401) {
             //Error
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else if (data.code === 412) {
             //Invalid login-id or already verified
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
         } else {
             //Unknown
-            showMessageNotefoxAccount(all_strings["notefox-account-message-error-" + data.code], true);
+            showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+            spinner_loading.classList.add("hidden");
         }
+        spinner_loading.classList.add("hidden");
     }
 }
 
@@ -3208,7 +5573,7 @@ function checkTwoVersions(version1, version2) {
 
     if (v1.length > 0 && v2.length > 0 && v1[0].length > 0 && v2[0].length > 0) {
         if (parseInt(v1[0]) > parseInt(v2[0])) {
-            valueToReturn = ">"
+            valueToReturn = ">";
         } else if (parseInt(v1[0]) < parseInt(v2[0])) {
             valueToReturn = "<";
         } else {
@@ -3265,7 +5630,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var export_svg = window.btoa(getIconSvgEncoded("export", on_primary));
         var download_svg = window.btoa(getIconSvgEncoded("download", on_primary));
         var delete_svg = window.btoa(getIconSvgEncoded("delete", on_primary));
+        var delete2_svg = window.btoa(getIconSvgEncoded("delete2", on_primary));
         var copy_svg = window.btoa(getIconSvgEncoded("copy", on_primary));
+        let show_content_svg = window.btoa(getIconSvgEncoded("show-content", on_primary));
 
         var login_svg = window.btoa(getIconSvgEncoded("login", on_primary));
         var logout_svg = window.btoa(getIconSvgEncoded("logout", on_primary));
@@ -3277,12 +5644,26 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         var synced_svg = window.btoa(getIconSvgEncoded("syncing", on_primary));
         var manage_svg = window.btoa(getIconSvgEncoded("account", on_primary));
         var edit_svg = window.btoa(getIconSvgEncoded("edit", on_primary));
+        var warning_svg = window.btoa(getIconSvgEncoded("warning", on_primary));
 
         var account_label_svg = window.btoa(getIconSvgEncoded("account", textbox_color));
         var email_label_svg = window.btoa(getIconSvgEncoded("email", textbox_color));
         var password_label_svg = window.btoa(getIconSvgEncoded("password", textbox_color));
         var code_label_svg = window.btoa(getIconSvgEncoded("code", textbox_color));
 
+        let primaryTransparent = primary;
+        if (primaryTransparent.includes("rgb(")) {
+            let rgb_temp = primaryTransparent.replace("rgb(", "");
+            let rgb_temp_arr = rgb_temp.split(",");
+            if (rgb_temp_arr.length >= 3) {
+                let red = rgb_temp_arr[0].replace(" ", "");
+                let green = rgb_temp_arr[1].replace(" ", "");
+                let blue = rgb_temp_arr[2].replace(")", "").replace(" ", "");
+                primaryTransparent = `rgba(${red}, ${green}, ${blue}, 0.8)`;
+            }
+        } else if (primaryTransparent.includes("#")) {
+            primaryTransparent += "88";
+        }
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
@@ -3308,6 +5689,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
             <style>
                 :root {
                     --primary-color: ${primary};
+                    --primary-color-transparent: ${primaryTransparent};
                     --secondary-color: ${secondary};
                     --on-primary-color: ${on_primary};
                     --on-secondary-color: ${on_secondary};
@@ -3350,6 +5732,12 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 .clear-button {
                     background-image: url('data:image/svg+xml;base64,${delete_svg}');
                 }
+                .clear2-button {
+                    background-image: url('data:image/svg+xml;base64,${delete2_svg}');
+                }
+                .show-content-button {
+                    background-image: url('data:image/svg+xml;base64,${show_content_svg}');
+                }
                 #settings-aside {
                     background-image: url('data:image/svg+xml;base64,${settings_aside_svg}');
                 }
@@ -3371,8 +5759,8 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 #translate-aside {
                     background-image: url('data:image/svg+xml;base64,${translate_aside_svg}'), url('data:image/svg+xml;base64,${external_link_aside_svg}');
                 }
-                .select-box {
-                    background-image: url('data:image/svg+xml;base64,${arrow_select_svg}');
+                .cst-arrow {
+                    background-image: url('data:image/svg+xml;base64,${arrow_select_svg}') !important;
                 }
                 .section-title-settings {
                     background-color: ${background};
@@ -3404,7 +5792,6 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 .manage-account-button {
                     background-image: url('data:image/svg+xml;base64,${manage_svg}');
                 }
-                
                 .password-label {
                     background-image: url('data:image/svg+xml;base64,${password_label_svg}');
                 }
@@ -3422,6 +5809,9 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 .edit-button {
                     background-image: url('data:image/svg+xml;base64,${edit_svg}');
+                }
+                .warning-button {
+                    background-image: url('data:image/svg+xml;base64,${warning_svg}');
                 }
             </style>`;
     }

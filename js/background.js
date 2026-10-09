@@ -1,7 +1,4 @@
 const icons = ["../img/icon.svg", "../img/icon-bordered.svg"];
-const icons16 = ["../img/icons/icon-16.png", "../img/icons/icon-bordered-16.png"];
-const icons48 = ["../img/icons/icon-48.png", "../img/icons/icon-bordered-48.png"];
-const icons128 = ["../img/icons/icon-128.png", "../img/icons/icon-bordered-128.png"];
 var settings_json = {};
 var websites_json = {};
 var notefox_json = {};
@@ -9,12 +6,16 @@ var notefox_json = {};
 var icons_json = {};
 var theme_colours_json = {};
 
-const webBrowserUsed = "chrome";//TODO:change manually
+const webBrowserUsed = "firefox";//TODO:change manually
 
 var tab_id = 0;
 var tab_url = "";
 var tab_title = "";
 var current_urls = []; //0: global, 1: domain, 2: page
+
+const POPUP_REFRESH_URL_CHANGED_DEBOUNCE_MS = 350;
+let previous_checked_tab_url = null;
+let popup_refresh_timeout = null;
 
 let all_urls = {} //"url":"value" //value as {0:global, 1:domain, 2:page, 3:subdomain}
 
@@ -23,8 +24,242 @@ var type_to_use = -1;
 var coords = {x: "20px", y: "20px"};
 var sizes = {w: "300px", h: "300px"};
 var opacity = {value: 0.8};
+var minimized_pos = {top: "15%", side: "left"};
+
+function getDefaultStickySizeFromSettings(settings) {
+    let preset = settings && settings["default-sticky-size"] ? settings["default-sticky-size"] : "medium";
+    switch (preset) {
+        case "small":
+            return {w: "240px", h: "240px"};
+        case "large":
+            return {w: "360px", h: "360px"};
+        case "very-large":
+            return {w: "420px", h: "420px"};
+        case "medium":
+        default:
+            return {w: "300px", h: "300px"};
+    }
+}
+
+function getDefaultStickyOpacityFromSettings(settings) {
+    let transparency = Number.parseInt(settings && settings["default-sticky-transparency"] !== undefined ? settings["default-sticky-transparency"] : 20, 10);
+    if (Number.isNaN(transparency)) transparency = 20;
+    transparency = Math.max(0, Math.min(90, transparency));
+    return {value: Number((1 - (transparency / 100)).toFixed(2))};
+}
 
 let opening_sticky = false;
+
+function getDefaultStickyPinned() {
+    return settings_json["default-sticky-pinned"] === true;
+}
+
+// Per-note fields: everything that lives inside an all-notes[] entry.
+// Only "type" and "domain" stay at the entry level.
+const NOTE_FIELDS = ["notes", "title", "last-update", "content", "tag-colour", "tags-text", "tag-folder", "sticky", "minimized", "pinned", "coords", "sizes", "opacity", "minimized-pos"];
+
+/**
+ * Convert a single legacy entry (primary note at entry level + notes-extra[])
+ * into the unified model (type/domain at entry level + all-notes[]).
+ * Idempotent: an entry that already has all-notes is returned untouched.
+ */
+function migrateEntryToAllNotes(entry) {
+    if (!entry || typeof entry !== "object") return entry;
+    if (Array.isArray(entry["all-notes"])) return entry;
+
+    let primary = {};
+    for (let field of NOTE_FIELDS) {
+        if (entry[field] !== undefined) primary[field] = entry[field];
+    }
+    if (primary["tags-text"] === undefined) primary["tags-text"] = [];
+    if (primary["tag-folder"] === undefined) primary["tag-folder"] = "";
+
+    let allNotes = [primary];
+    if (Array.isArray(entry["notes-extra"])) {
+        for (let extra of entry["notes-extra"]) {
+            let note = Object.assign({}, extra);
+            if (note["tags-text"] === undefined) note["tags-text"] = [];
+            if (note["tag-folder"] === undefined) note["tag-folder"] = "";
+            allNotes.push(note);
+        }
+    }
+
+    for (let field of NOTE_FIELDS) delete entry[field];
+    delete entry["notes-extra"];
+    entry["all-notes"] = allNotes;
+    return entry;
+}
+
+/**
+ * Migrate every entry of a websites object in place (idempotent).
+ */
+function migrateWebsites(websites) {
+    if (!websites || typeof websites !== "object") return websites;
+    for (let url in websites) {
+        migrateEntryToAllNotes(websites[url]);
+    }
+    return websites;
+}
+
+/**
+ * Entry-level roll-up last-update (newest of its notes), used by sync merge.
+ */
+function getEntryLastUpdate(entry) {
+    if (!entry || !Array.isArray(entry["all-notes"])) return null;
+    let newest = null;
+    for (let note of entry["all-notes"]) {
+        let t = syncDateToTime(note["last-update"]);
+        if (newest === null || t > newest) newest = t;
+    }
+    return newest;
+}
+
+function getNoteAt(url, noteIndex) {
+    let entry = websites_json[url];
+    if (!entry || !Array.isArray(entry["all-notes"])) return undefined;
+    return entry["all-notes"][noteIndex];
+}
+
+function getStickyParamsForNote(url, noteIndex) {
+    let defaultPinned = getDefaultStickyPinned();
+    let note = getNoteAt(url, noteIndex);
+    if (!note) return {sticky: false, minimized: false, pinned: defaultPinned, coords: null, sizes: getDefaultStickySizeFromSettings(settings_json), opacity: getDefaultStickyOpacityFromSettings(settings_json), "minimized-pos": {top: (15 + noteIndex * 5) + "%", side: "left"}};
+    return {
+        sticky: note["sticky"] === true,
+        minimized: note["minimized"] === true,
+        pinned: note["pinned"] !== undefined ? note["pinned"] === true : defaultPinned,
+        coords: note["coords"] || null,
+        sizes: note["sizes"] || getDefaultStickySizeFromSettings(settings_json),
+        opacity: note["opacity"] || getDefaultStickyOpacityFromSettings(settings_json),
+        "minimized-pos": note["minimized-pos"] || {top: (15 + noteIndex * 5) + "%", side: "left"}
+    };
+}
+
+function setStickyParamForNote(url, noteIndex, paramName, paramValue) {
+    let note = getNoteAt(url, noteIndex);
+    if (note) note[paramName] = paramValue;
+}
+
+function clearStickyParamsForNote(url, noteIndex) {
+    let note = getNoteAt(url, noteIndex);
+    if (!note) return;
+    let paramsToDelete = ["coords", "sizes", "opacity", "pinned", "minimized-pos"];
+    for (let p of paramsToDelete) delete note[p];
+}
+
+function getNoteText(url, noteIndex) {
+    let note = getNoteAt(url, noteIndex);
+    return note ? (note["notes"] || "") : "";
+}
+
+function setNoteText(url, noteIndex, text) {
+    let note = getNoteAt(url, noteIndex);
+    if (note) {
+        note["notes"] = text;
+        note["last-update"] = getDate();
+    }
+}
+
+function hasAnyStickyOpen(url) {
+    let entry = websites_json[url];
+    if (!entry || !Array.isArray(entry["all-notes"])) return false;
+    return entry["all-notes"].some(n => n["sticky"] === true);
+}
+
+// --- Cross-type sticky support ------------------------------------------------
+// Sticky notes of ALL url types (global, domain, page, subdomains) can be open on
+// the same page at once. Each open sticky is identified by a composite, CSS-safe
+// token "t{typeKey}-{idx}" so DOM ids never collide between types. The content
+// script treats this token opaquely (it only concatenates and echoes it back).
+let stickyRefByToken = {};
+
+function makeStickyToken(typeKey, idx) {
+    return "t" + typeKey + "-" + idx;
+}
+
+// Returns [{typeKey, url}] for every url type that has a stored entry for this tab.
+function getStickyUrlRefs() {
+    let refs = [];
+    let g = getGlobalUrl();
+    if (websites_json[g] !== undefined) refs.push({typeKey: "0", url: g});
+    let dRaw = getDomainUrl(tab_url);
+    let d = getUrlWithSupportedProtocol(dRaw, websites_json);
+    if (d !== undefined && websites_json[d] !== undefined) refs.push({typeKey: "1", url: d});
+    let pRaw = getPageUrl(tab_url);
+    let p = getUrlWithSupportedProtocol(pRaw, websites_json);
+    if (p !== undefined && websites_json[p] !== undefined) refs.push({typeKey: "2", url: p});
+    let subs = getAllOtherPossibleUrls(tab_url);
+    subs.forEach((s, k) => {
+        let su = getUrlWithSupportedProtocol(dRaw + s, websites_json);
+        if (su !== undefined && websites_json[su] !== undefined) refs.push({typeKey: "s" + k, url: su});
+    });
+    return refs;
+}
+
+// Aggregate the open sticky notes across ALL url types and (re)build the token map.
+function getAllStickyNotesAllTypes() {
+    stickyRefByToken = {};
+    let result = [];
+    for (let ref of getStickyUrlRefs()) {
+        let entry = websites_json[ref.url];
+        if (!entry || !Array.isArray(entry["all-notes"])) continue;
+        entry["all-notes"].forEach((note, i) => {
+            let pi = getStickyParamsForNote(ref.url, i);
+            if (pi.sticky) {
+                let token = makeStickyToken(ref.typeKey, i);
+                stickyRefByToken[token] = {url: ref.url, idx: i, typeKey: ref.typeKey};
+                result.push({
+                    noteIndex: token,
+                    description: note["notes"] || "",
+                    tag_colour: note["tag-colour"] || "none",
+                    sticky: true,
+                    minimized: pi.minimized,
+                    pinned: pi.pinned,
+                    coords: pi.coords,
+                    sizes: pi.sizes,
+                    opacity: pi.opacity,
+                    "minimized-pos": pi["minimized-pos"]
+                });
+            }
+        });
+    }
+    return result;
+}
+
+// Is any sticky note open for this tab, across all url types?
+function anyStickyOpenAllTypes() {
+    return getStickyUrlRefs().some(ref => hasAnyStickyOpen(ref.url));
+}
+
+// Map a composite token back to {url, idx}. Falls back to parsing the token and,
+// as a last resort, to the legacy single-type behaviour (numeric index).
+function resolveStickyRef(token) {
+    if (token !== undefined && stickyRefByToken[token] !== undefined) return stickyRefByToken[token];
+    if (typeof token === "string" && token.charAt(0) === "t" && token.indexOf("-") > 0) {
+        let body = token.substring(1);
+        let dash = body.lastIndexOf("-");
+        let typeKey = body.substring(0, dash);
+        let idx = parseInt(body.substring(dash + 1), 10);
+        let url;
+        if (typeKey === "0") url = getGlobalUrl();
+        else if (typeKey === "1") url = getUrlWithSupportedProtocol(getDomainUrl(tab_url), websites_json);
+        else if (typeKey === "2") url = getUrlWithSupportedProtocol(getPageUrl(tab_url), websites_json);
+        else if (typeKey.charAt(0) === "s") {
+            let k = parseInt(typeKey.substring(1), 10);
+            let subs = getAllOtherPossibleUrls(tab_url);
+            if (!isNaN(k) && subs[k] !== undefined) url = getUrlWithSupportedProtocol(getDomainUrl(tab_url) + subs[k], websites_json);
+        }
+        if (url !== undefined) return {url: url, idx: isNaN(idx) ? 0 : idx, typeKey: typeKey};
+    }
+    let n = typeof token === "number" ? token : parseInt(token, 10);
+    return {url: getTheCorrectUrl(), idx: isNaN(n) ? 0 : n, typeKey: "?"};
+}
+
+// Token for a note of a given popup tab (0 global, 1 domain, 2 page, 3 subdomain).
+function stickyTokenForTab(tabType, idx) {
+    let typeKey = (tabType === 3) ? "s0" : ("" + tabType);
+    return makeStickyToken(typeKey, idx);
+}
 
 const page_domain_global = {"page": "Page", "domain": "Domain", "global": "Global", "subdomain": "•••"};
 const linkFirstLaunch = "https://notefox.eu/help/first-run"
@@ -34,7 +269,6 @@ let sync_local = chrome.storage.local;
 try {
     checkSyncLocal();
     loadDataFromSync();
-    generalListener();
 } catch (e) {
     console.error(`E-B0: ${e}`);
     onError("background.js::onStartup", e.message, tab_url);
@@ -69,7 +303,7 @@ const MAX_PARAMETERS = 5;
  */
 function onError(context, text, url = undefined) {
     //if url starts with "http" or "https", then it's a valid url
-    if (url !== undefined && (url.startsWith("http://") || url.startsWith("https://")) && !(url.startsWith("https://addons.mozilla.org") || url.startsWith("chrome://") || url.startsWith("chrome-extension://"))) {
+    if (url !== undefined && (url.startsWith("http://") || url.startsWith("https://")) && !url.startsWith("https://addons.mozilla.org")) {
         chrome.storage.sync.get("anonymous-userid").then(resultSync => {
             let anonymous_userid = null;
             if (resultSync["anonymous-userid"] !== undefined) {
@@ -78,6 +312,7 @@ function onError(context, text, url = undefined) {
                 anonymous_userid = generateSecureUUID();
                 chrome.storage.sync.set({"anonymous-userid": anonymous_userid});
             }
+            //if(context !== undefined && (context.includes("NetworkError") || ))
             const error = {
                 "datetime": getDate(),
                 "context": context,
@@ -100,6 +335,27 @@ function onError(context, text, url = undefined) {
 
 function checkSyncLocal() {
     sync_local = chrome.storage.local;
+    // One-time, idempotent migration of the stored notes to the all-notes[] model,
+    // persisted before anything else reads the websites data.
+    migrateLocalWebsites().then(() => {
+        checkSyncLocalBody();
+    }).catch((e) => {
+        console.error(`E-migrate: ${e}`);
+        checkSyncLocalBody();
+    });
+}
+
+function migrateLocalWebsites() {
+    return chrome.storage.local.get("websites").then(result => {
+        let websites = result["websites"];
+        if (websites === undefined || websites === null) return;
+        migrateWebsites(websites);
+        websites_json = websites;
+        return chrome.storage.local.set({"websites": websites});
+    });
+}
+
+function checkSyncLocalBody() {
     chrome.storage.sync.get("privacy").then(result => {
         if (result.privacy !== undefined) {
             checkInstallationDate();
@@ -178,26 +434,15 @@ function checkInstallationDate() {
     });
 }
 
-function generalListener() {
-    //console.log("**** [background.js] General listener");
-
-    chrome.runtime.onMessage.addListener((message) => {
-        //console.log("**** [background.js] Message received", message);
-    });
-}
-
 function checkSyncData(just_once = false) {
     //console.log("Check sync data")
     chrome.storage.sync.get(["notefox-account"]).then(resultSync => {
-
-        //console.log("**** Sync data: ", resultSync);
-
+        //console.log("Sync data: " + JSON.stringify(resultSync));
         if (resultSync["notefox-account"] !== undefined) {
-            api_request({
-                "api": true, "type": "get-data", "data": {
-                    "login-id": resultSync["notefox-account"]["login-id"],
-                    "token": resultSync["notefox-account"]["token"]
-                }
+            //the revision state machine decides everything (js/sync-service.js)
+            syncPull().catch((e) => {
+                console.error(`E-B3: ${e}`);
+                onError("background.js::checkSyncData", e.message, tab_url);
             });
 
             syncData(1 * 60 * 1000, just_once); //1 minute if the user is logged in
@@ -225,21 +470,39 @@ function syncData(force_time = 1 * 60 * 1000, just_once = false) {
 }
 
 /**
+ * The access to the Notefox servers is an optional permission (requested when the Notefox account,
+ * the telemetry or the automatic sending of the error logs are enabled)
+ * @returns {Promise<boolean>}
+ */
+function hasNotefoxServerPermission() {
+    return chrome.permissions.contains({origins: ["https://*.notefox.eu/*"]}).catch(() => false);
+}
+
+/**
  * Check if there are error logs in the local storage each 10 minutes
  */
 function checkErrorLogs() {
     //console.log("Check error logs");
-    sync_local.get(["settings", "error-logs"]).then(result => {
+    sync_local.get(["settings", "error-logs"]).then(async result => {
         settings_json = {};
         if (result["settings"] !== undefined) settings_json = result["settings"];
-        if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = true
+        if (settings_json["sending-error-logs-automatically"] === undefined) settings_json["sending-error-logs-automatically"] = false;
 
-        if (settings_json["sending-error-logs-automatically"]) {
+        //the error logs stay saved locally anyway (they can be exported from Settings)
+        if (settings_json["sending-error-logs-automatically"] && await hasNotefoxServerPermission()) {
             if (result["error-logs"] !== undefined && result["error-logs"].length > 0) {
                 //console.error("Error logs: ", result["error-logs"]);
-                api_request({
+                const answer = await api_request({
                     "api": true, "type": "send-error-logs", "data": {"error-logs": result["error-logs"]}
                 });
+
+                if (answer !== undefined && answer !== null && answer.code === 200) {
+                    //sent: the queue can be emptied
+                    sync_local.set({"error-logs": []});
+                } else if (answer !== undefined && answer !== null && !isRateLimited(answer.code) && !isNetworkFailure(answer.code)) {
+                    //rate limited or unreachable: the logs stay queued for the next round
+                    console.error("[background.js::checkErrorLogs] Error: ", answer);
+                }
             }
         }
     })
@@ -256,17 +519,28 @@ function checkErrorLogs() {
  */
 function checkTelemetryLogs() {
     //console.log("Check error logs");
-    sync_local.get(["settings", "telemetry"]).then(result => {
+    sync_local.get(["settings", "telemetry"]).then(async result => {
         settings_json = {};
         if (result["settings"] !== undefined) settings_json = result["settings"];
         if (settings_json["send-telemetry"] === undefined) settings_json["send-telemetry"] = true
 
-        if (settings_json["send-telemetry"]) {
+        if (settings_json["send-telemetry"] && !(await hasNotefoxServerPermission())) {
+            //without the access to the Notefox servers the telemetry can't be sent: don't keep it
+            if (result["telemetry"] !== undefined && result["telemetry"].length > 0) sync_local.set({"telemetry": []});
+        } else if (settings_json["send-telemetry"]) {
             if (result["telemetry"] !== undefined && result["telemetry"].length > 0) {
                 //console.error("Telemetry: ", result["telemetry"]);
-                api_request({
+                const answer = await api_request({
                     "api": true, "type": "send-telemetry", "data": {"telemetry": result["telemetry"]}
                 });
+
+                if (answer !== undefined && answer !== null && answer.code === 200) {
+                    //sent: the queue can be emptied
+                    sync_local.set({"telemetry": []});
+                } else if (answer !== undefined && answer !== null && !isRateLimited(answer.code) && !isNetworkFailure(answer.code)) {
+                    //rate limited or unreachable: the logs stay queued for the next round
+                    console.error("[background.js::checkTelemetryLogs] Error: ", answer);
+                }
             }
         }
     })
@@ -278,192 +552,30 @@ function checkTelemetryLogs() {
     }, time); //10 minutes
 }
 
-function actionResponse(response) {
-    //console.log("[background.js::actionResponse] Response: ", response);
-    if (response["api_response"] !== undefined && response["api_response"] === true) {
-        if (response["type"] !== undefined) {
-            if (response["type"] === "get-data") {
-                if (response["data"] !== undefined) {
-                    let data = response["data"];
-                    if (data !== undefined) {
-                        if (data.code === 200) {
-                            //check if server data is newer than local data
-                            //console.log("Server data: " + JSON.stringify(data["data"]));
-                            sync_local.get(["last-update"]).then(result => {
-                                let latestUpdateServer = data["data"]["updated-locally"];
-                                let latestUpdateLocal = result["last-update"];
-
-                                //console.log("Latest update on server: " + latestUpdateServer);
-                                //console.log("Latest update on local: " + latestUpdateLocal);
-
-                                if (latestUpdateServer !== undefined && latestUpdateLocal !== undefined) {
-                                    let dateServer = new Date(latestUpdateServer);
-                                    let dateLocal = new Date(latestUpdateLocal);
-
-                                    if (dateLocal > dateServer) {
-                                        //console.log("Local data is newer than server one");
-
-                                        //send data to the server
-                                        sendLocalDataToServer();
-                                    } else if (dateLocal < dateServer) {
-                                        //update local data
-                                        //console.log("Server data is newer than local one");
-
-                                        let data_to_server = JSON.parse(data["data"]["data"]);
-
-                                        //console.log(JSON.stringify(data_to_server));
-
-                                        sync_local.set(data_to_server).then(result => {
-                                            //console.log("Data updated from server");
-
-                                            syncUpdateFromServer();
-                                        });
-                                    } else {
-                                        //console.log("Local data is the same as the server one");
-                                    }
-                                } else if (latestUpdateServer === undefined && latestUpdateLocal !== undefined) {
-                                    //No data on server
-                                    //console.log("No data on server");
-
-                                    //send data to the server
-                                    sendLocalDataToServer();
-                                } else if (latestUpdateServer !== undefined && latestUpdateLocal === undefined) {
-                                    //No data on local
-                                    //console.log("No data on local");
-
-                                    let data_to_server = JSON.parse(data["data"]["data"]);
-
-                                    sync_local.set(data_to_server).then(result => {
-                                        //console.log("Data updated from server");
-                                        syncUpdateFromServer();
-                                    });
-                                }
-                            });
-                        } else if (data.code === 201) {
-                            //No data on the server ==> never send data
-                            //send data to the server
-
-                            //console.log("Sending data to the server");
-
-                            sendLocalDataToServer();
-                        } else {
-                            console.error("[background.js::actionResponse] Error: ", data);
-                            onError("background.js::actionResponse::get-data", JSON.stringify(data), tab_url);
-                        }
-                    }
-                }
-            } else if (response["type"] === "send-data") {
-                //console.log("Send data response: " + JSON.stringify(response));
-            } else if (response["type"] === "listen-error-logs") {
-                //console.log("Send error logs response: " + JSON.stringify(response));
-                if (response["data"] !== undefined) {
-                    let data = response["data"];
-                    if (data !== undefined) {
-                        if (data.code === 200) {
-                            //clear error logs
-                            sync_local.set({"error-logs": []});
-                        } else {
-                            console.error("[background.js::actionResponse] Error: ", data);
-                            onError("background.js::actionResponse::listen-error-logs", JSON.stringify(data), tab_url);
-                        }
-                    }
-                }
-            } else if (response["type"] === "listen-telemetry-logs") {
-                //console.log("Send telemetry logs response: " + JSON.stringify(response));
-                if (response["data"] !== undefined) {
-                    let data = response["data"];
-                    if (data !== undefined) {
-                        if (data.code === 200) {
-                            //clear error logs
-                            sync_local.set({"telemetry": []});
-                        } else {
-                            console.error("[background.js::actionResponse] Error: ", data);
-                            onError("background.js::actionResponse::listen-telemetry-logs", JSON.stringify(data), tab_url);
-                        }
-                    }
-                }
-            }
-        }
-    } else {
-        //console.error("[background.js::actionResponse] Error: ", response);
-        onError("background.js::actionResponse", JSON.stringify(response), tab_url);
-    }
-}
-
+/**
+ * Send the snapshot of this device to the server.
+ * The snapshot is built and the revision is handled by js/sync-service.js: the
+ * server decides with its own revision, never by comparing the dates, so a
+ * device whose clock is wrong is no longer able to win (or to lose) forever.
+ */
 function sendLocalDataToServer() {
     //console.log("Sending...")
-    let data_to_send = {};
-
-    chrome.storage.local.get(["storage"]).then(getStorageTemp => {
-        sync_local.get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "last-update"]).then((result) => {
-            // Handle the result
-            let sticky_notes = {};
-            sticky_notes.coords = result["sticky-notes-coords"];
-            sticky_notes.sizes = result["sticky-notes-sizes"];
-            sticky_notes.opacity = result["sticky-notes-opacity"];
-
-            let websites_json = result["websites"];
-
-            if (sticky_notes.coords === undefined && sticky_notes.coords === null) {
-                sticky_notes.coords = {x: "20px", y: "20px"};
-            }
-            if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) {
-                sticky_notes.sizes = {w: "300px", h: "300px"};
-            }
-            if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) {
-                sticky_notes.opacity = {value: 0.7};
-            }
-            sticky_notes.opacity.value = Number.parseFloat(sticky_notes.opacity.value).toFixed(2);
-
-            //console.log(JSON.stringify(result));
-
-            for (setting in settings_json) {
-                if (settings_json[setting] === "yes") settings_json[setting] = true; else if (settings_json[setting] === "no") settings_json[setting] = false;
-            }
-            data_to_send = {
-                "notefox": notefox_json,
-                "settings": settings_json,
-                "websites": websites_json,
-                "sticky-notes": sticky_notes,
-                "storage": getStorageTemp["storage"],
-                "last-update": result["last-update"]
-            }
-
-
-            chrome.storage.sync.get(["notefox-account"]).then(resultSync => {
-                if (resultSync["notefox-account"] !== undefined) {
-                    api_request({
-                        "api": true, "type": "send-data", "data": {
-                            "login-id": resultSync["notefox-account"]["login-id"],
-                            "token": resultSync["notefox-account"]["token"],
-                            "updated-locally": correctDatetime(result["last-update"]),
-                            "data": JSON.stringify(data_to_send)
-                        }
-                    });
-                } else {
-                }
-            });
-
-            sync_local.set(data_to_send).then(result => {
-                //console.log("Data sent to the server");
-            });
-        }).catch((e) => {
-            console.error(`E-B1: ${e}`);
-            onError("background.js::sendLocalDataToServer", e.message, tab_url);
-        });
+    syncPush().catch((e) => {
+        console.error(`E-B1: ${e}`);
+        onError("background.js::sendLocalDataToServer", e.message, tab_url);
     });
 }
 
 function syncUpdateFromServer() {
     //console.log("Receiving...")
     chrome.runtime.sendMessage({"sync_update": true}).then(response => {
-        //console.log("Sync update from server: ", response);
+        //console.log("Sync update from server: " + response);
     }).catch((e) => {
         setTimeout(function () {
             syncUpdateFromServer();
         }, 5 * 60 * 1000); //5 minutes if any issues
         console.error(`E-B2: ${e}`);
-        onError("background.js::syncUpdateFromServer", e.message, tab_url);
+        onError("background.js::syncUpdateFromServer", JSON.stringify(e), tab_url);
     });
 
     loaded();
@@ -505,65 +617,51 @@ function updateIcon(color, tabId, enabled = true) {
         colorBackground = `#${r}${g}${b}`;
     }
 
-    let colorBorder = "#ffffff"; // default border color
+    let colorBorder = "#ffffffb3"; // default border color, b3 is for 70% opacity
     //check readability of the color on the colorBackground (change from #fff to #000 if the color is too light)
     if (getContrastRatio(colorBorder, colorBackground) < 2.5) {
-        colorBorder = "#000000"; // Switch to black if contrast is too low
+        colorBorder = "#000000B3"; // Switch to black if contrast is too low (B3 is for 70% opacity)
     }
 
     if (colorPencil === "#FF6200") {
         colorBackground = "#FFB788";
-        colorBorder = "#ffffff";
+        colorBorder = "#ffffffb3"; //b3 is for 70% opacity
     } else if (colorPencil === "#00361C") {
         colorBackground = "#00A81C";
-        colorBorder = "#ffffff";
+        colorBorder = "#ffffffb3"; //b3 is for 70% opacity
     }
 
     const colorText = enabled ? colorBorder : colorBackground;
 
-    const svgString = `
-    <svg width="100%" height="100%" viewBox="0 0 36 36" version="1.1" xmlns="http://www.w3.org/2000/svg"
-     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
-        <g transform="matrix(0.833333,0,0,0.833333,-0.155476,3.47124)">
-            <g transform="matrix(0.00367347,-9.96139e-35,9.96139e-35,-0.00367347,-0.43707,7.79545)">
-                <g transform="matrix(1,1.09476e-47,-1.09476e-47,1,-736.712,51.3984)">
-                    <!--background-->
-                    <path d="M9707.7,2169.4C9707.7,2169.4 3617.54,2262.14 2522.17,2161.68C2423.83,2152.66 2356.55,2124.83 2321.45,2004.41C2284.75,1878.48 2249.8,659.559 2249.8,-117.4C2249.8,-1760.3 2249.9,-5589.6 2249.9,-6400.7C2249.9,-6922.52 2297.45,-7339.61 2317.54,-7459.99C2330.44,-7537.32 2421.3,-7529.4 2421.3,-7529.4L4586.8,-7529.4C6430.4,-7529.4 9035.57,-7617.26 9565.31,-7490.99C9727.52,-7452.32 9760.92,-7371.07 9783.87,-7221.07C9865.28,-6688.92 9900,-2838.8 9900,-1007.8L9900,1989.6C9901.78,2109.98 9834.17,2163.21 9707.7,2169.4Z"
-                          fill="${colorBackground}" style="fill-rule:nonzero;"/>
-                    <path d="M2421.3,-7856.08C2337.04,-7855.32 2045.43,-7814.06 1995.33,-7513.75C1974.22,-7387.24 1923.23,-6949.02 1923.23,-6400.7C1923.23,-5589.6 1923.13,-1760.3 1923.13,-117.4C1923.13,693.158 1969.55,1964.44 2007.83,2095.82C2052.26,2248.23 2127.65,2335.04 2212.45,2393.61C2288.81,2446.35 2380.25,2476.7 2492.33,2486.98C3593.01,2587.93 9712.67,2496.03 9712.67,2496.03C9716.34,2495.97 9720.01,2495.86 9723.67,2495.68C9877.86,2488.13 9990.79,2436.57 10070,2365.54C10164.1,2281.23 10228.2,2162.17 10226.7,1988.8L10226.7,-1007.8C10226.7,-2853.37 10188.8,-6734.09 10106.8,-7270.47C10079.9,-7446.01 10026.3,-7565.19 9934.93,-7655.21C9868.63,-7720.51 9778.76,-7775.93 9641.06,-7808.75C9103.25,-7936.95 6458.48,-7856.07 4586.8,-7856.07L2431.65,-7855.85C2428.28,-7855.95 2424.83,-7856.02 2421.3,-7856.08L2421.3,-7529.4L4586.8,-7529.4C6430.4,-7529.4 9035.57,-7617.26 9565.31,-7490.99C9727.52,-7452.32 9760.92,-7371.07 9783.87,-7221.07C9865.28,-6688.92 9900,-2838.8 9900,-1007.8L9900,1989.6C9901.78,2109.98 9834.17,2163.21 9707.7,2169.4C9707.7,2169.4 3617.54,2262.14 2522.17,2161.68C2423.83,2152.66 2356.55,2124.83 2321.45,2004.41C2284.75,1878.48 2249.8,659.559 2249.8,-117.4C2249.8,-1760.3 2249.9,-5589.6 2249.9,-6400.7C2249.9,-6740.28 2270.04,-7035.51 2289.64,-7233.48C2083.36,-7362.7 2421.3,-7856.08 2421.3,-7856.08Z"
-                          fill="${colorBorder}"/>
-                </g>
-                <g transform="matrix(-0.975524,-2.34562e-34,2.34562e-34,-0.984174,10684,-4202.33)">
-                    <!--pencil-->
-                    <path d="M2963.46,-2483.19C1504.46,-3386.19 130.4,-4038.7 117.8,-4051.2C105.3,-4059.6 96.9,-4201.7 101.1,-4364.7C105.3,-4883.1 360.3,-5280.2 836.9,-5518.5L1087.7,-5643.9C1087.7,-5643.9 2529.42,-4538.25 3827.77,-3740.84L6430.3,-2337.1C6430.3,-2337.1 7217.28,-934.507 7084.9,-815.068C6973.6,-714.648 5761.36,-818.125 5460.4,-848.9C5453,-849.656 4629.81,-1451.86 2963.46,-2483.19Z"
-                          fill="${colorPencil}" style="fill-rule:nonzero;"/>
-                    <path d="M-88.819,-3791.8C-67.834,-3776.39 -35.504,-3755.3 9.853,-3732.53C252.482,-3610.73 1485.26,-3006.76 2786.11,-2201.65C4276.37,-1279.3 5088.01,-702.39 5240.79,-595.677C5346.81,-521.622 5421.45,-519.202 5426.04,-518.733C5676.1,-493.162 6532.01,-420.966 6923.52,-445.831C7128.6,-458.855 7261.87,-525.903 7310.31,-569.61C7368.15,-621.796 7419.85,-699.629 7432.17,-814.867C7439.22,-880.781 7428.78,-987.776 7387.02,-1119.05C7247.21,-1558.5 6722.95,-2498.43 6722.95,-2498.43C6692.1,-2553.41 6646.11,-2598.58 6590.36,-2628.65C6590.36,-2628.65 3996.26,-4027.84 3993.97,-4029.24C2711.75,-4817.89 1292.61,-5906.42 1292.61,-5906.42C1190.52,-5984.71 1052.13,-5997.87 936.885,-5940.25L686.085,-5814.85C89.646,-5516.63 -227.56,-5018.52 -233.728,-4370.21C-238.644,-4169.58 -217.347,-3993.27 -203.058,-3951.36C-168.524,-3850.06 -107.34,-3801.49 -70.109,-3776.47L-88.819,-3791.8ZM2963.46,-2483.19C1504.46,-3386.19 130.4,-4038.7 117.8,-4051.2C105.3,-4059.6 96.9,-4201.7 101.1,-4364.7C105.3,-4883.1 360.3,-5280.2 836.9,-5518.5L1087.7,-5643.9C1087.7,-5643.9 2529.42,-4538.25 3827.77,-3740.84L6430.3,-2337.1C6430.3,-2337.1 7217.28,-934.507 7084.9,-815.068C6973.6,-714.648 5761.36,-818.125 5460.4,-848.9C5453,-849.656 4629.81,-1451.86 2963.46,-2483.19Z"
-                          fill="${colorBorder}"/>
-                </g>
-            </g>
-    
-            <!--text-->
-            <g transform="matrix(1.2,0,0,1.2,0.186572,-4.16549)">
-                <path d="M7.025,7.976C7.025,7.875 7.119,7.797 7.166,7.707C7.327,7.397 7.536,7.098 7.718,6.802C7.736,6.772 7.817,6.595 7.873,6.548C7.906,6.519 7.972,6.419 7.972,6.463C7.972,7.126 8.057,7.779 8.057,8.443L8.057,9.291C8.057,9.325 8.065,9.535 8.142,9.475C8.639,9.088 9.076,8.407 9.627,8.132C9.678,8.106 9.728,8.19 9.768,8.231C9.899,8.361 10.041,8.499 10.235,8.542C10.457,8.591 10.462,8.322 10.603,8.287C10.879,8.218 11.163,8.47 11.466,8.372C11.933,8.221 12.23,7.913 12.611,7.622C12.673,7.575 12.868,7.374 12.993,7.424C13.119,7.475 13.147,7.582 13.234,7.665C13.469,7.889 13.754,8.144 14.012,8.315C14.116,8.385 14.368,8.023 14.422,7.976C14.746,7.696 15.136,7.466 15.553,7.368C15.646,7.346 15.757,7.273 15.836,7.325C15.95,7.401 15.947,7.614 15.977,7.736C16.035,7.967 16.261,8.61 16.598,8.652C17.297,8.74 17.729,7.75 18.368,7.608C18.684,7.538 18.838,8.191 19.146,8.259C19.332,8.3 19.5,8.166 19.683,8.146C20,8.111 20.327,8.16 20.645,8.16"
-                      stroke="${colorText}" style="fill:none;stroke-width:1px;"/>
-            </g>
-            <g transform="matrix(1.2,0,0,1.2,0.186572,-4.16549)">
-                <path d="M6.756,14.921C6.833,14.869 6.794,14.768 6.798,14.68C6.81,14.463 6.82,14.246 6.841,14.029C6.878,13.629 6.97,13.205 7.197,12.865C7.254,12.779 7.401,12.586 7.52,12.573C8.276,12.485 8.278,13.345 8.679,13.747C8.779,13.846 9.32,13.589 9.387,13.577C9.58,13.542 9.638,13.835 9.839,13.902C10.161,14.01 10.846,13.963 11.126,13.888C11.341,13.83 11.652,13.722 11.805,13.549C11.871,13.474 11.878,13.239 11.961,13.294C12.355,13.557 13.193,13.83 13.587,13.633"
-                      stroke="${colorText}" style="fill:none;stroke-width:1px;"/>
-            </g>
-        </g>
-    </svg>
-    `;
+    const svgString = getIconSvg(enabled, colorBorder, colorBackground, colorPencil, colorText);
 
     const dataUrl = svgToDataUrl(svgString);
 
-    /*browser.browserAction.setIcon({
+    chrome.action.setIcon({
         path: dataUrl, tabId: tabId
     });
-    chrome.action.setIcon({path: {"16": icons16[index], "48": icons48[index], "128": icons128[index]}});
-    */
 
-    //TODO: in chrome this does not work, so use the default icon
+    // sidebarAction is Firefox-only; it does not exist on Chrome
+    if (typeof chrome.sidebarAction !== "undefined" && chrome.sidebarAction !== null) {
+        chrome.sidebarAction.setIcon({
+            path: dataUrl, tabId: tabId
+        });
+    }
+
+    //update badge if settings_json["show-icon-badge"] is true
+    if (enabled && settings_json["show-icon-badge"] !== undefined && settings_json["show-icon-badge"] === true) {
+        const numberOfNotes = getNumberOfNotes();
+        if (numberOfNotes > 0) {
+            chrome.action.setBadgeText({text: numberOfNotes.toString(), tabId: tabId});
+            chrome.action.setBadgeBackgroundColor({color: colorBackground, tabId: tabId});
+            // setBadgeTextColor is Firefox-only on the action API
+            if (typeof chrome.action.setBadgeTextColor === "function") {
+                chrome.action.setBadgeTextColor({color: colorText, tabId: tabId});
+            }
+        }
+    } else {
+        chrome.action.setBadgeText({text: "", tabId: tabId});
+    }
 }
 
 function getLuminance(hex) {
@@ -581,25 +679,12 @@ function getContrastRatio(color1, color2) {
 function changeIcon(index, colour = "#00361C") {
     const conditionSettings = settings_json["change-icon-color-based-on-tag-colour"] !== undefined && settings_json["change-icon-color-based-on-tag-colour"] === true;
 
-    //on Chrome use the default icon
-    if (webBrowserUsed === "chrome") {
-        let indexToUse = index;
-        if (indexToUse > 1) indexToUse = 1; // Chrome only supports 2 icons (active and inactive)
-        chrome.action.setIcon({
-            path: {
-                "16": icons16[indexToUse],
-                "48": icons48[indexToUse],
-                "128": icons128[indexToUse]
-            }
-        });
+    if (index >= 2 && conditionSettings) {
+        this.updateIcon(colour, tab_id, index !== 0);
     } else {
-        if (index >= 2 && conditionSettings) {
-            this.updateIcon(colour, tab_id, index !== 0);
-        } else {
-            this.updateIcon(index === 0 ? "#FF6200" : "#00361C", tab_id, index !== 0);
-        }
+        this.updateIcon(index === 0 ? "#FF6200" : "#00361C", tab_id, index !== 0);
     }
-    //browser.browserAction.setIcon({path: icons[index], tabId: tab_id});
+    //chrome.action.setIcon({path: icons[index], tabId: tab_id});
 }
 
 function loaded() {
@@ -610,7 +695,6 @@ function loaded() {
         "os": "?",
         "browser": webBrowserUsed,
     };
-    //TODO: chrome, get platform
     chrome.runtime.getPlatformInfo((platformInfo) => {
         notefox_json["os"] = platformInfo.os
     });
@@ -625,11 +709,11 @@ function loaded() {
             tab_title = activeTab.title;
 
             //catch changing of tab
-            //catch changing of tab
             chrome.tabs.onActivated.addListener(function () {
                 tabUpdated();
                 type_to_use = -1;
             });
+
             chrome.tabs.onUpdated.addListener(tabUpdated);
             chrome.windows.onFocusChanged.addListener(tabUpdated);
 
@@ -643,6 +727,8 @@ function loaded() {
             checkStatus();
         }
     });
+
+    initContextMenu();
 }
 
 function loadDataFromSync() {
@@ -658,6 +744,9 @@ function loadDataFromSync() {
         if (message["check-user"] !== undefined && message["check-user"]) {
             //console.log("Check user validity");
             checkUserPeriodically(0, true);
+        }
+        if (message["update-context-menu"] !== undefined) {
+            updateContextMenu(message["update-context-menu"]);
         }
     });
 
@@ -688,6 +777,8 @@ function checkUserPeriodically(time = 1 * 60 * 1000, just_once = false) {
 }
 
 function tabUpdated(update = false) {
+    //console.log(JSON.stringify(all_urls));
+
     this._pageUrl = undefined
     this._domainUrl = undefined
     this._globalUrl = undefined
@@ -701,11 +792,9 @@ function tabUpdated(update = false) {
         }
         chrome.tabs.query({active: true, currentWindow: true}).then(tabs => {
             if (tabs !== undefined && tabs.length > 0) {
-                if (tabs[0].id !== undefined && tabs[0].url !== undefined && tabs[0].title !== undefined) {
-                    tab_id = tabs[0].id;
-                    tab_url = tabs[0].url;
-                    tab_title = tabs[0].title;
-                }
+                tab_id = tabs[0].id;
+                tab_url = tabs[0].url;
+                tab_title = tabs[0].title;
             }
         }).then((tabs) => {
             checkStatus(update);
@@ -713,33 +802,37 @@ function tabUpdated(update = false) {
     });
 }
 
-function toBase64(input) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-    let str = String(input);
-    let output = '';
-
-    for (let block = 0, charCode, i = 0, map = chars;
-         str.charAt(i | 0) || (map = '=', i % 1);
-         output += map.charAt(63 & block >> 8 - i % 1 * 8)) {
-
-        charCode = str.charCodeAt(i += 3 / 4);
-
-        if (charCode > 0xFF) {
-            throw new Error("'toBase64' failed: The string to be encoded contains characters outside of the Latin1 range.");
-        }
-
-        block = block << 8 | charCode;
-    }
-
-    return output;
+function schedulePopupInfoRefresh(reason = "url-changed") {
+    if (popup_refresh_timeout !== null) clearTimeout(popup_refresh_timeout);
+    popup_refresh_timeout = setTimeout(() => {
+        popup_refresh_timeout = null;
+        chrome.runtime.sendMessage({
+            "popup-refresh-info": true,
+            "reason": reason,
+            "url": tab_url,
+            "tab-id": tab_id
+        }).catch(() => {
+        });
+    }, POPUP_REFRESH_URL_CHANGED_DEBOUNCE_MS);
 }
 
 function checkStatus(update = false) {
+    const hasPreviousUrl = previous_checked_tab_url !== null && previous_checked_tab_url !== "";
+    const hasUrlChanged = hasPreviousUrl && previous_checked_tab_url !== tab_url;
+    previous_checked_tab_url = tab_url;
+    if (hasUrlChanged) schedulePopupInfoRefresh();
+
     current_urls = [getGlobalUrl(), getDomainUrl(tab_url), getPageUrl(tab_url)];
+    let useLegacyStickySizeFallback = true;
+    let useLegacyStickyTransparencyFallback = true;
     sync_local.get("settings")
         .then(value => {
             settings_json = {};
             if (value["settings"] !== undefined) settings_json = value["settings"];
+            const hasExplicitValidDefaultStickySize = ["small", "medium", "large", "very-large"].includes(settings_json["default-sticky-size"]);
+            const hasExplicitDefaultStickyTransparency = settings_json["default-sticky-transparency"] !== undefined;
+            useLegacyStickySizeFallback = !hasExplicitValidDefaultStickySize;
+            useLegacyStickyTransparencyFallback = !hasExplicitDefaultStickyTransparency;
             if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
             if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
             if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
@@ -748,6 +841,9 @@ function checkStatus(update = false) {
             if (settings_json["check-green-icon-page"] === undefined) settings_json["check-green-icon-page"] = true;
             if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
             if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
+            if (settings_json["show-icon-badge"] === undefined) settings_json["show-icon-badge"] = false;
+            if (settings_json["default-sticky-size"] === undefined || !["small", "medium", "large", "very-large"].includes(settings_json["default-sticky-size"])) settings_json["default-sticky-size"] = "medium";
+            if (settings_json["default-sticky-transparency"] === undefined) settings_json["default-sticky-transparency"] = 20;
             //console.log(JSON.stringify(settings_json));
             //console.log("checkStatus");
             //console.log(value);
@@ -755,9 +851,9 @@ function checkStatus(update = false) {
             if (settings_json["sticky-secondary-color"] === undefined) settings_json["sticky-secondary-color"] = "#ff6200";
             if (settings_json["sticky-on-secondary-color"] === undefined) settings_json["sticky-on-secondary-color"] = "#ffffff";
 
-            let close_sticky_icon_svg = toBase64(getIconSvgEncoded("close", settings_json["sticky-on-secondary-color"]));
-            let minimize_sticky_icon_svg = toBase64(getIconSvgEncoded("minimize", settings_json["sticky-on-secondary-color"]));
-            let restore_sticky_icon_svg = toBase64(getIconSvgEncoded("restore", settings_json["sticky-on-secondary-color"]));
+            let close_sticky_icon_svg = btoa(getIconSvgEncoded("close", settings_json["sticky-on-secondary-color"]));
+            let minimize_sticky_icon_svg = btoa(getIconSvgEncoded("minimize", settings_json["sticky-on-secondary-color"]));
+            let restore_sticky_icon_svg = btoa(getIconSvgEncoded("restore", settings_json["sticky-on-secondary-color"]));
             icons_json = {
                 "close": close_sticky_icon_svg,
                 "minimize": minimize_sticky_icon_svg,
@@ -780,7 +876,8 @@ function checkStatus(update = false) {
                 if (result !== undefined && result["settings"] !== undefined && result["settings"]["sticky-theme"] !== undefined) {
                     let theme = result["settings"]["sticky-theme"];
                     if (theme === "auto") {
-                        chrome.theme.getCurrent().then(theme => {
+                        // chrome.theme is Firefox-only; on Chrome fall back to the default sticky theme
+                        if (typeof chrome.theme === "undefined" || chrome.theme.getCurrent === undefined) default_theme = true; else chrome.theme.getCurrent().then(theme => {
                             if (theme !== undefined && theme["colors"] !== undefined && theme["colors"] !== null) {
                                 //console.log(JSON.stringify(theme.colors));
                                 primary = theme.colors.toolbar_text;
@@ -828,16 +925,18 @@ function checkStatus(update = false) {
             });
         })
         .then(() => {
-            sync_local.get(["websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"])
+            sync_local.get(["websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity", "sticky-notes-minimized-pos"])
                 .then(value => {
                     if (value["websites"] !== undefined) {
                         websites_json = value["websites"];
+                        migrateWebsites(websites_json);
 
                         //console.log(JSON.stringify(websites_json[getTheCorrectUrl()]));
                         //console.log(tab_title);
-                        if (websites_json[tab_url] !== undefined && websites_json[tab_url]["title"] === undefined) {
+                        let tabNote0 = getNoteAt(tab_url, 0);
+                        if (tabNote0 !== undefined && tabNote0["title"] === undefined) {
                             //if the title it's not specified yet, so it's set with the title of the tab
-                            websites_json[tab_url]["title"] = tab_title;
+                            tabNote0["title"] = tab_title;
                             //console.log("QAZ-1")
                             sync_local.set({
                                 "websites": websites_json, "last-update": getDate()
@@ -851,8 +950,9 @@ function checkStatus(update = false) {
 
                         checkIcon();
 
-                        if (websites_json[url] !== undefined && websites_json[url]["coords"] !== undefined && websites_json[url]["coords"]["x"] !== undefined && websites_json[url]["coords"]["y"] !== undefined) {
-                            coords = {x: websites_json[url]["coords"]["x"], y: websites_json[url]["coords"]["y"]};
+                        let note0 = getNoteAt(url, 0);
+                        if (note0 !== undefined && note0["coords"] !== undefined && note0["coords"]["x"] !== undefined && note0["coords"]["y"] !== undefined) {
+                            coords = {x: note0["coords"]["x"], y: note0["coords"]["y"]};
                         } else {
                             if (value["sticky-notes-coords"] !== undefined && value["sticky-notes-coords"]["x"] !== undefined && value["sticky-notes-coords"]["y"] !== undefined) {
                                 coords = {
@@ -862,23 +962,37 @@ function checkStatus(update = false) {
                                 coords = {x: "20px", y: "20px"};
                             }
                         }
-                        if (websites_json[url] !== undefined && websites_json[url]["sizes"] !== undefined && websites_json[url]["sizes"]["w"] !== undefined && websites_json[url]["sizes"]["h"] !== undefined) {
-                            sizes = {w: websites_json[url]["sizes"]["w"], h: websites_json[url]["sizes"]["h"]};
+                        if (note0 !== undefined && note0["sizes"] !== undefined && note0["sizes"]["w"] !== undefined && note0["sizes"]["h"] !== undefined) {
+                            sizes = {w: note0["sizes"]["w"], h: note0["sizes"]["h"]};
                         } else {
-                            if (value["sticky-notes-sizes"] !== undefined && value["sticky-notes-sizes"]["w"] !== undefined && value["sticky-notes-sizes"]["h"] !== undefined) {
+                            if (useLegacyStickySizeFallback && value["sticky-notes-sizes"] !== undefined && value["sticky-notes-sizes"]["w"] !== undefined && value["sticky-notes-sizes"]["h"] !== undefined) {
                                 sizes = {w: value["sticky-notes-sizes"]["w"], h: value["sticky-notes-sizes"]["h"]};
                             } else {
-                                sizes = {w: "300px", h: "300px"};
+                                sizes = getDefaultStickySizeFromSettings(settings_json);
                             }
                         }
-                        if (websites_json[url] !== undefined && websites_json[url]["opacity"] !== undefined && websites_json[url]["opacity"]["value"] !== undefined) {
-                            opacity = {value: websites_json[url]["opacity"]["value"]};
+                        if (note0 !== undefined && note0["opacity"] !== undefined && note0["opacity"]["value"] !== undefined) {
+                            opacity = {value: note0["opacity"]["value"]};
                         } else {
-                            if (value["sticky-notes-opacity"] !== undefined && value["sticky-notes-opacity"]["value"] !== undefined) {
+                            if (useLegacyStickyTransparencyFallback && value["sticky-notes-opacity"] !== undefined && value["sticky-notes-opacity"]["value"] !== undefined) {
                                 opacity = {value: value["sticky-notes-opacity"]["value"]};
                             } else {
-                                opacity = {value: 0.8};
+                                opacity = getDefaultStickyOpacityFromSettings(settings_json);
                             }
+                        }
+
+                        if (note0 !== undefined && note0["minimized-pos"] !== undefined && note0["minimized-pos"]["top"] !== undefined) {
+                            minimized_pos = {
+                                top: note0["minimized-pos"]["top"],
+                                side: note0["minimized-pos"]["side"] || "left"
+                            };
+                        } else if (value["sticky-notes-minimized-pos"] !== undefined && value["sticky-notes-minimized-pos"]["top"] !== undefined) {
+                            minimized_pos = {
+                                top: value["sticky-notes-minimized-pos"]["top"],
+                                side: value["sticky-notes-minimized-pos"]["side"] || "left"
+                            };
+                        } else {
+                            minimized_pos = {top: "15%", side: "left"};
                         }
 
                         // console.log("coords: " + JSON.stringify(coords));
@@ -886,10 +1000,8 @@ function checkStatus(update = false) {
                         // console.log("opacity: " + JSON.stringify(opacity));
 
                         //console.log(url);
-                        if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined && websites_json[url]["sticky"] === true) {
-                            setTimeout(function () {
-                                openAsStickyNotes();
-                            }, 200);
+                        if (anyStickyOpenAllTypes()) {
+                            openAsStickyNotes();
                         } else {
                             closeStickyNotes(update);
                         }
@@ -988,33 +1100,48 @@ function checkAllSupportedProtocols(url, json) {
     }
 }
 
+function entryHasAnySticky(entry) {
+    if (!entry || !Array.isArray(entry["all-notes"])) return false;
+    return entry["all-notes"].some(n => n["sticky"] === true);
+}
+
 function checkAllSupportedProtocolsSticky(url, json) {
-    //Supported: http, https, extension
+    //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined) return true; else return false;
+        return entryHasAnySticky(json["http://" + getUrlWithoutProtocol(url)]) || entryHasAnySticky(json["https://" + getUrlWithoutProtocol(url)]) || entryHasAnySticky(json["moz-extension://" + getUrlWithoutProtocol(url)]);
     } else {
-        return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["sticky"] !== undefined;
+        return entryHasAnySticky(json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]);
     }
+}
+
+function entryHasAnyLastUpdate(entry) {
+    if (!entry || !Array.isArray(entry["all-notes"])) return false;
+    return entry["all-notes"].some(n => n["last-update"] !== undefined && n["last-update"] !== null);
+}
+
+function entryHasAnyNotes(entry) {
+    if (!entry || !Array.isArray(entry["all-notes"])) return false;
+    return entry["all-notes"].some(n => n["notes"] !== undefined && n["notes"] !== "");
 }
 
 function checkAllSupportedProtocolsLastUpdate(url, json) {
     //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["last-update"] !== null || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["last-update"] !== null) return true; else return false;
+        return entryHasAnyLastUpdate(json["http://" + getUrlWithoutProtocol(url)]) || entryHasAnyLastUpdate(json["https://" + getUrlWithoutProtocol(url)]) || entryHasAnyLastUpdate(json["moz-extension://" + getUrlWithoutProtocol(url)]);
     } else {
-        return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["last-update"] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["last-update"] !== null;
+        return entryHasAnyLastUpdate(json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]);
     }
 }
 
 function checkAllSupportedProtocolsNotes(url, json) {
-    //Supported: http, https, extension
+    //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["http://" + getUrlWithoutProtocol(url)]["notes"] !== "" || json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["https://" + getUrlWithoutProtocol(url)]["notes"] !== "" || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)]["notes"] !== "") return true; else return false;
+        return entryHasAnyNotes(json["http://" + getUrlWithoutProtocol(url)]) || entryHasAnyNotes(json["https://" + getUrlWithoutProtocol(url)]) || entryHasAnyNotes(json["moz-extension://" + getUrlWithoutProtocol(url)]);
     } else {
-        return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["notes"] !== undefined && json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]["notes"] !== "";
+        return entryHasAnyNotes(json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)]);
     }
 }
 
@@ -1029,8 +1156,15 @@ function getTagColor(url, json) {
 
     let colorToReturn = undefined;
 
-    if (json[url] !== undefined && json[url]["tag-colour"] !== undefined && json[url]["tag-colour"] !== "none") colorToReturn = json[url]["tag-colour"];
-    else colorToReturn = undefined;
+    let entry = json[url];
+    if (entry !== undefined && Array.isArray(entry["all-notes"])) {
+        for (let note of entry["all-notes"]) {
+            if (note["tag-colour"] !== undefined && note["tag-colour"] !== "none") {
+                colorToReturn = note["tag-colour"];
+                break;
+            }
+        }
+    }
 
     if (colorToReturn !== undefined) {
         //transform the color "red", "yellow", "black", "orange", "pink", "purple", "gray", "green", "blue", "white", "aquamarine", "turquoise", "brown", "coral", "cyan", "darkgreen", "violet", "lime", "fuchsia", "indigo", "lavender", "teal", "navy", "olive", "plum", "salmon", "snow" to hex color
@@ -1067,7 +1201,7 @@ function getTagColor(url, json) {
 }
 
 function getUrlWithSupportedProtocol(url, json) {
-    //Supported: http, https, extension
+    //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
         if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url); else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url); else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url); else return "";
@@ -1077,7 +1211,7 @@ function getUrlWithSupportedProtocol(url, json) {
 }
 
 function getUrlWithSupportedProtocolSticky(url, json) {
-    //Supported: http, https, extension
+    //Supported: http, https, moz-extension
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === "yes";
     if (checkInAllSupportedProtocols) {
         if (json["http://" + getUrlWithoutProtocol(url)] !== undefined && json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url); else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined && json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url); else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined && json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url); else return "";
@@ -1136,7 +1270,7 @@ function getPageUrl(url, with_protocol = true) {
         }
 
         //https://page.example/search#section1
-        if (settings_json["consider-sections"] === "no" || settings_json["consider-parameters"] === false) {
+        if (settings_json["consider-sections"] === "no" || settings_json["consider-sections"] === false) {
             if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
         }
 
@@ -1167,28 +1301,25 @@ function getTheProtocol(url) {
 }
 
 function listenerShortcuts() {
-    /*
     chrome.commands.onCommand.addListener((command) => {
         if (command === "opened-by-domain") {
             //domain
-            chrome.browserAction.openPopup();
+            chrome.action.openPopup();
             sync_local.set({"opened-by-shortcut": "domain"});
         } else if (command === "opened-by-page") {
             //page
-            chrome.browserAction.openPopup();
+            chrome.action.openPopup();
             sync_local.set({"opened-by-shortcut": "page"});
         } else if (command === "opened-by-global") {
             //global
-            chrome.browserAction.openPopup();
+            chrome.action.openPopup();
             sync_local.set({"opened-by-shortcut": "global"});
         }
     });
-    */
 }
 
 function listenerStickyNotes() {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        //console.log("Call: " + JSON.stringify(message));
         if (message["open-sticky"] !== undefined && message["open-sticky"]["open"] !== undefined && message["open-sticky"]["open"]) {
             //from main script (script.js)
             //the type indicated 0: global, 1: domain, 2: page, 3: subdomain
@@ -1203,139 +1334,155 @@ function listenerStickyNotes() {
             tabUpdated();
         }
 
+        if (message["close-single-sticky"] !== undefined) {
+            // sent by the popup when a note is deleted: the note is already removed from
+            // storage, so only the DOM element must go (no sticky-flag clearing here).
+            let ni = message["close-single-sticky"].noteIndex !== undefined ? message["close-single-sticky"].noteIndex : 0;
+            let t = message["close-single-sticky"].type !== undefined ? message["close-single-sticky"].type : 2;
+            closeSingleSticky(stickyTokenForTab(t, ni));
+        }
+
         if (message.from !== undefined && message.from === "sticky") {
-            //from sticky-notes
+            //from sticky-notes — noteIndex is a composite token "t{typeKey}-{idx}"
+            let noteIndex = message.noteIndex !== undefined ? message.noteIndex : 0;
+
             if (message.data !== undefined) {
                 //communicate something
                 if (message.data.sticky !== undefined) {
-                    //if message.data.sticky = true -> it means the sticky is present
-                    //if message.data.minimized = true -> it means the sticky is minimized
-                    setOpenedSticky(message.data.sticky, message.data.minimized);
+                    setOpenedSticky(message.data.sticky, message.data.minimized, noteIndex, message.data.initial_params);
                 }
 
                 if (message.data.new_text !== undefined) {
-                    setNewTextFromSticky(message.data.new_text);
+                    setNewTextFromSticky(message.data.new_text, noteIndex);
                 }
 
                 if (message.data.coords !== undefined) {
-                    //save X (left) and Y (top) coords of the sticky
-                    //these coords will be used to open in that position
-
                     sync_local.get("websites").then(result => {
                         if (result !== undefined && result["websites"] !== undefined) {
                             websites_json = result["websites"];
-
-                            let url = getTheCorrectUrl();
-                            if (websites_json[url]["coords"] === undefined) websites_json[url]["coords"] = {};
-                            websites_json[url]["coords"]["x"] = message.data.coords.x;
-                            websites_json[url]["coords"]["y"] = message.data.coords.y;
-
-                            coords.x = message.data.coords.x;
-                            coords.y = message.data.coords.y;
-
-                            //console("QAZ-2")
-                            sync_local.set({
-                                "websites": websites_json, "last-update": getDate()
-                            }).then(result => {
-                                //console.log(websites_json[url]);
-                            });
+                            migrateWebsites(websites_json);
+                            let ref = resolveStickyRef(noteIndex);
+                            if (websites_json[ref.url]) {
+                                setStickyParamForNote(ref.url, ref.idx, "coords", {x: message.data.coords.x, y: message.data.coords.y});
+                                sync_local.set({"websites": websites_json, "last-update": getDate()});
+                            }
                         }
                     });
                 }
 
                 if (message.data.sizes !== undefined) {
-                    //save W (width) and H (height) sizes of the sticky
-                    //these sizes will be used to open with that size
-
                     sync_local.get("websites").then(result => {
                         if (result !== undefined && result["websites"] !== undefined) {
                             websites_json = result["websites"];
-
-                            let url = getTheCorrectUrl();
-                            //console.log(url)
-                            if (websites_json[url]["sizes"] === undefined) websites_json[url]["sizes"] = {};
-                            websites_json[url]["sizes"]["w"] = message.data.sizes.w;
-                            websites_json[url]["sizes"]["h"] = message.data.sizes.h;
-
-                            sizes.w = message.data.sizes.w;
-                            sizes.h = message.data.sizes.h;
-
-                            //console.log("QAZ-3")
-                            sync_local.set({
-                                "websites": websites_json, "last-update": getDate()
-                            }).then(result => {
-                                //console.log(websites_json[url]);
-                            });
+                            migrateWebsites(websites_json);
+                            let ref = resolveStickyRef(noteIndex);
+                            if (websites_json[ref.url]) {
+                                setStickyParamForNote(ref.url, ref.idx, "sizes", {w: message.data.sizes.w, h: message.data.sizes.h});
+                                sync_local.set({"websites": websites_json, "last-update": getDate()});
+                            }
                         }
                     });
                 }
 
                 if (message.data.opacity !== undefined) {
-                    //save opacity of the sticky-notes
+                    sync_local.get("websites").then(result => {
+                        if (result !== undefined && result["websites"] !== undefined) {
+                            websites_json = result["websites"];
+                            migrateWebsites(websites_json);
+                            let ref = resolveStickyRef(noteIndex);
+                            if (websites_json[ref.url]) {
+                                setStickyParamForNote(ref.url, ref.idx, "opacity", {value: message.data.opacity.value});
+                                sync_local.set({"websites": websites_json, "last-update": getDate()});
+                            }
+                        }
+                    });
+                }
+
+                if (message.data.pinned !== undefined) {
+                    sync_local.get("websites").then(result => {
+                        if (result !== undefined && result["websites"] !== undefined) {
+                            websites_json = result["websites"];
+                            migrateWebsites(websites_json);
+                            let ref = resolveStickyRef(noteIndex);
+                            if (websites_json[ref.url]) {
+                                setStickyParamForNote(ref.url, ref.idx, "pinned", message.data.pinned);
+                                if (message.data.coords !== undefined) {
+                                    setStickyParamForNote(ref.url, ref.idx, "coords", {x: message.data.coords.x, y: message.data.coords.y});
+                                }
+                                sync_local.set({"websites": websites_json, "last-update": getDate()});
+                            }
+                        }
+                    });
+                }
+
+                if (message.data.minimized_pos !== undefined) {
+                    let newPos = {
+                        top: message.data.minimized_pos.top,
+                        side: message.data.minimized_pos.side
+                    };
 
                     sync_local.get("websites").then(result => {
                         if (result !== undefined && result["websites"] !== undefined) {
                             websites_json = result["websites"];
-
-                            let url = getTheCorrectUrl();
-                            if (websites_json[url]["opacity"] === undefined) websites_json[url]["opacity"] = {};
-                            websites_json[url]["opacity"]["value"] = message.data.opacity.value;
-
-                            opacity.value = message.data.opacity.value;
-
-                            //console.log("QAZ-4")
-                            sync_local.set({
-                                "websites": websites_json, "last-update": getDate()
-                            }).then(result => {
-                                //console.log(websites_json[url]);
-                            });
+                            migrateWebsites(websites_json);
+                            let ref = resolveStickyRef(noteIndex);
+                            if (websites_json[ref.url] !== undefined) {
+                                setStickyParamForNote(ref.url, ref.idx, "minimized-pos", newPos);
+                            }
+                            sync_local.set({"websites": websites_json, "last-update": getDate()});
                         }
                     });
                 }
-
-                /*
-                if (message.data.notes !== undefined) {
-                    //save W (width) and H (height) sizes of the sticky
-                    //these sizes will be used to open with that size
-
-                    sync_local.set({
-                        "websites": {
-                            //set notes -- modified in sticky-notes
-                        }
-                    }).then(result => {
-                        //updated websites with new notes
-                    });
-                }
-                */
             } else if (message.ask !== undefined) {
-                //want something as response
-                if (message.ask === "coords-sizes-opacity") {
-                    sendResponse({
-                        coords: {x: coords.x, y: coords.y},
-                        sizes: {w: sizes.w, h: sizes.h},
-                        opacity: {value: opacity.value}
-                    });
-                }
-
                 //TODO!manually: update this list (using the same list of definitions.js)
                 const supportedFontFamily = ["Open Sans", "Shantell Sans", "Inter", "Lora", "Noto Sans", "Noto Serif", "Roboto", "Merienda", "Playfair Display", "Victor Mono", "Source Code Pro"];
 
-                if (message.ask === "notes") {
-                    let url_to_use = getTheCorrectUrl();
+                if (message.ask === "all-sticky-notes") {
                     let page_domain_global_to_use = getTypeToShow(type_to_use);
-                    // console.log(url_to_use + " :: " + page_domain_global_to_use);
-                    if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["notes"] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) {
+                    let allSticky = getAllStickyNotesAllTypes();
+                    sendResponse({
+                        notes: allSticky,
+                        url: getTheCorrectUrl(),
+                        page_domain_global: page_domain_global_to_use,
+                        tag_colour: (allSticky[0] || {}).tag_colour || "none",
+                        settings: settings_json,
+                        icons: icons_json,
+                        theme_colours: theme_colours_json,
+                        supported_font_family: supportedFontFamily
+                    });
+                }
+
+                if (message.ask === "coords-sizes-opacity") {
+                    let ref = resolveStickyRef(noteIndex);
+                    let params = getStickyParamsForNote(ref.url, ref.idx);
+                    sendResponse({
+                        coords: params.coords,
+                        sizes: params.sizes,
+                        opacity: params.opacity
+                    });
+                }
+
+                if (message.ask === "notes") {
+                    let ref = resolveStickyRef(noteIndex);
+                    let url_to_use = ref.url;
+                    let refTypeNum = ref.typeKey === "0" ? 0 : (ref.typeKey === "1" ? 1 : (ref.typeKey === "2" ? 2 : 3));
+                    let page_domain_global_to_use = getTypeToShow(refTypeNum);
+                    if (websites_json !== undefined && websites_json[url_to_use] !== undefined) {
+                        let noteDescription = getNoteText(url_to_use, ref.idx);
+                        let params = getStickyParamsForNote(url_to_use, ref.idx);
+                        let noteAtIndex = getNoteAt(url_to_use, ref.idx);
+                        let noteTagColour = (noteAtIndex && noteAtIndex["tag-colour"]) ? noteAtIndex["tag-colour"] : "none";
                         sendResponse({
                             notes: {
-                                description: websites_json[url_to_use]["notes"],
+                                description: noteDescription,
                                 url: url_to_use,
-                                tag_colour: websites_json[url_to_use]["tag-colour"],
+                                tag_colour: noteTagColour,
                                 website: websites_json[url_to_use],
                                 page_domain_global: page_domain_global_to_use,
                                 sticky_params: {
-                                    coords: {x: coords.x, y: coords.y},
-                                    sizes: {w: sizes.w, h: sizes.h},
-                                    opacity: {value: opacity.value}
+                                    coords: params.coords,
+                                    sizes: params.sizes,
+                                    opacity: params.opacity
                                 }
                             },
                             websites: websites_json,
@@ -1344,21 +1491,24 @@ function listenerStickyNotes() {
                             theme_colours: theme_colours_json,
                             supported_font_family: supportedFontFamily
                         });
-                    } else {
-                        //console.error(JSON.stringify(websites_json[url_to_use]));
                     }
                 }
                 if (message.ask === "sticky-minimized") {
-                    let url_to_use = getTheCorrectUrl();
-                    //console.log(websites_json[url_to_use]);
-                    if (websites_json !== undefined && websites_json[url_to_use] !== undefined && websites_json[url_to_use]["sticky"] !== undefined && websites_json[url_to_use]["minimized"] !== undefined) {
+                    let ref = resolveStickyRef(noteIndex);
+                    let url_to_use = ref.url;
+                    if (websites_json !== undefined && websites_json[url_to_use] !== undefined) {
+                        let params = getStickyParamsForNote(url_to_use, ref.idx);
+                        let noteAtIndex = getNoteAt(url_to_use, ref.idx);
+                        let tag_colour = (noteAtIndex && noteAtIndex["tag-colour"]) ? noteAtIndex["tag-colour"] : "none";
                         sendResponse({
-                            sticky: websites_json[url_to_use]["sticky"],
-                            minimized: websites_json[url_to_use]["minimized"],
+                            sticky: params.sticky,
+                            minimized: params.minimized,
+                            tag_colour: tag_colour,
                             settings_json: settings_json,
                             icons: icons_json,
                             theme_colours: theme_colours_json,
-                            supported_font_family: supportedFontFamily
+                            supported_font_family: supportedFontFamily,
+                            minimized_pos: params["minimized-pos"]
                         })
                     } else {
                         sendResponse({
@@ -1378,14 +1528,23 @@ function listenerAllNotes() {
                 if (message.url !== undefined && message.url !== "") {
                     sync_local.get("websites").then(result => {
                         websites_json = result["websites"];
-                        if (websites_json !== undefined && websites_json[message.url] !== undefined) {
-                            if (message.data.title !== undefined) websites_json[message.url]["title"] = message.data.title;
-                            if (message.data.notes !== undefined) websites_json[message.url]["notes"] = message.data.notes;
-                            if (message.data.lastUpdate !== undefined) websites_json[message.url]["last-update"] = message.data.lastUpdate;
+                        migrateWebsites(websites_json);
+                        let entry = websites_json !== undefined ? websites_json[message.url] : undefined;
+                        if (entry !== undefined && Array.isArray(entry["all-notes"])) {
+                            let ni = message.noteIndex !== undefined ? message.noteIndex : 0;
+                            let note = entry["all-notes"][ni];
+                            if (note) {
+                                if (message.data.title !== undefined) note["title"] = message.data.title;
+                                if (message.data.notes !== undefined) note["notes"] = message.data.notes;
+                                if (message.data.lastUpdate !== undefined) note["last-update"] = message.data.lastUpdate;
+                            }
 
                             let deleted = false;
-                            if (websites_json[message.url]["notes"] === "" || websites_json[message.url]["notes"] === undefined || websites_json[message.url]["notes"] === "<br>") {
-                                delete websites_json[message.url];
+                            if (note && (note["notes"] === "" || note["notes"] === undefined || note["notes"] === "<br>")) {
+                                entry["all-notes"].splice(ni, 1);
+                                if (entry["all-notes"].length === 0) {
+                                    delete websites_json[message.url];
+                                }
                                 deleted = true;
                             }
 
@@ -1465,7 +1624,7 @@ function getTheCorrectUrl(do_not_check_opened = false) {
     const _getDomain = getDomainUrl(tab_url);
     const _getPage = getPageUrl(tab_url);
 
-    let global_condition = websites_json[getGlobalUrl()] !== undefined && (websites_json[getGlobalUrl()]["sticky"] !== undefined && websites_json[getGlobalUrl()]["sticky"] || do_not_check_opened);
+    let global_condition = websites_json[getGlobalUrl()] !== undefined && (entryHasAnySticky(websites_json[getGlobalUrl()]) || do_not_check_opened);
     let domain_condition = checkAllSupportedProtocols(_getDomain, websites_json) && checkAllSupportedProtocolsSticky(_getDomain, websites_json) && getUrlWithSupportedProtocolSticky(_getDomain, websites_json) || do_not_check_opened;
     let page_condition = checkAllSupportedProtocols(_getPage, websites_json) && checkAllSupportedProtocolsSticky(_getPage, websites_json) && getUrlWithSupportedProtocolSticky(_getPage, websites_json) || do_not_check_opened;
     let subdomains_condition = false;
@@ -1473,7 +1632,7 @@ function getTheCorrectUrl(do_not_check_opened = false) {
     let subdomains = getAllOtherPossibleUrls(tab_url);
     subdomains.forEach(subdomain => {
         let subdomain_url = _getDomain + subdomain;
-        let tmp_check = websites_json[subdomain_url] !== undefined && websites_json[subdomain_url]["last-update"] !== undefined && websites_json[subdomain_url]["last-update"] != null && websites_json[subdomain_url]["notes"] !== undefined && websites_json[subdomain_url]["notes"] !== "";
+        let tmp_check = entryHasAnyLastUpdate(websites_json[subdomain_url]) && entryHasAnyNotes(websites_json[subdomain_url]);
         if (tmp_check) {
             subdomains_condition = true;
             subdomain_url_to_use = subdomain_url;
@@ -1520,13 +1679,58 @@ function getTheCorrectUrl(do_not_check_opened = false) {
 }
 
 /**
+ * get number of notes for the given url
+ */
+function countExtraNotes(url) {
+    let entry = websites_json[url];
+    if (!entry || !Array.isArray(entry["all-notes"])) return 0;
+    return Math.max(0, entry["all-notes"].length - 1);
+}
+
+function getNumberOfNotes() {
+    let numberToReturn = 0;
+
+    const _getDomain = getDomainUrl(tab_url);
+    const _getPage = getPageUrl(tab_url);
+
+    let domain_url = getUrlWithSupportedProtocol(_getDomain, websites_json);
+    let page_url = getUrlWithSupportedProtocol(_getPage, websites_json);
+    let global_url = getGlobalUrl();
+    let check_domain = checkAllSupportedProtocols(_getDomain, websites_json) && checkAllSupportedProtocolsLastUpdate(_getDomain, websites_json) && checkAllSupportedProtocolsNotes(_getDomain, websites_json);
+    if (check_domain) {
+        numberToReturn += 1;
+        numberToReturn += countExtraNotes(domain_url);
+    }
+    let check_page = checkAllSupportedProtocols(_getPage, websites_json) && checkAllSupportedProtocolsLastUpdate(_getPage, websites_json) && checkAllSupportedProtocolsNotes(_getPage, websites_json);
+    if (check_page) {
+        numberToReturn += 1;
+        numberToReturn += countExtraNotes(page_url);
+    }
+    let check_global = entryHasAnyLastUpdate(websites_json[global_url]) && entryHasAnyNotes(websites_json[global_url]);
+    if (check_global) {
+        numberToReturn += 1;
+        numberToReturn += countExtraNotes(global_url);
+    }
+    let check_subdomains = false;
+    let subdomains = getAllOtherPossibleUrls(tab_url);
+    subdomains.forEach(subdomain => {
+        let subdomain_url = domain_url + subdomain;
+        let tmp_check = checkAllSupportedProtocols(subdomain_url, websites_json) && checkAllSupportedProtocolsLastUpdate(subdomain_url, websites_json) && checkAllSupportedProtocolsNotes(subdomain_url, websites_json);
+        if (tmp_check) {
+            check_subdomains = true;
+            numberToReturn += 1;
+            numberToReturn += countExtraNotes(subdomain_url);
+        }
+    });
+
+    return numberToReturn;
+}
+
+/**
  * open sticky notes
  */
 function openAsStickyNotes() {
     //before to open, check if the permissions are granted
-    //chrome.permissions.getAll().then(result => {
-    //    console.log("All permissions", result);
-    //})
     const permissionsToRequest = {
         origins: ["<all_urls>"]
     }
@@ -1539,17 +1743,19 @@ function openAsStickyNotes() {
                     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         if (tabs !== undefined && tabs.length > 0) {
                             const activeTab = tabs[0];
-                            chrome.scripting.executeScript({
-                                target: {tabId: activeTab.id},
-                                files: ['./js/inject/sticky-notes.js']
-                            }).then(() => {
-                                // Script executed successfully
-                                opening_sticky = false;
-                            }).catch((error) => {
-                                console.error("E2: " + error);
-                                onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
-                                opening_sticky = false;
-                            });
+                            if (activeTab && !activeTab.url.startsWith("chrome-extension://") && !activeTab.url.startsWith("chrome://")) {
+                                chrome.scripting.executeScript({
+                                    target: {tabId: activeTab.id},
+                                    files: ["./js/inject/sticky-notes.js"]
+                                }).then(function () {
+                                    //console.log("Sticky notes ('open')");
+                                    opening_sticky = false;
+                                }).catch(function (error) {
+                                    console.error("E2: " + error);
+                                    //onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
+                                    opening_sticky = false;
+                                });
+                            }
                         }
                     });
                 }
@@ -1575,23 +1781,22 @@ function closeStickyNotes(update = true) {
                     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         if (tabs !== undefined && tabs.length > 0) {
                             const activeTab = tabs[0];
-                            chrome.scripting.executeScript({
-                                target: {tabId: activeTab.id},
-                                func: () => {
-                                    if (document.getElementById("sticky-notes-notefox-addon")) {
-                                        document.getElementById("sticky-notes-notefox-addon").remove();
+                            if (activeTab && !activeTab.url.startsWith("chrome-extension://") && !activeTab.url.startsWith("chrome://")) {
+                                chrome.scripting.executeScript({
+                                    target: {tabId: activeTab.id},
+                                    func: () => {
+                                        document.querySelectorAll('[id^="sticky-notes-notefox-addon-"]').forEach(function (el) { el.remove(); });
+                                        document.querySelectorAll('[id^="restore--sticky-notes-notefox-addon-"]').forEach(function (el) { el.remove(); });
+                                        document.querySelectorAll('style[data-notefox-sticky]').forEach(function (el) { el.remove(); });
                                     }
-                                    if (document.getElementById("restore--sticky-notes-notefox-addon")) {
-                                        document.getElementById("restore--sticky-notes-notefox-addon").remove();
-                                    }
-                                }
-                            }).then(() => {
-                                //console.log("Sticky notes ('close')");
-                                if (update) tabUpdated(false);
-                            }).catch((error) => {
-                                //console.error("E1: " + error + "\nin " + tab_url);
-                                //onError("background.js::closeStickyNotes::E1", error.message, tab_url);
-                            });
+                                }).then(function () {
+                                    //console.log("Sticky notes ('close')");
+                                    if (update) tabUpdated(false);
+                                }).catch(function (error) {
+                                    console.error("E1: " + error + "\nin " + activeTab.url);
+                                    //onError("background.js::closeStickyNotes::E1", error.message, tab_url);
+                                });
+                            }
                         }
                     });
                     opening_sticky = false;
@@ -1615,9 +1820,9 @@ function checkIcon() {
     let global_url = getGlobalUrl();
     let check_domain = (settings_json["check-green-icon-domain"] === "yes" || settings_json["check-green-icon-domain"] === true) && checkAllSupportedProtocols(_getDomain, websites_json) && checkAllSupportedProtocolsLastUpdate(_getDomain, websites_json) && checkAllSupportedProtocolsNotes(_getDomain, websites_json);
     //let check_tab_url = (settings_json["check-green-icon-domain"] === "yes" || settings_json["check-green-icon-domain"] === true || settings_json["check-green-icon-page"] === "yes" || settings_json["check-green-icon-page"] === true) && websites_json[tab_url] !== undefined && websites_json[tab_url]["last-update"] !== undefined && websites_json[tab_url]["last-update"] != null && websites_json[tab_url]["notes"] !== undefined && websites_json[tab_url]["notes"] !== "";
-    let check_tab_url = false;
+    //let check_tab_url = false;
     let check_page = (settings_json["check-green-icon-page"] === "yes" || settings_json["check-green-icon-page"] === true) && checkAllSupportedProtocols(_getPage, websites_json) && checkAllSupportedProtocolsLastUpdate(_getPage, websites_json) && checkAllSupportedProtocolsNotes(_getPage, websites_json);
-    let check_global = (settings_json["check-green-icon-global"] === "yes" || settings_json["check-green-icon-global"] === true) && websites_json[global_url] !== undefined && websites_json[global_url]["last-update"] !== undefined && websites_json[global_url]["last-update"] != null && websites_json[global_url]["notes"] !== undefined && websites_json[global_url]["notes"] !== "";
+    let check_global = (settings_json["check-green-icon-global"] === "yes" || settings_json["check-green-icon-global"] === true) && entryHasAnyLastUpdate(websites_json[global_url]) && entryHasAnyNotes(websites_json[global_url]);
     let check_subdomains = false;
     let subdomains = getAllOtherPossibleUrls(tab_url);
     if (settings_json["check-green-icon-subdomain"] === "yes" || settings_json["check-green-icon-subdomain"] === true) {
@@ -1631,7 +1836,7 @@ function checkIcon() {
         });
     }
 
-    if (check_domain || check_page || check_tab_url || check_global || check_subdomains) {
+    if (check_domain || check_page || check_global || check_subdomains) {
         let tag_color = undefined
         if (check_domain) tag_color = getTagColor(_getDomain, websites_json);
         else if (check_page) tag_color = getTagColor(_getPage, websites_json);
@@ -1783,30 +1988,37 @@ function getCombinations(array, n) {
     return result;
 }
 
-function setOpenedSticky(sticky, minimized) {
-    //console.log(`sticky: ${sticky} - minimized: ${minimized}`);
-
+function setOpenedSticky(sticky, minimized, noteIndex = 0, initialParams) {
     sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
+            migrateWebsites(websites_json);
 
-            let url = getTheCorrectUrl();
-            //url = tab_url;
+            let ref = resolveStickyRef(noteIndex);
+            let url = ref.url;
+            let idx = ref.idx;
             if (websites_json[url] !== undefined) {
-                websites_json[url]["sticky"] = sticky;
-                websites_json[url]["minimized"] = minimized;
+                setStickyParamForNote(url, idx, "sticky", sticky);
+                setStickyParamForNote(url, idx, "minimized", minimized);
+                if (sticky && initialParams) {
+                    if (initialParams.coords) setStickyParamForNote(url, idx, "coords", initialParams.coords);
+                    if (initialParams.sizes) setStickyParamForNote(url, idx, "sizes", initialParams.sizes);
+                    if (initialParams.opacity) setStickyParamForNote(url, idx, "opacity", initialParams.opacity);
+                    if (initialParams.pinned !== undefined) setStickyParamForNote(url, idx, "pinned", initialParams.pinned);
+                }
+                if (!sticky) {
+                    clearStickyParamsForNote(url, idx);
+                }
 
                 sync_local.set({"websites": websites_json}).then(result => {
-                    //updated websites with new data
-                    //console.log("set || " + JSON.stringify(websites_json[tab_url]));
-                    //console.log("set || " + JSON.stringify(websites_json));
                     if (!sticky) {
-                        closeStickyNotes();
-                        if (all_urls[url] !== undefined) {
-                            delete all_urls[url];
-                            //console.log("::2:: deleted!")
+                        if (!anyStickyOpenAllTypes()) {
+                            closeStickyNotes();
+                            if (all_urls[url] !== undefined) {
+                                delete all_urls[url];
+                            }
                         } else {
-                            //console.log("::1::" + url)
+                            closeSingleSticky(noteIndex);
                         }
                     }
                 });
@@ -1817,31 +2029,62 @@ function setOpenedSticky(sticky, minimized) {
     });
 }
 
-function setNewTextFromSticky(text) {
+function closeSingleSticky(noteIndex) {
+    try {
+        chrome.permissions.getAll().then((permissions) => {
+            if (permissions.origins.includes("<all_urls>")) {
+                chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                    if (tabs !== undefined && tabs.length > 0) {
+                        const activeTab = tabs[0];
+                        if (activeTab && !activeTab.url.startsWith("chrome-extension://") && !activeTab.url.startsWith("chrome://")) {
+                            chrome.scripting.executeScript({
+                                target: {tabId: activeTab.id},
+                                args: [noteIndex],
+                                func: (ni) => {
+                                    let id = "sticky-notes-notefox-addon-" + ni;
+                                    let restoreId = "restore--sticky-notes-notefox-addon-" + ni;
+                                    if (document.getElementById(id)) document.getElementById(id).remove();
+                                    if (document.getElementById(restoreId)) document.getElementById(restoreId).remove();
+                                    document.querySelectorAll('style[data-notefox-sticky="' + ni + '"]').forEach(function (el) { el.remove(); });
+                                }
+                            }).catch(function (error) {
+                                console.error("E-closeSingle: " + error);
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    } catch (error) {
+        console.error("E-closeSingle2: " + error);
+    }
+}
+
+function setNewTextFromSticky(text, noteIndex = 0) {
     sync_local.get("websites", function (value) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
+            migrateWebsites(websites_json);
 
-            //console.log(text)
-
-            let url = getTheCorrectUrl();
+            let ref = resolveStickyRef(noteIndex);
+            let url = ref.url;
 
             if (text === "" || text === "<br>") {
-                //if notes field is empty, I delete the element from the "dictionary" (notes list)
-                delete websites_json[url];
-                closeStickyNotes();
+                // a note whose text becomes empty must not exist: remove it
+                let entry = websites_json[url];
+                let allNotes = entry && Array.isArray(entry["all-notes"]) ? entry["all-notes"] : null;
+                if (allNotes && allNotes[ref.idx]) allNotes.splice(ref.idx, 1);
+                if (!allNotes || allNotes.length === 0) {
+                    delete websites_json[url];
+                }
+                closeSingleSticky(noteIndex);
             } else {
-                websites_json[url]["notes"] = text;
-                websites_json[url]["last-update"] = getDate();
+                setNoteText(url, ref.idx, text);
             }
 
-            //console.log("QAZ-6")
             sync_local.set({
                 "websites": websites_json, "last-update": getDate()
             }).then(function () {
-                //updated websites with new data
-                //console.log("set || " + JSON.stringify(websites_json[tab_url]));
-                //console.log("set || " + JSON.stringify(websites_json));
             }).catch(function (error) {
                 console.error("E3: " + error);
                 onError("background.js::setNewTextFromSticky", error.message, tab_url);
@@ -1855,11 +2098,7 @@ function checkStickyNotes() {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
 
-            let status = false;
-            let url = getTheCorrectUrl();
-            if (websites_json[url] !== undefined && websites_json[url]["sticky"] !== undefined) status = websites_json[url]["sticky"];
-
-            if (status) {
+            if (anyStickyOpenAllTypes()) {
                 openAsStickyNotes();
             }
         }
@@ -1883,3 +2122,236 @@ function getDate() {
 
     return today;
 }
+
+/**
+ * Generate a v4 UUID (used for the anonymous-userid of error logs and telemetry)
+ * Defined also here (as getDate()) because js/definitions.js is not loaded in the background scripts
+ * @returns {string} - the generated UUID
+ */
+function generateSecureUUID() {
+    if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+        //cryptographically secure
+        const array = new Uint8Array(16);
+        crypto.getRandomValues(array);
+
+        array[6] = (array[6] & 0x0f) | 0x40; // Version 4
+        array[8] = (array[8] & 0x3f) | 0x80; // Variant
+
+        const hex = Array.from(array)
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+        return [
+            hex.substring(0, 8),
+            hex.substring(8, 12),
+            hex.substring(12, 16),
+            hex.substring(16, 20),
+            hex.substring(20, 32),
+        ].join("-");
+    }
+
+    //fallback
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+}
+
+/**
+ * Get the SVG icon for the extension icon
+ * @param enabled - true if the "extension is enabled", false otherwise
+ * @param {string} colorBorder - border color
+ * @param {string} colorBackground - background color
+ * @param {string} colorPencil - pencil color
+ * @param {string} colorText - text color
+ * @returns {string} - SVG string
+ */
+function getIconSvg(enabled = false, colorBorder, colorBackground, colorPencil, colorText) {
+    let svgToReturn = '';
+    if (enabled) {
+        svgToReturn = `
+            <svg width="100%" height="100%" viewBox="0 0 36 36" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                 style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+                <g transform="matrix(0.833333,0,0,0.833333,-0.0534745,3.47124)">
+                    <g transform="matrix(0.00367347,-9.96139e-35,9.96139e-35,-0.00367347,-0.377797,7.74807)">
+                        <g>
+                            <!--background-->
+                            <g transform="matrix(1,1.09476e-47,-1.09476e-47,1,-736.712,51.3984)">
+                                <path d="M9902,1717.33C9862.5,1951.56 9792.24,2109.66 9492.23,2169.47C9050.83,2257.48 3901.8,2277.56 2927.36,2162.12C2561.16,2118.74 2352.33,2037.45 2321.45,1769.86C2137.7,177.424 2120.97,-4700.85 2317.54,-6623.36C2384.5,-7278.28 2707.79,-7485.84 3102.39,-7529.4C4186.31,-7649.05 8108.14,-7655.12 9215.9,-7490.99C9572.98,-7438.08 9722.26,-7264.1 9788.66,-6841.08C10023.4,-5345.51 10159.3,191.648 9902,1717.33Z"
+                                      fill="${colorBackground}" style="fill-rule:nonzero;"/>
+                            </g>
+                            <g transform="matrix(1,5.47382e-48,-1.64215e-47,1,-736.712,51.3984)">
+                                <path d="M10224.1,1771.65C10484.6,227.261 10349,-5377.82 10111.4,-6891.73C10066,-7180.53 9980.19,-7379.51 9856.96,-7520.13C9720.23,-7676.14 9534.25,-7774.05 9263.78,-7814.12C8140.84,-7980.51 4165.31,-7975.38 3066.55,-7854.09C2792.99,-7823.9 2547.6,-7729.06 2355.54,-7536.06C2175.9,-7355.53 2035.99,-7081.29 1992.57,-6656.59C1794.34,-4717.89 1811.64,201.462 1996.94,1807.3C2044.9,2222.95 2320.12,2419.14 2888.93,2486.52C3878.56,2603.75 9107.83,2579.21 9556.1,2489.83C9749.06,2451.36 9879.49,2380.16 9974.71,2293.4C10115.2,2165.37 10186.6,1993.95 10224.1,1771.65ZM9902,1717.33C9862.5,1951.56 9792.24,2109.66 9492.23,2169.47C9050.83,2257.48 3901.8,2277.56 2927.36,2162.12C2561.16,2118.74 2352.33,2037.45 2321.45,1769.86C2137.7,177.424 2120.97,-4700.85 2317.54,-6623.36C2384.5,-7278.28 2707.79,-7485.84 3102.39,-7529.4C4186.31,-7649.05 8108.14,-7655.12 9215.9,-7490.99C9572.98,-7438.08 9722.26,-7264.1 9788.66,-6841.08C10023.4,-5345.51 10159.3,191.648 9902,1717.33Z"
+                                      fill="${colorBorder}"/>
+                            </g>
+                        </g>
+                        <g>
+                            <!--pencil-->
+                            <g transform="matrix(-0.975524,-2.34562e-34,2.34562e-34,-0.984174,10684,-4202.33)">
+                                <path d="M5460.4,-848.9C5460.4,-848.9 2731.14,-2829.86 311.464,-3908.33C110.077,-3998.09 86.573,-4171.24 176.962,-4377.36C307.743,-4675.6 670.875,-5266.86 918.113,-5483.08C1037.62,-5587.59 1214.17,-5664.81 1374.57,-5528.48C2978.61,-4165.18 6430.3,-2337.1 6430.3,-2337.1C6430.3,-2337.1 7262.79,-1115.02 7118.75,-903.027C6991.2,-715.281 5460.4,-848.9 5460.4,-848.9Z"
+                                      fill="${colorPencil}" style="fill-rule:nonzero;"/>
+                            </g>
+                            <g transform="matrix(-0.975524,-2.34562e-34,2.34562e-34,-0.984174,10684,-4202.33)">
+                                <path d="M5431.03,-518.26C5431.03,-518.26 6461.69,-431.303 6942.64,-496.44C7072.24,-513.993 7174.1,-545.512 7238.82,-579.715L7331.35,-643.479L7396.5,-717.621L7450.27,-830.662L7470.36,-972.736C7470.24,-1043.1 7454.78,-1133.82 7420.66,-1236.98C7272.01,-1686.42 6707.82,-2522.84 6707.82,-2522.84C6677.3,-2567.64 6636.21,-2604.38 6588.11,-2629.85C6588.11,-2629.85 3177.08,-4433.72 1592.54,-5780.45C1278.81,-6047.1 930.324,-5936.4 696.571,-5731.98C422.504,-5492.3 14.828,-4840.27 -130.143,-4509.68C-229.555,-4282.98 -229.024,-4076.61 -152.786,-3913.39L-93.19,-3813.54L-15.259,-3727.52C35.253,-3681.46 97.53,-3639.75 174.133,-3605.61C2565.59,-2539.71 5262.56,-581.101 5262.56,-581.101C5311.88,-545.307 5370.14,-523.575 5431.03,-518.26ZM5460.4,-848.9C5460.4,-848.9 2731.14,-2829.86 311.464,-3908.33C110.077,-3998.09 86.573,-4171.24 176.962,-4377.36C307.743,-4675.6 670.875,-5266.86 918.113,-5483.08C1037.62,-5587.59 1214.17,-5664.81 1374.57,-5528.48C2978.61,-4165.18 6430.3,-2337.1 6430.3,-2337.1C6430.3,-2337.1 7262.79,-1115.02 7118.75,-903.027C6991.2,-715.281 5460.4,-848.9 5460.4,-848.9Z"
+                                      fill="${colorBorder}"/>
+                            </g>
+                        </g>
+                    </g>
+                    
+                    <!--text-->
+                    <g transform="matrix(1.2,0,0,1.2,0.186572,-4.16549)">
+                        <path d="M7.025,7.976C7.025,7.875 7.119,7.797 7.166,7.707C7.327,7.397 7.536,7.098 7.718,6.802C7.736,6.772 7.817,6.595 7.873,6.548C7.906,6.519 7.972,6.419 7.972,6.463C7.972,7.126 8.057,7.779 8.057,8.443L8.057,9.291C8.057,9.325 8.065,9.535 8.142,9.475C8.639,9.088 9.076,8.407 9.627,8.132C9.678,8.106 9.728,8.19 9.768,8.231C9.899,8.361 10.041,8.499 10.235,8.542C10.457,8.591 10.462,8.322 10.603,8.287C10.879,8.218 11.163,8.47 11.466,8.372C11.933,8.221 12.23,7.913 12.611,7.622C12.673,7.575 12.868,7.374 12.993,7.424C13.119,7.475 13.147,7.582 13.234,7.665C13.469,7.889 13.754,8.144 14.012,8.315C14.116,8.385 14.368,8.023 14.422,7.976C14.746,7.696 15.136,7.466 15.553,7.368C15.646,7.346 15.757,7.273 15.836,7.325C15.95,7.401 15.947,7.614 15.977,7.736C16.035,7.967 16.261,8.61 16.598,8.652C17.297,8.74 17.729,7.75 18.368,7.608C18.684,7.538 18.838,8.191 19.146,8.259C19.332,8.3 19.5,8.166 19.683,8.146C20,8.111 20.327,8.16 20.645,8.16"
+                        stroke="${colorText}" style="fill:none;stroke-width:1px;"/>
+                    </g>
+                    <g transform="matrix(1.2,0,0,1.2,0.186572,-4.16549)">
+                        <path d="M6.756,14.921C6.833,14.869 6.794,14.768 6.798,14.68C6.81,14.463 6.82,14.246 6.841,14.029C6.878,13.629 6.97,13.205 7.197,12.865C7.254,12.779 7.401,12.586 7.52,12.573C8.276,12.485 8.278,13.345 8.679,13.747C8.779,13.846 9.32,13.589 9.387,13.577C9.58,13.542 9.638,13.835 9.839,13.902C10.161,14.01 10.846,13.963 11.126,13.888C11.341,13.83 11.652,13.722 11.805,13.549C11.871,13.474 11.878,13.239 11.961,13.294C12.355,13.557 13.193,13.83 13.587,13.633"
+                        stroke="${colorText}" style="fill:none;stroke-width:1px;"/>
+                    </g>
+                </g>
+            </svg>
+        `;
+    } else {
+        svgToReturn = `
+        <svg width="100%" height="100%" viewBox="0 0 36 36" version="1.1" xmlns="http://www.w3.org/2000/svg"
+             style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+            <g transform="matrix(0.00306123,-8.30116e-35,8.30116e-35,-0.00306123,-0.368305,9.92797)">
+                <g>
+                    <g>
+                        <!--background-->
+                        <g transform="matrix(1,1.09476e-47,-1.09476e-47,1,-736.712,51.3984)">
+                            <path d="M9902,1717.33C9862.5,1951.56 9792.24,2109.66 9492.23,2169.47C9050.83,2257.48 3901.8,2277.56 2927.36,2162.12C2561.16,2118.74 2352.33,2037.45 2321.45,1769.86C2137.7,177.424 2120.97,-4700.85 2317.54,-6623.36C2384.5,-7278.28 2707.79,-7485.84 3102.39,-7529.4C4186.31,-7649.05 8108.14,-7655.12 9215.9,-7490.99C9572.98,-7438.08 9722.26,-7264.1 9788.66,-6841.08C10023.4,-5345.51 10159.3,191.648 9902,1717.33Z"
+                                      fill="${colorBackground}" style="fill-rule:nonzero;" />
+                        </g>
+                        <g transform="matrix(1,5.47382e-48,-1.64215e-47,1,-736.712,51.3984)">
+                            <path d="M10224.1,1771.65C10484.6,227.261 10349,-5377.82 10111.4,-6891.73C10066,-7180.53 9980.19,-7379.51 9856.96,-7520.13C9720.23,-7676.14 9534.25,-7774.05 9263.78,-7814.12C8140.84,-7980.51 4165.31,-7975.38 3066.55,-7854.09C2792.99,-7823.9 2547.6,-7729.06 2355.54,-7536.06C2175.9,-7355.53 2035.99,-7081.29 1992.57,-6656.59C1794.34,-4717.89 1811.64,201.462 1996.94,1807.3C2044.9,2222.95 2320.12,2419.14 2888.93,2486.52C3878.56,2603.75 9107.83,2579.21 9556.1,2489.83C9749.06,2451.36 9879.49,2380.16 9974.71,2293.4C10115.2,2165.37 10186.6,1993.95 10224.1,1771.65ZM9902,1717.33C9862.5,1951.56 9792.24,2109.66 9492.23,2169.47C9050.83,2257.48 3901.8,2277.56 2927.36,2162.12C2561.16,2118.74 2352.33,2037.45 2321.45,1769.86C2137.7,177.424 2120.97,-4700.85 2317.54,-6623.36C2384.5,-7278.28 2707.79,-7485.84 3102.39,-7529.4C4186.31,-7649.05 8108.14,-7655.12 9215.9,-7490.99C9572.98,-7438.08 9722.26,-7264.1 9788.66,-6841.08C10023.4,-5345.51 10159.3,191.648 9902,1717.33Z"
+                                      fill="${colorBorder}"/>
+                        </g>
+                    </g>
+                    <g transform="matrix(0.836377,0.548155,-0.548155,0.836377,1628.43,-5055.66)">
+                        <!--pencil-->
+                        <g transform="matrix(-0.975524,-2.34562e-34,2.34562e-34,-0.984174,10684,-4202.33)">
+                            <path d="M5460.4,-848.9C5460.4,-848.9 2731.14,-2829.86 311.464,-3908.33C110.077,-3998.09 86.573,-4171.24 176.962,-4377.36C307.743,-4675.6 670.875,-5266.86 918.113,-5483.08C1037.62,-5587.59 1214.17,-5664.81 1374.57,-5528.48C2978.61,-4165.18 6430.3,-2337.1 6430.3,-2337.1C6430.3,-2337.1 7262.79,-1115.02 7118.75,-903.027C6991.2,-715.281 5460.4,-848.9 5460.4,-848.9Z"
+                                      fill="${colorPencil}" style="fill-rule:nonzero;"/>
+                        </g>
+                        <g transform="matrix(-0.975524,-2.34562e-34,2.34562e-34,-0.984174,10684,-4202.33)">
+                            <path d="M5431.03,-518.26C5431.03,-518.26 6461.69,-431.303 6942.64,-496.44C7072.24,-513.993 7174.1,-545.512 7238.82,-579.715L7331.35,-643.479L7396.5,-717.621L7450.27,-830.662L7470.36,-972.736C7470.24,-1043.1 7454.78,-1133.82 7420.66,-1236.98C7272.01,-1686.42 6707.82,-2522.84 6707.82,-2522.84C6677.3,-2567.64 6636.21,-2604.38 6588.11,-2629.85C6588.11,-2629.85 3177.08,-4433.72 1592.54,-5780.45C1278.81,-6047.1 930.324,-5936.4 696.571,-5731.98C422.504,-5492.3 14.828,-4840.27 -130.143,-4509.68C-229.555,-4282.98 -229.024,-4076.61 -152.786,-3913.39L-93.19,-3813.54L-15.259,-3727.52C35.253,-3681.46 97.53,-3639.75 174.133,-3605.61C2565.59,-2539.71 5262.56,-581.101 5262.56,-581.101C5311.88,-545.307 5370.14,-523.575 5431.03,-518.26ZM5460.4,-848.9C5460.4,-848.9 2731.14,-2829.86 311.464,-3908.33C110.077,-3998.09 86.573,-4171.24 176.962,-4377.36C307.743,-4675.6 670.875,-5266.86 918.113,-5483.08C1037.62,-5587.59 1214.17,-5664.81 1374.57,-5528.48C2978.61,-4165.18 6430.3,-2337.1 6430.3,-2337.1C6430.3,-2337.1 7262.79,-1115.02 7118.75,-903.027C6991.2,-715.281 5460.4,-848.9 5460.4,-848.9Z"
+                                      fill="${colorBorder}"/>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </svg>
+        `;
+    }
+    return svgToReturn;
+}
+
+const CONTEXT_MENU_ID = "notefox-create-note";
+
+function updateContextMenu(enabled) {
+    chrome.contextMenus.removeAll().then(() => {
+        if (enabled) {
+            chrome.contextMenus.create({
+                id: CONTEXT_MENU_ID,
+                title: "Create note via Notefox",
+                contexts: ["selection"]
+            });
+        }
+    });
+}
+
+function initContextMenu() {
+    chrome.storage.local.get("storage").then(result => {
+        let storage = chrome.storage.local;
+        if (result.storage === "sync") storage = chrome.storage.sync;
+        storage.get("settings").then(value => {
+            let s = value["settings"] || {};
+            updateContextMenu(s["context-menu-create-note"] === true);
+        });
+    });
+}
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId !== CONTEXT_MENU_ID) return;
+    let selectedText = info.selectionText || "";
+    if (!selectedText) return;
+
+    let pageUrl = tab.url || "";
+    if (!pageUrl) return;
+
+    chrome.storage.local.get("storage").then(result => {
+        let storage = chrome.storage.local;
+        if (result.storage === "sync") storage = chrome.storage.sync;
+
+        storage.get(["websites", "settings"]).then(value => {
+            let ws = value["websites"] || {};
+            let s = value["settings"] || {};
+
+            let openDefault = s["open-default"] || "page";
+            let urlKey;
+            if (openDefault === "global") {
+                urlKey = "**global";
+            } else if (openDefault === "domain") {
+                let protocol = "https";
+                if (pageUrl.startsWith("http:")) protocol = "http";
+                let parts = pageUrl.split(":");
+                let domain = parts[1] || "";
+                if (domain.includes("/")) {
+                    let domainParts = domain.split("/");
+                    if (domainParts[0] === "" && domainParts[1] === "") {
+                        domain = domainParts[2];
+                    }
+                }
+                urlKey = protocol + "://" + domain;
+            } else {
+                urlKey = pageUrl;
+                if (s["consider-sections"] === "no" || s["consider-sections"] === false) {
+                    if (urlKey.includes("#")) urlKey = urlKey.split("#")[0];
+                }
+                if (s["consider-parameters"] === "no" || s["consider-parameters"] === false) {
+                    if (urlKey.includes("?")) urlKey = urlKey.split("?")[0];
+                }
+            }
+
+            let now = getDate();
+            let multipleNotesEnabled = s["multiple-notes-per-type"] === true || s["multiple-notes-per-type"] === "yes";
+            migrateWebsites(ws);
+            let hasNotes = ws[urlKey] !== undefined && Array.isArray(ws[urlKey]["all-notes"]) && ws[urlKey]["all-notes"].some(n => n["notes"] !== undefined && n["notes"] !== "");
+            if (hasNotes) {
+                if (multipleNotesEnabled) {
+                    ws[urlKey]["all-notes"].push({"notes": selectedText, "title": "", "last-update": now, "content": "", "tag-colour": "none", "tags-text": [], "tag-folder": "", "sticky": false, "minimized": false, "pinned": false});
+                } else {
+                    let n0 = ws[urlKey]["all-notes"][0];
+                    if (n0) {
+                        n0["notes"] = (n0["notes"] || "") + "<br>" + selectedText;
+                        n0["last-update"] = now;
+                    }
+                }
+            } else {
+                ws[urlKey] = {
+                    "all-notes": [{
+                        "notes": selectedText,
+                        "title": tab.title || "",
+                        "last-update": now,
+                        "content": "",
+                        "tag-colour": "none",
+                        "tags-text": [],
+                        "tag-folder": "",
+                        "sticky": false,
+                        "minimized": false,
+                        "pinned": false,
+                        "coords": {x: "20px", y: "20px"},
+                        "sizes": {w: "300px", h: "300px"},
+                        "opacity": {value: 0.8}
+                    }]
+                };
+            }
+
+            storage.set({"websites": ws, "last-update": now}).then(() => {
+                checkStatus(true);
+            });
+        });
+    });
+});
+
+

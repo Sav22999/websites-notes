@@ -1,3 +1,8 @@
-<svg fill="#ffffff" height="800" viewBox="0 0 24 24" width="800" xmlns="http://www.w3.org/2000/svg">
-    <path d="m21 20v-11.586a1 1 0 0 0 -.293-.707l-4.414-4.414a1 1 0 0 0 -.707-.293h-11.586a1 1 0 0 0 -1 1v16a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1zm-12-12h4a1 1 0 0 1 0 2h-4a1 1 0 0 1 0-2zm7 11h-8v-4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"
+     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(27.7778,0,0,27.7778,66.6667,66.6667)">
+        <path fill="black" d="M21,20L21,8.414C21,8.149 20.894,7.894 20.707,7.707L16.293,3.293C16.106,3.106 15.851,3 15.586,3L4,3C3.451,3 3,3.451 3,4L3,20C3,20.549 3.451,21 4,21L20,21C20.549,21 21,20.549 21,20ZM9,8L13,8C13.549,8 14,8.451 14,9C14,9.549 13.549,10 13,10L9,10C8.451,10 8,9.549 8,9C8,8.451 8.451,8 9,8ZM16,19L8,19L8,15C8,14.451 8.451,14 9,14L15,14C15.549,14 16,14.451 16,15L16,19Z"
+              style="fill-rule:nonzero;"/>
+    </g>
 </svg>

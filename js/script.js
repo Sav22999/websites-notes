@@ -1,19 +1,54 @@
 var websites_json = {};
 var settings_json = {};
 
+function getExistingFolders() {
+    let folders = new Set();
+    for (let url in websites_json) {
+        let entry = websites_json[url];
+        if (entry && Array.isArray(entry["all-notes"])) {
+            for (let note of entry["all-notes"]) {
+                let folder = note["tag-folder"];
+                if (folder && folder !== "") folders.add(folder);
+            }
+        }
+    }
+    return Array.from(folders).sort();
+}
+
+function hideAllDropdowns(event) {
+    if (event && event.type === "scroll") {
+        const activeDropdown = document.querySelector(".autocomplete-dropdown:not(.hidden)");
+        if (activeDropdown && event.target && typeof event.target.contains === "function" && activeDropdown.contains(event.target)) {
+            return;
+        }
+    }
+    document.querySelectorAll(".autocomplete-dropdown").forEach(d => {
+        d.classList.add("hidden");
+        if (d.classList.contains("custom-select-dropdown")) {
+            document.querySelectorAll(".custom-select-trigger.active").forEach(t => t.classList.remove("active"));
+            d.remove();
+        }
+    });
+}
+
+window.addEventListener("scroll", hideAllDropdowns, true);
+
 var advanced_managing = true;
 
 var currentUrl = []; //[global, domain, page, other]
 
 var selected_tab = 2; //{0: global | 1:domain | 2:page | 3:other}
 var opened_by = -1;
+var current_note_index = 0;
 
 //urls WITHOUT the protocol! e.g. addons.mozilla.org
-var urls_unsupported_by_sticky_notes = [];//TODO!MANUAL change this manually in case of new unsupported urls
+var urls_unsupported_by_sticky_notes = ["addons.mozilla.org"];//TODO!MANUAL change this manually in case of new unsupported urls
 var stickyNotesSupported = true;
 
 const all_strings = strings[languageToUse];
 const linkAcceptPrivacy = "/privacy/index.html";
+
+var resize_popup_width = 336;
 
 //Do not add "None" because it's treated in a different way!
 let colourListDefault = sortObjectByKeys({
@@ -50,10 +85,8 @@ let actions = [];
 let currentAction = 0;
 let undoAction = false;
 
-const linkReview = ["https://chromewebstore.google.com/detail/agcdffobijddcccbfnhfjmaohnljefpm"]; //{chrome add-ons}
-const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, ko-fi}
-
-let sync_local = chrome.storage.local;
+const linkReview = ["https://addons.mozilla.org/firefox/addon/websites-notes/"]; //{firefox add-ons}
+const linkDonate = ["https://www.paypal.me/saveriomorelli", "https://liberapay.com/Sav22999/donate"]; //{paypal, liberapay}
 
 let _domainUrl = undefined
 let _pageUrl = undefined
@@ -62,6 +95,7 @@ let _allPossibleUrls = undefined
 const MAX_COMBINATIONS = 20;
 const MAX_PARAMETERS = 5;
 
+let sync_local = chrome.storage.local;
 checkSyncLocal();
 checkOperatingSystem();
 
@@ -70,7 +104,9 @@ function checkSyncLocal() {
     checkTheme();
 }
 
-function loaded() {
+function loaded(called_by = null) {
+    console.log("Popup loaded", called_by !== null ? "called by: " + called_by : "undefined");
+
     chrome.storage.sync.get("privacy").then(result => {
         if (result.privacy === undefined) {
             //not accepted privacy policy -> open 'privacy' page
@@ -79,20 +115,151 @@ function loaded() {
         }
     });
     checkSyncLocal();
-    loadSettings();
+    loadSettings("A");
     //checkTheme();
     checkTimesOpened();
-    checkTelemetryAlert();
+    //checkTelemetryAlert();
     chrome.runtime.onMessage.addListener((message) => {
         if (message["sync_update"] !== undefined && message["sync_update"]) {
-            loaded();
+            loaded("A");
+        }
+        if (message["popup-refresh-info"] !== undefined && message["popup-refresh-info"]) {
+            checkSyncLocal();
+            loadSettings("popup-refresh-info");
         }
         if (message["check-user--expired"] !== undefined && message["check-user--expired"]) {
             //console.log("User expired! Log in again | script");
+            //console.log(message);
             loginExpired();
+        }
+        if (message["check-user--exception"] !== undefined && message["check-user--exception"]) {
+            //console.log("User not logged! Log in | script");
+            //console.log(message);
+            chrome.storage.local.get("notefox-server-error-shown").then(result => {
+                if (result["notefox-server-error-shown"] === undefined || result["notefox-server-error-shown"] === false) {
+                    notefoxServerError();
+                }
+            });
         }
     });
     chrome.runtime.sendMessage({"check-user": true});
+}
+
+function setPopupResizable(resizable) {
+    try {
+        resize_popup_width = settings_json["allow-resize-popup--width"];
+        let resize_button = document.getElementById("resize-popup");
+        let popup = document.getElementById("popup-content");
+        if (resize_button !== undefined && popup !== undefined) {
+            const popupResizableClass = "popup-resizable-enabled";
+            let isResizing = false;
+            resize_button.addEventListener('mousedown', (e) => {
+                isResizing = onMouseDownResize(e, popup, isResizing);
+            });
+
+            if (resizable) {
+                if (!popup.classList.contains(popupResizableClass)) {
+                    popup.classList.add(popupResizableClass);
+                }
+                if (resize_button.classList.contains("hidden")) {
+                    resize_button.classList.remove("hidden");
+                }
+
+                popup.style.setProperty('max-width', 'none');
+                if (resize_popup_width !== undefined && resize_popup_width !== null && resize_popup_width !== "") {
+                    //remove max-width and min-width to allow resizing
+                    popup.style.setProperty('width', resize_popup_width, 'important');
+                    //console.info("Popup resized to " + resize_popup_width);
+                }
+            } else {
+                if (popup.classList.contains(popupResizableClass)) {
+                    popup.classList.remove(popupResizableClass);
+                }
+                if (!resize_button.classList.contains("hidden")) {
+                    resize_button.classList.add("hidden");
+                }
+            }
+        }
+    } catch (e) {
+        console.error("P1)) " + e);
+        onError("script.js::setPopupResizable", e.message, _pageUrl);
+    }
+}
+
+function setSidebarClassIfNeeded() {
+    try {
+        let popup = document.getElementById("popup-content");
+        if (popup === undefined || popup === null) return;
+
+        const sidebarClass = "opened-as-sidebar";
+
+        if (chrome.extension !== undefined && typeof chrome.extension.getViews === "function") {
+            let sidebarViews = chrome.extension.getViews({type: "sidebar"});
+            let isSidebar = Array.isArray(sidebarViews) && sidebarViews.includes(window);
+
+            if (isSidebar) {
+                if (!popup.classList.contains(sidebarClass)) popup.classList.add(sidebarClass);
+            } else {
+                popup.classList.remove(sidebarClass);
+            }
+        }
+    } catch (e) {
+        console.error("P4)) " + e);
+        onError("script.js::setSidebarClassIfNeeded", e.message, _pageUrl);
+    }
+}
+
+/**
+ * Make "resizable" the popup
+ */
+function onMouseDownResize(e, popup, isResizing) {
+    isResizing = true;
+    const initialWidth = popup.offsetWidth;
+    const initialHeight = popup.offsetHeight;
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+
+    function onMouseMove(e) {
+        if (!isResizing) return;
+
+        const deltaX = e.clientX - startX;
+
+        popup.style.setProperty('width', initialWidth + deltaX + 'px', 'important');
+        popup.style.setProperty('max-width', 'none');
+
+        if (popup.style.width.replace("px", "") < 336) popup.style.width = "336px"; //minimum width
+
+        if (popup.style.width.replace("px", "") > (screenWidth / 2)) popup.style.width = (screenWidth / 2) + "px";
+    }
+
+    function onMouseUp() {
+        isResizing = false;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+
+        if (popup.style.width.replace("px", "") < 336) popup.style.width = "336px"; //minimum width
+
+        if (popup.style.width.replace("px", "") > (screenWidth / 2)) popup.style.width = (screenWidth / 2) + "px";
+
+        chrome.storage.local.get("settings", (result) => {
+            let settings = []
+            if (result["settings"] !== undefined) {
+                settings = result["settings"];
+            }
+            settings["allow-resize-popup--width"] = popup.style.width;
+            chrome.storage.local.set({"settings": settings}).then(() => {
+                sendMessageUpdateToBackground();
+                //console.info("Popup resize saved: " + popup.style.width);
+            });
+        })
+    }
+
+    return isResizing;
 }
 
 function checkTimesOpened() {
@@ -102,13 +269,81 @@ function checkTimesOpened() {
             times = result["times-opened"];
             let interval_to_check = [1000, 5000, 20000, 50000, 100000, 1000000, 5000000];
             if (times > 0 && interval_to_check.includes(times + 1)) {
-                chrome.tabs.create({url: "https://www.saveriomorelli.com/projects/notefox/opened-times/"});
+                chrome.tabs.create({url: "https://www.notefox.eu/help/opened-times/"});
                 //window.close();
             }
         }
         times++;
         sync_local.set({"times-opened": times});
+        checkDonationAlert(times);
     });
+}
+
+function checkDonationAlert(times) {
+    if (times >= 1000) {
+        chrome.storage.local.get(["donation-popup-choice", "donation-popup-remind-date"], function (result) {
+            let choice = result["donation-popup-choice"];
+            let remindDate = result["donation-popup-remind-date"];
+            let show = false;
+
+            if (choice === undefined) {
+                show = true;
+            } else if (choice === "remind") {
+                if (new Date().getTime() > remindDate) {
+                    show = true;
+                }
+            }
+
+            if (show) {
+                let section = document.getElementById("donation-alert-section");
+                let background = document.getElementById("background-opacity");
+
+                section.style.display = "block";
+                background.style.display = "block";
+
+                let title = document.getElementById("donation-title");
+                title.textContent = all_strings["donation-alert-title"];
+                let description = document.getElementById("donation-text");
+                description.innerHTML = all_strings["donation-alert-text"].replace("{{times}}", times);
+
+                let buttonBuy = document.getElementById("donation-buy-button");
+                buttonBuy.value = all_strings["donation-alert-button-1"];
+                buttonBuy.onclick = function () {
+                    section.style.display = "none";
+                    background.style.display = "none";
+                    chrome.tabs.create({url: "https://liberapay.com/Sav22999/donate"});
+                    chrome.storage.local.set({"donation-popup-choice": "never"});
+                }
+
+                let buttonRemind = document.getElementById("donation-remind-button");
+                buttonRemind.value = all_strings["donation-alert-button-2"];
+                buttonRemind.onclick = function () {
+                    section.style.display = "none";
+                    background.style.display = "none";
+                    let thirtyDays = new Date().getTime() + (30 * 24 * 60 * 60 * 1000);
+                    chrome.storage.local.set({
+                        "donation-popup-choice": "remind",
+                        "donation-popup-remind-date": thirtyDays
+                    });
+                }
+
+                let buttonNever = document.getElementById("donation-never-button");
+                buttonNever.value = all_strings["donation-alert-button-3"];
+                buttonNever.onclick = function () {
+                    section.style.display = "none";
+                    background.style.display = "none";
+                    chrome.storage.local.set({"donation-popup-choice": "never"});
+                }
+
+                window.addEventListener("keydown", function (e) {
+                    if (e.key === "Escape") {
+                        section.style.display = "none";
+                        background.style.display = "none";
+                    }
+                });
+            }
+        });
+    }
 }
 
 function continueLoaded() {
@@ -117,11 +352,14 @@ function continueLoaded() {
         var activeTabId = activeTab.id;
         var activeTabUrl = activeTab.url;
 
+        console.log("activeTabUrl", activeTab);
+
         setUrl(activeTabUrl);
-        loadUI();
+        loadUI("A");
     });
 
-    chrome.tabs.onActivated.addListener(tabUpdated);
+
+    //chrome.tabs.onActivated.addListener(tabUpdated);
     //chrome.tabs.onUpdated.addListener(tabUpdated);
 
     checkOpenedBy();
@@ -139,13 +377,13 @@ function checkOpenedBy() {
         if (value["opened-by-shortcut"] !== undefined) {
             if (value["opened-by-shortcut"] === "domain") {
                 opened_by = 1;
-                loadUI();
+                loadUI("B");
             } else if (value["opened-by-shortcut"] === "page") {
                 opened_by = 2;
-                loadUI();
+                loadUI("C");
             } else if (value["opened-by-shortcut"] === "global") {
                 opened_by = 0;
-                loadUI();
+                loadUI("D");
             }
         }
         sync_local.set({"opened-by-shortcut": "default"});
@@ -154,24 +392,22 @@ function checkOpenedBy() {
 }
 
 function listenerShortcuts() {
-    /*
     chrome.commands.onCommand.addListener((command) => {
         if (command === "opened-by-domain") {
             //domain
             opened_by = 1;
-            loadUI();
+            loadUI("E");
         } else if (command === "opened-by-page") {
             //page
             opened_by = 2;
-            loadUI();
+            loadUI("F");
         } else if (command === "opened-by-global") {
             //global
             opened_by = 0;
-            loadUI();
+            loadUI("G");
         }
         sync_local.set({"opened-by-shortcut": "default"});
     });
-    */
 }
 
 function listenerLinks() {
@@ -208,8 +444,7 @@ function listenerLinks() {
                 if ((settings_json["open-links-only-with-ctrl"] === "yes" || settings_json["open-links-only-with-ctrl"] === true) && (event.ctrlKey || event.metaKey)) {
                     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         chrome.tabs.create({
-                            url: link.href,
-                            index: tabs[0].index + 1
+                            url: link.href, index: tabs[0].index + 1
                         });
                     });
                 } else {
@@ -228,26 +463,34 @@ function setLanguageUI() {
     document.getElementById("page-button").value = all_strings["page-label"];
     document.getElementById("global-button").value = all_strings["global-label"];
     document.getElementById("all-notes-button-grid").value = all_strings["see-all-notes-button"];
+    document.getElementById("back-to-list-button-text").textContent = all_strings["back-to-list-button"] || "Back";
+    document.getElementById("delete-note-button-text").textContent = all_strings["delete-note-button"] || "Delete";
     document.getElementById("last-updated-section").value = all_strings["last-update-text"].replaceAll("{{date_time}}", "----/--/-- --:--:--");
 
     document.getElementById("title-notes").placeholder = all_strings["title-notes-placeholder"];
+    if (document.getElementById("add-tag-input")) document.getElementById("add-tag-input").placeholder = all_strings["add-tag-placeholder"];
+    if (document.getElementById("new-folder-input")) document.getElementById("new-folder-input").placeholder = all_strings["new-folder-placeholder"];
+    document.getElementById("add-folder-button").value = all_strings["add-folder-button"];
     document.documentElement.style.setProperty('--placeholder-notes-text', `'${all_strings["notes-placeholder"]}'`);
 }
 
-function loadUI() {
+function loadUI(called_by = null) {
     //opened_by = {-1: default, 0: domain, 1: page}
+    console.log("Loading UI with opened_by: " + opened_by, called_by !== null ? "called by: " + called_by : "undefined");
     setLanguageUI();
     let notes = document.getElementById("notes");
     let title_notes = document.getElementById("title-notes");
     notes.style.fontFamily = `'${settings_json["font-family"]}'`;
+    notes.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
     if (settings_json !== undefined && settings_json !== undefined && settings_json["disable-word-wrap"] !== undefined && (settings_json["disable-word-wrap"] === "yes" || settings_json["disable-word-wrap"] === true)) {
-        document.getElementById("notes").style.whiteSpace = "none";
+        document.getElementById("notes").style.whiteSpace = "normal";
         document.getElementById("notes").style.maxWidth = "none";
     } else {
         document.getElementById("notes").style.whiteSpace = "pre-wrap";
         document.getElementById("notes").style.maxWidth = "100%";
     }
     title_notes.style.fontFamily = `'${settings_json["font-family"]}'`;
+    title_notes.style.setProperty("font-size", textSizeValues[settings_json["text-size"]], "important");
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         let activeTab = tabs[0];
         let activeTabId = activeTab.id;
@@ -261,23 +504,21 @@ function loadUI() {
                 //console.log("websites: "+JSON.stringify(value));
                 let default_index = 2;
                 if (!isUrlSupported(activeTabUrl)) default_index = 1;
-                if (settings_json["open-default"] === "page" && isUrlSupported(activeTabUrl)) default_index = 2;
-                else if (settings_json["open-default"] === "domain" || !isUrlSupported(activeTabUrl) && settings_json["open-default"] === "page") default_index = 1;
-                else if (settings_json["open-default"] === "global") default_index = 0;
+                if (settings_json["open-default"] === "page" && isUrlSupported(activeTabUrl)) default_index = 2; else if (settings_json["open-default"] === "domain" || !isUrlSupported(activeTabUrl) && settings_json["open-default"] === "page") default_index = 1; else if (settings_json["open-default"] === "global") default_index = 0;
                 if (value["websites"] !== undefined) {
                     websites_json = value["websites"];
-                    let check_for_domain = websites_json[currentUrl[1]] !== undefined && websites_json[currentUrl[1]]["last-update"] !== undefined && websites_json[currentUrl[1]]["last-update"] != null && websites_json[currentUrl[1]]["notes"] !== undefined && websites_json[currentUrl[1]]["notes"] !== "";
-                    let check_for_page = websites_json[currentUrl[2]] !== undefined && websites_json[currentUrl[2]]["last-update"] !== undefined && websites_json[currentUrl[2]]["last-update"] != null && websites_json[currentUrl[2]]["notes"] !== undefined && websites_json[currentUrl[2]]["notes"] !== "";
-                    let check_for_global = websites_json[currentUrl[0]] !== undefined && websites_json[currentUrl[0]]["last-update"] !== undefined && websites_json[currentUrl[0]]["last-update"] != null && websites_json[currentUrl[0]]["notes"] !== undefined && websites_json[currentUrl[0]]["notes"] !== "";
+                    migrateWebsites(websites_json);
+                    let check_for_domain = checkAllSupportedProtocols(currentUrl[1], websites_json) && entryHasAnyLastUpdate(websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]) && entryHasAnyNotes(websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]);
+                    let check_for_page = checkAllSupportedProtocols(currentUrl[2], websites_json) && entryHasAnyLastUpdate(websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]) && entryHasAnyNotes(websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]);
+                    let check_for_global = checkAllSupportedProtocols(currentUrl[0], websites_json) && entryHasAnyLastUpdate(websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]) && entryHasAnyNotes(websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]);
                     let subdomains = getAllOtherPossibleUrls(activeTabUrl);
                     let check_for_subdomains = false;
                     subdomains.forEach(subdomain => {
-                        let url = getDomainUrl(activeTabUrl) + subdomain;
-                        let tmp_check = websites_json[url] !== undefined && websites_json[url]["last-update"] !== undefined && websites_json[url]["last-update"] != null && websites_json[url]["notes"] !== undefined && websites_json[url]["notes"] !== "";
+                        let url = getDomainUrl(activeTabUrl, true) + subdomain;
+                        let tmp_check = checkAllSupportedProtocols(url, websites_json) && entryHasAnyLastUpdate(websites_json[getUrlWithSupportedProtocol(url, websites_json)]) && entryHasAnyNotes(websites_json[getUrlWithSupportedProtocol(url, websites_json)]);
                         if (tmp_check) {
                             check_for_subdomains = true;
-                            if (currentUrl.length === 4) currentUrl[3] = url;
-                            else currentUrl.push(url);
+                            if (currentUrl.length === 4) currentUrl[3] = url; else currentUrl.push(url);
                         }
                         //console.log(url + " : " + tmp_check);
                     });
@@ -312,7 +553,8 @@ function loadUI() {
                 //console.log(JSON.stringify(websites_json));
             });
         } else {
-            //console.log("unsupported");
+            // Unsupported URL (e.g. about:blank, browser internal pages): treat as never-saved
+            checkNeverSaved(true);
         }
     });
 
@@ -338,13 +580,22 @@ function loadUI() {
         hideTabSubDomains();
     }
 
+
     notes.oninput = function () {
         saveNotes();
+
+        checkNotesTitle(notes, title_notes);
+        // drive the layout/buttons straight from the live editor content so the
+        // sticky area + "+" appear immediately, even for the very first note of a type
+        let liveContent = notes.innerHTML;
+        let liveEmpty = (liveContent === "" || liveContent === "<br>");
+        checkNeverSaved(liveEmpty, liveContent);
+        updateActionButtonsLive();
     }
     title_notes.oninput = function () {
         saveNotes(title = true);
     }
-    title_notes.onkeypress = function (e) {
+    title_notes.onkeyup = function (e) {
         if (e.key === "Enter") {
             document.getElementById("notes").focus();
         }
@@ -364,6 +615,8 @@ function loadUI() {
             document.execCommand("insertText", false, pastedText);
         }
         addAction();
+
+        checkNotesTitle(notes, title_notes);
     }
 
     notes.onkeydown = function (e) {
@@ -410,6 +663,8 @@ function loadUI() {
         notesLostFocus();
     }
 
+    checkNotesTitle(notes, title_notes)
+
     document.getElementById("all-notes-button-grid").onclick = function () {
         chrome.tabs.create({url: "./all-notes/index.html"});
         sendTelemetry("open-all-notes");
@@ -417,17 +672,9 @@ function loadUI() {
         window.close();
     }
 
-    if (settings_json["show-title-textbox"]) {
-        if (title_notes.classList.contains("hidden")) title_notes.classList.remove("hidden");
-        notes.classList.add("no-border-radius-top");
-    } else {
-        title_notes.classList.add("hidden");
-        if (notes.classList.contains("no-border-radius-top")) notes.classList.remove("no-border-radius-top");
-    }
-
-
     let tagSelect = document.getElementById("tag-select-grid");
     tagSelect.innerText = "";
+    tagSelect.dataset.colorValues = "true";
     let colourList = colourListDefault;
     colourList = Object.assign({}, {"none": all_strings["none-colour"]}, colourList);
     for (let colour in colourList) {
@@ -445,8 +692,7 @@ function loadUI() {
     document.getElementById("open-sticky-button").onclick = function (event) {
         //closed -> open it
         const permissionsToRequest = {
-            origins: ["<all_urls>"],
-            permissions: ["scripting"]
+            origins: ["<all_urls>"]
         }
         try {
             chrome.permissions.request(permissionsToRequest).then(response => {
@@ -468,11 +714,56 @@ function loadUI() {
         sendTelemetry("open-sticky-notes");
     }
 
+    document.getElementById("new-note-button").onclick = function () {
+        createNewNote();
+    };
+    document.getElementById("new-note-button-list").onclick = function () {
+        createNewNote();
+    };
+    document.getElementById("back-to-list-button").onclick = function () {
+        showNotesList(currentUrl[selected_tab]);
+    };
+    document.getElementById("delete-note-button").onclick = function () {
+        deleteCurrentNote();
+    };
+
     loadFormatButtons(false, false);
     setTimeout(function () {
         document.getElementById("notes").blur();
         document.getElementById("notes").focus();
     }, 200);
+
+    renderTags();
+
+    initCustomSelects();
+
+    let details = navigator.userAgent;
+    let regexp = /android|iphone|kindle|ipad/i;
+    let isMobileDevice = regexp.test(details);
+    if (isMobileDevice) {
+        if (document.getElementById("popup-content") && !document.getElementById("popup-content").classList.contains("mobile")) {
+            document.getElementById("popup-content").classList.add("mobile");
+        }
+    }
+
+    setSidebarClassIfNeeded();
+
+    setPopupResizable(settings_json["allow-resize-popup"]);
+
+    let splashScreen = document.getElementById("splash-screen-popup");
+    if (splashScreen !== undefined && splashScreen !== null) {
+        splashScreen.classList.add("splash-screen-hidden");
+    }
+}
+
+function checkNotesTitle(notes, title_notes) {
+    if (settings_json["show-title-textbox"] && notes.innerHTML.length > 0 && notes.innerHTML !== "<br>") {
+        if (title_notes.classList.contains("hidden")) title_notes.classList.remove("hidden");
+        //notes.classList.add("no-border-radius-top");
+    } else {
+        title_notes.classList.add("hidden");
+        //if (notes.classList.contains("no-border-radius-top")) notes.classList.remove("no-border-radius-top");
+    }
 }
 
 function changeTagColour(url, colour) {
@@ -481,13 +772,24 @@ function changeTagColour(url, colour) {
         if (value["websites"] !== undefined) {
             websites_json = value["websites"];
         }
-        if (websites_json[url] !== undefined) {
-            //console.log(`url ${url}`);
-            websites_json[url]["tag-colour"] = colour;
+        migrateWebsites(websites_json);
+        if (websites_json[url] !== undefined && Array.isArray(websites_json[url]["all-notes"])) {
+            let note = websites_json[url]["all-notes"][current_note_index];
+            if (note) note["tag-colour"] = colour;
             websites_json_to_show = websites_json;
-            //console.log("QAZ-8")
             sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
-                loadUI();
+                // reflect the colour on the current note view without leaving it (avoid falling back to the notes list)
+                document.getElementById("tag-colour-section").removeAttribute("class");
+                document.getElementById("tag-colour-section").classList.add("tag-colour-" + colour + "-bg");
+                let tagSel = document.getElementById("tag-select-grid");
+                if (tagSel) tagSel.value = colour;
+                let isListMode = document.getElementById("all-notes-section").classList.contains("notes-list-mode");
+                if (settings_json["notes-background-follow-tag-colour"] && !isListMode) {
+                    document.getElementById("popup-content").classList.add("background-as-tag-colour");
+                } else {
+                    document.getElementById("popup-content").classList.remove("background-as-tag-colour");
+                }
+                initCustomSelects();
             });
         }
         saveNotes();
@@ -585,7 +887,9 @@ function addAction() {
     //console.log(actions)
 }
 
-function loadSettings(load_only = false) {
+function loadSettings(called_by = null, load_only = false) {
+    console.log('Loading settings...', called_by !== null ? "called by: " + called_by : "undefined");
+
     sync_local.get("settings", function (value) {
         if (value["settings"] !== undefined) settings_json = value["settings"];
         if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
@@ -594,6 +898,7 @@ function loadSettings(load_only = false) {
         if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
         if (settings_json["open-popup-domain"] === undefined) settings_json["open-popup-domain"] = "Ctrl+Alt+D";
         if (settings_json["open-popup-page"] === undefined) settings_json["open-popup-page"] = "Ctrl+Alt+P";
+        if (settings_json["open-popup-sidebar"] === undefined) settings_json["open-popup-sidebar"] = "Ctrl+Alt+S";
         if (settings_json["advanced-managing"] === undefined) settings_json["advanced-managing"] = true;
         if (settings_json["html-text-formatting"] === undefined) settings_json["html-text-formatting"] = true;
         if (settings_json["disable-word-wrap"] === undefined) settings_json["disable-word-wrap"] = false;
@@ -605,14 +910,17 @@ function loadSettings(load_only = false) {
         if (settings_json["check-green-icon-subdomain"] === undefined) settings_json["check-green-icon-subdomain"] = true;
         if (settings_json["open-links-only-with-ctrl"] === undefined) settings_json["open-links-only-with-ctrl"] = true;
         if (settings_json["check-with-all-supported-protocols"] === undefined) settings_json["check-with-all-supported-protocols"] = false;
-        if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Shantell Sans";
+        if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
         if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
         if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
         if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
         if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
+        if (settings_json["text-size"] === undefined || !supportedTextSize.includes(settings_json["text-size"])) settings_json["text-size"] = "standard";
+        if (settings_json["allow-resize-popup"] === undefined) settings_json["allow-resize-popup"] = false;
+        if (settings_json["multiple-notes-per-type"] === undefined) settings_json["multiple-notes-per-type"] = false;
+        if (settings_json["allow-resize-popup--width"] === undefined) settings_json["allow-resize-popup--width"] = 336;
 
-        if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true;
-        else advanced_managing = false;
+        if (settings_json["advanced-managing"] === "yes" || settings_json["advanced-managing"] === true) advanced_managing = true; else advanced_managing = false;
 
         if (!load_only) continueLoaded();
         //console.log(JSON.stringify(settings_json));
@@ -716,28 +1024,35 @@ function saveNotes(title_call = false) {
         if (value["settings"] !== undefined) {
             settings_json = value["settings"];
         } else {
-            loadSettings(load_only = true);
+            loadSettings("B", true);
         }
 
+        migrateWebsites(websites_json);
         let url_to_use = getUrlWithSupportedProtocol(currentUrl[selected_tab], websites_json);
         //console.log(`url_to_use: ${url_to_use}`);
 
         if (websites_json[url_to_use] === undefined) websites_json[url_to_use] = {};
+        let entry = websites_json[url_to_use];
+        if (!Array.isArray(entry["all-notes"])) entry["all-notes"] = [];
+        if (!entry["all-notes"][current_note_index]) {
+            entry["all-notes"][current_note_index] = {"tags-text": [], "tag-folder": ""};
+        }
+        let note = entry["all-notes"][current_note_index];
+        let savedNoteIndex = current_note_index;
         let notes = document.getElementById("notes").innerHTML;
         let title = document.getElementById("title-notes").value;
 
         if (settings_json["save-page-content"]) {
             chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                 let activeTab = tabs[0];
-                if (chrome.scripting !== undefined && chrome.scripting.executeScript !== undefined) {
+                if (activeTab && chrome.scripting !== undefined && chrome.scripting.executeScript !== undefined && !activeTab.url.startsWith("chrome-extension://") && !activeTab.url.startsWith("chrome://")) {
                     chrome.scripting.executeScript({
                         target: {tabId: activeTab.id},
-                        function: function () {
-                            return "document.body.innerText";
-                        }
+                        func: () => document.body.innerText
                     }).then(result => {
-                        if (result && result[0]) {
-                            websites_json[url_to_use]["content"] = result[0];
+                        if (result && result[0] && result[0].result) {
+                            let noteForContent = entry["all-notes"] ? entry["all-notes"][savedNoteIndex] : undefined;
+                            if (noteForContent) noteForContent["content"] = result[0].result;
                             // Save here because text extraction is asynchronous, and this function gets called AFTER the
                             // "sync_local" call which is further below in the code.
                             sync_local.set({"websites": websites_json, "last-update": getDate()});
@@ -750,51 +1065,74 @@ function saveNotes(title_call = false) {
             });
         }
 
-        websites_json[url_to_use]["notes"] = notes;
-        if (settings_json["show-title-textbox"]) websites_json[url_to_use]["title"] = title;
-        websites_json[url_to_use]["last-update"] = getDate();
+        note["notes"] = notes;
+        if (settings_json["show-title-textbox"]) note["title"] = title;
+        note["last-update"] = getDate();
 
-        if (websites_json[url_to_use]["tag-colour"] === undefined) {
+        if (note["tag-colour"] === undefined) {
             let tabSelected = getCurrentTabNameTag(selected_tab);
-            websites_json[url_to_use]["tag-colour"] = "none";
-            if (settings_json["default-tag-colour-" + tabSelected] !== undefined) websites_json[url_to_use]["tag-colour"] = settings_json["default-tag-colour-" + tabSelected];
+            note["tag-colour"] = "none";
+            if (settings_json["default-tag-colour-" + tabSelected] !== undefined) {
+                note["tag-colour"] = settings_json["default-tag-colour-" + tabSelected];
+                document.getElementById("tag-select-grid").value = note["tag-colour"];
+            }
         }
-        if (websites_json[url_to_use]["sticky"] === undefined) {
-            websites_json[url_to_use]["sticky"] = false;
+        if (note["sticky"] === undefined) {
+            note["sticky"] = false;
         }
-        if (websites_json[url_to_use]["minimized"] === undefined) {
-            websites_json[url_to_use]["minimized"] = false;
+        if (note["minimized"] === undefined) {
+            note["minimized"] = false;
         }
         if (selected_tab === 0 || document.getElementById("tabs-section").classList.contains("hidden")) {
-            websites_json[url_to_use]["type"] = 0;
-            websites_json[url_to_use]["domain"] = "";
+            entry["type"] = 0;
+            entry["domain"] = "";
         } else if (selected_tab === 1) {
-            websites_json[url_to_use]["type"] = 1;
-            websites_json[url_to_use]["domain"] = "";
+            entry["type"] = 1;
+            entry["domain"] = "";
         } else {
-            websites_json[url_to_use]["type"] = 2;
-            websites_json[url_to_use]["domain"] = currentUrl[1];
+            entry["type"] = 2;
+            entry["domain"] = currentUrl[1];
         }
         let currentPosition = getPosition();
         if (notes === "" || notes === "<br>") {
-            //if notes field is empty, I delete the element from the "dictionary" (notes list)
-            delete websites_json[currentUrl[selected_tab]];
-            loadFormatButtons(true, false);
-            //setPosition(document.getElementById("notes"), 1);
-            document.getElementById("title-notes").disabled = true;
-            let component = "notes";
-            if (title_call) component = "title-notes";
-            setTimeout(function () {
-                document.getElementById(component).blur();
-                document.getElementById("notes").focus();
-            }, 100);
+            let allNotes = entry["all-notes"];
+            {
+                // a note whose text becomes empty must not exist: remove it entirely
+                allNotes.splice(current_note_index, 1);
+                if (allNotes.length === 0) {
+                    delete websites_json[url_to_use];
+                }
+                current_note_index = 0;
+                loadFormatButtons(true, false);
+                document.getElementById("title-notes").disabled = true;
+                document.getElementById("notes-editor-toolbar").classList.add("hidden");
+                let remaining = getAllNotesForUrl(currentUrl[selected_tab]);
+                let _multiEnabled = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
+                if (_multiEnabled && remaining.length > 1) {
+                    showNotesList(currentUrl[selected_tab]);
+                } else if (remaining.length >= 1) {
+                    setTab(selected_tab, currentUrl[selected_tab]);
+                } else {
+                    let component = "notes";
+                    if (title_call) component = "title-notes";
+                    setTimeout(function () {
+                        document.getElementById(component).blur();
+                        document.getElementById("notes").focus();
+                    }, 100);
+                }
+            }
         } else {
             loadFormatButtons(true, true);
             document.getElementById("title-notes").disabled = false;
             let component = "notes";
             if (title_call) component = "title-notes";
-            document.getElementById(component).blur();
-            document.getElementById(component).focus();
+            let elem = document.getElementById(component);
+            // Do not blur/focus if the element already has focus: it aborts IME
+            // composition (Korean/Japanese/Chinese) mid-typing.
+            if (document.activeElement !== elem) {
+                elem.blur();
+                elem.focus();
+            }
         }
         if (currentUrl[1] !== "" && currentUrl[2] !== "") {
             //selected_tab : {0: global | 1:domain | 2:page}
@@ -802,29 +1140,37 @@ function saveNotes(title_call = false) {
             sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
                 let never_saved = true;
 
+                let currentNote = getNoteObj(url_to_use, current_note_index);
+
                 let notes = "";
-                if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["notes"] !== undefined) {
+                if (currentNote !== undefined && currentNote["notes"] !== undefined) {
                     //exists
-                    notes = websites_json[url_to_use]["notes"];
+                    notes = currentNote["notes"];
                     never_saved = false;
                 }
                 //setPosition(document.getElementById("notes"), currentPosition);
                 listenerLinks();
 
                 let last_update = all_strings["never-update"];
-                if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["last-update"] !== undefined) last_update = websites_json[url_to_use]["last-update"];
+                if (currentNote !== undefined && currentNote["last-update"] !== undefined) last_update = currentNote["last-update"];
                 document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(last_update));
 
                 let colour = "none";
                 document.getElementById("tag-colour-section").removeAttribute("class");
-                if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["tag-colour"] !== undefined) colour = websites_json[url_to_use]["tag-colour"];
+                if (currentNote !== undefined && currentNote["tag-colour"] !== undefined) {
+                    colour = currentNote["tag-colour"];
+                }
                 document.getElementById("tag-colour-section").classList.add("tag-colour-" + colour + "-bg");
 
-                if (settings_json["notes-background-follow-tag-colour"]) document.getElementById("popup-content").classList.add("background-as-tag-colour");
+                let isListMode = document.getElementById("all-notes-section").classList.contains("notes-list-mode");
+                if (settings_json["notes-background-follow-tag-colour"] && !isListMode) document.getElementById("popup-content").classList.add("background-as-tag-colour");
 
                 let title = "";
-                if (websites_json[url_to_use] !== undefined && websites_json[url_to_use]["title"] !== undefined) title = websites_json[url_to_use]["title"];
+                if (currentNote !== undefined && currentNote["title"] !== undefined) {
+                    title = currentNote["title"] || "";
+                }
                 document.getElementById("title-notes").value = title;
+                checkNotesTitle(document.getElementById("notes"), document.getElementById("title-notes"));
 
                 /*
                 let sticky = false;
@@ -833,12 +1179,13 @@ function saveNotes(title_call = false) {
                 }
                 */
 
-                checkNeverSaved(never_saved)
-
-                //console.log(JSON.stringify(websites_json));
+                checkNeverSaved(never_saved, notes)
 
                 //send message to "background.js" to update the icon
                 sendMessageUpdateToBackground();
+                updateNewNoteButton(currentUrl[selected_tab]);
+                // live content wins: reflect the actual editor text on the "+"/sticky buttons
+                updateActionButtonsLive();
             });
         }
         listenerLinks();
@@ -846,18 +1193,15 @@ function saveNotes(title_call = false) {
 }
 
 function getCurrentTabNameTag(tab) {
-    if (tab === 0) return "global";
-    else if (tab === 1) return "domain";
-    else if (tab === 2) return "page";
-    else if (tab === 3) return "subdomain";
+    if (tab === 0) return "global"; else if (tab === 1) return "domain"; else if (tab === 2) return "page"; else if (tab === 3) return "subdomain";
 }
 
-function checkNeverSaved(never_saved) {
+function checkNeverSaved(never_saved, notes_content = "") {
+    let notes_empty = (notes_content === "" || notes_content === "<br>");
     if (stickyNotesSupported) {
         if (never_saved) {
             document.getElementById("open-sticky-button").classList.add("hidden");
             document.getElementById("tag-select-grid").classList.add("hidden");
-            document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
             if (document.getElementById("format-buttons").childNodes.length === 0) {
                 document.getElementById("format-buttons").classList.add("hidden");
                 if (document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
@@ -866,9 +1210,12 @@ function checkNeverSaved(never_saved) {
             }
             document.getElementById("last-updated-section").classList.add("hidden");
         } else {
-            if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+            if (notes_empty) {
+                document.getElementById("open-sticky-button").classList.add("hidden");
+            } else {
+                if (document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+            }
             if (document.getElementById("tag-select-grid").classList.contains("hidden")) document.getElementById("tag-select-grid").classList.remove("hidden");
-            document.getElementById("all-notes-section").style.gridTemplateAreas = "'tag all-notes all-notes all-notes all-notes'";
             if (document.getElementById("format-buttons").classList.contains("hidden")) {
                 document.getElementById("format-buttons").classList.remove("hidden");
                 if (!document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.add("padding-top-10");
@@ -883,7 +1230,6 @@ function checkNeverSaved(never_saved) {
     } else {
         document.getElementById("open-sticky-button").classList.add("hidden");
         document.getElementById("tag-select-grid").classList.add("hidden");
-        document.getElementById("all-notes-section").style.gridTemplateAreas = "'all-notes'";
         document.getElementById("format-buttons").classList.add("hidden");
         if (document.getElementById("last-updated-section").classList.contains("padding-top-10")) document.getElementById("last-updated-section").classList.remove("padding-top-10");
         if (document.getElementById("all-notes-section").classList.contains("padding-top-5")) {
@@ -902,7 +1248,7 @@ function tabUpdated() {
     this._globalUrl = undefined
     this._allPossibleUrls = undefined
 
-    loaded();
+    loaded("B");
 }
 
 function setUrl(url) {
@@ -928,7 +1274,7 @@ function setUrl(url) {
         //document.getElementById("page-button").style.borderTopRightRadius = "5px";
     }
     if (document.getElementById("page-button").classList.contains("hidden")) document.getElementById("page-button").classList.remove("hidden");
-    if (stickyNotesSupported && document.getElementById("open-sticky-button").classList.contains("hidden")) document.getElementById("open-sticky-button").classList.remove("hidden");
+    // open-sticky-button visibility is managed by checkNeverSaved (which runs after note content is loaded)
     /*} else {
         currentUrl[0] = getGlobalUrl();
         currentUrl[1] = getDomainUrl(url);
@@ -949,12 +1295,217 @@ function checkAllSupportedProtocols(url, json) {
 
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === true;
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["extension://" + getUrlWithoutProtocol(url)] !== undefined || json["chrome-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["about://" + getUrlWithoutProtocol(url)] !== undefined)
-            return true;
-        else
-            return false;
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined || json["https://" + getUrlWithoutProtocol(url)] !== undefined || json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["extension://" + getUrlWithoutProtocol(url)] !== undefined || json["chrome-extension://" + getUrlWithoutProtocol(url)] !== undefined || json["about://" + getUrlWithoutProtocol(url)] !== undefined) return true; else return false;
     } else {
         return json[getTheProtocol(url) + "://" + getUrlWithoutProtocol(url)] !== undefined;
+    }
+}
+
+function renderTags() {
+    let container = document.getElementById("tags-text-container");
+    let section = document.getElementById("tags-text-section");
+    if (!container) return;
+
+    // Remove any leftover autocomplete dropdown
+    let existingDd = document.getElementById("popup-tag-dropdown");
+    if (existingDd) existingDd.remove();
+
+    container.innerHTML = "";
+    container.className = "custom-tag-input-container disabled";
+    container.style.cursor = "default";
+
+    let url = currentUrl[selected_tab];
+    let tags = [];
+    let currentNote = getNoteObj(url, current_note_index);
+    if (checkAllSupportedProtocols(url, websites_json) && currentNote !== undefined && currentNote["tags-text"] !== undefined) {
+        tags = currentNote["tags-text"];
+        if (currentNote["last-update"]) {
+            document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(currentNote["last-update"]));
+        }
+    }
+
+    if (Array.isArray(tags) && tags.length > 0) {
+        if (section) section.classList.remove("hidden");
+        tags.forEach((tag) => {
+            let chip = document.createElement("div");
+            chip.className = "tag-chip";
+            chip.style.cursor = "default";
+
+            let tagText = document.createElement("span");
+            tagText.className = "tag-chip-text";
+            tagText.textContent = tag;
+            chip.appendChild(tagText);
+
+            container.appendChild(chip);
+        });
+    } else {
+        if (section) section.classList.add("hidden");
+    }
+
+    renderFolders();
+}
+
+function addTagFromInput(input) {
+    let tag = input.value.trim().toLowerCase();
+    if (tag !== "") {
+        let url = currentUrl[selected_tab];
+        let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
+        let note = getOrCreateCurrentNoteObj(supportedUrl);
+        if (note["tags-text"] === undefined) note["tags-text"] = [];
+        if (!note["tags-text"].includes(tag)) {
+            note["tags-text"].push(tag);
+            note["last-update"] = getDate();
+            input.value = "";
+            sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+                renderTags();
+                updateUITimestamp(url);
+                sendMessageUpdateToBackground();
+            });
+        }
+    }
+}
+
+function renderFolders() {
+    let section = document.getElementById("popup-folder-section");
+    if (!section) return;
+
+    // Remove any leftover autocomplete dropdown
+    let existingDd = document.getElementById("popup-folder-dropdown");
+    if (existingDd) existingDd.remove();
+
+    section.innerHTML = "";
+
+    let url = currentUrl[selected_tab];
+    let folderNote = getNoteObj(url, current_note_index);
+
+    if (checkAllSupportedProtocols(url, websites_json) && folderNote !== undefined && folderNote["last-update"]) {
+        document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(folderNote["last-update"]));
+    }
+
+    let currentFolder = (folderNote && folderNote["tag-folder"]) ? folderNote["tag-folder"] : "";
+
+    if (currentFolder) {
+        section.classList.remove("hidden");
+
+        let folderView = document.createElement("div");
+        folderView.className = "custom-tag-input-container disabled";
+        folderView.style.cursor = "default";
+        folderView.style.width = "100%";
+        folderView.style.boxSizing = "border-box";
+
+        let chip = document.createElement("div");
+        chip.className = "tag-chip";
+        chip.style.cursor = "default";
+
+        let tagText = document.createElement("span");
+        tagText.className = "tag-chip-text";
+        tagText.textContent = currentFolder;
+        chip.appendChild(tagText);
+
+        folderView.appendChild(chip);
+        section.appendChild(folderView);
+    } else {
+        section.classList.add("hidden");
+    }
+
+    let oldSelect = document.getElementById("folder-select-grid");
+    if (oldSelect) oldSelect.style.display = "none";
+    let folderMgmt = document.getElementById("folder-management-section");
+    if (folderMgmt) folderMgmt.classList.add("hidden");
+    // Clean up old popup appended to all-notes-section if any
+    let oldView = document.getElementById("folder-view-popup");
+    if (oldView) oldView.remove();
+}
+
+
+function addNewFolderPopup(folderName, url) {
+    changeFolder(url, folderName);
+}
+
+function deleteFolderPopup(folderName) {
+    if (confirm(all_strings["delete-folder-confirmation"])) {
+        sync_local.get("websites", function (value) {
+            let webs = value["websites"] || {};
+            migrateWebsites(webs);
+            let changed = false;
+            for (let u in webs) {
+                if (Array.isArray(webs[u]["all-notes"])) {
+                    for (let note of webs[u]["all-notes"]) {
+                        if (note["tag-folder"] === folderName) {
+                            note["tag-folder"] = "";
+                            changed = true;
+                        }
+                    }
+                }
+            }
+            if (changed) {
+                sync_local.set({"websites": webs}, function() {
+                    renderFolders();
+                    sendMessageUpdateToBackground();
+                });
+            } else {
+                renderFolders();
+            }
+        });
+    }
+}
+
+function changeFolder(url, folder) {
+    let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
+    let note = getOrCreateCurrentNoteObj(supportedUrl);
+    note["tag-folder"] = folder;
+    note["last-update"] = getDate();
+    sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+        renderFolders();
+        updateUITimestamp(url);
+        sendMessageUpdateToBackground();
+    });
+}
+
+function addTag() {
+    let input = document.getElementById("add-tag-input");
+    let tag = input.value.trim();
+    if (tag !== "") {
+        let url = currentUrl[selected_tab];
+        let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
+        let note = getOrCreateCurrentNoteObj(supportedUrl);
+
+        if (note["tags-text"] === undefined) note["tags-text"] = [];
+
+        if (!note["tags-text"].includes(tag)) {
+            note["tags-text"].push(tag);
+            input.value = "";
+            renderTags();
+            // Invece di chiamare saveNotes() che ricarica tutto e potrebbe sovrascrivere
+            // scriviamo direttamente e poi aggiorniamo il background
+            sync_local.set({"websites": websites_json, "last-update": getDate()}, function() {
+                sendMessageUpdateToBackground();
+            });
+        }
+    }
+}
+
+function updateUITimestamp(url) {
+    let tsNote = getNoteObj(url, current_note_index);
+    if (checkAllSupportedProtocols(url, websites_json) && tsNote !== undefined && tsNote["last-update"]) {
+        let timestampElement = document.getElementById("last-updated-section");
+        if (timestampElement) {
+            timestampElement.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(tsNote["last-update"]));
+        }
+    }
+}
+
+function removeTag(index) {
+    let url = currentUrl[selected_tab];
+    let note = getNoteObj(url, current_note_index);
+    if (note !== undefined && note["tags-text"] !== undefined) {
+        note["tags-text"].splice(index, 1);
+        note["last-update"] = getDate();
+        sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+            renderTags();
+            updateUITimestamp(url);
+            sendMessageUpdateToBackground();
+        });
     }
 }
 
@@ -964,13 +1515,7 @@ function getUrlWithSupportedProtocol(url, json) {
 
     let checkInAllSupportedProtocols = settings_json["check-with-all-supported-protocols"] === true;
     if (checkInAllSupportedProtocols) {
-        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url);
-        else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url);
-        else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url);
-        else if (json["extension://" + getUrlWithoutProtocol(url)] !== undefined) return "extension://" + getUrlWithoutProtocol(url);
-        else if (json["chrome-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "chrome-extension://" + getUrlWithoutProtocol(url);
-        else if (json["about://" + getUrlWithoutProtocol(url)] !== undefined) return "about://" + getUrlWithoutProtocol(url);
-        else return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
+        if (json["http://" + getUrlWithoutProtocol(url)] !== undefined) return "http://" + getUrlWithoutProtocol(url); else if (json["https://" + getUrlWithoutProtocol(url)] !== undefined) return "https://" + getUrlWithoutProtocol(url); else if (json["moz-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "moz-extension://" + getUrlWithoutProtocol(url); else if (json["extension://" + getUrlWithoutProtocol(url)] !== undefined) return "extension://" + getUrlWithoutProtocol(url); else if (json["chrome-extension://" + getUrlWithoutProtocol(url)] !== undefined) return "chrome-extension://" + getUrlWithoutProtocol(url); else if (json["about://" + getUrlWithoutProtocol(url)] !== undefined) return "about://" + getUrlWithoutProtocol(url); else return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
     } else {
         return getTheProtocol(url) + "://" + getUrlWithoutProtocol(url);
     }
@@ -1004,8 +1549,7 @@ function getDomainUrl(url, with_protocol = true) {
     } else {
         urlToReturn = this._domainUrl;
     }
-    if (with_protocol) return protocol + "://" + urlToReturn;
-    else return urlToReturn;
+    if (with_protocol) return protocol + "://" + urlToReturn; else return urlToReturn;
 }
 
 /**Returns the page url without the protocol (https, http, ftp, ...)!*/
@@ -1028,7 +1572,7 @@ function getPageUrl(url, with_protocol = true) {
         }
 
         //https://page.example/search#section1
-        if (settings_json["consider-sections"] === "no" || settings_json["consider-parameters"] === false) {
+        if (settings_json["consider-sections"] === "no" || settings_json["consider-sections"] === false) {
             if (url.includes("#")) urlToReturn = urlToReturn.split("#")[0];
         }
 
@@ -1051,8 +1595,7 @@ function getPageUrl(url, with_protocol = true) {
         urlToReturn = this._pageUrl;
     }
 
-    if (with_protocol) return protocol + "://" + urlToReturn;
-    else return urlToReturn;
+    if (with_protocol) return protocol + "://" + urlToReturn; else return urlToReturn;
 }
 
 /**
@@ -1149,12 +1692,12 @@ function getAllOtherPossibleUrls(url) {
                                 }
                             } else {
                                 console.error("Too many combinations to process. Limit is " + MAX_COMBINATIONS);
-                                onError("script.js::getAllOtherPossibleUrls", "Too many combinations to process. Limit is " + MAX_COMBINATIONS, _pageUrl);
+                                //onError("script.js::getAllOtherPossibleUrls", "Too many combinations to process. Limit is " + MAX_COMBINATIONS, _pageUrl);
                             }
                         }
                     } else {
                         console.error("Too many parameters to process. Limit is " + MAX_PARAMETERS);
-                        onError("script.js::getAllOtherPossibleUrls", "Too many parameters to process. Limit is " + MAX_PARAMETERS, _pageUrl);
+                        //onError("script.js::getAllOtherPossibleUrls", "Too many parameters to process. Limit is " + MAX_PARAMETERS, _pageUrl);
                         //Use single parameters
                         for (let i = 0; i < parametersToReturn.length; i++) {
                             let urlToPush = urlToReturnTemp + "?" + parametersToReturn[i];
@@ -1239,16 +1782,28 @@ function setTab(index, url) {
 
     document.getElementsByClassName("tab")[index].classList.add("tab-sel");
 
-    //console.log("url", url)
-    //console.log("getPage(url)", getPageUrl(url));
+    current_note_index = 0;
+    document.getElementById("notes-editor-toolbar").classList.add("hidden");
+    document.getElementById("notes-list-section").classList.add("hidden");
+    document.getElementById("notes-list-container").innerHTML = "";
+    document.getElementById("notes-section").classList.remove("hidden");
+
+    let multipleNotesEnabled = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
+    let noteCount = getNoteCount(url);
+    if (multipleNotesEnabled && noteCount > 1) {
+        showNotesList(url);
+        updateNewNoteButton(url);
+        updateActionButtonsLive();
+        return;
+    }
 
     let never_saved = true;
     let notes = "";
     let title = "";
-    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["notes"] !== undefined) {
-        //notes saved (also it's empty)
-        notes = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["notes"];
-        title = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["title"];
+    let tabNote = getNoteObj(url, current_note_index);
+    if (checkAllSupportedProtocols(url, websites_json) && tabNote !== undefined && tabNote["notes"] !== undefined) {
+        notes = tabNote["notes"];
+        title = tabNote["title"];
         listenerLinks();
         never_saved = false;
     }
@@ -1267,6 +1822,7 @@ function setTab(index, url) {
     } else {
         document.getElementById("title-notes").disabled = false;
     }
+    checkNotesTitle(document.getElementById("notes"), document.getElementById("title-notes"));
 
     listenerLinks();
     if (notes !== "<br>" && notes !== "") {
@@ -1274,51 +1830,57 @@ function setTab(index, url) {
     }
 
     let last_update = all_strings["never-update"];
-    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["last-update"] !== undefined) last_update = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["last-update"];
+    if (checkAllSupportedProtocols(url, websites_json) && tabNote !== undefined && tabNote["last-update"] !== undefined) last_update = tabNote["last-update"];
     document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(last_update));
 
     let colour = "none";
     document.getElementById("tag-colour-section").removeAttribute("class");
-    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"] !== undefined) colour = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["tag-colour"];
+    if (checkAllSupportedProtocols(url, websites_json) && tabNote !== undefined && tabNote["tag-colour"] !== undefined) {
+        colour = tabNote["tag-colour"];
+    }
     document.getElementById("tag-colour-section").classList.add("tag-colour-" + colour + "-bg");
     if (settings_json["notes-background-follow-tag-colour"]) document.getElementById("popup-content").classList.add("background-as-tag-colour");
 
-    if (websites_json[currentUrl[selected_tab]] !== undefined) document.getElementById("tag-select-grid").value = websites_json[currentUrl[selected_tab]]["tag-colour"];
+    document.getElementById("tag-select-grid").value = colour;
+
+    renderTags();
+    renderFolders();
 
     let sticky = false;
-    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["sticky"] !== undefined) sticky = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["sticky"];
+    if (checkAllSupportedProtocols(url, websites_json) && tabNote !== undefined && tabNote["sticky"] !== undefined) sticky = tabNote["sticky"];
     let minimized = false;
-    if (checkAllSupportedProtocols(url, websites_json) && websites_json[getUrlWithSupportedProtocol(url, websites_json)] !== undefined && websites_json[getUrlWithSupportedProtocol(url, websites_json)]["minimized"] !== undefined) minimized = websites_json[getUrlWithSupportedProtocol(url, websites_json)]["minimized"];
+    if (checkAllSupportedProtocols(url, websites_json) && tabNote !== undefined && tabNote["minimized"] !== undefined) minimized = tabNote["minimized"];
 
     document.getElementById("notes").focus();
 
-    checkNeverSaved(never_saved);
+    checkNeverSaved(never_saved, notes);
+    updateNewNoteButton(url);
+    updateActionButtonsLive();
 }
 
 function openStickyNotes() {
-    //console.log("Opening...")
     if (stickyNotesSupported) {
-        //console.log("Opening... <1>")
         sync_local.get("websites", function (value) {
-            //console.log("Opening... <2>")
             if (value["websites"] !== undefined) {
-                //console.log("Opening... <3>")
                 websites_json = value["websites"];
+                migrateWebsites(websites_json);
 
                 if (websites_json[currentUrl[selected_tab]] !== undefined) {
-                    //console.log("Opening... <4>")
-                    websites_json[currentUrl[selected_tab]]["sticky"] = true;
-                    websites_json[currentUrl[selected_tab]]["minimized"] = false;
+                    let entry = websites_json[currentUrl[selected_tab]];
+                    let ni = current_note_index;
 
-                    //console.log("QAZ-10")
+                    if (Array.isArray(entry["all-notes"]) && entry["all-notes"][ni]) {
+                        entry["all-notes"][ni]["sticky"] = true;
+                        entry["all-notes"][ni]["minimized"] = false;
+                    }
+
                     sync_local.set({"websites": websites_json, "last-update": getDate()}).then(result => {
-                        //console.log("Opening... <5>")
                         chrome.runtime.sendMessage({
                             "open-sticky": {
-                                open: true, type: selected_tab
+                                open: true, type: selected_tab, noteIndex: ni
                             }
                         }).then(() => {
-                            window.close();//TODO:chrome
+                            window.close();
                         });
                     });
                 }
@@ -1332,61 +1894,61 @@ function loadFormatButtons(navigation = true, format = true) {
 
     let html_text_formatting = true;
     if (settings_json["html-text-formatting"] !== undefined) {
-        if (settings_json["html-text-formatting"] === "yes" || settings_json["html-text-formatting"] === true) html_text_formatting = true;
-        else html_text_formatting = false;
+        if (settings_json["html-text-formatting"] === "yes" || settings_json["html-text-formatting"] === true) html_text_formatting = true; else html_text_formatting = false;
     }
 
     let is_undo_redo = true;
     if (settings_json["undo-redo"] !== undefined) {
-        if (settings_json["undo-redo"] === "yes" || settings_json["undo-redo"] === true) is_undo_redo = true;
-        else is_undo_redo = false;
+        if (settings_json["undo-redo"] === "yes" || settings_json["undo-redo"] === true) is_undo_redo = true; else is_undo_redo = false;
     }
     let is_bold_italic_underline_strikethrough = true;
     if (settings_json["bold-italic-underline-strikethrough"] !== undefined) {
-        if (settings_json["bold-italic-underline-strikethrough"] === "yes" || settings_json["bold-italic-underline-strikethrough"] === true) is_bold_italic_underline_strikethrough = true;
-        else is_bold_italic_underline_strikethrough = false;
+        if (settings_json["bold-italic-underline-strikethrough"] === "yes" || settings_json["bold-italic-underline-strikethrough"] === true) is_bold_italic_underline_strikethrough = true; else is_bold_italic_underline_strikethrough = false;
     }
     let is_link = true;
     if (settings_json["link"] !== undefined) {
-        if (settings_json["link"] === "yes" || settings_json["link"] === true) is_link = true;
-        else is_link = false;
+        if (settings_json["link"] === "yes" || settings_json["link"] === true) is_link = true; else is_link = false;
     }
     let is_spellcheck = true;
     if (settings_json["spellcheck"] !== undefined) {
-        if (settings_json["spellcheck"] === "yes" || settings_json["spellcheck"] === true) is_spellcheck = true;
-        else is_spellcheck = false;
+        if (settings_json["spellcheck"] === "yes" || settings_json["spellcheck"] === true) is_spellcheck = true; else is_spellcheck = false;
     }
     let is_subscript_superscript = false;
     if (settings_json["superscript-subscript"] !== undefined) {
-        if (settings_json["superscript-subscript"] === "yes" || settings_json["superscript-subscript"] === true) is_subscript_superscript = true;
-        else is_subscript_superscript = false;
+        if (settings_json["superscript-subscript"] === "yes" || settings_json["superscript-subscript"] === true) is_subscript_superscript = true; else is_subscript_superscript = false;
     }
     let is_headers = false;
     if (settings_json["headers"] !== undefined) {
-        if (settings_json["headers"] === "yes" || settings_json["headers"] === true) is_headers = true;
-        else is_headers = false;
+        if (settings_json["headers"] === "yes" || settings_json["headers"] === true) is_headers = true; else is_headers = false;
     }
     let is_small_big = false;
     if (settings_json["small-big"] !== undefined) {
-        if (settings_json["small-big"] === "yes" || settings_json["small-big"] === true) is_small_big = true;
-        else is_small_big = false;
+        if (settings_json["small-big"] === "yes" || settings_json["small-big"] === true) is_small_big = true; else is_small_big = false;
     }
     let is_highlighter = false;
     if (settings_json["highlighter"] !== undefined) {
-        if (settings_json["highlighter"] === "yes" || settings_json["highlighter"] === true) is_highlighter = true;
-        else is_highlighter = false;
+        if (settings_json["highlighter"] === "yes" || settings_json["highlighter"] === true) is_highlighter = true; else is_highlighter = false;
     }
     let is_code = false;
     if (settings_json["code-block"] !== undefined) {
-        if (settings_json["code-block"] === "yes" || settings_json["code-block"] === true) is_code = true;
-        else is_code = false;
+        if (settings_json["code-block"] === "yes" || settings_json["code-block"] === true) is_code = true; else is_code = false;
+    }
+
+    let is_clear_formatting = false;
+    if (settings_json["clear-formatting"] !== undefined) {
+        if (settings_json["clear-formatting"] === "yes" || settings_json["clear-formatting"] === true) is_clear_formatting = true; else is_clear_formatting = false;
+    }
+
+    let is_lists = false;
+    if (settings_json["lists"] !== undefined) {
+        if (settings_json["lists"] === "yes" || settings_json["lists"] === true) is_lists = true; else is_lists = false;
     }
 
     let commands = [];
     if (navigation && html_text_formatting) {
         if (is_undo_redo) {
-            commands.push(
-                {
+            commands.push({
+                "undo_redo_group": [{
                     action: "undo",
                     icon: `${url}undo.svg`,
                     title: all_strings["label-title-undo"],
@@ -1394,8 +1956,7 @@ function loadFormatButtons(navigation = true, format = true) {
                         undo()
                         sendTelemetry("button-format::undo");
                     }
-                },
-                {
+                }, {
                     action: "redo",
                     icon: `${url}redo.svg`,
                     title: all_strings["label-title-redo"],
@@ -1403,7 +1964,8 @@ function loadFormatButtons(navigation = true, format = true) {
                         redo()
                         sendTelemetry("button-format::redo");
                     }
-                });
+                }]
+            });
         }
     } else {
         actions = [];
@@ -1411,205 +1973,310 @@ function loadFormatButtons(navigation = true, format = true) {
     }
     if (format && html_text_formatting) {
         if (is_bold_italic_underline_strikethrough) {
-            commands.push(
-                {
-                    action: "bold",
-                    icon: `${url}bold.svg`,
-                    title: all_strings["label-title-bold"],
-                    function: function () {
-                        bold();
-                        sendTelemetry("button-format::bold");
+            commands.push({
+                "bold_italic_underline_strikethrough_group":
+                    [{
+                        action: "bold", icon:
+                            `${url}bold.svg`, title:
+                            all_strings["label-title-bold"], function:
+
+                            function () {
+                                bold();
+                                sendTelemetry("button-format::bold");
+                            }
                     }
-                },
-                {
-                    action: "italic",
-                    icon: `${url}italic.svg`,
-                    title: all_strings["label-title-italic"],
-                    function: function () {
-                        italic();
-                        sendTelemetry("button-format::italic");
-                    }
-                },
-                {
-                    action: "underline",
-                    icon: `${url}underline.svg`,
-                    title: all_strings["label-title-underline"],
-                    function: function () {
-                        underline();
-                        sendTelemetry("button-format::underline");
-                    }
-                },
-                {
-                    action: "strikethrough",
-                    icon: `${url}strikethrough.svg`,
-                    title: all_strings["label-title-strikethrough"],
-                    function: function () {
-                        strikethrough();
-                        sendTelemetry("button-format::strikethrough");
-                    }
-                }
-            );
+                        ,
+                        {
+                            action: "italic",
+                            icon:
+                                `${url}italic.svg`,
+                            title:
+                                all_strings["label-title-italic"],
+                            function:
+
+                                function () {
+                                    italic();
+                                    sendTelemetry("button-format::italic");
+                                }
+                        }
+                        ,
+                        {
+                            action: "underline",
+                            icon:
+                                `${url}underline.svg`,
+                            title:
+                                all_strings["label-title-underline"],
+                            function:
+
+                                function () {
+                                    underline();
+                                    sendTelemetry("button-format::underline");
+                                }
+                        }
+                        ,
+                        {
+                            action: "strikethrough",
+                            icon:
+                                `${url}strikethrough.svg`,
+                            title:
+                                all_strings["label-title-strikethrough"],
+                            function:
+
+                                function () {
+                                    strikethrough();
+                                    sendTelemetry("button-format::strikethrough");
+                                }
+                        }]
+            });
         }
 
         if (is_link) {
-            commands.push(
-                {
-                    action: "link",
-                    icon: `${url}link.svg`,
-                    title: all_strings["label-title-link"],
-                    function: function () {
-                        insertLink();
-                        sendTelemetry("button-format::link");
-                    }
-                }
-            );
+            commands.push({
+                "link_group":
+                    [{
+                        action: "link", icon:
+                            `${url}link.svg`, title:
+                            all_strings["label-title-link"], function:
+
+                            function () {
+                                insertLink();
+                                sendTelemetry("button-format::link");
+                            }
+                    }]
+            });
         }
 
         if (is_spellcheck) {
-            commands.push(
-                {
-                    action: "spellcheck",
-                    icon: `${url}spellcheck.svg`,
-                    title: all_strings["label-title-spellcheck"],
-                    function: function () {
-                        spellcheck();
-                        sendTelemetry("button-format::spellcheck");
-                    }
-                }
-            );
+            commands.push({
+                "spellcheck_group":
+                    [{
+                        action: "spellcheck",
+                        icon:
+                            `${url}spellcheck.svg`,
+                        title:
+                            all_strings["label-title-spellcheck"],
+                        function:
+
+                            function () {
+                                spellcheck();
+                                sendTelemetry("button-format::spellcheck");
+                            }
+                    }]
+            });
         }
 
         if (is_subscript_superscript) {
-            commands.push(
-                {
-                    action: "subscript",
-                    icon: `${url}subscript.svg`,
-                    title: all_strings["label-title-subscript"],
-                    function: function () {
-                        subscript();
-                        sendTelemetry("button-format::subscript");
+            commands.push({
+                "subscript_superscript_group":
+                    [{
+                        action: "subscript",
+                        icon:
+                            `${url}subscript.svg`,
+                        title:
+                            all_strings["label-title-subscript"],
+                        function:
+
+                            function () {
+                                subscript();
+                                sendTelemetry("button-format::subscript");
+                            }
                     }
-                },
-                {
-                    action: "superscript",
-                    icon: `${url}superscript.svg`,
-                    title: all_strings["label-title-superscript"],
-                    function: function () {
-                        superscript();
-                        sendTelemetry("button-format::superscript");
-                    }
-                }
-            );
+                        ,
+                        {
+                            action: "superscript",
+                            icon:
+                                `${url}superscript.svg`,
+                            title:
+                                all_strings["label-title-superscript"],
+                            function:
+
+                                function () {
+                                    superscript();
+                                    sendTelemetry("button-format::superscript");
+                                }
+                        }]
+            });
         }
 
         if (is_highlighter) {
-            commands.push(
-                {
-                    action: "highlighter",
-                    icon: `${url}highlighter.svg`,
-                    title: all_strings["label-title-highlighter"],
-                    function: function () {
-                        hightlighter();
-                        sendTelemetry("button-format::highlighter");
-                    }
-                }
-            );
+            commands.push({
+                "highlighter_group":
+                    [{
+                        action: "highlighter",
+                        icon:
+                            `${url}highlighter.svg`,
+                        title:
+                            all_strings["label-title-highlighter"],
+                        function:
+
+                            function () {
+                                hightlighter();
+                                sendTelemetry("button-format::highlighter");
+                            }
+                    }]
+            });
         }
 
         if (is_code) {
-            commands.push(
-                {
-                    action: "code-block",
-                    icon: `${url}code-block.svg`,
-                    title: all_strings["label-title-code-block"],
-                    function: function () {
-                        insertCode();
-                        sendTelemetry("button-format::code-block");
-                    }
-                }
-            );
+            commands.push({
+                "code_block_group":
+                    [{
+                        action: "code-block",
+                        icon:
+                            `${url}code-block.svg`,
+                        title:
+                            all_strings["label-title-code-block"],
+                        function:
+
+                            function () {
+                                insertCode();
+                                sendTelemetry("button-format::code-block");
+                            }
+                    }]
+            });
         }
 
         if (is_headers) {
-            commands.push(
-                {
-                    action: "h1",
-                    icon: `${url}h1.svg`,
-                    title: all_strings["label-title-header-h1"],
-                    function: function () {
-                        insertHeader("h1");
-                        sendTelemetry("button-format::h1");
+            commands.push({
+                "headers_group":
+                    [{
+                        action: "h1", icon:
+                            `${url}h1.svg`, title:
+                            all_strings["label-title-header-h1"], function:
+
+                            function () {
+                                insertHeader("h1");
+                                sendTelemetry("button-format::h1");
+                            }
                     }
-                },
-                {
-                    action: "h2",
-                    icon: `${url}h2.svg`,
-                    title: all_strings["label-title-header-h2"],
-                    function: function () {
-                        insertHeader("h2");
-                        sendTelemetry("button-format::h2");
-                    }
-                },
-                {
-                    action: "h3",
-                    icon: `${url}h3.svg`,
-                    title: all_strings["label-title-header-h3"],
-                    function: function () {
-                        insertHeader("h3");
-                        sendTelemetry("button-format::h3");
-                    }
-                },
-                {
-                    action: "h4",
-                    icon: `${url}h4.svg`,
-                    title: all_strings["label-title-header-h4"],
-                    function: function () {
-                        insertHeader("h4");
-                        sendTelemetry("button-format::h4");
-                    }
-                },
-                {
-                    action: "h5",
-                    icon: `${url}h5.svg`,
-                    title: all_strings["label-title-header-h5"],
-                    function: function () {
-                        insertHeader("h5");
-                        sendTelemetry("button-format::h5");
-                    }
-                },
-                {
-                    action: "h6",
-                    icon: `${url}h6.svg`,
-                    title: all_strings["label-title-header-h6"],
-                    function: function () {
-                        insertHeader("h6");
-                        sendTelemetry("button-format::h6");
-                    }
-                }
-            );
+                        ,
+                        {
+                            action: "h2", icon:
+                                `${url}h2.svg`, title:
+                                all_strings["label-title-header-h2"], function:
+
+                                function () {
+                                    insertHeader("h2");
+                                    sendTelemetry("button-format::h2");
+                                }
+                        }
+                        ,
+                        {
+                            action: "h3", icon:
+                                `${url}h3.svg`, title:
+                                all_strings["label-title-header-h3"], function:
+
+                                function () {
+                                    insertHeader("h3");
+                                    sendTelemetry("button-format::h3");
+                                }
+                        }
+                        ,
+                        {
+                            action: "h4", icon:
+                                `${url}h4.svg`, title:
+                                all_strings["label-title-header-h4"], function:
+
+                                function () {
+                                    insertHeader("h4");
+                                    sendTelemetry("button-format::h4");
+                                }
+                        }
+                        ,
+                        {
+                            action: "h5", icon:
+                                `${url}h5.svg`, title:
+                                all_strings["label-title-header-h5"], function:
+
+                                function () {
+                                    insertHeader("h5");
+                                    sendTelemetry("button-format::h5");
+                                }
+                        }
+                        ,
+                        {
+                            action: "h6", icon:
+                                `${url}h6.svg`, title:
+                                all_strings["label-title-header-h6"], function:
+
+                                function () {
+                                    insertHeader("h6");
+                                    sendTelemetry("button-format::h6");
+                                }
+                        }]
+            });
         }
 
         if (is_small_big) {
-            commands.push(
-                {
-                    action: "small",
-                    icon: `${url}small.svg`,
-                    title: all_strings["label-title-small"],
-                    function: function () {
-                        small();
-                        sendTelemetry("button-format::small");
+            commands.push({
+                "small_big_group":
+                    [{
+                        action: "small",
+                        icon:
+                            `${url}small.svg`,
+                        title:
+                            all_strings["label-title-small"],
+                        function:
+
+                            function () {
+                                small();
+                                sendTelemetry("button-format::small");
+                            }
                     }
-                },
-                {
-                    action: "big",
-                    icon: `${url}big.svg`,
-                    title: all_strings["label-title-big"],
-                    function: function () {
-                        big();
-                        sendTelemetry("button-format::big");
-                    }
-                }
-            )
+                        ,
+                        {
+                            action: "big", icon:
+                                `${url}big.svg`, title:
+                                all_strings["label-title-big"], function:
+
+                                function () {
+                                    big();
+                                    sendTelemetry("button-format::big");
+                                }
+                        }]
+            })
+        }
+
+        if (is_clear_formatting) {
+            commands.push({
+                "clear_formatting_group":
+                    [{
+                        action: "clear-formatting",
+                        icon:
+                            `${url}clear-formatting.svg`,
+                        title:
+                            all_strings["label-title-clear-formatting"],
+                        function:
+                            function () {
+                                clearFormatting();
+                                sendTelemetry("button-format::clear-formatting");
+                            }
+                    }]
+            });
+        }
+
+        if (is_lists) {
+            commands.push({
+                "lists_group":
+                    [{
+                        action: "ol-list",
+                        icon: `${url}ol_list.svg`,
+                        title: all_strings["label-title-ol-list"],
+                        function: function () {
+                            insertOrderedList();
+                            sendTelemetry("button-format::ol-list");
+                        }
+                    },
+                    {
+                        action: "ul-list",
+                        icon: `${url}ul_list.svg`,
+                        title: all_strings["label-title-ul-list"],
+                        function: function () {
+                            insertUnorderedList();
+                            sendTelemetry("button-format::ul-list");
+                        }
+                    }]
+            });
         }
     }
 
@@ -1625,15 +2292,21 @@ function loadFormatButtons(navigation = true, format = true) {
     buttons_container = document.getElementById("format-buttons");
     buttons_container.innerHTML = "";
     let tabIndex = 1;
-    commands.forEach(value => {
-        let button = document.createElement("button");
-        button.classList.add("button-format", "button");
-        //button.style.backgroundImage = `url('${value.icon}')`;
-        button.id = `text-${value.action}`;
-        button.onclick = value.function;
-        button.title = value.title;
-        button.tabIndex = tabIndex;
-        buttons_container.appendChild(button);
+    commands.forEach(group => {
+        let buttons_group = document.createElement("div");
+        buttons_group.classList.add("button-group");
+        buttons_group.id = Object.keys(group)[0];
+        group[Object.keys(group)[0]].forEach(value => {
+            let button = document.createElement("button");
+            button.classList.add("button-format", "button");
+            //button.style.backgroundImage = `url('${value.icon}')`;
+            button.id = `text-${value.action}`;
+            button.onclick = value.function;
+            button.title = value.title;
+            button.tabIndex = tabIndex;
+            buttons_group.appendChild(button);
+        });
+        buttons_container.appendChild(buttons_group);
     })
 
     if (format) {
@@ -1687,10 +2360,55 @@ function loginExpired() {
 }
 
 /**
+ * Show the notefox server error section
+ */
+function notefoxServerError() {
+    let section = document.getElementById("notefox-server-error-section");
+    let background = document.getElementById("background-opacity");
+
+    hideTabSubDomains();
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    let title = document.getElementById("notefox-server-error-title");
+    title.textContent = all_strings["notefox-account-message-server-error-title"];
+    let text = document.getElementById("notefox-server-error-text");
+    text.innerHTML = all_strings["notefox-account-message-server-error-text"];
+    let text2 = document.getElementById("notefox-server-error-text2");
+    text2.innerHTML = all_strings["notefox-account-message-server-error-text2"];
+    let text3 = document.getElementById("notefox-server-error-text3");
+    text3.innerHTML = all_strings["notefox-account-message-server-error-text3"];
+    let button1 = document.getElementById("notefox-server-error-button1");
+    button1.value = all_strings["notefox-account-message-button1"];
+    button1.onclick = function () {
+        //log out
+        section.style.display = "none";
+        background.style.display = "none";
+
+        chrome.storage.sync.remove("notefox-account");
+        chrome.storage.local.set({"notefox-server-error-shown": true});
+        sendTelemetry("notefox-server-error-logout");
+        window.close();
+    }
+    let button2 = document.getElementById("notefox-server-error-button2");
+    button2.value = all_strings["notefox-account-message-button2"];
+    button2.onclick = function () {
+        //close the message
+        section.style.display = "none";
+        background.style.display = "none";
+
+        chrome.storage.local.set({"notefox-server-error-shown": true}).then(() => {
+            //console.log("Notefox server error shown set to true");
+        });
+        sendTelemetry("notefox-server-error-continue");
+    }
+}
+
+/**
  * Show the telemetry alert section
  */
 function checkTelemetryAlert() {
-    //todo : add check if telemetry alert has been already displayed
     chrome.storage.sync.get("telemetry-alert-displayed", (resultSync) => {
         if (resultSync["telemetry-alert-displayed"] === undefined || resultSync["telemetry-alert-displayed"] === false) {
             let section = document.getElementById("telemetry-added-section");
@@ -1708,16 +2426,20 @@ function checkTelemetryAlert() {
             buttonEnable.onclick = function () {
                 section.style.display = "none";
                 background.style.display = "none";
-                chrome.storage.local.get("settings", (result) => {
-                    let settings = {};
-                    if (result["settings"] !== undefined) {
-                        settings = result["settings"];
-                    }
-                    settings["send-telemetry"] = true;
-                    chrome.storage.local.set({"settings": settings}).then(() => {
-                        sendMessageUpdateToBackground();
-                    });
-                })
+                //the access to the Notefox servers is requested only when the telemetry is enabled
+                chrome.permissions.request({origins: ["https://*.notefox.eu/*"]}).catch(() => false).then(granted => {
+                    if (!granted) return;
+                    chrome.storage.local.get("settings", (result) => {
+                        let settings = []
+                        if (result["settings"] !== undefined) {
+                            settings = result["settings"];
+                        }
+                        settings["send-telemetry"] = true;
+                        chrome.storage.local.set({"settings": settings}).then(() => {
+                            sendMessageUpdateToBackground();
+                        });
+                    })
+                });
                 chrome.storage.sync.set({"telemetry-alert-displayed": true}).then(() => {
                     //console.log("Telemetry alert displayed set to true");
                 });
@@ -1764,11 +2486,29 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         let big_svg = window.btoa(getIconSvgEncoded("big", on_primary));
         let highlighter_svg = window.btoa(getIconSvgEncoded("highlighter", on_primary));
         let code_block_svg = window.btoa(getIconSvgEncoded("code-block", on_primary));
+        let clear_formatting_svg = window.btoa(getIconSvgEncoded("clear-formatting", on_primary));
+        let ol_list_svg = window.btoa(getIconSvgEncoded("ol-list", on_primary));
+        let ul_list_svg = window.btoa(getIconSvgEncoded("ul-list", on_primary));
+        let login_svg = window.btoa(getIconSvgEncoded("login", on_primary));
+        let logout_svg = window.btoa(getIconSvgEncoded("logout", on_primary));
 
         let tag_svg = window.btoa(getIconSvgEncoded("tag", on_primary));
         let arrow_select_svg = window.btoa(getIconSvgEncoded("arrow-select", on_primary));
         let arrow_right_svg = window.btoa(getIconSvgEncoded("arrow-right", on_primary));
 
+        let primaryTransparent = primary;
+        if (primaryTransparent.includes("rgb(")) {
+            let rgb_temp = primaryTransparent.replace("rgb(", "");
+            let rgb_temp_arr = rgb_temp.split(",");
+            if (rgb_temp_arr.length >= 3) {
+                let red = rgb_temp_arr[0].replace(" ", "");
+                let green = rgb_temp_arr[1].replace(" ", "");
+                let blue = rgb_temp_arr[2].replace(")", "").replace(" ", "");
+                primaryTransparent = `rgba(${red}, ${green}, ${blue}, 0.8)`;
+            }
+        } else if (primaryTransparent.includes("#")) {
+            primaryTransparent += "88";
+        }
         let tertiary = backgroundSection;
         let tertiaryTransparent = primary;
         let tertiaryTransparent2 = primary;
@@ -1794,6 +2534,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
             <style>
                 :root {
                     --primary-color: ${primary};
+                    --primary-color-transparent: ${primaryTransparent};
                     --secondary-color: ${secondary};
                     --on-primary-color: ${on_primary};
                     --on-secondary-color: ${on_secondary};
@@ -1808,7 +2549,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                 }
                 #open-sticky-button {
                     background-image: url('data:image/svg+xml;base64,${sticky_svg}');
-                    background-size: auto 80%;
+                    //background-size: auto 18px;
                 }
                 
                 #text-bold {
@@ -1899,6 +2640,18 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     background-image: url('data:image/svg+xml;base64,${code_block_svg}');
                 }
                 
+                #text-clear-formatting {
+                    background-image: url('data:image/svg+xml;base64,${clear_formatting_svg}');
+                }
+                
+                #text-ol-list {
+                    background-image: url('data:image/svg+xml;base64,${ol_list_svg}');
+                }
+                
+                #text-ul-list {
+                    background-image: url('data:image/svg+xml;base64,${ul_list_svg}');
+                }
+                
                 #text-link {
                     background-image: url('data:image/svg+xml;base64,${link_svg}');
                     background-size: 60% auto;
@@ -1912,15 +2665,339 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
                     background-image: url('data:image/svg+xml;base64,${redo_svg}');
                 }
                 
-                #tag-select-grid {
-                    background-image: url('data:image/svg+xml;base64,${tag_svg}'), url('data:image/svg+xml;base64,${arrow_select_svg}');
+                .cst-arrow {
+                    background-image: url('data:image/svg+xml;base64,${arrow_select_svg}') !important;
+                }
+                
+                #custom-select-trigger-tag-select-grid .cst-label {
+                    background-image: url('data:image/svg+xml;base64,${tag_svg}') !important;
                 }
                 
                 #all-notes-button-grid {
                     background-image: url('data:image/svg+xml;base64,${arrow_right_svg}');
                 }
+                
+                .login-button {
+                    background-image: url('data:image/svg+xml;base64,${login_svg}');
+                }
+                
+                .logout-button {
+                    background-image: url('data:image/svg+xml;base64,${logout_svg}');
+                }
             </style>`;
     }
 }
 
-loaded();
+function getAllNotesForUrl(url) {
+    let entry = websites_json[getUrlWithSupportedProtocol(url, websites_json)];
+    if (!entry || !Array.isArray(entry["all-notes"])) return [];
+    return entry["all-notes"];
+}
+
+function getNoteCount(url) {
+    return getAllNotesForUrl(url).length;
+}
+
+/**
+ * Return the note object at noteIndex for the given (resolved or raw) url, or undefined.
+ */
+function getNoteObj(url, noteIndex) {
+    let entry = websites_json[getUrlWithSupportedProtocol(url, websites_json)];
+    if (!entry || !Array.isArray(entry["all-notes"])) return undefined;
+    return entry["all-notes"][noteIndex];
+}
+
+/**
+ * Ensure the entry/all-notes/current note exist for a resolved url and return the current note.
+ */
+function getOrCreateCurrentNoteObj(supportedUrl) {
+    if (websites_json[supportedUrl] === undefined) websites_json[supportedUrl] = {};
+    let entry = websites_json[supportedUrl];
+    migrateEntryToAllNotes(entry);
+    if (!Array.isArray(entry["all-notes"])) entry["all-notes"] = [];
+    if (!entry["all-notes"][current_note_index]) {
+        entry["all-notes"][current_note_index] = {"notes": "", "title": "", "tags-text": [], "tag-folder": ""};
+    }
+    return entry["all-notes"][current_note_index];
+}
+
+function showNotesList(url) {
+    hideTabSubDomains();
+    let allNotes = getAllNotesForUrl(url);
+    document.getElementById("notes-section").classList.add("hidden");
+    document.getElementById("notes-list-section").classList.remove("hidden");
+    document.getElementById("floating-actions").classList.add("hidden");
+    document.getElementById("new-note-button-list").classList.remove("hidden");
+    document.getElementById("last-updated-section").classList.add("hidden");
+    document.getElementById("tag-select-grid").classList.add("hidden");
+    document.getElementById("tag-colour-section").classList.add("hidden");
+    document.getElementById("all-notes-section").classList.add("notes-list-mode");
+    document.getElementById("popup-content").classList.remove("background-as-tag-colour");
+    let container = document.getElementById("notes-list-container");
+    container.innerHTML = "";
+
+    let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
+    let entry = websites_json[supportedUrl];
+
+    allNotes.forEach((note, idx) => {
+        let item = document.createElement("div");
+        item.className = "notes-list-item";
+
+        let noteTagColour = (note["tag-colour"] && note["tag-colour"] !== "none") ? note["tag-colour"] : null;
+
+        let colorBar = document.createElement("div");
+        colorBar.className = "notes-list-item-color-bar";
+        if (noteTagColour) {
+            item.classList.add("has-tag-colour");
+            colorBar.classList.add("tag-colour-" + noteTagColour + "-bg");
+        }
+        item.appendChild(colorBar);
+
+        let itemContent = document.createElement("div");
+        itemContent.className = "notes-list-item-content";
+
+        if (note["last-update"]) {
+            let date = document.createElement("div");
+            date.className = "notes-list-item-date";
+            date.textContent = datetimeToDisplay(note["last-update"]);
+            itemContent.appendChild(date);
+        }
+
+        let title = document.createElement("div");
+        title.className = "notes-list-item-title";
+        title.textContent = note["title"] || (all_strings["notes-list-empty"] || "Note") + " " + (idx + 1);
+        itemContent.appendChild(title);
+
+        let tempDiv = document.createElement("div");
+        tempDiv.innerHTML = note["notes"] || "";
+        let plainText = tempDiv.textContent || tempDiv.innerText || "";
+        if (plainText.trim()) {
+            let preview = document.createElement("div");
+            preview.className = "notes-list-item-preview";
+            preview.textContent = plainText.substring(0, 100) + (plainText.length > 100 ? "…" : "");
+            itemContent.appendChild(preview);
+        }
+
+        item.appendChild(itemContent);
+
+        item.onclick = function () {
+            openNoteAtIndex(idx);
+        };
+        container.appendChild(item);
+    });
+}
+
+function openNoteAtIndex(index) {
+    current_note_index = index;
+    let url = currentUrl[selected_tab];
+    let allNotes = getAllNotesForUrl(url);
+    let note = allNotes[index];
+    if (!note) return;
+
+    document.getElementById("notes-list-section").classList.add("hidden");
+    document.getElementById("notes-list-container").innerHTML = "";
+    document.getElementById("notes-section").classList.remove("hidden");
+    document.getElementById("floating-actions").classList.remove("hidden");
+    document.getElementById("new-note-button-list").classList.add("hidden");
+    document.getElementById("last-updated-section").classList.remove("hidden");
+    document.getElementById("tag-select-grid").classList.remove("hidden");
+    document.getElementById("tag-colour-section").classList.remove("hidden");
+    document.getElementById("all-notes-section").classList.remove("notes-list-mode");
+
+    document.getElementById("notes").innerHTML = note["notes"] || "";
+    document.getElementById("title-notes").value = note["title"] || "";
+
+    let _multiEnabled = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
+    if (_multiEnabled && allNotes.length > 1) {
+        document.getElementById("notes-editor-toolbar").classList.remove("hidden");
+    } else {
+        document.getElementById("notes-editor-toolbar").classList.add("hidden");
+    }
+
+    let notes_content = note["notes"] || "";
+    if (notes_content === "<br>" || notes_content === "") {
+        document.getElementById("title-notes").disabled = true;
+    } else {
+        document.getElementById("title-notes").disabled = false;
+    }
+    checkNotesTitle(document.getElementById("notes"), document.getElementById("title-notes"));
+
+    listenerLinks();
+    if (notes_content !== "<br>" && notes_content !== "") {
+        loadFormatButtons(true, true);
+    }
+
+    let last_update = all_strings["never-update"];
+    if (note["last-update"]) last_update = note["last-update"];
+    document.getElementById("last-updated-section").textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(last_update));
+
+    let noteColour = note["tag-colour"] || "none";
+    document.getElementById("tag-colour-section").removeAttribute("class");
+    document.getElementById("tag-colour-section").classList.add("tag-colour-" + noteColour + "-bg");
+    let tagSelectEl = document.getElementById("tag-select-grid");
+    if (tagSelectEl) tagSelectEl.value = noteColour;
+    if (settings_json["notes-background-follow-tag-colour"]) document.getElementById("popup-content").classList.add("background-as-tag-colour");
+
+    document.getElementById("notes").focus();
+    checkNeverSaved(false, notes_content);
+    updateNewNoteButton(url);
+    updateActionButtonsLive();
+}
+
+function createNewNote() {
+    let multipleNotesEnabled = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
+    if (!multipleNotesEnabled) return;
+    let url = currentUrl[selected_tab];
+    let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
+    if (!websites_json[supportedUrl]) {
+        websites_json[supportedUrl] = {"all-notes": []};
+    }
+    if (!Array.isArray(websites_json[supportedUrl]["all-notes"])) {
+        websites_json[supportedUrl]["all-notes"] = [];
+    }
+    websites_json[supportedUrl]["all-notes"].push({
+        "notes": "",
+        "title": "",
+        "last-update": getDate(),
+        "content": "",
+        "tag-colour": "none",
+        "tags-text": [],
+        "tag-folder": "",
+        "sticky": false,
+        "minimized": false,
+        "pinned": false
+    });
+    sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+        let allNotes = getAllNotesForUrl(url);
+        openNoteAtIndex(allNotes.length - 1);
+        sendMessageUpdateToBackground();
+    });
+}
+
+function deleteCurrentNote() {
+    let section = document.getElementById("delete-note-confirm-section");
+    let background = document.getElementById("background-opacity");
+
+    document.getElementById("delete-note-confirm-title").textContent = all_strings["delete-note-button"] || "Delete";
+    document.getElementById("delete-note-confirm-text").textContent = all_strings["delete-note-confirmation"] || "Are you sure you want to delete this note?";
+
+    let cancelBtn = document.getElementById("delete-note-confirm-cancel-button");
+    cancelBtn.value = all_strings["cancel-button"] || "Cancel";
+
+    let deleteBtn = document.getElementById("delete-note-confirm-delete-button");
+    deleteBtn.value = all_strings["delete-note-button"] || "Delete";
+
+    section.style.display = "block";
+    background.style.display = "block";
+
+    function closeDialog() {
+        section.style.display = "none";
+        background.style.display = "none";
+        cancelBtn.onclick = null;
+        deleteBtn.onclick = null;
+        document.removeEventListener("keydown", onKeyDown);
+    }
+
+    function onKeyDown(e) {
+        if (e.key === "Escape") closeDialog();
+    }
+    document.addEventListener("keydown", onKeyDown);
+
+    cancelBtn.onclick = function () {
+        closeDialog();
+    };
+
+    deleteBtn.onclick = function () {
+        closeDialog();
+        performDeleteCurrentNote();
+    };
+}
+
+function performDeleteCurrentNote() {
+    let url = currentUrl[selected_tab];
+    let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
+    if (!websites_json[supportedUrl]) return;
+
+    let allNotes = getAllNotesForUrl(url);
+    if (allNotes.length <= 1) return;
+
+    let deletedNoteIndex = current_note_index;
+
+    // unified model: simply remove the note at the current index, no promotion
+    websites_json[supportedUrl]["all-notes"].splice(current_note_index, 1);
+
+    try {
+        chrome.runtime.sendMessage({
+            "close-single-sticky": { noteIndex: deletedNoteIndex, type: selected_tab }
+        });
+    } catch (e) {}
+
+    sync_local.set({"websites": websites_json, "last-update": getDate()}, function () {
+        current_note_index = 0;
+        let allNotes = getAllNotesForUrl(url);
+        if (allNotes.length > 1) {
+            showNotesList(url);
+        } else {
+            document.getElementById("notes-editor-toolbar").classList.add("hidden");
+            document.getElementById("notes-list-section").classList.add("hidden");
+            document.getElementById("notes-section").classList.remove("hidden");
+            setTab(selected_tab, url);
+        }
+        sendMessageUpdateToBackground();
+    });
+}
+
+// Live-refresh the "+" (new note) and "open sticky" buttons from the current editor
+// content, so they appear as soon as the note (of ANY type) has text — not only on reload.
+function updateActionButtonsLive() {
+    let notesEl = document.getElementById("notes");
+    if (!notesEl) return;
+    let content = notesEl.innerHTML;
+    let hasContent = content !== "" && content !== "<br>";
+    let isListView = !document.getElementById("notes-list-section").classList.contains("hidden");
+    let multipleNotesEnabled = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
+
+    // the "+"/sticky buttons live inside #floating-actions, which showNotesList hides;
+    // make sure the container is visible again whenever we are in the single-note view
+    let floating = document.getElementById("floating-actions");
+    if (floating) {
+        if (isListView) floating.classList.add("hidden");
+        else floating.classList.remove("hidden");
+    }
+
+    let plusBtn = document.getElementById("new-note-button");
+    if (plusBtn) {
+        if (multipleNotesEnabled && hasContent && !isListView) plusBtn.classList.remove("hidden");
+        else plusBtn.classList.add("hidden");
+    }
+
+    let stickyBtn = document.getElementById("open-sticky-button");
+    if (stickyBtn && stickyNotesSupported) {
+        if (hasContent && !isListView) stickyBtn.classList.remove("hidden");
+        else stickyBtn.classList.add("hidden");
+    }
+}
+
+function updateNewNoteButton(url) {
+    let multipleNotesEnabled = settings_json["multiple-notes-per-type"] === true || settings_json["multiple-notes-per-type"] === "yes";
+    let supportedUrl = getUrlWithSupportedProtocol(url, websites_json);
+    let entry = websites_json[supportedUrl];
+    let btn = document.getElementById("new-note-button");
+    let btnList = document.getElementById("new-note-button-list");
+    let currentNotes = "";
+    if (entry && Array.isArray(entry["all-notes"]) && entry["all-notes"][current_note_index]) {
+        currentNotes = entry["all-notes"][current_note_index]["notes"] || "";
+    }
+    let hasContent = currentNotes !== "" && currentNotes !== "<br>";
+    let isListView = !document.getElementById("notes-list-section").classList.contains("hidden");
+    if (multipleNotesEnabled && hasContent && !isListView) {
+        btn.classList.remove("hidden");
+    } else {
+        btn.classList.add("hidden");
+    }
+    if (!multipleNotesEnabled) {
+        btnList.classList.add("hidden");
+    }
+}
+
+loaded("C");

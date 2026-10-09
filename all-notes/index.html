@@ -13,6 +13,23 @@ Created by Saverio Morelli - saveriomorelli.com
 </head>
 
 <body>
+<div class="splash-screen" id="splash-screen-all-notes">
+    <img src="../img/logo-orange.svg"/>
+    <div class="lds-spinner" id="loading-splash-screen">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
 <aside>
     <div class="aside-container">
         <div class="aside-buttons">
@@ -39,15 +56,16 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
     <div class="section text-align-left sticky-section" id="search-filter-sortby">
         <div class="search-grid-area">
-            <input type="search" value="" placeholder="Search…" id="search-all-notes-text"
-                   class="textbox search-box search-all-notes-text"/><span
-                id="info-tooltip-search"></span>
+            <div id="search-all-notes-container" class="textbox custom-tag-input-container">
+                <input type="text" value="" placeholder="Search…" id="search-all-notes-text"
+                       class="tag-inner-input search-all-notes-text"/>
+            </div>
         </div>
         <!--<input type="button" value="Sort by…" id="sort-by-all-notes-button" class="button sort-by-button float-right"/>-->
         <div class="buttons-grid">
             <input type="button" value="Filter…" id="filter-all-notes-button"
                    class="button filter-button button-no-text-on-mobile"/>
-            <select name="theme" id="sort-by-all-notes-button" class="button select-grid-no-text sort-by-button">
+            <select name="theme" id="sort-by-all-notes-button" class="button sort-by-button no-text">
                 <option value="name-az" id="sort-by-name-az-select">Name: A-Z</option>
                 <option value="name-za" id="sort-by-name-za-select">Name: Z-A</option>
                 <option value="date-90" id="sort-by-date-90-select">Last update: Oldest-Newest</option>
@@ -56,14 +74,22 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
     </div>
     <div class="section text-align-left hidden sticky-section" id="filters">
-        <span id="filter-colours-container"></span>
-        <br>
-        <input type="button" value="Type: Global" id="filter-type-global-button"
-               class="button filter-button-type"/>
-        <input type="button" value="Type: Domain" id="filter-type-domain-button"
-               class="button filter-button-type"/>
-        <input type="button" value="Type: Page" id="filter-type-page-button"
-               class="button filter-button-type"/>
+        <div id="filter-folder-section" class="margin-bottom-10-px">
+            <span id="filter-folder-label-span"></span>:
+            <div id="filter-folder-input" class="textbox custom-tag-filter-input"></div>
+        </div>
+        <div id="filter-tags-text-section" class="margin-bottom-10-px">
+            <span id="filter-tags-text-label-span"></span>:
+            <div id="filter-tags-text-input" class="textbox custom-tag-filter-input"></div>
+        </div>
+        <div id="filter-colour-section" class="margin-bottom-10-px">
+            <span id="filter-colour-label-span"></span>:
+            <div id="filter-colour-input" class="textbox custom-tag-filter-input"></div>
+        </div>
+        <div id="filter-type-section" class="margin-bottom-10-px">
+            <span id="filter-type-label-span"></span>:
+            <div id="filter-type-input" class="textbox custom-tag-filter-input"></div>
+        </div>
     </div>
     <div class="section text-align-left hidden" id="results-searching"></div>
 
@@ -80,9 +106,24 @@ Created by Saverio Morelli - saveriomorelli.com
     <span id="all-website-sections"></span>
 </div>
 
-<!--login expired popup-->
 <div id="background-opacity"></div>
-<div id="login-expired-section">
+<!--donation popup-->
+<div id="donation-alert-section" class="message-popup">
+    <div id="donation-alert-content" class="section message-popup-content">
+        <div id="donation-title" class="padding-10 message-popup-content-title"></div>
+        <div id="donation-text" class="padding-10 message-popup-content-description"></div>
+        <div id="donation-buttons" class="padding-10 text-align-right message-popup-content-buttons">
+            <input type="button" value="" id="donation-buy-button"
+                   class="button" tabindex="2"/>
+            <input type="button" value="" id="donation-remind-button"
+                   class="button" tabindex="1"/>
+            <input type="button" value="" id="donation-never-button"
+                   class="button" tabindex="1"/>
+        </div>
+    </div>
+</div>
+<!--login expired popup-->
+<div id="login-expired-section" class="message-popup">
     <div id="login-expired-content" class="section">
         <div id="login-expired-title" class="padding-10"></div>
         <div id="login-expired-text" class="padding-10"></div>
@@ -91,6 +132,24 @@ Created by Saverio Morelli - saveriomorelli.com
             <input type="button" value="" id="login-expired-cancel-button" class="button" tabindex="2"/>
         </div>
     </div>
+</div>
+<!--notefox server error-->
+<div id="notefox-server-error-section" class="message-popup">
+    <div id="notefox-server-error-content" class="section">
+        <div id="notefox-server-error-title" class="padding-10"></div>
+        <div id="notefox-server-error-text" class="padding-10"></div>
+        <div id="notefox-server-error-text2" class="padding-10"></div>
+        <div id="notefox-server-error-text3" class="padding-10"></div>
+        <div id="notefox-server-error-buttons" class="padding-10 text-align-right">
+            <input type="button" value="" id="notefox-server-error-button1" class="button logout-button" tabindex="1"/>
+            <input type="button" value="" id="notefox-server-error-button2" class="button" tabindex="2"/>
+        </div>
+    </div>
+</div>
+<!--fullscreen notes viewer-->
+<div id="fullscreen-notes-viewer" class="content-notes--container content-notes">
+    <pre id="fullscreen-notes-viewer-content" class="textarea-all-notes"></pre>
+    <button class="button-format button" id="close-fullscreen-notes-button"></button>
 </div>
 <script src="../js/definitions.js"></script>
 

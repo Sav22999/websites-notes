@@ -1,7 +1,6 @@
 <!---
 Created by Saverio Morelli - saveriomorelli.com
 --->
-<!DOCTYPE html>
 <html>
 
 <head>
@@ -13,6 +12,23 @@ Created by Saverio Morelli - saveriomorelli.com
 </head>
 
 <body>
+<div class="splash-screen" id="splash-screen-settings">
+    <img src="../img/logo-orange.svg"/>
+    <div class="lds-spinner" id="loading-splash-screen">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
 <aside>
     <div class="aside-container">
         <div class="aside-buttons">
@@ -46,7 +62,7 @@ Created by Saverio Morelli - saveriomorelli.com
 
     <div id="background-opacity"></div>
     <!--Import panel-->
-    <div id="import-section">
+    <div id="import-section" class="message-popup">
         <div class="section" id="import-sub-sections">
             <div class="padding-10">
                 <div id="text-import"></div>
@@ -59,6 +75,20 @@ Created by Saverio Morelli - saveriomorelli.com
                        class="button import-button"/>
                 <input type="file" value="" id="import-from-file-input-hidden"
                        class="button import-button hidden float-left"/>
+                <div class="lds-spinner hidden" id="loading-importing">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
                 <input type="button" value="" id="cancel-import-all-notes-button" class="button float-left"/>
                 <input type="button" value="" id="import-from-file-button" class="button import-button"/>
                 <input type="button" value="" id="import-now-all-notes-button" class="button import-button"/>
@@ -66,8 +96,11 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
     </div>
 
+    <!--TODO:add the spinner to sections-->
+    <!--<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>-->
+
     <!--Export panel-->
-    <div id="export-section">
+    <div id="export-section" class="message-popup">
         <div class="section" id="export-sub-sections">
             <div class="padding-10">
                 <div id="text-export"></div>
@@ -84,24 +117,29 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
 
     <!--Notefox account panel-->
-    <div id="account-section">
+    <div id="account-section" class="message-popup">
         <div class="section" id="account-sub-sections">
             <div class="padding-10">
                 <div id="title-account" class="user-select-none"></div>
                 <div id="text-account"></div>
                 <div id="message-from-api" class="hidden no-margin margin-top-10-px"></div>
+                <div id="account-server-status" class="section-warning hidden no-margin margin-top-10-px"></div>
             </div>
             <!-- sign up -->
             <div id="notefox-account-signup-section">
                 <div id="account-section--signup-grid" class="padding-10 hidden">
-                    <input class="textbox account-section--signup--username width-100 label-with-image account-label account-text"
-                           id="signup-username" type="text" name="username">
-                    <input class="textbox account-section--signup--email width-100 label-with-image email-label account-text"
-                           id="signup-email" type="email" name="email">
-                    <input class="textbox account-section--signup--password width-100 label-with-image password-label account-text"
-                           id="signup-password" type="password" name="password">
-                    <input class="textbox account-section--signup--confirm-password width-100 label-with-image password-label account-text"
-                           id="signup-confirm-password" type="password" name="confirm-password">
+                    <input
+                            class="textbox account-section--signup--username width-100 label-with-image account-label account-text"
+                            id="signup-username" type="text" name="username">
+                    <input
+                            class="textbox account-section--signup--email width-100 label-with-image email-label account-text"
+                            id="signup-email" type="email" name="email">
+                    <input
+                            class="textbox account-section--signup--password width-100 label-with-image password-label account-text"
+                            id="signup-password" type="password" name="password">
+                    <input
+                            class="textbox account-section--signup--confirm-password width-100 label-with-image password-label account-text"
+                            id="signup-confirm-password" type="password" name="confirm-password">
                     <hr class="hr-big-space hr-center account-section-hr">
                     <div class="text-align-center margin-bottom-20-px" id="signup-already-account">
                         <span id="signup-already-account-text"></span> <span class="link"
@@ -109,15 +147,32 @@ Created by Saverio Morelli - saveriomorelli.com
                     </div>
                 </div>
                 <div id="account-section--verify-signup-grid" class="padding-10 hidden">
-                    <input class="textbox account-section--verify-signup--email width-100 label-with-image email-label account-text hidden"
-                           id="verify-signup-email" type="email">
-                    <input class="textbox account-section--verify-signup--password width-100 label-with-image password-label account-text hidden"
-                           id="verify-signup-password" type="password">
-                    <input class="textbox account-section--verify-signup--code label-with-image code-label account-text"
-                           id="verify-signup-code" type="text" name="code">
+                    <input
+                            class="textbox account-section--verify-signup--email width-100 label-with-image email-label account-text hidden"
+                            id="verify-signup-email" type="email">
+                    <input
+                            class="textbox account-section--verify-signup--password width-100 label-with-image password-label account-text hidden"
+                            id="verify-signup-password" type="password">
+                    <input
+                            class="textbox account-section--verify-signup--code label-with-image code-label account-text"
+                            id="verify-signup-code" type="text" name="code">
 
                 </div>
                 <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-signup">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                     <input type="button" value="" id="signup-cancel"
                            class="button float-left button-close-notefox-account"/>
                     <input class="button login-button hidden" id="verify-signup" value="" type="button"/>
@@ -132,10 +187,12 @@ Created by Saverio Morelli - saveriomorelli.com
             <div id="notefox-account-login-section">
                 <div id="login-exprired-section" class="section-warning hidden"></div>
                 <div id="account-section--login-grid" class="padding-10 hidden">
-                    <input class="textbox account-section--login--email width-100 label-with-image email-label account-text"
-                           id="login-email" type="email" name="email">
-                    <input class="textbox account-section--login--password width-100 label-with-image password-label account-text"
-                           id="login-password" type="password" name="password">
+                    <input
+                            class="textbox account-section--login--email width-100 label-with-image email-label account-text"
+                            id="login-email" type="email" name="email">
+                    <input
+                            class="textbox account-section--login--password width-100 label-with-image password-label account-text"
+                            id="login-password" type="password" name="password">
 
                     <hr class="hr-big-space hr-center account-section-hr">
                     <div class="text-align-center margin-bottom-20-px" id="login-not-yet-account">
@@ -144,14 +201,43 @@ Created by Saverio Morelli - saveriomorelli.com
                     </div>
                 </div>
                 <div id="account-section--verify-login-grid" class="padding-10 hidden">
+                    <div class="lds-spinner hidden" id="loading-verify-login">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                     <input class="textbox account-section--verify-login--code label-with-image code-label account-text"
                            id="verify-login-code" type="text" name="code">
 
                 </div>
                 <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-login">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                     <input type="button" value="" id="login-cancel"
                            class="button float-left button-close-notefox-account"/>
                     <input class="button login-button hidden" id="verify-login" value="" type="button"/>
+                    <input class="button login-button hidden" id="verify-email-not-actived" value="" type="button"/>
                     <input class="button login-button hidden" id="login-submit" value="" type="button"/>
 
                     <input class="button hidden" id="verify-login-new-code" value="" type="button"/>
@@ -164,58 +250,128 @@ Created by Saverio Morelli - saveriomorelli.com
                 <div class="padding-10 text-align-right">
                     <div class="option-settings">
                         <span class="item-settings section-grid-container width-100-important">
+                            <div class="lds-spinner hidden" id="loading-manage-user">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
                             <span class="title-option-settings section-grid-item-text no-bold"
                                   id="sync-now-text"></span>
                             <span class="section-grid-item-select text-align-center">
-                                <input type="button" value="" id="sync-now-button"
-                                       class="button sync-button width-100"/>
+                                <div class="width-100 sync-spinner-container">
+                                    <div class="lds-spinner hidden" id="loading-syncing">
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                    <input type="button" value="" id="sync-now-button"
+                                           class="button sync-button width-100"/>
+                                </div>
                                 <div id="last-sync" class="width-100-important"></div>
                             </span>
                         </span>
                     </div>
 
                     <div class="option-settings">
-                        <span class="item-settings section-grid-container width-100-important">
-                            <span class="title-option-settings section-grid-item-text no-bold"
-                                  id="manage-logout-text"></span>
-                            <span class="section-grid-item-select">
-                                <input type="button" value="" id="manage-logout"
-                                       class="button logout-button width-100"/>
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-logout-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-logout"
+                                           class="button logout-button width-100"/>
+                                </span>
                             </span>
-                        </span>
                     </div>
 
                     <div class="option-settings">
-                        <span class="item-settings section-grid-container width-100-important">
-                            <span class="title-option-settings section-grid-item-text no-bold"
-                                  id="manage-logout-all-devices-text"></span>
-                            <span class="section-grid-item-select">
-                                <input type="button" value="" id="manage-logout-all-devices"
-                                       class="button logout-button width-100"/>
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-logout-all-devices-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-logout-all-devices"
+                                           class="button logout-button width-100"/>
+                                </span>
                             </span>
-                        </span>
+                    </div>
+
+                    <hr class="manage-group-divider"/>
+
+                    <div class="option-settings" id="manage-otp-row">
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-otp-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-otp-button"
+                                           class="button width-100"/>
+                                    <div id="manage-otp-state" class="width-100-important"></div>
+                                </span>
+                            </span>
                     </div>
 
                     <div class="option-settings">
-                        <span class="item-settings section-grid-container width-100-important">
-                            <span class="title-option-settings section-grid-item-text no-bold"
-                                  id="manage-change-password-text"></span>
-                            <span class="section-grid-item-select">
-                                <input type="button" value="" id="manage-change-password-button"
-                                       class="button edit-button width-100"/>
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-change-password-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-change-password-button"
+                                           class="button edit-button width-100"/>
+                                </span>
                             </span>
-                        </span>
                     </div>
 
-                    <div class="option-settings">
-                        <span class="item-settings section-grid-container width-100-important">
-                            <span class="title-option-settings section-grid-item-text no-bold"
-                                  id="manage-delete-account-text"></span>
-                            <span class="section-grid-item-select">
-                                <input type="button" value="" id="manage-delete-account-button"
-                                       class="button button-red width-100"/>
+                    <hr class="manage-group-divider"/>
+
+                    <div class="option-settings" id="manage-history-row">
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-history-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-history-button"
+                                           class="button width-100"/>
+                                </span>
                             </span>
-                        </span>
+                    </div>
+
+                    <div class="option-settings" id="manage-sessions-row">
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-sessions-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-sessions-button"
+                                           class="button width-100"/>
+                                </span>
+                            </span>
+                    </div>
+
+                    <hr class="manage-group-divider"/>
+
+                    <div class="option-settings">
+                            <span class="item-settings section-grid-container width-100-important">
+                                <span class="title-option-settings section-grid-item-text no-bold"
+                                      id="manage-delete-account-text"></span>
+                                <span class="section-grid-item-select">
+                                    <input type="button" value="" id="manage-delete-account-button"
+                                           class="button button-red width-100"/>
+                                </span>
+                            </span>
                     </div>
 
                     <div class="text-align-left margin-top-20-px">
@@ -234,32 +390,156 @@ Created by Saverio Morelli - saveriomorelli.com
                     <input class="textbox account-section--change-password--confirm-new-password width-100 label-with-image password-label account-text"
                            id="change-password-new-password-confirm" type="password">
                 </div>
+                <div class="padding-10 hidden" id="account-section--change-password-verify-grid">
+                    <input class="textbox account-section--change-password--code label-with-image code-label account-text"
+                           id="change-password-code" type="text">
+                </div>
                 <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-change-password">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                     <input type="button" value="" id="change-password-cancel"
                            class="button float-left button-close-notefox-account"/>
                     <input type="button" value="" id="change-password-submit"
                            class="button edit-button"/>
+
+                    <input class="button hidden" id="change-password-new-code" value="" type="button"/>
+                    <input class="button edit-button hidden" id="change-password-verify-submit" value=""
+                           type="button"/>
+                </div>
+            </div>
+
+            <!-- two-factor authentication -->
+            <div id="notefox-account-otp-section">
+                <div class="padding-10" id="account-section--otp-text"></div>
+                <div class="padding-10 hidden" id="account-section--otp-grid">
+                    <input class="textbox account-section--otp--password width-100 label-with-image password-label account-text"
+                           id="otp-password" type="password">
+                </div>
+                <div class="padding-10 hidden" id="account-section--otp-verify-grid">
+                    <input class="textbox account-section--otp--code label-with-image code-label account-text"
+                           id="otp-code" type="text">
+                </div>
+                <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-otp">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <input type="button" value="" id="otp-cancel"
+                           class="button float-left button-close-notefox-account"/>
+                    <input class="button hidden" id="otp-submit" value="" type="button"/>
+                    <input class="button hidden" id="otp-verify-submit" value="" type="button"/>
+                </div>
+            </div>
+
+            <!-- synchronisation history -->
+            <div id="notefox-account-history-section">
+                <div class="padding-10" id="account-section--history-text"></div>
+                <div class="padding-10" id="account-section--history-list"></div>
+                <div class="padding-10 account-section-buttons">
+                    <input type="button" value="" id="history-cancel"
+                           class="button margin-right-auto button-close-notefox-account"/>
+                    <div class="lds-spinner hidden" id="loading-history">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <input class="button hidden" id="history-how-to-get" value="" type="button"/>
+                    <input class="button hidden" id="history-restore" value="" type="button"/>
+                </div>
+            </div>
+
+            <!-- active sessions -->
+            <div id="notefox-account-sessions-section">
+                <div class="padding-10" id="account-section--sessions-text"></div>
+                <div class="padding-10" id="account-section--sessions-list"></div>
+                <div class="padding-10 account-section-buttons">
+                    <input type="button" value="" id="sessions-cancel"
+                           class="button margin-right-auto button-close-notefox-account"/>
+                    <div class="lds-spinner hidden" id="loading-sessions">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                 </div>
             </div>
 
             <!-- delete -->
             <div id="notefox-account-delete-section">
                 <div id="account-section--delete-grid" class="padding-10 hidden">
-                    <input class="textbox account-section--delete--email width-100 label-with-image email-label account-text"
-                           id="delete-email" type="email">
-                    <input class="textbox account-section--delete--password width-100 label-with-image password-label account-text"
-                           id="delete-password" type="password">
+                    <input
+                            class="textbox account-section--delete--email width-100 label-with-image email-label account-text"
+                            id="delete-email" type="email">
+                    <input
+                            class="textbox account-section--delete--password width-100 label-with-image password-label account-text"
+                            id="delete-password" type="password">
                 </div>
                 <div id="account-section--verify-delete-grid" class="padding-10 hidden">
-                    <input class="textbox account-section--verify-delete--email width-100 label-with-image email-label account-text hidden"
-                           id="verify-delete-email" type="email">
-                    <input class="textbox account-section--verify-delete--password width-100 label-with-image password-label account-text hidden"
-                           id="verify-delete-password" type="password">
-                    <input class="textbox account-section--verify-delete--code label-with-image code-label account-text"
-                           id="verify-delete-code" type="text">
+                    <input
+                            class="textbox account-section--verify-delete--email width-100 label-with-image email-label account-text hidden"
+                            id="verify-delete-email" type="email">
+                    <input
+                            class="textbox account-section--verify-delete--password width-100 label-with-image password-label account-text hidden"
+                            id="verify-delete-password" type="password">
+                    <input
+                            class="textbox account-section--verify-delete--code label-with-image code-label account-text"
+                            id="verify-delete-code" type="text">
 
                 </div>
                 <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-delete">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
                     <input type="button" value="" id="delete-cancel"
                            class="button float-left button-close-notefox-account"/>
                     <input class="button hidden" id="verify-delete" value="" type="button"/>
@@ -273,7 +553,7 @@ Created by Saverio Morelli - saveriomorelli.com
     </div>
 
     <!--Show error logs panel-->
-    <div id="show-error-logs-section">
+    <div id="show-error-logs-section" class="message-popup">
         <div class="section" id="show-error-logs-sub-sections">
             <div class="padding-10">
                 <div id="text-show-error-logs"></div>
@@ -289,27 +569,64 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
     </div>
 
+    <!--Notefox server error panel-->
+    <div id="notefox-server-error-section" class="message-popup">
+        <div id="notefox-server-error-content" class="section">
+            <div id="notefox-server-error-title" class="padding-10"></div>
+            <div id="notefox-server-error-text" class="padding-10"></div>
+            <div id="notefox-server-error-text2" class="padding-10"></div>
+            <div id="notefox-server-error-text3" class="padding-10"></div>
+            <div id="notefox-server-error-buttons" class="padding-10 text-align-right">
+                <input type="button" value="" id="notefox-server-error-button1" class="button logout-button"
+                       tabindex="1"/>
+                <input type="button" value="" id="notefox-server-error-button2" class="button" tabindex="2"/>
+            </div>
+        </div>
+    </div>
+
     <div id="settings-sections">
+        <!--donation popup-->
+        <div id="donation-alert-section" class="message-popup">
+            <div id="donation-alert-content" class="section message-popup-content">
+                <div id="donation-title" class="padding-10 message-popup-content-title"></div>
+                <div id="donation-text" class="padding-10 message-popup-content-description"></div>
+                <div id="donation-buttons" class="padding-10 text-align-right message-popup-content-buttons">
+                    <input type="button" value="" id="donation-buy-button"
+                           class="button" tabindex="2"/>
+                    <input type="button" value="" id="donation-remind-button"
+                           class="button" tabindex="1"/>
+                    <input type="button" value="" id="donation-never-button"
+                           class="button" tabindex="1"/>
+                </div>
+            </div>
+        </div>
         <!--<div class="option-settings">
-            <label class="item-settings">
-                <span class="title-option-settings yes-no-item" id="-text"></span>
-                <input type="checkbox" id="-check"/>
-                <span class="checkmark"></span>
-            </label>
-            <span class="description-option-settings description-option-settings-yes-no yes-no-item" id="-detailed-text"></span>
-        </div>-->
+        <label class="item-settings">
+            <span class="title-option-settings yes-no-item" id="-text"></span>
+            <input type="checkbox" id="-check"/>
+            <span class="checkmark"></span>
+        </label>
+        <span class="description-option-settings description-option-settings-yes-no yes-no-item" id="-detailed-text"></span>
+    </div>-->
 
         <!--<div class="option-settings">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="-text"></span>
-                <span class="section-grid-item-select">
-                    <select class="select-box" id="-select">
-                        <option value="" id=""></option>
-                    </select>
-                </span>
-                <span class="description-option-settings" id="-detailed-text"></span>
+        <span class="item-settings section-grid-container">
+            <span class="title-option-settings section-grid-item-text" id="-text"></span>
+            <span class="section-grid-item-select">
+                <select class="select-box" id="-select">
+                    <option value="" id=""></option>
+                </select>
             </span>
-        </div>-->
+            <span class="description-option-settings" id="-detailed-text"></span>
+        </span>
+    </div>-->
+
+        <!--Search settings-->
+        <div class="section sticky-section" id="settings-search-section">
+            <div id="settings-search-container" class="custom-tag-input-container">
+                <input type="text" id="settings-search-input" class="tag-inner-input" placeholder="" tabindex="1"/>
+            </div>
+        </div>
 
         <!--====================-->
         <!--General section-->
@@ -317,15 +634,16 @@ Created by Saverio Morelli - saveriomorelli.com
 
         <!--Open by default section-->
         <div class="option-settings">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="open-by-default-text"></span>
-                <span class="section-grid-item-select">
-                    <select class="select-box" id="open-by-default-select">
-                        <option value="domain" id="open-by-default-domain-text">Domain</option>
-                        <option value="page" id="open-by-default-page-text">Page</option>
-                    </select>
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text" id="open-by-default-text"></span>
+                    <span class="section-grid-item-select">
+                        <select class="select-box" id="open-by-default-select">
+                            <option value="global" id="open-by-default-global-text">Global</option>
+                            <option value="domain" id="open-by-default-domain-text">Domain</option>
+                            <option value="page" id="open-by-default-page-text">Page</option>
+                        </select>
+                    </span>
                 </span>
-            </span>
         </div>
 
         <!--Disable word wrap section-->
@@ -357,79 +675,138 @@ Created by Saverio Morelli - saveriomorelli.com
                   id="open-links-only-with-ctrl-detailed-text"></span>
         </div>
 
+        <!--Show fullscreen button in all notes section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="show-fullscreen-button-in-all-notes-text"></span>
+                <input type="checkbox" id="show-fullscreen-button-in-all-notes-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="show-fullscreen-button-in-all-notes-detailed-text"></span>
+        </div>
+
+        <!--Context menu create note section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="context-menu-create-note-text"></span>
+                <input type="checkbox" id="context-menu-create-note-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="context-menu-create-note-detailed-text"></span>
+        </div>
+
+        <!--Enable multiple notes per type section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="multiple-notes-per-type-text"></span>
+                <input type="checkbox" id="multiple-notes-per-type-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="multiple-notes-per-type-detailed-text"></span>
+        </div>
+
         <hr class="hr-big-space">
 
         <!--====================-->
         <!--Keyboard Shortcuts section-->
-        <div class="section-title-settings  hide-on-chrome" id="shortcuts-title-settings"></div>
+        <div class="section-title-settings" id="shortcuts-title-settings"></div>
 
         <!--Default shortcut section-->
-        <div class="option-settings hide-on-chrome">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="open-popup-default-shortcut-text"></span>
-                <span class="section-grid-item-select">
-                    <div class="flex-container">
-                        <select class="select-box flex-item" id="key-shortcut-ctrl-alt-shift-default-selected">
-                            <option value="disabled" id="select-disable-shortcut-default">Disabled</option>
-                            <option value="Ctrl" id="select-ctrl-shortcut-default">Ctrl</option>
-                            <option value="Alt" id="select-alt-shortcut-default">Alt</option>
-                            <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-default">Ctrl + Alt</option>
-                            <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-default">Ctrl + Shift</option>
-                            <option value="Alt+Shift" id="select-alt-shift-shortcut-default">Alt + Shift</option>
-                        </select>
-                        <span id="label-plus-shortcut-default" class="flex-item font-size-2em">+</span>
-                        <select class="select-box flex-item" id="key-shortcut-default-selected">
-                        </select>
-                    </div>
+        <div class="option-settings">
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text"
+                          id="open-popup-default-shortcut-text"></span>
+                    <span class="section-grid-item-select">
+                        <div class="flex-container">
+                            <select class="select-box flex-item" id="key-shortcut-ctrl-alt-shift-default-selected">
+                                <option value="disabled" id="select-disable-shortcut-default">Disabled</option>
+                                <option value="Ctrl" id="select-ctrl-shortcut-default">Ctrl</option>
+                                <option value="Alt" id="select-alt-shortcut-default">Alt</option>
+                                <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-default">Ctrl + Alt</option>
+                                <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-default">Ctrl + Shift</option>
+                                <option value="Alt+Shift" id="select-alt-shift-shortcut-default">Alt + Shift</option>
+                            </select>
+                            <span id="label-plus-shortcut-default" class="flex-item font-size-2em">+</span>
+                            <select class="select-box flex-item" id="key-shortcut-default-selected">
+                            </select>
+                        </div>
+                    </span>
                 </span>
-            </span>
         </div>
 
         <!--Domain shortcut-->
-        <div class="option-settings hide-on-chrome">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="open-popup-domain-shortcut-text"></span>
-                <span class="section-grid-item-select">
-                    <div class="flex-container">
-                        <select class="select-box flex-item" id="key-shortcut-ctrl-alt-shift-domain-selected">
-                            <option value="disabled" id="select-disable-shortcut-domain">Disabled</option>
-                            <option value="Ctrl" id="select-ctrl-shortcut-domain">Ctrl</option>
-                            <option value="Alt" id="select-alt-shortcut-domain">Alt</option>
-                            <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-domain">Ctrl + Alt</option>
-                            <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-domain">Ctrl + Shift</option>
-                            <option value="Alt+Shift" id="select-alt-shift-shortcut-domain">Alt + Shift</option>
-                        </select>
-                        <span id="label-plus-shortcut-domain" class="flex-item font-size-2em">+</span>
-                        <select class="select-box flex-item" id="key-shortcut-domain-selected">
-                        </select>
-                    </div>
+        <div class="option-settings">
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text"
+                          id="open-popup-domain-shortcut-text"></span>
+                    <span class="section-grid-item-select">
+                        <div class="flex-container">
+                            <select class="select-box flex-item" id="key-shortcut-ctrl-alt-shift-domain-selected">
+                                <option value="disabled" id="select-disable-shortcut-domain">Disabled</option>
+                                <option value="Ctrl" id="select-ctrl-shortcut-domain">Ctrl</option>
+                                <option value="Alt" id="select-alt-shortcut-domain">Alt</option>
+                                <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-domain">Ctrl + Alt</option>
+                                <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-domain">Ctrl + Shift</option>
+                                <option value="Alt+Shift" id="select-alt-shift-shortcut-domain">Alt + Shift</option>
+                            </select>
+                            <span id="label-plus-shortcut-domain" class="flex-item font-size-2em">+</span>
+                            <select class="select-box flex-item" id="key-shortcut-domain-selected">
+                            </select>
+                        </div>
+                    </span>
                 </span>
-            </span>
         </div>
 
         <!--Page shortcut-->
-        <div class="option-settings hide-on-chrome">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="open-popup-page-shortcut-text"></span>
-                <span class="section-grid-item-select">
-                    <div class="flex-container">
-                        <select class="select-box flex-item" id="key-shortcut-ctrl-alt-shift-page-selected">
-                            <option value="disabled" id="select-disable-shortcut-page">Disabled</option>
-                            <option value="Ctrl" id="select-ctrl-shortcut-page">Ctrl</option>
-                            <option value="Alt" id="select-alt-shortcut-page">Alt</option>
-                            <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-page">Ctrl + Alt</option>
-                            <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-page">Ctrl + Shift</option>
-                            <option value="Alt+Shift" id="select-alt-shift-shortcut-page">Alt + Shift</option>
-                        </select>
-                        <span id="label-plus-shortcut-page" class="flex-item font-size-2em">+</span>
-                        <select class="select-box flex-item" id="key-shortcut-page-selected">
-                        </select>
-                    </div>
+        <div class="option-settings">
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text"
+                          id="open-popup-page-shortcut-text"></span>
+                    <span class="section-grid-item-select">
+                        <div class="flex-container">
+                            <select class="select-box flex-item" id="key-shortcut-ctrl-alt-shift-page-selected">
+                                <option value="disabled" id="select-disable-shortcut-page">Disabled</option>
+                                <option value="Ctrl" id="select-ctrl-shortcut-page">Ctrl</option>
+                                <option value="Alt" id="select-alt-shortcut-page">Alt</option>
+                                <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-page">Ctrl + Alt</option>
+                                <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-page">Ctrl + Shift</option>
+                                <option value="Alt+Shift" id="select-alt-shift-shortcut-page">Alt + Shift</option>
+                            </select>
+                            <span id="label-plus-shortcut-page" class="flex-item font-size-2em">+</span>
+                            <select class="select-box flex-item" id="key-shortcut-page-selected">
+                            </select>
+                        </div>
+                    </span>
                 </span>
-            </span>
         </div>
 
-        <hr class="hr-big-space hide-on-chrome">
+        <!--Sidebar shortcut-->
+        <div class="option-settings">
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text"
+                          id="open-popup-sidebar-shortcut-text"></span>
+                    <span class="section-grid-item-select">
+                        <div class="flex-container">
+                            <select class="select-box flex-item" id="key-shortcut-ctrl-alt-shift-sidebar-selected">
+                                <option value="disabled" id="select-disable-shortcut-sidebar">Disabled</option>
+                                <option value="Ctrl" id="select-ctrl-shortcut-sidebar">Ctrl</option>
+                                <option value="Alt" id="select-alt-shortcut-sidebar">Alt</option>
+                                <option value="Ctrl+Alt" id="select-ctrl-alt-shortcut-sidebar">Ctrl + Alt</option>
+                                <option value="Ctrl+Shift" id="select-ctrl-shift-shortcut-sidebar">Ctrl + Shift</option>
+                                <option value="Alt+Shift" id="select-alt-shift-shortcut-sidebar">Alt + Shift</option>
+                            </select>
+                            <span id="label-plus-shortcut-sidebar" class="flex-item font-size-2em">+</span>
+                            <select class="select-box flex-item" id="key-shortcut-sidebar-selected">
+                            </select>
+                        </div>
+                    </span>
+                </span>
+        </div>
+
+        <hr class="hr-big-space">
 
         <!--====================-->
         <!--Appearance section-->
@@ -450,8 +827,7 @@ Created by Saverio Morelli - saveriomorelli.com
             <!--Show HTML text formatting section :: Undo, Redo-->
             <div class="option-settings option-indent-settings">
                 <label class="item-settings">
-                    <span class="title-option-settings yes-no-item"
-                          id="show-undo-redo-text"></span>
+                    <span class="title-option-settings yes-no-item" id="show-undo-redo-text"></span>
                     <input type="checkbox" id="show-undo-redo-check"/>
                     <span class="checkmark"></span>
                 </label>
@@ -462,8 +838,8 @@ Created by Saverio Morelli - saveriomorelli.com
             <!--Show HTML text formatting section :: Bold, Italic, Underline, Strikethrough-->
             <div class="option-settings option-indent-settings">
                 <label class="item-settings">
-                    <span class="title-option-settings yes-no-item"
-                          id="show-bold-italic-underline-strikethrough-text"></span>
+                        <span class="title-option-settings yes-no-item"
+                              id="show-bold-italic-underline-strikethrough-text"></span>
                     <input type="checkbox" id="show-bold-italic-underline-strikethrough-check"/>
                     <span class="checkmark"></span>
                 </label>
@@ -547,6 +923,28 @@ Created by Saverio Morelli - saveriomorelli.com
                 <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                       id="show-code-block-detailed-text"></span>
             </div>
+
+            <!--Show HTML text formatting section :: Clear formatting-->
+            <div class="option-settings option-indent-settings">
+                <label class="item-settings">
+                    <span class="title-option-settings yes-no-item" id="show-clear-formatting-text"></span>
+                    <input type="checkbox" id="show-clear-formatting-check"/>
+                    <span class="checkmark"></span>
+                </label>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-clear-formatting-detailed-text"></span>
+            </div>
+
+            <!--Show HTML text formatting section :: Lists (ol, ul)-->
+            <div class="option-settings option-indent-settings">
+                <label class="item-settings">
+                    <span class="title-option-settings yes-no-item" id="show-lists-text"></span>
+                    <input type="checkbox" id="show-lists-check"/>
+                    <span class="checkmark"></span>
+                </label>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="show-lists-detailed-text"></span>
+            </div>
         </div>
 
         <!--Show title textbox section-->
@@ -560,15 +958,15 @@ Created by Saverio Morelli - saveriomorelli.com
                   id="show-title-textbox-detailed-text"></span>
         </div>
 
-        <!--Immersive sticky notes section-->
+        <!--Allow popup resizing section-->
         <div class="option-settings">
             <label class="item-settings">
-                <span class="title-option-settings yes-no-item" id="immersive-sticky-notes-text"></span>
-                <input type="checkbox" id="immersive-sticky-notes-check"/>
+                <span class="title-option-settings yes-no-item" id="allow-resize-popup-text"></span>
+                <input type="checkbox" id="allow-resize-popup-check"/>
                 <span class="checkmark"></span>
             </label>
             <span class="description-option-settings description-option-settings-yes-no yes-no-item"
-                  id="immersive-sticky-notes-detailed-text"></span>
+                  id="allow-resize-popup-detailed-text"></span>
         </div>
 
         <!--Notes background follow the tag colour section-->
@@ -584,224 +982,293 @@ Created by Saverio Morelli - saveriomorelli.com
 
         <!--Notefox theme section-->
         <div class="option-settings">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="theme-text"></span>
-                <span class="section-grid-item-select"></span>
-                <span class="description-option-settings display-block" id="theme-detailed-text"></span>
-            </span>
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text" id="theme-text"></span>
+                    <span class="section-grid-item-select"></span>
+                    <span class="description-option-settings display-block" id="theme-detailed-text"></span>
+                </span>
             <span class="theme-section-radio-container">
-                <label class="item-radio-theme" id="item-radio-theme-lighter">
-                    <input name="theme-radio" type="radio" value="lighter">
-                    <span class="item-radio-theme-preview-container" id="radio-lighter-theme">
-                        <span class="item-radio-theme-preview-item primary">A</span>
-                        <span class="item-radio-theme-preview-item secondary">B</span>
-                    </span>
-                    <span class="item-radio-title" id="theme-select-lighter"></span>
-                </label>
-                <label class="item-radio-theme" id="item-radio-theme-light">
-                    <input name="theme-radio" type="radio" value="light">
-                    <span class="item-radio-theme-preview-container" id="radio-light-theme">
-                        <span class="item-radio-theme-preview-item primary">A</span>
-                        <span class="item-radio-theme-preview-item secondary">B</span>
-                    </span>
-                    <span class="item-radio-title" id="theme-select-light"></span>
-                </label>
-                <label class="item-radio-theme" id="item-radio-theme-dark">
-                    <input name="theme-radio" type="radio" value="dark">
-                    <span class="item-radio-theme-preview-container" id="radio-dark-theme">
-                        <span class="item-radio-theme-preview-item primary">A</span>
-                        <span class="item-radio-theme-preview-item secondary">B</span>
-                    </span>
-                    <span class="item-radio-title" id="theme-select-dark"></span>
-                </label>
-                <label class="item-radio-theme" id="item-radio-theme-darker">
-                    <input name="theme-radio" type="radio" value="darker">
-                    <span class="item-radio-theme-preview-container" id="radio-darker-theme">
-                        <span class="item-radio-theme-preview-item primary">A</span>
-                        <span class="item-radio-theme-preview-item secondary">B</span>
-                    </span>
-                    <span class="item-radio-title" id="theme-select-darker"></span>
-                </label>
-                <label class="item-radio-theme hidden" id="item-radio-theme-auto">
-                    <input name="theme-radio" type="radio" value="auto">
-                    <span class="item-radio-theme-preview-container" id="radio-auto-theme">
-                        <span class="item-radio-theme-preview-item primary" id="primary-auto">A</span>
-                        <span class="item-radio-theme-preview-item secondary" id="secondary-auto">B</span>
-                    </span>
-                    <span class="item-radio-title" id="theme-select-firefox"></span>
-                </label>
-            </span>
-        </div>
+                    <label class="item-radio-theme" id="item-radio-theme-lighter">
+                        <input name="theme-radio" type="radio" value="lighter">
+                        <span class="item-radio-theme-preview-container" id="radio-lighter-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-lighter"></span>
+                    </label>
+                    <label class="item-radio-theme" id="item-radio-theme-light">
+                        <input name="theme-radio" type="radio" value="light">
+                        <span class="item-radio-theme-preview-container" id="radio-light-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-light"></span>
+                    </label>
+                    <label class="item-radio-theme" id="item-radio-theme-dark">
+                        <input name="theme-radio" type="radio" value="dark">
+                        <span class="item-radio-theme-preview-container" id="radio-dark-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-dark"></span>
+                    </label>
+                    <label class="item-radio-theme" id="item-radio-theme-darker">
+                        <input name="theme-radio" type="radio" value="darker">
+                        <span class="item-radio-theme-preview-container" id="radio-darker-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-darker"></span>
+                    </label>
+                    <label class="item-radio-theme" id="item-radio-theme-auto">
+                        <input name="theme-radio" type="radio" value="auto">
+                        <span class="item-radio-theme-preview-container" id="radio-auto-theme">
+                            <span class="item-radio-theme-preview-item primary" id="primary-auto">A</span>
+                            <span class="item-radio-theme-preview-item secondary" id="secondary-auto">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-firefox"></span>
+                    </label>
 
-        <!--Sticky theme section-->
-        <div class="option-settings margin-top-20-px">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="sticky-theme-text"></span>
-                <span class="section-grid-item-select"></span>
-                <span class="description-option-settings display-block" id="sticky-theme-detailed-text"></span>
-            </span>
-            <span class="sticky-theme-section-radio-container">
-                <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-yellow">
-                    <input name="theme-radio-sticky" type="radio" value="yellow">
-                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-yellow">
-                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-yellow">A</span>
-                    </span>
-                    <span class="item-radio-title" id="sticky-theme-select-yellow"></span>
-                </label>
+                <!-- Blue Theme (Light Mode) -->
+                    <label class="item-radio-theme" id="item-radio-theme-blue-light">
+                        <input name="theme-radio" type="radio" value="blue-light">
+                        <span class="item-radio-theme-preview-container" id="radio-blue-light-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-blue-light"></span>
+                    </label>
 
-                <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-cyan">
-                    <input name="theme-radio-sticky" type="radio" value="cyan">
-                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-cyan">
-                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-cyan">A</span>
-                    </span>
-                    <span class="item-radio-title" id="sticky-theme-select-cyan"></span>
-                </label>
+                <!-- Blue Theme (Dark Mode) -->
+                    <label class="item-radio-theme" id="item-radio-theme-blue-dark">
+                        <input name="theme-radio" type="radio" value="blue-dark">
+                        <span class="item-radio-theme-preview-container" id="radio-blue-dark-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-blue-dark"></span>
+                    </label>
 
-                <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-lime">
-                    <input name="theme-radio-sticky" type="radio" value="lime">
-                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-lime">
-                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-lime">A</span>
-                    </span>
-                    <span class="item-radio-title" id="sticky-theme-select-lime"></span>
-                </label>
+                <!-- Lavender Theme (Light Mode) -->
+                    <label class="item-radio-theme" id="item-radio-theme-lavender-light">
+                        <input name="theme-radio" type="radio" value="lavender-light">
+                        <span class="item-radio-theme-preview-container" id="radio-lavender-light-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-lavender-light"></span>
+                    </label>
 
-                <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-pink">
-                    <input name="theme-radio-sticky" type="radio" value="pink">
-                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-pink">
-                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-pink">A</span>
-                    </span>
-                    <span class="item-radio-title" id="sticky-theme-select-pink"></span>
-                </label>
+                <!-- Lavender Theme (Dark Mode) -->
+                    <label class="item-radio-theme" id="item-radio-theme-lavender-dark">
+                        <input name="theme-radio" type="radio" value="lavender-dark">
+                        <span class="item-radio-theme-preview-container" id="radio-lavender-dark-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-lavender-dark"></span>
+                    </label>
 
-                <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-white">
-                    <input name="theme-radio-sticky" type="radio" value="white">
-                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-white">
-                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-white">A</span>
-                    </span>
-                    <span class="item-radio-title" id="sticky-theme-select-white"></span>
-                </label>
+                <!-- Retro Pink Theme (Light Mode) -->
+                    <label class="item-radio-theme" id="item-radio-theme-retro-pink-light">
+                        <input name="theme-radio" type="radio" value="retro-pink-light">
+                        <span class="item-radio-theme-preview-container" id="radio-retro-pink-light-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-retro-pink-light"></span>
+                    </label>
 
-                <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-black">
-                    <input name="theme-radio-sticky" type="radio" value="black">
-                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-black">
-                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-black">A</span>
-                    </span>
-                    <span class="item-radio-title" id="sticky-theme-select-black"></span>
-                </label>
+                <!-- Retro Pink Theme (Dark Mode) -->
+                    <label class="item-radio-theme" id="item-radio-theme-retro-pink-dark">
+                        <input name="theme-radio" type="radio" value="retro-pink-dark">
+                        <span class="item-radio-theme-preview-container" id="radio-retro-pink-dark-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-retro-pink-dark"></span>
+                    </label>
 
-                <label class="item-radio-sticky-theme hidden" id="item-radio-sticky-theme-auto">
-                    <input name="theme-radio-sticky" type="radio" value="auto">
-                    <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-auto">
-                        <span class="item-radio-sticky-theme-item primary" id="primary-sticky-theme-auto">A</span>
-                    </span>
-                    <span class="item-radio-title" id="sticky-theme-select-auto"></span>
-                </label>
-            </span>
+                <!-- Matcha Theme (Light Mode) -->
+                    <label class="item-radio-theme" id="item-radio-theme-matcha-light">
+                        <input name="theme-radio" type="radio" value="matcha-light">
+                        <span class="item-radio-theme-preview-container" id="radio-matcha-light-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-matcha-light"></span>
+                    </label>
+
+                <!-- Matcha Theme (Dark Mode) -->
+                    <label class="item-radio-theme" id="item-radio-theme-matcha-dark">
+                        <input name="theme-radio" type="radio" value="matcha-dark">
+                        <span class="item-radio-theme-preview-container" id="radio-matcha-dark-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-matcha-dark"></span>
+                    </label>
+
+                <!-- Forest Theme (Light Mode) -->
+                    <label class="item-radio-theme" id="item-radio-theme-forest-light">
+                        <input name="theme-radio" type="radio" value="forest-light">
+                        <span class="item-radio-theme-preview-container" id="radio-forest-light-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-forest-light"></span>
+                    </label>
+
+                <!-- Forest Theme (Dark Mode) -->
+                    <label class="item-radio-theme" id="item-radio-theme-forest-dark">
+                        <input name="theme-radio" type="radio" value="forest-dark">
+                        <span class="item-radio-theme-preview-container" id="radio-forest-dark-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-forest-dark"></span>
+                    </label>
+
+                <!-- Retro Teal Theme (Light Mode) -->
+                    <label class="item-radio-theme" id="item-radio-theme-retro-teal-light">
+                        <input name="theme-radio" type="radio" value="retro-teal-light">
+                        <span class="item-radio-theme-preview-container" id="radio-retro-teal-light-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-retro-teal-light"></span>
+                    </label>
+
+                <!-- Retro Teal Theme (Dark Mode) -->
+                    <label class="item-radio-theme" id="item-radio-theme-retro-teal-dark">
+                        <input name="theme-radio" type="radio" value="retro-teal-dark">
+                        <span class="item-radio-theme-preview-container" id="radio-retro-teal-dark-theme">
+                            <span class="item-radio-theme-preview-item primary">A</span>
+                            <span class="item-radio-theme-preview-item secondary">B</span>
+                        </span>
+                        <span class="item-radio-title" id="theme-select-retro-teal-dark"></span>
+                    </label>
+                </span>
         </div>
 
         <!--Font family section-->
         <div class="option-settings margin-top-20-px">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="font-family-text"></span>
-                <span class="section-grid-item-select"></span>
-                <span class="description-option-settings" id="font-family-detailed-text"></span>
-            </span>
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text" id="font-family-text"></span>
+                    <span class="section-grid-item-select"></span>
+                    <span class="description-option-settings" id="font-family-detailed-text"></span>
+                </span>
             <span class="font-family-section-radio-container">
-                <label class="item-radio-font-family" id="item-radio-font-family-opensans">
-                    <input name="font-family-radio" type="radio" value="Open Sans">
-                    <span class="item-radio-font-family-preview-container" id="radio-font-family-opensans">
-                        <span class="item-radio-font-family-preview-item primary" id="preview-font-family-opensans">Notefox</span>
-                    </span>
-                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-opensans">Open Sans</span>
-                </label>
+                    <label class="item-radio-font-family" id="item-radio-font-family-opensans">
+                        <input name="font-family-radio" type="radio" value="Open Sans">
+                        <span class="item-radio-font-family-preview-container" id="radio-font-family-opensans">
+                            <span class="item-radio-font-family-preview-item primary"
+                                  id="preview-font-family-opensans">Notefox</span>
+                        </span>
+                        <span class="item-radio-title item-radio-title-font-family"
+                              id="font-family-select-opensans">Open Sans</span>
+                    </label>
 
-                <label class="item-radio-font-family" id="item-radio-font-family-shantellsans">
-                    <input name="font-family-radio" type="radio" value="Shantell Sans">
-                    <span class="item-radio-font-family-preview-container" id="radio-font-family-shantellsans">
-                        <span class="item-radio-font-family-preview-item primary" id="preview-font-family-shantellsans">Notefox</span>
-                    </span>
-                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-shantellsans">Shantell Sans</span>
-                </label>
+                    <label class="item-radio-font-family" id="item-radio-font-family-shantellsans">
+                        <input name="font-family-radio" type="radio" value="Shantell Sans">
+                        <span class="item-radio-font-family-preview-container" id="radio-font-family-shantellsans">
+                            <span class="item-radio-font-family-preview-item primary"
+                                  id="preview-font-family-shantellsans">Notefox</span>
+                        </span>
+                        <span class="item-radio-title item-radio-title-font-family"
+                              id="font-family-select-shantellsans">Shantell Sans</span>
+                    </label>
 
-                <label class="item-radio-font-family" id="item-radio-font-family-inter">
-                    <input name="font-family-radio" type="radio" value="Inter">
-                    <span class="item-radio-font-family-preview-container" id="radio-font-family-inter">
-                        <span class="item-radio-font-family-preview-item primary"
-                              id="preview-font-family-inter">Notefox</span>
-                    </span>
-                    <span class="item-radio-title item-radio-title-font-family"
-                          id="font-family-select-inter">Inter</span>
-                </label>
+                    <label class="item-radio-font-family" id="item-radio-font-family-inter">
+                        <input name="font-family-radio" type="radio" value="Inter">
+                        <span class="item-radio-font-family-preview-container" id="radio-font-family-inter">
+                            <span class="item-radio-font-family-preview-item primary"
+                                  id="preview-font-family-inter">Notefox</span>
+                        </span>
+                        <span class="item-radio-title item-radio-title-font-family"
+                              id="font-family-select-inter">Inter</span>
+                    </label>
 
-                <label class="item-radio-font-family" id="item-radio-font-family-lora">
-                    <input name="font-family-radio" type="radio" value="Lora">
-                    <span class="item-radio-font-family-preview-container" id="radio-font-family-lora">
-                        <span class="item-radio-font-family-preview-item primary"
-                              id="preview-font-family-lora">Notefox</span>
-                    </span>
-                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-lora">Lora</span>
-                </label>
+                    <label class="item-radio-font-family" id="item-radio-font-family-lora">
+                        <input name="font-family-radio" type="radio" value="Lora">
+                        <span class="item-radio-font-family-preview-container" id="radio-font-family-lora">
+                            <span class="item-radio-font-family-preview-item primary"
+                                  id="preview-font-family-lora">Notefox</span>
+                        </span>
+                        <span class="item-radio-title item-radio-title-font-family"
+                              id="font-family-select-lora">Lora</span>
+                    </label>
 
-                <label class="item-radio-font-family" id="item-radio-font-family-merienda">
-                    <input name="font-family-radio" type="radio" value="Merienda">
-                    <span class="item-radio-font-family-preview-container" id="radio-font-family-merienda">
-                        <span class="item-radio-font-family-preview-item primary" id="preview-font-family-merienda">Notefox</span>
-                    </span>
-                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-merienda">Merienda</span>
-                </label>
+                    <label class="item-radio-font-family" id="item-radio-font-family-merienda">
+                        <input name="font-family-radio" type="radio" value="Merienda">
+                        <span class="item-radio-font-family-preview-container" id="radio-font-family-merienda">
+                            <span class="item-radio-font-family-preview-item primary"
+                                  id="preview-font-family-merienda">Notefox</span>
+                        </span>
+                        <span class="item-radio-title item-radio-title-font-family"
+                              id="font-family-select-merienda">Merienda</span>
+                    </label>
 
-                <label class="item-radio-font-family" id="item-radio-font-family-notosans">
-                    <input name="font-family-radio" type="radio" value="Noto Sans">
-                    <span class="item-radio-font-family-preview-container" id="radio-font-family-notosans">
-                        <span class="item-radio-font-family-preview-item primary" id="preview-font-family-notosans">Notefox</span>
-                    </span>
-                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-notosans">Noto Sans</span>
-                </label>
+                    <label class="item-radio-font-family" id="item-radio-font-family-notosans">
+                        <input name="font-family-radio" type="radio" value="Noto Sans">
+                        <span class="item-radio-font-family-preview-container" id="radio-font-family-notosans">
+                            <span class="item-radio-font-family-preview-item primary"
+                                  id="preview-font-family-notosans">Notefox</span>
+                        </span>
+                        <span class="item-radio-title item-radio-title-font-family"
+                              id="font-family-select-notosans">Noto Sans</span>
+                    </label>
 
-                <label class="item-radio-font-family" id="item-radio-font-family-notoserif">
-                    <input name="font-family-radio" type="radio" value="Noto Serif">
-                    <span class="item-radio-font-family-preview-container" id="radio-font-family-notoserif">
-                        <span class="item-radio-font-family-preview-item primary" id="preview-font-family-notoserif">Notefox</span>
-                    </span>
-                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-notoserif">Noto Serif</span>
-                </label>
+                    <label class="item-radio-font-family" id="item-radio-font-family-notoserif">
+                        <input name="font-family-radio" type="radio" value="Noto Serif">
+                        <span class="item-radio-font-family-preview-container" id="radio-font-family-notoserif">
+                            <span class="item-radio-font-family-preview-item primary"
+                                  id="preview-font-family-notoserif">Notefox</span>
+                        </span>
+                        <span class="item-radio-title item-radio-title-font-family"
+                              id="font-family-select-notoserif">Noto Serif</span>
+                    </label>
 
-                <label class="item-radio-font-family" id="item-radio-font-family-playfairdisplay">
-                    <input name="font-family-radio" type="radio" value="Playfair Display">
-                    <span class="item-radio-font-family-preview-container" id="radio-font-family-playfairdisplay">
-                        <span class="item-radio-font-family-preview-item primary"
-                              id="preview-font-family-playfairdisplay">Notefox</span>
-                    </span>
-                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-playfairdisplay">Playfair Display</span>
-                </label>
+                    <label class="item-radio-font-family" id="item-radio-font-family-playfairdisplay">
+                        <input name="font-family-radio" type="radio" value="Playfair Display">
+                        <span class="item-radio-font-family-preview-container" id="radio-font-family-playfairdisplay">
+                            <span class="item-radio-font-family-preview-item primary"
+                                  id="preview-font-family-playfairdisplay">Notefox</span>
+                        </span>
+                        <span class="item-radio-title item-radio-title-font-family"
+                              id="font-family-select-playfairdisplay">Playfair Display</span>
+                    </label>
 
-                <label class="item-radio-font-family" id="item-radio-font-family-roboto">
-                    <input name="font-family-radio" type="radio" value="Roboto">
-                    <span class="item-radio-font-family-preview-container" id="radio-font-family-roboto">
-                        <span class="item-radio-font-family-preview-item primary"
-                              id="preview-font-family-roboto">Notefox</span>
-                    </span>
-                    <span class="item-radio-title item-radio-title-font-family"
-                          id="font-family-select-roboto">Roboto</span>
-                </label>
+                    <label class="item-radio-font-family" id="item-radio-font-family-roboto">
+                        <input name="font-family-radio" type="radio" value="Roboto">
+                        <span class="item-radio-font-family-preview-container" id="radio-font-family-roboto">
+                            <span class="item-radio-font-family-preview-item primary"
+                                  id="preview-font-family-roboto">Notefox</span>
+                        </span>
+                        <span class="item-radio-title item-radio-title-font-family"
+                              id="font-family-select-roboto">Roboto</span>
+                    </label>
 
-                <label class="item-radio-font-family" id="item-radio-font-family-sourcecodepro">
-                    <input name="font-family-radio" type="radio" value="Source Code Pro">
-                    <span class="item-radio-font-family-preview-container" id="radio-font-family-sourcecodepro">
-                        <span class="item-radio-font-family-preview-item primary"
-                              id="preview-font-family-sourcecodepro">Notefox</span>
-                    </span>
-                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-sourcecodepro">Source Code Pro</span>
-                </label>
+                    <label class="item-radio-font-family" id="item-radio-font-family-sourcecodepro">
+                        <input name="font-family-radio" type="radio" value="Source Code Pro">
+                        <span class="item-radio-font-family-preview-container" id="radio-font-family-sourcecodepro">
+                            <span class="item-radio-font-family-preview-item primary"
+                                  id="preview-font-family-sourcecodepro">Notefox</span>
+                        </span>
+                        <span class="item-radio-title item-radio-title-font-family"
+                              id="font-family-select-sourcecodepro">Source Code Pro</span>
+                    </label>
 
-                <label class="item-radio-font-family" id="item-radio-font-family-victormono">
-                    <input name="font-family-radio" type="radio" value="Victor Mono">
-                    <span class="item-radio-font-family-preview-container" id="radio-font-family-victormono">
-                        <span class="item-radio-font-family-preview-item primary" id="preview-font-family-victormono">Notefox</span>
-                    </span>
-                    <span class="item-radio-title item-radio-title-font-family" id="font-family-select-victormono">Victor Mono</span>
-                </label>
-            </span>
+                    <label class="item-radio-font-family" id="item-radio-font-family-victormono">
+                        <input name="font-family-radio" type="radio" value="Victor Mono">
+                        <span class="item-radio-font-family-preview-container" id="radio-font-family-victormono">
+                            <span class="item-radio-font-family-preview-item primary"
+                                  id="preview-font-family-victormono">Notefox</span>
+                        </span>
+                        <span class="item-radio-title item-radio-title-font-family"
+                              id="font-family-select-victormono">Victor Mono</span>
+                    </label>
+                </span>
         </div>
 
         <!--Datetime format section-->
@@ -864,7 +1331,8 @@ Created by Saverio Morelli - saveriomorelli.com
 
                 <label class="item-radio-datetime-format" id="item-radio-datetime-format-ddmmyyyy1-12h">
                     <input name="datetime-format-radio" type="radio" value="ddmmyyyy1-12h">
-                    <span class="item-radio-datetime-format-preview-container" id="radio-datetime-format-ddmmyyyy1-12h">
+                    <span class="item-radio-datetime-format-preview-container"
+                          id="radio-datetime-format-ddmmyyyy1-12h">
                         <span class="item-radio-datetime-format-preview-item primary"
                               id="preview-datetime-format-ddmmyyyy1-12h"></span>
                     </span>
@@ -872,6 +1340,209 @@ Created by Saverio Morelli - saveriomorelli.com
                           id="datetime-format-select-ddmmyyyy1-12h">DD/MM/YYYY 12H:MM:SS</span>
                 </label>
             </span>
+        </div>
+
+        <!--Text size section-->
+        <div class="option-settings margin-top-20-px">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id="text-size-text"></span>
+                <span class="section-grid-item-select"></span>
+                <span class="description-option-settings" id="text-size-detailed-text"></span>
+            </span>
+            <span class="text-size-section-radio-container">
+                <label class="item-radio-text-size" id="item-radio-text-size-extra-small">
+                    <input name="text-size-radio" type="radio" value="extra-small">
+                    <span class="item-radio-text-size-preview-container" id="radio-text-size-extra-small">
+                        <span class="item-radio-text-size-preview-item primary"
+                              id="preview-text-size-extra-small">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-text-size"
+                          id="text-size-select-extra-small"></span>
+                </label>
+
+                <label class="item-radio-text-size" id="item-radio-text-size-small">
+                    <input name="text-size-radio" type="radio" value="small">
+                    <span class="item-radio-text-size-preview-container" id="radio-text-size-small">
+                        <span class="item-radio-text-size-preview-item primary"
+                              id="preview-text-size-small">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-text-size"
+                          id="text-size-select-small"></span>
+                </label>
+
+                <label class="item-radio-text-size" id="item-radio-text-size-standard">
+                    <input name="text-size-radio" type="radio" value="standard">
+                    <span class="item-radio-text-size-preview-container" id="radio-text-size-standard">
+                        <span class="item-radio-text-size-preview-item primary"
+                              id="preview-text-size-standard">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-text-size"
+                          id="text-size-select-standard"></span>
+                </label>
+
+                <label class="item-radio-text-size" id="item-radio-text-size-large">
+                    <input name="text-size-radio" type="radio" value="large">
+                    <span class="item-radio-text-size-preview-container" id="radio-text-size-large">
+                        <span class="item-radio-text-size-preview-item primary"
+                              id="preview-text-size-large">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-text-size"
+                          id="text-size-select-large"></span>
+                </label>
+
+                <label class="item-radio-text-size" id="item-radio-text-size-extra-large">
+                    <input name="text-size-radio" type="radio" value="extra-large">
+                    <span class="item-radio-text-size-preview-container" id="radio-text-size-extra-large">
+                        <span class="item-radio-text-size-preview-item primary"
+                              id="preview-text-size-extra-large">Notefox</span>
+                    </span>
+                    <span class="item-radio-title item-radio-title-text-size"
+                          id="text-size-select-extra-large"></span>
+                </label>
+            </span>
+        </div>
+
+        <!--Expand all websites by default in all notes-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="expand-all-websites-text"></span>
+                <input type="checkbox" id="expand-all-websites-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="expand-all-websites-detailed-text"></span>
+        </div>
+
+        <hr class="hr-big-space">
+
+        <div class="section-title-settings" id="sticky-notes-title-settings"></div>
+
+        <!--Immersive sticky notes section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="immersive-sticky-notes-text"></span>
+                <input type="checkbox" id="immersive-sticky-notes-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="immersive-sticky-notes-detailed-text"></span>
+        </div>
+
+        <!--Default sticky pinned section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="default-sticky-pinned-text"></span>
+                <input type="checkbox" id="default-sticky-pinned-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="default-sticky-pinned-detailed-text"></span>
+        </div>
+
+        <!--Default sticky size section-->
+        <div class="option-settings">
+                    <span class="item-settings section-grid-container">
+                        <span class="title-option-settings section-grid-item-text" id="default-sticky-size-text"></span>
+                        <span class="section-grid-item-select">
+                            <select class="select-box" id="default-sticky-size-select">
+                                <option value="small" id="default-sticky-size-select-small">Small</option>
+                                <option value="medium" id="default-sticky-size-select-medium">Medium</option>
+                                <option value="large" id="default-sticky-size-select-large">Large</option>
+                                <option value="very-large"
+                                        id="default-sticky-size-select-very-large">Very large</option>
+                            </select>
+                        </span>
+                        <span class="description-option-settings" id="default-sticky-size-detailed-text"></span>
+                    </span>
+        </div>
+
+        <!--Default sticky transparency section-->
+        <div class="option-settings">
+                    <span class="item-settings section-grid-container">
+                        <span class="title-option-settings section-grid-item-text"
+                              id="default-sticky-transparency-text"></span>
+                        <span class="section-grid-item-select">
+                            <span class="sticky-transparency-setting">
+                                <input type="range" class="slider--sticky-notes-notefox-addon"
+                                       id="default-sticky-transparency-range" min="10" max="100" step="1" value="80">
+                                <span id="default-sticky-transparency-value">80%</span>
+                            </span>
+                        </span>
+                        <span class="description-option-settings" id="default-sticky-transparency-detailed-text"></span>
+                    </span>
+        </div>
+
+        <!--Sticky theme section-->
+        <div class="option-settings">
+                    <span class="item-settings section-grid-container">
+                        <span class="title-option-settings section-grid-item-text" id="sticky-theme-text"></span>
+                        <span class="section-grid-item-select"></span>
+                        <span class="description-option-settings display-block" id="sticky-theme-detailed-text"></span>
+                    </span>
+            <span class="sticky-theme-section-radio-container">
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-yellow">
+                            <input name="theme-radio-sticky" type="radio" value="yellow">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-yellow">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-yellow">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-yellow"></span>
+                        </label>
+
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-cyan">
+                            <input name="theme-radio-sticky" type="radio" value="cyan">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-cyan">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-cyan">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-cyan"></span>
+                        </label>
+
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-lime">
+                            <input name="theme-radio-sticky" type="radio" value="lime">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-lime">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-lime">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-lime"></span>
+                        </label>
+
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-pink">
+                            <input name="theme-radio-sticky" type="radio" value="pink">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-pink">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-pink">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-pink"></span>
+                        </label>
+
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-white">
+                            <input name="theme-radio-sticky" type="radio" value="white">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-white">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-white">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-white"></span>
+                        </label>
+
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-black">
+                            <input name="theme-radio-sticky" type="radio" value="black">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-black">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-black">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-black"></span>
+                        </label>
+
+                        <label class="item-radio-sticky-theme" id="item-radio-sticky-theme-auto">
+                            <input name="theme-radio-sticky" type="radio" value="auto">
+                            <span class="item-radio-sticky-theme-preview-container" id="radio-sticky-theme-auto">
+                                <span class="item-radio-sticky-theme-item primary"
+                                      id="primary-sticky-theme-auto">A</span>
+                            </span>
+                            <span class="item-radio-title" id="sticky-theme-select-auto"></span>
+                        </label>
+                    </span>
         </div>
 
         <hr class="hr-big-space">
@@ -925,14 +1596,27 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
 
         <!--Change toolbar icon colour based on the notes tag colour section-->
-        <div class="option-settings hide-on-chrome">
+        <div class="option-settings">
             <label class="item-settings">
-                <span class="title-option-settings yes-no-item" id="change-icon-color-based-on-tag-colour-text"></span>
+                    <span class="title-option-settings yes-no-item"
+                          id="change-icon-color-based-on-tag-colour-text"></span>
                 <input type="checkbox" id="change-icon-color-based-on-tag-colour-check"/>
                 <span class="checkmark"></span>
             </label>
             <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                   id="change-icon-color-based-on-tag-colour-detailed-text"></span>
+        </div>
+
+        <!--Show the badge with the amount of notes-->
+        <div class="option-settings">
+            <label class="item-settings">
+                    <span class="title-option-settings yes-no-item"
+                          id="show-badge-with-number-of-notes-text"></span>
+                <input type="checkbox" id="show-badge-with-number-of-notes-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="show-badge-with-number-of-notes-detailed-text"></span>
         </div>
 
         <hr class="hr-big-space">
@@ -943,51 +1627,48 @@ Created by Saverio Morelli - saveriomorelli.com
 
         <!--Notefox account button (login/logout) section-->
         <div class="option-settings">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text"
-                      id="notefox-account-settings-text"></span>
-                <span class="section-grid-item-select text-align-center">
-                    <input type="button" value="" id="notefox-account-settings-button"
-                           class="button manage-account-button"/>
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text"
+                          id="notefox-account-settings-text"></span>
+                    <span class="section-grid-item-select text-align-center">
+                        <input type="button" value="" id="notefox-account-settings-button"
+                               class="button manage-account-button"/>
+                    </span>
+                    <span class="description-option-settings" id="notefox-account-settings-detailed-text"></span>
                 </span>
-                <span class="description-option-settings" id="notefox-account-settings-detailed-text"></span>
-            </span>
         </div>
 
         <!--Export all data section-->
         <div class="option-settings">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="export-text"></span>
-                <span class="section-grid-item-select">
-                    <input type="button" value="" id="export-all-notes-button"
-                           class="button export-button"/>
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text" id="export-text"></span>
+                    <span class="section-grid-item-select">
+                        <input type="button" value="" id="export-all-notes-button" class="button export-button"/>
+                    </span>
+                    <span class="description-option-settings" id="export-detailed-text"></span>
                 </span>
-                <span class="description-option-settings" id="export-detailed-text"></span>
-            </span>
         </div>
 
         <!--Import data section-->
         <div class="option-settings">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="import-text"></span>
-                <span class="section-grid-item-select">
-                    <input type="button" value="" id="import-all-notes-button"
-                           class="button import-button"/>
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text" id="import-text"></span>
+                    <span class="section-grid-item-select">
+                        <input type="button" value="" id="import-all-notes-button" class="button import-button"/>
+                    </span>
+                    <span class="description-option-settings" id="import-detailed-text"></span>
                 </span>
-                <span class="description-option-settings" id="import-detailed-text"></span>
-            </span>
         </div>
 
         <!--Clear all data section-->
         <div class="option-settings">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="clear-all-notes-text"></span>
-                <span class="section-grid-item-select">
-                    <input type="button" value="" id="clear-all-notes-button"
-                           class="button clear-button"/>
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text" id="clear-all-notes-text"></span>
+                    <span class="section-grid-item-select">
+                        <input type="button" value="" id="clear-all-notes-button" class="button clear-button"/>
+                    </span>
+                    <span class="description-option-settings" id="clear-all-notes-detailed-text"></span>
                 </span>
-                <span class="description-option-settings" id="clear-all-notes-detailed-text"></span>
-            </span>
         </div>
 
         <hr class="hr-big-space">
@@ -1029,6 +1710,17 @@ Created by Saverio Morelli - saveriomorelli.com
                   id="advanced-managing-detailed-text"></span>
         </div>
 
+        <!--Disable confirmation popup section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="disable-confirmation-popup-text"></span>
+                <input type="checkbox" id="disable-confirmation-popup-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="disable-confirmation-popup-detailed-text"></span>
+        </div>
+
         <!--Check with all supported protocols section-->
         <div class="option-settings">
             <label class="item-settings">
@@ -1042,24 +1734,27 @@ Created by Saverio Morelli - saveriomorelli.com
 
         <!--Default tag colour for domains section-->
         <div class="option-settings">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="default-tag-colour-domain-text"></span>
-                <span class="section-grid-item-select">
-                    <select class="select-box" id="default-tag-colour-domain-select"></select>
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text"
+                          id="default-tag-colour-domain-text"></span>
+                    <span class="section-grid-item-select">
+                        <select class="select-box" data-color-values="true"
+                                id="default-tag-colour-domain-select"></select>
+                    </span>
+                    <span class="description-option-settings" id="default-tag-colour-domain-detailed-text"></span>
                 </span>
-                <span class="description-option-settings" id="default-tag-colour-domain-detailed-text"></span>
-            </span>
         </div>
 
         <!--Default tag colour for pages section-->
         <div class="option-settings">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text" id="default-tag-colour-page-text"></span>
-                <span class="section-grid-item-select">
-                    <select class="select-box" id="default-tag-colour-page-select"></select>
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text" id="default-tag-colour-page-text"></span>
+                    <span class="section-grid-item-select">
+                        <select class="select-box" data-color-values="true"
+                                id="default-tag-colour-page-select"></select>
+                    </span>
+                    <span class="description-option-settings" id="default-tag-colour-page-detailed-text"></span>
                 </span>
-                <span class="description-option-settings" id="default-tag-colour-page-detailed-text"></span>
-            </span>
         </div>
 
 
@@ -1089,24 +1784,25 @@ Created by Saverio Morelli - saveriomorelli.com
 
         <!--Show error logs section-->
         <div class="option-settings">
-            <span class="item-settings section-grid-container">
-                <span class="title-option-settings section-grid-item-text"
-                      id="show-error-logs-settings-text"></span>
-                <span class="section-grid-item-select text-align-center">
-                    <input type="button" value="" id="show-error-logs-settings-button"
-                           class="button show-content-button"/>
-                    <input type="button" value="" id="delete-error-logs-settings-button"
-                           class="button delete-content-button clear2-button"/>
+                <span class="item-settings section-grid-container">
+                    <span class="title-option-settings section-grid-item-text"
+                          id="show-error-logs-settings-text"></span>
+                    <span class="section-grid-item-select text-align-center">
+                        <input type="button" value="" id="show-error-logs-settings-button"
+                               class="button show-content-button"/>
+                        <input type="button" value="" id="delete-error-logs-settings-button"
+                               class="button delete-content-button clear2-button"/>
+                    </span>
+                    <span class="description-option-settings" id="show-error-logs-settings-detailed-text"></span>
                 </span>
-                <span class="description-option-settings" id="show-error-logs-settings-detailed-text"></span>
-            </span>
         </div>
 
         <div id="show-error-logs-subsection">
             <!--Enable the sending of error logs section-->
             <div class="option-settings option-indent-settings">
                 <label class="item-settings">
-                    <span class="title-option-settings yes-no-item" id="sending-error-logs-automatically-text"></span>
+                        <span class="title-option-settings yes-no-item"
+                              id="sending-error-logs-automatically-text"></span>
                     <input type="checkbox" id="sending-error-logs-automatically-check"/>
                     <span class="checkmark"></span>
                 </label>
@@ -1124,6 +1820,27 @@ Created by Saverio Morelli - saveriomorelli.com
             </label>
             <span class="description-option-settings description-option-settings-yes-no yes-no-item"
                   id="send-telemetry-detailed-text"></span>
+        </div>
+
+        <hr class="hr-big-space">
+
+        <!--====================-->
+        <!--Developer options section-->
+        <div class="section-title-settings" id="developer-options-title-settings"></div>
+        <div class="section-description-settings" id="developer-options-description-settings"></div>
+
+        <!--API endpoint section-->
+        <div class="option-settings">
+            <span class="item-settings section-grid-container">
+                <span class="title-option-settings section-grid-item-text" id="api-endpoint-text"></span>
+                <span class="section-grid-item-select">
+                    <input type="button" value="" id="change-api-endpoint-settings-button"
+                           class="button warning-button"/>
+                    <input type="button" value="" id="reset-api-endpoint-settings-button"
+                           class="button warning-button"/>
+                </span>
+                <span class="description-option-settings" id="api-endpoint-detailed-text"></span>
+            </span>
         </div>
     </div>
 </div>
