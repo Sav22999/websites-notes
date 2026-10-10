@@ -231,7 +231,21 @@ var ctrl_alt_shift = ["default", "domain", "page", "sidebar"];
 
 const linkAcceptPrivacy = "/privacy/index.html";
 
+// Hide settings for features that are unavailable on Chrome (this build runs on
+// Chrome when the Firefox-only global `browser` is absent). Keyboard shortcuts are
+// managed natively at chrome://extensions/shortcuts, and the "auto" theme needs the
+// Firefox-only chrome.theme API.
+function hideUnavailableFeaturesOnChrome() {
+    let isChrome = (typeof browser === "undefined");
+    if (!isChrome) return;
+    ["keyboard-shortcuts-settings-section", "item-radio-theme-auto", "item-radio-sticky-theme-auto"].forEach(id => {
+        let el = document.getElementById(id);
+        if (el && !el.classList.contains("hidden")) el.classList.add("hidden");
+    });
+}
+
 function loaded() {
+    hideUnavailableFeaturesOnChrome();
     chrome.storage.local.get("times-opened").then(result => {
         if (result !== undefined && result["times-opened"] !== undefined) {
             checkDonationAlert(result["times-opened"]);
