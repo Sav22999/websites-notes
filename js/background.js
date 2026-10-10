@@ -636,9 +636,25 @@ async function svgToImageData(svgString, size) {
     return ctx.getImageData(0, 0, size, size);
 }
 
-// Set the toolbar action icon from an SVG string; falls back to the static PNG icon.
-function setActionIconFromSvg(svgString, tabId) {
-    Promise.all([16, 32, 48].map(s => svgToImageData(svgString, s).then(d => [s, d])))
+// Tint the brand PNG silhouette to a colour (works in the service worker since
+// createImageBitmap decodes PNG fine, unlike SVG). Used when SVG rasterization is
+// unavailable, so the toolbar icon still reflects the state colour (green/orange/tag).
+async function tintedImageData(tintColor, size) {
+    const res = await fetch(chrome.runtime.getURL("img/icons/icon-48.png"));
+    const blob = await res.blob();
+    const bmp = await createImageBitmap(blob);
+    const canvas = new OffscreenCanvas(size, size);
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, size, size);
+    ctx.drawImage(bmp, 0, 0, size, size);
+    ctx.globalCompositeOperation = "source-in";
+    ctx.fillStyle = tintColor || "#FF6200";
+    ctx.fillRect(0, 0, size, size);
+    return ctx.getImageData(0, 0, size, size);
+}
+
+function setTintedActionIcon(tintColor, tabId) {
+    Promise.all([16, 32, 48].map(s => tintedImageData(tintColor, s).then(d => [s, d])))
         .then(pairs => {
             let imageData = {};
             for (let [s, d] of pairs) imageData[s] = d;
@@ -650,6 +666,19 @@ function setActionIconFromSvg(svgString, tabId) {
                 tabId: tabId
             }).catch(() => {});
         });
+}
+
+// Set the toolbar action icon from the dynamic SVG; if SVG rasterization is not
+// available in this service worker, fall back to the brand PNG tinted with the
+// state colour so the icon still turns green/orange (or the tag colour).
+function setActionIconFromSvg(svgString, tabId, tintColor) {
+    Promise.all([16, 32, 48].map(s => svgToImageData(svgString, s).then(d => [s, d])))
+        .then(pairs => {
+            let imageData = {};
+            for (let [s, d] of pairs) imageData[s] = d;
+            return chrome.action.setIcon({imageData: imageData, tabId: tabId});
+        })
+        .catch(() => setTintedActionIcon(tintColor, tabId));
 }
 
 /**
@@ -688,8 +717,10 @@ function updateIcon(color, tabId, enabled = true) {
     const svgString = getIconSvg(enabled, colorBorder, colorBackground, colorPencil, colorText);
 
     // Chrome's action.setIcon cannot decode an SVG data URL; rasterize to ImageData
-    // in the service worker (OffscreenCanvas). Falls back to the static PNG icon.
-    setActionIconFromSvg(svgString, tabId);
+    // in the service worker (OffscreenCanvas). Falls back to the brand PNG tinted
+    // with the state colour so the icon still reflects green/orange/tag colour.
+    let tintColor = (colorPencil === "#00361C") ? "#00A81C" : colorPencil; // brighter green for the "has notes" state
+    setActionIconFromSvg(svgString, tabId, tintColor);
 
     // sidebarAction is Firefox-only; it does not exist on Chrome
     if (typeof chrome.sidebarAction !== "undefined" && chrome.sidebarAction !== null) {
