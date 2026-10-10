@@ -622,6 +622,36 @@ function svgToDataUrl(svgString) {
     return `data:image/svg+xml,${encoded}`;
 }
 
+// Rasterize an SVG string to ImageData at the given size, inside the service worker.
+async function svgToImageData(svgString, size) {
+    // give the SVG an explicit pixel size so createImageBitmap rasterizes correctly
+    let sized = svgString.replace(/width="100%"/, 'width="' + size + '"').replace(/height="100%"/, 'height="' + size + '"');
+    const res = await fetch(svgToDataUrl(sized));
+    const blob = await res.blob();
+    const bitmap = await createImageBitmap(blob);
+    const canvas = new OffscreenCanvas(size, size);
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, size, size);
+    ctx.drawImage(bitmap, 0, 0, size, size);
+    return ctx.getImageData(0, 0, size, size);
+}
+
+// Set the toolbar action icon from an SVG string; falls back to the static PNG icon.
+function setActionIconFromSvg(svgString, tabId) {
+    Promise.all([16, 32, 48].map(s => svgToImageData(svgString, s).then(d => [s, d])))
+        .then(pairs => {
+            let imageData = {};
+            for (let [s, d] of pairs) imageData[s] = d;
+            return chrome.action.setIcon({imageData: imageData, tabId: tabId});
+        })
+        .catch(() => {
+            chrome.action.setIcon({
+                path: {"16": "img/icons/icon-16.png", "48": "img/icons/icon-48.png", "128": "img/icons/icon-128.png"},
+                tabId: tabId
+            }).catch(() => {});
+        });
+}
+
 /**
  * Update the browser action icon with customised colour
  * @param color {string} - Hex colour code (e.g. "#ff0000" for red)
@@ -657,16 +687,14 @@ function updateIcon(color, tabId, enabled = true) {
 
     const svgString = getIconSvg(enabled, colorBorder, colorBackground, colorPencil, colorText);
 
-    const dataUrl = svgToDataUrl(svgString);
-
-    chrome.action.setIcon({
-        path: dataUrl, tabId: tabId
-    });
+    // Chrome's action.setIcon cannot decode an SVG data URL; rasterize to ImageData
+    // in the service worker (OffscreenCanvas). Falls back to the static PNG icon.
+    setActionIconFromSvg(svgString, tabId);
 
     // sidebarAction is Firefox-only; it does not exist on Chrome
     if (typeof chrome.sidebarAction !== "undefined" && chrome.sidebarAction !== null) {
         chrome.sidebarAction.setIcon({
-            path: dataUrl, tabId: tabId
+            path: svgToDataUrl(svgString), tabId: tabId
         });
     }
 
