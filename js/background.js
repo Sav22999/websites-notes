@@ -1323,6 +1323,9 @@ function getTheProtocol(url) {
 }
 
 function listenerShortcuts() {
+    // chrome.commands is absent when the manifest declares no "commands" section
+    // (as on the Chrome MV3 build). Guard it so the rest of the init keeps running.
+    if (typeof chrome.commands === "undefined" || chrome.commands === null || chrome.commands.onCommand === undefined) return;
     chrome.commands.onCommand.addListener((command) => {
         if (command === "opened-by-domain") {
             //domain
