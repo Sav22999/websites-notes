@@ -1974,6 +1974,8 @@ function getCurrentShortcuts(commands) {
 
 function updateShortcut(commandName, shortcut) {
     //to disable the shortcut -> the "shortcut" value have to be an empty string
+    // chrome.commands is absent on the Chrome build (no "commands" in the manifest)
+    if (typeof chrome.commands === "undefined" || chrome.commands === null || chrome.commands.update === undefined) return;
     try {
         if (shortcut !== "disabled") {
             chrome.commands.update({

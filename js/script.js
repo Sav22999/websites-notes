@@ -193,7 +193,8 @@ function setSidebarClassIfNeeded() {
 
         const sidebarClass = "opened-as-sidebar";
 
-        if (chrome.extension !== undefined && typeof chrome.extension.getViews === "function") {
+        // the "sidebar" view type only exists on Firefox; Chrome rejects it (popup/tab only)
+        if (typeof browser !== "undefined" && chrome.extension !== undefined && typeof chrome.extension.getViews === "function") {
             let sidebarViews = chrome.extension.getViews({type: "sidebar"});
             let isSidebar = Array.isArray(sidebarViews) && sidebarViews.includes(window);
 
@@ -392,6 +393,8 @@ function checkOpenedBy() {
 }
 
 function listenerShortcuts() {
+    // chrome.commands is absent on the Chrome build (no "commands" in the manifest)
+    if (typeof chrome.commands === "undefined" || chrome.commands === null || chrome.commands.onCommand === undefined) return;
     chrome.commands.onCommand.addListener((command) => {
         if (command === "opened-by-domain") {
             //domain
