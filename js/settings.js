@@ -235,13 +235,33 @@ const linkAcceptPrivacy = "/privacy/index.html";
 // Chrome when the Firefox-only global `browser` is absent). Keyboard shortcuts are
 // managed natively at chrome://extensions/shortcuts, and the "auto" theme needs the
 // Firefox-only chrome.theme API.
+function isChromeBuild() {
+    try {
+        if (typeof browser !== "undefined" && browser && browser.runtime) return false; // Firefox has the webextension `browser` namespace
+    } catch (e) {}
+    try {
+        return chrome.runtime.getManifest().manifest_version === 3;
+    } catch (e) {
+        return false;
+    }
+}
+
 function hideUnavailableFeaturesOnChrome() {
-    let isChrome = (typeof browser === "undefined");
-    if (!isChrome) return;
+    if (!isChromeBuild()) return;
     ["keyboard-shortcuts-settings-section", "item-radio-theme-auto", "item-radio-sticky-theme-auto"].forEach(id => {
         let el = document.getElementById(id);
-        if (el && !el.classList.contains("hidden")) el.classList.add("hidden");
+        if (el) {
+            el.classList.add("hidden");
+            el.style.display = "none";
+        }
     });
+}
+
+// run as soon as the DOM is ready, regardless of when loaded() fires
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", hideUnavailableFeaturesOnChrome);
+} else {
+    hideUnavailableFeaturesOnChrome();
 }
 
 function loaded() {
