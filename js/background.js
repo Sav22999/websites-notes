@@ -653,6 +653,14 @@ async function tintedImageData(tintColor, size) {
     return ctx.getImageData(0, 0, size, size);
 }
 
+// Use the multi-tone brand PNG as-is (best look for the default/no-notes state).
+function setPlainBrandIcon(tabId) {
+    chrome.action.setIcon({
+        path: {"16": "img/icons/icon-16.png", "48": "img/icons/icon-48.png", "128": "img/icons/icon-128.png"},
+        tabId: tabId
+    }).catch(() => {});
+}
+
 function setTintedActionIcon(tintColor, tabId) {
     Promise.all([16, 32, 48].map(s => tintedImageData(tintColor, s).then(d => [s, d])))
         .then(pairs => {
@@ -717,10 +725,15 @@ function updateIcon(color, tabId, enabled = true) {
     const svgString = getIconSvg(enabled, colorBorder, colorBackground, colorPencil, colorText);
 
     // Chrome's action.setIcon cannot decode an SVG data URL; rasterize to ImageData
-    // in the service worker (OffscreenCanvas). Falls back to the brand PNG tinted
-    // with the state colour so the icon still reflects green/orange/tag colour.
-    let tintColor = (colorPencil === "#00361C") ? "#00A81C" : colorPencil; // brighter green for the "has notes" state
-    setActionIconFromSvg(svgString, tabId, tintColor);
+    // in the service worker (OffscreenCanvas). For the default state (no notes) the
+    // multi-tone brand PNG already is the right (orange) icon, so use it as-is for the
+    // best look; for the other states tint the brand silhouette with the state colour.
+    if (colorPencil === "#FF6200") {
+        setPlainBrandIcon(tabId);
+    } else {
+        let tintColor = (colorPencil === "#00361C") ? "#00A81C" : colorPencil; // brighter green for the "has notes" state
+        setActionIconFromSvg(svgString, tabId, tintColor);
+    }
 
     // sidebarAction is Firefox-only; it does not exist on Chrome
     if (typeof chrome.sidebarAction !== "undefined" && chrome.sidebarAction !== null) {
