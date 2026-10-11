@@ -746,15 +746,16 @@ function updateIcon(color, tabId, enabled = true) {
     if (enabled && settings_json["show-icon-badge"] !== undefined && settings_json["show-icon-badge"] === true) {
         const numberOfNotes = getNumberOfNotes();
         if (numberOfNotes > 0) {
-            chrome.action.setBadgeText({text: numberOfNotes.toString(), tabId: tabId});
-            chrome.action.setBadgeBackgroundColor({color: colorBackground, tabId: tabId});
+            // .catch: the tab may be gone (e.g. while closing the browser) -> "No tab with id"
+            chrome.action.setBadgeText({text: numberOfNotes.toString(), tabId: tabId}).catch(() => {});
+            chrome.action.setBadgeBackgroundColor({color: colorBackground, tabId: tabId}).catch(() => {});
             // setBadgeTextColor is Firefox-only on the action API
             if (typeof chrome.action.setBadgeTextColor === "function") {
-                chrome.action.setBadgeTextColor({color: colorText, tabId: tabId});
+                chrome.action.setBadgeTextColor({color: colorText, tabId: tabId}).catch(() => {});
             }
         }
     } else {
-        chrome.action.setBadgeText({text: "", tabId: tabId});
+        chrome.action.setBadgeText({text: "", tabId: tabId}).catch(() => {});
     }
 }
 
@@ -1843,7 +1844,7 @@ function canInjectIntoUrl(url) {
 // true when an executeScript error is the expected "no access to this page" case
 function isExpectedInjectionError(error) {
     let msg = (error && error.message) ? error.message : String(error);
-    return msg.indexOf("Cannot access") !== -1 || msg.indexOf("host permission") !== -1 || msg.indexOf("Missing host permission") !== -1 || msg.indexOf("cannot be scripted") !== -1 || msg.indexOf("showing error page") !== -1;
+    return msg.indexOf("Cannot access") !== -1 || msg.indexOf("host permission") !== -1 || msg.indexOf("Missing host permission") !== -1 || msg.indexOf("cannot be scripted") !== -1 || msg.indexOf("showing error page") !== -1 || msg.indexOf("No tab with id") !== -1 || msg.indexOf("No window with id") !== -1;
 }
 
 function openAsStickyNotes() {
