@@ -745,6 +745,11 @@ function insertHTMLFromTagName(tagName, properties = "") {
         }
         saveNotes();
     } else {
+        let allowedTags = ["mark", "code", "small", "big", "h1", "h2", "h3", "h4", "h5", "h6"];
+        if (!allowedTags.includes(tagName)) {
+            console.error("insertHTMLFromTagName: disallowed tagName", tagName);
+            return;
+        }
         let openTag = "<" + tagName + " " + properties + ">";
         let closeTag = "</" + tagName + ">";
         //let html = "<" + tagName + ">" + selectedText + "</" + tagName + ">";
