@@ -716,7 +716,16 @@ function clearFormatting() {
     addAction();
 }
 
+// Allowed formatting tags for insertHTMLFromTagName. tagName is always a hardcoded
+// value in the current call sites; the allowlist is defense-in-depth against HTML
+// injection (CWE-79) should an arbitrary value ever reach this function.
+const ALLOWED_FORMATTING_TAGS = ["mark", "code", "small", "big", "h1", "h2", "h3", "h4", "h5", "h6"];
+
 function insertHTMLFromTagName(tagName, properties = "") {
+    if (!ALLOWED_FORMATTING_TAGS.includes(tagName)) {
+        console.error("insertHTMLFromTagName: disallowed tagName", tagName);
+        return;
+    }
     let selectedText = "";
     if (window.getSelection) {
         selectedText = window.getSelection().toString();
@@ -745,7 +754,9 @@ function insertHTMLFromTagName(tagName, properties = "") {
         }
         saveNotes();
     } else {
-        let openTag = "<" + tagName + " " + properties + ">";
+        // `properties` is intentionally NOT interpolated into the tag: it would be an
+        // unsanitized HTML-injection vector and no call site uses it.
+        let openTag = "<" + tagName + ">";
         let closeTag = "</" + tagName + ">";
         //let html = "<" + tagName + ">" + selectedText + "</" + tagName + ">";
         //document.execCommand("insertHTML", false, html);
