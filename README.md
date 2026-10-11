@@ -80,13 +80,32 @@ Notefox asks only for the permissions it needs. Some of them are **optional** an
 | Access to the Notefox servers (`https://*.notefox.eu/*`) | Optional | Requested only when you use the **Notefox Account** (login/sign up), the **telemetry** or the **automatic sending of error logs** |
 | `downloads` | Optional | Requested only when you export your notes (or the error logs) to a file |
 
-## Chrome version
+## Chrome / Chromium version
 
-This branch contains the **Firefox** version of Notefox (Manifest V2).
+This branch (`new-chrome`) is the **Chromium** version of Notefox (**Manifest V3**, service worker background), for **Google Chrome, Microsoft Edge, Brave, Opera, Vivaldi**, etc. It is kept in sync with the Firefox 5.0 line (developed on the [`beta`](https://github.com/Sav22999/websites-notes/tree/beta)/[`main`](https://github.com/Sav22999/websites-notes/tree/main) branches).
 
-The version for **Chromium-based browsers** (Google Chrome, Microsoft Edge, etc.) is developed in the [`new-chrome`](https://github.com/Sav22999/websites-notes/tree/new-chrome) branch, which uses Manifest V3. Some features can differ between the two versions (e.g. the sidebar is available only on Firefox).
+### How to use it
 
-You can install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/agcdffobijddcccbfnhfjmaohnljefpm) or from [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/lkahmkadpaibphpoiofpdinacjffddda). If you want to contribute to the Chrome version, open your pull request against the `new-chrome` branch.
+**Install from a store (recommended):**
+- [Chrome Web Store](https://chromewebstore.google.com/detail/agcdffobijddcccbfnhfjmaohnljefpm)
+- [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/lkahmkadpaibphpoiofpdinacjffddda)
+
+**Load it unpacked (for development/testing):**
+1. Get this branch: `git clone https://github.com/Sav22999/websites-notes.git` then `git checkout new-chrome` (the `beta`/`main` branches are the Firefox Manifest V2 code and will **not** load in Chrome).
+2. Open `chrome://extensions` (or `edge://extensions`).
+3. Enable **Developer mode** (top-right).
+4. Click **Load unpacked** and select the repository folder (the one containing `manifest.json`).
+5. Pin Notefox from the toolbar puzzle icon and start taking notes.
+
+### Differences from the Firefox version
+
+Chrome/Chromium does not expose some Firefox-only APIs, so a few features behave differently or are hidden in this build:
+- **Keyboard shortcuts** are managed by the browser at `chrome://extensions/shortcuts` (the in-extension shortcut settings are hidden here).
+- **Sidebar** ("open in sidebar") is available only on Firefox.
+- The **"auto" theme** (follow the browser theme) is Firefox-only; here it falls back to the light theme, and the option is hidden.
+- The toolbar icon still turns **green** when there are notes and **orange** (default) otherwise, and follows the tag colour.
+
+The **Firefox** version (Manifest V2) lives on the [`beta`](https://github.com/Sav22999/websites-notes/tree/beta)/[`main`](https://github.com/Sav22999/websites-notes/tree/main) branches. If you want to contribute to the Chrome version, open your pull request against the `new-chrome` branch.
 
 ## How to contribute
 
