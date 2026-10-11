@@ -817,8 +817,16 @@ function loaded() {
                 type_to_use = -1;
             });
 
-            chrome.tabs.onUpdated.addListener(tabUpdated);
-            chrome.windows.onFocusChanged.addListener(tabUpdated);
+            // only react to meaningful tab changes (status reaching "complete", or a url
+            // change), and never pass the tabId as the "update" argument
+            chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
+                if (changeInfo && (changeInfo.status === "complete" || changeInfo.url !== undefined)) {
+                    tabUpdated();
+                }
+            });
+            chrome.windows.onFocusChanged.addListener(function () {
+                tabUpdated();
+            });
 
             chrome.runtime.onMessage.addListener((message) => {
                 if (message["updated"] !== undefined && message["updated"]) {
@@ -880,26 +888,32 @@ function checkUserPeriodically(time = 1 * 60 * 1000, just_once = false) {
 }
 
 function tabUpdated(update = false) {
-    //console.log(JSON.stringify(all_urls));
+    // Query the active tab FIRST and bail out early. tabs.onUpdated fires for every
+    // tab (including the many, possibly still-loading, background tabs); without this
+    // guard each of those events would trigger disk-heavy storage reads + checkStatus,
+    // causing an event/process storm with many tabs open (issue #226 / #223).
+    chrome.tabs.query({active: true, currentWindow: true}).then(tabs => {
+        let currentTab = (tabs !== undefined && tabs.length > 0) ? tabs[0] : undefined;
+        if (!currentTab) return;
+        // only act once the active tab has finished loading (onUpdated fires repeatedly while loading)
+        if (currentTab.status !== undefined && currentTab.status !== "complete") return;
 
-    this._pageUrl = undefined
-    this._domainUrl = undefined
-    this._globalUrl = undefined
-    this._allPossibleUrls = undefined
+        this._pageUrl = undefined;
+        this._domainUrl = undefined;
+        this._globalUrl = undefined;
+        this._allPossibleUrls = undefined;
 
-    sync_local = chrome.storage.sync;
-    chrome.storage.local.get("storage").then(result => {
-        if (result.storage === "sync") sync_local = chrome.storage.sync; else if (result.storage === "local") sync_local = chrome.storage.local; else {
-            chrome.storage.local.set({"storage": "local"});
-            sync_local = chrome.storage.local;
-        }
-        chrome.tabs.query({active: true, currentWindow: true}).then(tabs => {
-            if (tabs !== undefined && tabs.length > 0) {
-                tab_id = tabs[0].id;
-                tab_url = tabs[0].url;
-                tab_title = tabs[0].title;
+        sync_local = chrome.storage.local;
+        chrome.storage.local.get("storage").then(result => {
+            if (result.storage === "sync") sync_local = chrome.storage.sync; else if (result.storage === "local") sync_local = chrome.storage.local; else {
+                chrome.storage.local.set({"storage": "local"});
+                sync_local = chrome.storage.local;
             }
-        }).then((tabs) => {
+
+            tab_id = currentTab.id;
+            tab_url = currentTab.url;
+            tab_title = currentTab.title;
+
             checkStatus(update);
         });
     });
