@@ -1830,6 +1830,22 @@ function getNumberOfNotes() {
 /**
  * open sticky notes
  */
+// Pages the extension cannot script into (browser/extension pages and stores, plus
+// new-tab overrides). Injection there fails with a host-permission error that is
+// expected and harmless (there is nothing to show/remove on those pages).
+function canInjectIntoUrl(url) {
+    if (!url) return false;
+    let blocked = ["chrome://", "chrome-extension://", "about:", "edge://", "brave://", "opera://", "vivaldi://", "moz-extension://", "view-source:", "devtools://", "https://chrome.google.com/", "https://chromewebstore.google.com/", "https://microsoftedge.microsoft.com/"];
+    for (let p of blocked) if (url.startsWith(p)) return false;
+    return true;
+}
+
+// true when an executeScript error is the expected "no access to this page" case
+function isExpectedInjectionError(error) {
+    let msg = (error && error.message) ? error.message : String(error);
+    return msg.indexOf("Cannot access") !== -1 || msg.indexOf("host permission") !== -1 || msg.indexOf("Missing host permission") !== -1 || msg.indexOf("cannot be scripted") !== -1 || msg.indexOf("showing error page") !== -1;
+}
+
 function openAsStickyNotes() {
     //before to open, check if the permissions are granted
     const permissionsToRequest = {
@@ -1844,7 +1860,7 @@ function openAsStickyNotes() {
                     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         if (tabs !== undefined && tabs.length > 0) {
                             const activeTab = tabs[0];
-                            if (activeTab && !activeTab.url.startsWith("chrome-extension://") && !activeTab.url.startsWith("chrome://")) {
+                            if (activeTab && canInjectIntoUrl(activeTab.url)) {
                                 chrome.scripting.executeScript({
                                     target: {tabId: activeTab.id},
                                     files: ["./js/inject/sticky-notes.js"]
@@ -1852,10 +1868,11 @@ function openAsStickyNotes() {
                                     //console.log("Sticky notes ('open')");
                                     opening_sticky = false;
                                 }).catch(function (error) {
-                                    console.error("E2: " + error);
-                                    //onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
+                                    if (!isExpectedInjectionError(error)) console.error("E2: " + error);
                                     opening_sticky = false;
                                 });
+                            } else {
+                                opening_sticky = false;
                             }
                         }
                     });
@@ -1882,7 +1899,7 @@ function closeStickyNotes(update = true) {
                     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         if (tabs !== undefined && tabs.length > 0) {
                             const activeTab = tabs[0];
-                            if (activeTab && !activeTab.url.startsWith("chrome-extension://") && !activeTab.url.startsWith("chrome://")) {
+                            if (activeTab && canInjectIntoUrl(activeTab.url)) {
                                 chrome.scripting.executeScript({
                                     target: {tabId: activeTab.id},
                                     func: () => {
@@ -1894,9 +1911,11 @@ function closeStickyNotes(update = true) {
                                     //console.log("Sticky notes ('close')");
                                     if (update) tabUpdated(false);
                                 }).catch(function (error) {
-                                    console.error("E1: " + error + "\nin " + activeTab.url);
-                                    //onError("background.js::closeStickyNotes::E1", error.message, tab_url);
+                                    if (!isExpectedInjectionError(error)) console.error("E1: " + error + "\nin " + activeTab.url);
+                                    if (update) tabUpdated(false);
                                 });
+                            } else if (update) {
+                                tabUpdated(false);
                             }
                         }
                     });
@@ -2137,7 +2156,7 @@ function closeSingleSticky(noteIndex) {
                 chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                     if (tabs !== undefined && tabs.length > 0) {
                         const activeTab = tabs[0];
-                        if (activeTab && !activeTab.url.startsWith("chrome-extension://") && !activeTab.url.startsWith("chrome://")) {
+                        if (activeTab && canInjectIntoUrl(activeTab.url)) {
                             chrome.scripting.executeScript({
                                 target: {tabId: activeTab.id},
                                 args: [noteIndex],
@@ -2149,7 +2168,7 @@ function closeSingleSticky(noteIndex) {
                                     document.querySelectorAll('style[data-notefox-sticky="' + ni + '"]').forEach(function (el) { el.remove(); });
                                 }
                             }).catch(function (error) {
-                                console.error("E-closeSingle: " + error);
+                                if (!isExpectedInjectionError(error)) console.error("E-closeSingle: " + error);
                             });
                         }
                     }
