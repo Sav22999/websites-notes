@@ -237,7 +237,6 @@ function loaded() {
             checkDonationAlert(result["times-opened"]);
         }
     });
-    console.time("settings-loaded");
     browser.storage.sync.get("privacy").then((result) => {
         if (result.privacy === undefined) {
             //not accepted privacy policy -> open 'privacy' page
@@ -2496,7 +2495,6 @@ function changeApiEndpoint() {
     let api_url = prompt(change_api_text, default_value);
     api_url = safeLink(api_url);
     if (api_url !== null) {
-        console.log("New API endpoint: ", api_url);
         //set the new "api-endpoint" in "settings" storage
         //settings_json["api-endpoint"] = api_url;
         //console.info("New API endpoint set: ", api_url);
@@ -4858,8 +4856,6 @@ function showMessageNotefoxAccount(message, warning = false) {
 function signUpResponse(data) {
     document.getElementById("signup-cancel").disabled = false;
     //data should be defined as {code: X, status: Y, data: Z}
-
-    console.info(data);
 
     let submit_element = document.getElementById("signup-submit");
     let cancel_element = document.getElementById("signup-cancel");

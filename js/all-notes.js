@@ -1103,7 +1103,6 @@ function updateLastUpdate() {
 }
 
 function loadDataFromBrowser(called_by = null, generate_section = true) {
-    console.log(`Loading data from browser | called by: ${called_by}`);
 
     try {
         sync_local.get(["websites", "settings"], function (value) {

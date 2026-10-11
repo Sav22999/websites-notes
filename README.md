@@ -82,11 +82,32 @@ Notefox asks only for the permissions it needs. Some of them are **optional** an
 
 ## Chrome version
 
-This branch contains the **Firefox** version of Notefox (Manifest V2).
+This branch (`beta`/`main`) contains the **Firefox** version of Notefox (Manifest V2).
 
-The version for **Chromium-based browsers** (Google Chrome, Microsoft Edge, etc.) is developed in the [`new-chrome`](https://github.com/Sav22999/websites-notes/tree/new-chrome) branch, which uses Manifest V3. Some features can differ between the two versions (e.g. the sidebar is available only on Firefox).
+The version for **Chromium-based browsers** (Google Chrome, Microsoft Edge, Brave, Opera, Vivaldi, etc.) lives in the [`new-chrome`](https://github.com/Sav22999/websites-notes/tree/new-chrome) branch and uses **Manifest V3** (service worker background). It is kept in sync with the Firefox 5.0 line.
 
-You can install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/agcdffobijddcccbfnhfjmaohnljefpm) or from [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/lkahmkadpaibphpoiofpdinacjffddda). If you want to contribute to the Chrome version, open your pull request against the `new-chrome` branch.
+### How to use it
+
+**Install from a store (recommended):**
+- [Chrome Web Store](https://chromewebstore.google.com/detail/agcdffobijddcccbfnhfjmaohnljefpm)
+- [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/lkahmkadpaibphpoiofpdinacjffddda)
+
+**Load it unpacked (for development/testing):**
+1. Get the Chrome code: `git clone https://github.com/Sav22999/websites-notes.git` then `git checkout new-chrome` (do **not** load the `beta`/`main` Firefox code in Chrome — it is Manifest V2 and will not load).
+2. Open `chrome://extensions` (or `edge://extensions`).
+3. Enable **Developer mode** (top-right).
+4. Click **Load unpacked** and select the repository folder (the one containing `manifest.json`).
+5. Pin Notefox from the toolbar puzzle icon and start taking notes.
+
+### Differences from the Firefox version
+
+Chrome/Chromium does not expose some Firefox-only APIs, so a few features behave differently or are hidden in the Chrome build:
+- **Keyboard shortcuts** are managed by the browser at `chrome://extensions/shortcuts` (the in-extension shortcut settings are hidden on Chrome).
+- **Sidebar** ("open in sidebar") is available only on Firefox.
+- The **"auto" theme** (follow the browser theme) is Firefox-only; on Chrome it falls back to the light theme, and the option is hidden.
+- The toolbar icon still turns **green** when there are notes and **orange** (default) otherwise, and follows the tag colour.
+
+If you want to contribute to the Chrome version, open your pull request against the `new-chrome` branch.
 
 ## How to contribute
 
