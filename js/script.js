@@ -193,8 +193,10 @@ function setSidebarClassIfNeeded() {
 
         const sidebarClass = "opened-as-sidebar";
 
-        // the "sidebar" view type only exists on Firefox; Chrome rejects it (popup/tab only)
-        if (typeof browser !== "undefined" && chrome.extension !== undefined && typeof chrome.extension.getViews === "function") {
+        // the "sidebar" view type only exists on Firefox (MV2 build); Chrome (MV3) rejects it (popup/tab only)
+        let isFirefox = false;
+        try { isFirefox = chrome.runtime.getManifest().manifest_version === 2; } catch (e) {}
+        if (isFirefox && chrome.extension !== undefined && typeof chrome.extension.getViews === "function") {
             let sidebarViews = chrome.extension.getViews({type: "sidebar"});
             let isSidebar = Array.isArray(sidebarViews) && sidebarViews.includes(window);
 

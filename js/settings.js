@@ -236,9 +236,8 @@ const linkAcceptPrivacy = "/privacy/index.html";
 // managed natively at chrome://extensions/shortcuts, and the "auto" theme needs the
 // Firefox-only chrome.theme API.
 function isChromeBuild() {
-    try {
-        if (typeof browser !== "undefined" && browser && browser.runtime) return false; // Firefox has the webextension `browser` namespace
-    } catch (e) {}
+    // The `browser` global can exist on Chromium browsers too, so detect by manifest
+    // version instead: the Firefox build is MV2, the Chrome build is MV3.
     try {
         return chrome.runtime.getManifest().manifest_version === 3;
     } catch (e) {
