@@ -301,35 +301,45 @@ const MAX_PARAMETERS = 5;
  * @param text {string} - text to be saved as error || it's automatically saved also the date and time
  * @param url {string} - url of the page where the error happened (if applicable)
  */
+// Max number of error logs kept locally (avoids unbounded growth when the user
+// never enables automatic sending, which clears the queue).
+const MAX_ERROR_LOGS = 200;
+
+// Only record a url when it is a real web page; internal/extension/store pages are
+// dropped from the "url" field for privacy, but the error itself is still logged.
+function sanitizeErrorUrl(url) {
+    if (typeof url === "string" && (url.startsWith("http://") || url.startsWith("https://")) && !url.startsWith("https://addons.mozilla.org")) {
+        return url;
+    }
+    return "";
+}
+
 function onError(context, text, url = undefined) {
-    //if url starts with "http" or "https", then it's a valid url
-    if (url !== undefined && (url.startsWith("http://") || url.startsWith("https://")) && !url.startsWith("https://addons.mozilla.org")) {
+    try {
+        let safeUrl = sanitizeErrorUrl(url);
         browser.storage.sync.get("anonymous-userid").then(resultSync => {
-            let anonymous_userid = null;
-            if (resultSync["anonymous-userid"] !== undefined) {
-                anonymous_userid = resultSync["anonymous-userid"];
-            } else {
+            let anonymous_userid = resultSync["anonymous-userid"];
+            if (anonymous_userid === undefined) {
                 anonymous_userid = generateSecureUUID();
                 browser.storage.sync.set({"anonymous-userid": anonymous_userid});
             }
-            //if(context !== undefined && (context.includes("NetworkError") || ))
             const error = {
                 "datetime": getDate(),
                 "context": context,
                 "error": text,
-                url: url,
+                url: safeUrl,
                 "notefox-version": browser.runtime.getManifest().version,
                 "anonymous-userid": anonymous_userid
             };
             browser.storage.local.get("error-logs").then(result => {
-                let error_logs = [];
-                if (result["error-logs"] !== undefined) {
-                    error_logs = result["error-logs"];
-                }
+                let error_logs = Array.isArray(result["error-logs"]) ? result["error-logs"] : [];
                 error_logs.push(error);
+                if (error_logs.length > MAX_ERROR_LOGS) error_logs = error_logs.slice(error_logs.length - MAX_ERROR_LOGS);
                 browser.storage.local.set({"error-logs": error_logs});
             });
         });
+    } catch (e) {
+        // never let error logging throw
     }
 }
 
