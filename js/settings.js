@@ -1690,7 +1690,10 @@ function loadSettings() {
         });
     });
 
-    checkTheme(false, "auto", function (params) {
+    // the "auto" theme preview relies on the Firefox-only chrome.theme colours and is
+    // hidden on Chrome, so only set up its swatches on Firefox
+    if (!isChromeBuild()) checkTheme(false, "auto", function (params) {
+        if (!params) return;
         document.getElementById("item-radio-theme-auto").style.backgroundColor = params[1];
         document.getElementById("theme-select-firefox").style.color = params[2];
         document.getElementById("primary-auto").style.backgroundColor = params[2];
