@@ -2502,32 +2502,44 @@ function datetimeToDisplay(datetime, format = undefined, also_time = true) {
  * @param text {string} - text to be saved as error || it's automatically saved also the date and time
  * @param url {string} - url of the page where the error happened (if applicable)
  */
+const MAX_ERROR_LOGS = 200;
+
+// Only record a url when it is a real web page; internal/extension/store pages are
+// dropped from the "url" field for privacy, but the error itself is still logged.
+function sanitizeErrorUrl(url) {
+    if (typeof url === "string" && (url.startsWith("http://") || url.startsWith("https://")) && !url.startsWith("https://addons.mozilla.org")) {
+        return url;
+    }
+    return "";
+}
+
 function onError(context, text, url = undefined) {
-    chrome.storage.sync.get("anonymous-userid").then((resultSync) => {
-        let anonymous_userid = null;
-        if (resultSync["anonymous-userid"] !== undefined) {
-            anonymous_userid = resultSync["anonymous-userid"];
-        } else {
-            anonymous_userid = generateSecureUUID();
-            chrome.storage.sync.set({"anonymous-userid": anonymous_userid});
-        }
-        const error = {
-            datetime: getDate(),
-            context: context,
-            error: text,
-            url: url,
-            "notefox-version": chrome.runtime.getManifest().version,
-            "anonymous-userid": anonymous_userid,
-        };
-        chrome.storage.local.get("error-logs").then((result) => {
-            let error_logs = [];
-            if (result["error-logs"] !== undefined) {
-                error_logs = result["error-logs"];
+    try {
+        let safeUrl = sanitizeErrorUrl(url);
+        chrome.storage.sync.get("anonymous-userid").then((resultSync) => {
+            let anonymous_userid = resultSync["anonymous-userid"];
+            if (anonymous_userid === undefined) {
+                anonymous_userid = generateSecureUUID();
+                chrome.storage.sync.set({"anonymous-userid": anonymous_userid});
             }
-            error_logs.push(error);
-            chrome.storage.local.set({"error-logs": error_logs});
+            const error = {
+                datetime: getDate(),
+                context: context,
+                error: text,
+                url: safeUrl,
+                "notefox-version": chrome.runtime.getManifest().version,
+                "anonymous-userid": anonymous_userid,
+            };
+            chrome.storage.local.get("error-logs").then((result) => {
+                let error_logs = Array.isArray(result["error-logs"]) ? result["error-logs"] : [];
+                error_logs.push(error);
+                if (error_logs.length > MAX_ERROR_LOGS) error_logs = error_logs.slice(error_logs.length - MAX_ERROR_LOGS);
+                chrome.storage.local.set({"error-logs": error_logs});
+            });
         });
-    });
+    } catch (e) {
+        // never let error logging throw
+    }
 }
 
 function onTelemetry(action, context = null, url = null, os, other = null) {
