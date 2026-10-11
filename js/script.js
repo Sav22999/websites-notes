@@ -105,7 +105,7 @@ function checkSyncLocal() {
 }
 
 function loaded(called_by = null) {
-    console.log("Popup loaded", called_by !== null ? "called by: " + called_by : "undefined");
+    //    console.log("Popup loaded", called_by !== null ? "called by: " + called_by : "undefined");
 
     browser.storage.sync.get("privacy").then(result => {
         if (result.privacy === undefined) {
@@ -352,8 +352,6 @@ function continueLoaded() {
         var activeTabId = activeTab.id;
         var activeTabUrl = activeTab.url;
 
-        console.log("activeTabUrl", activeTab);
-
         setUrl(activeTabUrl);
         loadUI("A");
     });
@@ -476,7 +474,6 @@ function setLanguageUI() {
 
 function loadUI(called_by = null) {
     //opened_by = {-1: default, 0: domain, 1: page}
-    console.log("Loading UI with opened_by: " + opened_by, called_by !== null ? "called by: " + called_by : "undefined");
     setLanguageUI();
     let notes = document.getElementById("notes");
     let title_notes = document.getElementById("title-notes");
@@ -888,7 +885,6 @@ function addAction() {
 }
 
 function loadSettings(called_by = null, load_only = false) {
-    console.log('Loading settings...', called_by !== null ? "called by: " + called_by : "undefined");
 
     sync_local.get("settings", function (value) {
         if (value["settings"] !== undefined) settings_json = value["settings"];

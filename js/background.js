@@ -366,7 +366,6 @@ function checkSyncLocalBody() {
                     browser.storage.sync.set({"privacy": result.privacy});
                     //delete the local storage
                     browser.storage.local.remove("privacy").then(() => {
-                        console.log("Privacy policy removed from local storage");
                     });
                     checkInstallationDate();
                 } else {
@@ -427,7 +426,6 @@ function checkInstallationDate() {
             let now = new Date();
             let diff = now - date;
             let days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            console.log(`Installation date: ${result.installation.date} (${days} days ago)`);
             //console.log("Installation date: " + result.installation.date);
             //console.log("Installation version: " + result.installation.version);
         }
@@ -1722,6 +1720,21 @@ function getNumberOfNotes() {
 /**
  * open sticky notes
  */
+// Pages the extension cannot script into (browser/extension pages). Injection there
+// fails with a host-permission error that is expected and harmless.
+function canInjectIntoUrl(url) {
+    if (!url) return false;
+    let blocked = ["about:", "moz-extension://", "chrome://", "chrome-extension://", "view-source:", "resource://", "data:", "https://addons.mozilla.org/"];
+    for (let p of blocked) if (url.startsWith(p)) return false;
+    return true;
+}
+
+// true when an executeScript error is the expected "no access to this page" case
+function isExpectedInjectionError(error) {
+    let msg = (error && error.message) ? error.message : String(error);
+    return msg.indexOf("Missing host permission") !== -1 || msg.indexOf("host permission") !== -1 || msg.indexOf("Cannot access") !== -1 || msg.indexOf("No tab with id") !== -1 || msg.indexOf("No window with id") !== -1 || msg.indexOf("cannot be scripted") !== -1 || msg.indexOf("is not a valid URL") !== -1;
+}
+
 function openAsStickyNotes() {
     //before to open, check if the permissions are granted
     const permissionsToRequest = {
@@ -1736,15 +1749,16 @@ function openAsStickyNotes() {
                     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         if (tabs !== undefined && tabs.length > 0) {
                             const activeTab = tabs[0];
-                            if (activeTab && !activeTab.url.startsWith("moz-extension://")) {
+                            if (activeTab && canInjectIntoUrl(activeTab.url)) {
                                 browser.tabs.executeScript(activeTab.id, {file: "./js/inject/sticky-notes.js"}).then(function () {
                                     //console.log("Sticky notes ('open')");
                                     opening_sticky = false;
                                 }).catch(function (error) {
-                                    console.error("E2: " + error);
-                                    //onError("background.js::openAsStickyNotes::E2", error.message, tab_url);
+                                    if (!isExpectedInjectionError(error)) console.error("E2: " + error);
                                     opening_sticky = false;
                                 });
+                            } else {
+                                opening_sticky = false;
                             }
                         }
                     });
@@ -1771,16 +1785,18 @@ function closeStickyNotes(update = true) {
                     browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         if (tabs !== undefined && tabs.length > 0) {
                             const activeTab = tabs[0];
-                            if (activeTab && !activeTab.url.startsWith("moz-extension://")) {
+                            if (activeTab && canInjectIntoUrl(activeTab.url)) {
                                 browser.tabs.executeScript({
                                     code: "document.querySelectorAll('[id^=\"sticky-notes-notefox-addon-\"]').forEach(function(el){el.remove();}); document.querySelectorAll('[id^=\"restore--sticky-notes-notefox-addon-\"]').forEach(function(el){el.remove();}); document.querySelectorAll('style[data-notefox-sticky]').forEach(function(el){el.remove();});"
                                 }).then(function () {
                                     //console.log("Sticky notes ('close')");
                                     if (update) tabUpdated(false);
                                 }).catch(function (error) {
-                                    console.error("E1: " + error + "\nin " + activeTab.url);
-                                    //onError("background.js::closeStickyNotes::E1", error.message, tab_url);
+                                    if (!isExpectedInjectionError(error)) console.error("E1: " + error + "\nin " + activeTab.url);
+                                    if (update) tabUpdated(false);
                                 });
+                            } else if (update) {
+                                tabUpdated(false);
                             }
                         }
                     });
@@ -2021,13 +2037,13 @@ function closeSingleSticky(noteIndex) {
                 browser.tabs.query({active: true, currentWindow: true}, function (tabs) {
                     if (tabs !== undefined && tabs.length > 0) {
                         const activeTab = tabs[0];
-                        if (activeTab && !activeTab.url.startsWith("moz-extension://")) {
+                        if (activeTab && canInjectIntoUrl(activeTab.url)) {
                             let id = "sticky-notes-notefox-addon-" + noteIndex;
                             let restoreId = "restore--sticky-notes-notefox-addon-" + noteIndex;
                             browser.tabs.executeScript({
                                 code: `if(document.getElementById("${id}"))document.getElementById("${id}").remove();if(document.getElementById("${restoreId}"))document.getElementById("${restoreId}").remove();document.querySelectorAll('style[data-notefox-sticky="${noteIndex}"]').forEach(function(el){el.remove();});`
                             }).catch(function (error) {
-                                console.error("E-closeSingle: " + error);
+                                if (!isExpectedInjectionError(error)) console.error("E-closeSingle: " + error);
                             });
                         }
                     }
