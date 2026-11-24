@@ -499,52 +499,63 @@ function loadUI(called_by = null) {
         if (currentUrl[1] !== "" && currentUrl[2] !== "") {
             sync_local.get("websites", function (value) {
                 //console.log("websites: "+JSON.stringify(value));
-                let default_index = 2;
-                if (!isUrlSupported(activeTabUrl)) default_index = 1;
-                if (settings_json["open-default"] === "page" && isUrlSupported(activeTabUrl)) default_index = 2; else if (settings_json["open-default"] === "domain" || !isUrlSupported(activeTabUrl) && settings_json["open-default"] === "page") default_index = 1; else if (settings_json["open-default"] === "global") default_index = 0;
+                const urlSupported = isUrlSupported(activeTabUrl);
+                const otherPossibleUrls = getAllOtherPossibleUrls(activeTabUrl);
+                const canUseSubdomain = !!(advanced_managing && otherPossibleUrls.length > 0);
+                let check_for_domain = false;
+                let check_for_page = false;
+                let check_for_global = false;
+                let check_for_subdomains = false;
+                let matchedSubdomainUrl = "";
+                const matchedSubdomainsSet = new Set();
+
                 if (value["websites"] !== undefined) {
                     websites_json = value["websites"];
                     migrateWebsites(websites_json);
-                    let check_for_domain = checkAllSupportedProtocols(currentUrl[1], websites_json) && entryHasAnyLastUpdate(websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]) && entryHasAnyNotes(websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]);
-                    let check_for_page = checkAllSupportedProtocols(currentUrl[2], websites_json) && entryHasAnyLastUpdate(websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]) && entryHasAnyNotes(websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]);
-                    let check_for_global = checkAllSupportedProtocols(currentUrl[0], websites_json) && entryHasAnyLastUpdate(websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]) && entryHasAnyNotes(websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]);
-                    let subdomains = getAllOtherPossibleUrls(activeTabUrl);
-                    let check_for_subdomains = false;
-                    subdomains.forEach(subdomain => {
-                        let url = getDomainUrl(activeTabUrl, true) + subdomain;
-                        let tmp_check = checkAllSupportedProtocols(url, websites_json) && entryHasAnyLastUpdate(websites_json[getUrlWithSupportedProtocol(url, websites_json)]) && entryHasAnyNotes(websites_json[getUrlWithSupportedProtocol(url, websites_json)]);
-                        if (tmp_check) {
-                            check_for_subdomains = true;
-                            if (currentUrl.length === 4) currentUrl[3] = url; else currentUrl.push(url);
-                        }
-                        //console.log(url + " : " + tmp_check);
-                    });
+                    check_for_domain = checkAllSupportedProtocols(currentUrl[1], websites_json) && entryHasAnyLastUpdate(websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]) && entryHasAnyNotes(websites_json[getUrlWithSupportedProtocol(currentUrl[1], websites_json)]);
+                    check_for_page = checkAllSupportedProtocols(currentUrl[2], websites_json) && entryHasAnyLastUpdate(websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]) && entryHasAnyNotes(websites_json[getUrlWithSupportedProtocol(currentUrl[2], websites_json)]);
+                    check_for_global = checkAllSupportedProtocols(currentUrl[0], websites_json) && entryHasAnyLastUpdate(websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]) && entryHasAnyNotes(websites_json[getUrlWithSupportedProtocol(currentUrl[0], websites_json)]);
+                    if (canUseSubdomain) {
+                        otherPossibleUrls.forEach(subdomain => {
+                            let url = getDomainUrl(activeTabUrl, true) + subdomain;
+                            let tmp_check = checkAllSupportedProtocols(url, websites_json) && entryHasAnyLastUpdate(websites_json[getUrlWithSupportedProtocol(url, websites_json)]) && entryHasAnyNotes(websites_json[getUrlWithSupportedProtocol(url, websites_json)]);
+                            if (tmp_check) {
+                                check_for_subdomains = true;
+                                matchedSubdomainUrl = url;
+                                matchedSubdomainsSet.add(subdomain);
+                            }
+                            //console.log(url + " : " + tmp_check);
+                        });
+                    }
+                }
 
-                    if (opened_by === 1 || (opened_by === -1 && check_for_domain && (default_index === 1 || default_index === 2 && !check_for_page || default_index === 0 && !check_for_global))) {
-                        //by domain
-                        setTab(1, currentUrl[1]);
-                    } else if (opened_by === 2 || (opened_by === -1 && check_for_page && (default_index === 2 || default_index === 1 && !check_for_domain || default_index === 0 && !check_for_global))) {
-                        //by page
-                        setTab(2, currentUrl[2]);
-                    } else if (opened_by === -1 && check_for_subdomains) {
-                        //by subdomain
-                        setTab(3, currentUrl[3]);
-                    } else if (opened_by === 0 || (opened_by === -1 && check_for_global && (default_index === 0 || default_index === 1 && !check_for_domain || default_index === 2 && !check_for_page))) {
-                        //by global
-                        setTab(0, currentUrl[0]);
-                    } else {
-                        //using default
-                        if (opened_by !== -1) {
-                            default_index = opened_by;
-                        }
-                        setTab(default_index, currentUrl[default_index]);
+                // Mark subdomains that already contain notes in the "..." dropdown
+                document.getElementById("subdomains-list").childNodes.forEach(node => {
+                    if (!node.classList) return;
+                    const subKey = (node.dataset && node.dataset.subdomain) ? node.dataset.subdomain : node.textContent;
+                    if (matchedSubdomainsSet.has(subKey)) node.classList.add("subdomain-has-note");
+                    else node.classList.remove("subdomain-has-note");
+                });
+
+                let tabToOpen = resolvePopupTabIndex({
+                    opened_by: opened_by,
+                    settings: settings_json,
+                    isUrlSupportedForTab: urlSupported,
+                    canUseSubdomain: canUseSubdomain,
+                    check_for_global: check_for_global,
+                    check_for_domain: check_for_domain,
+                    check_for_page: check_for_page,
+                    check_for_subdomains: check_for_subdomains,
+                });
+                if (tabToOpen === 3 && canUseSubdomain) {
+                    const targetSubdomainUrl = matchedSubdomainUrl || (getDomainUrl(activeTabUrl, true) + otherPossibleUrls[0]);
+                    currentUrl[3] = targetSubdomainUrl;
+                    setTab(3, currentUrl[3]);
+                    if (!matchedSubdomainUrl) {
+                        showTabSubDomains(true);
                     }
                 } else {
-                    //using default
-                    if (opened_by !== -1) {
-                        default_index = opened_by;
-                    }
-                    setTab(default_index, currentUrl[default_index]);
+                    setTab(tabToOpen, currentUrl[tabToOpen]);
                 }
 
                 //console.log(JSON.stringify(websites_json));
@@ -801,34 +812,27 @@ function notesLostFocus() {
     //
 }
 
-function showTabSubDomains() {
-    document.getElementById("notes").contentEditable = false;
+function showTabSubDomains(forceOpen = false) {
     let panel = document.getElementById("panel-other-tabs");
-    let arrowDown = document.getElementById("arrow-down");
-    if (panel.classList.contains("hidden")) {
+    if (forceOpen || panel.classList.contains("hidden")) {
         panel.classList.remove("hidden");
         document.getElementById("notes").contentEditable = false;
+        document.getElementById("tab-other-button").classList.add("not-sel");
     } else {
-        panel.classList.add("hidden");
-        document.getElementById("notes").contentEditable = true;
-        document.getElementById("notes").focus();
+        hideTabSubDomains();
+        return;
     }
-    document.getElementById("tab-other-button").classList.add("not-sel");
 
     if (selected_tab === 3) {
+        const activeSubdomain = (currentUrl.length === 4 && currentUrl[3]) ? currentUrl[3].replace(currentUrl[1], "") : "";
         document.getElementById("subdomains-list").childNodes.forEach(node => {
-            let class_text = "";
-            for (let i = 0; i < node.attributes.length; i++) {
-                if (node.attributes[i].name.toString().toLowerCase() === "class") {
-                    class_text = node.attributes[i].nodeValue;
-                }
-                if (currentUrl.length === 4 && currentUrl[3].replace(currentUrl[1], "") === node.textContent) {
-                    if (!class_text.includes(" subdomain-sel")) class_text = class_text + " subdomain-sel";
-                } else {
-                    if (class_text.includes(" subdomain-sel")) class_text = class_text.replace(" subdomain-sel", "");
-                }
+            if (!node.classList) return;
+            const subKey = (node.dataset && node.dataset.subdomain) ? node.dataset.subdomain : node.textContent;
+            if (activeSubdomain && activeSubdomain === subKey) {
+                node.classList.add("subdomain-sel");
+            } else {
+                node.classList.remove("subdomain-sel");
             }
-            node.setAttribute("class", class_text);
         });
     }
     //get focus on the first element of the list
@@ -843,20 +847,19 @@ function hideTabSubDomains() {
         document.getElementById("tab-other-button").classList.remove("not-sel");
     }
     document.getElementById("subdomains-list").childNodes.forEach(node => {
-        let class_text = "subdomain";
-        node.setAttribute("class", class_text);
-    })
+        if (node.classList) node.classList.remove("subdomain-sel");
+    });
 }
 
 function appendSubDomains(subdomains) {
     let list = document.getElementById("subdomains-list");
     list.innerHTML = "";
-    showTabSubDomains();
     let tabIndex = 0;
     subdomains.forEach(domain => {
         let newSubDomain = document.createElement("button");
         newSubDomain.classList.add("subdomain");
         newSubDomain.innerText = domain;
+        newSubDomain.dataset.subdomain = domain;
         newSubDomain.tabIndex = tabIndex;
         let url = currentUrl[1] + domain;
         newSubDomain.onclick = function () {
@@ -889,6 +892,8 @@ function loadSettings(called_by = null, load_only = false) {
     sync_local.get("settings", function (value) {
         if (value["settings"] !== undefined) settings_json = value["settings"];
         if (settings_json["open-default"] === undefined) settings_json["open-default"] = "page";
+        settings_json["open-notes-priority"] = normalizeOpenNotesPriority(settings_json);
+        if (settings_json["open-first-available-note"] === undefined) settings_json["open-first-available-note"] = true;
         if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
         if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
         if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
@@ -910,6 +915,7 @@ function loadSettings(called_by = null, load_only = false) {
         if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
         if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
         if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
+        if (settings_json["show-sticky-watermark"] === undefined) settings_json["show-sticky-watermark"] = true;
         if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
         if (settings_json["text-size"] === undefined || !supportedTextSize.includes(settings_json["text-size"])) settings_json["text-size"] = "standard";
         if (settings_json["allow-resize-popup"] === undefined) settings_json["allow-resize-popup"] = false;
@@ -1030,6 +1036,9 @@ function saveNotes(title_call = false) {
         if (websites_json[url_to_use] === undefined) websites_json[url_to_use] = {};
         let entry = websites_json[url_to_use];
         if (!Array.isArray(entry["all-notes"])) entry["all-notes"] = [];
+        ensureNoteIds({[url_to_use]: entry});
+        //as they were before this change: needed if the note is being deleted
+        const previousNotes = entry["all-notes"].map((item) => Object.assign({}, item));
         if (!entry["all-notes"][current_note_index]) {
             entry["all-notes"][current_note_index] = {"tags-text": [], "tag-folder": ""};
         }
@@ -1093,6 +1102,7 @@ function saveNotes(title_call = false) {
             let allNotes = entry["all-notes"];
             {
                 // a note whose text becomes empty must not exist: remove it entirely
+                recordDeletedNotes([{url: url_to_use, notes: previousNotes, indexes: [current_note_index]}]);
                 allNotes.splice(current_note_index, 1);
                 if (allNotes.length === 0) {
                     delete websites_json[url_to_use];
@@ -1247,14 +1257,18 @@ function tabUpdated() {
 }
 
 function setUrl(url) {
-    let otherPossibleUrls = getAllOtherPossibleUrls(url);
-    if (otherPossibleUrls.length > 0) {
-        appendSubDomains(otherPossibleUrls)
-    }
     //if (isUrlSupported(url)) {
     currentUrl[0] = getGlobalUrl();
     currentUrl[1] = getDomainUrl(url);
     currentUrl[2] = getPageUrl(url);
+    if (currentUrl.length > 3) currentUrl.length = 3;
+    let otherPossibleUrls = getAllOtherPossibleUrls(url);
+    if (otherPossibleUrls.length > 0) {
+        appendSubDomains(otherPossibleUrls);
+    } else {
+        let list = document.getElementById("subdomains-list");
+        if (list) list.innerHTML = "";
+    }
     document.getElementById("global-button").style.width = "30%";
     document.getElementById("page-button").style.width = "30%";
     if (advanced_managing && otherPossibleUrls.length > 0) {
@@ -1774,6 +1788,15 @@ function setTab(index, url) {
     document.getElementById("page-button").classList.remove("tab-sel");
     document.getElementById("global-button").classList.remove("tab-sel");
     document.getElementById("tab-other-button").classList.remove("tab-sel");
+
+    const otherTabBtn = document.getElementById("tab-other-button");
+    if (otherTabBtn) {
+        if (index === 3 && url && currentUrl[1]) {
+            otherTabBtn.title = url.replace(currentUrl[1], "");
+        } else {
+            otherTabBtn.title = (all_strings && all_strings["subdomain-label"]) ? all_strings["subdomain-label"] : "Subdomain";
+        }
+    }
 
     document.getElementsByClassName("tab")[index].classList.add("tab-sel");
 
@@ -2919,6 +2942,7 @@ function performDeleteCurrentNote() {
     let deletedNoteIndex = current_note_index;
 
     // unified model: simply remove the note at the current index, no promotion
+    recordDeletedNotes([{url: supportedUrl, notes: websites_json[supportedUrl]["all-notes"], indexes: [current_note_index]}]);
     websites_json[supportedUrl]["all-notes"].splice(current_note_index, 1);
 
     try {

@@ -59,7 +59,15 @@ async function getSyncAccount() {
  */
 async function buildLocalSnapshot() {
     const getStorageTemp = await browser.storage.local.get(["storage"]);
-    const result = await sync_local.get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "last-update"]);
+    const result = await sync_local.get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "websites-archive", "labels-registry", DELETED_NOTES_KEY, "last-update"]);
+
+    //every note needs an id, so that its deletion can be recognized on the other devices
+    let with_new_ids = {};
+    ["websites", "websites-archive"].forEach((key) => {
+        migrateWebsites(result[key]);
+        if (ensureNoteIds(result[key])) with_new_ids[key] = result[key];
+    });
+    if (Object.keys(with_new_ids).length > 0) await sync_local.set(with_new_ids);
 
     let sticky_notes = {};
     sticky_notes.coords = result["sticky-notes-coords"];
@@ -81,7 +89,7 @@ async function buildLocalSnapshot() {
         if (settings_json[setting] === "yes") settings_json[setting] = true; else if (settings_json[setting] === "no") settings_json[setting] = false;
     }
 
-    return {
+    const snapshot = {
         "notefox": notefox_json,
         "settings": settings_json,
         "websites": result["websites"],
@@ -89,6 +97,16 @@ async function buildLocalSnapshot() {
         "storage": getStorageTemp["storage"],
         "last-update": result["last-update"]
     };
+    if (result["websites-archive"] !== undefined && result["websites-archive"] !== null && Object.keys(result["websites-archive"]).length > 0) {
+        snapshot["websites-archive"] = result["websites-archive"];
+    }
+    if (result["labels-registry"] !== undefined && result["labels-registry"] !== null) {
+        snapshot["labels-registry"] = result["labels-registry"];
+    }
+    if (result[DELETED_NOTES_KEY] !== undefined && result[DELETED_NOTES_KEY] !== null && Object.keys(result[DELETED_NOTES_KEY]).length > 0) {
+        snapshot[DELETED_NOTES_KEY] = result[DELETED_NOTES_KEY];
+    }
+    return snapshot;
 }
 
 /**
@@ -124,9 +142,193 @@ function syncDateToTime(value) {
 }
 
 /**
- * Merge two snapshots without ever losing a note:
+ * Merge two "websites" objects key by key: the entry with the newest
+ * "last-update" wins and an entry present on one side only is always kept.
+ * Both sides are normalized to the all-notes[] model before comparing, so an
+ * old-format snapshot (from the server or a not-yet-updated client) merges
+ * homogeneously.
+ * @param localDict {object} - the notes of this device
+ * @param serverDict {object} - the notes answered by the server
+ * @returns {object} - the merged notes
+ */
+function mergeWebsitesDictByRecency(localDict, serverDict) {
+    const local_ws = localDict !== undefined && localDict !== null ? localDict : {};
+    const server_ws = serverDict !== undefined && serverDict !== null ? serverDict : {};
+
+    migrateWebsites(local_ws);
+    migrateWebsites(server_ws);
+
+    let merged = {};
+    for (let url in server_ws) {
+        merged[url] = server_ws[url];
+    }
+    for (let url in local_ws) {
+        if (merged[url] === undefined) {
+            merged[url] = local_ws[url];
+        } else {
+            const local_entry_time = getEntryLastUpdate(local_ws[url]);
+            const server_entry_time = getEntryLastUpdate(merged[url]);
+            if ((local_entry_time === null ? -Infinity : local_entry_time) >= (server_entry_time === null ? -Infinity : server_entry_time)) {
+                merged[url] = local_ws[url];
+            }
+        }
+    }
+    return merged;
+}
+
+function getSyncNotes(websites, url) {
+    const entry = websites !== undefined && websites !== null ? websites[url] : undefined;
+    return entry && Array.isArray(entry["all-notes"]) ? entry["all-notes"].filter((note) => note && typeof note === "object") : [];
+}
+
+/**
+ * Same note on two sides: same "note-id" (see js/note-identity.js) or, when one
+ * of the two has no id, same content.
+ */
+function isSameSyncNote(a, b) {
+    if (a["note-id"] && b["note-id"]) return a["note-id"] === b["note-id"];
+    return getNoteFingerprint(a) === getNoteFingerprint(b);
+}
+
+/**
+ * Compare two versions of the same note
+ * @returns {number} - positive when "a" is newer than "b"
+ */
+function compareSyncNotes(a, b) {
+    const moves = (Number(a["move-count"]) || 0) - (Number(b["move-count"]) || 0);
+    //same content: only the moves tell them apart, and counting them doesn't depend on the clocks
+    if (getNoteFingerprint(a) === getNoteFingerprint(b)) return moves;
+    const time_a = Math.max(syncDateToTime(a["last-update"]), syncDateToTime(a["moved-at"]));
+    const time_b = Math.max(syncDateToTime(b["last-update"]), syncDateToTime(b["moved-at"]));
+    return time_a !== time_b ? time_a - time_b : moves;
+}
+
+/**
+ * Merge two archives note by note. An archived note exists nowhere else, so
+ * (unlike "websites") choosing a whole entry would lose the notes of the other.
+ * @returns {object} - the merged archive
+ */
+function mergeArchives(localArchive, serverArchive) {
+    const merged = mergeWebsitesDictByRecency(localArchive, serverArchive);
+    for (let url in merged) {
+        //the server comes first (also when the versions are equivalent): otherwise two
+        //devices would keep on sending to each other their own order and their own copy
+        const notes = getSyncNotes(serverArchive, url).slice();
+        const already_matched = new Set();
+        getSyncNotes(localArchive, url).forEach((local_note) => {
+            let index = -1;
+            for (let i = 0; i < notes.length; i++) {
+                if (!already_matched.has(i) && isSameSyncNote(notes[i], local_note)) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index === -1) {
+                already_matched.add(notes.length);
+                notes.push(local_note);
+            } else {
+                already_matched.add(index);
+                if (compareSyncNotes(local_note, notes[index]) > 0) notes[index] = local_note;
+            }
+        });
+        merged[url] = Object.assign({}, merged[url], {"all-notes": notes});
+    }
+    return merged;
+}
+
+/**
+ * Make a note which was moved on one side only exist once: in the place where
+ * the newest of its versions is. "websites" and "archive" are changed in place.
+ */
+function reconcileArchive(websites, archive, local, server) {
+    for (let url in archive) {
+        const sides = [local, server];
+        //a side which has the note both active (without an id) and archived has two different notes
+        const knows = sides.map((side) => {
+            const archived = getSyncNotes(side["websites-archive"], url);
+            return (note) => archived.some((item) => isSameSyncNote(item, note));
+        });
+        const isSameActive = (active, archived, side) => isSameSyncNote(active, archived) && (!!active["note-id"] || !knows[side](archived));
+
+        const websites_side = local["websites"] && websites[url] === local["websites"][url] ? 0 : 1;
+        const kept = [];
+        getSyncNotes(archive, url).forEach((archived) => {
+            let newest = null;
+            sides.forEach((side, index) => {
+                getSyncNotes(side["websites"], url).forEach((active) => {
+                    if (active["note-id"] && isSameActive(active, archived, index) && (newest === null || compareSyncNotes(active, newest) > 0)) newest = active;
+                });
+            });
+
+            if (newest !== null && compareSyncNotes(newest, archived) > 0) {
+                //moved out of the archive
+                const notes = getSyncNotes(websites, url);
+                if (!notes.some((active) => isSameSyncNote(active, newest))) {
+                    websites[url] = Object.assign({}, websites[url] !== undefined ? websites[url] : archive[url], {"all-notes": notes.concat([newest])});
+                }
+                return;
+            }
+
+            //archived: the copy of the side which didn't know it must go
+            kept.push(archived);
+            if (websites[url] !== undefined) {
+                const notes = getSyncNotes(websites, url);
+                const remaining = notes.filter((active) => !isSameActive(active, archived, websites_side));
+                if (remaining.length !== notes.length) {
+                    if (remaining.length === 0) delete websites[url];
+                    else websites[url] = Object.assign({}, websites[url], {"all-notes": remaining});
+                }
+            }
+        });
+
+        if (kept.length === 0) delete archive[url];
+        else archive[url]["all-notes"] = kept;
+    }
+}
+
+/**
+ * Merge two registries of labels: a label is kept when it is on one side at
+ * least, unless the newest recorded change (see "changes") is its deletion.
+ */
+function mergeLabelsRegistriesForSync(localReg, serverReg) {
+    const result = {tags: [], folders: [], changes: {tags: {}, folders: {}}};
+    ["tags", "folders"].forEach((kind) => {
+        const normalize = (name) => kind === "tags" ? name.trim().toLowerCase() : name.trim();
+        const names = new Set();
+        const changes = new Map();
+        [localReg, serverReg].forEach((reg) => {
+            if (!reg || typeof reg !== "object") return;
+            if (Array.isArray(reg[kind])) reg[kind].forEach((name) => {
+                if (typeof name === "string" && name.trim()) names.add(normalize(name));
+            });
+            const side_changes = reg["changes"] && reg["changes"][kind];
+            if (!side_changes || typeof side_changes !== "object") return;
+            Object.keys(side_changes).forEach((name) => {
+                const change = side_changes[name];
+                if (!change || typeof change["at"] !== "string") return;
+                const current = changes.get(name);
+                if (current === undefined || syncDateToTime(change["at"]) > syncDateToTime(current["at"])) changes.set(name, {"at": change["at"], "deleted": change["deleted"] === true});
+            });
+        });
+        //sorted: the same content must be written in the same way by every device
+        Array.from(changes.keys()).sort().forEach((name) => {
+            const change = changes.get(name);
+            result["changes"][kind][name] = change;
+            if (change["deleted"]) names.delete(name);
+            else names.add(name);
+        });
+        result[kind] = Array.from(names).sort();
+    });
+    return result;
+}
+
+/**
+ * Merge two snapshots without ever losing a note the user has not deleted:
+ * - the notes the user has deleted on a device (see js/note-identity.js) are
+ *   removed from both sides, unless the other side has a newer version;
  * - "websites" is merged key by key: the entry with the newest "last-update"
  *   wins and an entry present on one side only is always kept;
+ * - "websites-archive" is merged note by note, then reconciled with "websites";
  * - the other sections are taken from the side with the newest "last-update";
  * - "last-update" becomes the newest of the two.
  * @param local {object} - the snapshot of this device
@@ -137,34 +339,31 @@ function mergeSnapshots(local, server) {
     if (local === undefined || local === null) return server;
     if (server === undefined || server === null) return local;
 
+    const local_archive = local["websites-archive"];
+    const server_archive = server["websites-archive"];
+    const deleted = mergeDeletedNotes(local[DELETED_NOTES_KEY], server[DELETED_NOTES_KEY]);
+    //copies: the original snapshots are still compared with the result
+    [local, server] = [local, server].map((side) => {
+        const copy = Object.assign({}, side);
+        ["websites", "websites-archive"].forEach((key) => {
+            if (copy[key] === undefined || copy[key] === null) return;
+            copy[key] = migrateWebsites(JSON.parse(JSON.stringify(copy[key])));
+            ensureNoteIds(copy[key]);
+            applyDeletedNotes(copy[key], deleted);
+        });
+        return copy;
+    });
+
     const local_time = syncDateToTime(local["last-update"]);
     const server_time = syncDateToTime(server["last-update"]);
     const newest = local_time >= server_time ? local : server;
 
-    const local_websites = local["websites"] !== undefined && local["websites"] !== null ? local["websites"] : {};
-    const server_websites = server["websites"] !== undefined && server["websites"] !== null ? server["websites"] : {};
+    const websites = mergeWebsitesDictByRecency(local["websites"], server["websites"]);
+    //the originals: when all the archived notes have been deleted, the archive must be emptied
+    const hasArchive = [local_archive, server_archive].some((archive) => archive && Object.keys(archive).length > 0);
+    const hasRegistry = local["labels-registry"] !== undefined || server["labels-registry"] !== undefined;
 
-    // Normalize both sides to the all-notes[] model before comparing, so an
-    // old-format snapshot (from the server or a not-yet-updated client) merges
-    // homogeneously. Entry recency uses the newest last-update among its notes.
-    migrateWebsites(local_websites);
-    migrateWebsites(server_websites);
-
-    let websites = {};
-    for (let url in server_websites) {
-        websites[url] = server_websites[url];
-    }
-    for (let url in local_websites) {
-        if (websites[url] === undefined) {
-            websites[url] = local_websites[url];
-        } else {
-            const local_entry_time = getEntryLastUpdate(local_websites[url]);
-            const server_entry_time = getEntryLastUpdate(websites[url]);
-            if ((local_entry_time === null ? -Infinity : local_entry_time) >= (server_entry_time === null ? -Infinity : server_entry_time)) websites[url] = local_websites[url];
-        }
-    }
-
-    return {
+    const merged = {
         "notefox": newest["notefox"] !== undefined ? newest["notefox"] : local["notefox"],
         "settings": newest["settings"] !== undefined ? newest["settings"] : local["settings"],
         "websites": websites,
@@ -172,6 +371,17 @@ function mergeSnapshots(local, server) {
         "storage": local["storage"] !== undefined ? local["storage"] : newest["storage"],
         "last-update": local_time >= server_time ? local["last-update"] : server["last-update"]
     };
+    if (hasArchive) {
+        const archive = mergeArchives(local["websites-archive"], server["websites-archive"]);
+        reconcileArchive(websites, archive, local, server);
+        //written also when it becomes empty: it must replace the archive of this device
+        merged["websites-archive"] = archive;
+    }
+    if (hasRegistry) {
+        merged["labels-registry"] = mergeLabelsRegistriesForSync(local["labels-registry"], server["labels-registry"]);
+    }
+    if (Object.keys(deleted).length > 0) merged[DELETED_NOTES_KEY] = deleted;
+    return merged;
 }
 
 /**
