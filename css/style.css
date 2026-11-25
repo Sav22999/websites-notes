@@ -4155,6 +4155,7 @@ strong {
 .account-section-buttons,
 #notefox-account-signup-section > .padding-10.text-align-right,
 #notefox-account-login-section > .padding-10.text-align-right,
+#notefox-account-savaccount-section > .padding-10.text-align-right,
 #notefox-account-change-password-section > .padding-10.text-align-right,
 #notefox-account-otp-section > .padding-10.text-align-right,
 #notefox-account-delete-section > .padding-10.text-align-right {
@@ -4170,6 +4171,7 @@ strong {
 
 #notefox-account-signup-section > .padding-10.text-align-right > .float-left,
 #notefox-account-login-section > .padding-10.text-align-right > .float-left,
+#notefox-account-savaccount-section > .padding-10.text-align-right > .float-left,
 #notefox-account-change-password-section > .padding-10.text-align-right > .float-left,
 #notefox-account-otp-section > .padding-10.text-align-right > .float-left,
 #notefox-account-delete-section > .padding-10.text-align-right > .float-left {
@@ -6398,6 +6400,71 @@ hr.hr-domain:last-child {
     "email password"
     "hr hr"
     "login-not-yet-account login-not-yet-account";
+}
+
+#account-section--savaccount-grid {
+    display: grid;
+    grid-gap: 5px;
+}
+
+.savaccount-box {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.savaccount-or {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0 15px 0;
+    opacity: 0.8;
+}
+
+.savaccount-or::before,
+.savaccount-or::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background-color: rgba(128, 128, 128, 0.35);
+}
+
+.savaccount-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 44px;
+    max-width: 100%;
+    padding: 8px 18px;
+    border: 0;
+    border-radius: 10px;
+    background-color: #66cbff;
+    color: #072536;
+    font-family: inherit;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.savaccount-button:hover {
+    background-color: #8bd8ff;
+}
+
+.savaccount-button:focus-visible {
+    outline: 3px solid #1f8fd0;
+    outline-offset: 3px;
+}
+
+.savaccount-button:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.savaccount-button img {
+    flex: none;
+    width: 24px;
+    height: 24px;
 }
 
 #account-section--delete-grid {

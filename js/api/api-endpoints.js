@@ -14,6 +14,10 @@ const API_V2 = {
     loginVerify: {path: "/login/verify/"},
     loginNewCode: {path: "/login/verify/get-new-code/"},
     loginCheckId: {path: "/login/check-id/"},
+    savAccountStart: {path: "/savaccount/start/"},
+    savAccountFinish: {path: "/savaccount/finish/"},
+    savAccountLink: {path: "/savaccount/link/"},
+    savAccountSignup: {path: "/savaccount/signup/"},
     logout: {path: "/logout/"},
     otpStatus: {path: "/otp/status/"},
     otpEnable: {path: "/otp/enable/"},
@@ -67,6 +71,28 @@ async function apiSignupVerify(email, password, verification_code) {
 
 async function apiSignupNewCode(email, password) {
     return await apiEndpoint("signupNewCode", {"email": email, "password": password});
+}
+
+/* SavAccount */
+
+async function apiSavAccountStart(lang) {
+    return await apiEndpoint("savAccountStart", {"mode": "login", "lang": lang});
+}
+
+async function apiSavAccountFinish(flow, state, code, iss) {
+    let body = {"flow": flow, "state": state, "code": code, "source": "addon"};
+    if (iss !== undefined && iss !== null) body["iss"] = iss;
+    return await apiEndpoint("savAccountFinish", body);
+}
+
+async function apiSavAccountLink(ticket, password) {
+    return await apiEndpoint("savAccountLink", {"ticket": ticket, "password": password, "source": "addon"});
+}
+
+async function apiSavAccountSignup(ticket, username, password) {
+    return await apiEndpoint("savAccountSignup", {
+        "ticket": ticket, "username": username, "password": password, "source": "addon"
+    });
 }
 
 /* Login */

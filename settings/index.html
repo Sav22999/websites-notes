@@ -228,6 +228,13 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span id="signup-already-account-text"></span> <span class="link"
                                                                              id="signup-already-account-button"></span>
                     </div>
+                    <div class="savaccount-box hidden" id="signup-savaccount">
+                        <div class="savaccount-or"><span id="signup-savaccount-or"></span></div>
+                        <button type="button" class="savaccount-button" id="signup-savaccount-button">
+                            <img src="../img/savaccount.svg" alt="" width="24" height="24"/>
+                            <span id="signup-savaccount-text"></span>
+                        </button>
+                    </div>
                 </div>
                 <div id="account-section--verify-signup-grid" class="padding-10 hidden">
                     <input
@@ -282,6 +289,13 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span id="login-not-yet-account-text"></span> <span class="link"
                                                                             id="login-not-yet-account-button"></span>
                     </div>
+                    <div class="savaccount-box hidden" id="login-savaccount">
+                        <div class="savaccount-or"><span id="login-savaccount-or"></span></div>
+                        <button type="button" class="savaccount-button" id="login-savaccount-button">
+                            <img src="../img/savaccount.svg" alt="" width="24" height="24"/>
+                            <span id="login-savaccount-text"></span>
+                        </button>
+                    </div>
                 </div>
                 <div id="account-section--verify-login-grid" class="padding-10 hidden">
                     <div class="lds-spinner hidden" id="loading-verify-login">
@@ -325,6 +339,37 @@ Created by Saverio Morelli - saveriomorelli.com
 
                     <input class="button hidden" id="verify-login-new-code" value="" type="button"/>
                     <input class="button login-button hidden" id="verify-login-submit" value="" type="button"/>
+                </div>
+            </div>
+
+            <!-- SavAccount: link or create the account -->
+            <div id="notefox-account-savaccount-section" class="hidden">
+                <div id="account-section--savaccount-grid" class="padding-10">
+                    <input class="textbox width-100 label-with-image account-label account-text"
+                           id="savaccount-username" type="text" name="username" autocomplete="off">
+                    <input class="textbox width-100 label-with-image password-label account-text"
+                           id="savaccount-password" type="password" name="password">
+                    <input class="textbox width-100 label-with-image password-label account-text"
+                           id="savaccount-confirm-password" type="password" name="confirm-password">
+                </div>
+                <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-savaccount">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <input type="button" value="" id="savaccount-cancel"
+                           class="button float-left button-close-notefox-account"/>
+                    <input class="button login-button" id="savaccount-submit" value="" type="button"/>
                 </div>
             </div>
 
@@ -1998,6 +2043,7 @@ Created by Saverio Morelli - saveriomorelli.com
 <script src="../js/languages/ia/strings.js"></script>
 <!--END|include all translation files-->
 
+<script src="../js/savaccount.js"></script>
 <script src="../js/settings.js"></script>
 </body>
 

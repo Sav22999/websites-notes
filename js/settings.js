@@ -3911,6 +3911,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
         elements[i].onclick = function () {
             hideBackgroundOpacity();
             document.getElementById("account-section").style.display = "none";
+            abortSavAccount();
 
             sendTelemetry("close-notefox-account-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
         };
@@ -3944,6 +3945,9 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
         document
             .getElementById("notefox-account-sessions-section")
             .classList.add("hidden");
+        document
+            .getElementById("notefox-account-savaccount-section")
+            .classList.add("hidden");
 
         document
             .getElementById("account-section--change-password-verify-grid")
@@ -3975,6 +3979,9 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
             .classList.add("hidden");
 
         document.getElementById("login-exprired-section").classList.add("hidden");
+
+        if (action !== "savaccount") abortSavAccount();
+        refreshSavAccountButtons();
 
         document.getElementById("text-account").innerHTML = "";
         document.getElementById("message-from-api").innerHTML = "";
@@ -4275,6 +4282,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                     console.error(e);
                     onError("settings.js::notefoxAccountLoginSignupManage::new_code_element-events|verify-login", e.message);
                 }
+            } else if (action === "savaccount") {
+                showSavAccountSection(data);
             } else if (action === "verify-signup") {
                 title.innerText = all_strings["notefox-account-button-settings-signup"];
                 if (document
@@ -5275,6 +5284,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 email_element.value = email;
                 password_element.value = password;
 
+                if (data !== null && data.message !== undefined) showMessageNotefoxAccount(data.message, true);
+
                 try {
                     email_element.disabled = false;
                     email_element.onfocus = function () {
@@ -5585,10 +5596,12 @@ async function checkServerStatus() {
         //the server is unreachable: it is already reported by the other messages
         server_status = null;
         warning_element.classList.add("hidden");
+        refreshSavAccountButtons();
         return;
     }
 
     server_status = result.data;
+    refreshSavAccountButtons();
 
     let areas = [];
     if (server_status["database"] === false) areas.push(getString("notefox-account-server-status-area-database", "database"));
