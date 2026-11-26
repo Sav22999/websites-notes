@@ -2770,6 +2770,13 @@ function mergeTwoNotes(existingNote, importedNote) {
     addTags(imp["tags-text"]);
     merged["tags-text"] = combinedTags;
 
+    //the screenshots of both, once each
+    const mergedAttachments = (Array.isArray(merged["attachments"]) ? merged["attachments"] : []).slice();
+    (Array.isArray(imp["attachments"]) ? imp["attachments"] : []).forEach((item) => {
+        if (item && item["id"] && !mergedAttachments.some((existing) => existing && existing["id"] === item["id"])) mergedAttachments.push(item);
+    });
+    if (mergedAttachments.length > 0) merged["attachments"] = mergedAttachments;
+
     if ((!merged["tag-folder"] || merged["tag-folder"] === "") && imp["tag-folder"]) {
         merged["tag-folder"] = imp["tag-folder"];
     }
@@ -2889,6 +2896,7 @@ function canonicalizeNoteForComparison(note, entryFallbackColour) {
         tagFolder: typeof n["tag-folder"] === "string" ? n["tag-folder"].trim() : "",
         tags: normalizeTagsArrayForComparison(n["tags-text"]),
         content: typeof n["content"] === "string" ? n["content"].replace(/\r\n/g, "\n").trim() : "",
+        attachments: (Array.isArray(n["attachments"]) ? n["attachments"] : []).map((item) => item && item["id"]).filter((id) => typeof id === "string").sort().join(","),
     };
 }
 
@@ -2900,6 +2908,7 @@ function areNotesEqual(noteA, noteB, fallbackColourA, fallbackColourB) {
     if (a.tagColour !== b.tagColour) return false;
     if (a.tagFolder !== b.tagFolder) return false;
     if (a.content !== b.content) return false;
+    if (a.attachments !== b.attachments) return false;
     if (a.tags.length !== b.tags.length) return false;
     for (let i = 0; i < a.tags.length; i++) {
         if (a.tags[i] !== b.tags[i]) return false;

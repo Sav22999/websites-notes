@@ -59,11 +59,15 @@ Created by Saverio Morelli - saveriomorelli.com
                 </div>
                 <div id="floating-actions">
                     <input type="button" value="" id="open-sticky-button" class="button button-trigger-sticky" tabindex="2"/>
+                    <div id="screenshot-button" class="hidden" tabindex="2" role="button">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                    </div>
                     <div id="new-note-button" class="hidden" tabindex="2">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </div>
                 </div>
             </div>
+            <div id="attachments-strip" class="hidden"></div>
             <div id="format-buttons" tabindex="2"></div>
         </div>
         <div id="panel-other-tabs" class="hidden" tabindex="1">
@@ -91,6 +95,46 @@ Created by Saverio Morelli - saveriomorelli.com
 </div>
 
 <div id="background-opacity"></div>
+<!--screenshot menu (see js/popup-attachments.js)-->
+<div id="screenshot-menu" class="hidden" role="menu">
+    <button type="button" class="screenshot-menu-item" data-mode="visible" id="screenshot-menu-visible"></button>
+    <button type="button" class="screenshot-menu-item" data-mode="area" id="screenshot-menu-area"></button>
+    <button type="button" class="screenshot-menu-item" data-mode="element" id="screenshot-menu-element"></button>
+    <label class="screenshot-link-toggle" for="screenshot-link-check">
+        <input type="checkbox" id="screenshot-link-check" checked/>
+        <span class="screenshot-link-texts">
+            <span id="screenshot-link-text"></span>
+            <span id="screenshot-link-detail"></span>
+        </span>
+    </label>
+    <div id="screenshot-menu-restricted" class="hidden"></div>
+    <div id="screenshot-menu-message" class="hidden"></div>
+    <button type="button" id="screenshot-grant-permission" class="hidden"></button>
+</div>
+<!--area chosen on the screenshot (pages where no script can run: about:, moz-extension:...)-->
+<div id="screenshot-crop" class="hidden">
+    <div id="screenshot-crop-hint"></div>
+    <div id="screenshot-crop-stage">
+        <img id="screenshot-crop-image" alt="" draggable="false"/>
+        <div id="screenshot-crop-box" class="hidden"></div>
+    </div>
+    <div id="screenshot-crop-buttons">
+        <button type="button" id="screenshot-crop-cancel"></button>
+        <button type="button" id="screenshot-crop-confirm" disabled></button>
+    </div>
+</div>
+<!--screenshot viewer-->
+<div id="attachment-viewer" class="hidden">
+    <div id="attachment-viewer-image-container"><img id="attachment-viewer-image" alt=""/></div>
+    <div id="attachment-viewer-info"></div>
+    <div id="attachment-viewer-warning" class="hidden"></div>
+    <div id="attachment-viewer-buttons">
+        <button type="button" id="attachment-viewer-show"></button>
+        <button type="button" id="attachment-viewer-unlink"></button>
+        <button type="button" id="attachment-viewer-delete"></button>
+        <button type="button" id="attachment-viewer-close"></button>
+    </div>
+</div>
 <!--login expired popup-->
 <div id="login-expired-section">
     <div id="login-expired-content" class="section">
@@ -231,6 +275,8 @@ Created by Saverio Morelli - saveriomorelli.com
 <!--END|include all translation files-->
 
 <script src="./js/script.js"></script>
+<script src="./js/attachments.js"></script>
+<script src="./js/popup-attachments.js"></script>
 </body>
 
 </html>

@@ -270,7 +270,7 @@ function triggerDownloadJsonBlob(dataStr, filename) {
     }
 }
 
-function exportSelectedNotes() {
+async function exportSelectedNotes() {
     pruneSelectedNoteKeys();
     const {websites: exportedWebsites, count} = buildPartialExportWebsites(websites_json, selectedNoteKeys, NOTE_SELECTION_SEP);
     if (count === 0) {
@@ -293,6 +293,9 @@ function exportSelectedNotes() {
         "last-update": getDate(),
     };
     if (currentViewMode === "archive") json_to_export_selected["websites-archive"] = exportedWebsites;
+    //the screenshots of the exported notes
+    const exportedAttachments = typeof getAttachmentImages === "function" ? await getAttachmentImages(collectAttachmentIds(exportedWebsites)) : {};
+    if (Object.keys(exportedAttachments).length > 0) json_to_export_selected["attachments"] = exportedAttachments;
 
     const jsonString = JSON.stringify(json_to_export_selected);
     const exportSection = document.getElementById("export-section");
@@ -3745,6 +3748,12 @@ function generateNotes(page, url, notes, title, content, lastUpdate, type, fullU
         }
 
         pageContentRight.append(contentNotesContainer);
+
+        //screenshots attached to the note (js/all-notes-attachments.js)
+        if (typeof renderAllNotesAttachments === "function") {
+            let attachmentsStrip = renderAllNotesAttachments(fullUrl, noteIndex);
+            if (attachmentsStrip !== null) pageContentRight.append(attachmentsStrip);
+        }
 
         pageLastUpdate.classList.add("sub-section-last-update");
         pageLastUpdate.textContent = all_strings["last-update-text"].replaceAll("{{date_time}}", datetimeToDisplay(lastUpdate));

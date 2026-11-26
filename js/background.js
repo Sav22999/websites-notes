@@ -451,10 +451,11 @@ function checkSyncData(just_once = false) {
             syncPull().catch((e) => {
                 console.error(`E-B3: ${e}`);
                 onError("background.js::checkSyncData", e.message, tab_url);
-            });
+            }).then(() => processAttachments());
 
             syncData(1 * 60 * 1000, just_once); //1 minute if the user is logged in
         } else {
+            processAttachments(); //only the cleanup of this device: there is no server to talk to
             syncData(5 * 60 * 1000, just_once); //5 minutes if the user is not logged in
         }
     });

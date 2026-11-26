@@ -102,8 +102,10 @@
       "./js/api/api-client.js",
       "./js/api/api-endpoints.js",
       "./js/note-identity.js",
+      "./js/attachments.js",
       "./js/sync-service.js",
       "./js/background.js",
+      "./js/attachments-background.js",
       "./js/api-service.js"
     ],
     "persistent": true

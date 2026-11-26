@@ -217,6 +217,18 @@ Created by Saverio Morelli - saveriomorelli.com
 </div>
 <!--bulk labels floating menu (direct child of body so it always stays in foreground)-->
 <div id="bulk-labels-menu" class="bulk-labels-menu hidden" role="dialog"></div>
+<!--screenshot viewer (see js/all-notes-attachments.js)-->
+<div id="attachment-viewer" class="hidden">
+    <div id="attachment-viewer-image-container"><img id="attachment-viewer-image" alt=""/></div>
+    <div id="attachment-viewer-info"></div>
+    <div id="attachment-viewer-warning" class="hidden"></div>
+    <div id="attachment-viewer-buttons">
+        <button type="button" id="attachment-viewer-show"></button>
+        <button type="button" id="attachment-viewer-unlink"></button>
+        <button type="button" id="attachment-viewer-delete"></button>
+        <button type="button" id="attachment-viewer-close"></button>
+    </div>
+</div>
 <!--fullscreen notes viewer-->
 <div id="fullscreen-notes-viewer" class="content-notes--container content-notes">
     <pre id="fullscreen-notes-viewer-content" class="textarea-all-notes"></pre>
@@ -275,6 +287,8 @@ Created by Saverio Morelli - saveriomorelli.com
 <!--END|include all translation files-->
 
 <script src="../js/all-notes.js"></script>
+<script src="../js/attachments.js"></script>
+<script src="../js/all-notes-attachments.js"></script>
 </body>
 
 </html>

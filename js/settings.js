@@ -11,6 +11,13 @@ let show_conversion_message_attention = false;
 //data of the account kept on this device: removed on logout and when the account is deleted
 const ACCOUNT_LOCAL_DATA_KEYS = ["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites", "websites-archive", "labels-registry", "deleted-notes", "sync-revision", "sync-status", "sync-last-error"];
 var notefox_json = {};
+
+/**
+ * Remove the data of the account from this device, the screenshots included
+ */
+function removeAccountLocalData() {
+    return getAttachmentStorageKeys().then((keys) => browser.storage.local.remove(ACCOUNT_LOCAL_DATA_KEYS.concat(keys)));
+}
 var json_to_export = {};
 
 //Do not add "None" because it's treated in a different way!
@@ -2179,6 +2186,7 @@ async function clearAllNotes() {
             Object.keys(websites || {}).forEach((url) => toDelete.push({url: url, notes: websites[url] && websites[url]["all-notes"]}));
         });
         await recordDeletedNotes(toDelete);
+        await deleteAttachmentImages(collectAttachmentIds(current["websites"], current["websites-archive"]));
 
         await sync_local.set({
             websites: {},
@@ -2519,6 +2527,14 @@ function renderConflictNoteDiffCard(pair, pairIdx, totalPairs, viewMode, existin
             label: labelFolder,
             oldVal: pair.existingNote ? (exCanon.tagFolder || labelNoFolder) : null,
             newVal: pair.importedNote ? (impCanon.tagFolder || labelNoFolder) : null,
+            changed: true,
+        });
+    }
+    if (exCanon.attachments !== impCanon.attachments) {
+        metaRows.push({
+            label: all_strings["screenshot-label"] || "Screenshots",
+            oldVal: pair.existingNote ? String(getNoteAttachments(ex).length) : null,
+            newVal: pair.importedNote ? String(getNoteAttachments(imp).length) : null,
             changed: true,
         });
     }
@@ -3469,8 +3485,8 @@ function importAllNotes(from_file = false) {
                                                             payload["sticky-notes-opacity"] = importedSticky.opacity;
                                                         }
 
-                                                        sync_local
-                                                            .set(payload)
+                                                        importAttachmentImages(json_to_import_temp["attachments"])
+                                                            .then(() => sync_local.set(payload))
                                                             .then(function () {
                                                                 browser.storage.local.set({storage: storageTemp});
 
@@ -3591,7 +3607,7 @@ function exportAllNotes(to_file = false) {
     browser.storage.local.get(["storage"]).then((getStorageTemp) => {
         sync_local
             .get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "websites-archive", "labels-registry", "last-update",])
-            .then((result) => {
+            .then(async (result) => {
                 // Handle the result
                 let sticky_notes = {};
                 sticky_notes.coords = result["sticky-notes-coords"];
@@ -3633,6 +3649,8 @@ function exportAllNotes(to_file = false) {
                     "sticky-notes": sticky_notes,
                     storage: getStorageTemp["storage"],
                     "last-update": lastUpdateToExport,
+                    //the screenshots attached to the notes, so that the backup is complete also without an account
+                    "attachments": await getAttachmentImages(collectAttachmentIds(websites_json, websites_archive_json)),
                 };
                 document.getElementById("export-section").style.display = "block";
                 document.getElementById("json-export").value = JSON.stringify(json_to_export);
@@ -6443,8 +6461,7 @@ function logoutResponse(data) {
         if (data.code === 200 || data.code === 451) {
             //Success
             browser.storage.sync.remove("notefox-account").then((result) => {
-                browser.storage.local
-                    .remove(ACCOUNT_LOCAL_DATA_KEYS)
+                removeAccountLocalData()
                     .then((result) => {
                         setNotefoxAccountLoginSignupManageButton();
                         notefoxAccountLoginSignupManage("login");
@@ -6468,8 +6485,7 @@ function logoutAllResponse(data) {
         if (data.code === 200) {
             //Success
             browser.storage.sync.remove("notefox-account").then((result) => {
-                browser.storage.local
-                    .remove(ACCOUNT_LOCAL_DATA_KEYS)
+                removeAccountLocalData()
                     .then((result) => {
                         setNotefoxAccountLoginSignupManageButton();
                         notefoxAccountLoginSignupManage("login");
@@ -6481,8 +6497,7 @@ function logoutAllResponse(data) {
         } else if (data.code === 451) {
             //Login-id already disabled or expired
             browser.storage.sync.remove("notefox-account").then(() => {
-                browser.storage.local
-                    .remove(ACCOUNT_LOCAL_DATA_KEYS)
+                removeAccountLocalData()
                     .then(() => {
                         setNotefoxAccountLoginSignupManageButton();
                         notefoxAccountLoginSignupManage("login");
@@ -6793,8 +6808,7 @@ function deleteVerifyResponse(data) {
             //Success
 
             browser.storage.sync.remove("notefox-account").then((result) => {
-                browser.storage.local
-                    .remove(ACCOUNT_LOCAL_DATA_KEYS)
+                removeAccountLocalData()
                     .then((result) => {
                         setNotefoxAccountLoginSignupManageButton();
                     });

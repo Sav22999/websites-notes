@@ -7570,3 +7570,421 @@ option {
         background-color: black;
     }
 }
+
+/* Screenshots attached to the notes (popup and sidebar, see js/popup-attachments.js) */
+#screenshot-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    min-height: 34px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    background-color: var(--primary-color);
+    color: var(--on-primary-color);
+    opacity: 0.85;
+}
+
+/* the global "* {border-radius}" would clip the corners of the icons */
+#screenshot-button svg,
+.attachment-thumb-badge svg,
+#screenshot-crop svg {
+    border-radius: 0;
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+#screenshot-button:hover {
+    opacity: 1;
+}
+
+#screenshot-button.hidden {
+    display: none;
+}
+
+#screenshot-menu {
+    position: fixed;
+    z-index: 1000;
+    width: 260px;
+    max-width: calc(100vw - 12px);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    border-radius: 14px;
+    background: linear-gradient(to right, var(--tertiary-transparent), var(--tertiary-transparent)), linear-gradient(to right, var(--background-color), var(--background-color));
+    border: 1px solid var(--tertiary-transparent-2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+#screenshot-menu.hidden {
+    display: none;
+}
+
+.screenshot-menu-item,
+#screenshot-grant-permission {
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 0.85em;
+    font-weight: 600;
+    background-color: var(--textbox-color);
+    color: var(--on-textbox-color);
+}
+
+.screenshot-menu-item:hover,
+.screenshot-menu-item:focus-visible {
+    background-color: var(--primary-color);
+    color: var(--on-primary-color);
+}
+
+.screenshot-link-toggle {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 8px 6px 4px 6px;
+    margin-top: 2px;
+    border-top: 1px solid rgba(128, 128, 128, 0.2);
+    border-radius: 0;
+    cursor: pointer;
+    color: var(--primary-color);
+}
+
+.screenshot-link-toggle input {
+    accent-color: var(--primary-color);
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.screenshot-link-texts {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+#screenshot-link-text {
+    font-size: 0.8em;
+    font-weight: 700;
+}
+
+#screenshot-link-detail {
+    font-size: 0.7em;
+    opacity: 0.8;
+}
+
+#screenshot-menu-message {
+    font-size: 0.75em;
+    padding: 4px 6px;
+    color: var(--primary-color);
+}
+
+#screenshot-menu-message.hidden,
+#screenshot-grant-permission.hidden {
+    display: none;
+}
+
+#screenshot-grant-permission {
+    text-align: center;
+    background-color: var(--primary-color);
+    color: var(--on-primary-color);
+}
+
+#attachments-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 2px 2px 2px;
+}
+
+#attachments-strip.hidden {
+    display: none;
+}
+
+.attachment-thumb {
+    position: relative;
+    width: 52px;
+    height: 40px;
+    padding: 0;
+    border: 2px solid var(--tertiary-transparent-2);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    background-color: var(--textbox-color);
+}
+
+.attachment-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+    display: block;
+}
+
+.attachment-thumb:hover,
+.attachment-thumb:focus-visible {
+    border-color: var(--primary-color);
+}
+
+.attachment-thumb-missing {
+    background-image: repeating-linear-gradient(45deg, rgba(128, 128, 128, 0.15) 0 6px, transparent 6px 12px);
+}
+
+.attachment-thumb-badge {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    width: 15px;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: var(--on-primary-color);
+}
+
+.attachment-thumb-element-missing {
+    border-color: #d32f2f;
+}
+
+.attachment-thumb-element-missing .attachment-thumb-linked {
+    background-color: #d32f2f;
+    color: #ffffff;
+}
+
+.attachments-notice {
+    width: 100%;
+    font-size: 0.7em;
+    color: var(--primary-color);
+    opacity: 0.85;
+}
+
+#attachment-viewer {
+    position: fixed;
+    inset: 0;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 0;
+    background-color: var(--background-color);
+}
+
+#attachment-viewer.hidden {
+    display: none;
+}
+
+#attachment-viewer-image-container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background-color: var(--tertiary-transparent);
+    overflow: hidden;
+}
+
+#attachment-viewer-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+#attachment-viewer-info {
+    font-size: 0.75em;
+    color: var(--primary-color);
+}
+
+#attachment-viewer-warning {
+    font-size: 0.75em;
+    font-weight: 600;
+    padding: 6px 8px;
+    border-radius: 8px;
+    color: #ffffff;
+    background-color: #d32f2f;
+}
+
+#attachment-viewer-warning.hidden {
+    display: none;
+}
+
+#attachment-viewer-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+#attachment-viewer-buttons button {
+    border: none;
+    cursor: pointer;
+    padding: 7px 12px;
+    border-radius: 10px;
+    font-size: 0.8em;
+    font-weight: 600;
+    background-color: var(--primary-color);
+    color: var(--on-primary-color);
+}
+
+#attachment-viewer-buttons button.hidden {
+    display: none;
+}
+
+#attachment-viewer-delete {
+    background-color: #d32f2f !important;
+    color: #ffffff !important;
+}
+
+#attachment-viewer-close {
+    margin-left: auto;
+    background-color: var(--textbox-color) !important;
+    color: var(--on-textbox-color) !important;
+    box-shadow: inset 0 0 0 1px var(--primary-color);
+}
+
+/* Screenshots in "All notes" (see js/all-notes-attachments.js) */
+.all-notes-attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px 0 2px 0;
+}
+
+.all-notes-attachments .attachment-thumb {
+    width: 92px;
+    height: 64px;
+}
+
+body:not(#popup-body) #attachment-viewer {
+    z-index: 30000;
+    padding: 28px 28px 20px calc(200px + 28px);
+    background-color: rgba(0, 0, 0, 0.78);
+}
+
+body:not(#popup-body) #attachment-viewer-image-container {
+    background-color: transparent;
+}
+
+body:not(#popup-body) #attachment-viewer-info {
+    color: #ffffff;
+    word-break: break-all;
+}
+
+@media screen and (max-width: 700px) {
+    body:not(#popup-body) #attachment-viewer {
+        padding: 16px;
+    }
+}
+
+/* Area chosen on the screenshot, in the popup (pages where no script can run) */
+#screenshot-menu-restricted {
+    font-size: 0.7em;
+    padding: 4px 6px;
+    color: var(--primary-color);
+    opacity: 0.85;
+}
+
+#screenshot-menu-restricted.hidden {
+    display: none;
+}
+
+.screenshot-menu-item:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    background-color: var(--textbox-color) !important;
+    color: var(--on-textbox-color) !important;
+}
+
+.screenshot-link-toggle-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+#screenshot-crop {
+    position: fixed;
+    inset: 0;
+    z-index: 1002;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 0;
+    background-color: var(--background-color);
+}
+
+#screenshot-crop.hidden {
+    display: none;
+}
+
+#screenshot-crop-hint {
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+#screenshot-crop-stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background-color: var(--tertiary-transparent);
+    overflow: hidden;
+}
+
+#screenshot-crop-image {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    cursor: crosshair;
+    user-select: none;
+    touch-action: none;
+}
+
+#screenshot-crop-box {
+    position: absolute;
+    border-radius: 2px;
+    pointer-events: none;
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+}
+
+#screenshot-crop-box.hidden {
+    display: none;
+}
+
+#screenshot-crop-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+#screenshot-crop-buttons button {
+    border: none;
+    cursor: pointer;
+    padding: 7px 14px;
+    border-radius: 10px;
+    font-size: 0.8em;
+    font-weight: 600;
+    background-color: var(--primary-color);
+    color: var(--on-primary-color);
+}
+
+#screenshot-crop-buttons button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+#screenshot-crop-cancel {
+    background-color: var(--textbox-color) !important;
+    color: var(--on-textbox-color) !important;
+    box-shadow: inset 0 0 0 1px var(--primary-color);
+}

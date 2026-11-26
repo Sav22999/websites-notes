@@ -2995,6 +2995,9 @@ function updateActionButtonsLive() {
         if (hasContent && !isListView) stickyBtn.classList.remove("hidden");
         else stickyBtn.classList.add("hidden");
     }
+
+    //screenshots attached to the note (js/popup-attachments.js)
+    if (typeof refreshPopupAttachments === "function") refreshPopupAttachments(hasContent && !isListView);
 }
 
 function updateNewNoteButton(url) {

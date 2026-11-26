@@ -29,6 +29,10 @@ const API_V2 = {
     dataHistory: {path: "/data/get/history/"},
     dataHistoryDownload: {path: "/data/get/history/download/"},
     dataServices: {path: "/data/services/"},
+    attachmentUpload: {path: "/attachments/upload/"},
+    attachmentGet: {path: "/attachments/get/"},
+    attachmentDelete: {path: "/attachments/delete/"},
+    attachmentUsage: {path: "/attachments/usage/"},
     passwordEdit: {path: "/password/edit/"},
     passwordEditVerify: {path: "/password/edit/verify/"},
     passwordEditNewCode: {path: "/password/edit/get-new-code/"},
@@ -188,6 +192,24 @@ async function apiDataHistoryDownload(login_id, token, id) {
  */
 async function apiDataServices(login_id, token) {
     return await apiEndpoint("dataServices", {"login-id": login_id, "token": token});
+}
+
+/* Attachments (screenshots of the notes, see js/attachments-background.js) */
+
+async function apiAttachmentUpload(login_id, token, id, data) {
+    return await apiEndpoint("attachmentUpload", {"login-id": login_id, "token": token, "id": id, "data": data});
+}
+
+async function apiAttachmentGet(login_id, token, id) {
+    return await apiEndpoint("attachmentGet", {"login-id": login_id, "token": token, "id": id});
+}
+
+async function apiAttachmentDelete(login_id, token, ids) {
+    return await apiEndpoint("attachmentDelete", {"login-id": login_id, "token": token, "ids": ids});
+}
+
+async function apiAttachmentUsage(login_id, token) {
+    return await apiEndpoint("attachmentUsage", {"login-id": login_id, "token": token});
 }
 
 /* Account */
