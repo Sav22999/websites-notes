@@ -3981,10 +3981,38 @@ div.h2-container:hover {
     display: none;
 }
 
+/* the button of the domain stays at the top of the section, over the bar of the title
+   (which is as wide as the section and sticks while scrolling, the button doesn't) */
+.section-domain {
+    position: relative;
+}
+
+div.h2-container {
+    width: 100%;
+}
+
 .clear-button-float-right {
+    position: absolute;
+    top: 15px; /* the top padding of the bar: it lies exactly on its invisible copy */
+    right: 5px;
+    z-index: 6;
+    margin: 0;
+}
+
+/* invisible copy of the button inside the bar: it keeps the space of the real one.
+   Same font size of the button (the bar has a bigger one) and on the first line,
+   so the two stay one on the other also when a long domain takes more lines */
+.clear-button-space {
+    visibility: hidden;
+    pointer-events: none;
     margin-left: auto;
-    float: right;
-    bottom: -15px;
+    flex-shrink: 0;
+    align-self: flex-start;
+}
+
+/* more specific than ".section * {font-size: inherit}", which would give it the size of the bar */
+div.h2-container > .clear-button-space {
+    font-size: 16px;
 }
 
 @media screen and (max-width: 1000px) {
@@ -3996,8 +4024,13 @@ div.h2-container:hover {
     }
 
     .clear-button-float-right {
-        float: none;
-        bottom: 0px;
+        position: relative;
+        top: 0;
+        right: 0;
+    }
+
+    .clear-button-space {
+        display: none;
     }
 }
 
@@ -7584,7 +7617,8 @@ option {
     cursor: pointer;
     background-color: var(--primary-color);
     color: var(--on-primary-color);
-    opacity: 0.85;
+    opacity: 0.6;
+    transition: opacity 0.15s;
 }
 
 /* the global "* {border-radius}" would clip the corners of the icons */
@@ -7597,7 +7631,7 @@ option {
 }
 
 #screenshot-button:hover {
-    opacity: 1;
+    opacity: 0.85;
 }
 
 #screenshot-button.hidden {

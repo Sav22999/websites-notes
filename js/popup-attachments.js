@@ -66,17 +66,31 @@ function refreshPopupAttachments(editorVisible) {
     renderPopupAttachments(current, attachments);
 }
 
+let popupAttachmentsRenderId = 0;
+
+/**
+ * Asynchronous: several renders can start almost together (the answer of the
+ * capture and the "attachment-added" message, or the editor changing state while
+ * the popup opens). Only the newest one is allowed to touch the strip, and it
+ * replaces the thumbnails in one go, so they can never appear twice.
+ */
 async function renderPopupAttachments(current, attachments) {
+    const renderId = ++popupAttachmentsRenderId;
     const strip = document.getElementById("attachments-strip");
-    strip.innerHTML = "";
     if (attachments.length === 0) {
+        strip.replaceChildren();
         strip.classList.add("hidden");
         return;
     }
-    strip.classList.remove("hidden");
 
     const quota = await browser.storage.local.get(ATTACHMENTS_QUOTA_FULL_KEY);
+    if (renderId !== popupAttachmentsRenderId) return;
+
+    const thumbs = [];
+    const seen = new Set();
     attachments.forEach((attachment) => {
+        if (seen.has(attachment.id)) return;
+        seen.add(attachment.id);
         const thumb = document.createElement("button");
         thumb.type = "button";
         thumb.className = "attachment-thumb";
@@ -93,15 +107,17 @@ async function renderPopupAttachments(current, attachments) {
             thumb.appendChild(badge);
         }
         thumb.onclick = () => openAttachmentViewer(current.url, current.note, attachment);
-        strip.appendChild(thumb);
+        thumbs.push(thumb);
         loadAttachmentThumb(img, thumb, attachment.id);
     });
     if (quota[ATTACHMENTS_QUOTA_FULL_KEY] === true) {
         const notice = document.createElement("div");
         notice.className = "attachments-notice";
         notice.textContent = popupAttachmentString("screenshot-quota-full", "The space for the screenshots on the server is full: the new ones stay on this device");
-        strip.appendChild(notice);
+        thumbs.push(notice);
     }
+    strip.replaceChildren(...thumbs);
+    strip.classList.remove("hidden");
     checkPopupAnchors(attachments);
 }
 

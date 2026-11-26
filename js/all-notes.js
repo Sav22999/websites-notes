@@ -2715,6 +2715,17 @@ function buildDomainSectionHeader(domain, hasNotes, shouldCollapse) {
         }
         h2_container.append(h2);
 
+        //an invisible copy of the button keeps its space in the bar (same text, so the same
+        //width in every language): the bar can be as wide as the section and the title never
+        //goes under the button, while the real button stays at the top of the section instead
+        //of following the bar when it sticks while scrolling
+        let buttonSpace = input_clear_all_notes_domain.cloneNode(false);
+        buttonSpace.classList.remove("clear-button-float-right");
+        buttonSpace.classList.add("clear-button-space");
+        buttonSpace.tabIndex = -1;
+        buttonSpace.setAttribute("aria-hidden", "true");
+        h2_container.append(buttonSpace);
+
         section.append(input_clear_all_notes_domain);
         section.append(h2_container);
 
