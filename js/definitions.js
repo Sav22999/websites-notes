@@ -239,8 +239,9 @@ function getWCAGTextColor(bgColor) {
     return (1.05 / (L + 0.05)) >= ((L + 0.05) / 0.05) ? "#ffffff" : "#000000";
 }
 
-function initCustomSelects() {
-    const selects = document.querySelectorAll("select.select-box, select.select-tag-all-notes, #tag-select-grid, #sort-by-all-notes-button");
+function initCustomSelects(root = document) {
+    if (!root || typeof root.querySelectorAll !== "function") root = document;
+    const selects = root.querySelectorAll("select.select-box, select.select-tag-all-notes, #tag-select-grid, #sort-by-all-notes-button");
     selects.forEach(select => {
         if (select.nextElementSibling && select.nextElementSibling.classList.contains("custom-select-trigger")) {
             return;
@@ -250,16 +251,19 @@ function initCustomSelects() {
 }
 
 function createCustomSelect(select) {
+    const isLightweightTagSelect = select.classList.contains("select-tag-all-notes");
     const container = document.createElement("div");
     container.className = "custom-select-container select-box";
     if (select.id) container.id = "custom-select-container-" + select.id;
 
-    // Trasferimento proprietà di layout al container
-    const computedStyle = window.getComputedStyle(select);
-    if (computedStyle.gridArea !== 'none') container.style.gridArea = computedStyle.gridArea;
-    if (computedStyle.flex !== '0 1 auto') container.style.flex = computedStyle.flex;
-    if (computedStyle.margin !== '0px') container.style.margin = computedStyle.margin;
-    if (computedStyle.display !== 'none' && computedStyle.display !== 'inline-block') container.style.display = computedStyle.display;
+    // Trasferimento proprietà di layout al container (saltato per le select leggere dei tag nelle note)
+    if (!isLightweightTagSelect) {
+        const computedStyle = window.getComputedStyle(select);
+        if (computedStyle.gridArea !== 'none') container.style.gridArea = computedStyle.gridArea;
+        if (computedStyle.flex !== '0 1 auto') container.style.flex = computedStyle.flex;
+        if (computedStyle.margin !== '0px') container.style.margin = computedStyle.margin;
+        if (computedStyle.display !== 'none' && computedStyle.display !== 'inline-block') container.style.display = computedStyle.display;
+    }
 
     const trigger = document.createElement("div");
     trigger.className = select.className + " custom-select-trigger";
@@ -272,7 +276,7 @@ function createCustomSelect(select) {
 
     // Selects that have a pre-icon get the has-pre-icon class
     const hasPreIcon = select.classList.contains("sort-by-button")
-        || select.classList.contains("select-tag-all-notes")
+        || isLightweightTagSelect
         || select.id === "tag-select-grid";
     if (hasPreIcon) labelPart.classList.add("has-pre-icon");
 
@@ -290,7 +294,9 @@ function createCustomSelect(select) {
         }
     };
 
-    updateTriggerText();
+    if (!isLightweightTagSelect) {
+        updateTriggerText();
+    }
 
     // Sync inline background-color from the original select (e.g. tag-colour selects)
     const syncBgColor = () => {
@@ -308,28 +314,30 @@ function createCustomSelect(select) {
         }
     };
 
-    // Copia lo stile inline se presente (es. background-color per i colori dei tag)
-    // Inoltre osserva cambiamenti di selezione o testo delle opzioni
-    const observer = new MutationObserver(() => {
+    if (!isLightweightTagSelect) {
+        // Copia lo stile inline se presente (es. background-color per i colori dei tag)
+        // Inoltre osserva cambiamenti di selezione o testo delle opzioni
+        const observer = new MutationObserver(() => {
+            syncBgColor();
+            syncVisibility();
+            updateTriggerText();
+        });
+        observer.observe(select, {attributes: true, attributeFilter: ["style", "class"], childList: true, subtree: true});
+
+        // Sincronizzazione live dello stato
+        const liveSyncInterval = setInterval(() => {
+            if (!container.parentElement && !document.contains(select)) {
+                clearInterval(liveSyncInterval);
+                return;
+            }
+            updateTriggerText();
+            syncBgColor();
+            syncVisibility();
+        }, 500);
+
         syncBgColor();
         syncVisibility();
-        updateTriggerText();
-    });
-    observer.observe(select, {attributes: true, attributeFilter: ["style", "class"], childList: true, subtree: true});
-
-    // Sincronizzazione live dello stato
-    const liveSyncInterval = setInterval(() => {
-        if (!container.parentElement && !document.contains(select)) {
-            clearInterval(liveSyncInterval);
-            return;
-        }
-        updateTriggerText();
-        syncBgColor();
-        syncVisibility();
-    }, 500);
-
-    syncBgColor();
-    syncVisibility();
+    }
 
     // Nascondi la select originale ma mantienila nel DOM per i listener esistenti
     select.style.display = "none";
@@ -366,6 +374,10 @@ function createCustomSelect(select) {
                 dropdown = null;
                 trigger.classList.remove("active");
             }
+        }
+
+        if (typeof select._populateOptions === "function") {
+            select._populateOptions();
         }
 
         // Forza il ricalcolo del testo del trigger prima di aprire la dropdown
@@ -2358,6 +2370,24 @@ function getIconSvgEncoded(icon, color) {
                 '    </g>' +
                 '</svg>';
             break;
+        case "archive":
+            svgToReturn =
+                '<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"' +
+                '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">' +
+                '    <g transform="matrix(25,0,0,25,100,100)">' +
+                '        <path fill="' + color + '" d="M20.54,5.23L19.15,3.55C18.88,3.21 18.47,3 18,3L6,3C5.53,3 5.12,3.21 4.84,3.55L3.46,5.23C3.17,5.57 3,6.02 3,6.5L3,19C3,20.1 3.9,21 5,21L19,21C20.1,21 21,20.1 21,19L21,6.5C21,6.02 20.83,5.57 20.54,5.23ZM12,17.5L6.5,12L10,12L10,10L14,10L14,12L17.5,12L12,17.5ZM5.12,5L5.93,4L17.93,4L18.87,5L5.12,5Z"/>' +
+                '    </g>' +
+                '</svg>';
+            break;
+        case "unarchive":
+            svgToReturn =
+                '<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg"' +
+                '     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">' +
+                '    <g transform="matrix(25,0,0,25,100,100)">' +
+                '        <path fill="' + color + '" d="M20.54,5.23L19.15,3.55C18.88,3.21 18.47,3 18,3L6,3C5.53,3 5.12,3.21 4.84,3.55L3.46,5.23C3.17,5.57 3,6.02 3,6.5L3,19C3,20.1 3.9,21 5,21L19,21C20.1,21 21,20.1 21,19L21,6.5C21,6.02 20.83,5.57 20.54,5.23ZM14,15L14,17L10,17L10,13L6.5,13L12,7.5L17.5,13L14,13L14,15ZM5.12,5L5.93,4L17.93,4L18.87,5L5.12,5Z"/>' +
+                '    </g>' +
+                '</svg>';
+            break;
         /*
         case "":
             svgToReturn = '';
@@ -2659,4 +2689,1381 @@ function checkOperatingSystem() {
 function getOperatingSystem(info) {
     if (info.os === "mac") currentOS = "mac";
     else currentOS = info.os;
+}
+
+function cloneNoteData(obj) {
+    if (obj === undefined || obj === null) return {};
+    return JSON.parse(JSON.stringify(obj));
+}
+
+function buildPartialExportWebsites(websites, selectedKeys, keySeparator = "\u0000") {
+    const selectedByUrl = new Map();
+    if (selectedKeys && websites) {
+        selectedKeys.forEach((key) => {
+            if (typeof key !== "string") return;
+            const sepIdx = key.lastIndexOf(keySeparator);
+            if (sepIdx === -1) return;
+            const url = key.substring(0, sepIdx);
+            const noteIdx = Number.parseInt(key.substring(sepIdx + keySeparator.length), 10);
+            if (!Number.isInteger(noteIdx) || noteIdx < 0) return;
+            const entry = websites[url];
+            if (!entry || !Array.isArray(entry["all-notes"]) || !entry["all-notes"][noteIdx]) return;
+            if (!selectedByUrl.has(url)) selectedByUrl.set(url, new Set());
+            selectedByUrl.get(url).add(noteIdx);
+        });
+    }
+
+    const exportedWebsites = {};
+    let exportedCount = 0;
+
+    selectedByUrl.forEach((indicesSet, url) => {
+        const sourceEntry = websites[url];
+        const clonedEntry = cloneNoteData(sourceEntry);
+        const sortedIndices = Array.from(indicesSet).sort((a, b) => a - b);
+        clonedEntry["all-notes"] = sortedIndices.map((idx) => cloneNoteData(sourceEntry["all-notes"][idx]));
+        if (clonedEntry["all-notes"].length > 0) {
+            exportedWebsites[url] = clonedEntry;
+            exportedCount += clonedEntry["all-notes"].length;
+        }
+    });
+
+    return {websites: exportedWebsites, count: exportedCount};
+}
+
+/**
+ * Append to the existing text only the parts (of the imported one) which it
+ * doesn't have yet, so that importing the same file twice adds nothing.
+ */
+function mergeTextParts(existingText, importedText, separator, caseInsensitive = false) {
+    const split = (text) => (text || "").split(separator).map((part) => part.trim()).filter((part) => part !== "");
+    const key = (part) => caseInsensitive ? part.toLowerCase() : part;
+    const existingParts = split(existingText);
+    if (existingParts.length === 0) return importedText || "";
+    const known = new Set(existingParts.map(key));
+    const newParts = split(importedText).filter((part) => !known.has(key(part)));
+    if (newParts.length === 0) return existingText;
+    return [existingText].concat(newParts).join(separator);
+}
+
+function mergeTwoNotes(existingNote, importedNote) {
+    const merged = cloneNoteData(existingNote || {});
+    const imp = cloneNoteData(importedNote || {});
+
+    merged["notes"] = mergeTextParts(merged["notes"], imp["notes"], "<br><br>---<br><br>");
+    merged["title"] = mergeTextParts(merged["title"], imp["title"], " / ", true);
+
+    const combinedTags = [];
+    const seenTags = new Set();
+    const addTags = (arr) => {
+        if (!Array.isArray(arr)) return;
+        arr.forEach((tag) => {
+            if (typeof tag !== "string") return;
+            const trimmed = tag.trim();
+            const lower = trimmed.toLowerCase();
+            if (trimmed !== "" && !seenTags.has(lower)) {
+                seenTags.add(lower);
+                combinedTags.push(trimmed);
+            }
+        });
+    };
+    addTags(merged["tags-text"]);
+    addTags(imp["tags-text"]);
+    merged["tags-text"] = combinedTags;
+
+    //the screenshots of both, once each
+    const mergedAttachments = (Array.isArray(merged["attachments"]) ? merged["attachments"] : []).slice();
+    (Array.isArray(imp["attachments"]) ? imp["attachments"] : []).forEach((item) => {
+        if (item && item["id"] && !mergedAttachments.some((existing) => existing && existing["id"] === item["id"])) mergedAttachments.push(item);
+    });
+    if (mergedAttachments.length > 0) merged["attachments"] = mergedAttachments;
+
+    if ((!merged["tag-folder"] || merged["tag-folder"] === "") && imp["tag-folder"]) {
+        merged["tag-folder"] = imp["tag-folder"];
+    }
+
+    if ((!merged["tag-colour"] || merged["tag-colour"] === "none") && imp["tag-colour"] && imp["tag-colour"] !== "none") {
+        merged["tag-colour"] = imp["tag-colour"];
+    }
+
+    const mergedContent = mergeTextParts(merged["content"], imp["content"], "\n---\n");
+    if (mergedContent !== "") merged["content"] = mergedContent;
+
+    const existingTime = merged["last-update"] ? new Date(merged["last-update"]).getTime() : NaN;
+    const importedTime = imp["last-update"] ? new Date(imp["last-update"]).getTime() : NaN;
+    if (!isNaN(importedTime) && (isNaN(existingTime) || importedTime > existingTime)) {
+        merged["last-update"] = imp["last-update"];
+    } else if (!merged["last-update"] && imp["last-update"]) {
+        merged["last-update"] = imp["last-update"];
+    }
+
+    return merged;
+}
+
+function mergeWebsiteEntries(existingEntry, importedEntry) {
+    const mergedEntry = cloneNoteData(existingEntry);
+    const impEntry = cloneNoteData(importedEntry);
+    migrateEntryToAllNotes(mergedEntry);
+    migrateEntryToAllNotes(impEntry);
+
+    if (mergedEntry["type"] === undefined && impEntry["type"] !== undefined) {
+        mergedEntry["type"] = impEntry["type"];
+    }
+    if ((mergedEntry["domain"] === undefined || mergedEntry["domain"] === "") && impEntry["domain"]) {
+        mergedEntry["domain"] = impEntry["domain"];
+    }
+    if ((!mergedEntry["tag-colour"] || mergedEntry["tag-colour"] === "none") && impEntry["tag-colour"] && impEntry["tag-colour"] !== "none") {
+        mergedEntry["tag-colour"] = impEntry["tag-colour"];
+    }
+
+    const existingNotes = Array.isArray(mergedEntry["all-notes"]) ? mergedEntry["all-notes"] : [];
+    const importedNotes = Array.isArray(impEntry["all-notes"]) ? impEntry["all-notes"] : [];
+
+    if (existingNotes.length === 0) {
+        mergedEntry["all-notes"] = importedNotes;
+        return mergedEntry;
+    }
+    if (importedNotes.length === 0) {
+        return mergedEntry;
+    }
+
+    if (existingNotes.length === 1 && importedNotes.length === 1) {
+        mergedEntry["all-notes"] = [mergeTwoNotes(existingNotes[0], importedNotes[0])];
+        return mergedEntry;
+    }
+
+    const resultNotes = existingNotes.slice();
+    for (let i = 0; i < importedNotes.length; i++) {
+        const impNote = importedNotes[i];
+        const impTitle = (impNote["title"] || "").trim().toLowerCase();
+        const impBody = (impNote["notes"] || "").trim();
+
+        let matchIdx = -1;
+        if (impTitle !== "") {
+            matchIdx = resultNotes.findIndex((n) => (n["title"] || "").trim().toLowerCase() === impTitle);
+        } else if (importedNotes.length === 1 && resultNotes.length >= 1) {
+            matchIdx = 0;
+        }
+
+        if (matchIdx !== -1) {
+            resultNotes[matchIdx] = mergeTwoNotes(resultNotes[matchIdx], impNote);
+        } else {
+            const duplicate = resultNotes.some((n) =>
+                (n["title"] || "").trim().toLowerCase() === impTitle &&
+                (n["notes"] || "").trim() === impBody
+            );
+            if (!duplicate) {
+                resultNotes.push(impNote);
+            }
+        }
+    }
+
+    mergedEntry["all-notes"] = resultNotes;
+    return mergedEntry;
+}
+
+function normalizeTagColourValue(colour) {
+    if (typeof colour !== "string") return "none";
+    const trimmed = colour.trim().toLowerCase();
+    return trimmed === "" ? "none" : trimmed;
+}
+
+function normalizeTagsArrayForComparison(tags) {
+    if (!Array.isArray(tags)) return [];
+    const seen = new Set();
+    const out = [];
+    for (let i = 0; i < tags.length; i++) {
+        if (typeof tags[i] !== "string") continue;
+        const trimmed = tags[i].trim().toLowerCase();
+        if (trimmed !== "" && !seen.has(trimmed)) {
+            seen.add(trimmed);
+            out.push(trimmed);
+        }
+    }
+    out.sort();
+    return out;
+}
+
+function canonicalizeNoteForComparison(note, entryFallbackColour) {
+    const n = note || {};
+    const noteColour = normalizeTagColourValue(n["tag-colour"]);
+    const effectiveColour = noteColour !== "none"
+        ? noteColour
+        : normalizeTagColourValue(entryFallbackColour);
+    return {
+        title: typeof n["title"] === "string" ? n["title"].trim() : "",
+        notes: typeof n["notes"] === "string" ? n["notes"].replace(/\r\n/g, "\n").trim() : "",
+        tagColour: effectiveColour,
+        tagFolder: typeof n["tag-folder"] === "string" ? n["tag-folder"].trim() : "",
+        tags: normalizeTagsArrayForComparison(n["tags-text"]),
+        content: typeof n["content"] === "string" ? n["content"].replace(/\r\n/g, "\n").trim() : "",
+        attachments: (Array.isArray(n["attachments"]) ? n["attachments"] : []).map((item) => item && item["id"]).filter((id) => typeof id === "string").sort().join(","),
+    };
+}
+
+function areNotesEqual(noteA, noteB, fallbackColourA, fallbackColourB) {
+    const a = canonicalizeNoteForComparison(noteA, fallbackColourA);
+    const b = canonicalizeNoteForComparison(noteB, fallbackColourB);
+    if (a.title !== b.title) return false;
+    if (a.notes !== b.notes) return false;
+    if (a.tagColour !== b.tagColour) return false;
+    if (a.tagFolder !== b.tagFolder) return false;
+    if (a.content !== b.content) return false;
+    if (a.attachments !== b.attachments) return false;
+    if (a.tags.length !== b.tags.length) return false;
+    for (let i = 0; i < a.tags.length; i++) {
+        if (a.tags[i] !== b.tags[i]) return false;
+    }
+    return true;
+}
+
+function areWebsiteEntriesEqual(existingEntry, importedEntry) {
+    const a = cloneNoteData(existingEntry || {});
+    const b = cloneNoteData(importedEntry || {});
+    migrateEntryToAllNotes(a);
+    migrateEntryToAllNotes(b);
+
+    const notesA = Array.isArray(a["all-notes"]) ? a["all-notes"] : [];
+    const notesB = Array.isArray(b["all-notes"]) ? b["all-notes"] : [];
+    if (notesA.length !== notesB.length) return false;
+
+    if (notesA.length === 0) {
+        return normalizeTagColourValue(a["tag-colour"]) === normalizeTagColourValue(b["tag-colour"]);
+    }
+
+    for (let i = 0; i < notesA.length; i++) {
+        if (!areNotesEqual(notesA[i], notesB[i], a["tag-colour"], b["tag-colour"])) return false;
+    }
+    return true;
+}
+
+function decodeHtmlEntitiesForDiff(str) {
+    if (!str) return "";
+    return str
+        .replace(/&nbsp;/gi, " ")
+        .replace(/&quot;/gi, "\"")
+        .replace(/&#39;|&#x27;|&apos;/gi, "'")
+        .replace(/&lt;/gi, "<")
+        .replace(/&gt;/gi, ">")
+        .replace(/&#(\d+);/g, (_, code) => {
+            const n = parseInt(code, 10);
+            return n <= 0x10FFFF ? String.fromCodePoint(n) : _;
+        })
+        .replace(/&#x([0-9a-f]+);/gi, (_, hex) => {
+            const n = parseInt(hex, 16);
+            return n <= 0x10FFFF ? String.fromCodePoint(n) : _;
+        })
+        .replace(/&amp;/gi, "&");
+}
+
+function htmlToDiffLines(html) {
+    if (typeof html !== "string" || html.trim() === "") return [];
+    let text = html.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+    // Collapse empty block placeholders like <div><br></div> or <p><br></p> to a single newline
+    text = text.replace(/<(div|p|li|h[1-6]|blockquote)[^>]*>\s*<br\s*\/?>\s*<\/\1>/gi, "\n");
+    text = text.replace(/<li[^>]*>/gi, "• ");
+    text = text.replace(/<br\s*\/?>/gi, "\n");
+    text = text.replace(/<hr\s*\/?>/gi, "\n---\n");
+    text = text.replace(/<\/(div|p|li|tr|h[1-6]|blockquote|pre)>/gi, "\n");
+    text = text.replace(/<[^>]+>/g, "");
+    text = decodeHtmlEntitiesForDiff(text);
+    // Remove a single trailing newline emitted by closing the final block element
+    if (text.endsWith("\n")) {
+        text = text.slice(0, -1);
+    }
+    return text === "" ? [] : text.split("\n");
+}
+
+function computeLineDiff(oldLines, newLines) {
+    const a = Array.isArray(oldLines) ? oldLines : [];
+    const b = Array.isArray(newLines) ? newLines : [];
+
+    let prefix = 0;
+    while (prefix < a.length && prefix < b.length && a[prefix] === b[prefix]) {
+        prefix++;
+    }
+
+    let suffix = 0;
+    while (
+        suffix < (a.length - prefix) &&
+        suffix < (b.length - prefix) &&
+        a[a.length - 1 - suffix] === b[b.length - 1 - suffix]
+    ) {
+        suffix++;
+    }
+
+    const result = [];
+    for (let i = 0; i < prefix; i++) {
+        result.push({type: "equal", oldLine: i + 1, newLine: i + 1, text: a[i]});
+    }
+
+    const midA = a.slice(prefix, a.length - suffix);
+    const midB = b.slice(prefix, b.length - suffix);
+    const m = midA.length;
+    const n = midB.length;
+
+    if (m === 0 && n === 0) {
+        // Nothing in middle
+    } else if (m === 0) {
+        for (let j = 0; j < n; j++) {
+            result.push({type: "added", oldLine: null, newLine: prefix + j + 1, text: midB[j]});
+        }
+    } else if (n === 0) {
+        for (let i = 0; i < m; i++) {
+            result.push({type: "removed", oldLine: prefix + i + 1, newLine: null, text: midA[i]});
+        }
+    } else if (m * n <= 1000000) {
+        // LCS DP table using flat Int32Array for speed and low memory
+        const cols = n + 1;
+        const dp = new Int32Array((m + 1) * cols);
+        for (let i = m - 1; i >= 0; i--) {
+            const rowOffset = i * cols;
+            const nextRowOffset = (i + 1) * cols;
+            for (let j = n - 1; j >= 0; j--) {
+                if (midA[i] === midB[j]) {
+                    dp[rowOffset + j] = dp[nextRowOffset + j + 1] + 1;
+                } else {
+                    const down = dp[nextRowOffset + j];
+                    const right = dp[rowOffset + j + 1];
+                    dp[rowOffset + j] = down >= right ? down : right;
+                }
+            }
+        }
+
+        let i = 0;
+        let j = 0;
+        while (i < m && j < n) {
+            if (midA[i] === midB[j]) {
+                result.push({type: "equal", oldLine: prefix + i + 1, newLine: prefix + j + 1, text: midA[i]});
+                i++;
+                j++;
+            } else if (dp[(i + 1) * cols + j] >= dp[i * cols + j + 1]) {
+                result.push({type: "removed", oldLine: prefix + i + 1, newLine: null, text: midA[i]});
+                i++;
+            } else {
+                result.push({type: "added", oldLine: null, newLine: prefix + j + 1, text: midB[j]});
+                j++;
+            }
+        }
+        while (i < m) {
+            result.push({type: "removed", oldLine: prefix + i + 1, newLine: null, text: midA[i]});
+            i++;
+        }
+        while (j < n) {
+            result.push({type: "added", oldLine: null, newLine: prefix + j + 1, text: midB[j]});
+            j++;
+        }
+    } else {
+        // Fallback for extremely large notes
+        for (let i = 0; i < m; i++) {
+            result.push({type: "removed", oldLine: prefix + i + 1, newLine: null, text: midA[i]});
+        }
+        for (let j = 0; j < n; j++) {
+            result.push({type: "added", oldLine: null, newLine: prefix + j + 1, text: midB[j]});
+        }
+    }
+
+    for (let k = 0; k < suffix; k++) {
+        const oldIdx = a.length - suffix + k;
+        const newIdx = b.length - suffix + k;
+        result.push({type: "equal", oldLine: oldIdx + 1, newLine: newIdx + 1, text: a[oldIdx]});
+    }
+
+    return result;
+}
+
+function computeInlineWordDiff(oldText, newText) {
+    const a = typeof oldText === "string" ? oldText.split(/(\s+)/).filter((t) => t !== "") : [];
+    const b = typeof newText === "string" ? newText.split(/(\s+)/).filter((t) => t !== "") : [];
+    const m = a.length;
+    const n = b.length;
+
+    if (m === 0 && n === 0) return {oldParts: [], newParts: []};
+    if (m * n > 25000) {
+        return {
+            oldParts: oldText ? [{text: oldText, changed: true}] : [],
+            newParts: newText ? [{text: newText, changed: true}] : [],
+        };
+    }
+
+    const cols = n + 1;
+    const dp = new Int32Array((m + 1) * cols);
+    for (let i = m - 1; i >= 0; i--) {
+        for (let j = n - 1; j >= 0; j--) {
+            if (a[i] === b[j]) {
+                dp[i * cols + j] = dp[(i + 1) * cols + j + 1] + 1;
+            } else {
+                const down = dp[(i + 1) * cols + j];
+                const right = dp[i * cols + j + 1];
+                dp[i * cols + j] = down >= right ? down : right;
+            }
+        }
+    }
+
+    const pushPart = (arr, text, changed) => {
+        if (!text) return;
+        if (arr.length > 0 && arr[arr.length - 1].changed === changed) {
+            arr[arr.length - 1].text += text;
+        } else {
+            arr.push({text, changed});
+        }
+    };
+
+    const oldParts = [];
+    const newParts = [];
+    let i = 0;
+    let j = 0;
+    while (i < m && j < n) {
+        if (a[i] === b[j]) {
+            pushPart(oldParts, a[i], false);
+            pushPart(newParts, b[j], false);
+            i++;
+            j++;
+        } else if (dp[(i + 1) * cols + j] >= dp[i * cols + j + 1]) {
+            pushPart(oldParts, a[i], true);
+            i++;
+        } else {
+            pushPart(newParts, b[j], true);
+            j++;
+        }
+    }
+    while (i < m) {
+        pushPart(oldParts, a[i], true);
+        i++;
+    }
+    while (j < n) {
+        pushPart(newParts, b[j], true);
+        j++;
+    }
+
+    return {oldParts, newParts};
+}
+
+function pairEntryNotesForDiff(existingEntry, importedEntry) {
+    const a = cloneNoteData(existingEntry || {});
+    const b = cloneNoteData(importedEntry || {});
+    migrateEntryToAllNotes(a);
+    migrateEntryToAllNotes(b);
+
+    const existingNotes = Array.isArray(a["all-notes"]) ? a["all-notes"] : [];
+    const importedNotes = Array.isArray(b["all-notes"]) ? b["all-notes"] : [];
+
+    if (existingNotes.length === 1 && importedNotes.length === 1) {
+        return [{
+            existingNote: existingNotes[0],
+            importedNote: importedNotes[0],
+            identical: areNotesEqual(existingNotes[0], importedNotes[0], a["tag-colour"], b["tag-colour"]),
+        }];
+    }
+
+    const pairs = [];
+    const usedImported = new Set();
+    const unmatchedExisting = [];
+
+    // First pass: pair by exact case-insensitive title match (when non-empty)
+    for (let i = 0; i < existingNotes.length; i++) {
+        const exTitle = (existingNotes[i]["title"] || "").trim().toLowerCase();
+        let matchIdx = -1;
+        if (exTitle !== "") {
+            for (let j = 0; j < importedNotes.length; j++) {
+                if (usedImported.has(j)) continue;
+                if ((importedNotes[j]["title"] || "").trim().toLowerCase() === exTitle) {
+                    matchIdx = j;
+                    break;
+                }
+            }
+        }
+        if (matchIdx !== -1) {
+            usedImported.add(matchIdx);
+            pairs.push({
+                existingNote: existingNotes[i],
+                importedNote: importedNotes[matchIdx],
+                identical: areNotesEqual(existingNotes[i], importedNotes[matchIdx], a["tag-colour"], b["tag-colour"]),
+            });
+        } else {
+            unmatchedExisting.push(existingNotes[i]);
+        }
+    }
+
+    const unmatchedImported = [];
+    for (let j = 0; j < importedNotes.length; j++) {
+        if (!usedImported.has(j)) unmatchedImported.push(importedNotes[j]);
+    }
+
+    // Second pass: pair remaining notes by position
+    const maxLen = Math.max(unmatchedExisting.length, unmatchedImported.length);
+    for (let k = 0; k < maxLen; k++) {
+        const exNote = k < unmatchedExisting.length ? unmatchedExisting[k] : null;
+        const impNote = k < unmatchedImported.length ? unmatchedImported[k] : null;
+        pairs.push({
+            existingNote: exNote,
+            importedNote: impNote,
+            identical: Boolean(exNote && impNote && areNotesEqual(exNote, impNote, a["tag-colour"], b["tag-colour"])),
+        });
+    }
+
+    return pairs;
+}
+
+function getFirstNonEmptyDiffLine(html) {
+    const lines = htmlToDiffLines(html || "");
+    for (let i = 0; i < lines.length; i++) {
+        const t = lines[i].trim();
+        if (t !== "") return t.toLowerCase();
+    }
+    return "";
+}
+
+/**
+ * Copy of a "websites" object without what is not a note: a file to import may
+ * contain anything, and an unexpected value must not stop the whole import.
+ */
+function cleanWebsitesForImport(websites) {
+    const result = {};
+    if (!websites || typeof websites !== "object" || Array.isArray(websites)) return result;
+    Object.keys(websites).forEach((url) => {
+        if (url === "__proto__" || !websites[url] || typeof websites[url] !== "object" || Array.isArray(websites[url])) return;
+        const entry = migrateEntryToAllNotes(cloneNoteData(websites[url]));
+        entry["all-notes"] = entry["all-notes"].filter((note) => note && typeof note === "object" && !Array.isArray(note));
+        entry["all-notes"].forEach((note) => {
+            ["notes", "title", "content", "last-update", "tag-folder", "tag-colour"].forEach((field) => {
+                if (note[field] === undefined || typeof note[field] === "string") return;
+                if (typeof note[field] === "number") note[field] = String(note[field]);
+                else delete note[field];
+            });
+            note["tags-text"] = Array.isArray(note["tags-text"]) ? note["tags-text"].filter((tag) => typeof tag === "string") : [];
+        });
+        result[url] = entry;
+    });
+    return result;
+}
+
+/**
+ * Copy of the notes to import without the ones identical to a note of the other store
+ */
+function removeNotesFoundIn(importedWebsites, otherWebsites) {
+    const websites = cleanWebsitesForImport(importedWebsites);
+    const others = cleanWebsitesForImport(otherWebsites);
+    let removedCount = 0;
+    Object.keys(websites).forEach((url) => {
+        if (!Object.prototype.hasOwnProperty.call(others, url)) return;
+        const available = others[url]["all-notes"].slice();
+        const notes = websites[url]["all-notes"].filter((note) => {
+            const found = available.findIndex((other) => areNotesEqual(note, other, websites[url]["tag-colour"], others[url]["tag-colour"]));
+            if (found === -1) return true;
+            available.splice(found, 1);
+            removedCount++;
+            return false;
+        });
+        if (notes.length === 0) delete websites[url];
+        else websites[url]["all-notes"] = notes;
+    });
+    return {websites, removedCount};
+}
+
+/**
+ * Pairs of adjacent words of a note (single characters where words aren't
+ * separated by spaces): unlike single words, different notes hardly share them.
+ */
+function getNoteShingles(note) {
+    const text = ((note["title"] || "") + " " + htmlToDiffLines(note["notes"] || "").join(" ")).toLowerCase()
+        .replace(/[\u3040-\u30ff\u3400-\u9fff]/g, " $& ");
+    const words = text.split(/[\s.,;:!?()"'\[\]{}]+/).filter((word) => word !== "");
+    if (words.length < 2) return new Set(words);
+    const shingles = new Set();
+    for (let i = 0; i < words.length - 1; i++) shingles.add(words[i] + " " + words[i + 1]);
+    return shingles;
+}
+
+function getShinglesSimilarity(a, b) {
+    if (a.size === 0 && b.size === 0) return 1;
+    let common = 0;
+    a.forEach((item) => {
+        if (b.has(item)) common++;
+    });
+    return 2 * common / (a.size + b.size);
+}
+
+const IMPORT_SIMILARITY_THRESHOLD = 0.3;
+
+function matchEntryNotesForImport(existingEntry, importedEntry) {
+    const existingNotes = Array.isArray(existingEntry && existingEntry["all-notes"]) ? existingEntry["all-notes"] : [];
+    const importedNotes = Array.isArray(importedEntry && importedEntry["all-notes"]) ? importedEntry["all-notes"] : [];
+    const exFallbackColour = existingEntry ? existingEntry["tag-colour"] : undefined;
+    const impFallbackColour = importedEntry ? importedEntry["tag-colour"] : undefined;
+
+    const claimedExisting = new Set();
+    const claimedImported = new Set();
+    const identicalPairs = [];
+    const conflictPairs = [];
+    const newImportedIndices = [];
+
+    // Pass 1: Exact semantic match (identical notes -> NOT conflicts)
+    for (let j = 0; j < importedNotes.length; j++) {
+        for (let i = 0; i < existingNotes.length; i++) {
+            if (claimedExisting.has(i)) continue;
+            if (areNotesEqual(existingNotes[i], importedNotes[j], exFallbackColour, impFallbackColour)) {
+                claimedExisting.add(i);
+                claimedImported.add(j);
+                identicalPairs.push({existingIndex: i, importedIndex: j});
+                break;
+            }
+        }
+    }
+
+    // Pass 2: Match remaining notes by exact non-empty case-insensitive title
+    for (let j = 0; j < importedNotes.length; j++) {
+        if (claimedImported.has(j)) continue;
+        const impTitle = (importedNotes[j]["title"] || "").trim().toLowerCase();
+        if (impTitle === "") continue;
+        for (let i = 0; i < existingNotes.length; i++) {
+            if (claimedExisting.has(i)) continue;
+            if ((existingNotes[i]["title"] || "").trim().toLowerCase() === impTitle) {
+                claimedExisting.add(i);
+                claimedImported.add(j);
+                conflictPairs.push({existingIndex: i, importedIndex: j});
+                break;
+            }
+        }
+    }
+
+    // Pass 3: Match remaining untitled/renamed notes by identical first non-empty line
+    for (let j = 0; j < importedNotes.length; j++) {
+        if (claimedImported.has(j)) continue;
+        const impFirst = getFirstNonEmptyDiffLine(importedNotes[j]["notes"]);
+        if (impFirst === "") continue;
+        for (let i = 0; i < existingNotes.length; i++) {
+            if (claimedExisting.has(i)) continue;
+            if (getFirstNonEmptyDiffLine(existingNotes[i]["notes"]) === impFirst) {
+                claimedExisting.add(i);
+                claimedImported.add(j);
+                conflictPairs.push({existingIndex: i, importedIndex: j});
+                break;
+            }
+        }
+    }
+
+    // Pass 4: Pair the remaining notes only if their text is similar: two
+    // unrelated notes are not a conflict, the imported one is a new note
+    const remainingExisting = [];
+    for (let i = 0; i < existingNotes.length; i++) {
+        if (!claimedExisting.has(i)) remainingExisting.push({index: i, shingles: getNoteShingles(existingNotes[i])});
+    }
+    const remainingImported = [];
+    for (let j = 0; j < importedNotes.length; j++) {
+        if (!claimedImported.has(j)) remainingImported.push({index: j, shingles: getNoteShingles(importedNotes[j])});
+    }
+
+    const similarPairs = [];
+    remainingExisting.forEach((existing) => {
+        remainingImported.forEach((imported) => {
+            const similarity = getShinglesSimilarity(existing.shingles, imported.shingles);
+            if (similarity >= IMPORT_SIMILARITY_THRESHOLD) similarPairs.push({existingIndex: existing.index, importedIndex: imported.index, similarity: similarity});
+        });
+    });
+    similarPairs.sort((a, b) => b.similarity - a.similarity);
+    similarPairs.forEach((pair) => {
+        if (claimedExisting.has(pair.existingIndex) || claimedImported.has(pair.importedIndex)) return;
+        claimedExisting.add(pair.existingIndex);
+        claimedImported.add(pair.importedIndex);
+        conflictPairs.push({existingIndex: pair.existingIndex, importedIndex: pair.importedIndex});
+    });
+    remainingImported.forEach((imported) => {
+        if (!claimedImported.has(imported.index)) newImportedIndices.push(imported.index);
+    });
+
+    conflictPairs.sort((a, b) => a.existingIndex - b.existingIndex || a.importedIndex - b.importedIndex);
+
+    return {identicalPairs, conflictPairs, newImportedIndices};
+}
+
+function detectImportConflicts(existingWebsites, importedWebsites) {
+    const existingCopy = cleanWebsitesForImport(existingWebsites);
+    const importedCopy = cleanWebsitesForImport(importedWebsites);
+
+    const conflicts = [];
+    const nonConflictUrls = [];
+    const newNotesOnExistingUrls = [];
+    const identicalUrls = [];
+    let identicalCount = 0;
+    let newNotesCount = 0;
+
+    for (const url in importedCopy) {
+        if (!Object.prototype.hasOwnProperty.call(importedCopy, url)) continue;
+        if (Object.prototype.hasOwnProperty.call(existingCopy, url) && existingCopy[url] !== undefined) {
+            let entryType = "domain";
+            if (url === "**global") {
+                entryType = "global";
+            } else if (url.endsWith("/*")) {
+                entryType = "subdomain";
+            } else if (importedCopy[url]["domain"] || existingCopy[url]["domain"]) {
+                entryType = "page";
+            }
+
+            const matched = matchEntryNotesForImport(existingCopy[url], importedCopy[url]);
+            identicalCount += matched.identicalPairs.length;
+
+            if (matched.conflictPairs.length === 0 && matched.newImportedIndices.length === 0) {
+                identicalUrls.push(url);
+                continue;
+            }
+
+            for (let k = 0; k < matched.conflictPairs.length; k++) {
+                const pair = matched.conflictPairs[k];
+                conflicts.push({
+                    conflictKey: `${url}\u0000${pair.existingIndex}\u0000${pair.importedIndex}`,
+                    url: url,
+                    type: entryType,
+                    existingIndex: pair.existingIndex,
+                    importedIndex: pair.importedIndex,
+                    existingNote: existingCopy[url]["all-notes"][pair.existingIndex],
+                    importedNote: importedCopy[url]["all-notes"][pair.importedIndex],
+                    existingEntry: existingCopy[url],
+                    importedEntry: importedCopy[url],
+                });
+            }
+
+            for (let k = 0; k < matched.newImportedIndices.length; k++) {
+                newNotesOnExistingUrls.push({
+                    url: url,
+                    importedIndex: matched.newImportedIndices[k],
+                });
+                newNotesCount++;
+            }
+        } else {
+            nonConflictUrls.push(url);
+            const impNotes = Array.isArray(importedCopy[url]["all-notes"]) ? importedCopy[url]["all-notes"] : [];
+            newNotesCount += Math.max(1, impNotes.length);
+        }
+    }
+
+    return {
+        conflicts,
+        nonConflictUrls,
+        newNotesOnExistingUrls,
+        newNotesCount,
+        identicalUrls,
+        identicalCount,
+        existingMigrated: existingCopy,
+        importedMigrated: importedCopy,
+    };
+}
+
+function applyImportWithResolutions(existingWebsites, importedWebsites, resolutionsMap, defaultAction = "skip") {
+    const {
+        conflicts,
+        nonConflictUrls,
+        newNotesOnExistingUrls,
+        identicalCount,
+        existingMigrated,
+        importedMigrated,
+    } = detectImportConflicts(existingWebsites, importedWebsites);
+    const resultWebsites = cloneNoteData(existingMigrated);
+    const stats = {imported: 0, overwritten: 0, skipped: 0, merged: 0, unchanged: identicalCount};
+
+    for (let i = 0; i < nonConflictUrls.length; i++) {
+        const url = nonConflictUrls[i];
+        resultWebsites[url] = cloneNoteData(importedMigrated[url]);
+        const impNotes = resultWebsites[url]["all-notes"];
+        impNotes.forEach(renewNoteIdentity);
+        stats.imported += Math.max(1, impNotes.length);
+    }
+
+    for (let i = 0; i < newNotesOnExistingUrls.length; i++) {
+        const {url, importedIndex} = newNotesOnExistingUrls[i];
+        if (!Array.isArray(resultWebsites[url]["all-notes"])) {
+            resultWebsites[url]["all-notes"] = [];
+        }
+        const impNote = renewNoteIdentity(cloneNoteData(importedMigrated[url]["all-notes"][importedIndex]));
+        if (normalizeTagColourValue(impNote["tag-colour"]) === "none" &&
+            normalizeTagColourValue(importedMigrated[url]["tag-colour"]) !== "none") {
+            impNote["tag-colour"] = importedMigrated[url]["tag-colour"];
+        }
+        resultWebsites[url]["all-notes"].push(impNote);
+        stats.imported++;
+    }
+
+    for (let i = 0; i < conflicts.length; i++) {
+        const conflict = conflicts[i];
+        const url = conflict.url;
+        let action = defaultAction;
+        if (resolutionsMap && typeof resolutionsMap.get === "function") {
+            if (resolutionsMap.has(conflict.conflictKey)) {
+                action = resolutionsMap.get(conflict.conflictKey);
+            } else if (resolutionsMap.has(url)) {
+                action = resolutionsMap.get(url);
+            }
+        }
+
+        const existingEntry = resultWebsites[url];
+        const importedEntry = importedMigrated[url];
+        const existingNotes = Array.isArray(existingEntry["all-notes"]) ? existingEntry["all-notes"] : [];
+        const importedNotes = Array.isArray(importedEntry["all-notes"]) ? importedEntry["all-notes"] : [];
+        const exIdx = conflict.existingIndex;
+        const impIdx = conflict.importedIndex;
+
+        if (action === "overwrite") {
+            //the note is still the existing one, with another content
+            const replacement = cloneNoteData(importedNotes[impIdx]);
+            ["note-id", "moved-at", "move-count"].forEach((field) => {
+                if (existingNotes[exIdx][field] !== undefined) replacement[field] = existingNotes[exIdx][field];
+                else delete replacement[field];
+            });
+            if (normalizeTagColourValue(replacement["tag-colour"]) === "none" &&
+                normalizeTagColourValue(importedEntry["tag-colour"]) !== "none") {
+                replacement["tag-colour"] = importedEntry["tag-colour"];
+            }
+            existingNotes[exIdx] = replacement;
+            if (existingNotes.length === 1 && importedEntry["tag-colour"] !== undefined) {
+                existingEntry["tag-colour"] = importedEntry["tag-colour"];
+            }
+            stats.overwritten++;
+        } else if (action === "merge") {
+            existingNotes[exIdx] = mergeTwoNotes(existingNotes[exIdx], importedNotes[impIdx]);
+            if (normalizeTagColourValue(existingEntry["tag-colour"]) === "none" &&
+                normalizeTagColourValue(importedEntry["tag-colour"]) !== "none") {
+                existingEntry["tag-colour"] = importedEntry["tag-colour"];
+            }
+            stats.merged++;
+        } else {
+            stats.skipped++;
+        }
+    }
+
+    return {websites: resultWebsites, stats};
+}
+
+function normalizeLabelsRegistry(registry) {
+    const out = {tags: [], folders: [], changes: {tags: {}, folders: {}}};
+    if (!registry || typeof registry !== "object") return out;
+
+    const addUnique = (arr, target, lowerCompare) => {
+        if (!Array.isArray(arr)) return;
+        const seen = new Set();
+        arr.forEach((item) => {
+            if (typeof item !== "string") return;
+            const trimmed = item.trim();
+            if (!trimmed) return;
+            const key = lowerCompare ? trimmed.toLowerCase() : trimmed;
+            if (!seen.has(key)) {
+                seen.add(key);
+                target.push(lowerCompare ? trimmed.toLowerCase() : trimmed);
+            }
+        });
+    };
+
+    addUnique(registry.tags, out.tags, true);
+    addUnique(registry.folders, out.folders, false);
+    out.tags.sort();
+    out.folders.sort();
+
+    ["tags", "folders"].forEach((kind) => {
+        const changes = registry.changes && registry.changes[kind];
+        if (!changes || typeof changes !== "object") return;
+        Object.keys(changes).forEach((name) => {
+            const change = changes[name];
+            if (change && typeof change["at"] === "string") out.changes[kind][name] = {at: change["at"], deleted: change["deleted"] === true};
+        });
+    });
+    return out;
+}
+
+/**
+ * Add/remove a label, recording when: without it the synchronisation couldn't
+ * tell a label deleted here from a label created on another device.
+ * @param registry {object} - a normalized registry (changed in place)
+ * @param kind {string} - "tag" or "folder"
+ * @returns {boolean} - true if the label has been added
+ */
+function addLabelToRegistry(registry, kind, name) {
+    const key = kind === "tag" ? "tags" : "folders";
+    const label = kind === "tag" ? (name || "").trim().toLowerCase() : (name || "").trim();
+    if (label === "" || registry[key].includes(label)) return false;
+    registry[key].push(label);
+    registry[key].sort();
+    registry.changes[key][label] = {at: getDate(), deleted: false};
+    return true;
+}
+
+function removeLabelFromRegistry(registry, kind, name) {
+    const key = kind === "tag" ? "tags" : "folders";
+    const label = kind === "tag" ? (name || "").trim().toLowerCase() : (name || "").trim();
+    if (label === "") return;
+    registry[key] = registry[key].filter((item) => item !== label);
+    registry.changes[key][label] = {at: getDate(), deleted: true};
+}
+
+function parseSelectionKeysByUrl(selectedKeys, keySeparator = "\u0000") {
+    const byUrl = new Map();
+    if (!selectedKeys) return byUrl;
+    selectedKeys.forEach((key) => {
+        if (typeof key !== "string") return;
+        const sepIdx = key.lastIndexOf(keySeparator);
+        if (sepIdx === -1) return;
+        const url = key.substring(0, sepIdx);
+        const noteIdx = Number.parseInt(key.substring(sepIdx + keySeparator.length), 10);
+        if (!Number.isInteger(noteIdx) || noteIdx < 0) return;
+        if (!byUrl.has(url)) byUrl.set(url, new Set());
+        byUrl.get(url).add(noteIdx);
+    });
+    return byUrl;
+}
+
+/**
+ * Record the move (the note must already have its id, see ensureNoteIds()): the
+ * synchronisation uses it to understand where the note has to be.
+ */
+function markNoteAsMoved(note) {
+    note["moved-at"] = getDate();
+    note["move-count"] = (Number(note["move-count"]) || 0) + 1;
+    return note;
+}
+
+/**
+ * An imported note is a new one, also when a note with the same id has been deleted
+ */
+function renewNoteIdentity(note) {
+    note["note-id"] = generateSecureUUID();
+    delete note["moved-at"];
+    delete note["move-count"];
+    return note;
+}
+
+function moveSelectedNotesBetweenStores(sourceWebsites, targetWebsites, selectedKeys, keySeparator = "\u0000") {
+    const source = cloneNoteData(sourceWebsites || {});
+    const target = cloneNoteData(targetWebsites || {});
+    migrateWebsites(source);
+    migrateWebsites(target);
+    ensureNoteIds(source);
+    ensureNoteIds(target);
+
+    const byUrl = parseSelectionKeysByUrl(selectedKeys, keySeparator);
+    let movedCount = 0;
+
+    byUrl.forEach((indicesSet, url) => {
+        const srcEntry = source[url];
+        if (!srcEntry || !Array.isArray(srcEntry["all-notes"])) return;
+
+        const keptNotes = [];
+        const movedNotes = [];
+        for (let i = 0; i < srcEntry["all-notes"].length; i++) {
+            if (indicesSet.has(i)) {
+                movedNotes.push(markNoteAsMoved(cloneNoteData(srcEntry["all-notes"][i])));
+            } else {
+                keptNotes.push(srcEntry["all-notes"][i]);
+            }
+        }
+
+        if (movedNotes.length === 0) return;
+        movedCount += movedNotes.length;
+
+        if (keptNotes.length === 0) {
+            delete source[url];
+        } else {
+            srcEntry["all-notes"] = keptNotes;
+        }
+
+        if (target[url] && Array.isArray(target[url]["all-notes"])) {
+            target[url]["all-notes"].push(...movedNotes);
+        } else {
+            const newEntry = cloneNoteData(srcEntry);
+            newEntry["all-notes"] = movedNotes;
+            target[url] = newEntry;
+        }
+    });
+
+    return {source, target, movedCount};
+}
+
+/**
+ * The selection identifies a note by its position: move the keys to the new
+ * positions of the same notes. A note that can't be found anymore is unselected,
+ * so that an action never reaches a different note.
+ */
+function remapNoteKeys(selectedKeys, oldWebsites, newWebsites, keySeparator = "\u0000") {
+    const result = new Set();
+    const notesOf = (store, url) => (store && store[url] && Array.isArray(store[url]["all-notes"])) ? store[url]["all-notes"] : [];
+    const signature = (note) => note ? JSON.stringify([note["title"] || "", note["notes"] || "", note["last-update"] || ""]) : null;
+
+    parseSelectionKeysByUrl(selectedKeys, keySeparator).forEach((indices, url) => {
+        const oldNotes = notesOf(oldWebsites, url);
+        const newNotes = notesOf(newWebsites, url);
+        const newSignatures = newNotes.map(signature);
+        const claimed = new Set();
+        const claim = (idx) => {
+            claimed.add(idx);
+            result.add(`${url}${keySeparator}${idx}`);
+        };
+
+        const moved = [];
+        Array.from(indices).sort((a, b) => a - b).forEach((idx) => {
+            if (!oldNotes[idx]) return;
+            if (newSignatures[idx] === signature(oldNotes[idx])) claim(idx);
+            else moved.push(idx);
+        });
+        moved.forEach((idx) => {
+            const target = newSignatures.findIndex((item, i) => !claimed.has(i) && item === signature(oldNotes[idx]));
+            if (target !== -1) claim(target);
+            //edited in place
+            else if (oldNotes.length === newNotes.length && !claimed.has(idx) && !oldNotes.some((note) => signature(note) === newSignatures[idx])) claim(idx);
+        });
+    });
+    return result;
+}
+
+/**
+ * Move the keys of the selection after a note has been removed from its url
+ */
+function shiftNoteKeysAfterRemoval(selectedKeys, url, removedIndex, keySeparator = "\u0000") {
+    const result = new Set();
+    parseSelectionKeysByUrl(selectedKeys, keySeparator).forEach((indices, keyUrl) => {
+        indices.forEach((idx) => {
+            if (keyUrl === url && idx === removedIndex) return;
+            result.add(`${keyUrl}${keySeparator}${keyUrl === url && idx > removedIndex ? idx - 1 : idx}`);
+        });
+    });
+    return result;
+}
+
+function bulkApplyTagToSelected(websites, selectedKeys, tag, add = true, keySeparator = "\u0000") {
+    const normalizedTag = (tag || "").trim().toLowerCase();
+    if (!normalizedTag) return {websites: cloneNoteData(websites || {}), updatedCount: 0};
+
+    const result = cloneNoteData(websites || {});
+    migrateWebsites(result);
+    const byUrl = parseSelectionKeysByUrl(selectedKeys, keySeparator);
+    let updatedCount = 0;
+    const now = typeof getDate === "function" ? getDate() : new Date().toISOString();
+
+    byUrl.forEach((indicesSet, url) => {
+        const entry = result[url];
+        if (!entry || !Array.isArray(entry["all-notes"])) return;
+        indicesSet.forEach((idx) => {
+            const note = entry["all-notes"][idx];
+            if (!note) return;
+            if (!Array.isArray(note["tags-text"])) note["tags-text"] = [];
+            if (add) {
+                const exists = note["tags-text"].some((t) => (t || "").toLowerCase() === normalizedTag);
+                if (!exists) {
+                    note["tags-text"].push(normalizedTag);
+                    note["last-update"] = now;
+                    updatedCount++;
+                }
+            } else {
+                const before = note["tags-text"].length;
+                note["tags-text"] = note["tags-text"].filter((t) => (t || "").toLowerCase() !== normalizedTag);
+                if (note["tags-text"].length !== before) {
+                    note["last-update"] = now;
+                    updatedCount++;
+                }
+            }
+        });
+    });
+
+    return {websites: result, updatedCount};
+}
+
+function bulkSetFolderOnSelected(websites, selectedKeys, folder, keySeparator = "\u0000") {
+    const normalizedFolder = (folder || "").trim();
+    const result = cloneNoteData(websites || {});
+    migrateWebsites(result);
+    const byUrl = parseSelectionKeysByUrl(selectedKeys, keySeparator);
+    let updatedCount = 0;
+    const now = typeof getDate === "function" ? getDate() : new Date().toISOString();
+
+    byUrl.forEach((indicesSet, url) => {
+        const entry = result[url];
+        if (!entry || !Array.isArray(entry["all-notes"])) return;
+        indicesSet.forEach((idx) => {
+            const note = entry["all-notes"][idx];
+            if (!note) return;
+            if ((note["tag-folder"] || "") !== normalizedFolder) {
+                note["tag-folder"] = normalizedFolder;
+                note["last-update"] = now;
+                updatedCount++;
+            }
+        });
+    });
+
+    return {websites: result, updatedCount};
+}
+
+function collectLabelsWithCounts(activeWebsites, archivedWebsites, registry) {
+    const normReg = normalizeLabelsRegistry(registry);
+    const tagCounts = new Map();
+    const folderCounts = new Map();
+
+    normReg.tags.forEach((t) => tagCounts.set(t.toLowerCase(), 0));
+    normReg.folders.forEach((f) => folderCounts.set(f, 0));
+
+    const scanStore = (store) => {
+        if (!store || typeof store !== "object") return;
+        for (const url in store) {
+            const entry = store[url];
+            if (!entry || !Array.isArray(entry["all-notes"])) continue;
+            for (const note of entry["all-notes"]) {
+                if (Array.isArray(note["tags-text"])) {
+                    const seenInNote = new Set();
+                    for (const rawTag of note["tags-text"]) {
+                        if (typeof rawTag !== "string") continue;
+                        const t = rawTag.trim().toLowerCase();
+                        if (t && !seenInNote.has(t)) {
+                            seenInNote.add(t);
+                            tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
+                        }
+                    }
+                }
+                const folder = (note["tag-folder"] || "").trim();
+                if (folder) {
+                    folderCounts.set(folder, (folderCounts.get(folder) || 0) + 1);
+                }
+            }
+        }
+    };
+
+    scanStore(activeWebsites);
+    scanStore(archivedWebsites);
+
+    const tags = Array.from(tagCounts.entries())
+        .map(([name, count]) => ({name, count}))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    const folders = Array.from(folderCounts.entries())
+        .map(([name, count]) => ({name, count}))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+    return {tags, folders};
+}
+
+function renameLabelAcrossStores(activeWebsites, archivedWebsites, registry, kind, oldName, newName) {
+    const active = cloneNoteData(activeWebsites || {});
+    const archived = cloneNoteData(archivedWebsites || {});
+    migrateWebsites(active);
+    migrateWebsites(archived);
+    const normReg = normalizeLabelsRegistry(registry);
+
+    const oldTrim = (oldName || "").trim();
+    const newTrim = (newName || "").trim();
+    if (!oldTrim || !newTrim) return {active, archived, registry: normReg, updatedNotes: 0};
+
+    let updatedNotes = 0;
+    const now = typeof getDate === "function" ? getDate() : new Date().toISOString();
+
+    if (kind === "tag") {
+        const oldLower = oldTrim.toLowerCase();
+        const newLower = newTrim.toLowerCase();
+        if (oldLower === newLower) return {active, archived, registry: normReg, updatedNotes: 0};
+
+        const renameInStore = (store) => {
+            for (const url in store) {
+                const entry = store[url];
+                if (!entry || !Array.isArray(entry["all-notes"])) continue;
+                for (const note of entry["all-notes"]) {
+                    if (!Array.isArray(note["tags-text"])) continue;
+                    let changed = false;
+                    const nextTags = [];
+                    const seen = new Set();
+                    for (const t of note["tags-text"]) {
+                        const lower = (t || "").trim().toLowerCase();
+                        if (!lower) continue;
+                        const mapped = lower === oldLower ? newLower : lower;
+                        if (lower === oldLower) changed = true;
+                        if (!seen.has(mapped)) {
+                            seen.add(mapped);
+                            nextTags.push(mapped);
+                        }
+                    }
+                    if (changed) {
+                        note["tags-text"] = nextTags;
+                        note["last-update"] = now;
+                        updatedNotes++;
+                    }
+                }
+            }
+        };
+
+        renameInStore(active);
+        renameInStore(archived);
+        removeLabelFromRegistry(normReg, "tag", oldLower);
+        addLabelToRegistry(normReg, "tag", newLower);
+    } else if (kind === "folder") {
+        if (oldTrim === newTrim) return {active, archived, registry: normReg, updatedNotes: 0};
+
+        const renameInStore = (store) => {
+            for (const url in store) {
+                const entry = store[url];
+                if (!entry || !Array.isArray(entry["all-notes"])) continue;
+                for (const note of entry["all-notes"]) {
+                    if ((note["tag-folder"] || "").trim() === oldTrim) {
+                        note["tag-folder"] = newTrim;
+                        note["last-update"] = now;
+                        updatedNotes++;
+                    }
+                }
+            }
+        };
+
+        renameInStore(active);
+        renameInStore(archived);
+        removeLabelFromRegistry(normReg, "folder", oldTrim);
+        addLabelToRegistry(normReg, "folder", newTrim);
+    }
+
+    return {active, archived, registry: normReg, updatedNotes};
+}
+
+function deleteLabelAcrossStores(activeWebsites, archivedWebsites, registry, kind, name) {
+    const active = cloneNoteData(activeWebsites || {});
+    const archived = cloneNoteData(archivedWebsites || {});
+    migrateWebsites(active);
+    migrateWebsites(archived);
+    const normReg = normalizeLabelsRegistry(registry);
+
+    const trimName = (name || "").trim();
+    if (!trimName) return {active, archived, registry: normReg, updatedNotes: 0};
+
+    let updatedNotes = 0;
+    const now = typeof getDate === "function" ? getDate() : new Date().toISOString();
+
+    if (kind === "tag") {
+        const lowerTarget = trimName.toLowerCase();
+        const removeInStore = (store) => {
+            for (const url in store) {
+                const entry = store[url];
+                if (!entry || !Array.isArray(entry["all-notes"])) continue;
+                for (const note of entry["all-notes"]) {
+                    if (!Array.isArray(note["tags-text"])) continue;
+                    const before = note["tags-text"].length;
+                    note["tags-text"] = note["tags-text"].filter((t) => (t || "").trim().toLowerCase() !== lowerTarget);
+                    if (note["tags-text"].length !== before) {
+                        note["last-update"] = now;
+                        updatedNotes++;
+                    }
+                }
+            }
+        };
+
+        removeInStore(active);
+        removeInStore(archived);
+        removeLabelFromRegistry(normReg, "tag", lowerTarget);
+    } else if (kind === "folder") {
+        const removeInStore = (store) => {
+            for (const url in store) {
+                const entry = store[url];
+                if (!entry || !Array.isArray(entry["all-notes"])) continue;
+                for (const note of entry["all-notes"]) {
+                    if ((note["tag-folder"] || "").trim() === trimName) {
+                        note["tag-folder"] = "";
+                        note["last-update"] = now;
+                        updatedNotes++;
+                    }
+                }
+            }
+        };
+
+        removeInStore(active);
+        removeInStore(archived);
+        removeLabelFromRegistry(normReg, "folder", trimName);
+    }
+
+    return {active, archived, registry: normReg, updatedNotes};
+}
+
+const DEFAULT_OPEN_NOTES_PRIORITY = ["page", "subdomain", "domain", "global"];
+
+function normalizeOpenNotesPriority(settings) {
+    const valid = DEFAULT_OPEN_NOTES_PRIORITY;
+    if (settings && Array.isArray(settings["open-notes-priority"])) {
+        const result = [];
+        settings["open-notes-priority"].forEach((item) => {
+            if (valid.includes(item) && !result.includes(item)) {
+                result.push(item);
+            }
+        });
+        if (!result.includes("subdomain")) {
+            const pageIdx = result.indexOf("page");
+            const domainIdx = result.indexOf("domain");
+            if (pageIdx !== -1) {
+                result.splice(pageIdx + 1, 0, "subdomain");
+            } else if (domainIdx !== -1) {
+                result.splice(domainIdx + 1, 0, "subdomain");
+            } else {
+                result.push("subdomain");
+            }
+        }
+        valid.forEach((item) => {
+            if (!result.includes(item)) result.push(item);
+        });
+        return result;
+    }
+
+    const legacyDefault = settings && settings["open-default"];
+    if (legacyDefault === "domain") return ["domain", "page", "subdomain", "global"];
+    if (legacyDefault === "global") return ["global", "page", "subdomain", "domain"];
+    if (legacyDefault === "subdomain") return ["subdomain", "page", "domain", "global"];
+    return ["page", "subdomain", "domain", "global"];
+}
+
+function resolvePopupTabIndex(params) {
+    const {
+        opened_by = -1,
+        settings = {},
+        isUrlSupportedForTab = true,
+        canUseSubdomain = undefined,
+        check_for_global = false,
+        check_for_domain = false,
+        check_for_page = false,
+        check_for_subdomains = false,
+    } = params || {};
+
+    if (opened_by === 0 || opened_by === 1 || opened_by === 2) {
+        return opened_by;
+    }
+
+    const priority = normalizeOpenNotesPriority(settings);
+    const openFirstAvailable = !(settings && (settings["open-first-available-note"] === false || settings["open-first-available-note"] === "no"));
+    const subdomainSupported = canUseSubdomain !== undefined ? !!canUseSubdomain : !!check_for_subdomains;
+
+    const isTypeSelectable = (type) => {
+        if (type === "global") return true;
+        if (type === "domain") return true;
+        if (type === "page") return !!isUrlSupportedForTab;
+        if (type === "subdomain") return subdomainSupported;
+        return false;
+    };
+
+    const typeToTabIndex = (type) => {
+        if (type === "global") return 0;
+        if (type === "domain") return 1;
+        if (type === "page") return isUrlSupportedForTab ? 2 : 1;
+        if (type === "subdomain") return 3;
+        return isUrlSupportedForTab ? 2 : 1;
+    };
+
+    const getFirstSelectableFallback = () => {
+        for (let i = 0; i < priority.length; i++) {
+            if (isTypeSelectable(priority[i])) {
+                return typeToTabIndex(priority[i]);
+            }
+        }
+        return isUrlSupportedForTab ? 2 : 1;
+    };
+
+    if (!openFirstAvailable) {
+        return getFirstSelectableFallback();
+    }
+
+    const availability = {
+        global: !!check_for_global,
+        domain: !!check_for_domain,
+        page: !!(isUrlSupportedForTab && check_for_page),
+        subdomain: !!(subdomainSupported && check_for_subdomains),
+    };
+
+    for (let i = 0; i < priority.length; i++) {
+        const type = priority[i];
+        if (availability[type]) {
+            return typeToTabIndex(type);
+        }
+    }
+
+    return getFirstSelectableFallback();
 }

@@ -451,10 +451,11 @@ function checkSyncData(just_once = false) {
             syncPull().catch((e) => {
                 console.error(`E-B3: ${e}`);
                 onError("background.js::checkSyncData", e.message, tab_url);
-            });
+            }).then(() => processAttachments());
 
             syncData(1 * 60 * 1000, just_once); //1 minute if the user is logged in
         } else {
+            processAttachments(); //only the cleanup of this device: there is no server to talk to
             syncData(5 * 60 * 1000, just_once); //5 minutes if the user is not logged in
         }
     });
@@ -860,6 +861,7 @@ function checkStatus(update = false) {
             if (settings_json["show-icon-badge"] === undefined) settings_json["show-icon-badge"] = false;
             if (settings_json["default-sticky-size"] === undefined || !["small", "medium", "large", "very-large"].includes(settings_json["default-sticky-size"])) settings_json["default-sticky-size"] = "medium";
             if (settings_json["default-sticky-transparency"] === undefined) settings_json["default-sticky-transparency"] = 20;
+            if (settings_json["show-sticky-watermark"] === undefined) settings_json["show-sticky-watermark"] = true;
             //console.log(JSON.stringify(settings_json));
             //console.log("checkStatus");
             //console.log(value);
@@ -1548,6 +1550,8 @@ function listenerAllNotes() {
                         if (entry !== undefined && Array.isArray(entry["all-notes"])) {
                             let ni = message.noteIndex !== undefined ? message.noteIndex : 0;
                             let note = entry["all-notes"][ni];
+                            ensureNoteIds({[message.url]: entry});
+                            const previousNotes = entry["all-notes"].map((item) => Object.assign({}, item));
                             if (note) {
                                 if (message.data.title !== undefined) note["title"] = message.data.title;
                                 if (message.data.notes !== undefined) note["notes"] = message.data.notes;
@@ -1556,6 +1560,7 @@ function listenerAllNotes() {
 
                             let deleted = false;
                             if (note && (note["notes"] === "" || note["notes"] === undefined || note["notes"] === "<br>")) {
+                                recordDeletedNotes([{url: message.url, notes: previousNotes, indexes: [ni]}]);
                                 entry["all-notes"].splice(ni, 1);
                                 if (entry["all-notes"].length === 0) {
                                     delete websites_json[message.url];
@@ -1614,10 +1619,31 @@ function isAPage(url) {
  * Returns the correct url (if exists "page" returns that, else if exists "domain" returns that one)
  */
 function getTheCorrectUrl(do_not_check_opened = false) {
-    let default_url_index = 2;
-    if (settings_json !== undefined && settings_json["open-default"] !== undefined) {
-        if (settings_json["open-default"] === "page") default_url_index = 2; else if (settings_json["open-default"] === "domain") default_url_index = 1; else if (settings_json["open-default"] === "global") default_url_index = 0;
+    //same of normalizeOpenNotesPriority() (js/definitions.js is not loaded in the background scripts)
+    const validPriorityTypes = ["page", "subdomain", "domain", "global"];
+    let priorityOrder = ["page", "subdomain", "domain", "global"];
+    if (settings_json !== undefined && Array.isArray(settings_json["open-notes-priority"])) {
+        const normalized = [];
+        settings_json["open-notes-priority"].forEach(item => {
+            if (validPriorityTypes.includes(item) && !normalized.includes(item)) normalized.push(item);
+        });
+        if (!normalized.includes("subdomain")) {
+            const pageIdx = normalized.indexOf("page");
+            const domainIdx = normalized.indexOf("domain");
+            if (pageIdx !== -1) normalized.splice(pageIdx + 1, 0, "subdomain");
+            else if (domainIdx !== -1) normalized.splice(domainIdx + 1, 0, "subdomain");
+            else normalized.push("subdomain");
+        }
+        validPriorityTypes.forEach(item => { if (!normalized.includes(item)) normalized.push(item); });
+        priorityOrder = normalized;
+    } else if (settings_json !== undefined && settings_json["open-default"] !== undefined) {
+        if (settings_json["open-default"] === "domain") priorityOrder = ["domain", "page", "subdomain", "global"];
+        else if (settings_json["open-default"] === "global") priorityOrder = ["global", "page", "subdomain", "domain"];
+        else if (settings_json["open-default"] === "subdomain") priorityOrder = ["subdomain", "page", "domain", "global"];
     }
+
+    const typeNameToIndex = (name) => name === "global" ? 0 : (name === "domain" ? 1 : (name === "page" ? 2 : 3));
+    let default_url_index = typeNameToIndex(priorityOrder[0]);
 
     //console.log(JSON.stringify(all_urls));
 
@@ -1666,22 +1692,22 @@ function getTheCorrectUrl(do_not_check_opened = false) {
         if (default_condition) {
             //console.log(`Default condition true! (${type})`);
             if (type === 3) url_to_use = subdomain_url_to_use; else if (type === 0 || type === 1 || type === 2) url_to_use = current_urls[type];
-        } else if (global_condition) {
-            //console.log("Global condition true!");
-            url_to_use = current_urls[0];
-            type = 0;
-        } else if (domain_condition) {
-            //console.log("Domain condition true!");
-            url_to_use = current_urls[1];
-            type = 1;
-        } else if (page_condition) {
-            //console.log("Page condition true!");
-            url_to_use = current_urls[2];
-            type = 2;
-        } else if (subdomains_condition) {
-            //console.log("Subdomain condition true!");
-            url_to_use = subdomain_url_to_use;
-            type = 3;
+        } else {
+            const condMap = {
+                global: global_condition,
+                domain: domain_condition,
+                page: page_condition,
+                subdomain: subdomains_condition,
+            };
+            for (let i = 0; i < priorityOrder.length; i++) {
+                const candidate = priorityOrder[i];
+                if (condMap[candidate]) {
+                    const idx = typeNameToIndex(candidate);
+                    url_to_use = idx === 3 ? subdomain_url_to_use : current_urls[idx];
+                    type = idx;
+                    break;
+                }
+            }
         }
     } else {
         //No otes available
@@ -2092,7 +2118,10 @@ function setNewTextFromSticky(text, noteIndex = 0) {
                 // a note whose text becomes empty must not exist: remove it
                 let entry = websites_json[url];
                 let allNotes = entry && Array.isArray(entry["all-notes"]) ? entry["all-notes"] : null;
-                if (allNotes && allNotes[ref.idx]) allNotes.splice(ref.idx, 1);
+                if (allNotes && allNotes[ref.idx]) {
+                    recordDeletedNotes([{url: url, notes: allNotes, indexes: [ref.idx]}]);
+                    allNotes.splice(ref.idx, 1);
+                }
                 if (!allNotes || allNotes.length === 0) {
                     delete websites_json[url];
                 }
@@ -2290,6 +2319,17 @@ function initContextMenu() {
     });
 }
 
+function getContextMenuPageKey(pageUrl, settings) {
+    let urlKey = pageUrl;
+    if (settings["consider-sections"] === "no" || settings["consider-sections"] === false) {
+        if (urlKey.includes("#")) urlKey = urlKey.split("#")[0];
+    }
+    if (settings["consider-parameters"] === "no" || settings["consider-parameters"] === false) {
+        if (urlKey.includes("?")) urlKey = urlKey.split("?")[0];
+    }
+    return urlKey;
+}
+
 browser.menus.onClicked.addListener((info, tab) => {
     if (info.menuItemId !== CONTEXT_MENU_ID) return;
     let selectedText = info.selectionText || "";
@@ -2306,7 +2346,9 @@ browser.menus.onClicked.addListener((info, tab) => {
             let ws = value["websites"] || {};
             let s = value["settings"] || {};
 
-            let openDefault = s["open-default"] || "page";
+            let openDefault = (Array.isArray(s["open-notes-priority"]) && s["open-notes-priority"].length > 0)
+                ? s["open-notes-priority"][0]
+                : (s["open-default"] || "page");
             let urlKey;
             if (openDefault === "global") {
                 urlKey = "**global";
@@ -2322,14 +2364,25 @@ browser.menus.onClicked.addListener((info, tab) => {
                     }
                 }
                 urlKey = protocol + "://" + domain;
+            } else if (openDefault === "subdomain") {
+                //same rules of getDomainUrl() and getAllOtherPossibleUrls(), otherwise the popup wouldn't find the note
+                let protocol = pageUrl.includes("://") ? pageUrl.split("://")[0] : "https";
+                let segments = (pageUrl.split(":")[1] || "").split("#")[0].split("?")[0].split("/").slice(2);
+                let domainKey = protocol + "://" + (segments[0] || "");
+                let matchedSubKey = "";
+                let firstSubKey = "";
+                let acc = "/";
+                for (let i = 1; i < segments.length; i++) {
+                    if (segments[i] === "") continue;
+                    acc += segments[i];
+                    let candidate = domainKey + acc + "/*";
+                    if (!firstSubKey) firstSubKey = candidate;
+                    if (ws[candidate] !== undefined) matchedSubKey = candidate;
+                    acc += "/";
+                }
+                urlKey = matchedSubKey || firstSubKey || getContextMenuPageKey(pageUrl, s);
             } else {
-                urlKey = pageUrl;
-                if (s["consider-sections"] === "no" || s["consider-sections"] === false) {
-                    if (urlKey.includes("#")) urlKey = urlKey.split("#")[0];
-                }
-                if (s["consider-parameters"] === "no" || s["consider-parameters"] === false) {
-                    if (urlKey.includes("?")) urlKey = urlKey.split("?")[0];
-                }
+                urlKey = getContextMenuPageKey(pageUrl, s);
             }
 
             let now = getDate();

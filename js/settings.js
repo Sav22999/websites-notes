@@ -7,7 +7,17 @@ checkSyncLocal();
 
 var disableAside = false;
 let show_conversion_message_attention = false;
+
+//data of the account kept on this device: removed on logout and when the account is deleted
+const ACCOUNT_LOCAL_DATA_KEYS = ["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites", "websites-archive", "labels-registry", "deleted-notes", "sync-revision", "sync-status", "sync-last-error"];
 var notefox_json = {};
+
+/**
+ * Remove the data of the account from this device, the screenshots included
+ */
+function removeAccountLocalData() {
+    return getAttachmentStorageKeys().then((keys) => browser.storage.local.remove(ACCOUNT_LOCAL_DATA_KEYS.concat(keys)));
+}
 var json_to_export = {};
 
 //Do not add "None" because it's treated in a different way!
@@ -318,9 +328,10 @@ function loaded() {
         sendTelemetry("review-on-firefox-addons-button", "settings.js::deprecated");
     };
 
-    document.getElementById("open-by-default-select").onchange = function () {
-        settings_json["open-default"] = document.getElementById("open-by-default-select").value;
-        sendTelemetry(`open-by-default-select`, `settings.js`, settings_json["open-default"]);
+    document.getElementById("open-first-available-note-check").onchange = function () {
+        settings_json["open-first-available-note"] = document.getElementById("open-first-available-note-check").checked;
+        updatePriorityListVisualState();
+        sendTelemetry(`open-first-available-note-check`, `settings.js`, settings_json["open-first-available-note"]);
 
         saveSettings();
     };
@@ -538,6 +549,13 @@ function loaded() {
     document.getElementById("immersive-sticky-notes-check").onchange = function () {
         settings_json["immersive-sticky-notes"] = document.getElementById("immersive-sticky-notes-check").checked;
         sendTelemetry(`immersive-sticky-notes-check-select`, `settings.js`, settings_json["immersive-sticky-notes"]);
+
+        saveSettings();
+    };
+
+    document.getElementById("show-sticky-watermark-check").onchange = function () {
+        settings_json["show-sticky-watermark"] = document.getElementById("show-sticky-watermark-check").checked;
+        sendTelemetry(`show-sticky-watermark-check-select`, `settings.js`, settings_json["show-sticky-watermark"]);
 
         saveSettings();
     };
@@ -892,11 +910,30 @@ function sendTelemetry(action, context = "settings.js", other = null) {
 function hideAllPopups() {
     let backgroundOpacity = document.getElementById("background-opacity");
 
+    let importConflictDiffSection = document.getElementById("import-conflict-diff-section");
+    if (importConflictDiffSection && importConflictDiffSection.style.display === "block") {
+        importConflictDiffSection.style.display = "none";
+        let conflictsSectionToRestore = document.getElementById("import-conflicts-section");
+        if (conflictsSectionToRestore && conflictsSectionToRestore.dataset && conflictsSectionToRestore.dataset.hiddenForDiff === "true") {
+            delete conflictsSectionToRestore.dataset.hiddenForDiff;
+            conflictsSectionToRestore.style.display = "block";
+        }
+        return;
+    }
+
     if (document.getElementById("export-section").style.display === "block") {
         document.getElementById("export-section").style.display = "none";
     }
     if (document.getElementById("import-section").style.display === "block") {
         document.getElementById("import-section").style.display = "none";
+    }
+    let importConflictsSection = document.getElementById("import-conflicts-section");
+    if (importConflictsSection && importConflictsSection.style.display === "block") {
+        importConflictsSection.style.display = "none";
+    }
+    let importSummarySection = document.getElementById("import-summary-section");
+    if (importSummarySection && importSummarySection.style.display === "block") {
+        importSummarySection.style.display = "none";
     }
     if (document.getElementById("account-section").style.display === "block") {
         hideBackgroundOpacity();
@@ -1121,10 +1158,10 @@ function setLanguageUI() {
     document.getElementById("shortcuts-title-settings").innerText = all_strings["shortcuts-title-settings"];
     document.getElementById("icon-behaviour-title-settings").innerText = all_strings["icon-behaviour-title-settings"];
     document.getElementById("data-title-settings").innerText = all_strings["data-and-sync-title-settings"];
-    document.getElementById("open-by-default-text").innerText = all_strings["open-popup-by-default"];
-    document.getElementById("open-by-default-global-text").innerText = all_strings["global-label"];
-    document.getElementById("open-by-default-domain-text").innerText = all_strings["domain-label"];
-    document.getElementById("open-by-default-page-text").innerText = all_strings["page-label"];
+    document.getElementById("open-notes-priority-text").innerText = all_strings["open-notes-priority-text"] || "Notes opening priority order";
+    document.getElementById("open-notes-priority-detailed-text").innerHTML = all_strings["open-notes-priority-detailed-text"] || "Drag and drop items or use the arrows to set the preferred opening order for notes.";
+    document.getElementById("open-first-available-note-text").innerText = all_strings["open-first-available-note-text"] || "Open the first available note following the order";
+    document.getElementById("open-first-available-note-detailed-text").innerHTML = all_strings["open-first-available-note-detailed-text"] || "When enabled, opens the first available note following the priority order above. When disabled, always opens the first note type in the list without checking the others.";
     document.getElementById("consider-parameters-text").innerText = all_strings["consider-parameters"];
     document.getElementById("consider-parameters-detailed-text").innerHTML = all_strings["consider-parameters-detailed"];
     document.getElementById("consider-sections-text").innerText = all_strings["consider-sections"];
@@ -1249,6 +1286,8 @@ function setLanguageUI() {
     document.getElementById("show-title-textbox-detailed-text").innerHTML = all_strings["show-title-textbox-detailed-text"];
     document.getElementById("immersive-sticky-notes-text").innerText = all_strings["immersive-sticky-notes-text"];
     document.getElementById("immersive-sticky-notes-detailed-text").innerHTML = all_strings["immersive-sticky-notes-detailed-text"];
+    document.getElementById("show-sticky-watermark-text").innerText = all_strings["show-sticky-watermark-text"] || "Show watermark on sticky notes";
+    document.getElementById("show-sticky-watermark-detailed-text").innerHTML = all_strings["show-sticky-watermark-detailed-text"] || "When enabled, the Notefox watermark is shown in the background of sticky notes.";
     document.getElementById("default-sticky-pinned-text").innerText = all_strings["default-sticky-pinned-text"];
     document.getElementById("default-sticky-pinned-detailed-text").innerHTML = all_strings["default-sticky-pinned-detailed-text"];
     document.getElementById("notes-background-follow-tag-colour-text").innerText = all_strings["notes-background-follow-tag-colour-text"];
@@ -1379,6 +1418,158 @@ function setLanguageUI() {
     document.getElementById("delete-error-logs-settings-button").value = all_strings["delete-error-logs-button"];
 }
 
+function updatePriorityListVisualState() {
+    const listEl = document.getElementById("open-notes-priority-list");
+    if (!listEl) return;
+    const followOrder = !(settings_json["open-first-available-note"] === false || settings_json["open-first-available-note"] === "no");
+    if (followOrder) {
+        listEl.classList.remove("priority-secondary-inactive");
+    } else {
+        listEl.classList.add("priority-secondary-inactive");
+    }
+}
+
+function renderOpenNotesPriorityList() {
+    const listEl = document.getElementById("open-notes-priority-list");
+    if (!listEl) return;
+
+    const order = normalizeOpenNotesPriority(settings_json);
+    settings_json["open-notes-priority"] = order;
+    settings_json["open-default"] = order[0];
+
+    const labelsMap = {
+        page: all_strings["page-label"] || "Page",
+        subdomain: all_strings["subdomain-label"] || "Subdomain",
+        domain: all_strings["domain-label"] || "Domain",
+        global: all_strings["global-label"] || "Global",
+    };
+    const moveUpLabel = all_strings["priority-move-up-label"] || "Move up";
+    const moveDownLabel = all_strings["priority-move-down-label"] || "Move down";
+
+    let draggedIndex = null;
+
+    const movePriorityItem = (fromIdx, toIdx) => {
+        if (fromIdx === null || fromIdx === undefined || fromIdx === toIdx) return;
+        if (fromIdx < 0 || fromIdx >= order.length || toIdx < 0 || toIdx >= order.length) return;
+        const nextOrder = order.slice();
+        const [moved] = nextOrder.splice(fromIdx, 1);
+        nextOrder.splice(toIdx, 0, moved);
+        settings_json["open-notes-priority"] = nextOrder;
+        settings_json["open-default"] = nextOrder[0];
+        renderOpenNotesPriorityList();
+        sendTelemetry("open-notes-priority-reorder", "settings.js", nextOrder.join(","));
+        saveSettings();
+    };
+
+    listEl.innerHTML = "";
+    order.forEach((type, index) => {
+        const item = document.createElement("div");
+        item.className = "sortable-priority-item";
+        if (index === 0) item.classList.add("sortable-priority-primary");
+        item.setAttribute("draggable", "true");
+        item.setAttribute("role", "listitem");
+        item.dataset.priorityType = type;
+        item.dataset.priorityIndex = String(index);
+
+        const handle = document.createElement("span");
+        handle.className = "sortable-drag-handle";
+        handle.setAttribute("aria-hidden", "true");
+        handle.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.8"/><circle cx="15" cy="6" r="1.8"/><circle cx="9" cy="12" r="1.8"/><circle cx="15" cy="12" r="1.8"/><circle cx="9" cy="18" r="1.8"/><circle cx="15" cy="18" r="1.8"/></svg>`;
+
+        const rank = document.createElement("span");
+        rank.className = "sortable-priority-rank";
+        rank.textContent = String(index + 1);
+
+        const label = document.createElement("span");
+        label.className = "sortable-priority-label";
+        label.textContent = labelsMap[type] || type;
+        if (type === "subdomain") {
+            const hint = document.createElement("span");
+            hint.className = "sortable-priority-hint";
+            hint.textContent = " (•••)";
+            label.appendChild(hint);
+        }
+
+        const controls = document.createElement("div");
+        controls.className = "sortable-priority-controls";
+
+        const upBtn = document.createElement("button");
+        upBtn.type = "button";
+        upBtn.className = "button very-small-button sortable-arrow-button";
+        upBtn.title = moveUpLabel;
+        upBtn.setAttribute("aria-label", moveUpLabel);
+        upBtn.disabled = index === 0;
+        upBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`;
+        upBtn.onclick = function (e) {
+            e.stopPropagation();
+            movePriorityItem(index, index - 1);
+        };
+
+        const downBtn = document.createElement("button");
+        downBtn.type = "button";
+        downBtn.className = "button very-small-button sortable-arrow-button";
+        downBtn.title = moveDownLabel;
+        downBtn.setAttribute("aria-label", moveDownLabel);
+        downBtn.disabled = index === order.length - 1;
+        downBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+        downBtn.onclick = function (e) {
+            e.stopPropagation();
+            movePriorityItem(index, index + 1);
+        };
+
+        controls.appendChild(upBtn);
+        controls.appendChild(downBtn);
+
+        item.appendChild(handle);
+        item.appendChild(rank);
+        item.appendChild(label);
+        item.appendChild(controls);
+
+        item.addEventListener("dragstart", (e) => {
+            draggedIndex = index;
+            item.classList.add("dragging");
+            if (e.dataTransfer) {
+                e.dataTransfer.effectAllowed = "move";
+                e.dataTransfer.setData("text/plain", String(index));
+            }
+        });
+
+        item.addEventListener("dragend", () => {
+            draggedIndex = null;
+            listEl.querySelectorAll(".sortable-priority-item").forEach((el) => {
+                el.classList.remove("dragging", "drag-over");
+            });
+        });
+
+        item.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+            if (draggedIndex !== null && draggedIndex !== index) {
+                item.classList.add("drag-over");
+            }
+        });
+
+        item.addEventListener("dragleave", () => {
+            item.classList.remove("drag-over");
+        });
+
+        item.addEventListener("drop", (e) => {
+            e.preventDefault();
+            item.classList.remove("drag-over");
+            let fromIdx = draggedIndex;
+            if (fromIdx === null && e.dataTransfer) {
+                const parsed = Number.parseInt(e.dataTransfer.getData("text/plain"), 10);
+                if (!Number.isNaN(parsed)) fromIdx = parsed;
+            }
+            movePriorityItem(fromIdx, index);
+        });
+
+        listEl.appendChild(item);
+    });
+
+    updatePriorityListVisualState();
+}
+
 function loadSettings() {
     try {
         if (browser.commands !== undefined) {
@@ -1394,7 +1585,10 @@ function loadSettings() {
         sync_local.get("settings", function (value) {
             settings_json = {};
             if (value["settings"] !== undefined) settings_json = value["settings"];
-            if (settings_json["open-default"] === undefined || !["global", "domain", "page"].includes(settings_json["open-default"])) settings_json["open-default"] = "page";
+            if (settings_json["open-default"] === undefined || !["global", "domain", "page", "subdomain"].includes(settings_json["open-default"])) settings_json["open-default"] = "page";
+            settings_json["open-notes-priority"] = normalizeOpenNotesPriority(settings_json);
+            settings_json["open-default"] = settings_json["open-notes-priority"][0];
+            if (settings_json["open-first-available-note"] === undefined) settings_json["open-first-available-note"] = true;
             if (settings_json["consider-parameters"] === undefined) settings_json["consider-parameters"] = false;
             if (settings_json["consider-sections"] === undefined) settings_json["consider-sections"] = false;
             if (settings_json["open-popup-default"] === undefined) settings_json["open-popup-default"] = "Ctrl+Alt+O";
@@ -1427,6 +1621,7 @@ function loadSettings() {
             if (settings_json["font-family"] === undefined || !supportedFontFamily.includes(settings_json["font-family"])) settings_json["font-family"] = "Merienda";
             if (settings_json["show-title-textbox"] === undefined) settings_json["show-title-textbox"] = false;
             if (settings_json["immersive-sticky-notes"] === undefined) settings_json["immersive-sticky-notes"] = true;
+            if (settings_json["show-sticky-watermark"] === undefined) settings_json["show-sticky-watermark"] = true;
             if (settings_json["notes-background-follow-tag-colour"] === undefined) settings_json["notes-background-follow-tag-colour"] = false;
             if (settings_json["datetime-format"] === undefined || !supportedDatetimeFormat.includes(settings_json["datetime-format"])) settings_json["datetime-format"] = "yyyymmdd1";
             if (settings_json["text-size"] === undefined || !supportedTextSize.includes(settings_json["text-size"])) settings_json["text-size"] = "standard";
@@ -1454,7 +1649,8 @@ function loadSettings() {
             let sync_or_local_settings = result["storage"];
             if (sync_or_local_settings === undefined) sync_or_local_settings = "local";
 
-            document.getElementById("open-by-default-select").value = settings_json["open-default"];
+            document.getElementById("open-first-available-note-check").checked = settings_json["open-first-available-note"] === true || settings_json["open-first-available-note"] === "yes";
+            renderOpenNotesPriorityList();
             document.getElementById("consider-parameters-check").checked = settings_json["consider-parameters"] === true || settings_json["consider-parameters"] === "yes";
             document.getElementById("consider-sections-check").checked = settings_json["consider-sections"] === true || settings_json["consider-sections"] === "yes";
             document.getElementById("advanced-managing-check").checked = settings_json["advanced-managing"] === true || settings_json["advanced-managing"] === "yes";
@@ -1539,6 +1735,7 @@ function loadSettings() {
 
             document.getElementById("show-title-textbox-check").checked = settings_json["show-title-textbox"] === true || settings_json["show-title-textbox"] === "yes";
             document.getElementById("immersive-sticky-notes-check").checked = settings_json["immersive-sticky-notes"] === true || settings_json["immersive-sticky-notes"] === "yes";
+            document.getElementById("show-sticky-watermark-check").checked = settings_json["show-sticky-watermark"] === true || settings_json["show-sticky-watermark"] === "yes";
             document.getElementById("default-sticky-pinned-check").checked = settings_json["default-sticky-pinned"] === true;
             document.getElementById("notes-background-follow-tag-colour-check").checked = settings_json["notes-background-follow-tag-colour"] === true || settings_json["notes-background-follow-tag-colour"] === "yes";
 
@@ -1975,29 +2172,1065 @@ function updateShortcut(commandName, shortcut) {
     }
 }
 
-function clearAllNotes() {
-    let confirmationClearAllNotes = confirm(all_strings["clear-all-notes-confirmation"]);
-    if (confirmationClearAllNotes) {
-        //console.log("QAZ-13")
-        sync_local
-            .set({
-                websites: {},
-                settings: {},
-                "sticky-notes-coords": {},
-                "sticky-notes-sizes": {},
-                "sticky-notes-opacity": {},
-                "sticky-notes": {},
-                "last-update": getDate(),
-            })
-            .then((result) => {
-                loaded();
-            });
+async function clearAllNotes() {
+    const account = (await browser.storage.sync.get("notefox-account"))["notefox-account"];
+    const hasAccount = account !== undefined && account !== null && account["login-id"] !== undefined;
+    let message = all_strings["clear-all-notes-confirmation"];
+    if (hasAccount) message += "\n\n" + all_strings["clear-all-notes-account-warning"];
 
-        sync_local
-            .remove(["sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity",])
-            .then((result) => {
-            });
+    if (confirm(message)) {
+        const current = await sync_local.get(["websites", "websites-archive"]);
+        const toDelete = [];
+        [current["websites"], current["websites-archive"]].forEach((websites) => {
+            migrateWebsites(websites);
+            Object.keys(websites || {}).forEach((url) => toDelete.push({url: url, notes: websites[url] && websites[url]["all-notes"]}));
+        });
+        await recordDeletedNotes(toDelete);
+        await deleteAttachmentImages(collectAttachmentIds(current["websites"], current["websites-archive"]));
+
+        await sync_local.set({
+            websites: {},
+            "websites-archive": {},
+            "labels-registry": normalizeLabelsRegistry(null),
+            settings: {},
+            "sticky-notes": {},
+            "last-update": getDate(),
+        });
+        loaded();
+        await sync_local.remove(["sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity"]);
     }
+}
+
+function getSingleNotePreviewSnippet(note) {
+    if (!note) return "—";
+    //only text: what is in a file to import must not load anything
+    const plainBody = htmlToDiffLines(note["notes"] || "").join(" ").replace(/\s+/g, " ").trim();
+    const title = (note["title"] || "").trim();
+    let snippet = title ? (plainBody ? `${title} — ${plainBody}` : title) : plainBody;
+    if (snippet.length > 70) snippet = snippet.substring(0, 70) + "…";
+    return snippet || "—";
+}
+
+function getRelevantConflictNotePairs(existingEntry, importedEntry) {
+    const allPairs = pairEntryNotesForDiff(existingEntry, importedEntry);
+    const nonIdenticalPairs = allPairs.filter((p) => !p.identical);
+    const importedDiffPairs = nonIdenticalPairs.filter((p) => p.importedNote !== null);
+    if (importedDiffPairs.length > 0) return importedDiffPairs;
+    if (nonIdenticalPairs.length > 0) return nonIdenticalPairs;
+    return allPairs;
+}
+
+function getEntryPreviewSnippet(entry) {
+    if (!entry || !Array.isArray(entry["all-notes"]) || entry["all-notes"].length === 0) return "";
+    let snippet = getSingleNotePreviewSnippet(entry["all-notes"][0]);
+    if (entry["all-notes"].length > 1) {
+        snippet = `(${entry["all-notes"].length}) ${snippet}`;
+    }
+    return snippet;
+}
+
+function addLabelsToRegistry(registry, labelsToAdd) {
+    labelsToAdd.tags.forEach((tag) => addLabelToRegistry(registry, "tag", tag));
+    labelsToAdd.folders.forEach((folder) => addLabelToRegistry(registry, "folder", folder));
+    return registry;
+}
+
+function showImportSummaryModal(stats) {
+    const section = document.getElementById("import-summary-section");
+    const titleEl = document.getElementById("import-summary-title");
+    const statsEl = document.getElementById("import-summary-stats");
+    const closeBtn = document.getElementById("close-import-summary-button");
+    if (!section || !statsEl) return;
+
+    if (titleEl) {
+        titleEl.textContent = all_strings["import-summary-title"] || "Import completed";
+    }
+
+    statsEl.innerHTML = "";
+    const rows = [
+        {key: "import-summary-imported", fallback: "Imported: {{count}}", value: stats.imported || 0},
+        {key: "import-summary-overwritten", fallback: "Overwritten: {{count}}", value: stats.overwritten || 0},
+        {key: "import-summary-skipped", fallback: "Skipped: {{count}}", value: stats.skipped || 0},
+        {key: "import-summary-merged", fallback: "Merged: {{count}}", value: stats.merged || 0},
+    ];
+    if ((stats.unchanged || 0) > 0) {
+        rows.push({
+            key: "import-summary-unchanged",
+            fallback: "Unchanged (identical): {{count}}",
+            value: stats.unchanged,
+        });
+    }
+    rows.forEach((row) => {
+        const div = document.createElement("div");
+        div.className = "import-summary-row";
+        const tpl = all_strings[row.key] || row.fallback;
+        div.textContent = tpl.replaceAll("{{count}}", String(row.value));
+        statsEl.appendChild(div);
+    });
+
+    if (closeBtn) {
+        closeBtn.value = all_strings["close-button"] || "Close";
+        closeBtn.onclick = function () {
+            section.style.display = "none";
+            hideBackgroundOpacity();
+        };
+    }
+
+    showBackgroundOpacity();
+    section.style.display = "block";
+}
+
+function appendInlineDiffText(container, parts, highlightClass) {
+    if (!parts || parts.length === 0) {
+        container.textContent = " ";
+        return;
+    }
+    for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        if (part.changed) {
+            const span = document.createElement("span");
+            span.className = highlightClass;
+            span.textContent = part.text;
+            container.appendChild(span);
+        } else {
+            container.appendChild(document.createTextNode(part.text));
+        }
+    }
+}
+
+function buildDiffRenderGroups(diffOps) {
+    const groups = [];
+    let i = 0;
+    while (i < diffOps.length) {
+        if (diffOps[i].type === "equal") {
+            groups.push({kind: "equal", op: diffOps[i]});
+            i++;
+        } else {
+            const removed = [];
+            const added = [];
+            while (i < diffOps.length && diffOps[i].type !== "equal") {
+                if (diffOps[i].type === "removed") removed.push(diffOps[i]);
+                else added.push(diffOps[i]);
+                i++;
+            }
+            const pairCount = Math.min(removed.length, added.length);
+            const inlinePairs = [];
+            for (let k = 0; k < pairCount; k++) {
+                inlinePairs.push(computeInlineWordDiff(removed[k].text, added[k].text));
+            }
+            groups.push({kind: "change", removed, added, inlinePairs});
+        }
+    }
+    return groups;
+}
+
+function renderUnifiedLineDiffTable(diffOps) {
+    const table = document.createElement("div");
+    table.className = "diff-unified-table";
+    const groups = buildDiffRenderGroups(diffOps);
+
+    const appendRow = (typeClass, oldNum, newNum, sign, text, inlineParts, inlineClass) => {
+        const row = document.createElement("div");
+        row.className = `diff-line ${typeClass}`;
+
+        const numOld = document.createElement("span");
+        numOld.className = "diff-line-num";
+        numOld.textContent = oldNum !== null ? String(oldNum) : "";
+
+        const numNew = document.createElement("span");
+        numNew.className = "diff-line-num";
+        numNew.textContent = newNum !== null ? String(newNum) : "";
+
+        const signEl = document.createElement("span");
+        signEl.className = "diff-line-sign";
+        signEl.textContent = sign;
+
+        const codeEl = document.createElement("span");
+        codeEl.className = "diff-line-text";
+        if (inlineParts) {
+            appendInlineDiffText(codeEl, inlineParts, inlineClass);
+        } else {
+            codeEl.textContent = text !== "" ? text : " ";
+        }
+
+        row.appendChild(numOld);
+        row.appendChild(numNew);
+        row.appendChild(signEl);
+        row.appendChild(codeEl);
+        table.appendChild(row);
+    };
+
+    for (let g = 0; g < groups.length; g++) {
+        const grp = groups[g];
+        if (grp.kind === "equal") {
+            appendRow("diff-line-equal", grp.op.oldLine, grp.op.newLine, " ", grp.op.text, null, "");
+        } else {
+            for (let r = 0; r < grp.removed.length; r++) {
+                const op = grp.removed[r];
+                const parts = r < grp.inlinePairs.length ? grp.inlinePairs[r].oldParts : null;
+                appendRow("diff-line-removed", op.oldLine, null, "−", op.text, parts, "diff-word-removed");
+            }
+            for (let a = 0; a < grp.added.length; a++) {
+                const op = grp.added[a];
+                const parts = a < grp.inlinePairs.length ? grp.inlinePairs[a].newParts : null;
+                appendRow("diff-line-added", null, op.newLine, "+", op.text, parts, "diff-word-added");
+            }
+        }
+    }
+    return table;
+}
+
+function renderSideBySideDiffTable(diffOps, labelExisting, labelImported) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "diff-sbs-table";
+
+    const colHeader = document.createElement("div");
+    colHeader.className = "diff-sbs-header-row";
+    const leftHead = document.createElement("div");
+    leftHead.className = "diff-sbs-header-cell diff-sbs-header-existing";
+    leftHead.textContent = labelExisting;
+    const rightHead = document.createElement("div");
+    rightHead.className = "diff-sbs-header-cell diff-sbs-header-imported";
+    rightHead.textContent = labelImported;
+    colHeader.appendChild(leftHead);
+    colHeader.appendChild(rightHead);
+    wrapper.appendChild(colHeader);
+
+    const groups = buildDiffRenderGroups(diffOps);
+
+    const buildCell = (typeClass, num, sign, text, inlineParts, inlineClass) => {
+        const cell = document.createElement("div");
+        cell.className = `diff-sbs-cell ${typeClass}`;
+        const numEl = document.createElement("span");
+        numEl.className = "diff-line-num";
+        numEl.textContent = num !== null && num !== undefined ? String(num) : "";
+        const signEl = document.createElement("span");
+        signEl.className = "diff-line-sign";
+        signEl.textContent = sign || " ";
+        const textEl = document.createElement("span");
+        textEl.className = "diff-line-text";
+        if (inlineParts) {
+            appendInlineDiffText(textEl, inlineParts, inlineClass);
+        } else {
+            textEl.textContent = text !== undefined && text !== "" ? text : " ";
+        }
+        cell.appendChild(numEl);
+        cell.appendChild(signEl);
+        cell.appendChild(textEl);
+        return cell;
+    };
+
+    for (let g = 0; g < groups.length; g++) {
+        const grp = groups[g];
+        if (grp.kind === "equal") {
+            const row = document.createElement("div");
+            row.className = "diff-sbs-row";
+            row.appendChild(buildCell("diff-line-equal", grp.op.oldLine, " ", grp.op.text, null, ""));
+            row.appendChild(buildCell("diff-line-equal", grp.op.newLine, " ", grp.op.text, null, ""));
+            wrapper.appendChild(row);
+        } else {
+            const maxRows = Math.max(grp.removed.length, grp.added.length);
+            for (let k = 0; k < maxRows; k++) {
+                const row = document.createElement("div");
+                row.className = "diff-sbs-row";
+                if (k < grp.removed.length) {
+                    const op = grp.removed[k];
+                    const parts = k < grp.inlinePairs.length ? grp.inlinePairs[k].oldParts : null;
+                    row.appendChild(buildCell("diff-line-removed", op.oldLine, "−", op.text, parts, "diff-word-removed"));
+                } else {
+                    row.appendChild(buildCell("diff-line-empty", null, "", "", null, ""));
+                }
+                if (k < grp.added.length) {
+                    const op = grp.added[k];
+                    const parts = k < grp.inlinePairs.length ? grp.inlinePairs[k].newParts : null;
+                    row.appendChild(buildCell("diff-line-added", op.newLine, "+", op.text, parts, "diff-word-added"));
+                } else {
+                    row.appendChild(buildCell("diff-line-empty", null, "", "", null, ""));
+                }
+                wrapper.appendChild(row);
+            }
+        }
+    }
+    return wrapper;
+}
+
+function getLocalizedColourName(colourKey) {
+    const normalized = normalizeTagColourValue(colourKey);
+    const stringKey = normalized + "-colour";
+    return all_strings[stringKey] || normalized;
+}
+
+function renderConflictNoteDiffCard(pair, pairIdx, totalPairs, viewMode, existingEntry, importedEntry) {
+    const labelExisting = all_strings["import-conflict-existing-label"] || "Existing";
+    const labelImported = all_strings["import-conflict-imported-label"] || "Imported";
+    const labelTitle = all_strings["title-label"] || "Title";
+    const labelFolder = all_strings["folder-label"] || "Folder";
+    const labelNoFolder = all_strings["no-folder-label"] || "No folder";
+    const labelTags = all_strings["labels-menu-tags-section"] || "Tags";
+    const labelColour = all_strings["import-conflict-diff-colour-label"] || "Colour";
+    const labelLastUpdate = all_strings["import-conflict-diff-last-update-label"] || "Last updated";
+
+    const card = document.createElement("div");
+    card.className = "diff-note-card";
+
+    if (totalPairs > 1 || !pair.existingNote || !pair.importedNote) {
+        const cardHead = document.createElement("div");
+        cardHead.className = "diff-note-card-header";
+        const noteNumEl = document.createElement("span");
+        noteNumEl.className = "diff-note-card-title";
+        const noteNumTpl = all_strings["import-conflict-diff-note-number"] || "Note {{number}}";
+        noteNumEl.textContent = noteNumTpl.replaceAll("{{number}}", String(pairIdx + 1));
+        cardHead.appendChild(noteNumEl);
+
+        if (pair.identical) {
+            const statusBadge = document.createElement("span");
+            statusBadge.className = "diff-note-status-badge diff-status-identical";
+            statusBadge.textContent = all_strings["import-conflict-diff-identical-badge"] || "Identical";
+            cardHead.appendChild(statusBadge);
+        } else if (!pair.importedNote) {
+            const statusBadge = document.createElement("span");
+            statusBadge.className = "diff-note-status-badge diff-status-removed";
+            statusBadge.textContent = all_strings["import-conflict-diff-only-existing"] || "Only in existing";
+            cardHead.appendChild(statusBadge);
+        } else if (!pair.existingNote) {
+            const statusBadge = document.createElement("span");
+            statusBadge.className = "diff-note-status-badge diff-status-added";
+            statusBadge.textContent = all_strings["import-conflict-diff-only-imported"] || "Only in imported";
+            cardHead.appendChild(statusBadge);
+        }
+        card.appendChild(cardHead);
+    }
+
+    const ex = pair.existingNote || {};
+    const imp = pair.importedNote || {};
+    const exCanon = canonicalizeNoteForComparison(ex);
+    const impCanon = canonicalizeNoteForComparison(imp);
+
+    const exEffectiveColour = exCanon.tagColour !== "none"
+        ? exCanon.tagColour
+        : normalizeTagColourValue(existingEntry && existingEntry["tag-colour"]);
+    const impEffectiveColour = impCanon.tagColour !== "none"
+        ? impCanon.tagColour
+        : normalizeTagColourValue(importedEntry && importedEntry["tag-colour"]);
+
+    const metaRows = [];
+    if (exCanon.title !== impCanon.title || (exCanon.title !== "" && (!pair.existingNote || !pair.importedNote))) {
+        metaRows.push({
+            label: labelTitle,
+            oldVal: pair.existingNote ? (exCanon.title || "—") : null,
+            newVal: pair.importedNote ? (impCanon.title || "—") : null,
+            changed: exCanon.title !== impCanon.title,
+        });
+    }
+    if (exCanon.tagFolder !== impCanon.tagFolder) {
+        metaRows.push({
+            label: labelFolder,
+            oldVal: pair.existingNote ? (exCanon.tagFolder || labelNoFolder) : null,
+            newVal: pair.importedNote ? (impCanon.tagFolder || labelNoFolder) : null,
+            changed: true,
+        });
+    }
+    if (exCanon.attachments !== impCanon.attachments) {
+        metaRows.push({
+            label: all_strings["screenshot-label"] || "Screenshots",
+            oldVal: pair.existingNote ? String(getNoteAttachments(ex).length) : null,
+            newVal: pair.importedNote ? String(getNoteAttachments(imp).length) : null,
+            changed: true,
+        });
+    }
+    if (exEffectiveColour !== impEffectiveColour) {
+        metaRows.push({
+            label: labelColour,
+            oldVal: pair.existingNote ? getLocalizedColourName(exEffectiveColour) : null,
+            newVal: pair.importedNote ? getLocalizedColourName(impEffectiveColour) : null,
+            changed: true,
+        });
+    }
+
+    const exTagsRaw = Array.isArray(ex["tags-text"]) ? ex["tags-text"].map((t) => String(t).trim()).filter(Boolean) : [];
+    const impTagsRaw = Array.isArray(imp["tags-text"]) ? imp["tags-text"].map((t) => String(t).trim()).filter(Boolean) : [];
+    const exTagSet = new Set(exCanon.tags);
+    const impTagSet = new Set(impCanon.tags);
+    const tagsChanged = exCanon.tags.length !== impCanon.tags.length ||
+        exCanon.tags.some((t, idx) => t !== impCanon.tags[idx]);
+
+    const exDate = (ex["last-update"] || "").trim();
+    const impDate = (imp["last-update"] || "").trim();
+    const datesDifferent = exDate !== impDate && (exDate !== "" || impDate !== "");
+    const pageContentChanged = exCanon.content !== impCanon.content;
+
+    if (metaRows.length > 0 || tagsChanged || datesDifferent || pageContentChanged) {
+        const metaBox = document.createElement("div");
+        metaBox.className = "diff-meta-box";
+
+        metaRows.forEach((mr) => {
+            const mRow = document.createElement("div");
+            mRow.className = "diff-meta-row";
+
+            const mLabel = document.createElement("span");
+            mLabel.className = "diff-meta-label";
+            mLabel.textContent = mr.label;
+            mRow.appendChild(mLabel);
+
+            const mVals = document.createElement("div");
+            mVals.className = "diff-meta-values";
+            if (mr.oldVal !== null) {
+                const oldChip = document.createElement("span");
+                oldChip.className = "diff-meta-val diff-meta-removed";
+                oldChip.textContent = `− ${mr.oldVal}`;
+                mVals.appendChild(oldChip);
+            }
+            if (mr.oldVal !== null && mr.newVal !== null) {
+                const arrow = document.createElement("span");
+                arrow.className = "diff-meta-arrow";
+                arrow.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="13 6 19 12 13 18"></polyline></svg>`;
+                mVals.appendChild(arrow);
+            }
+            if (mr.newVal !== null) {
+                const newChip = document.createElement("span");
+                newChip.className = "diff-meta-val diff-meta-added";
+                newChip.textContent = `+ ${mr.newVal}`;
+                mVals.appendChild(newChip);
+            }
+            mRow.appendChild(mVals);
+            metaBox.appendChild(mRow);
+        });
+
+        if (tagsChanged) {
+            const tRow = document.createElement("div");
+            tRow.className = "diff-meta-row";
+            const tLabel = document.createElement("span");
+            tLabel.className = "diff-meta-label";
+            tLabel.textContent = labelTags;
+            tRow.appendChild(tLabel);
+
+            const tVals = document.createElement("div");
+            tVals.className = "diff-meta-values";
+            const addedSeen = new Set();
+
+            // Common tags first
+            exTagsRaw.forEach((tag) => {
+                const low = tag.toLowerCase();
+                if (impTagSet.has(low) && !addedSeen.has(low)) {
+                    addedSeen.add(low);
+                    const chip = document.createElement("span");
+                    chip.className = "diff-meta-val diff-meta-neutral";
+                    chip.textContent = `#${tag}`;
+                    tVals.appendChild(chip);
+                }
+            });
+            // Removed tags (only in existing)
+            exTagsRaw.forEach((tag) => {
+                const low = tag.toLowerCase();
+                if (!impTagSet.has(low)) {
+                    const chip = document.createElement("span");
+                    chip.className = "diff-meta-val diff-meta-removed";
+                    chip.textContent = `− #${tag}`;
+                    tVals.appendChild(chip);
+                }
+            });
+            // Added tags (only in imported)
+            impTagsRaw.forEach((tag) => {
+                const low = tag.toLowerCase();
+                if (!exTagSet.has(low)) {
+                    const chip = document.createElement("span");
+                    chip.className = "diff-meta-val diff-meta-added";
+                    chip.textContent = `+ #${tag}`;
+                    tVals.appendChild(chip);
+                }
+            });
+            tRow.appendChild(tVals);
+            metaBox.appendChild(tRow);
+        }
+
+        if (datesDifferent) {
+            const dRow = document.createElement("div");
+            dRow.className = "diff-meta-row diff-meta-row-subtle";
+            const dLabel = document.createElement("span");
+            dLabel.className = "diff-meta-label";
+            dLabel.textContent = labelLastUpdate;
+            dRow.appendChild(dLabel);
+
+            const dVals = document.createElement("div");
+            dVals.className = "diff-meta-values";
+            if (exDate) {
+                const exSpan = document.createElement("span");
+                exSpan.className = "diff-meta-val diff-meta-neutral";
+                exSpan.textContent = `${labelExisting}: ${exDate}`;
+                dVals.appendChild(exSpan);
+            }
+            if (impDate) {
+                const impSpan = document.createElement("span");
+                impSpan.className = "diff-meta-val diff-meta-neutral";
+                impSpan.textContent = `${labelImported}: ${impDate}`;
+                dVals.appendChild(impSpan);
+            }
+            dRow.appendChild(dVals);
+            metaBox.appendChild(dRow);
+        }
+
+        if (pageContentChanged) {
+            const pRow = document.createElement("div");
+            pRow.className = "diff-meta-row diff-meta-row-subtle";
+            const pText = document.createElement("span");
+            pText.className = "diff-meta-info-note";
+            pText.textContent = all_strings["import-conflict-diff-page-content-changed"] || "Saved page content differs";
+            pRow.appendChild(pText);
+            metaBox.appendChild(pRow);
+        }
+
+        card.appendChild(metaBox);
+    }
+
+    const oldLines = pair.existingNote ? htmlToDiffLines(ex["notes"] || "") : [];
+    const newLines = pair.importedNote ? htmlToDiffLines(imp["notes"] || "") : [];
+    const plainDiffOps = computeLineDiff(oldLines, newLines);
+    const hasPlainTextChanges = plainDiffOps.some((op) => op.type !== "equal");
+    const rawHtmlDiffers = exCanon.notes !== impCanon.notes;
+
+    let opsToRender = plainDiffOps;
+    if (!hasPlainTextChanges && rawHtmlDiffers) {
+        const notice = document.createElement("div");
+        notice.className = "diff-info-banner";
+        notice.textContent = all_strings["import-conflict-diff-formatting-only"] ||
+            "Plain text is identical; showing HTML formatting differences:";
+        card.appendChild(notice);
+        const oldHtmlLines = exCanon.notes ? exCanon.notes.split("\n") : [];
+        const newHtmlLines = impCanon.notes ? impCanon.notes.split("\n") : [];
+        opsToRender = computeLineDiff(oldHtmlLines, newHtmlLines);
+    } else if (!hasPlainTextChanges && !rawHtmlDiffers && !pair.identical) {
+        const notice = document.createElement("div");
+        notice.className = "diff-info-banner";
+        notice.textContent = all_strings["import-conflict-diff-no-text-changes"] ||
+            "Note text is identical (only metadata differs).";
+        card.appendChild(notice);
+    }
+
+    if (opsToRender.length > 0) {
+        const diffEl = viewMode === "side"
+            ? renderSideBySideDiffTable(opsToRender, labelExisting, labelImported)
+            : renderUnifiedLineDiffTable(opsToRender);
+        card.appendChild(diffEl);
+    }
+
+    return card;
+}
+
+function showImportConflictsModal(conflicts, nonConflictCount, identicalCount, onConfirm, onCancel) {
+    const section = document.getElementById("import-conflicts-section");
+    const titleEl = document.getElementById("import-conflicts-title");
+    const descEl = document.getElementById("import-conflicts-description");
+    const identicalInfoEl = document.getElementById("import-conflicts-identical-info");
+    const legendEl = document.getElementById("import-conflicts-options-legend");
+    const applyAllLabel = document.getElementById("import-conflict-apply-all-label");
+    const btnAllOverwrite = document.getElementById("import-conflict-all-overwrite");
+    const btnAllSkip = document.getElementById("import-conflict-all-skip");
+    const btnAllMerge = document.getElementById("import-conflict-all-merge");
+    const listEl = document.getElementById("import-conflicts-list");
+    const showMoreBtn = document.getElementById("import-conflicts-show-more-button");
+    const cancelBtn = document.getElementById("cancel-import-conflicts-button");
+    const applyBtn = document.getElementById("apply-import-conflicts-button");
+
+    const diffSection = document.getElementById("import-conflict-diff-section");
+    const diffCounterEl = document.getElementById("import-conflict-diff-counter");
+    const diffTypeEl = document.getElementById("import-conflict-diff-type");
+    const diffUrlEl = document.getElementById("import-conflict-diff-url");
+    const diffViewUnifiedBtn = document.getElementById("import-conflict-diff-view-unified");
+    const diffViewSideBtn = document.getElementById("import-conflict-diff-view-side");
+    const diffNavWrap = document.getElementById("import-conflict-diff-nav");
+    const diffPrevBtn = document.getElementById("import-conflict-diff-prev");
+    const diffNextBtn = document.getElementById("import-conflict-diff-next");
+    const diffCloseXBtn = document.getElementById("import-conflict-diff-close-x");
+    const diffLegendExisting = document.getElementById("import-conflict-diff-legend-existing");
+    const diffLegendImported = document.getElementById("import-conflict-diff-legend-imported");
+    const diffBodyEl = document.getElementById("import-conflict-diff-body");
+    const diffActOverwrite = document.getElementById("import-conflict-diff-action-overwrite");
+    const diffActSkip = document.getElementById("import-conflict-diff-action-skip");
+    const diffActMerge = document.getElementById("import-conflict-diff-action-merge");
+    const diffActDesc = document.getElementById("import-conflict-diff-action-desc");
+    const diffCloseBtn = document.getElementById("close-import-conflict-diff-button");
+
+    if (!section || !listEl) return;
+
+    const labelOverwrite = all_strings["import-conflict-overwrite"] || "Overwrite";
+    const labelSkip = all_strings["import-conflict-skip"] || "Skip";
+    const labelMerge = all_strings["import-conflict-merge"] || "Merge";
+    const labelExisting = all_strings["import-conflict-existing-label"] || "Existing";
+    const labelImported = all_strings["import-conflict-imported-label"] || "Imported";
+    const labelCompare = all_strings["import-conflict-compare-button"] || "Compare";
+
+    const actionDescriptions = {
+        overwrite: all_strings["import-conflict-overwrite-description"] ||
+            "Replaces the existing note with the imported one.",
+        skip: all_strings["import-conflict-skip-description"] ||
+            "Keeps the existing note and ignores the imported one.",
+        merge: all_strings["import-conflict-merge-description"] ||
+            "Combines both notes: appends different text (separated by ---), merges tags without duplicates, and preserves folder, colour, and newest date.",
+    };
+
+    if (titleEl) titleEl.textContent = all_strings["import-conflicts-title"] || "Import conflicts found";
+    if (descEl) {
+        const descTpl = all_strings["import-conflicts-description"] ||
+            "{{conflicts}} conflicts found ({{new}} new notes will be imported). Choose how to handle existing notes:";
+        descEl.textContent = descTpl
+            .replaceAll("{{conflicts}}", String(conflicts.length))
+            .replaceAll("{{new}}", String(nonConflictCount));
+    }
+    if (identicalInfoEl) {
+        if ((identicalCount || 0) > 0) {
+            const idTpl = all_strings["import-conflicts-identical-skipped"] ||
+                "{{count}} identical notes have no conflicts and will remain unchanged.";
+            identicalInfoEl.textContent = idTpl.replaceAll("{{count}}", String(identicalCount));
+            identicalInfoEl.classList.remove("hidden");
+        } else {
+            identicalInfoEl.textContent = "";
+            identicalInfoEl.classList.add("hidden");
+        }
+    }
+    if (legendEl) {
+        legendEl.innerHTML = "";
+        [
+            [labelOverwrite, actionDescriptions.overwrite],
+            [labelSkip, actionDescriptions.skip],
+            [labelMerge, actionDescriptions.merge],
+        ].forEach(([name, desc]) => {
+            const item = document.createElement("div");
+            item.className = "import-conflicts-option-item";
+            const nameEl = document.createElement("strong");
+            nameEl.className = "import-conflicts-option-name";
+            nameEl.textContent = `${name}: `;
+            const descSpan = document.createElement("span");
+            descSpan.textContent = desc;
+            item.appendChild(nameEl);
+            item.appendChild(descSpan);
+            legendEl.appendChild(item);
+        });
+    }
+
+    if (applyAllLabel) applyAllLabel.textContent = all_strings["import-conflict-apply-all-label"] || "Apply to all:";
+    if (btnAllOverwrite) {
+        btnAllOverwrite.value = labelOverwrite;
+        btnAllOverwrite.title = actionDescriptions.overwrite;
+    }
+    if (btnAllSkip) {
+        btnAllSkip.value = labelSkip;
+        btnAllSkip.title = actionDescriptions.skip;
+    }
+    if (btnAllMerge) {
+        btnAllMerge.value = labelMerge;
+        btnAllMerge.title = actionDescriptions.merge;
+    }
+    if (cancelBtn) cancelBtn.value = all_strings["cancel-button"] || "Cancel";
+    if (applyBtn) applyBtn.value = all_strings["import-conflict-apply-button"] || "Apply import";
+
+    const getConflictKey = (c) => (c && c.conflictKey) ? c.conflictKey : (c ? c.url : "");
+
+    let defaultAction = "skip";
+    const resolutionsMap = new Map();
+    for (let i = 0; i < conflicts.length; i++) {
+        resolutionsMap.set(getConflictKey(conflicts[i]), defaultAction);
+    }
+
+    const updateApplyAllHighlight = (activeAction) => {
+        [
+            [btnAllOverwrite, "overwrite"],
+            [btnAllSkip, "skip"],
+            [btnAllMerge, "merge"],
+        ].forEach(([btn, action]) => {
+            if (!btn) return;
+            if (action === activeAction) btn.classList.add("button-sel");
+            else btn.classList.remove("button-sel");
+        });
+    };
+    updateApplyAllHighlight(defaultAction);
+
+    const typeLabels = {
+        global: all_strings["global-label"] || "Global",
+        domain: all_strings["domain-label"] || "Domain",
+        subdomain: all_strings["subdomain-label"] || "Subdomain",
+        page: all_strings["page-label"] || "Page",
+    };
+
+    const rowSelectByUrl = new Map();
+    let activeDiffIndex = -1;
+    let diffViewMode = "side";
+
+    const closeDiffModal = (restoreConflictsList = true) => {
+        if (diffSection) diffSection.style.display = "none";
+        activeDiffIndex = -1;
+        if (section && section.dataset) {
+            delete section.dataset.hiddenForDiff;
+        }
+        if (restoreConflictsList && section) {
+            section.style.display = "block";
+        }
+    };
+
+    const syncDiffActionButtons = (action) => {
+        [
+            [diffActOverwrite, "overwrite"],
+            [diffActSkip, "skip"],
+            [diffActMerge, "merge"],
+        ].forEach(([btn, act]) => {
+            if (!btn) return;
+            if (act === action) btn.classList.add("button-sel");
+            else btn.classList.remove("button-sel");
+        });
+        if (diffActDesc) {
+            diffActDesc.textContent = actionDescriptions[action] || "";
+        }
+    };
+
+    const setSingleConflictResolution = (conflictKey, action) => {
+        resolutionsMap.set(conflictKey, action);
+        const sel = rowSelectByUrl.get(conflictKey);
+        if (sel) sel.value = action;
+        let allSame = true;
+        for (let i = 0; i < conflicts.length; i++) {
+            if (resolutionsMap.get(getConflictKey(conflicts[i])) !== action) {
+                allSame = false;
+                break;
+            }
+        }
+        updateApplyAllHighlight(allSame ? action : null);
+    };
+
+    const renderConflictDiffView = () => {
+        if (!diffSection || activeDiffIndex < 0 || activeDiffIndex >= conflicts.length) return;
+        const c = conflicts[activeDiffIndex];
+
+        if (diffCounterEl) {
+            const tpl = all_strings["import-conflict-diff-title"] || "Conflict {{current}} of {{total}}";
+            diffCounterEl.textContent = tpl
+                .replaceAll("{{current}}", String(activeDiffIndex + 1))
+                .replaceAll("{{total}}", String(conflicts.length));
+        }
+        if (diffTypeEl) {
+            diffTypeEl.textContent = typeLabels[c.type] || c.type;
+        }
+        if (diffUrlEl) {
+            const displayUrl = c.displayUrl || (c.url === "**global" ? (all_strings["global-label"] || "Global") : c.url);
+            diffUrlEl.textContent = displayUrl;
+            diffUrlEl.title = displayUrl;
+        }
+        if (diffViewUnifiedBtn) {
+            diffViewUnifiedBtn.textContent = all_strings["import-conflict-diff-view-unified"] || "Row by row";
+            diffViewUnifiedBtn.classList.toggle("active", diffViewMode === "unified");
+        }
+        if (diffViewSideBtn) {
+            diffViewSideBtn.textContent = all_strings["import-conflict-diff-view-side-by-side"] || "Side by side";
+            diffViewSideBtn.classList.toggle("active", diffViewMode === "side");
+        }
+        if (diffNavWrap) {
+            diffNavWrap.classList.toggle("hidden", conflicts.length <= 1);
+        }
+        if (diffPrevBtn) {
+            const prevLabel = all_strings["import-conflict-diff-prev-button"] || "Previous";
+            diffPrevBtn.disabled = activeDiffIndex <= 0;
+            diffPrevBtn.title = prevLabel;
+            if (typeof diffPrevBtn.setAttribute === "function") diffPrevBtn.setAttribute("aria-label", prevLabel);
+        }
+        if (diffNextBtn) {
+            const nextLabel = all_strings["import-conflict-diff-next-button"] || "Next";
+            diffNextBtn.disabled = activeDiffIndex >= conflicts.length - 1;
+            diffNextBtn.title = nextLabel;
+            if (typeof diffNextBtn.setAttribute === "function") diffNextBtn.setAttribute("aria-label", nextLabel);
+        }
+        if (diffCloseXBtn) {
+            const closeLabel = all_strings["close-button"] || "Close";
+            diffCloseXBtn.title = closeLabel;
+            if (typeof diffCloseXBtn.setAttribute === "function") diffCloseXBtn.setAttribute("aria-label", closeLabel);
+        }
+        if (diffLegendExisting) {
+            diffLegendExisting.textContent = `− ${labelExisting}`;
+        }
+        if (diffLegendImported) {
+            diffLegendImported.textContent = `+ ${labelImported}`;
+        }
+        if (diffActOverwrite) {
+            diffActOverwrite.value = labelOverwrite;
+            diffActOverwrite.title = actionDescriptions.overwrite;
+        }
+        if (diffActSkip) {
+            diffActSkip.value = labelSkip;
+            diffActSkip.title = actionDescriptions.skip;
+        }
+        if (diffActMerge) {
+            diffActMerge.value = labelMerge;
+            diffActMerge.title = actionDescriptions.merge;
+        }
+        if (diffCloseBtn) {
+            diffCloseBtn.value = all_strings["close-button"] || "Close";
+        }
+
+        const cKey = getConflictKey(c);
+        const currentAction = resolutionsMap.get(cKey) || defaultAction;
+        syncDiffActionButtons(currentAction);
+
+        if (diffBodyEl) {
+            diffBodyEl.innerHTML = "";
+            if (c.existingNote !== undefined || c.importedNote !== undefined) {
+                diffBodyEl.appendChild(
+                    renderConflictNoteDiffCard(
+                        {existingNote: c.existingNote || null, importedNote: c.importedNote || null, identical: false},
+                        0,
+                        1,
+                        diffViewMode,
+                        c.existingEntry,
+                        c.importedEntry
+                    )
+                );
+            } else {
+                const pairs = getRelevantConflictNotePairs(c.existingEntry, c.importedEntry);
+                for (let p = 0; p < pairs.length; p++) {
+                    diffBodyEl.appendChild(
+                        renderConflictNoteDiffCard(pairs[p], p, pairs.length, diffViewMode, c.existingEntry, c.importedEntry)
+                    );
+                }
+            }
+            diffBodyEl.scrollTop = 0;
+        }
+    };
+
+    const openConflictDiffModal = (idx) => {
+        if (!diffSection || idx < 0 || idx >= conflicts.length) return;
+        activeDiffIndex = idx;
+        renderConflictDiffView();
+        if (section) {
+            if (section.dataset) section.dataset.hiddenForDiff = "true";
+            section.style.display = "none";
+        }
+        diffSection.style.display = "block";
+    };
+
+    if (diffViewUnifiedBtn) {
+        diffViewUnifiedBtn.onclick = () => {
+            diffViewMode = "unified";
+            renderConflictDiffView();
+        };
+    }
+    if (diffViewSideBtn) {
+        diffViewSideBtn.onclick = () => {
+            diffViewMode = "side";
+            renderConflictDiffView();
+        };
+    }
+    if (diffPrevBtn) {
+        diffPrevBtn.onclick = () => {
+            if (activeDiffIndex > 0) {
+                activeDiffIndex--;
+                renderConflictDiffView();
+            }
+        };
+    }
+    if (diffNextBtn) {
+        diffNextBtn.onclick = () => {
+            if (activeDiffIndex < conflicts.length - 1) {
+                activeDiffIndex++;
+                renderConflictDiffView();
+            }
+        };
+    }
+    if (diffCloseXBtn) diffCloseXBtn.onclick = () => closeDiffModal(true);
+    if (diffCloseBtn) diffCloseBtn.onclick = () => closeDiffModal(true);
+    if (diffSection) {
+        diffSection.onclick = (e) => {
+            if (e.target === diffSection) closeDiffModal(true);
+        };
+    }
+    [
+        [diffActOverwrite, "overwrite"],
+        [diffActSkip, "skip"],
+        [diffActMerge, "merge"],
+    ].forEach(([btn, action]) => {
+        if (!btn) return;
+        btn.onclick = () => {
+            if (activeDiffIndex < 0 || activeDiffIndex >= conflicts.length) return;
+            setSingleConflictResolution(getConflictKey(conflicts[activeDiffIndex]), action);
+            syncDiffActionButtons(action);
+        };
+    });
+
+    if (diffSection && diffSection._keydownHandler) {
+        document.removeEventListener("keydown", diffSection._keydownHandler);
+        diffSection._keydownHandler = null;
+    }
+    const onDiffKeyDown = (e) => {
+        if (!diffSection || diffSection.style.display !== "block") return;
+        const tag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : "";
+        if (tag === "input" || tag === "textarea" || tag === "select") return;
+        if (e.key === "ArrowLeft" && activeDiffIndex > 0) {
+            e.preventDefault();
+            activeDiffIndex--;
+            renderConflictDiffView();
+        } else if (e.key === "ArrowRight" && activeDiffIndex < conflicts.length - 1) {
+            e.preventDefault();
+            activeDiffIndex++;
+            renderConflictDiffView();
+        }
+    };
+    if (diffSection) diffSection._keydownHandler = onDiffKeyDown;
+    document.addEventListener("keydown", onDiffKeyDown);
+    const cleanupListeners = () => {
+        document.removeEventListener("keydown", onDiffKeyDown);
+        if (diffSection) diffSection._keydownHandler = null;
+        closeDiffModal(false);
+    };
+
+    listEl.innerHTML = "";
+    const BATCH_SIZE = 100;
+    let renderedCount = 0;
+
+    const renderMoreConflicts = () => {
+        const frag = document.createDocumentFragment();
+        const end = Math.min(renderedCount + BATCH_SIZE, conflicts.length);
+        for (let i = renderedCount; i < end; i++) {
+            const c = conflicts[i];
+            const conflictIdx = i;
+            const row = document.createElement("div");
+            row.className = "import-conflict-row";
+
+            const info = document.createElement("div");
+            info.className = "import-conflict-info import-conflict-info-clickable";
+            info.title = labelCompare;
+            info.onclick = () => openConflictDiffModal(conflictIdx);
+
+            const headerLine = document.createElement("div");
+            headerLine.className = "import-conflict-header";
+
+            const badge = document.createElement("span");
+            badge.className = "import-conflict-type";
+            badge.textContent = typeLabels[c.type] || c.type;
+            headerLine.appendChild(badge);
+
+            const urlSpan = document.createElement("span");
+            urlSpan.className = "import-conflict-url";
+            urlSpan.textContent = c.displayUrl || (c.url === "**global" ? (all_strings["global-label"] || "Global") : c.url);
+            urlSpan.title = urlSpan.textContent;
+            headerLine.appendChild(urlSpan);
+            info.appendChild(headerLine);
+
+            const previews = document.createElement("div");
+            previews.className = "import-conflict-previews";
+            let existingSnippet;
+            let importedSnippet;
+            if (c.existingNote !== undefined || c.importedNote !== undefined) {
+                existingSnippet = getSingleNotePreviewSnippet(c.existingNote);
+                importedSnippet = getSingleNotePreviewSnippet(c.importedNote);
+            } else {
+                const relevantPairs = getRelevantConflictNotePairs(c.existingEntry, c.importedEntry);
+                const primaryPair = relevantPairs.length > 0 ? relevantPairs[0] : null;
+                existingSnippet = primaryPair
+                    ? getSingleNotePreviewSnippet(primaryPair.existingNote)
+                    : getEntryPreviewSnippet(c.existingEntry);
+                importedSnippet = primaryPair
+                    ? getSingleNotePreviewSnippet(primaryPair.importedNote)
+                    : getEntryPreviewSnippet(c.importedEntry);
+            }
+
+            const existingLine = document.createElement("div");
+            existingLine.className = "import-conflict-preview-line";
+            existingLine.textContent = `${labelExisting}: ${existingSnippet}`;
+            previews.appendChild(existingLine);
+
+            const importedLine = document.createElement("div");
+            importedLine.className = "import-conflict-preview-line";
+            importedLine.textContent = `${labelImported}: ${importedSnippet}`;
+            previews.appendChild(importedLine);
+
+            info.appendChild(previews);
+
+            const actionsWrap = document.createElement("div");
+            actionsWrap.className = "import-conflict-actions";
+
+            const compareBtn = document.createElement("button");
+            compareBtn.type = "button";
+            compareBtn.className = "import-conflict-compare-btn";
+            compareBtn.textContent = labelCompare;
+            compareBtn.onclick = (e) => {
+                e.stopPropagation();
+                openConflictDiffModal(conflictIdx);
+            };
+            actionsWrap.appendChild(compareBtn);
+
+            const cKey = getConflictKey(c);
+            const select = document.createElement("select");
+            select.className = "import-conflict-select";
+            select.dataset.conflictUrl = cKey;
+            [
+                ["overwrite", labelOverwrite],
+                ["skip", labelSkip],
+                ["merge", labelMerge],
+            ].forEach(([val, txt]) => {
+                const opt = document.createElement("option");
+                opt.value = val;
+                opt.textContent = txt;
+                select.appendChild(opt);
+            });
+            select.value = resolutionsMap.get(cKey) || defaultAction;
+            select.onchange = function () {
+                setSingleConflictResolution(cKey, this.value);
+            };
+            rowSelectByUrl.set(cKey, select);
+            actionsWrap.appendChild(select);
+
+            row.appendChild(info);
+            row.appendChild(actionsWrap);
+            frag.appendChild(row);
+        }
+        listEl.appendChild(frag);
+        renderedCount = end;
+
+        if (showMoreBtn) {
+            const remaining = conflicts.length - renderedCount;
+            if (remaining > 0) {
+                const tpl = all_strings["import-conflict-show-more-button"] || "Show more ({{remaining}} remaining)";
+                showMoreBtn.value = tpl.replaceAll("{{remaining}}", String(remaining));
+                showMoreBtn.classList.remove("hidden");
+            } else {
+                showMoreBtn.classList.add("hidden");
+            }
+        }
+    };
+
+    const applyActionToAll = (action) => {
+        defaultAction = action;
+        for (let i = 0; i < conflicts.length; i++) {
+            resolutionsMap.set(getConflictKey(conflicts[i]), action);
+        }
+        listEl.querySelectorAll(".import-conflict-select").forEach((sel) => {
+            sel.value = action;
+        });
+        updateApplyAllHighlight(action);
+        if (activeDiffIndex >= 0 && activeDiffIndex < conflicts.length) {
+            syncDiffActionButtons(action);
+        }
+    };
+
+    if (btnAllOverwrite) btnAllOverwrite.onclick = () => applyActionToAll("overwrite");
+    if (btnAllSkip) btnAllSkip.onclick = () => applyActionToAll("skip");
+    if (btnAllMerge) btnAllMerge.onclick = () => applyActionToAll("merge");
+    if (showMoreBtn) showMoreBtn.onclick = renderMoreConflicts;
+
+    if (cancelBtn) {
+        cancelBtn.onclick = function () {
+            cleanupListeners();
+            section.style.display = "none";
+            if (typeof onCancel === "function") onCancel();
+        };
+    }
+
+    if (applyBtn) {
+        applyBtn.onclick = function () {
+            cleanupListeners();
+            section.style.display = "none";
+            if (typeof onConfirm === "function") onConfirm(resolutionsMap, defaultAction);
+        };
+    }
+
+    renderMoreConflicts();
+    showBackgroundOpacity();
+    section.style.display = "block";
 }
 
 function importAllNotes(from_file = false) {
@@ -2007,7 +3240,6 @@ function importAllNotes(from_file = false) {
         .get(["storage", "settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity", "last-update",])
         .then((result) => {
             let jsonImportElement = document.getElementById("json-import");
-            let json_old_version = {};
 
             document.getElementById("import-from-file-button").value = all_strings["import-notes-from-file-button"];
 
@@ -2026,7 +3258,6 @@ function importAllNotes(from_file = false) {
                         delete result["sticky-notes-sizes"];
                         delete result["sticky-notes-opacity"];
                         jsonImportElement.value = JSON.stringify(result);
-                        json_old_version = result;
 
                         sendTelemetry("import-now-all-notes-from-local-button-clicked", "settings.js::importAllNotes");
                     };
@@ -2052,6 +3283,35 @@ function importAllNotes(from_file = false) {
             };
             document.getElementById("import-now-all-notes-button").onclick = function () {
                 let value = jsonImportElement.value;
+
+                const showImportError = (description) => {
+                    let errorSubSection = document.createElement("div");
+                    errorSubSection.classList.add("sub-section", "background-light-red");
+                    errorSubSection.id = "error-message-" + n_errors;
+                    errorSubSection.textContent = "Error: " + description;
+                    setTimeout(function () {
+                        errorSubSection.remove();
+                    }, 10000);
+                    n_errors++;
+
+                    let mainSection = document.getElementById("import-sub-sections");
+                    mainSection.insertBefore(errorSubSection, mainSection.childNodes[0]);
+                };
+                const importFailed = (err) => {
+                    disableAside = false;
+                    document.getElementById("cancel-import-all-notes-button").style.display = "inline-block";
+                    document.getElementById("import-from-file-button").style.display = "inline-block";
+                    document.getElementById("import-now-all-notes-button").disabled = false;
+                    document.getElementById("cancel-import-all-notes-button").disabled = false;
+                    document.getElementById("import-now-all-notes-button").value = all_strings["import-now-button"];
+                    document.getElementById("loading-importing").classList.add("hidden");
+                    showBackgroundOpacity();
+                    document.getElementById("import-section").style.display = "block";
+                    showImportError(err.message);
+                    console.error("E10: " + err);
+                    onError("settings.js::importAllNotes", err.message);
+                };
+
                 if (value.replaceAll(" ", "") !== "") {
                     let error = false;
                     let error_description = "";
@@ -2060,12 +3320,17 @@ function importAllNotes(from_file = false) {
                         let json_to_import_temp = JSON.parse(value);
                         let continue_ok = false;
                         let cancel = false;
+                        let importedWebsites = {};
+                        let hasImportedSettings = false;
+                        let importedSettings = null;
+                        let hasImportedSticky = false;
+                        let importedSticky = {};
+
                         if (json_to_import_temp["notefox"] === undefined || (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["notefox"]["version"] === undefined)) {
                             //version before 2.0 (export in a different way)
                             cancel = !confirm(all_strings["notefox-version-too-old-try-to-import-data-anyway"]);
                             if (!cancel) {
-                                websites_json = json_to_import_temp;
-                                websites_json_to_show = websites_json;
+                                importedWebsites = json_to_import_temp;
                             }
                         }
                         if (json_to_import_temp["notefox"] !== undefined) {
@@ -2076,138 +3341,201 @@ function importAllNotes(from_file = false) {
                             } else {
                                 continue_ok = true;
                             }
-                        } else {
+                        } else if (!cancel) {
                             cancel = !confirm(all_strings["notefox-version-different-try-to-import-data-anyway"]);
                             continue_ok = !cancel;
                         }
 
-                        let sticky_notes = {};
-
                         if (continue_ok) {
                             if (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["websites"] !== undefined) {
-                                websites_json = json_to_import_temp["websites"];
-                                websites_json_to_show = websites_json;
+                                importedWebsites = json_to_import_temp["websites"];
                             }
-                            if (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["settings"] !== undefined) settings_json = json_to_import_temp["settings"];
-                            for (setting in settings_json) {
-                                if (settings_json[setting] === "yes") settings_json[setting] = true; else if (settings_json[setting] === "no") settings_json[setting] = false;
+                            if (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["settings"] !== undefined) {
+                                hasImportedSettings = true;
+                                importedSettings = cloneNoteData(json_to_import_temp["settings"]);
+                                for (let setting in importedSettings) {
+                                    if (importedSettings[setting] === "yes") importedSettings[setting] = true;
+                                    else if (importedSettings[setting] === "no") importedSettings[setting] = false;
+                                }
                             }
                             if (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["sticky-notes"] !== undefined) {
-                                if (json_to_import_temp["sticky-notes"].coords !== undefined) sticky_notes.coords = json_to_import_temp["sticky-notes"].coords;
+                                hasImportedSticky = true;
+                                if (json_to_import_temp["sticky-notes"].coords !== undefined) importedSticky.coords = json_to_import_temp["sticky-notes"].coords;
+                                if (json_to_import_temp["sticky-notes"].sizes !== undefined) importedSticky.sizes = json_to_import_temp["sticky-notes"].sizes;
+                                if (json_to_import_temp["sticky-notes"].opacity !== undefined) importedSticky.opacity = json_to_import_temp["sticky-notes"].opacity;
 
-                                if (json_to_import_temp["sticky-notes"].sizes !== undefined) sticky_notes.sizes = json_to_import_temp["sticky-notes"].sizes;
-
-                                if (json_to_import_temp["sticky-notes"].opacity !== undefined) sticky_notes.opacity = json_to_import_temp["sticky-notes"].opacity;
-
-                                if (sticky_notes.coords === undefined || sticky_notes.coords === null) sticky_notes.coords = {
-                                    x: "20px", y: "20px",
-                                };
-                                if (sticky_notes.sizes === undefined || sticky_notes.sizes === null) sticky_notes.sizes = {
-                                    w: "300px", h: "300px",
-                                };
-                                if (sticky_notes.opacity === undefined || sticky_notes.opacity === null) sticky_notes.opacity = {value: 0.7};
+                                if (importedSticky.coords === undefined || importedSticky.coords === null) importedSticky.coords = {x: "20px", y: "20px"};
+                                if (importedSticky.sizes === undefined || importedSticky.sizes === null) importedSticky.sizes = {w: "300px", h: "300px"};
+                                if (importedSticky.opacity === undefined || importedSticky.opacity === null) importedSticky.opacity = {value: 0.7};
                             }
-                        }
 
-                        //console.log(JSON.stringify(json_to_export_temp));
+                            const importedArchive = (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["websites-archive"] !== undefined && json_to_import_temp["websites-archive"] !== null)
+                                ? json_to_import_temp["websites-archive"]
+                                : {};
+                            const importedLabelsRegistry = (json_to_import_temp["notefox"] !== undefined && json_to_import_temp["labels-registry"] !== undefined)
+                                ? json_to_import_temp["labels-registry"]
+                                : null;
 
-                        browser.storage.local
-                            .get(["storage"])
-                            .then((resultSyncOrLocalToUse) => {
-                                let storageTemp;
-                                if (json_to_import_temp["storage"] !== undefined) storageTemp = json_to_import_temp["storage"];
+                            browser.storage.local
+                                .get(["storage"])
+                                .then((resultSyncOrLocalToUse) => {
+                                    let storageTemp;
+                                    if (json_to_import_temp["storage"] !== undefined) storageTemp = json_to_import_temp["storage"];
+                                    if (storageTemp === undefined && resultSyncOrLocalToUse["storage"] !== undefined) storageTemp = resultSyncOrLocalToUse["storage"];
+                                    else if (storageTemp !== "sync" && storageTemp !== "local") storageTemp = "local";
 
-                                if (storageTemp === undefined && resultSyncOrLocalToUse["storage"] !== undefined) storageTemp = resultSyncOrLocalToUse["storage"]; else if (storageTemp === "sync" || storageTemp === "local") storageTemp = storageTemp; //do not do anything
-                                else storageTemp = "local";
+                                    const getExistingData = () => sync_local.get(["websites", "websites-archive", "labels-registry", "settings"]);
+                                    const startImport = () => getExistingData()
+                                        .then((existingData) => {
+                                            const existingDataString = JSON.stringify(existingData);
+                                            const existingWebsites = (existingData && existingData["websites"]) ? existingData["websites"] : {};
+                                            const existingArchive = (existingData && existingData["websites-archive"]) ? existingData["websites-archive"] : {};
+                                            const existingRegistry = normalizeLabelsRegistry(existingData && existingData["labels-registry"]);
 
-                                if (continue_ok) {
-                                    disableAside = true;
-                                    document.getElementById("cancel-import-all-notes-button").style.display = "none";
-                                    document.getElementById("import-from-file-button").style.display = "none";
+                                            //a note which is already here, only on the other side of the archive, is not a new note
+                                            const activeToImport = removeNotesFoundIn(importedWebsites, existingArchive);
+                                            const archiveToImport = removeNotesFoundIn(importedArchive, existingWebsites);
 
-                                    browser.storage.local
-                                        .set({storage: storageTemp})
-                                        .then((resultSyncLocal) => {
-                                            checkSyncLocal();
+                                            const activeDetection = detectImportConflicts(existingWebsites, activeToImport.websites);
+                                            const archiveDetection = detectImportConflicts(existingArchive, archiveToImport.websites);
 
-                                            document.getElementById("import-now-all-notes-button").disabled = true;
-                                            document.getElementById("cancel-import-all-notes-button").disabled = true;
-                                            document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
-                                            if (document.getElementById("loading-importing").classList.contains("hidden")) document.getElementById("loading-importing").classList.remove("hidden");
-                                            setTimeout(function () {
-                                                document.getElementById("import-now-all-notes-button").disabled = false;
-                                                document.getElementById("cancel-import-all-notes-button").disabled = false;
-                                                document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
+                                            const ARCHIVE_KEY_PREFIX = "archive\u0000";
+                                            const combinedConflicts = activeDetection.conflicts.concat(
+                                                archiveDetection.conflicts.map((c) => Object.assign({}, c, {
+                                                    conflictKey: ARCHIVE_KEY_PREFIX + (c.conflictKey || c.url),
+                                                    url: ARCHIVE_KEY_PREFIX + c.url,
+                                                    displayUrl: `[${all_strings["archive-tab-label"] || "Archive"}] ${c.url === "**global" ? (all_strings["global-label"] || "Global") : c.url}`,
+                                                }))
+                                            );
+                                            const totalNonConflict = activeDetection.newNotesCount + archiveDetection.newNotesCount;
+                                            const totalIdentical = activeDetection.identicalCount + archiveDetection.identicalCount + activeToImport.removedCount + archiveToImport.removedCount;
 
-                                                if (json_to_import_temp["last-update"] !== undefined) result["last-update"] = json_to_import_temp["last-update"];
-
-                                                // convert imported (possibly old-format) notes to the all-notes[] model
-                                                migrateWebsites(websites_json);
-
-                                                //console.log("QAZ-14")
-                                                sync_local
-                                                    .set({
-                                                        websites: websites_json,
-                                                        settings: settings_json,
-                                                        "sticky-notes-coords": sticky_notes.coords,
-                                                        "sticky-notes-sizes": sticky_notes.sizes,
-                                                        "sticky-notes-opacity": sticky_notes.opacity, //"last-update": result["last-update"]
-                                                        "last-update": getDate(), //set the current datetime, because of you're importing manually
-                                                    })
-                                                    .then(function () {
-                                                        //Imported all correctly
-                                                        sync_local
-                                                            .get(["settings", "websites", "sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity",])
-                                                            .then((result) => {
-                                                                //console.log(JSON.stringify(storageTemp));
-                                                                if (storageTemp === "sync") {
-                                                                    if (JSON.stringify(json_old_version) === jsonImportElement.value) {
-                                                                        browser.storage.local
-                                                                            .clear()
-                                                                            .then((result1) => {
-                                                                                browser.storage.local.set({
-                                                                                    storage: "sync",
-                                                                                });
-                                                                            });
-                                                                    } else browser.storage.local.set({
-                                                                        storage: "sync",
-                                                                    });
-                                                                } else {
-                                                                    if (JSON.stringify(json_old_version) === jsonImportElement.value) {
-                                                                        browser.storage.local
-                                                                            .clear()
-                                                                            .then((result1) => {
-                                                                                browser.storage.local.set({
-                                                                                    storage: "local",
-                                                                                });
-                                                                            });
-                                                                    } else browser.storage.local.set({
-                                                                        storage: "local",
-                                                                    });
-                                                                }
-                                                            });
-
-                                                        disableAside = false;
-                                                        document.getElementById("cancel-import-all-notes-button").style.display = "inline-block";
-                                                        document.getElementById("import-from-file-button").style.display = "inline-block";
-                                                        document.getElementById("import-now-all-notes-button").disabled = false;
-                                                        document.getElementById("cancel-import-all-notes-button").disabled = false;
-                                                        document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
-
-                                                        document.getElementById("import-section").style.display = "none";
-                                                        document.getElementById("loading-importing").classList.add("hidden");
-                                                        hideBackgroundOpacity()
-
-                                                        loaded();
-                                                    })
-                                                    .catch(function (error) {
-                                                        console.error("E10: " + error);
-                                                        onError("settings.js::importAllNotes", error.message);
+                                            const finalizeImport = (resolutionsMap, defaultAction) => {
+                                                const activeRes = new Map();
+                                                const archiveRes = new Map();
+                                                if (resolutionsMap && typeof resolutionsMap.forEach === "function") {
+                                                    resolutionsMap.forEach((act, k) => {
+                                                        if (k.startsWith(ARCHIVE_KEY_PREFIX)) {
+                                                            archiveRes.set(k.substring(ARCHIVE_KEY_PREFIX.length), act);
+                                                        } else {
+                                                            activeRes.set(k, act);
+                                                        }
                                                     });
-                                            }, 2000);
+                                                }
+
+                                                const activeApplied = applyImportWithResolutions(
+                                                    existingWebsites,
+                                                    activeToImport.websites,
+                                                    activeRes,
+                                                    defaultAction
+                                                );
+                                                const archiveApplied = applyImportWithResolutions(
+                                                    existingArchive,
+                                                    archiveToImport.websites,
+                                                    archiveRes,
+                                                    defaultAction
+                                                );
+
+                                                const stats = {
+                                                    imported: activeApplied.stats.imported + archiveApplied.stats.imported,
+                                                    overwritten: activeApplied.stats.overwritten + archiveApplied.stats.overwritten,
+                                                    skipped: activeApplied.stats.skipped + archiveApplied.stats.skipped,
+                                                    merged: activeApplied.stats.merged + archiveApplied.stats.merged,
+                                                    unchanged: totalIdentical,
+                                                };
+
+                                                const mergedRegistry = importedLabelsRegistry
+                                                    ? addLabelsToRegistry(existingRegistry, normalizeLabelsRegistry(importedLabelsRegistry))
+                                                    : existingRegistry;
+
+                                                websites_json = activeApplied.websites;
+                                                websites_json_to_show = websites_json;
+                                                if (hasImportedSettings) {
+                                                    settings_json = importedSettings;
+                                                } else if (existingData && existingData["settings"] !== undefined) {
+                                                    settings_json = existingData["settings"];
+                                                }
+
+                                                disableAside = true;
+                                                document.getElementById("cancel-import-all-notes-button").style.display = "none";
+                                                document.getElementById("import-from-file-button").style.display = "none";
+
+                                                browser.storage.local
+                                                    .set({storage: storageTemp})
+                                                    .then(() => {
+                                                        checkSyncLocal();
+
+                                                        document.getElementById("import-now-all-notes-button").disabled = true;
+                                                        document.getElementById("cancel-import-all-notes-button").disabled = true;
+                                                        document.getElementById("import-now-all-notes-button").value = all_strings["importing-button"];
+                                                        if (document.getElementById("loading-importing").classList.contains("hidden")) {
+                                                            document.getElementById("loading-importing").classList.remove("hidden");
+                                                        }
+
+                                                        const payload = {
+                                                            websites: websites_json,
+                                                            "websites-archive": archiveApplied.websites,
+                                                            "labels-registry": mergedRegistry,
+                                                            settings: settings_json,
+                                                            "last-update": getDate(),
+                                                        };
+                                                        if (hasImportedSticky) {
+                                                            payload["sticky-notes-coords"] = importedSticky.coords;
+                                                            payload["sticky-notes-sizes"] = importedSticky.sizes;
+                                                            payload["sticky-notes-opacity"] = importedSticky.opacity;
+                                                        }
+
+                                                        importAttachmentImages(json_to_import_temp["attachments"])
+                                                            .then(() => sync_local.set(payload))
+                                                            .then(function () {
+                                                                browser.storage.local.set({storage: storageTemp});
+
+                                                                disableAside = false;
+                                                                document.getElementById("cancel-import-all-notes-button").style.display = "inline-block";
+                                                                document.getElementById("import-from-file-button").style.display = "inline-block";
+                                                                document.getElementById("import-now-all-notes-button").disabled = false;
+                                                                document.getElementById("cancel-import-all-notes-button").disabled = false;
+                                                                document.getElementById("import-now-all-notes-button").value = all_strings["imported-button"];
+
+                                                                document.getElementById("import-section").style.display = "none";
+                                                                document.getElementById("loading-importing").classList.add("hidden");
+
+                                                                browser.runtime.sendMessage({"updated": true});
+                                                                loaded();
+                                                                showImportSummaryModal(stats);
+                                                            })
+                                                            .catch(importFailed);
+                                                    })
+                                                    .catch(importFailed);
+                                            };
+
+                                            if (combinedConflicts.length > 0) {
+                                                document.getElementById("import-section").style.display = "none";
+                                                showImportConflictsModal(
+                                                    combinedConflicts,
+                                                    totalNonConflict,
+                                                    totalIdentical,
+                                                    (resolutionsMap, defaultAction) => {
+                                                        getExistingData()
+                                                            .then((currentData) => {
+                                                                //notes changed while the conflicts were shown: look for them again
+                                                                if (JSON.stringify(currentData) !== existingDataString) return startImport();
+                                                                finalizeImport(resolutionsMap, defaultAction);
+                                                            })
+                                                            .catch(importFailed);
+                                                    },
+                                                    () => {
+                                                        hideBackgroundOpacity();
+                                                    }
+                                                );
+                                            } else {
+                                                finalizeImport(new Map(), "overwrite");
+                                            }
                                         });
-                                }
-                            });
+                                    return startImport();
+                                })
+                                .catch(importFailed);
+                        }
 
                         if (!continue_ok && !cancel) {
                             error = true;
@@ -2221,25 +3549,10 @@ function importAllNotes(from_file = false) {
                     }
 
                     if (error) {
-                        let errorSubSection = document.createElement("div");
-                        errorSubSection.classList.add("sub-section", "background-light-red");
-                        errorSubSection.id = "error-message-" + n_errors;
-                        errorSubSection.textContent = "Error: " + error_description;
-                        setTimeout(function () {
-                            errorSubSection.remove();
-                        }, 10000);
-                        n_errors++;
-
-                        let mainSection = document.getElementById("import-sub-sections");
-                        mainSection.insertBefore(errorSubSection, mainSection.childNodes[0]);
+                        showImportError(error_description);
                     }
                 }
             };
-
-            sync_local
-                .remove(["sticky-notes-coords", "sticky-notes-sizes", "sticky-notes-opacity",])
-                .then((result) => {
-                });
 
             if (from_file) {
                 importFromFile();
@@ -2257,7 +3570,8 @@ function importFromFile() {
             if (file === undefined || file.name === "") {
                 return;
             }
-            if (file.type === undefined || (file.type !== undefined && file.type !== "application/json")) {
+            const isJsonFile = file.type === "application/json" || file.name.toLowerCase().endsWith(".json");
+            if (!isJsonFile) {
                 return;
             }
 
@@ -2292,8 +3606,8 @@ function exportAllNotes(to_file = false) {
     showBackgroundOpacity();
     browser.storage.local.get(["storage"]).then((getStorageTemp) => {
         sync_local
-            .get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "last-update",])
-            .then((result) => {
+            .get(["sticky-notes-coords", "sticky-notes-opacity", "sticky-notes-sizes", "websites", "websites-archive", "labels-registry", "last-update",])
+            .then(async (result) => {
                 // Handle the result
                 let sticky_notes = {};
                 sticky_notes.coords = result["sticky-notes-coords"];
@@ -2301,6 +3615,8 @@ function exportAllNotes(to_file = false) {
                 sticky_notes.opacity = result["sticky-notes-opacity"];
 
                 let websites_json = result["websites"];
+                let websites_archive_json = result["websites-archive"] || {};
+                let labels_registry_json = normalizeLabelsRegistry(result["labels-registry"]);
 
                 if (sticky_notes.coords === undefined && sticky_notes.coords === null) {
                     sticky_notes.coords = {x: "20px", y: "20px"};
@@ -2328,9 +3644,13 @@ function exportAllNotes(to_file = false) {
                     notefox: notefox_json,
                     settings: settings_json,
                     websites: websites_json,
+                    "websites-archive": websites_archive_json,
+                    "labels-registry": labels_registry_json,
                     "sticky-notes": sticky_notes,
                     storage: getStorageTemp["storage"],
                     "last-update": lastUpdateToExport,
+                    //the screenshots attached to the notes, so that the backup is complete also without an account
+                    "attachments": await getAttachmentImages(collectAttachmentIds(websites_json, websites_archive_json)),
                 };
                 document.getElementById("export-section").style.display = "block";
                 document.getElementById("json-export").value = JSON.stringify(json_to_export);
@@ -2609,6 +3929,7 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
         elements[i].onclick = function () {
             hideBackgroundOpacity();
             document.getElementById("account-section").style.display = "none";
+            abortSavAccount();
 
             sendTelemetry("close-notefox-account-button-clicked", "settings.js::notefoxAccountLoginSignupManage");
         };
@@ -2642,6 +3963,9 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
         document
             .getElementById("notefox-account-sessions-section")
             .classList.add("hidden");
+        document
+            .getElementById("notefox-account-savaccount-section")
+            .classList.add("hidden");
 
         document
             .getElementById("account-section--change-password-verify-grid")
@@ -2673,6 +3997,9 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
             .classList.add("hidden");
 
         document.getElementById("login-exprired-section").classList.add("hidden");
+
+        if (action !== "savaccount") abortSavAccount();
+        refreshSavAccountButtons();
 
         document.getElementById("text-account").innerHTML = "";
         document.getElementById("message-from-api").innerHTML = "";
@@ -2973,6 +4300,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                     console.error(e);
                     onError("settings.js::notefoxAccountLoginSignupManage::new_code_element-events|verify-login", e.message);
                 }
+            } else if (action === "savaccount") {
+                showSavAccountSection(data);
             } else if (action === "verify-signup") {
                 title.innerText = all_strings["notefox-account-button-settings-signup"];
                 if (document
@@ -3973,6 +5302,8 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
                 email_element.value = email;
                 password_element.value = password;
 
+                if (data !== null && data.message !== undefined) showMessageNotefoxAccount(data.message, true);
+
                 try {
                     email_element.disabled = false;
                     email_element.onfocus = function () {
@@ -4244,8 +5575,9 @@ function notefoxAccountLoginSignupManage(action = null, data = null, firstTime =
             } else if (action === "manage") {
                 //console.log(`Data: ${JSON.stringify(data)}`);
                 if (data !== null) {
-                    browser.storage.sync
-                        .set({"notefox-account": data})
+                    //the revision of a previous session doesn't count: the first synchronisation must merge
+                    browser.storage.local.remove(["sync-revision", "sync-status", "sync-last-error"])
+                        .then(() => browser.storage.sync.set({"notefox-account": data}))
                         .then((result) => {
                             setNotefoxAccountLoginSignupManageButton();
                             notefoxAccountLoginSignupManage("manage");
@@ -4282,10 +5614,12 @@ async function checkServerStatus() {
         //the server is unreachable: it is already reported by the other messages
         server_status = null;
         warning_element.classList.add("hidden");
+        refreshSavAccountButtons();
         return;
     }
 
     server_status = result.data;
+    refreshSavAccountButtons();
 
     let areas = [];
     if (server_status["database"] === false) areas.push(getString("notefox-account-server-status-area-database", "database"));
@@ -5127,8 +6461,7 @@ function logoutResponse(data) {
         if (data.code === 200 || data.code === 451) {
             //Success
             browser.storage.sync.remove("notefox-account").then((result) => {
-                browser.storage.local
-                    .remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites",])
+                removeAccountLocalData()
                     .then((result) => {
                         setNotefoxAccountLoginSignupManageButton();
                         notefoxAccountLoginSignupManage("login");
@@ -5152,8 +6485,7 @@ function logoutAllResponse(data) {
         if (data.code === 200) {
             //Success
             browser.storage.sync.remove("notefox-account").then((result) => {
-                browser.storage.local
-                    .remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites",])
+                removeAccountLocalData()
                     .then((result) => {
                         setNotefoxAccountLoginSignupManageButton();
                         notefoxAccountLoginSignupManage("login");
@@ -5165,9 +6497,12 @@ function logoutAllResponse(data) {
         } else if (data.code === 451) {
             //Login-id already disabled or expired
             browser.storage.sync.remove("notefox-account").then(() => {
-                setNotefoxAccountLoginSignupManageButton();
-                notefoxAccountLoginSignupManage("login");
-                showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+                removeAccountLocalData()
+                    .then(() => {
+                        setNotefoxAccountLoginSignupManageButton();
+                        notefoxAccountLoginSignupManage("login");
+                        showMessageNotefoxAccount(getAccountErrorString(data.code), true);
+                    });
             });
         } else {
             //Unknown
@@ -5473,8 +6808,7 @@ function deleteVerifyResponse(data) {
             //Success
 
             browser.storage.sync.remove("notefox-account").then((result) => {
-                browser.storage.local
-                    .remove(["last-sync", "last-update", "opened-by-shortcut", "settings", "sticky-notes", "websites",])
+                removeAccountLocalData()
                     .then((result) => {
                         setNotefoxAccountLoginSignupManageButton();
                     });
@@ -5681,6 +7015,7 @@ function setTheme(background, backgroundSection, primary, secondary, on_primary,
         }
         //console.log(tertiaryTransparent);
 
+        document.body.classList.toggle("dark-background", getWCAGTextColor(background) === "#ffffff");
         document.head.innerHTML += `
             <style>
                 :root {

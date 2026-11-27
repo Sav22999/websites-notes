@@ -91,6 +91,35 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
     </div>
     <div class="section text-align-left hidden" id="results-searching"></div>
+    <div class="section text-align-left" id="all-notes-view-bar">
+        <div class="all-notes-view-tabs">
+            <input type="button" value="All notes" id="view-active-notes-button"
+                   class="button very-small-button view-tab-button view-tab-active"/>
+            <input type="button" value="Archive" id="view-archive-notes-button"
+                   class="button very-small-button view-tab-button"/>
+        </div>
+        <div class="all-notes-view-actions">
+            <input type="button" value="Manage labels" id="manage-labels-open-button"
+                   class="button very-small-button tag-button"/>
+        </div>
+    </div>
+    <div class="section text-align-left hidden" id="selection-toolbar">
+        <div class="selection-toolbar-left">
+            <label class="select-all-label" for="select-all-notes-checkbox">
+                <input type="checkbox" id="select-all-notes-checkbox" class="note-select-checkbox"/>
+                <span id="select-all-notes-label">Select all</span>
+            </label>
+            <span id="selected-notes-count" class="selected-notes-count hidden"></span>
+        </div>
+        <div class="selection-toolbar-actions">
+            <input type="button" value="Labels" id="bulk-labels-button"
+                   class="button very-small-button tag-button hidden"/>
+            <input type="button" value="Archive" id="bulk-archive-button"
+                   class="button very-small-button archive-button hidden"/>
+            <input type="button" value="Export selected…" id="export-selected-notes-button"
+                   class="button very-small-button export-button hidden"/>
+        </div>
+    </div>
 
     <br class="br-big-space"/>
 
@@ -100,6 +129,11 @@ Created by Saverio Morelli - saveriomorelli.com
         <br>
         To do that, in the add-on Settings find <span class="button-code" id="string-save-on-local-instead-of-sync">Save data locally instead of sync with Firefox account</span>
         and set to <span id="string-save-on-local-instead-of-sync-yes" class="button-code">Yes</span>.
+    </div>
+
+    <div id="loading-notes-section" class="section-empty section-loading" role="status" aria-live="polite">
+        <span class="notes-loading-spinner" aria-hidden="true"></span>
+        <span id="loading-notes-text">Loading…</span>
     </div>
 
     <span id="all-website-sections"></span>
@@ -145,11 +179,62 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
     </div>
 </div>
+<!--export selected notes popup-->
+<div id="export-section" class="message-popup">
+    <div class="section" id="export-sub-sections">
+        <div class="padding-10">
+            <div id="text-export"></div>
+        </div>
+        <div class="padding-10">
+            <textarea id="json-export" class="text-json" readonly spellcheck="false"></textarea>
+        </div>
+        <div class="padding-10 text-align-right">
+            <input type="button" value="" id="cancel-export-all-notes-button" class="button float-left"/>
+            <input type="button" value="" id="export-to-file-button" class="button download-button"/>
+            <input type="button" value="" id="copy-now-all-notes-button" class="button copy-button"/>
+        </div>
+    </div>
+</div>
+<!--manage labels popup-->
+<div id="manage-labels-section" class="message-popup">
+    <div class="section message-popup-content" id="manage-labels-sub-sections">
+        <div class="manage-labels-header">
+            <div id="manage-labels-title" class="manage-labels-title"></div>
+        </div>
+        <div class="manage-labels-tabs" role="tablist">
+            <button type="button" id="manage-labels-tab-tags" class="manage-labels-tab view-tab-active" role="tab" aria-selected="true"></button>
+            <button type="button" id="manage-labels-tab-folders" class="manage-labels-tab" role="tab" aria-selected="false"></button>
+        </div>
+        <div class="manage-labels-create-row">
+            <input type="text" id="manage-labels-new-input" class="textbox manage-labels-new-input" value=""/>
+            <input type="button" value="Create" id="manage-labels-create-button" class="button manage-labels-create-btn"/>
+        </div>
+        <div id="manage-labels-list" class="manage-labels-list"></div>
+        <div class="manage-labels-footer">
+            <input type="button" value="" id="close-manage-labels-button" class="button button-close-notefox-account"/>
+        </div>
+    </div>
+</div>
+<!--bulk labels floating menu (direct child of body so it always stays in foreground)-->
+<div id="bulk-labels-menu" class="bulk-labels-menu hidden" role="dialog"></div>
+<!--screenshot viewer (see js/all-notes-attachments.js)-->
+<div id="attachment-viewer" class="hidden">
+    <div id="attachment-viewer-image-container"><img id="attachment-viewer-image" alt=""/></div>
+    <div id="attachment-viewer-info"></div>
+    <div id="attachment-viewer-warning" class="hidden"></div>
+    <div id="attachment-viewer-buttons">
+        <button type="button" id="attachment-viewer-show"></button>
+        <button type="button" id="attachment-viewer-unlink"></button>
+        <button type="button" id="attachment-viewer-delete"></button>
+        <button type="button" id="attachment-viewer-close"></button>
+    </div>
+</div>
 <!--fullscreen notes viewer-->
 <div id="fullscreen-notes-viewer" class="content-notes--container content-notes">
     <pre id="fullscreen-notes-viewer-content" class="textarea-all-notes"></pre>
     <button class="button-format button" id="close-fullscreen-notes-button"></button>
 </div>
+<script src="../js/note-identity.js"></script>
 <script src="../js/definitions.js"></script>
 
 <!--include all translation files-->
@@ -202,6 +287,8 @@ Created by Saverio Morelli - saveriomorelli.com
 <!--END|include all translation files-->
 
 <script src="../js/all-notes.js"></script>
+<script src="../js/attachments.js"></script>
+<script src="../js/all-notes-attachments.js"></script>
 </body>
 
 </html>

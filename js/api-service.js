@@ -47,6 +47,14 @@ async function api_request(message) {
             return await apiLoginNewCode(data["login-id"], data["email"], data["password"]);
         case "login-verify":
             return await apiLoginVerify(data["login-id"], data["email"], data["password"], data["verification-code"]);
+        case "savaccount-start":
+            return await apiSavAccountStart(data["lang"]);
+        case "savaccount-finish":
+            return await apiSavAccountFinish(data["flow"], data["state"], data["code"], data["iss"]);
+        case "savaccount-link":
+            return await apiSavAccountLink(data["ticket"], data["password"]);
+        case "savaccount-signup":
+            return await apiSavAccountSignup(data["ticket"], data["username"], data["password"]);
         case "signup":
             return await apiSignup(data["username"], data["email"], data["password"]);
         case "signup-new-code":

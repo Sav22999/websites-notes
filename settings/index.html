@@ -96,6 +96,89 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
     </div>
 
+    <!--Import conflicts resolution panel-->
+    <div id="import-conflicts-section" class="message-popup">
+        <div class="section message-popup-content" id="import-conflicts-sub-sections">
+            <div id="import-conflicts-title" class="padding-10 message-popup-content-title"></div>
+            <div id="import-conflicts-description" class="padding-10 message-popup-content-description"></div>
+            <div id="import-conflicts-identical-info" class="import-conflicts-identical-info hidden"></div>
+            <div id="import-conflicts-options-legend" class="import-conflicts-options-legend"></div>
+            <div id="import-conflicts-apply-all" class="padding-10 import-conflicts-apply-all">
+                <span id="import-conflict-apply-all-label"></span>
+                <input type="button" value="Overwrite" id="import-conflict-all-overwrite" class="button very-small-button"/>
+                <input type="button" value="Skip" id="import-conflict-all-skip" class="button very-small-button"/>
+                <input type="button" value="Merge" id="import-conflict-all-merge" class="button very-small-button"/>
+            </div>
+            <div id="import-conflicts-list" class="import-conflicts-list"></div>
+            <div class="padding-10 text-align-center">
+                <input type="button" value="" id="import-conflicts-show-more-button" class="button very-small-button hidden"/>
+            </div>
+            <div class="padding-10 text-align-right message-popup-content-buttons">
+                <input type="button" value="" id="cancel-import-conflicts-button" class="button float-left"/>
+                <input type="button" value="" id="apply-import-conflicts-button" class="button import-button"/>
+            </div>
+        </div>
+    </div>
+
+    <!--Import conflict detail diff viewer-->
+    <div id="import-conflict-diff-section" class="message-popup import-conflict-diff-popup">
+        <div class="section message-popup-content import-conflict-diff-content" id="import-conflict-diff-sub-sections">
+            <div class="import-conflict-diff-header">
+                <div class="import-conflict-diff-heading">
+                    <div class="import-conflict-diff-top-row">
+                        <span id="import-conflict-diff-counter" class="import-conflict-diff-counter"></span>
+                        <span id="import-conflict-diff-type" class="import-conflict-type"></span>
+                    </div>
+                    <div id="import-conflict-diff-url" class="import-conflict-diff-url"></div>
+                </div>
+                <div class="import-conflict-diff-controls">
+                    <div class="import-conflict-diff-view-toggle" role="tablist">
+                        <button type="button" id="import-conflict-diff-view-side" class="import-conflict-diff-view-btn active"></button>
+                        <button type="button" id="import-conflict-diff-view-unified" class="import-conflict-diff-view-btn"></button>
+                    </div>
+                    <div class="import-conflict-diff-nav" id="import-conflict-diff-nav">
+                        <button type="button" id="import-conflict-diff-prev" class="import-conflict-diff-nav-btn">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </button>
+                        <button type="button" id="import-conflict-diff-next" class="import-conflict-diff-nav-btn">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
+                    </div>
+                    <button type="button" id="import-conflict-diff-close-x" class="import-conflict-diff-close-x">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="import-conflict-diff-legend">
+                <span id="import-conflict-diff-legend-existing" class="diff-legend-pill diff-legend-removed"></span>
+                <span id="import-conflict-diff-legend-imported" class="diff-legend-pill diff-legend-added"></span>
+            </div>
+            <div id="import-conflict-diff-body" class="import-conflict-diff-body"></div>
+            <div class="import-conflict-diff-footer">
+                <div class="import-conflict-diff-decision">
+                    <div class="import-conflict-diff-action-buttons">
+                        <input type="button" value="" id="import-conflict-diff-action-overwrite" class="button very-small-button"/>
+                        <input type="button" value="" id="import-conflict-diff-action-skip" class="button very-small-button"/>
+                        <input type="button" value="" id="import-conflict-diff-action-merge" class="button very-small-button"/>
+                    </div>
+                    <div id="import-conflict-diff-action-desc" class="import-conflict-diff-action-desc"></div>
+                </div>
+                <input type="button" value="" id="close-import-conflict-diff-button" class="button"/>
+            </div>
+        </div>
+    </div>
+
+    <!--Import summary panel-->
+    <div id="import-summary-section" class="message-popup">
+        <div class="section message-popup-content" id="import-summary-sub-sections">
+            <div id="import-summary-title" class="padding-10 message-popup-content-title"></div>
+            <div id="import-summary-stats" class="padding-10 import-summary-stats"></div>
+            <div class="padding-10 text-align-right message-popup-content-buttons">
+                <input type="button" value="" id="close-import-summary-button" class="button"/>
+            </div>
+        </div>
+    </div>
+
     <!--TODO:add the spinner to sections-->
     <!--<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>-->
 
@@ -144,6 +227,13 @@ Created by Saverio Morelli - saveriomorelli.com
                     <div class="text-align-center margin-bottom-20-px" id="signup-already-account">
                         <span id="signup-already-account-text"></span> <span class="link"
                                                                              id="signup-already-account-button"></span>
+                    </div>
+                    <div class="savaccount-box hidden" id="signup-savaccount">
+                        <div class="savaccount-or"><span id="signup-savaccount-or"></span></div>
+                        <button type="button" class="savaccount-button" id="signup-savaccount-button">
+                            <img src="../img/savaccount.svg" alt="" width="24" height="24"/>
+                            <span id="signup-savaccount-text"></span>
+                        </button>
                     </div>
                 </div>
                 <div id="account-section--verify-signup-grid" class="padding-10 hidden">
@@ -199,6 +289,13 @@ Created by Saverio Morelli - saveriomorelli.com
                         <span id="login-not-yet-account-text"></span> <span class="link"
                                                                             id="login-not-yet-account-button"></span>
                     </div>
+                    <div class="savaccount-box hidden" id="login-savaccount">
+                        <div class="savaccount-or"><span id="login-savaccount-or"></span></div>
+                        <button type="button" class="savaccount-button" id="login-savaccount-button">
+                            <img src="../img/savaccount.svg" alt="" width="24" height="24"/>
+                            <span id="login-savaccount-text"></span>
+                        </button>
+                    </div>
                 </div>
                 <div id="account-section--verify-login-grid" class="padding-10 hidden">
                     <div class="lds-spinner hidden" id="loading-verify-login">
@@ -242,6 +339,37 @@ Created by Saverio Morelli - saveriomorelli.com
 
                     <input class="button hidden" id="verify-login-new-code" value="" type="button"/>
                     <input class="button login-button hidden" id="verify-login-submit" value="" type="button"/>
+                </div>
+            </div>
+
+            <!-- SavAccount: link or create the account -->
+            <div id="notefox-account-savaccount-section" class="hidden">
+                <div id="account-section--savaccount-grid" class="padding-10">
+                    <input class="textbox width-100 label-with-image account-label account-text"
+                           id="savaccount-username" type="text" name="username" autocomplete="off">
+                    <input class="textbox width-100 label-with-image password-label account-text"
+                           id="savaccount-password" type="password" name="password">
+                    <input class="textbox width-100 label-with-image password-label account-text"
+                           id="savaccount-confirm-password" type="password" name="confirm-password">
+                </div>
+                <div class="padding-10 text-align-right">
+                    <div class="lds-spinner hidden" id="loading-savaccount">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <input type="button" value="" id="savaccount-cancel"
+                           class="button float-left button-close-notefox-account"/>
+                    <input class="button login-button" id="savaccount-submit" value="" type="button"/>
                 </div>
             </div>
 
@@ -632,18 +760,26 @@ Created by Saverio Morelli - saveriomorelli.com
         <!--General section-->
         <div class="section-title-settings" id="general-title-settings"></div>
 
-        <!--Open by default section-->
-        <div class="option-settings">
-                <span class="item-settings section-grid-container">
-                    <span class="title-option-settings section-grid-item-text" id="open-by-default-text"></span>
-                    <span class="section-grid-item-select">
-                        <select class="select-box" id="open-by-default-select">
-                            <option value="global" id="open-by-default-global-text">Global</option>
-                            <option value="domain" id="open-by-default-domain-text">Domain</option>
-                            <option value="page" id="open-by-default-page-text">Page</option>
-                        </select>
-                    </span>
-                </span>
+        <!--Open notes priority order section-->
+        <div class="option-settings" id="open-notes-priority-section">
+            <span class="item-settings open-notes-priority-container">
+                <span class="title-option-settings" id="open-notes-priority-text"></span>
+                <span class="description-option-settings" id="open-notes-priority-detailed-text"></span>
+                <div id="open-notes-priority-list" class="sortable-priority-list" role="list"></div>
+            </span>
+        </div>
+
+        <div id="open-first-available-note-subsection">
+            <!--Open first available note following order sub-option-->
+            <div class="option-settings option-indent-settings">
+                <label class="item-settings">
+                    <span class="title-option-settings yes-no-item" id="open-first-available-note-text"></span>
+                    <input type="checkbox" id="open-first-available-note-check"/>
+                    <span class="checkmark"></span>
+                </label>
+                <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                      id="open-first-available-note-detailed-text"></span>
+            </div>
         </div>
 
         <!--Disable word wrap section-->
@@ -1428,6 +1564,17 @@ Created by Saverio Morelli - saveriomorelli.com
                   id="immersive-sticky-notes-detailed-text"></span>
         </div>
 
+        <!--Show watermark on sticky notes section-->
+        <div class="option-settings">
+            <label class="item-settings">
+                <span class="title-option-settings yes-no-item" id="show-sticky-watermark-text"></span>
+                <input type="checkbox" id="show-sticky-watermark-check"/>
+                <span class="checkmark"></span>
+            </label>
+            <span class="description-option-settings description-option-settings-yes-no yes-no-item"
+                  id="show-sticky-watermark-detailed-text"></span>
+        </div>
+
         <!--Default sticky pinned section-->
         <div class="option-settings">
             <label class="item-settings">
@@ -1844,6 +1991,7 @@ Created by Saverio Morelli - saveriomorelli.com
         </div>
     </div>
 </div>
+<script src="../js/note-identity.js"></script>
 <script src="../js/definitions.js"></script>
 
 <!--include all translation files-->
@@ -1895,7 +2043,9 @@ Created by Saverio Morelli - saveriomorelli.com
 <script src="../js/languages/ia/strings.js"></script>
 <!--END|include all translation files-->
 
+<script src="../js/savaccount.js"></script>
 <script src="../js/settings.js"></script>
+<script src="../js/attachments.js"></script>
 </body>
 
 </html>
